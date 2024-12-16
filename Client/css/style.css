@@ -1,0 +1,134 @@
+/* Estilos generales */
+body {
+    font-family: sans-serif;
+    margin: 10px;
+    padding: 10px;
+    background-image: url('../image/M.A.I.R.A..gif'); 
+    background-size: 80%;
+    background-position: center;
+    background-color: #000000;
+    background-repeat: no-repeat;
+    color: #000000;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botones de inicio */
+#botonesInicio {
+    display: flex; /* Establece flexbox para el contenedor */
+    flex-direction: row; /* Ordena los botones horizontalmente */
+    align-items: center; /* Centra los botones verticalmente */
+    justify-content: flex-end; /* Centra los botones horizontalmente */
+    gap: 5px; /* Agrega espacio entre los botones */
+    margin-top: 400px; /* Ajusta el margen superior según necesites */
+    margin-bottom: 10px; /* Ajusta el margen inferior según necesites */
+}
+
+button {
+    background-color: #0281a8;
+    color: rgb(4, 4, 4);
+    padding: 1rem 2rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    font-size: 1rem;
+    margin: 0.5rem;
+    text-align: center;
+    transition: background-color 0.3s ease; /* Add transition for smooth color change */
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+/* Formularios */
+.formulario {
+    background-color: #384e55;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.145);
+    width: 90%; /* Ancho del 90% para adaptarse a diferentes pantallas */
+    max-width: 500px; /* Máximo ancho para evitar que sea demasiado grande */
+    margin: 10px auto; /* Centrar horizontalmente */
+    display: none; /* Ocultar formularios por defecto */
+    position: fixed; /* Para que se mantenga centrado */
+    top: 50%; /* Centrar verticalmente */
+    left: 50%; /* Centrar horizontalmente */
+    transform: translate(-50%, -50%); /* Ajuste para centrar */
+    z-index: 10; /* Asegúrate de que los formularios estén encima de todo */
+    overflow-y: auto; /* Permitir desplazamiento vertical si es necesario */
+    max-height: 80%; /* Limitar la altura máxima para que se ajuste en pantalla */
+}
+
+/* Estilos para el botón de cerrar */
+.cerrar {
+    position: absolute; 
+    top: 10px;
+    right: 10px;
+    padding: 0.5rem;
+    background-color: #dfdbdb;
+    border: none;
+    cursor: pointer;
+}
+
+.formulario {
+    display: none;
+}
+
+.formulario label {
+    display: block;
+    margin-bottom: 0.5rem;
+    overflow: auto;
+    font-size: 1rem; /* Adjust as needed */
+}
+
+.formulario input[type="text"],
+.formulario input[type="email"],
+.formulario input[type="password"] {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #8b8a8aee;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem; /* Adjust as needed */
+}
+
+/* Estilos para mensajes de error */
+.error {
+    color: red;
+}
+
+/* Responsive Design (for smaller screens) */
+@media (max-width: 768px) { /* For screens smaller than 768px */
+    .formulario {
+        max-width: auto; /* Adjust width as needed */
+    }
+    .formulario label,
+    .formulario input[type="text"],
+    .formulario input[type="email"],
+    .formulario input[type="password"] {
+        font-size: 0.9rem; /* Adjust font size as needed */
+    }
+}
+
+/* Estilos para los botones dentro de los formularios */
+.formulario button {
+    display: block; /* Hacer que los botones ocupen todo el ancho */
+    margin: 0.8rem auto; /* Centrar los botones horizontalmente */
+    width: fit-content; /* Ajustar el ancho del botón al contenido */
+}
+
+.formulario button + button { /* Estilos para el segundo botón */
+    margin-top: 0.8rem; /* Agregar margen superior al segundo botón */
+}
+
+.titulo-formulario {
+    text-align: center;
+}
+
+
+

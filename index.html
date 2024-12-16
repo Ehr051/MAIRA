@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAIRA - Mesa de Arena Interactiva de Realidad Aumentada">
+    <title>MAIRA - Inicio de Sesión</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/Client/image/favicon_logoai/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/Client/image/favicon_logoai/favicon-16x16.png">
+<link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
+<link rel="shortcut icon" href="/Client/image/favicon_logoai/favicon.ico">
+<link rel="stylesheet" href="Client/css/style.css">
+<script src="https://kit.fontawesome.com/707f71e5d4.js" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/Client/js/nerworkConfig.js"></script>
+</head>
+<body>
+    <main>
+        <div id="botonesInicio">
+            <button id="btnLogin">Iniciar Sesión</button>
+            <button id="btnCrearUsuario">Crear Usuario</button>
+        </div>
+
+        <!-- Formulario de inicio de sesión -->
+        <div id="loginForm" class="formulario" style="display: none;">
+            <button id="cerrarLogin" class="cerrar" aria-label="Cerrar formulario de inicio de sesión">X</button>
+            <h2>Iniciar Sesión</h2>
+            <form id="formLogin">
+                <label for="usuario">Usuario:</label>
+                <input type="text" id="usuario" name="usuario" required>
+                <label for="contrasena">Contraseña:</label>
+                <input type="password" id="contrasena" name="contrasena" required>
+                <button type="submit" id="btnInicio">Iniciar Sesión</button>
+            </form>
+            <button id="btnRecuperarContrasena">Recuperar Contraseña</button>
+            <div id="errorLogin" class="error" aria-live="polite"></div>
+        </div>
+
+        <!-- Formulario de creación de usuario -->
+        <div id="crearUsuarioForm" class="formulario" style="display: none;">
+            <button id="cerrarCrearUsuario" class="cerrar" aria-label="Cerrar formulario de creación de usuario">X</button>
+            <h2>Crear Usuario</h2>
+            <form id="formCrearUsuario">
+                <label for="nuevoUsuario">Usuario:</label>
+                <input type="text" id="nuevoUsuario" name="nuevoUsuario" required>
+                <label for="correo">Correo Electrónico:</label>
+                <input type="email" id="correo" name="correo" required>
+                <label for="confirmarCorreo">Confirmar Correo Electrónico:</label>
+                <input type="email" id="confirmarCorreo" name="confirmarCorreo" required>
+                <label for="nuevaContrasena">Contraseña:</label>
+                <input type="password" id="nuevaContrasena" name="nuevaContrasena" required>
+                <label for="unidad">Unidad:</label>
+                <input type="text" id="unidad" name="unidad" required>
+                <button type="submit" id="btnCrear">Crear Usuario</button>
+            </form>
+            <div id="errorCrearUsuario" class="error" aria-live="polite"></div>
+        </div>
+
+        <!-- Selección de modo -->
+        <div id="seleccionModo" class="formulario" style="display: none;">
+            <h2 class="titulo-formulario">Seleccione Modo</h2>
+            <button id="btnModoPlaneamiento">Modo Planeamiento</button>
+            <button id="btnModoJuegoGuerra">Modo Juego de Guerra</button>
+        </div>
+    </main>
+    <script src="/Client/js/validacion.js"></script>
+</body>
+</html>
