@@ -280,13 +280,13 @@ class GestorFases extends GestorBase {
                 estilo: equipo === 'azul' ? ESTILOS_DIBUJO.zonaAzul : ESTILOS_DIBUJO.zonaRoja
             };
     
-            // Emitir al servidor con todos los datos necesarios
+            // Emitir al servidor
             if (this.gestorJuego?.gestorComunicacion?.socket) {
                 this.gestorJuego.gestorComunicacion.socket.emit('zonaConfirmada', {
                     zona: zonaData,
                     jugadorId: window.userId,
                     partidaCodigo: window.codigoPartida,
-                    cambiarFase: equipo === 'azul'  // Indicar si debe cambiar fase
+                    cambiarFase: true  // Siempre true para permitir la transición
                 });
             }
     
@@ -298,7 +298,7 @@ class GestorFases extends GestorBase {
             this.zonaTemporalLayer = null;
             this.zonaPendiente = null;
     
-            // Enviar evento de cambio de fase si es necesario
+            // Si es zona azul, emitir evento de inicio de despliegue
             if (equipo === 'azul') {
                 this.gestorJuego?.gestorComunicacion?.socket.emit('inicioDespliegue', {
                     jugadorId: window.userId,
@@ -311,34 +311,49 @@ class GestorFases extends GestorBase {
         }
     }
 
+    actualizarZonaRemota(zonaData) {
+        const equipo = zonaData.equipo;
+        if (!equipo) return false;
 
+        try {
+            // Crear capa de zona
+            this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, zonaData.estilo);
+            this.zonasDespliegue[equipo] = zonaData.bounds;
 
-// En gestorFases.js
-actualizarZonaRemota(zonaData) {
-    const equipo = zonaData.equipo;
-    
-    if (!equipo) return false;
+            // Solo mostrar si es director o es mi equipo
+            if (this.esDirector(window.userId) || window.equipoJugador === equipo) {
+                this.zonasLayers[equipo].addTo(window.calcoActivo);
+            }
 
-    try {
-        // Limpiar zona existente
-        if (this.zonasLayers[equipo]) {
-            window.calcoActivo.removeLayer(this.zonasLayers[equipo]);
+            return true;
+        } catch (error) {
+            console.error('Error en actualizarZonaRemota:', error);
+            return false;
         }
-
-        // Crear nueva zona
-        this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, zonaData.estilo);
-        this.zonasLayers[equipo].addTo(window.calcoActivo);
-        this.zonasDespliegue[equipo] = zonaData.bounds;
-
-        return true;
-    } catch (error) {
-        console.error('Error actualizando zona remota:', error);
-        return false;
     }
-}
+
+    habilitarZonaAzul() {
+        // Limpiar botones anteriores
+        this.limpiarInterfazAnterior();
+        
+        this.mostrarMensajeAyuda('Zona roja confirmada. Ahora puede definirse la zona azul.');
+        this.actualizarBotonesFase();
+    }
+
+    actualizarInterfazDespliegue() {
+        const panelFases = document.getElementById('panel-fases');
+        if (!panelFases) return;
+
+        panelFases.innerHTML = `
+            <div class="fase-actual">Fase: preparación - despliegue</div>
+            <div class="botones-fase">
+                ${this.obtenerBotonesDespliegue()}
+            </div>
+        `;
+
+        this.mostrarMensajeAyuda('Despliega tus unidades en la zona asignada');
+    }
     
-
-
     actualizarEstadoCompleto(datos) {
         const estado = datos.estado;
         
@@ -451,16 +466,6 @@ actualizarZonaRemota(zonaData) {
     }
 
 
-    habilitarZonaAzul() {
-        // Habilitar la definición de la zona azul
-        this.zonaPendiente = null;
-        this.dibujandoZona = null;
-        this.mostrarMensajeAyuda('Zona roja confirmada. Ahora puedes definir la zona azul.');
-        this.actualizarBotonesFase(); // Esto habilitará el botón de zona azul
-    }
-
-    // En GestorFases
-
     finalizarDefinicionZonas() {
         // Limpiar botones primero - esto está bien pero no es suficiente
         const botonesConfirmacion = document.querySelectorAll('.botones-confirmacion-zona, .botones-confirmacion-sector');
@@ -486,23 +491,6 @@ actualizarZonaRemota(zonaData) {
     
         // Actualizar interfaz para fase de despliegue
         this.actualizarInterfazDespliegue();
-    }
-    
-    // Agregar este nuevo método
-    actualizarInterfazDespliegue() {
-        const panelFases = document.getElementById('panel-fases');
-        if (!panelFases) return;
-    
-        // Crear nueva interfaz de despliegue
-        panelFases.innerHTML = `
-            <div class="fase-actual">Fase: preparación - despliegue</div>
-            <div class="botones-fase">
-                ${this.obtenerBotonesDespliegue()}
-            </div>
-        `;
-    
-        // Mostrar mensaje de ayuda
-        this.mostrarMensajeAyuda('Despliega tus unidades en la zona asignada');
     }
     
     obtenerBotonesDespliegue() {

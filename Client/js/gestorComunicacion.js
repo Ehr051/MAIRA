@@ -329,7 +329,6 @@ configurarEventosSocket() {
         },                
         'zonaConfirmada': (datos) => {
             this.log('zonaConfirmada recibido:', datos, 'debug');
-            
             if (datos.jugadorId === window.userId) return;
 
             try {
@@ -352,17 +351,14 @@ configurarEventosSocket() {
                 if (exito) {
                     // Actualizar fase y UI según la zona confirmada
                     if (datos.zona.equipo === 'rojo') {
+                        // Siempre habilitar zona azul cuando se confirma la roja
                         this.gestorJuego?.gestorFases?.habilitarZonaAzul();
-                    } else if (datos.zona.equipo === 'azul') {
-                        // Cambiar a fase de despliegue
-                        this.gestorJuego?.gestorFases?.cambiarFase('preparacion', 'despliegue');
                     }
 
                     // Forzar actualización de interfaz
                     this.gestorJuego?.gestorFases?.actualizarBotonesFase();
                     this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
                 }
-
             } catch (error) {
                 this.log('Error procesando zonaConfirmada:', error, 'error');
             }
