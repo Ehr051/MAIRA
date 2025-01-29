@@ -445,9 +445,25 @@ configurarEventosSocket() {
                 },
     
             'jugadorListo': (datos) => {
-                    this.log('jugadorListo recibido:', datos);
+                this.log('jugadorListo recibido:', datos);
+                if (datos.jugadorId === window.userId) return;
+                
+                try {
+                    // Marcar el jugador como listo
                     this.gestorJuego?.gestorTurnos?.manejarJugadorListo(datos);
-                },
+
+                    // Si todos están listos, iniciar fase de combate
+                    if (this.gestorJuego?.gestorFases?.todosJugadoresListos()) {
+                        this.gestorJuego?.gestorFases?.iniciarFaseCombate();
+                    }
+
+                    // Actualizar la interfaz
+                    this.gestorJuego?.gestorFases?.actualizarBotonesFase();
+                    this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
+                } catch (error) {
+                    this.log('Error procesando jugadorListo:', error, 'error');
+                }
+            },
     
             // En GestorComunicacion, el handler está incompleto
             'inicioDespliegue': (datos) => {

@@ -266,54 +266,50 @@ class GestorFases extends GestorBase {
     }
     
     // En gestorFases.js
-confirmarZona(equipo) {
-    if (!this.puedeDefinirZonas(window.userId)) return;
-
-    try {
-        if (!this.zonaTemporalLayer) return;
-
-        const bounds = this.zonaTemporalLayer.getBounds();
-        if (!this.validarZonaEnSector(bounds)) {
-            this.mostrarMensajeAyuda('La zona debe estar dentro del sector de juego');
-            return;
-        }
-
-        const zonaData = {
-            tipo: 'zona',
-            equipo: equipo,
-            coordenadas: this.zonaTemporalLayer.getLatLngs(),
-            bounds: bounds,
-            estilo: equipo === 'azul' ? ESTILOS_DIBUJO.zonaAzul : ESTILOS_DIBUJO.zonaRoja
-        };
-
-        // Establecer zona
-        this.zonasLayers[equipo] = this.zonaTemporalLayer;
-        this.zonasDespliegue[equipo] = bounds;
-
-        // Emitir al servidor con sala específica
-        if (this.gestorJuego?.gestorComunicacion?.socket) {
-            this.gestorJuego.gestorComunicacion.socket.emit('zonaConfirmada', {
-                zona: zonaData,
-                jugadorId: window.userId,
-                partidaCodigo: window.codigoPartida,
+    confirmarZona(equipo) {
+        if (!this.puedeDefinirZonas(window.userId)) return;
+    
+        try {
+            if (!this.zonaTemporalLayer) return;
+    
+            const zonaData = {
+                tipo: 'zona',
                 equipo: equipo,
-                sala: `equipo_${equipo}`
-            });
+                coordenadas: this.zonaTemporalLayer.getLatLngs(),
+                bounds: this.zonaTemporalLayer.getBounds(),
+                estilo: equipo === 'azul' ? ESTILOS_DIBUJO.zonaAzul : ESTILOS_DIBUJO.zonaRoja
+            };
+    
+            // Emitir al servidor con todos los datos necesarios
+            if (this.gestorJuego?.gestorComunicacion?.socket) {
+                this.gestorJuego.gestorComunicacion.socket.emit('zonaConfirmada', {
+                    zona: zonaData,
+                    jugadorId: window.userId,
+                    partidaCodigo: window.codigoPartida,
+                    cambiarFase: equipo === 'azul'  // Indicar si debe cambiar fase
+                });
+            }
+    
+            // Establecer zona
+            this.zonasLayers[equipo] = this.zonaTemporalLayer;
+            this.zonasDespliegue[equipo] = zonaData.bounds;
+    
+            // Limpiar estado temporal
+            this.zonaTemporalLayer = null;
+            this.zonaPendiente = null;
+    
+            // Enviar evento de cambio de fase si es necesario
+            if (equipo === 'azul') {
+                this.gestorJuego?.gestorComunicacion?.socket.emit('inicioDespliegue', {
+                    jugadorId: window.userId,
+                    partidaCodigo: window.codigoPartida,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        } catch (error) {
+            console.error('Error al confirmar zona:', error);
         }
-
-        // Limpiar estado temporal y actualizar interfaz
-        this.zonaTemporalLayer = null;
-        this.zonaPendiente = null;
-
-        if (equipo === 'rojo') {
-            this.habilitarZonaAzul();
-        } else {
-            this.finalizarDefinicionZonas();
-        }
-    } catch (error) {
-        console.error('Error al confirmar zona:', error);
     }
-}
 
 
 
@@ -1353,20 +1349,21 @@ validarFaseActual() {
     marcarJugadorListo() {
         const jugadorActual = this.obtenerJugadorActual();
         if (!jugadorActual) return;
-
+    
         jugadorActual.listo = true;
-
-        // Notificar al servidor si estamos en modo online
+    
+        // Notificar al servidor
         if (this.gestorJuego?.gestorComunicacion?.socket) {
             this.gestorJuego.gestorComunicacion.socket.emit('jugadorListo', {
-                jugadorId: jugadorActual.id,
-                equipoId: jugadorActual.equipo
+                jugadorId: window.userId,
+                equipoId: jugadorActual.equipo,
+                partidaCodigo: window.codigoPartida // Agregar partidaCodigo
             });
         }
-
+    
         this.actualizarBotonesFase();
         
-        // Verificar si todos los jugadores están listos
+        // Verificar si todos los jugadores están listos para pasar a fase de combate
         if (this.todosJugadoresListos()) {
             this.iniciarFaseCombate();
         }
