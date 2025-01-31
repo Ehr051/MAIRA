@@ -77,17 +77,25 @@
             this.setFaseJuego('preparacion');
             
             // Configurar eventos básicos
-            this.map.on('dblclick', (e) => {
+            map.on('dblclick', (e) => {
                 L.DomEvent.stopPropagation(e);
                 L.DomEvent.preventDefault(e);
                 
-                const latlng = e.latlng;
-                // Verificar si hay un hexágono en la posición
+                // Verificar si hay un elemento en la posición
+                const elemento = this.buscarElementoEnPosicion(e.latlng);
+                if (elemento) {
+                    window.elementoSeleccionado = elemento;
+                    const point = map.latLngToContainerPoint(e.latlng);
+                    this.mostrarMenu(point.x, point.y, 'elemento');
+                    return;
+                }
+                
+                // Si no hay elemento, verificar hexágono
                 if (window.HexGrid) {
-                    const hexagono = window.HexGrid.getHexagonAt(latlng);
+                    const hexagono = window.HexGrid.getHexagonAt(e.latlng);
                     if (hexagono) {
                         this.selectedHex = hexagono;
-                        const point = this.map.latLngToContainerPoint(latlng);
+                        const point = map.latLngToContainerPoint(e.latlng);
                         this.mostrarMenu(point.x, point.y, 'terreno');
                     }
                 }
@@ -537,7 +545,31 @@
             const point = this.getMenuPosition();
             this.mostrarMenu(point.x, point.y, previousMenu.type);
         },
-
+        buscarElementoEnPosicion: function(latlng) {
+            let elementoEncontrado = null;
+            let distanciaMinima = Infinity;
+            const puntoClick = this.map.latLngToContainerPoint(latlng);
+            const radioDeteccion = 20; // píxeles
+        
+            window.calcoActivo.eachLayer((layer) => {
+                if (layer instanceof L.Marker) {
+                    // Convertir posición del marcador a coordenadas de pantalla
+                    const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
+                    
+                    // Calcular distancia en píxeles
+                    const distancia = puntoClick.distanceTo(puntoMarcador);
+                    
+                    // Actualizar elemento más cercano si está dentro del radio
+                    if (distancia < radioDeteccion && distancia < distanciaMinima) {
+                        elementoEncontrado = layer;
+                        distanciaMinima = distancia;
+                    }
+                }
+            });
+        
+            console.log('[MiRadial] Elemento encontrado:', elementoEncontrado, 'distancia:', distanciaMinima);
+            return elementoEncontrado;
+        },
         /**
          * Marca o desmarca un hexágono seleccionado
          */
