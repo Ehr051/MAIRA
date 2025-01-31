@@ -245,67 +245,6 @@ class SistemaTurnos {
         document.getElementById(`btnCancelarZona${equipo}`).addEventListener('click', () => this.cancelarDefinicionZona());
     }
 
-    // Modificar el método para confirmar zona
-    confirmarZona(equipo) {
-        if (!this.zonaTemporalLayer) {
-            this.mostrarMensajeAyuda('No hay zona para confirmar');
-            return;
-        }
-    
-        const bounds = this.zonaTemporalLayer.getBounds();
-        
-        // Validar que la zona esté dentro del sector
-        if (!this.validarZonaEnSector(bounds)) {
-            this.mostrarMensajeAyuda('La zona debe estar completamente dentro del sector de juego');
-            return;
-        }
-    
-        try {
-            // Guardar la zona
-            this.zonasDespliegue[equipo] = bounds;
-            
-            // Limpiar zona anterior si existe
-            if (this.zonasLayers[equipo]) {
-                window.calcoActivo.removeLayer(this.zonasLayers[equipo]);
-            }
-    
-            // Aplicar estilo final
-            this.zonaTemporalLayer.setStyle({
-                color: equipo === 'azul' ? '#0000ff' : '#ff0000',
-                weight: 2,
-                opacity: 0.8,
-                fillOpacity: 0.2
-            });
-    
-            // Actualizar referencias
-            this.zonasLayers[equipo] = this.zonaTemporalLayer;
-            this.zonaTemporalLayer = null;
-            this.zonaPendiente = null;
-    
-            // Notificar al servidor en modo online
-            if (this.socket) {
-                this.socket.emit('zonaDespliegueDefinida', {
-                    equipo,
-                    zona: bounds,
-                    jugadorId: this.getJugadorActual().id
-                });
-            }
-    
-            // Actualizar interfaz según la secuencia
-            if (equipo === 'rojo') {
-                this.actualizarBotonesParaZonaAzul();
-            } else if (equipo === 'azul') {
-                this.mostrarBotonFinalizarFase();
-            }
-    
-            // Hacer zoom a la zona
-            this.faseController.centrarVistaEnZona(equipo);
-    
-        } catch (error) {
-            console.error('Error al confirmar zona:', error);
-            this.mostrarMensajeAyuda('Error al confirmar la zona');
-        }
-    }
 
     // Nuevo método para mostrar el botón de zona azul
     actualizarBotonesParaZonaAzul() {

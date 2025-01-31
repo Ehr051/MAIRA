@@ -123,21 +123,31 @@ class GestorComunicacion extends GestorBase {
     }
 
     // Método unificado para emisión de eventos
-    emitirEvento(nombre, datos) {
-        if (!this.verificarEstadoConexion()) {
-            return false;
-        }
+    // Método unificado para emisión de eventos
+emitirEvento(nombre, datos) {
+    if (!this.verificarEstadoConexion()) {
+        this.log('No se puede emitir evento: sin conexión', null, 'error');
+        return false;
+    }
 
-        const datosCompletos = {
-            ...datos,
-            partidaCodigo: this.codigoPartida,
-            timestamp: new Date().toISOString()
-        };
+    const datosCompletos = {
+        ...datos,
+        partidaCodigo: this.codigoPartida,
+        timestamp: new Date().toISOString()
+    };
 
-        this.log(`Emitiendo ${nombre}:`, datosCompletos);
+    this.log(`Emitiendo ${nombre}:`, datosCompletos);
+    
+    try {
         this.socket.emit(nombre, datosCompletos);
         return true;
+    } catch (error) {
+        this.log(`Error al emitir evento ${nombre}:`, error, 'error');
+        this.notificarError(error);
+        return false;
     }
+}
+
 
         /**
          * Solicita el estado inicial de la partida al servidor
@@ -273,26 +283,27 @@ configurarEventosSocket() {
     if (!this.socket) return;
 
     const eventHandlers = {
-        
-                
         'sectorConfirmado': (datos) => {
             this.log('sectorConfirmado recibido:', datos, 'debug');
             if (datos.jugadorId === window.userId) return;
 
             try {
-                // 1. Actualizar sector
                 const exito = this.gestorJuego?.gestorFases?.actualizarSectorRemoto({
                     coordenadas: datos.coordenadas,
                     bounds: datos.bounds
                 });
 
-                // 2. Si se actualizó correctamente y hay que cambiar fase
                 if (exito && datos.cambiarFase) {
-                    // Cambiar fase y actualizar interfaz
                     this.gestorJuego?.gestorFases?.cambiarFase('preparacion', 'definicion_zonas');
                     this.gestorJuego?.gestorFases?.actualizarBotonesFase();
-                    // Forzar actualización completa
                     this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
+
+                    // Actualizar estado global
+                    this.gestorJuego?.gestorEstado?.actualizarEstado({
+                        fase: 'preparacion',
+                        subfase: 'definicion_zonas',
+                        sector: datos
+                    });
                 }
             } catch (error) {
                 this.log('Error procesando sectorConfirmado:', error, 'error');
@@ -301,17 +312,11 @@ configurarEventosSocket() {
 
         'cambioFase': (datos) => {
             this.log('cambioFase recibido:', datos);
-            
             if (datos.jugadorId === window.userId) return;
 
             try {
-                // 1. Actualizar fase
-                this.gestorJuego?.gestorFases?.cambiarFase(
-                    datos.fase,
-                    datos.subfase
-                );
+                this.gestorJuego?.gestorFases?.cambiarFase(datos.fase, datos.subfase);
 
-                // 2. Actualizar mensaje según rol
                 if (datos.fase === 'preparacion' && datos.subfase === 'definicion_zonas') {
                     const esDirector = this.gestorJuego?.gestorFases?.esDirector(window.userId);
                     const mensaje = esDirector ? 
@@ -320,26 +325,31 @@ configurarEventosSocket() {
                     this.gestorJuego?.gestorFases?.mostrarMensajeAyuda(mensaje);
                 }
 
-                // 3. Forzar actualización de interfaz
                 this.gestorJuego?.gestorFases?.actualizarBotonesFase();
                 this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
+                
+                // Actualizar estado global
+                this.gestorJuego?.gestorEstado?.actualizarEstado({
+                    fase: datos.fase,
+                    subfase: datos.subfase
+                });
             } catch (error) {
                 this.log('Error procesando cambio de fase:', error, 'error');
             }
-        },                
+        },
+
         'zonaConfirmada': (datos) => {
             this.log('zonaConfirmada recibido:', datos, 'debug');
             if (datos.jugadorId === window.userId) return;
 
             try {
                 const equipo = datos.zona.equipo;
-                // 1. Actualizar la zona físicamente
+                
                 if (this.gestorJuego?.gestorFases?.zonasLayers[equipo]) {
                     this.gestorJuego.gestorFases.zonasLayers[equipo].remove();
                     this.gestorJuego.gestorFases.zonasLayers[equipo] = null;
                 }
 
-                // 2. Actualizar el estado y forzar actualización de botones
                 const exito = this.gestorJuego?.gestorFases?.actualizarZonaRemota({
                     equipo,
                     coordenadas: datos.zona.coordenadas,
@@ -347,191 +357,131 @@ configurarEventosSocket() {
                     estilo: datos.zona.estilo
                 });
 
-                // 3. Si se actualizó correctamente, propagar los cambios
                 if (exito) {
-                    // Actualizar fase y UI según la zona confirmada
                     if (datos.zona.equipo === 'rojo') {
-                        // Siempre habilitar zona azul cuando se confirma la roja
                         this.gestorJuego?.gestorFases?.habilitarZonaAzul();
                     }
-
-                    // Forzar actualización de interfaz
                     this.gestorJuego?.gestorFases?.actualizarBotonesFase();
                     this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
+
+                    // Actualizar estado global
+                    this.gestorJuego?.gestorEstado?.actualizarEstado({
+                        zonasDespliegue: {
+                            ...this.gestorJuego?.gestorEstado?.estado.zonasDespliegue,
+                            [equipo]: datos.zona
+                        }
+                    });
                 }
             } catch (error) {
                 this.log('Error procesando zonaConfirmada:', error, 'error');
             }
         },
 
+        'inicioDespliegue': (datos) => {
+            this.log('inicioDespliegue recibido:', datos);
+            if (datos.jugadorId !== window.userId) {
+                this.gestorJuego?.gestorFases?.cambiarFase('preparacion', 'despliegue');
+                this.gestorJuego?.gestorFases?.limpiarInterfazAnterior();
+                this.gestorJuego?.gestorFases?.actualizarInterfazDespliegue();
+                this.gestorJuego?.gestorAcciones?.actualizarPermisosSegunFase('preparacion', 'despliegue');
+
+                // Actualizar estado global
+                this.gestorJuego?.gestorEstado?.actualizarEstado({
+                    fase: 'preparacion',
+                    subfase: 'despliegue'
+                });
+            }
+        },
+
+        'jugadorListo': (datos) => {
+            this.log('jugadorListo recibido:', datos);
+            if (datos.jugadorId === window.userId) return;
+
+            try {
+                this.gestorJuego?.gestorTurnos?.manejarJugadorListo(datos);
+
+                if (this.gestorJuego?.gestorFases?.todosJugadoresListos()) {
+                    this.gestorJuego?.gestorFases?.iniciarFaseCombate();
+                }
+
+                this.gestorJuego?.gestorFases?.actualizarBotonesFase();
+                this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
+
+                // Actualizar estado global
+                this.gestorJuego?.gestorEstado?.actualizarEstadoJugador(datos.jugadorId, { listo: true });
+            } catch (error) {
+                this.log('Error procesando jugadorListo:', error, 'error');
+            }
+        },
+
+        'inicioCombate': (datos) => {
+            this.log('inicioCombate recibido:', datos);
+            if (datos.jugadorId !== window.userId) {
+                this.gestorJuego?.gestorFases?.cambiarFase('combate', 'movimiento');
+                this.gestorJuego?.gestorTurnos?.iniciarTurnos();
+                this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
+
+                // Actualizar estado global
+                this.gestorJuego?.gestorEstado?.actualizarEstado({
+                    fase: 'combate',
+                    subfase: 'movimiento'
+                });
+            }
+        },
+
         'elementoCreado': (datos) => {
             this.log('elementoCreado recibido:', datos);
-                    
-                    if (datos.jugadorId === window.userId) return;
+            if (datos.jugadorId === window.userId) return;
 
-                    try {
-                        // 1. Crear el elemento físicamente
-                        const exito = this.gestorJuego?.gestorAcciones?.crearElementoRemoto(datos);
-
-                        // 2. Si se creó correctamente, actualizar interfaz
-                        if (exito) {
-                            this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
-                        }
-                    } catch (error) {
-                        this.log('Error procesando elementoCreado:', error, 'error');
-                    }
-                },
-    
-            'estadoActual': (datos) => {
-                    this.log('estadoActual recibido:', datos, 'debug');
-                    try {
-                        if (datos.sector) {
-                            this.gestorJuego?.gestorFases?.actualizarSectorRemoto(datos.sector);
-                        }
-                        if (datos.zonas) {
-                            Object.entries(datos.zonas).forEach(([equipo, zona]) => {
-                                if (zona) {
-                                    this.gestorJuego?.gestorFases?.actualizarZonaRemota({
-                                        equipo,
-                                        ...zona
-                                    });
-                                }
-                            });
-                        }
-                        if (datos.fase) {
-                            this.gestorJuego?.gestorFases?.cambiarFase(datos.fase, datos.subfase);
-                        }
-                    } catch (error) {
-                        this.log('Error procesando estadoActual:', error, 'error');
-                    }
-                },
-    
-    
-            'elementoMovido': (datos) => {
-                    this.log('elementoMovido recibido:', datos);
-                    if (datos.jugadorId !== window.userId) {
-                        this.gestorJuego?.gestorAcciones?.moverElementoRemoto(datos);
-                    }
-                },
-    
-            'elementoEliminado': (datos) => {
-                    this.log('elementoEliminado recibido:', datos);
-                    if (datos.jugadorId !== window.userId) {
-                        this.gestorJuego?.gestorAcciones?.eliminarElementoRemoto(datos);
-                    }
-                },
-                
-            'estadoPartida': (datos) => {
-                    this.log('Estado de partida recibido:', datos);
-                    if (this.esEstadoMasReciente(datos)) {
-                        this.procesarEstadoRecibido(datos);
-                    } else {
-                        this.log('Estado recibido es más antiguo, ignorando');
-                    }
-                },
-
-            'mensajeJuego': (mensaje) => {
-                    this.log('mensajeJuego recibido:', mensaje);
-                    this.emisorEventos.emit('mensajeJuego', mensaje);
-                },
-    
-            'cambioTurno': (datos) => {
-                    this.log('cambioTurno recibido:', datos);
-                    this.emisorEventos.emit('cambioTurno', datos);
-                },
-    
-            'jugadorListo': (datos) => {
-                this.log('jugadorListo recibido:', datos);
-                if (datos.jugadorId === window.userId) return;
-                
-                try {
-                    // Marcar el jugador como listo
-                    this.gestorJuego?.gestorTurnos?.manejarJugadorListo(datos);
-
-                    // Si todos están listos, iniciar fase de combate
-                    if (this.gestorJuego?.gestorFases?.todosJugadoresListos()) {
-                        this.gestorJuego?.gestorFases?.iniciarFaseCombate();
-                    }
-
-                    // Actualizar la interfaz
-                    this.gestorJuego?.gestorFases?.actualizarBotonesFase();
+            try {
+                const exito = this.gestorJuego?.gestorAcciones?.crearElementoRemoto(datos);
+                if (exito) {
                     this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
-                } catch (error) {
-                    this.log('Error procesando jugadorListo:', error, 'error');
+                    // Actualizar estado global
+                    this.gestorJuego?.gestorEstado?.agregarElemento(datos);
                 }
-            },
-    
-            // En GestorComunicacion, el handler está incompleto
-            'inicioDespliegue': (datos) => {
-                console.log('[COMUNICACION] inicioDespliegue recibido:', datos);
-                if (datos.jugadorId !== window.userId) {
-                    // Actualizar fase
-                    this.gestorJuego?.gestorFases?.cambiarFase('preparacion', 'despliegue');
-                    
-                    // Limpiar interfaz anterior
-                    this.gestorJuego?.gestorFases?.limpiarInterfazAnterior();
-                    
-                    // Actualizar interfaz para despliegue
-                    this.gestorJuego?.gestorFases?.actualizarInterfazDespliegue();
-                    
-                    // Actualizar permisos según equipo
-                    this.gestorJuego?.gestorAcciones?.actualizarPermisosSegunFase('preparacion', 'despliegue');
-                }
-            },
-    
-            'connect': () => {
-                    this.log('Conexión establecida');
-                    this.conectado = true;
-                    this.intentosReconexion = 0;
-                    this.emisorEventos.emit('conexionEstablecida');
-                },
-    
-            'disconnect': () => {
-                    this.log('Desconexión detectada', null, 'warn');
-                    this.conectado = false;
-                    this.emisorEventos.emit('desconexion');
-                },
-    
-            'reconnect': (attemptNumber) => {
-                    this.log(`Reconexión exitosa, intento: ${attemptNumber}`);
-                    this.conectado = true;
-                    this.intentosReconexion = 0;
-                    this.emisorEventos.emit('reconexion', attemptNumber);
-                },
-    
-            'error': (error) => {
-                    this.log('Error de socket:', error, 'error');
-                    this.emisorEventos.emit('error', error);
-                },
-    
-            'estadoJuegoActualizado': (estado) => {
-                    this.log('Estado de juego actualizado:', estado);
-                    this.emisorEventos.emit('estadoJuegoActualizado', estado);
-                },
-    
-            'accionJuego': (accion) => {
-                    this.log('Acción de juego recibida:', accion);
-                    this.emisorEventos.emit('accionJuego', accion);
-                },
+            } catch (error) {
+                this.log('Error procesando elementoCreado:', error, 'error');
+            }
+        },
 
-            'estadoPartida': (datos) => {
-                this.log('Estado de partida recibido:', datos);
-                
-                try {
-                    // Actualizar fase y subfase
+        'elementoMovido': (datos) => {
+            this.log('elementoMovido recibido:', datos);
+            if (datos.jugadorId !== window.userId) {
+                this.gestorJuego?.gestorAcciones?.moverElementoRemoto(datos);
+                // Actualizar estado global
+                this.gestorJuego?.gestorEstado?.actualizarEstado({
+                    elementos: new Map([...this.gestorJuego?.gestorEstado?.estado.elementos])
+                        .set(datos.id, { ...datos })
+                });
+            }
+        },
+
+        'elementoEliminado': (datos) => {
+            this.log('elementoEliminado recibido:', datos);
+            if (datos.jugadorId !== window.userId) {
+                this.gestorJuego?.gestorAcciones?.eliminarElementoRemoto(datos);
+                // Actualizar estado global
+                this.gestorJuego?.gestorEstado?.eliminarElemento(datos.id);
+            }
+        },
+
+        'estadoPartida': (datos) => {
+            this.log('Estado de partida recibido:', datos);
+            
+            try {
+                // Verificar timestamp del estado
+                if (this.gestorJuego?.gestorEstado?.esEstadoMasReciente(datos)) {
                     if (datos.fase && datos.subfase) {
                         this.gestorJuego?.gestorFases?.cambiarFase(datos.fase, datos.subfase);
                     }
 
-                    // Actualizar sector si existe
                     if (datos.sector) {
                         this.gestorJuego?.gestorFases?.actualizarSectorRemoto(datos.sector);
                     }
 
-                    // Actualizar zonas si existen
                     if (datos.zonas) {
                         Object.entries(datos.zonas).forEach(([equipo, zona]) => {
-                            // Solo actualizar si es el director o es la zona de su equipo
                             const esDirector = this.gestorJuego?.gestorFases?.esDirector(window.userId);
                             if (esDirector || equipo === window.equipoJugador) {
                                 this.gestorJuego?.gestorFases?.actualizarZonaRemota({
@@ -542,26 +492,67 @@ configurarEventosSocket() {
                         });
                     }
 
-                    // Forzar actualización de interfaz
+                    // Actualizar estado global
+                    this.gestorJuego?.gestorEstado?.actualizarEstado(datos);
                     this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
-
-                } catch (error) {
-                    this.log('Error procesando estado:', error, 'error');
                 }
+            } catch (error) {
+                this.log('Error procesando estado:', error, 'error');
             }
-    };
-    
-            // Registrar todos los handlers
-            Object.entries(eventHandlers).forEach(([evento, handler]) => {
-                this.log(`Registrando handler para evento: ${evento}`);
-                this.socket.on(evento, handler);
-            });
-    
-            // Solicitar estado inicial al conectar
-            this.solicitarEstadoInicial();
-        }
+        },
 
-// En GestorComunicacion
+        'mensajeJuego': (mensaje) => {
+            this.log('mensajeJuego recibido:', mensaje);
+            this.emisorEventos.emit('mensajeJuego', mensaje);
+        },
+
+        'cambioTurno': (datos) => {
+            this.log('cambioTurno recibido:', datos);
+            this.emisorEventos.emit('cambioTurno', datos);
+            // Actualizar estado global
+            this.gestorJuego?.gestorEstado?.actualizarTurno(datos);
+        },
+
+        // Eventos de conexión
+        'connect': () => {
+            this.log('Conexión establecida');
+            this.conectado = true;
+            this.intentosReconexion = 0;
+            this.emisorEventos.emit('conexionEstablecida');
+            // Solicitar estado actual al conectar
+            this.solicitarEstadoInicial();
+        },
+
+        'disconnect': () => {
+            this.log('Desconexión detectada', null, 'warn');
+            this.conectado = false;
+            this.emisorEventos.emit('desconexion');
+            // Guardar estado actual antes de desconectar
+            this.gestorJuego?.gestorEstado?.guardarEstado();
+        },
+
+        'reconnect': (attemptNumber) => {
+            this.log(`Reconexión exitosa, intento: ${attemptNumber}`);
+            this.conectado = true;
+            this.intentosReconexion = 0;
+            this.emisorEventos.emit('reconexion', attemptNumber);
+            // Recuperar estado después de reconectar
+            this.gestorJuego?.gestorEstado?.recuperarEstado();
+        },
+
+        'error': (error) => {
+            this.log('Error de socket:', error, 'error');
+            this.emisorEventos.emit('error', error);
+        }
+    };
+
+    // Registrar todos los handlers
+    Object.entries(eventHandlers).forEach(([evento, handler]) => {
+        this.log(`Registrando handler para evento: ${evento}`);
+        this.socket.on(evento, handler);
+    });
+}
+
 async solicitarEstadoInicial() {
     if (!this.verificarEstadoConexion()) {
         this.log('No se puede solicitar estado: sin conexión', null, 'warn');
@@ -604,6 +595,7 @@ sincronizarElemento(datos) {
         this.log('Error al sincronizar elemento:', error, 'error');
     }
 }
+
 
 sincronizarEstadoCompleto() {
     if (!this.verificarEstadoConexion()) return false;
@@ -732,6 +724,22 @@ log(mensaje, datos, tipo = 'info') {
     } else {
         console.log(prefix, mensaje);
     }
+}
+
+enviarMensaje(mensaje) {
+    // Implementar lógica para enviar el mensaje a todos los usuarios conectados
+    this.socket.emit('mensaje', mensaje);
+}
+
+recibirMensaje() {
+    this.socket.on('mensaje', (mensaje) => {
+        switch (mensaje.tipo) {
+            case 'confirmacionZona':
+                this.gestorFases.actualizarZona(mensaje.color, mensaje.zona);
+                break;
+            // Manejar otros tipos de mensajes
+        }
+    });
 }
 
 }

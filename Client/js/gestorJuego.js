@@ -671,7 +671,6 @@ configurarEventos() {
     }
 
 
-// Al final de gestorJuego.js
 
 document.addEventListener('DOMContentLoaded', async function() {
     try {

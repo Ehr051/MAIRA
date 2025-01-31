@@ -115,23 +115,44 @@ class GameServer {
                 }
             });
 
-            // En gestorComunicacion.js
             socket.on('zonaConfirmada', (datos) => {
-                if (datos.jugadorId === window.userId) return;
-
-                const esDirector = this.gestorJuego?.gestorFases?.esDirector(window.userId);
-                const esEquipoCorrespondiente = datos.equipo === window.equipoJugador;
-                const esZonaPropia = datos.zona.equipo === window.equipoJugador;
-
-                if (esDirector || esEquipoCorrespondiente || esZonaPropia) {
-                    this.gestorJuego?.gestorFases?.actualizarZonaRemota(datos.zona);
-                    
-                    if (datos.zona.equipo === 'azul') {
-                        this.gestorJuego?.gestorFases?.finalizarDefinicionZonas();
+                try {
+                    console.log('Recibiendo zonaConfirmada:', {
+                        partidaCodigo: datos.partidaCodigo,
+                        equipo: datos.zona.equipo,
+                        jugadorId: datos.jugadorId
+                    });
+            
+                    if (!datos.partidaCodigo || !datos.zona) {
+                        throw new Error('Datos incompletos');
                     }
+            
+                    // Emitir a toda la sala
+                    io.in(datos.partidaCodigo).emit('zonaConfirmada', {
+                        zona: datos.zona,
+                        equipo: datos.zona.equipo,
+                        jugadorId: datos.jugadorId,
+                        timestamp: new Date().toISOString()
+                    });
+            
+                    console.log('zonaConfirmada emitida a sala:', datos.partidaCodigo);
+            
+                    // Si es zona azul, cambiar fase
+                    if (datos.zona.equipo === 'azul') {
+                        io.in(datos.partidaCodigo).emit('cambioFase', {
+                            fase: 'preparacion',
+                            subfase: 'despliegue',
+                            jugadorId: datos.jugadorId,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+            
+                } catch (error) {
+                    console.error('Error en zonaConfirmada:', error);
+                    socket.emit('error', { mensaje: error.message });
                 }
             });
-
+            
             // Manejar mensajes del chat
             socket.on('mensajeJuego', (datos) => {
                 const codigo = datos.partidaCodigo || socket.partidaCodigo;

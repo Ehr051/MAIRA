@@ -906,12 +906,20 @@ def handle_unidad_desplegada(data):
 @socketio.on('zonaConfirmada')
 def handle_zona_confirmada(data):
     try:
-        codigo_partida = data['codigo']
-        emit('zonaConfirmada', data, room=codigo_partida, include_self=False)
-        print(f'Zona confirmada enviada a sala {codigo_partida}')
+        print(f"[DEBUG] Recibiendo zonaConfirmada: {data['partidaCodigo']}, equipo: {data['zona']['equipo']}")
+        
+        # Emitir a sala de partida
+        emit('zonaConfirmada', data, room=data['partidaCodigo'])
+        
+        # También emitir a sala de equipo específico
+        sala_equipo = f"equipo_{data['zona']['equipo']}"
+        emit('zonaConfirmada', data, room=sala_equipo)
+        
+        print(f"[DEBUG] Zona emitida a salas: {data['partidaCodigo']} y {sala_equipo}")
+        
     except Exception as e:
-        print(f'Error al manejar confirmación de zona: {e}')
-
+        print(f"[ERROR] Error en zonaConfirmada: {str(e)}")
+        emit('error', {'mensaje': str(e)}) 
 @socketio.on('cambioFase')
 def handle_cambio_fase(data):
     try:

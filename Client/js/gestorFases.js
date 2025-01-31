@@ -1,4 +1,3 @@
-
 // Agregar estas constantes al inicio de GestorFases
 const ESTILOS_DIBUJO = {
     sector: {
@@ -63,127 +62,6 @@ class GestorFases extends GestorBase {
         };
     }
 
-
-    configurarEventosSocket() {
-        const socket = this.gestorJuego?.gestorComunicacion?.socket;
-        if (!socket) return;
-    
-        // Eventos de Sector
-        // Modificar la configuración de eventos socket para incluir jugadorId y partidaCodigo en todas las emisiones
-        socket.on('sectorConfirmado', (datos) => {
-            console.log('Sector confirmado recibido:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.actualizarSectorRemoto({
-                    ...datos,
-                    partidaCodigo: window.codigoPartida
-                });
-            }
-        });
-
-        socket.on('cambioFase', (datos) => {
-            console.log('Cambio de fase recibido:', datos);
-            if (datos.jugadorId !== window.userId) {
-                // Forzar limpieza de UI
-                const confirmaciones = document.querySelectorAll('.botones-confirmacion-zona, .botones-confirmacion-sector');
-                confirmaciones.forEach(elem => elem.remove());
-
-                this.fase = datos.nuevaFase;
-                this.subfase = datos.nuevaSubfase;
-                this.actualizarInterfazFase(datos);
-            }
-        });
-    
-        // Eventos de Zonas
-        socket.on('zonaConfirmada', (datos) => {
-            console.log('Zona confirmada recibida:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.actualizarZonaRemota(datos.zona);
-                if (datos.zona.equipo === 'rojo') {
-                    this.habilitarZonaAzul();
-                } else if (datos.zona.equipo === 'azul') {
-                    this.finalizarDefinicionZonas();
-                }
-            }
-        });
-    
-        // Eventos de Despliegue
-        socket.on('unidadDesplegada', (datos) => {
-            console.log('Unidad desplegada recibida:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.gestorJuego?.gestorAcciones?.crearUnidadRemota(datos.unidad);
-            }
-        });
-    
-        socket.on('unidadMovida', (datos) => {
-            console.log('Movimiento de unidad recibido:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.gestorJuego?.gestorAcciones?.moverUnidadRemota(datos.unidadId, datos.nuevaPosicion);
-            }
-        });
-    
-        socket.on('unidadEliminada', (datos) => {
-            console.log('Eliminación de unidad recibida:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.gestorJuego?.gestorAcciones?.eliminarUnidadRemota(datos.unidadId);
-            }
-        });
-    
-        // Eventos de Estado de Jugadores
-        socket.on('jugadorListo', (datos) => {
-            console.log('Jugador listo recibido:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.marcarJugadorListoRemoto(datos.jugadorId, datos.equipo);
-            }
-        });
-    
-        socket.on('inicioDespliegue', (datos) => {
-            console.log('Inicio de despliegue recibido:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.iniciarDespliegueRemoto();
-            }
-        });
-    
-        // Eventos de Combate
-        socket.on('inicioCombate', (datos) => {
-            console.log('Inicio de combate recibido:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.iniciarFaseCombateRemoto();
-            }
-        });
-    
-        // Eventos de Sincronización
-        socket.on('solicitarEstado', (datos) => {
-            console.log('Solicitud de estado recibida');
-            if (this.esDirector(window.userId)) {
-                this.enviarEstadoActual();
-            }
-        });
-    
-        socket.on('estadoActual', (datos) => {
-            console.log('Estado actual recibido:', datos);
-            if (datos.jugadorId !== window.userId) {
-                this.actualizarEstadoCompleto(datos);
-            }
-        });
-    
-        // Al conectar, solicitar estado actual si no es director
-        if (!this.esDirector(window.userId)) {
-            socket.emit('solicitarEstado', {
-                partidaCodigo: window.codigoPartida,
-                jugadorId: window.userId
-            });
-        }
-    
-        // Emitir unión a las salas necesarias
-        socket.emit('unirsePartida', {
-            codigo: window.codigoPartida,
-            userId: window.userId,
-            equipo: window.equipoJugador
-        });
-    
-        // También unirse a la sala de su equipo
-        socket.emit('joinRoom', `equipo_${window.equipoJugador}`);
-    }
     
     // Métodos auxiliares para el manejo de eventos remotos
     enviarEstadoActual() {
@@ -265,52 +143,6 @@ class GestorFases extends GestorBase {
         }
     }
     
-    // En gestorFases.js
-    confirmarZona(equipo) {
-        if (!this.puedeDefinirZonas(window.userId)) return;
-    
-        try {
-            if (!this.zonaTemporalLayer) return;
-    
-            const zonaData = {
-                tipo: 'zona',
-                equipo: equipo,
-                coordenadas: this.zonaTemporalLayer.getLatLngs(),
-                bounds: this.zonaTemporalLayer.getBounds(),
-                estilo: equipo === 'azul' ? ESTILOS_DIBUJO.zonaAzul : ESTILOS_DIBUJO.zonaRoja
-            };
-    
-            // Emitir al servidor
-            if (this.gestorJuego?.gestorComunicacion?.socket) {
-                this.gestorJuego.gestorComunicacion.socket.emit('zonaConfirmada', {
-                    zona: zonaData,
-                    jugadorId: window.userId,
-                    partidaCodigo: window.codigoPartida,
-                    cambiarFase: true  // Siempre true para permitir la transición
-                });
-            }
-    
-            // Establecer zona
-            this.zonasLayers[equipo] = this.zonaTemporalLayer;
-            this.zonasDespliegue[equipo] = zonaData.bounds;
-    
-            // Limpiar estado temporal
-            this.zonaTemporalLayer = null;
-            this.zonaPendiente = null;
-    
-            // Si es zona azul, emitir evento de inicio de despliegue
-            if (equipo === 'azul') {
-                this.gestorJuego?.gestorComunicacion?.socket.emit('inicioDespliegue', {
-                    jugadorId: window.userId,
-                    partidaCodigo: window.codigoPartida,
-                    timestamp: new Date().toISOString()
-                });
-            }
-        } catch (error) {
-            console.error('Error al confirmar zona:', error);
-        }
-    }
-
     actualizarZonaRemota(zonaData) {
         const equipo = zonaData.equipo;
         if (!equipo) return false;
@@ -667,35 +499,234 @@ limpiarInterfazAnterior() {
         }
     }
 
-    // Métodos de manejo de zonas
-    iniciarDefinicionZona(equipo) {
-        if (!this.sectorConfirmado) {
-            this.mostrarMensajeAyuda('Primero debe confirmarse el sector');
-            return false;
-        }
-
-        if (equipo === 'azul' && !this.zonasDespliegue.rojo) {
-            this.mostrarMensajeAyuda('Primero debe definirse la zona roja');
-            return false;
-        }
-
-        const herramienta = this.herramientasDibujo[equipo === 'rojo' ? 'zonaRoja' : 'zonaAzul'];
-        if (!herramienta) return false;
-
-        this.zonaPendiente = equipo;
-        this.dibujandoZona = equipo;
-        herramienta.enable();
-        
-        this.mostrarMensajeAyuda(`Dibuja la zona de despliegue para el equipo ${equipo}`);
-        return true;
+iniciarDefinicionZona(equipo) {
+    if (!this.sectorConfirmado) {
+        this.mostrarMensajeAyuda('Primero debe confirmarse el sector');
+        return false;
     }
 
+    if (equipo === 'azul' && !this.zonasDespliegue.rojo) {
+        this.mostrarMensajeAyuda('Primero debe definirse la zona roja');
+        return false;
+    }
+
+    const herramienta = this.herramientasDibujo[equipo === 'rojo' ? 'zonaRoja' : 'zonaAzul'];
+    if (!herramienta) return false;
+
+    this.zonaPendiente = equipo;
+    this.dibujandoZona = equipo;
+    herramienta.enable();
     
+    this.mostrarMensajeAyuda(`Dibuja la zona de despliegue para el equipo ${equipo}`);
+    return true;
+}
 
+procesarDibujoZona(layer) {
+    if (this.sectorConfirmado && this.dibujandoZona) {
+        console.log('Procesando dibujo de zona:', {
+            equipo: this.dibujandoZona,
+            layer: layer
+        });
 
-    // Métodos de cambio de fase
+        // Verificar que esté dentro del sector
+        const zonaBounds = layer.getBounds();
+        if (!this.validarZonaEnSector(zonaBounds)) {
+            this.mostrarMensajeAyuda('La zona debe estar dentro del sector de juego');
+            window.calcoActivo.removeLayer(layer);
+            return;
+        }
+
+        this.zonaTemporalLayer = layer;
+        this.zonaTemporalLayer.addTo(window.calcoActivo);
+
+        // Crear contenedor si no existe
+        let contenedor = document.querySelector('.botones-confirmacion-zona');
+        if (!contenedor) {
+            contenedor = document.createElement('div');
+            contenedor.className = 'botones-confirmacion-zona';
+            document.getElementById('panel-fases').appendChild(contenedor);
+        }
+
+        // Actualizar botones
+        contenedor.innerHTML = `
+            <button id="btn-confirmar-zona-${this.dibujandoZona}" class="btn btn-success">
+                Confirmar Zona ${this.dibujandoZona}
+            </button>
+            <button id="btn-cancelar-zona" class="btn btn-danger">
+                Cancelar
+            </button>
+        `;
+
+        // Configurar eventos
+        document.getElementById(`btn-confirmar-zona-${this.dibujandoZona}`).onclick = () => {
+            console.log('Click en confirmar zona:', this.dibujandoZona);
+            this.confirmarZona(this.dibujandoZona);
+        };
+
+        document.getElementById('btn-cancelar-zona').onclick = () => {
+            this.cancelarDibujoZona();
+        };
+
+        console.log('Botones de confirmación actualizados para:', this.dibujandoZona);
+    }
+}
+
+cancelarDibujoZona() {
+    if (this.zonaTemporalLayer) {
+        window.calcoActivo.removeLayer(this.zonaTemporalLayer);
+        this.zonaTemporalLayer = null;
+    }
     
+    this.dibujandoZona = null;
+    
+    // Limpiar botones
+    const contenedor = document.querySelector('.botones-confirmacion-zona');
+    if (contenedor) {
+        contenedor.innerHTML = '';
+    }
+    
+    this.actualizarBotonesFase();
+}
 
+actualizarBotonesConfirmacionZona(equipo) {
+    const contenedor = document.querySelector('.botones-confirmacion-zona');
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `
+        <button id="btn-confirmar-zona-${equipo}" class="btn btn-success">
+            Confirmar Zona ${equipo}
+        </button>
+        <button id="btn-cancelar-zona" class="btn btn-danger">
+            Cancelar
+        </button>
+    `;
+
+    // Configurar eventos
+    document.getElementById(`btn-confirmar-zona-${equipo}`).onclick = () => {
+        console.log('Confirmando zona:', {
+            equipo,
+            zonaTemporalLayer: this.zonaTemporalLayer
+        });
+        this.confirmarZona(equipo);
+    };
+
+    document.getElementById('btn-cancelar-zona').onclick = () => {
+        this.cancelarDibujoZona();
+    };
+}
+
+confirmarZona(equipo) {
+    console.log('Confirmando zona:', equipo);
+    
+    if (!this.zonaTemporalLayer) {
+        this.mostrarMensajeAyuda('No hay zona para confirmar');
+        return false;
+    }
+
+    try {
+        // Crear datos de la zona
+        const zonaData = {
+            tipo: 'zona',
+            equipo: equipo,
+            coordenadas: this.zonaTemporalLayer.getLatLngs()[0],
+            bounds: this.zonaTemporalLayer.getBounds(),
+            estilo: equipo === 'azul' ? 
+                { color: '#0000ff', weight: 2, opacity: 0.8, fill: true, fillColor: '#0000ff', fillOpacity: 0.2 } :
+                { color: '#ff0000', weight: 2, opacity: 0.8, fill: true, fillColor: '#ff0000', fillOpacity: 0.2 }
+        };
+
+        // Emitir al servidor
+        this.gestorJuego?.gestorComunicacion?.socket.emit('zonaConfirmada', {
+            zona: zonaData,
+            jugadorId: window.userId,
+            partidaCodigo: window.codigoPartida
+        });
+
+        // Actualizar localmente
+        this.zonasLayers[equipo] = this.zonaTemporalLayer;
+        this.zonasDespliegue[equipo] = zonaData.bounds;
+        this.zonaTemporalLayer = null;
+        this.dibujandoZona = null;
+
+        // Actualizar interfaz
+        this.actualizarBotonesFase();
+        
+        return true;
+    } catch (error) {
+        console.error('Error al confirmar zona:', error);
+        this.mostrarMensajeAyuda('Error al confirmar la zona');
+        return false;
+    }
+}
+
+configurarEventosSocket() {
+    const socket = this.gestorJuego?.gestorComunicacion?.socket;
+    if (!socket) return;
+
+    socket.on('sectorConfirmado', (datos) => {
+        console.log('Sector confirmado recibido:', datos);
+        this.sectorDefinido = true;
+        this.sectorConfirmado = true;
+        this.actualizarInterfaz();
+    });
+    
+    socket.on('zonaConfirmada', (datos) => {
+        console.log('Zona confirmada recibida:', datos);
+        
+        if (datos.jugadorId !== window.userId) {
+            this.actualizarZonaRemota(datos.zona);
+        }
+        
+        if (datos.zona.equipo === 'azul') {
+            this.cambiarFase('preparacion', 'despliegue');
+        }
+    });
+ 
+    
+    socket.on('cambioFase', (datos) => {
+        console.log('Cambio de fase recibido:', datos);
+        this.fase = datos.fase;
+        this.subfase = datos.subfase;
+        this.actualizarInterfaz();
+    });
+}
+
+procesarZonaConfirmada(datos) {
+    const esDirector = this.esDirector(window.userId);
+    const esEquipoCorrespondiente = datos.zona.equipo === window.equipoJugador;
+
+    if (esDirector || esEquipoCorrespondiente) {
+        this.actualizarZonaRemota(datos.zona);
+        if (esDirector) {
+            if (datos.zona.equipo === 'rojo') {
+                this.habilitarZonaAzul();
+            } else if (datos.zona.equipo === 'azul') {
+                this.finalizarDefinicionZonas();
+            }
+        }
+    }
+}
+
+actualizarZonaRemota(zonaData) {
+    const equipo = zonaData.equipo;
+    if (!equipo) return false;
+
+    try {
+        // Crear capa de zona
+        this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, zonaData.estilo);
+        this.zonasDespliegue[equipo] = zonaData.bounds;
+
+        // Solo mostrar si es director o es mi equipo
+        if (this.esDirector(window.userId) || window.equipoJugador === equipo) {
+            this.zonasLayers[equipo].addTo(window.calcoActivo);
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error en actualizarZonaRemota:', error);
+        return false;
+    }
+}
     validarConfiguracion(config) {
         if (!config || !Array.isArray(config.jugadores) || config.jugadores.length === 0) {
             throw new Error("Configuración inválida: La lista de jugadores es obligatoria");
@@ -866,7 +897,14 @@ actualizarBotonesFase() {
         zonasDefinidas: this.zonasDespliegue
     });
 
-    // Limpiar panel
+    // Limpiar panel y listeners anteriores
+    const botonesAnteriores = panelFases.querySelectorAll('button');
+    botonesAnteriores.forEach(btn => {
+        const nuevoBtn = btn.cloneNode(true);
+        if (btn.parentNode) {
+            btn.parentNode.replaceChild(nuevoBtn, btn);
+        }
+    });
     panelFases.innerHTML = '';
 
     // Fase actual
@@ -901,10 +939,11 @@ actualizarBotonesFase() {
             case 'definicion_zonas':
                 if (esDirector) {
                     contenido = `
-                        <button id="btn-zona-roja" ${this.zonasDespliegue.rojo ? 'disabled' : ''}>
+                        <button id="btn-zona-roja" class="btn btn-danger" 
+                            ${this.zonasDespliegue.rojo ? 'disabled' : ''}>
                             Definir Zona Roja
                         </button>
-                        <button id="btn-zona-azul" 
+                        <button id="btn-zona-azul" class="btn btn-primary"
                             ${!this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : ''}>
                             Definir Zona Azul
                         </button>
@@ -913,21 +952,23 @@ actualizarBotonesFase() {
                     contenido = '<div class="estado-fase">El director está definiendo las zonas de despliegue...</div>';
                 }
                 break;
-                case 'despliegue':
-                    const btnListo = document.createElement('button');
-                    btnListo.textContent = 'Listo para combate';
-                    btnListo.disabled = jugadorActual?.listo;
-                    btnListo.onclick = () => this.marcarJugadorListo();
-                    panelFases.appendChild(btnListo);
-                    break;
+            case 'despliegue':
+                const btnListo = document.createElement('button');
+                btnListo.textContent = 'Listo para combate';
+                btnListo.disabled = jugadorActual?.listo;
+                btnListo.onclick = () => this.marcarJugadorListo();
+                panelFases.appendChild(btnListo);
+                break;
         }
     }
 
     botonesFase.innerHTML = contenido;
     panelFases.appendChild(botonesFase);
 
-    // Reconfigurar eventos
-    this.configurarEventosBotones();
+    // Reconfigurar eventos con seguridad adicional
+    requestAnimationFrame(() => {
+        this.configurarEventosBotones();
+    });
 }
 
 cambiarFase(fase, subfase) {
@@ -1004,28 +1045,30 @@ validarFaseActual() {
     }
 
     actualizarVisibilidadZonas() {
-        const esDirector = this.esDirector(window.userId);
-        
-        Object.entries(this.zonasLayers).forEach(([equipo, layer]) => {
-            if (!layer) return;
-            
-            // Director ve todas las zonas
-            if (esDirector) {
-                layer.setStyle({ opacity: 1, fillOpacity: 0.2 });
-                return;
-            }
+            const esDirector = this.esDirector(window.userId);
     
-            // Jugadores solo ven su zona
-            if (equipo === window.equipoJugador) {
-                layer.setStyle({ opacity: 1, fillOpacity: 0.2 });
-            } else {
-                layer.setStyle({ opacity: 0, fillOpacity: 0 });
-            }
-        });
-    }
+            Object.entries(this.zonasLayers).forEach(([equipo, layer]) => {
+                if (!layer) return;
+    
+                // Director ve todas las zonas
+                if (esDirector) {
+                    layer.setStyle({ opacity: 1, fillOpacity: 0.2 });
+                    return;
+                }
+    
+                // Jugadores solo ven su zona
+                if (equipo === window.equipoJugador) {
+                    layer.setStyle({ opacity: 1, fillOpacity: 0.2 });
+                } else {
+                    layer.setStyle({ opacity: 0, fillOpacity: 0 });
+                }
+            });
+        }
+    
 
     actualizarInterfaz() {
         this.actualizarBotonesFase();
+        console.log('Interfaz actualizada');
         if (this.gestorJuego?.gestorInterfaz) {
             this.gestorJuego.gestorInterfaz.actualizarInterfazCompleta();
         }
@@ -1140,12 +1183,18 @@ validarFaseActual() {
 
         const btnZonaRoja = document.getElementById('btn-zona-roja');
         if (btnZonaRoja) {
-            btnZonaRoja.onclick = () => this.iniciarDefinicionZona('rojo');
+            btnZonaRoja.onclick = () => {
+                console.log('Iniciando definición zona roja');
+                this.iniciarDefinicionZona('rojo');
+            };
         }
 
         const btnZonaAzul = document.getElementById('btn-zona-azul');
         if (btnZonaAzul) {
-            btnZonaAzul.onclick = () => this.iniciarDefinicionZona('azul');
+            btnZonaAzul.onclick = () => {
+                console.log('Iniciando definición zona azul');
+                this.iniciarDefinicionZona('azul');
+            };
         }
 
         const btnIniciarDespliegue = document.getElementById('btn-iniciar-despliegue');
@@ -1286,48 +1335,6 @@ validarFaseActual() {
             this.dibujandoSector = false;
             botonesContainer.remove();
             // Reactivar el botón de definir sector
-            this.actualizarBotonesFase();
-        });
-
-        document.body.appendChild(botonesContainer);
-    }
-
-    actualizarBotonesConfirmacionZona(equipo) {
-        // Primero eliminar botones de confirmación existentes si los hay
-        const confirmacionSector = document.querySelector('.botones-confirmacion-sector');
-        if (confirmacionSector) confirmacionSector.remove();
-
-
-        if (!this.zonaTemporalLayer) return;
-
-        const botonesContainer = document.createElement('div');
-        botonesContainer.className = 'botones-confirmacion-zona';
-        botonesContainer.innerHTML = `
-            <div class="mensaje-confirmacion">¿Confirmar zona ${equipo}?</div>
-            <div class="botones">
-                <button class="btn-confirmar">Confirmar Zona</button>
-                <button class="btn-cancelar">Cancelar</button>
-            </div>
-        `;
-
-        // Agregar eventos
-        const btnConfirmar = botonesContainer.querySelector('.btn-confirmar');
-        const btnCancelar = botonesContainer.querySelector('.btn-cancelar');
-
-        btnConfirmar.addEventListener('click', () => {
-            this.confirmarZona(equipo);
-            botonesContainer.remove();
-        });
-
-        btnCancelar.addEventListener('click', () => {
-            if (this.zonaTemporalLayer) {
-                window.calcoActivo.removeLayer(this.zonaTemporalLayer);
-                this.zonaTemporalLayer = null;
-            }
-            this.dibujandoZona = null;
-            this.zonaPendiente = null;
-            botonesContainer.remove();
-            // Reactivar los botones de zona
             this.actualizarBotonesFase();
         });
 
@@ -1554,21 +1561,7 @@ manejarDibujoCreado(e) {
     }
 }
 
-procesarDibujoZona(layer) {
-    if (this.sectorConfirmado && this.dibujandoZona) {
-        // Verificar que esté dentro del sector
-        const zonaBounds = layer.getBounds();
-        if (!this.validarZonaEnSector(zonaBounds)) {
-            this.mostrarMensajeAyuda('La zona debe estar dentro del sector de juego');
-            window.calcoActivo.removeLayer(layer);
-            return;
-        }
 
-        this.zonaTemporalLayer = layer;
-        this.zonaTemporalLayer.addTo(window.calcoActivo);
-        this.actualizarBotonesConfirmacionZona(this.dibujandoZona);
-    }
-}
 destruir() {
     // Limpiar eventos
     window.mapa?.off(L.Draw.Event.CREATED);

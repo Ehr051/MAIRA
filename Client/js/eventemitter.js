@@ -1,4 +1,3 @@
-// eventemitter.js
 (function (global) {
     function EventEmitter() {
         this.events = {};
