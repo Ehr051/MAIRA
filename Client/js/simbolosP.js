@@ -115,52 +115,127 @@ function inicializarBotonesAmigoEnemigo() {
     }
 }
 
-function agregarMarcador(sidc, nombre) {
-    console.log("Agregando marcador con SIDC: " + sidc + " y nombre: " + nombre);
-    mapa.once('click', function(event) {
-        var latlng = event.latlng;
-        
-        if (sidc.length < 15) {
-            sidc = sidc.padEnd(15, '-');
-        } else if (sidc.length > 15) {
-            sidc = sidc.substr(0, 15);
+window.agregarMarcador = function(sidc, nombre) {
+    // Determinar modo
+    const modoJuegoGuerra = window.gestorJuego?.gestorAcciones !== undefined;
+
+    if (modoJuegoGuerra) {
+        if (!window.gestorJuego.gestorAcciones.validarDespliegueUnidad()) {
+            return;
+        }
+    }
+
+    window.mapa.once('click', function(event) {
+        const latlng = event.latlng;
+
+        if (modoJuegoGuerra && !window.gestorJuego.gestorAcciones.validarDespliegueUnidad(latlng)) {
+            return;
         }
 
-        var sym = new ms.Symbol(sidc, {size: 35});
+        // Formatear SIDC
+        let sidcFormateado = sidc.padEnd(15, '-');
+        if (modoJuegoGuerra) {
+            const sidcArray = sidcFormateado.split('');
+            sidcArray[1] = window.equipoJugador === 'azul' ? 'F' : 'H';
+            sidcFormateado = sidcArray.join('');
+        }
 
-        var marcador = L.marker(latlng, {
+        const sym = new ms.Symbol(sidcFormateado, { 
+            size: 35,
+            uniqueDesignation:''
+        });
+
+        const marcador = L.marker(latlng, {
             icon: L.divIcon({
-                className: 'custom-div-icon',
+                className: modoJuegoGuerra ? `custom-div-icon equipo-${window.equipoJugador}` : 'elemento-militar',
                 html: sym.asSVG(),
                 iconSize: [70, 50],
                 iconAnchor: [35, 25]
             }),
             draggable: true,
-            sidc: sidc,
-            nombre: nombre
-        }).addTo(calcoActivo);
+            sidc: sidcFormateado,
+            nombre: '',
+            ...(modoJuegoGuerra && {
+                jugador: window.userId,
+                equipo: window.equipoJugador,
+                id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                designacion: '',
+                dependencia: '',
+                magnitud: sidcFormateado.charAt(11) || '-'
+            })
+        });
 
+        // Eventos base
         marcador.on('click', function(e) {
             L.DomEvent.stopPropagation(e);
-            seleccionarElemento(this);
+            window.elementoSeleccionado = this;
+            window.seleccionarElemento(this);
         });
 
-        marcador.off('dblclick').on('dblclick', function(e) {
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            mostrarMenuContextual(e);
-        });
+        if (modoJuegoGuerra) {
+            // Eventos específicos juego guerra
+            marcador.on('dblclick', function(e) {
+                L.DomEvent.stopPropagation(e);
+                L.DomEvent.preventDefault(e);
+                window.elementoSeleccionado = this;
+                if (window.MiRadial) {
+                    window.MiRadial.selectedUnit = this;
+                    window.MiRadial.selectedHex = null;
+                    const point = window.mapa.latLngToContainerPoint(e.latlng);
+                    window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
+                }
+            });
 
-        marcador.on('contextmenu', function(e) {
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            mostrarMenuContextual(e);
-        });
+            marcador.on('contextmenu', (e) => {
+                L.DomEvent.stopPropagation(e);
+                L.DomEvent.preventDefault(e);
+                return false;
+            });
 
-        console.log("Marcador agregado en", latlng);
-        habilitarDobleClicEnElementos();
+            // Eventos drag juego guerra
+            marcador.on('dragstart', function() {
+                this._origLatLng = this.getLatLng();
+            });
+
+            marcador.on('drag', function(e) {
+                const nuevaPosicion = e.latlng;
+                const zonaEquipo = window.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
+                if (!zonaEquipo?.contains(nuevaPosicion)) {
+                    window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                        'No puedes mover unidades fuera de tu zona', 
+                        'warning'
+                    );
+                    this.setLatLng(this._origLatLng);
+                }
+            });
+        } else {
+            // Eventos específicos planeamiento
+            marcador.on('contextmenu', window.mostrarMenuContextual);
+        }
+
+        window.calcoActivo.addLayer(marcador);
+
+        if (modoJuegoGuerra) {
+            window.gestorJuego.gestorAcciones.configurarEventosElemento(marcador);
+            window.gestorJuego.gestorComunicacion?.socket?.emit('elementoCreado', {
+                tipo: 'unidad',
+                datos: {
+                    id: marcador.options.id,
+                    sidc: marcador.options.sidc,
+                    nombre: marcador.options.nombre,
+                    posicion: marcador.getLatLng(),
+                    equipo: marcador.options.equipo,
+                    jugador: marcador.options.jugador,
+                    designacion: marcador.options.designacion,
+                    dependencia: marcador.options.dependencia,
+                    magnitud: marcador.options.magnitud
+                },
+                jugadorId: window.userId,
+                partidaCodigo: window.codigoPartida
+            });
+        }
     });
-}
+};
 
 
 // Inicialización cuando el DOM está completamente cargado

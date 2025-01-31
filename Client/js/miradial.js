@@ -496,6 +496,15 @@
                     window.eliminarElementoSeleccionado(window.elementoSeleccionado);
                     window.elementoSeleccionado = null;
                     break;
+                case 'identify':
+                    if (window.elementoSeleccionado?.options?.sidc) {
+                            if (esUnidad(window.elementoSeleccionado.options.sidc)) {
+                                mostrarPanelEdicionUnidad(window.elementoSeleccionado);
+                            } else if (esEquipo(window.elementoSeleccionado.options.sidc)) {
+                                mostrarPanelEdicionEquipo(window.elementoSeleccionado);
+                            }
+                        }
+                    break;    
                 case 'submenu':
                     if (submenu && MENU_ITEMS.combate.ingeniero[submenu]) {
                         this.showSubmenu(submenu);
