@@ -855,7 +855,7 @@ def actualizar_jugador(data):
         finally:
             conn.close()
 
-# En server.py
+
 
 @socketio.on('sectorConfirmado')
 def handle_sector_confirmado(datos):
@@ -920,6 +920,7 @@ def handle_zona_confirmada(data):
     except Exception as e:
         print(f"[ERROR] Error en zonaConfirmada: {str(e)}")
         emit('error', {'mensaje': str(e)}) 
+
 @socketio.on('cambioFase')
 def handle_cambio_fase(data):
     try:
@@ -935,6 +936,30 @@ def handle_cambio_fase(data):
     except Exception as e:
         print(f"Error al manejar cambio de fase: {e}")
 
+
+@socketio.on('inicioDespliegue')
+def handle_inicio_despliegue(data):
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        print(f"[DEBUG] Iniciando fase despliegue en partida {codigo_partida}")
+        
+        # Emitir a todos en la sala
+        socketio.emit('inicioDespliegue', data, room=codigo_partida)
+        
+        # Cambiar estado en BD si es necesario
+        conn = get_db_connection()
+        if conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE partidas 
+                    SET estado = 'despliegue' 
+                    WHERE codigo = %s
+                """, (codigo_partida,))
+                conn.commit()
+            conn.close()
+            
+    except Exception as e:
+        print(f"[ERROR] Error en inicio_despliegue: {str(e)}")
 
 @socketio.on('salirSalaEspera')
 def salir_sala_espera(data):

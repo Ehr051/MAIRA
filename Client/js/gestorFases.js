@@ -297,31 +297,30 @@ class GestorFases extends GestorBase {
         }
     }
 
-
     finalizarDefinicionZonas() {
-        // Limpiar botones primero - esto está bien pero no es suficiente
+        console.log('[GestorFases] Finalizando definición de zonas');
+        
+        // 1. Limpiar interfaz
         const botonesConfirmacion = document.querySelectorAll('.botones-confirmacion-zona, .botones-confirmacion-sector');
         botonesConfirmacion.forEach(elem => elem.remove());
     
-        // Necesitamos limpiar también el panel de fases
         const panelFases = document.getElementById('panel-fases');
         if (panelFases) {
-            panelFases.innerHTML = ''; // Limpiar contenido actual
+            panelFases.innerHTML = '';
         }
     
-        // Cambiar fase a despliegue y emitir
+        // 2. Cambiar fase localmente
         this.cambiarFase('preparacion', 'despliegue');
     
-        // Notificar al servidor
-        if (this.gestorJuego?.gestorComunicacion?.socket) {
-            this.gestorJuego.gestorComunicacion.socket.emit('inicioDespliegue', {
+        // 3. Emitir evento al servidor
+        if (this.gestorJuego?.gestorComunicacion) {
+            this.gestorJuego.gestorComunicacion.eventemitter('inicioDespliegue', {
                 jugadorId: window.userId,
-                partidaCodigo: window.codigoPartida,
-                timestamp: new Date().toISOString()
+                zonasConfirmadas: this.zonasConfirmadas
             });
         }
     
-        // Actualizar interfaz para fase de despliegue
+        // 4. Actualizar interfaz
         this.actualizarInterfazDespliegue();
     }
     
@@ -650,6 +649,12 @@ confirmarZona(equipo) {
 
         // Actualizar interfaz
         this.actualizarBotonesFase();
+
+        // Si es zona azul, finalizar definición de zonas
+        if (equipo === 'azul') {
+            console.log('Zona azul confirmada, finalizando definición de zonas');
+            this.finalizarDefinicionZonas();
+        }
         
         return true;
     } catch (error) {
@@ -688,6 +693,14 @@ configurarEventosSocket() {
         this.fase = datos.fase;
         this.subfase = datos.subfase;
         this.actualizarInterfaz();
+    });
+
+    socket.on('inicioDespliegue', (datos) => {
+        console.log('Inicio despliegue recibido:', datos);
+        if (datos.jugadorId !== window.userId) {
+            this.cambiarFase('preparacion', 'despliegue');
+            this.actualizarInterfazDespliegue();
+        }
     });
 }
 
