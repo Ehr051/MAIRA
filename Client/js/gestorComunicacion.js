@@ -122,8 +122,7 @@ class GestorComunicacion extends GestorBase {
         });
     }
 
-    // Método unificado para emisión de eventos
-    // Método unificado para emisión de eventos
+
 emitirEvento(nombre, datos) {
     if (!this.verificarEstadoConexion()) {
         this.log('No se puede emitir evento: sin conexión', null, 'error');
@@ -414,8 +413,8 @@ configurarEventosSocket() {
             }
         },
 
-        'inicioCombate': (datos) => {
-            this.log('inicioCombate recibido:', datos);
+        'iniciarCombate': (datos) => {
+            this.log('iniciarCombate recibido:', datos);
             if (datos.jugadorId !== window.userId) {
                 this.gestorJuego?.gestorFases?.cambiarFase('combate', 'movimiento');
                 this.gestorJuego?.gestorTurnos?.iniciarTurnos();

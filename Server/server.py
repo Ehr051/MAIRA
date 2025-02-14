@@ -863,15 +863,14 @@ def handle_sector_confirmado(datos):
         codigo_partida = datos.get('partidaCodigo')
         
         if not codigo_partida:
-            print("Error: 'partidaCodigo' no definido para evento 'sectorConfirmado'")
             return emit('error', {'mensaje': "'partidaCodigo' no definido"})
 
         # Emitir a todos menos al emisor original
-        emit('sectorConfirmado', datos, room=codigo_partida, include_self=False)
+        socketio.emit('sectorConfirmado', datos, room=codigo_partida, include_self=True)
         
         # Si hay cambio de fase, forzar actualización en todos los clientes
         if datos.get('cambiarFase'):
-            emit('cambioFase', {
+            socketio.emit('cambioFase', {
                 'fase': 'preparacion',
                 'subfase': 'definicion_zonas',
                 'jugadorId': datos['jugadorId'],
@@ -906,20 +905,22 @@ def handle_unidad_desplegada(data):
 @socketio.on('zonaConfirmada')
 def handle_zona_confirmada(data):
     try:
-        print(f"[DEBUG] Recibiendo zonaConfirmada: {data['partidaCodigo']}, equipo: {data['zona']['equipo']}")
+        codigo_partida = data.get('partidaCodigo')
+        print(f"Zona confirmada recibida para partida {codigo_partida}")
         
-        # Emitir a sala de partida
-        emit('zonaConfirmada', data, room=data['partidaCodigo'])
+        # Emitir a todos en la sala
+        socketio.emit('zonaConfirmada', data, room=codigo_partida)
         
-        # También emitir a sala de equipo específico
-        sala_equipo = f"equipo_{data['zona']['equipo']}"
-        emit('zonaConfirmada', data, room=sala_equipo)
-        
-        print(f"[DEBUG] Zona emitida a salas: {data['partidaCodigo']} y {sala_equipo}")
-        
+        # Si es zona azul, cambiar a fase despliegue
+        if data['zona']['equipo'] == 'azul':
+            socketio.emit('cambioFase', {
+                'fase': 'preparacion',
+                'subfase': 'despliegue',
+                'jugadorId': data['jugadorId'],
+                'timestamp': datetime.now().isoformat()
+            }, room=codigo_partida)
     except Exception as e:
-        print(f"[ERROR] Error en zonaConfirmada: {str(e)}")
-        emit('error', {'mensaje': str(e)}) 
+        print(f"Error en zonaConfirmada: {str(e)}")
 
 @socketio.on('cambioFase')
 def handle_cambio_fase(data):
@@ -960,6 +961,105 @@ def handle_inicio_despliegue(data):
             
     except Exception as e:
         print(f"[ERROR] Error en inicio_despliegue: {str(e)}")
+
+def verificar_elementos_jugador(cursor, jugador_id, codigo_partida):
+    cursor.execute("""
+        SELECT COUNT(*) as total_elementos
+        FROM marcadores_jugadores 
+        WHERE jugador_id = %s 
+        AND partida_codigo = %s
+    """, (jugador_id, codigo_partida))
+    
+    result = cursor.fetchone()
+    return result['total_elementos'] > 0
+
+def verificar_todos_jugadores_listos(codigo_partida):
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            # Verificar jugadores listos y sus elementos
+            cursor.execute("""
+                SELECT j.id, j.listo
+                FROM jugadores j
+                WHERE j.partida_codigo = %s
+            """, (codigo_partida,))
+            
+            jugadores = cursor.fetchall()
+            
+            for jugador in jugadores:
+                if not jugador['listo']:
+                    return False
+                    
+                # Verificar elementos del jugador
+                if not verificar_elementos_jugador(cursor, jugador['id'], codigo_partida):
+                    print(f"[DEBUG] Jugador {jugador['id']} sin elementos válidos")
+                    return False
+                    
+            return True
+            
+    except Exception as e:
+        print(f"[ERROR] verificar_todos_jugadores_listos: {str(e)}")
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+@socketio.on('jugadorListo')
+def handle_jugador_listo(data):
+    try:
+        codigo_partida = data['partidaCodigo']
+        jugador_id = data['jugadorId']
+        
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            # Verificar elementos del jugador
+            cursor.execute("""
+                SELECT COUNT(*) as total 
+                FROM marcadores_jugadores 
+                WHERE jugador_id = %s 
+                AND partida_codigo = %s
+                AND tipo IS NOT NULL
+                AND magnitud IS NOT NULL 
+                AND designacion IS NOT NULL 
+                AND dependencia IS NOT NULL
+            """, (jugador_id, codigo_partida))
+            
+            resultado = cursor.fetchone()
+            if not resultado or resultado['total'] == 0:
+                emit('error', {
+                    'mensaje': 'Debe desplegar al menos un elemento con todos sus datos',
+                    'detalles': 'Verifique tipo, magnitud, designación y dependencia'
+                })
+                return
+                
+            # Marcar jugador como listo
+            cursor.execute("""
+                UPDATE usuarios_partida 
+                SET listo = true 
+                WHERE usuario_id = %s AND partida_id = %s
+            """, (jugador_id, codigo_partida))
+            
+            conn.commit()
+            
+            # Verificar si todos están listos
+            cursor.execute("""
+                SELECT COUNT(*) as total, 
+                       COUNT(CASE WHEN listo = true THEN 1 END) as listos
+                FROM usuarios_partida 
+                WHERE partida_id = %s
+            """, (codigo_partida,))
+            
+            estado = cursor.fetchone()
+            if estado['total'] == estado['listos']:
+                socketio.emit('iniciarCombate', {
+                    'fase': 'combate',
+                    'subfase': 'movimiento',
+                    'timestamp': datetime.now().isoformat()
+                }, room=codigo_partida)
+                
+    except Exception as e:
+        print(f"[ERROR] {str(e)}")
+        emit('error', {'mensaje': str(e)})
 
 @socketio.on('salirSalaEspera')
 def salir_sala_espera(data):
@@ -1452,6 +1552,23 @@ def handle_zona_despliegue(data):
             
     except Exception as e:
         emit('error', {'mensaje': str(e)})
+
+@socketio.on('iniciarCombate')
+def handle_iniciar_combate(data):
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        print(f"[DEBUG] Iniciando fase de combate para partida {codigo_partida}")
+        
+        # Broadcast a todos en la sala
+        socketio.emit('combateIniciado', {
+            'partidaCodigo': codigo_partida,
+            'fase': 'combate',
+            'subfase': 'turno',
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+    except Exception as e:
+        print(f"[ERROR] Error en iniciarCombate: {str(e)}")
 
 
 if __name__ == '__main__':

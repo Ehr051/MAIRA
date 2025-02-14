@@ -1,37 +1,43 @@
 let panelEdicionActual = null;
 
-
-// Estructura de unidades militares según la doctrina argentina
+/**
+ * Estructura SIDC completa (15 posiciones):
+ * Pos 1: Esquema de codificación (S)
+ * Pos 2: Identidad (F,H,U,N,etc)
+ * Pos 3: Dimensión batalla (P,A,G,S,U)
+ * Pos 4: Estado (P,A)
+ * Pos 5: Función ID 1 (U=Unidad)
+ * Pos 6: Función ID 2 (C=Combate)
+ * Pos 7: Función ID 3 (I,R,F=Inf,Cab,Art)
+ * Pos 8: -
+ * Pos 9-10: Modificadores (VA,HE,etc)
+ * Pos 11-15: ---
+ */
 const unidadesMilitares = {
     "Armas": {
         "Infantería": {
             codigo: "UCI",
             tipos: {
-                "Básica": {
+                "a Pie": {
                     codigo: "",
                     caracteristicas: {
-                        "Normal": "",
-                        "Aerotransportada": "A",
-                        "De Montaña": "O",
-                        "De Monte": "X"
-                    }
-                },
-                "Mecanizada": {
-                    codigo: "Z",
-                    caracteristicas: {
-                        "Normal": ""
+                        "--": "",                    // S-G-UCI---
+                        "Paracaidista": "A",     // S-G-UCIA--
+                        "De Montaña": "O",          // S-G-UCIO--
+                        "De Asalto Aéreo": "S",     // S-G-UCIS--
+                        "Naval": "N",        // S-G-UCIN--  
                     }
                 },
                 "Motorizada": {
                     codigo: "M",
                     caracteristicas: {
-                        "Normal": ""
+                        "--": ""                     // S-G-UCIM--
                     }
                 },
-                "Ligera": {
-                    codigo: "L",
+                "Mecanizada": {
+                    codigo: "Z",
                     caracteristicas: {
-                        "Normal": ""
+                        "--":""
                     }
                 }
             }
@@ -39,18 +45,18 @@ const unidadesMilitares = {
         "Caballería": {
             codigo: "UCR",
             tipos: {
-                "Básica": {
+                "Exploración": {
                     codigo: "",
                     caracteristicas: {
-                        "Normal": "",
-                        "Aerotransportada": "A",
-                        "De Montaña": "O"
+                        "--": "",                    // S-G-UCR---
+                        "Paracaidista": "A",     // S-G-UCRA--
+                        "De Montaña": "O"           // S-G-UCRO--
                     }
                 },
                 "Blindada": {
-                    codigo: "VA",
+                    codigo: "VA",                    // S-G-UCRVA-
                     caracteristicas: {
-                        "Normal": ""
+                        "--": ""
                     }
                 }
             }
@@ -61,151 +67,204 @@ const unidadesMilitares = {
                 "Campaña": {
                     codigo: "",
                     caracteristicas: {
-                        "Normal": "",
-                        "Autopropulsada": "HE"
+                        "--": "",                    // S-G-UCF---
+                        "De Montaña": "O",          // S-G-UCFO--
+                        "Autopropulsada": "HE",     // S-G-UCFHE-
+                        "Cohetes": "R"              // S-G-UCFR--
                     }
                 },
-            }
-        },
-        "Antiaérea": {
-            codigo: "UCD",
-            tipo: {
-                "Básica": {
-                    codigo: "",
+                "Antiaérea": {
+                    codigo: "AD",
                     caracteristicas: {
-                        "Normal": "",
-                        "De Montaña": "O"
+                        "--": "",                    // S-G-UCDM--
+                        "Misiles": "M",             // S-G-UCDML-
+                        "Autopropulsada": "HE"      // S-G-UCDH--
                     }
-                },
+                }
             }
         },
         "Ingenieros": {
             codigo: "UCE",
             tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": "",
-                        "De Montaña": "O"
-                    }
-                },
-                "Pontoneros": {
-                    codigo: "B",
-                    caracteristicas: {
-                        "Normal": ""
-                    }
-                },
-                "Construcciones": {
+                "Combate": {
                     codigo: "C",
                     caracteristicas: {
-                        "Normal": ""
+                        "--": "",                    // S-G-UCE---
+                        "De Montaña": "O",          // S-G-UCEO--
+                        "Paracaidista": "A",   
+                        "Mecanizado": "Z",          // S-G-UCEZ--
+                        "Asalto Aéreo": "S"         // S-G-UCES--
+                    }
+                },
+                "Construcción": {
+                    codigo: "N",                    // Construction
+                    caracteristicas: {
+                        "--": ""                    // S-G-UCEN--
                     }
                 }
             }
         },
         "Comunicaciones": {
-            codigo: "UCS",
+                    codigo: "UUS",
+                    tipos: {
+                        "General": {
+                            codigo: "",
+                            caracteristicas: {
+                                "--": "",                    // S-G-UUS---
+                                "Área": "A",               // S-G-UUSA--
+                                "Radio": "R",              // S-G-UUSR--
+                                "Centro": "C",             // S-G-UUSC--
+                                "Satélite": "RS",           // S-G-UUSRS-
+                                "Soporte": "S"              // S-G-UUSS--
+                            }
+                        }
+                    }
+                },
+        "Defensa Antiaérea": {
+            codigo: "UCD",
             tipos: {
-                "Básica": {
-                    codigo: "",
+                "Misiles": {
+                    codigo: "M",
                     caracteristicas: {
-                        "Normal": ""
+                        "--": "",                    // S-G-UCDM--
+                        "Ligero": "L",              // S-G-UCDML-
+                        "Pesado": "H"               // S-G-UCDMH-
+                    }
+                },
+                "Cañones": {
+                    codigo: "G",
+                    caracteristicas: {
+                        "--": ""                     // S-G-UCDG--
                     }
                 }
             }
         }
     },
-    "Servicios": {
-        "Intendencia": {
-            codigo: "USI",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
+            "Servicios": {
+            "Sanidad": {  // S-G-USM---
+                codigo: "USM",
+                tipos: {
+                    "General": {
+                        codigo: "",
+                        caracteristicas: {
+                            "--": "",                    // S-G-USM---
+                            "Veterinaria": "V",         // S-G-USMV--
+                            "Dental": "D",              // S-G-USMD--
+                            "Psicológico": "P"          // S-G-USMP--
+                        }
+                    },
+                }
+            },
+            
+            "Abastecimiento": {  // S-G-USS---
+                codigo: "USS",
+                tipos: {
+                    "General": {
+                        codigo: "",
+                        caracteristicas: {
+                            "--": "",                    // S-G-USS---
+                            "Clase I": "1",             // S-G-USS1--
+                            "Clase II": "2",            // S-G-USS2--
+                            "Clase III": "3",           // S-G-USS3--
+                            "Clase V": "5"              // S-G-USS5--
+                        }
+                    },
+                    
+                }
+            },
+            "Transporte": {  // S-G-UST---
+                codigo: "UST", 
+                tipos: {
+                    "General": {
+                        codigo: "",
+                        caracteristicas: {
+                            "--": "",                    // S-G-UST---
+                            "Motorizado": "M",          // S-G-USTMO-
+                            "Ferroviario": "R",         // S-G-USTR--
+                            "Naval": "S",               // S-G-USTS--
+                            "Aéreo": "A"                // S-G-USTA--
+                        }
                     }
                 }
-            }
-        },
-        "Arsenales": {
-            codigo: "USA",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
+            },
+            "Personal": {  // S-G-USA---
+                codigo: "USA",
+                tipos: {
+                    "General": {
+                        codigo: "",
+                        caracteristicas: {
+                            "--": "",                    // S-G-USA---
+                            "Teatro": "T",               // S-G-USAT--
+                            "Postal": "O",              // S-G-USAO--
+                            "Mortuorio": "M",           // S-G-USAM--
+                            "Religioso": "R"            // S-G-USAR--
+                        }
                     }
                 }
-            }
-        },
-        "Sanidad": {
-            codigo: "USM",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
+            },
+            "Inteligencia": {
+                codigo: "UUM",
+                tipos: {
+                        "General": {
+                            codigo: "",
+                            caracteristicas: {
+                                "--": "",                    // S-G-UUM---
+                                "Señales": "S",             // S-G-UUMS--
+                                "Guerra Electrónica": "SE",  // S-G-UUMSE-
+                                "Contrainteligencia": "C",   // S-G-UUMC--
+                                "Radar": "RG",              // S-G-UUMRG-
+                                "Meteorológica": "MO"       // S-G-UUMMO-
+                            }
+                        }
                     }
-                }
-            }
-        },
-        "Veterinaria": {
-            codigo: "USV",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
+                },    
+                "QBN": {  // Nuclear, Biológico, Químico
+                    codigo: "UUA",
+                    tipos: {
+                        "General": {
+                            codigo: "",
+                            caracteristicas: {
+                                "--": "",                    // S-G-UUA---
+                                "Químico": "C",             // S-G-UUAC--
+                                "Nuclear": "N",             // S-G-UUAN--
+                                "Biológico": "B",           // S-G-UUAB--
+                                "Descontaminación": "D"     // S-G-UUAD--
+                            }
+                        }
                     }
-                }
-            }
-        },
-        "Justicia": {
-            codigo: "USJ",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
+                },    
+                "Policía Militar": {
+                    codigo: "UUL",
+                    tipos: {
+                        "General": {
+                            codigo: "",
+                            caracteristicas: {
+                                "--": "",                    // S-G-UUL---
+                                "Criminal": "C",            // S-G-UULC--
+                                "Seguridad": "S"            // S-G-UULS--
+                            }
+                        }
                     }
-                }
-            }
-        },
-        "Construcciones": {
-            codigo: "USC",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
+                },
+                
+                    "Topográfico": {
+                        codigo: "UUT",
+                        tipos: {
+                            "General": {
+                                codigo: "",
+                                caracteristicas: {
+                                    "--": "",                    // S-G-UUT---
+                                    "Teatro": "T",               // S-G-UUTT--
+                                    "Cuerpo": "C"               // S-G-UUTC--
+                                }
+                            }
+                        }
                     }
-                }
+                
             }
-        },
-        "Transporte": {
-            codigo: "UST",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
-                    }
-                }
-            }
-        },
-        "Finanzas": {
-            codigo: "USF",
-            tipos: {
-                "Básica": {
-                    codigo: "",
-                    caracteristicas: {
-                        "Normal": ""
-                    }
-                }
-            }
-        }
-    }
-};
+        
+    };
+
 
 function actualizarTipos(categoriaArma) {
     const [categoria, arma] = categoriaArma.split('|');
@@ -453,6 +512,25 @@ function actualizarEtiquetaEquipo(elemento) {
     actualizarEtiquetaUnidad(elemento);
 }
 
+function validarDatosElemento(designacion, dependencia) {
+    return designacion?.trim() && dependencia?.trim();
+}
+
+function obtenerTipoDeElemento(sidc) {
+    // Extraer código (ejemplo: UCI, UCR, etc)
+    const codigo = sidc.substring(10, 13);
+    
+    // Buscar en unidadesMilitares
+    for (const categoria in unidadesMilitares) {
+        for (const arma in unidadesMilitares[categoria]) {
+            if (unidadesMilitares[categoria][arma].codigo === codigo) {
+                return arma.toLowerCase();
+            }
+        }
+    }
+    return 'desconocido';
+}
+
 function guardarCambiosUnidad() {
     if (!elementoSeleccionado) {
         console.warn('No hay elemento seleccionado para guardar cambios');
@@ -462,6 +540,14 @@ function guardarCambiosUnidad() {
     const nuevoSidc = obtenerSIDCActual();
     const designacion = document.getElementById('designacion').value;
     const dependencia = document.getElementById('dependencia').value;
+
+    // Validar campos requeridos
+    if (!validarDatosElemento(designacion, dependencia)) {
+        mostrarError('Designación y dependencia son obligatorios');
+        return false;
+    }
+
+    const tipo = obtenerTipoDeElemento(nuevoSidc);
 
     const sym = new ms.Symbol(nuevoSidc, {
         size: 35,
@@ -476,12 +562,18 @@ function guardarCambiosUnidad() {
 
     elementoSeleccionado.setIcon(icon);
     elementoSeleccionado.options.sidc = nuevoSidc;
+    elementoSeleccionado.options.tipo = tipo;
     elementoSeleccionado.options.designacion = designacion;
     elementoSeleccionado.options.dependencia = dependencia;
 
     actualizarEtiquetaUnidad(elementoSeleccionado);
+    
+    if (window.gestorFases) {
+        window.gestorFases.actualizarBotonListo();
+    }
 
     cerrarPanelEdicion('panelEdicionUnidad');
+    return true;
 }
 
 function guardarCambiosEquipo() {

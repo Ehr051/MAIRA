@@ -171,20 +171,6 @@ class GestorFases extends GestorBase {
         this.mostrarMensajeAyuda('Zona roja confirmada. Ahora puede definirse la zona azul.');
         this.actualizarBotonesFase();
     }
-
-    actualizarInterfazDespliegue() {
-        const panelFases = document.getElementById('panel-fases');
-        if (!panelFases) return;
-
-        panelFases.innerHTML = `
-            <div class="fase-actual">Fase: preparación - despliegue</div>
-            <div class="botones-fase">
-                ${this.obtenerBotonesDespliegue()}
-            </div>
-        `;
-
-        this.mostrarMensajeAyuda('Despliega tus unidades en la zona asignada');
-    }
     
     actualizarEstadoCompleto(datos) {
         const estado = datos.estado;
@@ -314,7 +300,7 @@ class GestorFases extends GestorBase {
     
         // 3. Emitir evento al servidor
         if (this.gestorJuego?.gestorComunicacion) {
-            this.gestorJuego.gestorComunicacion.eventemitter('inicioDespliegue', {
+            this.gestorJuego.gestorComunicacion.socket.emit('inicioDespliegue', {
                 jugadorId: window.userId,
                 zonasConfirmadas: this.zonasConfirmadas
             });
@@ -322,18 +308,11 @@ class GestorFases extends GestorBase {
     
         // 4. Actualizar interfaz
         this.actualizarInterfazDespliegue();
+        // Actualizar interfaz
+        this.actualizarBotonesFase();
     }
     
-    obtenerBotonesDespliegue() {
-        const jugadorActual = this.obtenerJugadorActual();
-        if (!jugadorActual) return '';
     
-        return `
-            <button id="btn-listo-despliegue" ${jugadorActual.listo ? 'disabled' : ''}>
-                Listo para combate
-            </button>
-        `;
-    }
 
 // Añadir método para debug que podemos llamar para verificar emisiones
 verificarSincronizacion() {
@@ -638,7 +617,8 @@ confirmarZona(equipo) {
         this.gestorJuego?.gestorComunicacion?.socket.emit('zonaConfirmada', {
             zona: zonaData,
             jugadorId: window.userId,
-            partidaCodigo: window.codigoPartida
+            partidaCodigo: window.codigoPartida,
+            cambiarFase: equipo === 'azul'  // Agregar esta flag
         });
 
         // Actualizar localmente
@@ -647,15 +627,14 @@ confirmarZona(equipo) {
         this.zonaTemporalLayer = null;
         this.dibujandoZona = null;
 
-        // Actualizar interfaz
-        this.actualizarBotonesFase();
+        
 
         // Si es zona azul, finalizar definición de zonas
         if (equipo === 'azul') {
-            console.log('Zona azul confirmada, finalizando definición de zonas');
-            this.finalizarDefinicionZonas();
+            console.log('Zona azul confirmada, cambiando a fase despliegue');
+            this.cambiarFase('preparacion', 'despliegue');
         }
-        
+        this.actualizarBotonesFase();
         return true;
     } catch (error) {
         console.error('Error al confirmar zona:', error);
@@ -669,37 +648,43 @@ configurarEventosSocket() {
     if (!socket) return;
 
     socket.on('sectorConfirmado', (datos) => {
-        console.log('Sector confirmado recibido:', datos);
-        this.sectorDefinido = true;
-        this.sectorConfirmado = true;
-        this.actualizarInterfaz();
+        console.log('[GestorFases] Sector confirmado recibido:', datos);
+        if (datos.jugadorId !== window.userId) {
+            this.sectorDefinido = true;
+            this.sectorConfirmado = true;
+            this.actualizarInterfaz();
+        }
     });
     
     socket.on('zonaConfirmada', (datos) => {
-        console.log('Zona confirmada recibida:', datos);
+        console.log('[GestorFases] Zona confirmada recibida:', datos);
         
+        if (datos.jugadorId !== window.userId) {
+            this.actualizarZonaRemota(datos.zona);
+            // No actualizamos interfaz aquí, se hace en actualizarZonaRemota
+        }
+    });
+    
+    socket.on('zonaConfirmada', (datos) => {
+        console.log('[GestorFases] Zona confirmada recibida:', datos);
         if (datos.jugadorId !== window.userId) {
             this.actualizarZonaRemota(datos.zona);
         }
         
+        // Si es zona azul, cambiar a fase despliegue
         if (datos.zona.equipo === 'azul') {
+            console.log('Zona azul confirmada, cambiando a fase despliegue');
             this.cambiarFase('preparacion', 'despliegue');
         }
     });
- 
-    
-    socket.on('cambioFase', (datos) => {
-        console.log('Cambio de fase recibido:', datos);
-        this.fase = datos.fase;
-        this.subfase = datos.subfase;
-        this.actualizarInterfaz();
-    });
 
-    socket.on('inicioDespliegue', (datos) => {
-        console.log('Inicio despliegue recibido:', datos);
-        if (datos.jugadorId !== window.userId) {
-            this.cambiarFase('preparacion', 'despliegue');
-            this.actualizarInterfazDespliegue();
+    socket.on('combateIniciado', (data) => {
+        console.log('Recibido evento combateIniciado:', data);
+        if (data.partidaCodigo === window.codigoPartida) {
+            this.fase = 'combate';
+            this.subfase = 'turno';
+            this.gestorJuego?.gestorTurnos?.inicializarTurnos();
+            this.actualizarBotonesFase();
         }
     });
 }
@@ -985,28 +970,45 @@ actualizarBotonesFase() {
 }
 
 cambiarFase(fase, subfase) {
-    this.log(`Cambiando fase a: ${fase}, subfase: ${subfase}`);
+    console.log(`Cambiando fase a: ${fase}, subfase: ${subfase}`);
     
-    // 1. Limpiar estado anterior
+    // Limpiar estado anterior
     this.limpiarEstadoFaseAnterior(this.fase, this.subfase);
     
-    // 2. Actualizar estado interno
+    // Actualizar estado
     this.fase = fase;
     this.subfase = subfase;
     
-    // 3. Actualizar otros gestores
-    this.gestorJuego?.gestorTurnos?.actualizarSegunFase(fase, subfase);
-    this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
+    // Si es fase despliegue, actualizar interfaz específica
+    if (subfase === 'despliegue') {
+        console.log('Iniciando interfaz de despliegue');
+        this.actualizarInterfazDespliegue();
+    }
     
-    // 4. Emitir evento de cambio
-    this.emisorEventos.emit('cambioFase', {
-        fase,
-        subfase,
-        timestamp: new Date().toISOString()
-    });
+    // Actualizar interfaz general
+    this.actualizarBotonesFase();
+}
 
-    // 5. Log para debug
-    this.mostrarEstadoActual();
+actualizarInterfazDespliegue() {
+    console.log('Actualizando interfaz despliegue');
+    const panelFases = document.getElementById('panel-fases');
+    if (!panelFases) return;
+
+    panelFases.innerHTML = `
+        <div class="fase-actual">
+            <h3>Fase: Preparación - Despliegue</h3>
+            <p>Despliega tus unidades en tu zona asignada</p>
+            <button id="btn-listo-despliegue" class="btn btn-primary">
+                Listo para Combate
+            </button>
+        </div>
+    `;
+
+    // Configurar evento del botón
+    const btnListo = document.getElementById('btn-listo-despliegue');
+    if (btnListo) {
+        btnListo.onclick = () => this.marcarJugadorListo();
+    }
 }
 
 limpiarEstadoFaseAnterior(faseAnterior, subfaseAnterior) {
@@ -1354,7 +1356,8 @@ validarFaseActual() {
         document.body.appendChild(botonesContainer);
     }
 
-    marcarJugadorListo() {
+    
+        marcarJugadorListo() {
         const jugadorActual = this.obtenerJugadorActual();
         if (!jugadorActual) return;
     
@@ -1365,243 +1368,261 @@ validarFaseActual() {
             this.gestorJuego.gestorComunicacion.socket.emit('jugadorListo', {
                 jugadorId: window.userId,
                 equipoId: jugadorActual.equipo,
-                partidaCodigo: window.codigoPartida // Agregar partidaCodigo
+                partidaCodigo: window.codigoPartida,
+                timestamp: new Date().toISOString()
             });
         }
     
+        // Actualizar interfaz local
         this.actualizarBotonesFase();
         
-        // Verificar si todos los jugadores están listos para pasar a fase de combate
-        if (this.todosJugadoresListos()) {
-            this.iniciarFaseCombate();
+        // Solo el director o primer jugador inicia el combate cuando todos estén listos
+        if (this.todosJugadoresListos() && 
+            (this.esDirector(window.userId) || 
+             (this.esDirectorTemporal && this.primerJugador.id === window.userId))) {
+            
+            this.gestorJuego?.gestorComunicacion?.socket.emit('iniciarCombate', {
+                partidaCodigo: window.codigoPartida,
+                timestamp: new Date().toISOString()
+            });
         }
     }
 
     todosJugadoresListos() {
-        return this.jugadores.every(jugador => jugador.listo);
+        return this.jugadores.every(j => j.listo);
     }
 
     iniciarFaseCombate() {
-        this.fase = 'combate';
-        this.subfase = 'movimiento';
+        console.log('Iniciando fase de combate');
         
-        // Coordinar con GestorTurnos
-        if (this.gestorJuego?.gestorTurnos) {
-            this.gestorJuego.gestorTurnos.reiniciarTurnos();
-            this.gestorJuego.gestorTurnos.iniciarReloj();
+        // Verificar que realmente estamos listos
+        if (!this.todosJugadoresListos()) {
+            console.warn('No todos los jugadores están listos');
+            return;
         }
-        
-        this.emisorEventos.emit('faseCombateIniciada', {
-            mensaje: 'Iniciando fase de combate'
+
+        // Emitir al servidor
+        this.gestorJuego?.gestorComunicacion?.socket.emit('iniciarCombate', {
+            partidaCodigo: window.codigoPartida,
+            timestamp: new Date().toISOString()
         });
+
+        // Cambiar fase localmente
+        this.fase = 'combate';
+        this.subfase = 'turno';
         
-        this.actualizarInterfaz();
+        // Inicializar sistema de turnos
+        this.gestorJuego?.gestorTurnos?.inicializarTurnos();
+        
+        // Actualizar interfaz
+        this.actualizarBotonesFase();
     }
+
 
     iniciarDespliegue() {
-        if (!this.zonasDespliegue.azul || !this.zonasDespliegue.rojo) {
-            this.mostrarMensajeAyuda('Deben definirse ambas zonas antes de iniciar el despliegue');
-            return false;
+            if (!this.zonasDespliegue.azul || !this.zonasDespliegue.rojo) {
+                this.mostrarMensajeAyuda('Deben definirse ambas zonas antes de iniciar el despliegue');
+                return false;
+            }
+
+            this.subfase = 'despliegue';
+            this.actualizarInterfazCompleta();
+            this.mostrarMensajeAyuda('Fase de despliegue iniciada');
+
+            return true;
         }
-
-        this.subfase = 'despliegue';
-        this.actualizarInterfazCompleta();
-        this.mostrarMensajeAyuda('Fase de despliegue iniciada');
-
-        return true;
-    }
 
     actualizarPermisosSegunFase(datos) {
-        const { nuevaFase, nuevaSubfase } = datos;
-        const jugadorActual = this.obtenerJugadorActual();
-        
-        if (!jugadorActual) return;
-        
-        switch (nuevaFase) {
-            case 'preparacion':
-                switch (nuevaSubfase) {
-                    case 'definicion_sector':
-                        this.mostrarMensajeEstadoSegunRol(jugadorActual);
-                        this.actualizarVisibilidadElementos('sector');
-                        break;
-                    case 'definicion_zonas':
-                        this.mostrarMensajeEstadoSegunRol(jugadorActual);
-                        this.actualizarVisibilidadElementos('zonas');
-                        break;
-                    case 'despliegue':
-                        this.actualizarVisibilidadElementos('despliegue');
-                        break;
-                }
-                break;
-            case 'combate':
-                this.actualizarVisibilidadElementos('combate');
-                break;
+            const { nuevaFase, nuevaSubfase } = datos;
+            const jugadorActual = this.obtenerJugadorActual();
+            
+            if (!jugadorActual) return;
+            
+            switch (nuevaFase) {
+                case 'preparacion':
+                    switch (nuevaSubfase) {
+                        case 'definicion_sector':
+                            this.mostrarMensajeEstadoSegunRol(jugadorActual);
+                            this.actualizarVisibilidadElementos('sector');
+                            break;
+                        case 'definicion_zonas':
+                            this.mostrarMensajeEstadoSegunRol(jugadorActual);
+                            this.actualizarVisibilidadElementos('zonas');
+                            break;
+                        case 'despliegue':
+                            this.actualizarVisibilidadElementos('despliegue');
+                            break;
+                    }
+                    break;
+                case 'combate':
+                    this.actualizarVisibilidadElementos('combate');
+                    break;
+            }
         }
-    }
 
     mostrarMensajeEstadoSegunRol(jugador) {
-        if (this.esDirector(jugador.id) || 
-            (this.esDirectorTemporal && this.primerJugador.id === jugador.id)) {
-            // El director ve los botones de acción
-            return;
-        }
+            if (this.esDirector(jugador.id) || 
+                (this.esDirectorTemporal && this.primerJugador.id === jugador.id)) {
+                // El director ve los botones de acción
+                return;
+            }
 
-        // Los demás jugadores ven mensajes de estado
-        let mensaje = '';
-        switch (this.subfase) {
-            case 'definicion_sector':
-                mensaje = 'El director está definiendo el sector de juego...';
-                break;
-            case 'definicion_zonas':
-                mensaje = 'El director está definiendo las zonas de despliegue...';
-                break;
+            // Los demás jugadores ven mensajes de estado
+            let mensaje = '';
+            switch (this.subfase) {
+                case 'definicion_sector':
+                    mensaje = 'El director está definiendo el sector de juego...';
+                    break;
+                case 'definicion_zonas':
+                    mensaje = 'El director está definiendo las zonas de despliegue...';
+                    break;
+            }
+            
+            if (mensaje) {
+                this.mostrarMensajeAyuda(mensaje);
+            }
         }
-        
-        if (mensaje) {
-            this.mostrarMensajeAyuda(mensaje);
-        }
-    }
 
     actualizarVisibilidadElementos(contexto) {
-        switch (contexto) {
-            case 'sector':
-                if (this.sectorLayer) {
-                    // El sector es visible para todos una vez confirmado
-                    this.sectorLayer.setStyle({
-                        opacity: 1,
-                        fillOpacity: 0.2
-                    });
-                    // Emitir a todos los jugadores
-                    this.emitirCambioElemento('sector', this.sectorLayer);
-                }
-                break;
-            
-            case 'zonas':
-                // Mostrar zonas solo a los equipos correspondientes
-                Object.entries(this.zonasLayers).forEach(([equipo, layer]) => {
-                    const esEquipoJugador = this.obtenerJugadorActual()?.equipo === equipo;
-                    const esDirector = this.esDirector(window.userId) || this.esDirectorTemporal;
-                    
-                    if (layer) {
-                        if (esEquipoJugador || esDirector) {
-                            layer.setStyle({
-                                opacity: 1,
-                                fillOpacity: 0.2
-                            });
-                        } else {
-                            layer.setStyle({
-                                opacity: 0,
-                                fillOpacity: 0
-                            });
-                        }
-                        
-                        // Emitir solo al equipo correspondiente
-                        this.emitirCambioElemento('zona', layer, equipo);
+            switch (contexto) {
+                case 'sector':
+                    if (this.sectorLayer) {
+                        // El sector es visible para todos una vez confirmado
+                        this.sectorLayer.setStyle({
+                            opacity: 1,
+                            fillOpacity: 0.2
+                        });
+                        // Emitir a todos los jugadores
+                        this.emitirCambioElemento('sector', this.sectorLayer);
                     }
-                });
-                break;
+                    break;
+                
+                case 'zonas':
+                    // Mostrar zonas solo a los equipos correspondientes
+                    Object.entries(this.zonasLayers).forEach(([equipo, layer]) => {
+                        const esEquipoJugador = this.obtenerJugadorActual()?.equipo === equipo;
+                        const esDirector = this.esDirector(window.userId) || this.esDirectorTemporal;
+                        
+                        if (layer) {
+                            if (esEquipoJugador || esDirector) {
+                                layer.setStyle({
+                                    opacity: 1,
+                                    fillOpacity: 0.2
+                                });
+                            } else {
+                                layer.setStyle({
+                                    opacity: 0,
+                                    fillOpacity: 0
+                                });
+                            }
+                            
+                            // Emitir solo al equipo correspondiente
+                            this.emitirCambioElemento('zona', layer, equipo);
+                        }
+                    });
+                    break;
+            }
         }
-    }
 
     emitirCambioElemento(tipo, elemento, equipo = null) {
-        if (!this.gestorJuego?.gestorComunicacion?.socket) return;
+            if (!this.gestorJuego?.gestorComunicacion?.socket) return;
 
-        const datos = {
-            tipo,
-            coordenadas: elemento instanceof L.Marker ? 
-                elemento.getLatLng() : 
-                elemento.getLatLngs(),
-            estilo: elemento.options,
-            equipo
-        };
+            const datos = {
+                tipo,
+                coordenadas: elemento instanceof L.Marker ? 
+                    elemento.getLatLng() : 
+                    elemento.getLatLngs(),
+                estilo: elemento.options,
+                equipo
+            };
 
-        if (equipo) {
-            // Emitir solo al equipo específico
-            this.gestorJuego.gestorComunicacion.socket.emit('elementoEquipo', {
-                ...datos,
-                equipoDestino: equipo
-            });
-        } else {
-            // Emitir a todos
-            this.gestorJuego.gestorComunicacion.socket.emit('elementoGlobal', datos);
-        }
-    }
-
-    // Modificar procesarDibujoSector
-    procesarDibujoSector(layer) {
-        if (!this.puedeDefinirSector(window.userId)) {
-            this.mostrarMensajeAyuda('No tienes permisos para definir el sector');
-            if (layer) {
-                window.calcoActivo.removeLayer(layer);
+            if (equipo) {
+                // Emitir solo al equipo específico
+                this.gestorJuego.gestorComunicacion.socket.emit('elementoEquipo', {
+                    ...datos,
+                    equipoDestino: equipo
+                });
+            } else {
+                // Emitir a todos
+                this.gestorJuego.gestorComunicacion.socket.emit('elementoGlobal', datos);
             }
-            return;
         }
+
+        // Modificar procesarDibujoSector
+    procesarDibujoSector(layer) {
+            if (!this.puedeDefinirSector(window.userId)) {
+                this.mostrarMensajeAyuda('No tienes permisos para definir el sector');
+                if (layer) {
+                    window.calcoActivo.removeLayer(layer);
+                }
+                return;
+            }
+            
+            this.sectorTemporal = layer;
+            this.sectorTemporal.addTo(window.calcoActivo);
+            this.actualizarBotonesConfirmacionSector();
+        }
+
+
+
         
-        this.sectorTemporal = layer;
-        this.sectorTemporal.addTo(window.calcoActivo);
-        this.actualizarBotonesConfirmacionSector();
-    }
 
-
-
-    
-
-    // En GestorFases
-manejarFinDibujo() {
-    if (this.dibujandoSector) {
-        this.actualizarBotonesConfirmacionSector();
-    } else if (this.dibujandoZona) {
-        this.actualizarBotonesConfirmacionZona(this.dibujandoZona);
-    }
-}
-
-manejarDibujoCreado(e) {
-    console.log('Manejando dibujo:', {
-        dibujandoSector: this.dibujandoSector,
-        dibujandoZona: this.dibujandoZona,
-        sectorConfirmado: this.sectorConfirmado
-    });
-
-    const layer = e.layer;
-    if (this.dibujandoSector && !this.sectorConfirmado) {
-        this.procesarDibujoSector(layer);
-    } else if (this.dibujandoZona && this.sectorConfirmado) {
-        this.procesarDibujoZona(layer);
-    } else {
-        // Si llegamos aquí es un estado inválido
-        window.calcoActivo.removeLayer(layer);
-        this.mostrarMensajeAyuda('Estado inválido para dibujo');
-    }
-}
-
-
-destruir() {
-    // Limpiar eventos
-    window.mapa?.off(L.Draw.Event.CREATED);
-    window.mapa?.off(L.Draw.Event.DRAWSTART);
-    window.mapa?.off(L.Draw.Event.DRAWSTOP);
-
-    // Deshabilitar herramientas
-    Object.values(this.herramientasDibujo).forEach(herramienta => {
-        if (herramienta && herramienta.disable) {
-            herramienta.disable();
+        // En GestorFases
+    manejarFinDibujo() {
+        if (this.dibujandoSector) {
+            this.actualizarBotonesConfirmacionSector();
+        } else if (this.dibujandoZona) {
+            this.actualizarBotonesConfirmacionZona(this.dibujandoZona);
         }
-    });
-
-    // Limpiar capas
-    if (this.sectorLayer) this.sectorLayer.remove();
-    if (this.sectorTemporal) this.sectorTemporal.remove();
-    Object.values(this.zonasLayers || {}).forEach(layer => {
-        if (layer) layer.remove();
-    });
-
-    const panelFases = document.getElementById('panel-fases');
-    if (panelFases) {
-        panelFases.remove();
     }
 
-    super.destruir();
-}
+    manejarDibujoCreado(e) {
+        console.log('Manejando dibujo:', {
+            dibujandoSector: this.dibujandoSector,
+            dibujandoZona: this.dibujandoZona,
+            sectorConfirmado: this.sectorConfirmado
+        });
+
+        const layer = e.layer;
+        if (this.dibujandoSector && !this.sectorConfirmado) {
+            this.procesarDibujoSector(layer);
+        } else if (this.dibujandoZona && this.sectorConfirmado) {
+            this.procesarDibujoZona(layer);
+        } else {
+            // Si llegamos aquí es un estado inválido
+            window.calcoActivo.removeLayer(layer);
+            this.mostrarMensajeAyuda('Estado inválido para dibujo');
+        }
+    }
+
+
+    destruir() {
+        // Limpiar eventos
+        window.mapa?.off(L.Draw.Event.CREATED);
+        window.mapa?.off(L.Draw.Event.DRAWSTART);
+        window.mapa?.off(L.Draw.Event.DRAWSTOP);
+
+        // Deshabilitar herramientas
+        Object.values(this.herramientasDibujo).forEach(herramienta => {
+            if (herramienta && herramienta.disable) {
+                herramienta.disable();
+            }
+        });
+
+        // Limpiar capas
+        if (this.sectorLayer) this.sectorLayer.remove();
+        if (this.sectorTemporal) this.sectorTemporal.remove();
+        Object.values(this.zonasLayers || {}).forEach(layer => {
+            if (layer) layer.remove();
+        });
+
+        const panelFases = document.getElementById('panel-fases');
+        if (panelFases) {
+            panelFases.remove();
+        }
+
+        super.destruir();
+    }
 }
 
 window.GestorFases = GestorFases;

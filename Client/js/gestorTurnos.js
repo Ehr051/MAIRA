@@ -161,6 +161,22 @@ class GestorTurnos extends GestorBase {
         }
     }
 
+inicializarTurnos() {
+    console.log('Iniciando sistema de turnos');
+    this.turnoActual = 1;
+    this.jugadorActualIndex = 0;
+    this.tiempoRestante = this.duracionTurno;
+    
+    // Iniciar reloj
+    this.iniciarReloj();
+    
+    // Emitir evento de inicio de turnos
+    this.emisorEventos.emit('inicioTurnos', {
+        turnoActual: this.turnoActual,
+        jugadorActual: this.obtenerJugadorActual(),
+        timestamp: new Date().toISOString()
+    });
+}
     reiniciarTurnos() {
         this.jugadorActualIndex = 0;
         this.turnoActual = 1;
