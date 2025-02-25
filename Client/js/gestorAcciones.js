@@ -316,7 +316,7 @@ actualizarSidcPorEquipo(caracter) {
     validarTipoAccion(accion) {
         switch (accion.tipo) {
             case 'desplegarUnidad':
-                return this.validarDespliegue(accion.datos);
+                return this.validarDespliegueUnidad(accion.datos?.posicion);
             case 'moverUnidad':
                 return this.validarMovimiento(accion.datos);
             case 'atacar':
@@ -327,17 +327,6 @@ actualizarSidcPorEquipo(caracter) {
         }
     }
 
-    validarDespliegue(datos) {
-        if (!datos.posicion || !datos.tipoUnidad) return false;
-
-        // Verificar zona de despliegue
-        const zonaValida = this.gestorJuego?.gestorFases?.validarZonaDespliegue(
-            datos.posicion,
-            window.equipoJugador
-        );
-
-        return zonaValida;
-    }
 
     validarMovimiento(datos) {
         if (!datos.unidadId || !datos.destino) return false;
@@ -565,49 +554,65 @@ actualizarSidcPorEquipo(caracter) {
     }
 
     validarDespliegueUnidad(latlng) {
-        // 1. Validar fase correcta
+        // 1. Validar fase/subfase
         if (this.gestorJuego?.gestorFases?.fase !== 'preparacion' || 
             this.gestorJuego?.gestorFases?.subfase !== 'despliegue') {
             this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-                'Solo puedes agregar unidades en la fase de despliegue', 
+                'Solo puedes agregar unidades en fase de despliegue', 
                 'error'
             );
             return false;
         }
-    
+
         // 2. Validar equipo
         if (!window.equipoJugador) {
             this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-                'Debes tener un equipo asignado para desplegar unidades',
+                'Debes tener un equipo asignado', 
                 'error'
             );
             return false;
         }
-    
-        // 3. Validar zona de despliegue
-        const zonaEquipo = this.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
-        if (!zonaEquipo || !zonaEquipo.contains(latlng)) {
-            this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-                'Solo puedes desplegar unidades en tu zona asignada',
-                'error'
-            );
-            return false;
+
+        // 3. Validar zona si se proporciona posición
+        if (latlng) {
+            const zonaEquipo = this.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
+            if (!zonaEquipo || !zonaEquipo.contains(latlng)) {
+                this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                    'Solo puedes desplegar en tu zona asignada',
+                    'error'
+                );
+                return false;
+            }
         }
-    
+
         return true;
     }
 
-    validarPosicionDespliegue(latlng) {
-        const zonaEquipo = this.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
-        if (!zonaEquipo || !zonaEquipo.contains(latlng)) {
+    
+        // Esta función se usaría al crear/guardar un elemento
+    validarDatosElemento(elemento) {
+        // Validar datos básicos
+        if (!elemento.posicion || !elemento.tipo || !elemento.sidc) {
+            return false;
+        }
+
+        // Validar ubicación
+        if (!this.validarDespliegueUnidad(elemento.posicion)) {
+            return false;
+        }
+
+        // Validar pertenencia al equipo
+        if (elemento.equipo !== window.equipoJugador) {
             this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-                'Solo puedes desplegar unidades en tu zona asignada', 
+                'Solo puedes crear elementos para tu equipo',
                 'error'
             );
             return false;
         }
+
         return true;
-    }
+    }    
+
 
     validarPosicionMovimiento(latlng, elemento) {
         const zonaEquipo = this.gestorJuego?.gestorFases?.zonasDespliegue[elemento.options.equipo];
@@ -649,34 +654,6 @@ actualizarSidcPorEquipo(caracter) {
                 posicion: elemento.getLatLng()
             });
         }
-    }
-
-
-
-    // En GestorAcciones
-    validarDespliegue(datos) {
-        if (!datos.posicion || !datos.tipoUnidad) return false;
-
-        // Verificar que el jugador solo pueda desplegar unidades de su equipo
-        if (datos.equipo !== window.equipoJugador) {
-            console.warn('No puedes desplegar unidades de otro equipo');
-            this.mostrarMensajeError('Solo puedes desplegar unidades de tu equipo');
-            return false;
-        }
-
-        // Verificar que el despliegue sea en la zona correspondiente
-        const zonaCorrecta = this.gestorJuego?.gestorFases?.validarPosicionEnZona(
-            datos.posicion,
-            window.equipoJugador
-        );
-
-        if (!zonaCorrecta) {
-            console.warn('La unidad debe desplegarse en tu zona asignada');
-            this.mostrarMensajeError('Solo puedes desplegar unidades en tu zona asignada');
-            return false;
-        }
-
-        return true;
     }
 
     eliminarElemento() {

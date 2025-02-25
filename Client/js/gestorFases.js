@@ -1356,41 +1356,220 @@ validarFaseActual() {
         document.body.appendChild(botonesContainer);
     }
 
-    
-        marcarJugadorListo() {
-        const jugadorActual = this.obtenerJugadorActual();
-        if (!jugadorActual) return;
-    
-        jugadorActual.listo = true;
-    
-        // Notificar al servidor
-        if (this.gestorJuego?.gestorComunicacion?.socket) {
-            this.gestorJuego.gestorComunicacion.socket.emit('jugadorListo', {
-                jugadorId: window.userId,
-                equipoId: jugadorActual.equipo,
-                partidaCodigo: window.codigoPartida,
-                timestamp: new Date().toISOString()
-            });
-        }
-    
-        // Actualizar interfaz local
-        this.actualizarBotonesFase();
-        
-        // Solo el director o primer jugador inicia el combate cuando todos estén listos
-        if (this.todosJugadoresListos() && 
-            (this.esDirector(window.userId) || 
-             (this.esDirectorTemporal && this.primerJugador.id === window.userId))) {
-            
-            this.gestorJuego?.gestorComunicacion?.socket.emit('iniciarCombate', {
-                partidaCodigo: window.codigoPartida,
-                timestamp: new Date().toISOString()
-            });
-        }
-    }
 
-    todosJugadoresListos() {
-        return this.jugadores.every(j => j.listo);
+// Esta función debe reemplazar la implementación actual en GestorFases
+validarElementosJugador(jugadorId) {
+    const elementos = this.obtenerElementosJugador(jugadorId);
+    
+    // Verificar si hay elementos
+    if (elementos.length === 0) {
+        console.warn(`[GestorFases] No se encontraron elementos para el jugador ${jugadorId}`);
+        if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+            this.gestorJuego.gestorInterfaz.mostrarMensaje(
+                'Debe desplegar al menos un elemento antes de marcar como listo',
+                'warning'
+            );
+        }
+        return false;
     }
+    
+    // Para diagnóstico, mostrar todos los elementos y sus propiedades
+    console.group(`[GestorFases] Detalle de los ${elementos.length} elementos para jugador ${jugadorId}`);
+    elementos.forEach((elem, i) => {
+        const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
+        console.log(`Elemento #${i+1}:`, {
+            tipo: elem.options?.tipo || 'no definido',
+            designacion: elem.options?.designacion || 'no definido',
+            dependencia: elem.options?.dependencia || 'no definido',
+            magnitud: elem.options?.magnitud || 'no definido',
+            sidc: elem.options?.sidc || 'no definido',
+            esEquipo
+        });
+    });
+    console.groupEnd();
+    
+    // Verificar cada elemento según su tipo
+    const elementosIncompletos = elementos.filter(elem => {
+        // Si no tiene opciones, está incompleto
+        if (!elem.options) return true;
+        
+        // Determinar si es un equipo basado en el código SIDC
+        const esEquipo = elem.options.sidc?.charAt(4) === 'E';
+        
+        // Verificar el tipo - "desconocido" no es válido
+        const tipoInvalido = !elem.options.tipo || 
+                            elem.options.tipo === "desconocido" || 
+                            elem.options.tipo === "";
+        
+        // Para unidades normales, verificar todos los campos
+        if (!esEquipo) {
+            return !elem.options.designacion || 
+                   !elem.options.dependencia ||
+                   tipoInvalido ||
+                   !elem.options.magnitud || 
+                   elem.options.magnitud === '-';
+        } 
+        // Para equipos, no verificamos magnitud
+        else {
+            return !elem.options.designacion || 
+                   !elem.options.dependencia ||
+                   tipoInvalido;
+        }
+    });
+    
+    if (elementosIncompletos.length > 0) {
+        console.warn(`[GestorFases] Elementos incompletos encontrados: ${elementosIncompletos.length}`);
+        elementosIncompletos.forEach((elem, i) => {
+            const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
+            console.warn(`Elemento incompleto #${i+1}:`, {
+                esEquipo,
+                designacion: elem.options?.designacion || 'falta',
+                dependencia: elem.options?.dependencia || 'falta',
+                tipo: elem.options?.tipo || 'falta',
+                magnitud: esEquipo ? 'no aplicable' : (elem.options?.magnitud || 'falta')
+            });
+        });
+        
+        if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+            this.gestorJuego.gestorInterfaz.mostrarMensaje(
+                'Todos los elementos deben tener los campos requeridos correctamente definidos (tipo, designación, dependencia y magnitud para unidades)',
+                'warning'
+            );
+        }
+        return false;
+    }
+    
+    console.log(`[GestorFases] Validación de elementos para jugador ${jugadorId}: true (${elementos.length} elementos)`);
+    return true;
+}
+
+// Implementación de obtenerElementosJugador si aún no la has añadido
+obtenerElementosJugador(jugadorId) {
+    const elementos = [];
+    
+    // Buscar en el calco activo
+    if (window.calcoActivo) {
+        window.calcoActivo.eachLayer(layer => {
+            // Verificar si el layer tiene las propiedades necesarias y pertenece al jugador
+            if (layer.options && 
+                (layer.options.jugadorId === jugadorId || layer.options.jugador === jugadorId)) {
+                elementos.push(layer);
+            }
+        });
+    }
+    
+    console.log(`[GestorFases] Elementos encontrados para jugador ${jugadorId}: ${elementos.length}`);
+    return elementos;
+}
+
+
+    
+    actualizarBotonListo() {
+            const btnListo = document.getElementById('btn-listo-despliegue');
+            if (!btnListo) return;
+    
+            const elementosValidos = this.validarElementosJugador(window.userId);
+            btnListo.disabled = !elementosValidos;
+    
+            if (!elementosValidos) {
+                this.mostrarMensajeAyuda(
+                    'Antes de marcar como listo, asegúrese que todos los elementos desplegados tengan:\n' +
+                    '- Magnitud (Sección, Compañía, etc)\n' +
+                    '- Designación (1ra Sec, 2da Cia, etc)\n' +
+                    '- Dependencia (Unidad superior)'
+                );
+            }
+        }
+    
+        enviarElementoAlServidor(elemento) {
+            if (!window.gestorJuego?.gestorComunicacion?.socket) return;
+            
+            const datosElemento = {
+                id: elemento.options.id,
+                tipo: elemento.options.tipo,
+                sidc: elemento.options.sidc,
+                designacion: elemento.options.designacion,
+                dependencia: elemento.options.dependencia,
+                magnitud: elemento.options.magnitud,
+                esEquipo: elemento.options.sidc.charAt(4) === 'E',
+                posicion: elemento.getLatLng(),
+                jugadorId: window.userId,
+                partidaCodigo: window.codigoPartida
+            };
+            
+            window.gestorJuego.gestorComunicacion.socket.emit('guardarElemento', datosElemento);
+        }
+
+    // Reemplazar el método marcarJugadorListo en GestorFases.js
+marcarJugadorListo() {
+    try {
+        // 1. Validar que estamos en la fase correcta
+        if (this.fase !== 'preparacion' || this.subfase !== 'despliegue') {
+            console.warn('[GestorFases] No se puede marcar como listo: fase incorrecta');
+            return false;
+        }
+        
+        // 2. Validar elementos desplegados
+        if (!this.validarElementosJugador(window.userId)) {
+            console.warn('[GestorFases] Validación de elementos fallida');
+            return false;
+        }
+        
+        console.log('[GestorFases] Elementos validados, marcando jugador como listo');
+        
+        // 3. Buscar y actualizar el jugador en la lista
+        const jugadorIndex = this.jugadores.findIndex(j => j.id === window.userId);
+        if (jugadorIndex === -1) {
+            console.error('[GestorFases] Jugador no encontrado en la lista de jugadores');
+            return false;
+        }
+        
+        this.jugadores[jugadorIndex].listo = true;
+        
+        // 4. Emitir al servidor
+        if (this.gestorJuego?.gestorComunicacion?.socket) {
+            console.log('[GestorFases] Enviando estado listo al servidor');
+            this.gestorJuego.gestorComunicacion.socket.emit('jugadorListoDespliegue', {
+                jugadorId: window.userId,
+                partidaCodigo: window.codigoPartida,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            console.warn('[GestorFases] No hay conexión al servidor disponible');
+        }
+        
+        // 5. Actualizar interfaz
+        const btnListo = document.getElementById('btn-listo-despliegue');
+        if (btnListo) {
+            btnListo.disabled = true;
+            btnListo.textContent = 'Listo ✓';
+        }
+        
+        // 6. Verificar si todos están listos para iniciar combate
+        if (this.todosJugadoresListos() && this.esDirector(window.userId)) {
+            console.log('[GestorFases] Todos los jugadores listos, iniciando combate');
+            setTimeout(() => this.iniciarFaseCombate(), 1000);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('[GestorFases] Error al marcar jugador como listo:', error);
+        if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+            this.gestorJuego.gestorInterfaz.mostrarMensaje(
+                'Error al marcar como listo: ' + (error.message || 'Error desconocido'),
+                'error'
+            );
+        }
+        return false;
+    }
+}
+
+// Método simplificado para verificar si todos los jugadores están listos
+todosJugadoresListos() {
+    const resultado = this.jugadores.every(j => j.listo === true);
+    console.log('[GestorFases] Todos los jugadores listos:', resultado);
+    return resultado;
+}
 
     iniciarFaseCombate() {
         console.log('Iniciando fase de combate');

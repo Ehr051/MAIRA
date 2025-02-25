@@ -116,23 +116,42 @@ function inicializarBotonesAmigoEnemigo() {
 }
 
 window.agregarMarcador = function(sidc, nombre) {
-    // Determinar modo
+    // 1. Validación inicial modo y permisos
     const modoJuegoGuerra = window.gestorJuego?.gestorAcciones !== undefined;
-
     if (modoJuegoGuerra) {
+        const fase = window.gestorJuego?.gestorFases?.fase;
+        const subfase = window.gestorJuego?.gestorFases?.subfase;
+        
+        if (fase !== 'preparacion' || subfase !== 'despliegue') {
+            window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                'Solo puedes agregar unidades en fase de despliegue', 
+                'error'
+            );
+            return;
+        }
+        
         if (!window.gestorJuego.gestorAcciones.validarDespliegueUnidad()) {
             return;
         }
     }
 
+    // 2. Handler para click en mapa
     window.mapa.once('click', function(event) {
         const latlng = event.latlng;
 
-        if (modoJuegoGuerra && !window.gestorJuego.gestorAcciones.validarDespliegueUnidad(latlng)) {
-            return;
+        // 3. Validación zona despliegue
+        if (modoJuegoGuerra) {
+            const zonaEquipo = window.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
+            if (!zonaEquipo?.contains(latlng)) {
+                window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                    'Solo puedes desplegar unidades en tu zona asignada',
+                    'error'
+                );
+                return;
+            }
         }
 
-        // Formatear SIDC
+        // 4. Configuración SIDC y símbolo
         let sidcFormateado = sidc.padEnd(15, '-');
         if (modoJuegoGuerra) {
             const sidcArray = sidcFormateado.split('');
@@ -142,30 +161,36 @@ window.agregarMarcador = function(sidc, nombre) {
 
         const sym = new ms.Symbol(sidcFormateado, { 
             size: 35,
-            uniqueDesignation:''
+            uniqueDesignation: ''
         });
 
+        // 5. Crear marcador con propiedades específicas según modo
         const marcador = L.marker(latlng, {
             icon: L.divIcon({
-                className: modoJuegoGuerra ? `custom-div-icon equipo-${window.equipoJugador}` : 'elemento-militar',
+                className: modoJuegoGuerra ? 
+                    `custom-div-icon equipo-${window.equipoJugador}` : 
+                    'elemento-militar',
                 html: sym.asSVG(),
                 iconSize: [70, 50],
                 iconAnchor: [35, 25]
             }),
-            draggable: true,
+            draggable: modoJuegoGuerra ? 
+                window.gestorJuego?.gestorFases?.fase === 'preparacion' : 
+                true,
             sidc: sidcFormateado,
-            nombre: '',
+            nombre: nombre || '',
             ...(modoJuegoGuerra && {
                 jugador: window.userId,
                 equipo: window.equipoJugador,
                 id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 designacion: '',
                 dependencia: '',
-                magnitud: sidcFormateado.charAt(11) || '-'
+                magnitud: sidcFormateado.charAt(11) || '-',
+                estado: 'operativo'
             })
         });
 
-        // Eventos base
+        // 6. Configurar eventos según modo
         marcador.on('click', function(e) {
             L.DomEvent.stopPropagation(e);
             window.elementoSeleccionado = this;
@@ -192,31 +217,39 @@ window.agregarMarcador = function(sidc, nombre) {
                 return false;
             });
 
-            // Eventos drag juego guerra
             marcador.on('dragstart', function() {
+                if (window.gestorJuego?.gestorFases?.fase !== 'preparacion') {
+                    return false;
+                }
                 this._origLatLng = this.getLatLng();
             });
 
             marcador.on('drag', function(e) {
+                if (window.gestorJuego?.gestorFases?.fase !== 'preparacion') {
+                    this.setLatLng(this._origLatLng);
+                    return;
+                }
                 const nuevaPosicion = e.latlng;
                 const zonaEquipo = window.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
                 if (!zonaEquipo?.contains(nuevaPosicion)) {
+                    this.setLatLng(this._origLatLng);
                     window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
                         'No puedes mover unidades fuera de tu zona', 
                         'warning'
                     );
-                    this.setLatLng(this._origLatLng);
                 }
             });
         } else {
-            // Eventos específicos planeamiento
             marcador.on('contextmenu', window.mostrarMenuContextual);
         }
 
+        // 7. Agregar al mapa y notificar
         window.calcoActivo.addLayer(marcador);
 
         if (modoJuegoGuerra) {
             window.gestorJuego.gestorAcciones.configurarEventosElemento(marcador);
+            window.gestorUnidades?.agregarUnidad(marcador);
+            
             window.gestorJuego.gestorComunicacion?.socket?.emit('elementoCreado', {
                 tipo: 'unidad',
                 datos: {

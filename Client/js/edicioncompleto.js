@@ -474,33 +474,51 @@ function inicializarSelectores() {
 function actualizarEtiquetaUnidad(elemento) {
     if (!elemento?.options) return;
 
-    const etiqueta = elemento.options.designacion + (elemento.options.dependencia ? '/' + elemento.options.dependencia : '');
+    // Construir etiqueta con formato correcto
+    const designacion = elemento.options.designacion || '';
+    const dependencia = elemento.options.dependencia || '';
+    let etiqueta = `${designacion}/${dependencia}`;
 
-    // Remover etiqueta existente si la hay
+    // Añadir estado reforzado/disminuido
+    if (elemento.options.estado) {
+        if (elemento.options.estado === 'reforzado') etiqueta += ' (+)';
+        if (elemento.options.estado === 'disminuido') etiqueta += ' (-)';
+    }
+
+    // Remover etiqueta existente
     if (elemento.etiquetaPersonalizada) {
         calcoActivo.removeLayer(elemento.etiquetaPersonalizada);
     }
 
-    // Crear nueva etiqueta solo si hay contenido
+    // Crear nueva etiqueta
     if (etiqueta.trim() !== '') {
         const latLng = elemento.getLatLng();
-        const desplazamientoX = 0.030; // Ajusta este valor para mover horizontalmente
-        const desplazamientoY = -0.020; // Ajusta este valor para mover verticalmente
+        const desplazamientoX = 0.040; // Aumentado para mover más a la derecha
+        const desplazamientoY = 0;     // Centrado verticalmente
 
         elemento.etiquetaPersonalizada = L.marker([latLng.lat + desplazamientoY, latLng.lng + desplazamientoX], {
             icon: L.divIcon({
                 className: 'etiqueta-personalizada',
-                html: `<div style="color: black; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;">${etiqueta}</div>`,
+                html: `<div style="
+                    color: black; 
+                    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+                    font-weight: bold;
+                    white-space: nowrap;
+                    ">${etiqueta}</div>`,
                 iconSize: [100, 20],
-                iconAnchor: [0, 20] // Ancla en la esquina inferior izquierda del div
+                iconAnchor: [0, 10] // Centrado vertical
             }),
             interactive: false
         }).addTo(calcoActivo);
 
+        // Actualizar posición en movimiento
         elemento.on('move', function(e) {
             if (elemento.etiquetaPersonalizada) {
                 const newLatLng = e.latlng;
-                elemento.etiquetaPersonalizada.setLatLng([newLatLng.lat + desplazamientoY, newLatLng.lng + desplazamientoX]);
+                elemento.etiquetaPersonalizada.setLatLng([
+                    newLatLng.lat + desplazamientoY, 
+                    newLatLng.lng + desplazamientoX
+                ]);
             }
         });
     } else {
@@ -517,94 +535,82 @@ function validarDatosElemento(designacion, dependencia) {
 }
 
 function obtenerTipoDeElemento(sidc) {
-    // Extraer código (ejemplo: UCI, UCR, etc)
-    const codigo = sidc.substring(10, 13);
-    
-    // Buscar en unidadesMilitares
-    for (const categoria in unidadesMilitares) {
-        for (const arma in unidadesMilitares[categoria]) {
-            if (unidadesMilitares[categoria][arma].codigo === codigo) {
-                return arma.toLowerCase();
+    // Asegurarse de que el SIDC tiene al menos 15 caracteres
+    if (!sidc || sidc.length < 15) {
+        console.warn(`SIDC inválido o demasiado corto: ${sidc}`);
+        return "desconocido";
+    }
+
+    try {
+        // Extraer código (ejemplo: UCI, UCR, etc)
+        // Asumimos que el código comienza en la posición 4 y tiene 3 caracteres
+        const codigo = sidc.substring(4, 7);
+        
+        // Para equipos, la lógica puede ser diferente
+        if (sidc.charAt(4) === 'E') {
+            // Manejar equipos especialmente
+            const codigoEquipo = sidc.substring(5, 7);
+            
+            // Mapeo de códigos de equipo a tipos
+            const tiposEquipo = {
+                'VA': 'vehiculo_armado',
+                'VC': 'vehiculo_combate',
+                'VU': 'vehiculo_utilitario',
+                'AI': 'aeronave',
+                'AH': 'helicoptero',
+                // Añadir más mapeos según sea necesario
+            };
+            
+            return tiposEquipo[codigoEquipo] || 'equipo_general';
+        }
+        
+        // Buscar en unidadesMilitares
+        for (const categoria in unidadesMilitares) {
+            for (const arma in unidadesMilitares[categoria]) {
+                if (unidadesMilitares[categoria][arma].codigo === codigo) {
+                    return arma.toLowerCase();
+                }
             }
         }
+        
+        // Si llegamos aquí y no encontramos un tipo, verificar códigos específicos
+        switch(codigo) {
+            case 'UCI':
+                return 'infanteria';
+            case 'UCR':
+                return 'caballeria';
+            case 'UCF':
+                return 'artilleria';
+            case 'UCE':
+                return 'ingenieros';
+            case 'UCD':
+                return 'defensa_antiaerea';
+            case 'UUS':
+                return 'comunicaciones';
+            case 'USM':
+                return 'sanidad';
+            case 'USS':
+                return 'abastecimiento';
+            case 'UST':
+                return 'transporte';
+            case 'USA':
+                return 'personal';
+            case 'UUM':
+                return 'inteligencia';
+            case 'UUA':
+                return 'qbn';
+            case 'UUL':
+                return 'policia_militar';
+            case 'UUT':
+                return 'topografico';
+            default:
+                console.warn(`Código de unidad no reconocido: ${codigo} en SIDC: ${sidc}`);
+                return "unidad_general";
+        }
+    } catch (error) {
+        console.error(`Error al obtener tipo de elemento con SIDC: ${sidc}`, error);
+        return "unidad_general";
     }
-    return 'desconocido';
-}
-
-function guardarCambiosUnidad() {
-    if (!elementoSeleccionado) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return;
-    }
-
-    const nuevoSidc = obtenerSIDCActual();
-    const designacion = document.getElementById('designacion').value;
-    const dependencia = document.getElementById('dependencia').value;
-
-    // Validar campos requeridos
-    if (!validarDatosElemento(designacion, dependencia)) {
-        mostrarError('Designación y dependencia son obligatorios');
-        return false;
-    }
-
-    const tipo = obtenerTipoDeElemento(nuevoSidc);
-
-    const sym = new ms.Symbol(nuevoSidc, {
-        size: 35,
-    });
-
-    const icon = L.divIcon({
-        className: 'custom-div-icon',
-        html: sym.asSVG(),
-        iconSize: [70, 50],
-        iconAnchor: [35, 25]
-    });
-
-    elementoSeleccionado.setIcon(icon);
-    elementoSeleccionado.options.sidc = nuevoSidc;
-    elementoSeleccionado.options.tipo = tipo;
-    elementoSeleccionado.options.designacion = designacion;
-    elementoSeleccionado.options.dependencia = dependencia;
-
-    actualizarEtiquetaUnidad(elementoSeleccionado);
-    
-    if (window.gestorFases) {
-        window.gestorFases.actualizarBotonListo();
-    }
-
-    cerrarPanelEdicion('panelEdicionUnidad');
-    return true;
-}
-
-function guardarCambiosEquipo() {
-    if (!elementoSeleccionado) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return;
-    }
-
-    const nuevoSidc = obtenerSIDCActualEquipo();
-    const designacion = document.getElementById('designacionEquipo').value;
-    const dependencia = document.getElementById('asignacionEquipo').value;
-
-    const sym = new ms.Symbol(nuevoSidc, {
-        size: 35,
-    });
-
-    const icon = L.divIcon({
-        className: 'custom-div-icon',
-        html: sym.asSVG(),
-        iconSize: [70, 50],
-        iconAnchor: [35, 25]
-    });
-
-    elementoSeleccionado.setIcon(icon);
-    elementoSeleccionado.options.sidc = nuevoSidc;
-    elementoSeleccionado.options.designacion = designacion;
-    elementoSeleccionado.options.dependencia = dependencia;
-
-    actualizarEtiquetaEquipo(elementoSeleccionado);
-
-    cerrarPanelEdicion('panelEdicionEquipo');
 }
 
 function actualizarPreviewSimboloEquipo() {
@@ -689,6 +695,231 @@ function actualizarEstiloElemento() {
     if (elementoSeleccionado.id) {
         actualizarLinea(elementoSeleccionado.id);
     }
+}
+
+
+function actualizarIconoUnidad(elemento) {
+    if (!elemento || !elemento.options) {
+        console.warn('Elemento no válido para actualizar ícono');
+        return;
+    }
+
+    const sym = new ms.Symbol(elemento.options.sidc, {
+        size: 35,
+        uniqueDesignation: elemento.options.designacion || ''
+    });
+
+    const icon = L.divIcon({
+        className: `custom-div-icon equipo-${elemento.options.equipo}`,
+        html: sym.asSVG(),
+        iconSize: [70, 50],
+        iconAnchor: [35, 25]
+    });
+
+    elemento.setIcon(icon);
+}
+
+
+
+function guardarCambiosUnidad() {
+    if (!elementoSeleccionado) {
+        console.warn('No hay elemento seleccionado para guardar cambios');
+        return false;
+    }
+
+    try {
+        const nuevoSidc = obtenerSIDCActual();
+        const designacion = document.getElementById('designacion').value;
+        const dependencia = document.getElementById('dependencia').value;
+        const tipo = obtenerTipoDeElemento(nuevoSidc);
+        const magnitud = document.getElementById('magnitud').value;
+
+        // Validar campos requeridos para cualquier unidad
+        if (!designacion || !dependencia) {
+            if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                    'Designación y dependencia son obligatorios',
+                    'error'
+                );
+            } else {
+                alert('Designación y dependencia son obligatorios');
+            }
+            return false;
+        }
+
+        // Validar tipo
+        if (!tipo) {
+            if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                    'La unidad debe tener un tipo válido',
+                    'error'
+                );
+            } else {
+                alert('La unidad debe tener un tipo válido');
+            }
+            return false;
+        }
+
+        // Validar magnitud (solo para unidades, no para equipos)
+        const esEquipo = nuevoSidc.charAt(4) === 'E';
+        if (!esEquipo && (!magnitud || magnitud === '-')) {
+            if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                    'Debe seleccionar una magnitud para la unidad',
+                    'error'
+                );
+            } else {
+                alert('Debe seleccionar una magnitud para la unidad');
+            }
+            return false;
+        }
+
+        // Actualizar elemento
+        elementoSeleccionado.options = {
+            ...elementoSeleccionado.options,
+            sidc: nuevoSidc,
+            tipo: tipo,
+            designacion: designacion,
+            dependencia: dependencia,
+            magnitud: !esEquipo ? magnitud : undefined,  // Solo incluir magnitud si no es equipo
+            equipo: window.equipoJugador,
+            jugadorId: window.userId
+        };
+
+        // Actualizar visual
+        actualizarIconoUnidad(elementoSeleccionado);
+        actualizarEtiquetaUnidad(elementoSeleccionado);
+
+        // Emitir y finalizar
+        if (window.gestorJuego?.gestorComunicacion?.socket) {
+            window.gestorJuego.gestorComunicacion.socket.emit('elementoActualizado', {
+                id: elementoSeleccionado.options.id,
+                sidc: nuevoSidc,
+                tipo: tipo,
+                designacion: designacion,
+                dependencia: dependencia,
+                magnitud: !esEquipo ? magnitud : undefined,
+                equipo: window.equipoJugador,
+                jugador: window.userId,
+                partidaCodigo: window.codigoPartida
+            });
+        }
+
+        window.gestorJuego?.gestorFases?.actualizarBotonListo();
+        cerrarPanelEdicion('panelEdicionUnidad');
+        enviarElementoAlServidor(elementoSeleccionado);
+        return true;
+    } catch (error) {
+        console.error('Error al guardar cambios de unidad:', error);
+        
+        if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+            window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                'Error al guardar cambios: ' + (error.message || 'Error desconocido'),
+                'error'
+            );
+        } else {
+            alert('Error al guardar cambios: ' + (error.message || 'Error desconocido'));
+        }
+        
+        return false;
+    }
+    
+
+}
+
+function guardarCambiosEquipo() {
+    if (!elementoSeleccionado) {
+        console.warn('No hay elemento seleccionado para guardar cambios');
+        return;
+    }
+
+    const nuevoSidc = obtenerSIDCActualEquipo();
+    const designacion = document.getElementById('designacionEquipo').value;
+    const dependencia = document.getElementById('asignacionEquipo').value;
+    
+    // Validar datos
+    if (!designacion || !dependencia) {
+        if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+            window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                'Designación y asignación son obligatorios para equipos',
+                'error'
+            );
+        } else {
+            alert('Designación y asignación son obligatorios para equipos');
+        }
+        return false;
+    }
+    
+    // Obtener tipo de equipo
+    const tipo = obtenerTipoDeElemento(nuevoSidc);
+    if (!tipo) {
+        if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+            window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                'No se pudo determinar el tipo de equipo',
+                'error'
+            );
+        } else {
+            alert('No se pudo determinar el tipo de equipo');
+        }
+        return false;
+    }
+
+    const sym = new ms.Symbol(nuevoSidc, {
+        size: 35,
+    });
+
+    const icon = L.divIcon({
+        className: 'custom-div-icon',
+        html: sym.asSVG(),
+        iconSize: [70, 50],
+        iconAnchor: [35, 25]
+    });
+
+    elementoSeleccionado.setIcon(icon);
+    elementoSeleccionado.options.sidc = nuevoSidc;
+    elementoSeleccionado.options.designacion = designacion;
+    elementoSeleccionado.options.dependencia = dependencia;
+    elementoSeleccionado.options.tipo = tipo;
+    elementoSeleccionado.options.jugadorId = window.userId;
+
+    actualizarEtiquetaEquipo(elementoSeleccionado);
+
+    // Emitir evento al servidor
+    if (window.gestorJuego?.gestorComunicacion?.socket) {
+        window.gestorJuego.gestorComunicacion.socket.emit('elementoActualizado', {
+            id: elementoSeleccionado.options.id,
+            sidc: nuevoSidc,
+            tipo: tipo,
+            designacion: designacion,
+            dependencia: dependencia,
+            equipo: window.equipoJugador,
+            jugador: window.userId,
+            partidaCodigo: window.codigoPartida
+        });
+    }
+
+    cerrarPanelEdicion('panelEdicionEquipo');
+    enviarElementoAlServidor(elementoSeleccionado);
+    return true;
+}
+
+function enviarElementoAlServidor(elemento) {
+    if (!window.gestorJuego?.gestorComunicacion?.socket) return;
+    
+    const datosElemento = {
+        id: elemento.options.id,
+        tipo: elemento.options.tipo,
+        sidc: elemento.options.sidc,
+        designacion: elemento.options.designacion,
+        dependencia: elemento.options.dependencia,
+        magnitud: elemento.options.magnitud,
+        esEquipo: elemento.options.sidc.charAt(4) === 'E',
+        posicion: elemento.getLatLng(),
+        jugadorId: window.userId,
+        partidaCodigo: window.codigoPartida
+    };
+    
+    window.gestorJuego.gestorComunicacion.socket.emit('guardarElemento', datosElemento);
 }
 
 function mostrarPanelEdicionMCC(elemento, textoAsociado, tipo) {
@@ -954,6 +1185,48 @@ function esEquipo(sidc) {
 function esUnidad(sidc) {
     return sidc.charAt(4) === 'U';
 }
+
+function verificarElementosAntesDeEnviarListo() {
+    const jugadorId = window.userId;
+    if (!jugadorId) {
+        console.error('No hay ID de jugador disponible');
+        return false;
+    }
+    
+    // Obtener y mostrar todos los elementos
+    const elementos = [];
+    if (window.calcoActivo) {
+        window.calcoActivo.eachLayer(layer => {
+            if (layer.options && 
+                (layer.options.jugadorId === jugadorId || layer.options.jugador === jugadorId)) {
+                elementos.push(layer);
+            }
+        });
+    }
+    
+    console.group(`[Diagnóstico] Elementos para jugador ${jugadorId} antes de marcar como listo`);
+    console.log(`Total elementos: ${elementos.length}`);
+    
+    elementos.forEach((elem, i) => {
+        const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
+        console.log(`Elemento #${i+1}:`, {
+            id: elem.options?.id,
+            tipo: elem.options?.tipo,
+            designacion: elem.options?.designacion,
+            dependencia: elem.options?.dependencia,
+            magnitud: elem.options?.magnitud,
+            sidc: elem.options?.sidc,
+            esEquipo
+        });
+    });
+    
+    console.groupEnd();
+    return elementos.length > 0;
+}
+
+// Usar esta función justo antes de enviar el estado "listo" al servidor
+
+
 
 // Exportación de funciones para uso en otros archivos
 window.mostrarPanelEdicionUnidad = mostrarPanelEdicionUnidad;

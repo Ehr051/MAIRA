@@ -1004,6 +1004,64 @@ def verificar_todos_jugadores_listos(codigo_partida):
         if conn:
             conn.close()
 
+@socketio.on('guardarElemento')
+def handle_guardar_elemento(datos):
+    try:
+        jugador_id = datos['jugadorId']
+        partida_codigo = datos['partidaCodigo']
+        
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            # Verificar si el elemento ya existe
+            cursor.execute("""
+                SELECT id 
+                FROM marcadores_jugadores 
+                WHERE id = %s
+            """, (datos['id'],))
+            
+            existe = cursor.fetchone()
+            
+            if existe:
+                # Actualizar elemento existente
+                cursor.execute("""
+                    UPDATE marcadores_jugadores 
+                    SET tipo = %s, sidc = %s, designacion = %s, dependencia = %s, magnitud = %s,
+                        posicion_lat = %s, posicion_lng = %s, actualizado_en = NOW()
+                    WHERE id = %s
+                """, (
+                    datos['tipo'], datos['sidc'], datos['designacion'], datos['dependencia'], 
+                    datos['magnitud'], datos['posicion'].get('lat'), datos['posicion'].get('lng'),
+                    datos['id']
+                ))
+            else:
+                # Insertar nuevo elemento
+                cursor.execute("""
+                    INSERT INTO marcadores_jugadores 
+                    (id, jugador_id, partida_codigo, tipo, sidc, designacion, dependencia, magnitud,
+                     posicion_lat, posicion_lng, creado_en)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                """, (
+                    datos['id'], jugador_id, partida_codigo, datos['tipo'], datos['sidc'],
+                    datos['designacion'], datos['dependencia'], datos['magnitud'],
+                    datos['posicion'].get('lat'), datos['posicion'].get('lng')
+                ))
+            
+            conn.commit()
+            
+            # Confirmar guardado exitoso
+            emit('elementoGuardado', {
+                'id': datos['id'],
+                'exito': True
+            })
+            
+    except Exception as e:
+        print(f"Error al guardar elemento: {e}")
+        traceback.print_exc()
+        emit('error', {
+            'mensaje': 'Error al guardar elemento en el servidor',
+            'detalles': str(e)
+        })
+
 @socketio.on('jugadorListo')
 def handle_jugador_listo(data):
     try:
@@ -1012,7 +1070,44 @@ def handle_jugador_listo(data):
         
         conn = get_db_connection()
         with conn.cursor() as cursor:
-            # Verificar elementos del jugador
+            # Marcar jugador como listo en sala
+            cursor.execute("""
+                UPDATE usuarios_partida 
+                SET listo_sala = true 
+                WHERE usuario_id = %s AND partida_id = %s
+            """, (jugador_id, codigo_partida))
+            
+            conn.commit()
+            
+            # Verificar si todos están listos para iniciar
+            cursor.execute("""
+                SELECT COUNT(*) as total, 
+                    COUNT(CASE WHEN listo_sala = true THEN 1 END) as listos
+                FROM usuarios_partida 
+                WHERE partida_id = %s
+            """, (codigo_partida,))
+            
+            estado = cursor.fetchone()
+            if estado['total'] == estado['listos']:
+                socketio.emit('iniciarPartida', {
+                    'fase': 'preparacion',
+                    'subfase': 'definicion_sector',
+                    'timestamp': datetime.now().isoformat()
+                }, room=codigo_partida)
+                
+    except Exception as e:
+        print(f"[ERROR] Sala: {str(e)}")
+        emit('error', {'mensaje': str(e)})
+
+@socketio.on('jugadorListoDespliegue')  
+def handle_jugador_listo_despliegue(data):
+    try:
+        codigo_partida = data['partidaCodigo']
+        jugador_id = data['jugadorId']
+        
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            # Verificar elementos desplegados
             cursor.execute("""
                 SELECT COUNT(*) as total 
                 FROM marcadores_jugadores 
@@ -1032,19 +1127,19 @@ def handle_jugador_listo(data):
                 })
                 return
                 
-            # Marcar jugador como listo
+            # Marcar jugador como listo para combate
             cursor.execute("""
                 UPDATE usuarios_partida 
-                SET listo = true 
+                SET listo_despliegue = true 
                 WHERE usuario_id = %s AND partida_id = %s
             """, (jugador_id, codigo_partida))
             
             conn.commit()
             
-            # Verificar si todos están listos
+            # Verificar si todos completaron despliegue
             cursor.execute("""
                 SELECT COUNT(*) as total, 
-                       COUNT(CASE WHEN listo = true THEN 1 END) as listos
+                    COUNT(CASE WHEN listo_despliegue = true THEN 1 END) as listos
                 FROM usuarios_partida 
                 WHERE partida_id = %s
             """, (codigo_partida,))
@@ -1053,13 +1148,14 @@ def handle_jugador_listo(data):
             if estado['total'] == estado['listos']:
                 socketio.emit('iniciarCombate', {
                     'fase': 'combate',
-                    'subfase': 'movimiento',
+                    'subfase': 'turno',
                     'timestamp': datetime.now().isoformat()
                 }, room=codigo_partida)
                 
     except Exception as e:
-        print(f"[ERROR] {str(e)}")
+        print(f"[ERROR] Despliegue: {str(e)}")
         emit('error', {'mensaje': str(e)})
+
 
 @socketio.on('salirSalaEspera')
 def salir_sala_espera(data):

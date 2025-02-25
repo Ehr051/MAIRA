@@ -444,6 +444,19 @@ configurarEventosSocket() {
             }
         },
 
+        'guardarElemento': (datos) => {
+            this.log('guardarElemento recibido:', datos);
+            if (datos.jugadorId !== window.userId) {
+                this.gestorJuego?.gestorAcciones?.guardarElementoRemoto(datos);
+                // Actualizar estado global
+                this.gestorJuego?.gestorEstado?.actualizarEstado({
+                    elementos: new Map([...this.gestorJuego?.gestorEstado?.estado.elementos])
+
+                        .set(datos.id, { ...datos })
+                });
+            }
+        },
+
         'elementoMovido': (datos) => {
             this.log('elementoMovido recibido:', datos);
             if (datos.jugadorId !== window.userId) {

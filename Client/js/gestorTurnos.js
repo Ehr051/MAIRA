@@ -156,7 +156,8 @@ class GestorTurnos extends GestorBase {
     configurarEventos() {
         if (this.socket) {
             this.socket.on('cambioTurno', (datos) => this.manejarCambioTurnoRemoto(datos));
-            this.socket.on('jugadorListo', (datos) => this.manejarJugadorListo(datos));
+            this.socket.on('jugadorListoDespliegue', (datos) => this.manejarJugadorListo(datos));
+            this.socket.on('iniciarCombate', (datos) => this.manejarInicioCombate(datos));
             this.socket.on('finTurno', (datos) => this.manejarFinTurnoRemoto(datos));
         }
     }
@@ -276,25 +277,121 @@ inicializarTurnos() {
         }
     }
 
-    marcarJugadorListo(jugadorId) {
-        const jugador = this.jugadores.find(j => j.id === jugadorId);
-        if (!jugador) return false;
-
-        jugador.listo = true;
-        jugador.despliegueListo = true;
-
-        // Verificar si todos los jugadores están listos
-        if (this.todosJugadoresListos()) {
-            this.emisorEventos.emit('todosListos');
+    marcarJugadorListo() {
+        try {
+            // 1. Primero verificar elementos antes de continuar
+            if (!this.verificarElementosAntesDeEnviarListo()) {
+                console.warn('No hay elementos válidos para enviar al servidor');
+                if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                    this.gestorJuego.gestorInterfaz.mostrarMensaje(
+                        'No se encontraron elementos para marcar como listo',
+                        'error'
+                    );
+                }
+                return false;
+            }
+    
+            // 2. Validar que estamos en la fase correcta
+            if (this.fase !== 'preparacion' || this.subfase !== 'despliegue') {
+                console.warn('[GestorFases] No se puede marcar como listo: fase incorrecta');
+                return false;
+            }
+            
+            // 3. Validar elementos desplegados
+            if (!this.validarElementosJugador(window.userId)) {
+                console.warn('[GestorFases] Validación de elementos fallida');
+                return false;
+            }
+            
+            console.log('[GestorFases] Elementos validados, marcando jugador como listo');
+            
+            // 4. Buscar y actualizar el jugador en la lista
+            const jugadorIndex = this.jugadores.findIndex(j => j.id === window.userId);
+            if (jugadorIndex === -1) {
+                console.error('[GestorFases] Jugador no encontrado en la lista de jugadores');
+                return false;
+            }
+            
+            this.jugadores[jugadorIndex].listo = true;
+            this.jugadores[jugadorIndex].despliegueListo = true;
+            
+            // 5. Emitir al servidor
+            if (this.gestorJuego?.gestorComunicacion?.socket) {
+                console.log('[GestorFases] Enviando estado listo al servidor');
+                this.gestorJuego.gestorComunicacion.socket.emit('jugadorListoDespliegue', {
+                    jugadorId: window.userId,
+                    partidaCodigo: window.codigoPartida,
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                console.warn('[GestorFases] No hay conexión al servidor disponible');
+            }
+            
+            // 6. Actualizar interfaz
+            const btnListo = document.getElementById('btn-listo-despliegue');
+            if (btnListo) {
+                btnListo.disabled = true;
+                btnListo.textContent = 'Listo ✓';
+            }
+            
+            // 7. Verificar si todos están listos para iniciar combate
+            if (this.todosJugadoresListos() && this.esDirector(window.userId)) {
+                console.log('[GestorFases] Todos los jugadores listos, iniciando combate');
+                setTimeout(() => this.iniciarFaseCombate(), 1000);
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('[GestorFases] Error al marcar jugador como listo:', error);
+            if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                this.gestorJuego.gestorInterfaz.mostrarMensaje(
+                    'Error al marcar como listo: ' + (error.message || 'Error desconocido'),
+                    'error'
+                );
+            }
+            return false;
         }
-
-        return true;
     }
-
-    todosJugadoresListos() {
-        return this.jugadores.every(jugador => jugador.listo);
+    
+    // Añadir este método a la clase GestorFases
+    verificarElementosAntesDeEnviarListo() {
+        const jugadorId = window.userId;
+        if (!jugadorId) {
+            console.error('No hay ID de jugador disponible');
+            return false;
+        }
+        
+        // Obtener y mostrar todos los elementos
+        const elementos = [];
+        if (window.calcoActivo) {
+            window.calcoActivo.eachLayer(layer => {
+                if (layer.options && 
+                    (layer.options.jugadorId === jugadorId || layer.options.jugador === jugadorId)) {
+                    elementos.push(layer);
+                }
+            });
+        }
+        
+        console.group(`[Diagnóstico] Elementos para jugador ${jugadorId} antes de marcar como listo`);
+        console.log(`Total elementos: ${elementos.length}`);
+        
+        elementos.forEach((elem, i) => {
+            const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
+            console.log(`Elemento #${i+1}:`, {
+                id: elem.options?.id,
+                tipo: elem.options?.tipo,
+                designacion: elem.options?.designacion,
+                dependencia: elem.options?.dependencia,
+                magnitud: elem.options?.magnitud,
+                sidc: elem.options?.sidc,
+                esEquipo
+            });
+        });
+        
+        console.groupEnd();
+        return elementos.length > 0;
     }
-
+    
     esJugadorActual(jugadorId) {
         const jugadorActual = this.obtenerJugadorActual();
         return jugadorActual && jugadorActual.id === jugadorId;
@@ -321,10 +418,30 @@ inicializarTurnos() {
     }
     
 
-    manejarJugadorListo(datos) {
-        if (this.marcarJugadorListo(datos.jugadorId)) {
-            this.emisorEventos.emit('jugadorListo', datos);
+        manejarJugadorListoDespliegue(datos) {
+        const jugador = this.jugadores.find(j => j.id === datos.jugadorId);
+        if (!jugador) return;
+        
+        // Marcar jugador como listo
+        jugador.despliegueListo = true;
+        
+        // Emitir evento local
+        this.emisorEventos.emit('jugadorListoDespliegue', datos);
+    
+        // Verificar si todos están listos para iniciar combate
+        if (this.todosJugadoresListos() && 
+            (this.esDirector(window.userId) || 
+            (this.esDirectorTemporal && this.primerJugador.id === window.userId))) {
+            
+            this.gestorJuego?.gestorComunicacion?.socket.emit('iniciarCombate', {
+                partidaCodigo: window.codigoPartida,
+                timestamp: new Date().toISOString()
+            });
         }
+    }
+    
+    todosJugadoresListos() {
+        return this.jugadores.every(j => j.despliegueListo);
     }
 
     manejarFinTurnoRemoto(datos) {
