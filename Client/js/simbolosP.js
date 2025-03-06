@@ -161,7 +161,6 @@ window.agregarMarcador = function(sidc, nombre) {
 
         const sym = new ms.Symbol(sidcFormateado, { 
             size: 35,
-            uniqueDesignation: ''
         });
 
         // 5. Crear marcador con propiedades específicas según modo
