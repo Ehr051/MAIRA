@@ -1,14 +1,27 @@
+/* Variables globales */
+:root {
+    --color-primary: #0281a8;
+    --color-secondary: #384e55;
+    --color-text: #000000;
+    --color-text-light: #ffffff;
+    --color-bg-dark: #000000;
+    --color-error: #ff3333;
+    --border-radius: 20px;
+    --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.145);
+    --transition-time: 0.3s;
+}
+
 /* Estilos generales */
 body {
-    font-family: sans-serif;
-    margin: 10px;
-    padding: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
     background-image: url('../image/M.A.I.R.A..gif'); 
-    background-size: 80%;
+    background-size: contain;
     background-position: center;
-    background-color: #000000;
+    background-color: var(--color-bg-dark);
     background-repeat: no-repeat;
-    color: #000000;
+    color: var(--color-text);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -16,51 +29,135 @@ body {
     justify-content: center;
 }
 
+/* Contenedor principal */
+.main-container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Carrusel de selección de modos */
+.mode-carousel {
+    width: 100%;
+    max-width: 800px;
+    overflow: hidden;
+    margin: 20px auto;
+    position: relative;
+}
+
+.carousel-container {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.carousel-slide img {
+    max-width: 200px;
+    margin-bottom: 15px;
+}
+
+.carousel-slide h3 {
+    color: var(--color-primary);
+    margin-bottom: 10px;
+}
+
+.carousel-slide p {
+    text-align: center;
+    color: var(--color-text-light);
+    margin-bottom: 20px;
+}
+
+.carousel-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.carousel-controls button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.carousel-controls button.active {
+    background: var(--color-primary);
+}
+
 /* Botones de inicio */
 #botonesInicio {
-    display: flex; /* Establece flexbox para el contenedor */
-    flex-direction: row; /* Ordena los botones horizontalmente */
-    align-items: center; /* Centra los botones verticalmente */
-    justify-content: flex-end; /* Centra los botones horizontalmente */
-    gap: 5px; /* Agrega espacio entre los botones */
-    margin-top: 400px; /* Ajusta el margen superior según necesites */
-    margin-bottom: 10px; /* Ajusta el margen inferior según necesites */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 400px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 button {
-    background-color: #0281a8;
-    color: rgb(4, 4, 4);
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
     padding: 1rem 2rem;
     border: none;
     cursor: pointer;
-    border-radius: 20px;
+    border-radius: var(--border-radius);
     font-size: 1rem;
-    margin: 0.5rem;
+    font-weight: 500;
     text-align: center;
-    transition: background-color 0.3s ease; /* Add transition for smooth color change */
+    transition: all var(--transition-time) ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
-    opacity: 0.8;
+    background-color: #026d8f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Formularios */
 .formulario {
-    background-color: #384e55;
+    background-color: var(--color-secondary);
     padding: 2rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.145);
-    width: 90%; /* Ancho del 90% para adaptarse a diferentes pantallas */
-    max-width: 500px; /* Máximo ancho para evitar que sea demasiado grande */
-    margin: 10px auto; /* Centrar horizontalmente */
-    display: none; /* Ocultar formularios por defecto */
-    position: fixed; /* Para que se mantenga centrado */
-    top: 50%; /* Centrar verticalmente */
-    left: 50%; /* Centrar horizontalmente */
-    transform: translate(-50%, -50%); /* Ajuste para centrar */
-    z-index: 10; /* Asegúrate de que los formularios estén encima de todo */
-    overflow-y: auto; /* Permitir desplazamiento vertical si es necesario */
-    max-height: 80%; /* Limitar la altura máxima para que se ajuste en pantalla */
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    width: 90%;
+    max-width: 500px;
+    margin: 10px auto;
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    overflow-y: auto;
+    max-height: 80%;
+    color: var(--color-text-light);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -45%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 /* Estilos para el botón de cerrar */
@@ -69,20 +166,28 @@ button:hover {
     top: 10px;
     right: 10px;
     padding: 0.5rem;
-    background-color: #dfdbdb;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-light);
     border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: background-color var(--transition-time) ease;
 }
 
-.formulario {
-    display: none;
+.cerrar:hover {
+    background-color: rgba(255, 255, 255, 0.3);
 }
 
 .formulario label {
     display: block;
     margin-bottom: 0.5rem;
-    overflow: auto;
-    font-size: 1rem; /* Adjust as needed */
+    font-weight: 500;
+    color: var(--color-text-light);
 }
 
 .formulario input[type="text"],
@@ -91,44 +196,175 @@ button:hover {
     width: 100%;
     padding: 0.8rem;
     margin-bottom: 1rem;
-    border: 1px solid #8b8a8aee;
-    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
     box-sizing: border-box;
-    font-size: 1rem; /* Adjust as needed */
+    font-size: 1rem;
+    color: var(--color-text-light);
+    transition: border-color var(--transition-time) ease, background-color var(--transition-time) ease;
+}
+
+.formulario input[type="text"]:focus,
+.formulario input[type="email"]:focus,
+.formulario input[type="password"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Estilos para mensajes de error */
 .error {
-    color: red;
-}
-
-/* Responsive Design (for smaller screens) */
-@media (max-width: 768px) { /* For screens smaller than 768px */
-    .formulario {
-        max-width: auto; /* Adjust width as needed */
-    }
-    .formulario label,
-    .formulario input[type="text"],
-    .formulario input[type="email"],
-    .formulario input[type="password"] {
-        font-size: 0.9rem; /* Adjust font size as needed */
-    }
+    color: var(--color-error);
+    background-color: rgba(255, 0, 0, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
 }
 
 /* Estilos para los botones dentro de los formularios */
 .formulario button {
-    display: block; /* Hacer que los botones ocupen todo el ancho */
-    margin: 0.8rem auto; /* Centrar los botones horizontalmente */
-    width: fit-content; /* Ajustar el ancho del botón al contenido */
+    display: block;
+    margin: 1rem auto;
+    width: auto;
+    min-width: 150px;
 }
 
-.formulario button + button { /* Estilos para el segundo botón */
-    margin-top: 0.8rem; /* Agregar margen superior al segundo botón */
+.formulario button + button {
+    margin-top: 0.8rem;
 }
 
 .titulo-formulario {
     text-align: center;
+    color: var(--color-text-light);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    font-size: 1.5rem;
 }
 
+/* Overlay para el fondo cuando el formulario está abierto */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    display: none;
+}
 
+/* Versión */
+.version {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+}
 
+/* Responsive Design */
+@media (max-width: 768px) {
+    #botonesInicio {
+        margin-top: 350px;
+        flex-direction: column;
+    }
+    
+    button {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .formulario {
+        width: 95%;
+        padding: 1.5rem;
+    }
+    
+    .formulario label,
+    .formulario input[type="text"],
+    .formulario input[type="email"],
+    .formulario input[type="password"] {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        background-size: 150%;
+    }
+    
+    #botonesInicio {
+        margin-top: 300px;
+    }
+    
+    .formulario {
+        max-height: 90%;
+    }
+}
+
+/* Estilos para el carrusel de modos */
+.mode-card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    margin: 0 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform var(--transition-time) ease;
+    cursor: pointer;
+    width: 200px;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.mode-card:hover {
+    transform: translateY(-5px);
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.mode-card.active {
+    border: 2px solid var(--color-primary);
+    background-color: rgba(2, 129, 168, 0.2);
+}
+
+.mode-card img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+}
+
+.mode-card h3 {
+    color: var(--color-text-light);
+    margin: 10px 0;
+}
+
+.mode-card p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.mode-carousel-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+}
+
+.carousel-arrow {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+}
+
+.carousel-arrow:hover {
+    color: var(--color-primary);
+}

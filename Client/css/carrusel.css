@@ -1,0 +1,146 @@
+/* Estilos para el carrusel de selección de modos */
+.mode-carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    max-width: 1000px;
+    margin: 30px auto;
+    position: relative;
+    padding: 20px 0;
+}
+
+.mode-cards {
+    display: flex;
+    transition: transform 0.5s ease;
+    gap: 20px;
+    padding: 10px;
+    overflow: hidden;
+    width: 80%;
+}
+
+.mode-card {
+    flex: 0 0 300px;
+    background-color: #384e55;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.mode-card.active {
+    border-color: #0281a8;
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mode-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mode-card img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+    object-fit: contain;
+}
+
+.mode-card h3 {
+    color: #fff;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+.mode-card p {
+    color: #ccc;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.carousel-arrow {
+    background-color: #0281a8;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 0 10px;
+}
+
+.carousel-arrow:hover {
+    background-color: #026d8f;
+}
+
+#btnIniciarModo {
+    display: block;
+    background-color: #0281a8;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin: 20px auto;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+#btnIniciarModo:hover {
+    background-color: #026d8f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsividad */
+@media (max-width: 992px) {
+    .mode-card {
+        flex: 0 0 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .mode-carousel-container {
+        width: 95%;
+    }
+    
+    .mode-card {
+        flex: 0 0 200px;
+        padding: 15px;
+    }
+    
+    .mode-card img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .mode-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .mode-card p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .mode-card {
+        flex: 0 0 90%;
+    }
+    
+    .carousel-arrow {
+        width: 30px;
+        height: 30px;
+        font-size: 1.2rem;
+    }
+}

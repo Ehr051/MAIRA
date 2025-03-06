@@ -236,5 +236,6 @@ const HexGrid = {
     }
 };
 
+
 window.HexGrid = HexGrid;
 

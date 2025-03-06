@@ -979,6 +979,53 @@
   </div>
   <div id="detallesMarchaContainer" class="detalles-marcha-container"></div>
 </div>
+<!-- Agregar este script al final de juegodeguerra.html, justo antes del cierre de la etiqueta body -->
+
+<script>
+  // Script para mejorar la visualización de líneas y polígonos
+  document.addEventListener('DOMContentLoaded', function() {
+      // Esperar a que todos los componentes estén cargados
+      setTimeout(function() {
+          console.log('Aplicando correcciones de visualización para líneas y polígonos...');
+          
+          // Ajustar la configuración de los panes de Leaflet
+          if (window.mapa) {
+              // Asegurar que el pane de superposición tenga mayor z-index
+              var overlayPane = window.mapa.getPane('overlayPane');
+              if (overlayPane) {
+                  overlayPane.style.zIndex = '600';
+              }
+              
+              // Establecer opciones para las nuevas capas
+              window.mapa.options.renderer = L.svg({ padding: 1.0 });
+              
+              // Traer todas las capas al frente
+              if (window.calcoActivo) {
+                  window.calcoActivo.eachLayer(function(layer) {
+                      if (layer instanceof L.Path || layer instanceof L.Polyline || layer instanceof L.Polygon) {
+                          layer.bringToFront();
+                          if (layer._path) {
+                              layer._path.style.zIndex = '650';
+                          }
+                      }
+                  });
+              }
+          }
+          
+          // Aplicar la función de reordenamiento si está disponible
+          if (window.HexGrid && typeof window.HexGrid.fixLayerOrdering === 'function') {
+              window.HexGrid.fixLayerOrdering();
+              
+              // Programar llamadas periódicas para mantener el orden correcto
+              setInterval(function() {
+                  window.HexGrid.fixLayerOrdering();
+              }, 5000);
+          }
+          
+          console.log('Correcciones de visualización aplicadas.');
+      }, 1500); // Esperar 1.5 segundos para que todo esté inicializado
+  });
+  </script>
 </main>
 </body>
 
