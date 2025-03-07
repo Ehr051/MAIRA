@@ -10,7 +10,7 @@ class GestorCarga extends GestorBase {
             tareasCompletadas: 0,
             errores: [],
             tiempoInicio: null,
-            tiempoMinimo: 8000 // 3 segundos mínimo de carga
+            tiempoMinimo: 3000 // 3 segundos mínimo de carga
         };
 
         this.contenedor = null;

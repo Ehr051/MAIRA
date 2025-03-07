@@ -825,21 +825,7 @@ function guardarCambiosUnidad() {
         // Actualizar la etiqueta
         actualizarEtiquetaUnidad(elementoSeleccionado);
 
-        // Notificar al servidor
-        if (window.gestorJuego?.gestorComunicacion?.socket) {
-            window.gestorJuego.gestorComunicacion.socket.emit('elementoActualizado', {
-                id: elementoSeleccionado.options.id,
-                sidc: nuevoSidc,
-                tipo: tipo,
-                designacion: designacion,
-                dependencia: dependencia,
-                magnitud: !esEquipo ? magnitud : undefined,
-                equipo: elementoSeleccionado.options.equipo || window.equipoJugador,
-                jugador: elementoSeleccionado.options.jugador || window.userId,
-                partidaCodigo: window.codigoPartida
-            });
-        }
-
+    
         // Cerrar panel y enviar al servidor
         window.gestorJuego?.gestorFases?.actualizarBotonListo?.();
         cerrarPanelEdicion('panelEdicionUnidad');
