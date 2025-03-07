@@ -10,7 +10,7 @@ class GestorCarga extends GestorBase {
             tareasCompletadas: 0,
             errores: [],
             tiempoInicio: null,
-            tiempoMinimo: 3000 // 3 segundos mínimo de carga
+            tiempoMinimo: 8000 // 3 segundos mínimo de carga
         };
 
         this.contenedor = null;
@@ -50,7 +50,7 @@ class GestorCarga extends GestorBase {
             clearTimeout(this.timeoutOcultar);
             this.timeoutOcultar = null;
         }
-
+    
         this.estado = {
             ...this.estado,
             cargando: true,
@@ -58,13 +58,13 @@ class GestorCarga extends GestorBase {
             tiempoInicio: Date.now(),
             progreso: 0
         };
-
+    
         if (this.contenedor) {
-            this.contenedor.style.display = 'flex';
+            this.contenedor.style.display = 'flex'; // Explícitamente flex, no solo 'block'
             this.contenedor.style.opacity = '1';
             this.actualizarInterfaz();
         }
-
+    
         this.emisorEventos.emit('cargaIniciada', { mensaje });
     }
 
@@ -81,14 +81,16 @@ class GestorCarga extends GestorBase {
         this.configurarEventos();
         
         this.contenedor = document.querySelector('.loading-container');
+        // Ahora progresoBarra apunta directamente al elemento con id "progreso"
         this.progresoBarra = document.getElementById('progreso');
         this.textoMensaje = document.getElementById('loadingText');
-
+        this.porcentajeTexto = document.getElementById('porcentajeCarga');
+    
         if (!this.contenedor || !this.progresoBarra || !this.textoMensaje) {
             console.error('No se encontraron todos los elementos de carga necesarios');
             return false;
         }
-
+    
         this.contenedor.classList.add('con-transicion');
         this.ocultar();
         
@@ -112,12 +114,19 @@ class GestorCarga extends GestorBase {
         if (tarea) {
             this.estado.tareaActual = tarea;
         }
-
+    
+        // El elemento con id "progreso" ahora es la barra de progreso
         if (this.progresoBarra) {
             this.progresoBarra.style.transition = 'width 0.3s ease-out';
             this.progresoBarra.style.width = `${this.estado.progreso}%`;
+            
+            // Actualiza también el texto del porcentaje
+            const porcentajeTexto = document.getElementById('porcentajeCarga');
+            if (porcentajeTexto) {
+                porcentajeTexto.textContent = `${Math.round(this.estado.progreso)}%`;
+            }
         }
-
+    
         this.actualizarInterfaz();
         
         this.emisorEventos.emit('progresoActualizado', {
@@ -129,6 +138,9 @@ class GestorCarga extends GestorBase {
     actualizarInterfaz() {
         if (this.progresoBarra) {
             this.progresoBarra.style.width = `${this.estado.progreso}%`;
+        }
+        if (this.porcentajeTexto) {
+            this.porcentajeTexto.textContent = `${Math.round(this.estado.progreso)}%`;
         }
         if (this.textoMensaje) {
             this.textoMensaje.textContent = this.estado.tareaActual || this.estado.mensaje;

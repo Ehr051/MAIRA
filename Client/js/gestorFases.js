@@ -1481,24 +1481,7 @@ obtenerElementosJugador(jugadorId) {
             }
         }
     
-        enviarElementoAlServidor(elemento) {
-            if (!window.gestorJuego?.gestorComunicacion?.socket) return;
-            
-            const datosElemento = {
-                id: elemento.options.id,
-                tipo: elemento.options.tipo,
-                sidc: elemento.options.sidc,
-                designacion: elemento.options.designacion,
-                dependencia: elemento.options.dependencia,
-                magnitud: elemento.options.magnitud,
-                esEquipo: elemento.options.sidc.charAt(4) === 'E',
-                posicion: elemento.getLatLng(),
-                jugadorId: window.userId,
-                partidaCodigo: window.codigoPartida
-            };
-            
-            window.gestorJuego.gestorComunicacion.socket.emit('guardarElemento', datosElemento);
-        }
+        
 
     // Reemplazar el método marcarJugadorListo en GestorFases.js
 marcarJugadorListo() {

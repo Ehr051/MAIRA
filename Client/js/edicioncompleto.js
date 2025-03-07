@@ -402,6 +402,17 @@ function obtenerSIDCActual() {
     const caracteristica = document.getElementById('caracteristica').value;
     const magnitud = document.getElementById('magnitud').value;
 
+    console.log("Construyendo SIDC:", {
+        sidc_original: sidc,
+        afiliacion,
+        estado,
+        categoria,
+        arma,
+        tipo,
+        caracteristica,
+        magnitud
+    });
+
     const codigoArma = unidadesMilitares[categoria][arma].codigo;
     const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo].codigo;
     const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas[caracteristica];
@@ -417,7 +428,13 @@ function obtenerSIDCActual() {
     } else if (document.getElementById('fuerzaTarea').checked) {
         modificador = 'E';
     }
+    
+    console.log("SIDC intermedio:", sidc, "Modificador:", modificador, "Magnitud:", magnitud);
+    
+    // Colocar el modificador y la magnitud en las posiciones correctas
     sidc = sidc.substr(0, 10) + modificador + magnitud + sidc.substr(12);
+    
+    console.log("SIDC final:", sidc);
 
     return sidc.padEnd(15, '-').substr(0, 15);
 }
@@ -474,27 +491,10 @@ function inicializarSelectores() {
 function actualizarEtiquetaUnidad(elemento) {
     if (!elemento?.options) return;
 
-    // Remover etiqueta existente
-    if (elemento.etiquetaPersonalizada) {
-        calcoActivo.removeLayer(elemento.etiquetaPersonalizada);
-        elemento.etiquetaPersonalizada = null;
-    }
-
     // Construir etiqueta con formato correcto
     const designacion = elemento.options.designacion || '';
     const dependencia = elemento.options.dependencia || '';
-    let etiqueta = '';
-    
-    if (designacion && dependencia) {
-        etiqueta = `${designacion}/${dependencia}`;
-    } else if (designacion) {
-        etiqueta = designacion;
-    } else if (dependencia) {
-        etiqueta = dependencia;
-    }
-
-    // No crear etiqueta si no hay texto
-    if (!etiqueta.trim()) return;
+    let etiqueta = `${designacion}/${dependencia}`;
 
     // Añadir estado reforzado/disminuido
     if (elemento.options.estado) {
@@ -502,49 +502,48 @@ function actualizarEtiquetaUnidad(elemento) {
         if (elemento.options.estado === 'disminuido') etiqueta += ' (-)';
     }
 
-    // En lugar de crear un marcador separado, añadimos la etiqueta directamente al div icon
-    // Para futuras manipulaciones, guardaremos referencia al texto original
-    elemento.etiquetaTexto = etiqueta;
-    
-    // Función que actualiza la posición de la etiqueta basada en el zoom actual
-    const actualizarPosicionEtiqueta = function() {
-        if (!elemento || !elemento._icon) return;
-        
-        // Crear o actualizar el div de etiqueta
-        let etiquetaDiv = elemento._icon.querySelector('.etiqueta-unidad');
-        if (!etiquetaDiv) {
-            etiquetaDiv = document.createElement('div');
-            etiquetaDiv.className = 'etiqueta-unidad';
-            etiquetaDiv.style = `
-                position: absolute;
-                bottom: -10px;
-                right: -5px;
-                color: black;
-                font-weight: bold;
-                white-space: nowrap;
-                text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
-                pointer-events: none;
-                z-index: 1000;
-            `;
-            elemento._icon.appendChild(etiquetaDiv);
-        }
-        
-        etiquetaDiv.textContent = elemento.etiquetaTexto;
-    };
-    
-    // Aplicar inicialmente
-    actualizarPosicionEtiqueta();
-    
-    // Actualizar cuando cambie el zoom
-    elemento.off('add'); // Remover eventos previos
-    elemento.on('add', actualizarPosicionEtiqueta);
-    
-    window.mapa.off('zoomend', actualizarPosicionEtiqueta);
-    window.mapa.on('zoomend', actualizarPosicionEtiqueta);
+    // Remover etiqueta existente
+    if (elemento.etiquetaPersonalizada) {
+        calcoActivo.removeLayer(elemento.etiquetaPersonalizada);
+    }
+
+    // Crear nueva etiqueta
+    if (etiqueta.trim() !== '') {
+        const latLng = elemento.getLatLng();
+        const desplazamientoX = 0.040; // Aumentado para mover más a la derecha
+        const desplazamientoY = 0;     // Centrado verticalmente
+
+        elemento.etiquetaPersonalizada = L.marker([latLng.lat + desplazamientoY, latLng.lng + desplazamientoX], {
+            icon: L.divIcon({
+                className: 'etiqueta-personalizada',
+                html: `<div style="
+                    color: black; 
+                    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+                    font-weight: bold;
+                    white-space: nowrap;
+                    ">${etiqueta}</div>`,
+                iconSize: [100, 20],
+                iconAnchor: [0, 10] // Centrado vertical
+            }),
+            interactive: false
+        }).addTo(calcoActivo);
+
+        // Actualizar posición en movimiento
+        elemento.on('move', function(e) {
+            if (elemento.etiquetaPersonalizada) {
+                const newLatLng = e.latlng;
+                elemento.etiquetaPersonalizada.setLatLng([
+                    newLatLng.lat + desplazamientoY, 
+                    newLatLng.lng + desplazamientoX
+                ]);
+            }
+        });
+    } else {
+        elemento.etiquetaPersonalizada = null;
+    }
 }
 
 function actualizarEtiquetaEquipo(elemento) {
-    // Reutilizar la misma lógica para unidades y equipos
     actualizarEtiquetaUnidad(elemento);
 }
 
@@ -716,6 +715,29 @@ function actualizarEstiloElemento() {
 }
 
 
+function actualizarIconoUnidad(elemento) {
+    if (!elemento || !elemento.options) {
+        console.warn('Elemento no válido para actualizar ícono');
+        return;
+    }
+
+    const sym = new ms.Symbol(elemento.options.sidc, {
+        size: 35,
+        uniqueDesignation: elemento.options.designacion || ''
+    });
+
+    const icon = L.divIcon({
+        className: `custom-div-icon equipo-${elemento.options.equipo}`,
+        html: sym.asSVG(),
+        iconSize: [70, 50],
+        iconAnchor: [35, 25]
+    });
+
+    elemento.setIcon(icon);
+}
+
+
+
 function guardarCambiosUnidad() {
     if (!elementoSeleccionado) {
         console.warn('No hay elemento seleccionado para guardar cambios');
@@ -723,13 +745,21 @@ function guardarCambiosUnidad() {
     }
 
     try {
+        // Obtener el SIDC actualizado con todos los cambios, incluida la magnitud
         const nuevoSidc = obtenerSIDCActual();
+        console.log("SIDC generado:", nuevoSidc);  // Para depuración
+        
         const designacion = document.getElementById('designacion').value;
         const dependencia = document.getElementById('dependencia').value;
         const tipo = obtenerTipoDeElemento(nuevoSidc);
         const magnitud = document.getElementById('magnitud').value;
+        
+        // Verificar que la magnitud está correctamente incorporada en el SIDC
+        const magnitudEnSIDC = nuevoSidc.charAt(11);
+        console.log("Magnitud seleccionada:", magnitud);
+        console.log("Magnitud en SIDC:", magnitudEnSIDC);
 
-        // Validaciones
+        // Validar campos requeridos para cualquier unidad
         if (!designacion || !dependencia) {
             if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
                 window.gestorJuego.gestorInterfaz.mostrarMensaje(
@@ -755,7 +785,7 @@ function guardarCambiosUnidad() {
             return false;
         }
 
-        // Validar magnitud
+        // Validar magnitud (solo para unidades, no para equipos)
         const esEquipo = nuevoSidc.charAt(4) === 'E';
         if (!esEquipo && (!magnitud || magnitud === '-')) {
             if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
@@ -769,168 +799,61 @@ function guardarCambiosUnidad() {
             return false;
         }
 
-        // Guardar posición actual y propiedades para el nuevo marcador
-        const posicionActual = elementoSeleccionado.getLatLng();
-        
-        // Determinar si es modo planeamiento o juego de guerra
-        const modoJuegoGuerra = window.gestorJuego?.gestorFases !== undefined;
-        
-        // Determinar si debe ser arrastrable según el modo y fase
-        let esDraggable;
-        if (modoJuegoGuerra) {
-            // En modo juego de guerra, solo es draggable en fase de preparación
-            esDraggable = window.gestorJuego.gestorFases.fase === 'preparacion';
-        } else {
-            // En modo planeamiento, siempre es draggable
-            esDraggable = true;
-        }
-        
-        // Guardar el ID y otras propiedades que queremos mantener
-        const id = elementoSeleccionado.options.id;
-        const equipo = elementoSeleccionado.options.equipo || window.equipoJugador;
-        const jugador = elementoSeleccionado.options.jugador || window.userId;
-        
-        // Eliminar el marcador actual y su etiqueta
-        if (elementoSeleccionado.etiquetaPersonalizada) {
-            calcoActivo.removeLayer(elementoSeleccionado.etiquetaPersonalizada);
-        }
-        calcoActivo.removeLayer(elementoSeleccionado);
-        
-        // Crear un nuevo marcador usando la función original
-        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
-        
-        const nuevoMarcador = L.marker(posicionActual, {
-            icon: L.divIcon({
-                className: `custom-div-icon equipo-${equipo}`,
-                html: sym.asSVG(),
-                iconSize: [70, 50],
-                iconAnchor: [35, 25]
-            }),
-            draggable: esDraggable,
-            sidc: nuevoSidc,
-            nombre: tipo,
-            id: id,
-            jugador: jugador,
-            jugadorId: jugador,
-            equipo: equipo,
-            designacion: designacion,
-            dependencia: dependencia,
-            magnitud: !esEquipo ? magnitud : undefined
-        }).addTo(calcoActivo);
-        
-        // Configurar eventos del nuevo marcador (similar a agregarMarcador)
-        nuevoMarcador.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
-            window.elementoSeleccionado = this;
-            window.seleccionarElemento(this);
+        // Crear el símbolo con el SIDC actualizado
+        const sym = new ms.Symbol(nuevoSidc, {
+            size: 35,
         });
-        
-        // Configurar evento contextmenu para el menú
-        nuevoMarcador.on('contextmenu', function(e) {
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            window.elementoSeleccionado = this;
-            
-            // Verificar si puede editar según el modo y la fase
-            const puedeEditar = !modoJuegoGuerra || 
-                                window.gestorJuego.gestorFases.fase === 'preparacion';
-            
-            if (window.MiRadial) {
-                window.MiRadial.selectedUnit = this;
-                window.MiRadial.selectedHex = null;
-                window.MiRadial.mostrarMenu(
-                    e.originalEvent.pageX,
-                    e.originalEvent.pageY,
-                    'elemento'
-                );
-            } else if (window.mostrarMenuContextual) {
-                window.mostrarMenuContextual(e);
-            }
-            return false;
+
+        // Crear un nuevo icono
+        const icon = L.divIcon({
+            className: `custom-div-icon equipo-${elementoSeleccionado.options.equipo || window.equipoJugador}`,
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
         });
+
+        // Actualizar el icono del marcador
+        elementoSeleccionado.setIcon(icon);
         
-        // Configurar evento dblclick para el menú
-        nuevoMarcador.on('dblclick', function(e) {
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            window.elementoSeleccionado = this;
-            
-            // Verificar si puede editar según el modo y la fase
-            const puedeEditar = !modoJuegoGuerra || 
-                                window.gestorJuego.gestorFases.fase === 'preparacion';
-            
-            if (window.MiRadial) {
-                window.MiRadial.selectedUnit = this;
-                window.MiRadial.selectedHex = null;
-                const point = window.mapa.latLngToContainerPoint(e.latlng);
-                window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
-            } else if (window.mostrarMenuContextual) {
-                window.mostrarMenuContextual(e);
-            }
-        });
+        // Actualizar las propiedades del marcador
+        elementoSeleccionado.options.sidc = nuevoSidc;
+        elementoSeleccionado.options.tipo = tipo;
+        elementoSeleccionado.options.designacion = designacion;
+        elementoSeleccionado.options.dependencia = dependencia;
+        elementoSeleccionado.options.magnitud = !esEquipo ? magnitud : undefined;
         
-        // Configurar eventos de arrastre si está habilitado
-        if (esDraggable) {
-            nuevoMarcador.on('dragstart', function() {
-                // En modo juego de guerra, verificar que estamos en fase preparación
-                if (modoJuegoGuerra && window.gestorJuego.gestorFases.fase !== 'preparacion') {
-                    return false;
-                }
-                this._origLatLng = this.getLatLng();
-            });
-            
-            nuevoMarcador.on('drag', function(e) {
-                // En modo juego de guerra, verificar que estamos en fase preparación
-                if (modoJuegoGuerra && window.gestorJuego.gestorFases.fase !== 'preparacion') {
-                    this.setLatLng(this._origLatLng);
-                    return;
-                }
-                
-                // En modo juego de guerra, verificar la zona de despliegue
-                if (modoJuegoGuerra) {
-                    const nuevaPosicion = e.latlng;
-                    const zonaEquipo = window.gestorJuego.gestorFases.zonasDespliegue[window.equipoJugador];
-                    if (zonaEquipo && !zonaEquipo.contains(nuevaPosicion)) {
-                        this.setLatLng(this._origLatLng);
-                        window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                            'No puedes mover unidades fuera de tu zona', 
-                            'warning'
-                        );
-                    }
-                }
-            });
-        }
-        
-        // Si estamos en modo juego de guerra, configurar eventos adicionales
-        if (window.gestorJuego?.gestorAcciones?.configurarEventosElemento) {
-            window.gestorJuego.gestorAcciones.configurarEventosElemento(nuevoMarcador);
-        }
-        
-        // Añadir etiqueta al nuevo marcador
-        actualizarEtiquetaUnidad(nuevoMarcador);
-        
-        // Actualizar la referencia de elementoSeleccionado
-        elementoSeleccionado = nuevoMarcador;
-        
+        // Actualizar la etiqueta
+        actualizarEtiquetaUnidad(elementoSeleccionado);
+
         // Notificar al servidor
         if (window.gestorJuego?.gestorComunicacion?.socket) {
             window.gestorJuego.gestorComunicacion.socket.emit('elementoActualizado', {
-                id: id,
+                id: elementoSeleccionado.options.id,
                 sidc: nuevoSidc,
                 tipo: tipo,
                 designacion: designacion,
                 dependencia: dependencia,
                 magnitud: !esEquipo ? magnitud : undefined,
-                equipo: equipo,
-                jugador: jugador,
+                equipo: elementoSeleccionado.options.equipo || window.equipoJugador,
+                jugador: elementoSeleccionado.options.jugador || window.userId,
                 partidaCodigo: window.codigoPartida
             });
         }
-        
+
         // Cerrar panel y enviar al servidor
         window.gestorJuego?.gestorFases?.actualizarBotonListo?.();
         cerrarPanelEdicion('panelEdicionUnidad');
-        enviarElementoAlServidor(nuevoMarcador);
+        enviarElementoAlServidor(elementoSeleccionado);
+        
+        console.log("Elemento actualizado con éxito:", {
+            id: elementoSeleccionado.options.id,
+            tipo: tipo,
+            designacion: designacion,
+            dependencia: dependencia,
+            magnitud: !esEquipo ? magnitud : undefined,
+            sidc: nuevoSidc
+        });
+        
         return true;
     } catch (error) {
         console.error('Error al guardar cambios de unidad:', error);
@@ -951,215 +874,77 @@ function guardarCambiosUnidad() {
 function guardarCambiosEquipo() {
     if (!elementoSeleccionado) {
         console.warn('No hay elemento seleccionado para guardar cambios');
-        return false;
+        return;
     }
 
-    try {
-        const nuevoSidc = obtenerSIDCActualEquipo();
-        const designacion = document.getElementById('designacionEquipo').value;
-        const dependencia = document.getElementById('asignacionEquipo').value;
-        
-        // Validar datos
-        if (!designacion || !dependencia) {
-            if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
-                window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                    'Designación y asignación son obligatorios para equipos',
-                    'error'
-                );
-            } else {
-                alert('Designación y asignación son obligatorios para equipos');
-            }
-            return false;
-        }
-        
-        // Obtener tipo de equipo
-        const tipo = obtenerTipoDeElemento(nuevoSidc);
-        if (!tipo) {
-            if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
-                window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                    'No se pudo determinar el tipo de equipo',
-                    'error'
-                );
-            } else {
-                alert('No se pudo determinar el tipo de equipo');
-            }
-            return false;
-        }
-        
-        // Guardar posición actual y propiedades para el nuevo marcador
-        const posicionActual = elementoSeleccionado.getLatLng();
-        
-        // Determinar si es modo planeamiento o juego de guerra
-        const modoJuegoGuerra = window.gestorJuego?.gestorFases !== undefined;
-        
-        // Determinar si debe ser arrastrable según el modo y fase
-        let esDraggable;
-        if (modoJuegoGuerra) {
-            // En modo juego de guerra, solo es draggable en fase de preparación
-            esDraggable = window.gestorJuego.gestorFases.fase === 'preparacion';
-        } else {
-            // En modo planeamiento, siempre es draggable
-            esDraggable = true;
-        }
-        
-        // Guardar el ID y otras propiedades que queremos mantener
-        const id = elementoSeleccionado.options.id;
-        const equipo = elementoSeleccionado.options.equipo || window.equipoJugador;
-        const jugador = elementoSeleccionado.options.jugador || window.userId;
-        
-        // Eliminar el marcador actual y su etiqueta
-        if (elementoSeleccionado.etiquetaPersonalizada) {
-            calcoActivo.removeLayer(elementoSeleccionado.etiquetaPersonalizada);
-        }
-        calcoActivo.removeLayer(elementoSeleccionado);
-        
-        // Crear un nuevo marcador usando la función original
-        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
-        
-        const nuevoMarcador = L.marker(posicionActual, {
-            icon: L.divIcon({
-                className: `custom-div-icon equipo-${equipo}`,
-                html: sym.asSVG(),
-                iconSize: [70, 50],
-                iconAnchor: [35, 25]
-            }),
-            draggable: esDraggable,
-            sidc: nuevoSidc,
-            nombre: tipo,
-            id: id,
-            jugador: jugador,
-            jugadorId: jugador,
-            equipo: equipo,
-            designacion: designacion,
-            dependencia: dependencia
-        }).addTo(calcoActivo);
-        
-        // Configurar eventos del nuevo marcador (similar a agregarMarcador)
-        nuevoMarcador.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
-            window.elementoSeleccionado = this;
-            window.seleccionarElemento(this);
-        });
-        
-        // Configurar evento contextmenu para el menú
-        nuevoMarcador.on('contextmenu', function(e) {
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            window.elementoSeleccionado = this;
-            
-            // Verificar si puede editar según el modo y la fase
-            const puedeEditar = !modoJuegoGuerra || 
-                                window.gestorJuego.gestorFases.fase === 'preparacion';
-            
-            if (window.MiRadial) {
-                window.MiRadial.selectedUnit = this;
-                window.MiRadial.selectedHex = null;
-                window.MiRadial.mostrarMenu(
-                    e.originalEvent.pageX,
-                    e.originalEvent.pageY,
-                    'elemento'
-                );
-            } else if (window.mostrarMenuContextual) {
-                window.mostrarMenuContextual(e);
-            }
-            return false;
-        });
-        
-        // Configurar evento dblclick para el menú
-        nuevoMarcador.on('dblclick', function(e) {
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            window.elementoSeleccionado = this;
-            
-            // Verificar si puede editar según el modo y la fase
-            const puedeEditar = !modoJuegoGuerra || 
-                                window.gestorJuego.gestorFases.fase === 'preparacion';
-            
-            if (window.MiRadial) {
-                window.MiRadial.selectedUnit = this;
-                window.MiRadial.selectedHex = null;
-                const point = window.mapa.latLngToContainerPoint(e.latlng);
-                window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
-            } else if (window.mostrarMenuContextual) {
-                window.mostrarMenuContextual(e);
-            }
-        });
-        
-        // Configurar eventos de arrastre si está habilitado
-        if (esDraggable) {
-            nuevoMarcador.on('dragstart', function() {
-                // En modo juego de guerra, verificar que estamos en fase preparación
-                if (modoJuegoGuerra && window.gestorJuego.gestorFases.fase !== 'preparacion') {
-                    return false;
-                }
-                this._origLatLng = this.getLatLng();
-            });
-            
-            nuevoMarcador.on('drag', function(e) {
-                // En modo juego de guerra, verificar que estamos en fase preparación
-                if (modoJuegoGuerra && window.gestorJuego.gestorFases.fase !== 'preparacion') {
-                    this.setLatLng(this._origLatLng);
-                    return;
-                }
-                
-                // En modo juego de guerra, verificar la zona de despliegue
-                if (modoJuegoGuerra) {
-                    const nuevaPosicion = e.latlng;
-                    const zonaEquipo = window.gestorJuego.gestorFases.zonasDespliegue[window.equipoJugador];
-                    if (zonaEquipo && !zonaEquipo.contains(nuevaPosicion)) {
-                        this.setLatLng(this._origLatLng);
-                        window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                            'No puedes mover unidades fuera de tu zona', 
-                            'warning'
-                        );
-                    }
-                }
-            });
-        }
-        
-        // Si estamos en modo juego de guerra, configurar eventos adicionales
-        if (window.gestorJuego?.gestorAcciones?.configurarEventosElemento) {
-            window.gestorJuego.gestorAcciones.configurarEventosElemento(nuevoMarcador);
-        }
-        
-        // Añadir etiqueta al nuevo marcador
-        actualizarEtiquetaEquipo(nuevoMarcador);
-        
-        // Actualizar la referencia de elementoSeleccionado
-        elementoSeleccionado = nuevoMarcador;
-        
-        // Notificar al servidor
-        if (window.gestorJuego?.gestorComunicacion?.socket) {
-            window.gestorJuego.gestorComunicacion.socket.emit('elementoActualizado', {
-                id: id,
-                sidc: nuevoSidc,
-                tipo: tipo,
-                designacion: designacion,
-                dependencia: dependencia,
-                equipo: equipo,
-                jugador: jugador,
-                partidaCodigo: window.codigoPartida
-            });
-        }
-        
-        // Cerrar panel y enviar al servidor
-        cerrarPanelEdicion('panelEdicionEquipo');
-        enviarElementoAlServidor(nuevoMarcador);
-        return true;
-    } catch (error) {
-        console.error('Error al guardar cambios de equipo:', error);
-        
+    const nuevoSidc = obtenerSIDCActualEquipo();
+    const designacion = document.getElementById('designacionEquipo').value;
+    const dependencia = document.getElementById('asignacionEquipo').value;
+    
+    // Validar datos
+    if (!designacion || !dependencia) {
         if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
             window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                'Error al guardar cambios: ' + (error.message || 'Error desconocido'),
+                'Designación y asignación son obligatorios para equipos',
                 'error'
             );
         } else {
-            alert('Error al guardar cambios: ' + (error.message || 'Error desconocido'));
+            alert('Designación y asignación son obligatorios para equipos');
         }
-        
         return false;
     }
+    
+    // Obtener tipo de equipo
+    const tipo = obtenerTipoDeElemento(nuevoSidc);
+    if (!tipo) {
+        if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+            window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                'No se pudo determinar el tipo de equipo',
+                'error'
+            );
+        } else {
+            alert('No se pudo determinar el tipo de equipo');
+        }
+        return false;
+    }
+
+    const sym = new ms.Symbol(nuevoSidc, {
+        size: 35,
+    });
+
+    const icon = L.divIcon({
+        className: 'custom-div-icon',
+        html: sym.asSVG(),
+        iconSize: [70, 50],
+        iconAnchor: [35, 25]
+    });
+
+    elementoSeleccionado.setIcon(icon);
+    elementoSeleccionado.options.sidc = nuevoSidc;
+    elementoSeleccionado.options.designacion = designacion;
+    elementoSeleccionado.options.dependencia = dependencia;
+    elementoSeleccionado.options.tipo = tipo;
+    elementoSeleccionado.options.jugadorId = window.userId;
+
+    actualizarEtiquetaEquipo(elementoSeleccionado);
+
+    // Emitir evento al servidor
+    if (window.gestorJuego?.gestorComunicacion?.socket) {
+        window.gestorJuego.gestorComunicacion.socket.emit('elementoActualizado', {
+            id: elementoSeleccionado.options.id,
+            sidc: nuevoSidc,
+            tipo: tipo,
+            designacion: designacion,
+            dependencia: dependencia,
+            equipo: window.equipoJugador,
+            jugador: window.userId,
+            partidaCodigo: window.codigoPartida
+        });
+    }
+
+    cerrarPanelEdicion('panelEdicionEquipo');
+    enviarElementoAlServidor(elementoSeleccionado);
+    return true;
 }
 
 function enviarElementoAlServidor(elemento) {

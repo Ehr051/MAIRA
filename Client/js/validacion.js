@@ -120,14 +120,18 @@ async function handleLogin(event) {
 
         const data = await response.json();
 
-        // En la función handleLogin, después de un login exitoso:
         if (response.ok) {
             limpiarError('errorLogin');
             // Guardar información del usuario
             localStorage.setItem('userId', data.user_id);
             localStorage.setItem('username', username);
-            ocultarTodosLosFormularios();
-            mostrarFormulario('seleccionModo');
+            // Usar la función de landing3d.js para mostrar selección de modo con animación
+            if (window.mostrarSeleccionModo) {
+                window.mostrarSeleccionModo();
+            } else {
+                ocultarTodosLosFormularios();
+                mostrarFormulario('seleccionModo');
+            }
         } else {
             mostrarError('errorLogin', data.message || 'Error en el inicio de sesión');
         }
@@ -170,8 +174,15 @@ async function handleCrearUsuario(event) {
 
         if (response.ok) {
             alert('Usuario creado exitosamente');
-            ocultarTodosLosFormularios();
-            mostrarFormulario('loginForm');
+            if (document.querySelector('.container.active')) {
+                // Si estamos en la interfaz 3D, solo cambiamos de formulario
+                ocultarFormulario('crearUsuarioForm');
+                mostrarFormulario('loginForm');
+            } else {
+                // En la interfaz antigua
+                ocultarTodosLosFormularios();
+                mostrarFormulario('loginForm');
+            }
         } else {
             mostrarError('errorCrearUsuario', data.message || 'Error al crear usuario');
         }
@@ -214,4 +225,4 @@ async function handleRecuperarContrasena(event) {
     }
 }
 
-window.mostrarError
+window.mostrarError = mostrarError;

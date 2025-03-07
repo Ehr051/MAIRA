@@ -1,3 +1,6 @@
+/* Estilos para Iniciar Partida - Coherente con el estilo general */
+@import url('https://fonts.googleapis.com/css2?family=Recursive:wght@400;500;600;700;800;900&display=swap');
+
 /* Reset CSS */
 * {
     margin: 0;
@@ -7,30 +10,73 @@
 
 /* General Styles */
 body {
-    background-color: #1b1f23;
-    color: #e1e4e8; /* Cambiado a un gris claro para mayor contraste */
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1.5;
-}
-
-header, footer {
-    background-color: #2d333b;
+    font-family: 'Recursive', sans-serif;
+    overflow-x: hidden;
+    background-color: #000000;
     color: #ffffff;
-    text-align: center;
-    padding: 20px 0;
-    border-bottom: 2px solid #444c56;
+    min-height: 100vh;
+    background-image: linear-gradient(135deg, #131414 0%, #000000 100%);
+    line-height: 1.6;
 }
 
-/* Containers */
-.container-fluid, .container {
+/* Contenedor principal con efecto 3D similar a la landing */
+.container-fluid {
+    width: 100%;
+    transform-style: preserve-3d;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 2rem;
 }
 
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Encabezado */
+header {
+    background-color: rgba(8, 12, 15, 0.95);
+    padding: 1.5rem 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(2, 129, 168, 0.3);
+    position: relative;
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #0281a8;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 15px rgba(2, 129, 168, 0.5);
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+header p {
+    color: #e0e0e0;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 5px rgba(2, 129, 168, 0.5);
+    }
+    to {
+        text-shadow: 0 0 20px rgba(2, 129, 168, 0.8);
+    }
+}
+
+/* Layout */
 .row {
     display: flex;
     flex-wrap: nowrap;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .col-md-8 {
@@ -43,304 +89,631 @@ header, footer {
     max-width: 35%;
 }
 
-/* Cards */
+/* Cards - Estilo mejorado acorde con la landing */
 .card {
-    background-color: #2d333b;
-    color: #d1d5da;
-    border: 1px solid #444c56;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    background: linear-gradient(135deg, rgba(8, 26, 34, 0.95) 0%, rgba(5, 16, 21, 0.95) 100%);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(2, 129, 168, 0.2);
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    backdrop-filter: blur(10px);
+    transition: all 0.4s ease;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(2, 129, 168, 0.3);
+    transform: translateY(-5px);
 }
 
 .card-header {
-    background-color: #3a3f47;
-    font-weight: bold;
-    border-bottom: 1px solid #444c56;
+    background-color: rgba(2, 129, 168, 0.1);
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid rgba(2, 129, 168, 0.3);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #0281a8;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 10px rgba(2, 129, 168, 0.3);
 }
 
 .card-body {
-    padding: 20px;
+    padding: 1.8rem;
 }
 
-.card-body form {
-    margin-bottom: 10px;
+/* Form Styles - Coherente con formularios de la landing */
+.form-group {
+    margin-bottom: 1.5rem;
 }
 
-/* Form Styles */
 .form-group label {
-    color: #adbac7;
-    font-weight: bold;
+    display: block;
+    margin-bottom: 0.7rem;
+    color: #e0e0e0;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .form-control {
-    background-color: #444c56;
-    color: #ffffff;
-    border: 1px solid #586069;
-    border-radius: 5px;
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    border-radius: 30px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Recursive', sans-serif;
+    transition: all 0.3s ease;
+    outline: none;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
 }
 
 .form-control:focus {
-    background-color: #3a3f47;
-    border-color: #768390;
-    outline: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(2, 129, 168, 0.4), inset 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-color: #0281a8;
+    transform: translateY(-2px);
 }
 
-/* Buttons */
+/* Estilos específicos para elementos select */
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #fff;
+}
+
+/* Asegurar que las opciones dentro del select se vean correctamente */
+select.form-control option {
+    background-color: #081a22;
+    color: #fff;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+/* Firefox específico */
+@-moz-document url-prefix() {
+    select.form-control {
+        color: #fff;
+        padding-right: 25px;
+    }
+}
+
+/* Ajuste para Chrome en móvil */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select.form-control {
+        padding-right: 30px;
+        text-indent: 1px;
+        text-overflow: '';
+    }
+}
+
+/* Buttons - Estilo coherente con la landing */
 .btn {
+    display: inline-block;
+    padding: 0.8rem 2.5rem;
+    border-radius: 25px;
+    color: #fff;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
     font-weight: bold;
-    border-radius: 5px;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: none;
+    font-size: 0.95rem;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(1px);
 }
 
 .btn-primary {
-    background-color: #005cc5;
-    color: #ffffff;
-    border: 1px solid #005cc5;
+    background: linear-gradient(135deg, #0281a8 0%, #026d8f 100%);
 }
 
 .btn-primary:hover {
-    background-color: #0366d6;
+    background: linear-gradient(135deg, #026d8f 0%, #025b77 100%);
 }
 
 .btn-success {
-    background-color: #28a745;
-    color: #ffffff;
-    border: 1px solid #218838;
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
 }
 
 .btn-success:hover {
-    background-color: #218838;
-}
-
-.btnAgregarAmigo {
-    display: inline-block;
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
 }
 
 .btn-danger {
-    background-color: #e5534b;
-    color: #ffffff;
-    border: 1px solid #e5534b;
+    background: linear-gradient(135deg, #e5534b 0%, #c23b33 100%);
 }
 
 .btn-danger:hover {
-    background-color: #d33;
+    background: linear-gradient(135deg, #c23b33 0%, #a32a23 100%);
 }
 
 .btn-secondary {
-    background-color: #6c757d;
-    color: #ffffff;
-    border: 1px solid #6c757d;
+    background: transparent;
+    border: 2px solid #0281a8;
+    color: #0281a8;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(2, 129, 168, 0.2);
 }
 
 .btn-block {
     display: block;
     width: 100%;
-    margin-top: 10px;
+    margin-top: 1rem;
 }
 
-/* Chat Styles */
+.btnAgregarAmigo {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin-left: 0.5rem;
+    font-size: 0.85rem;
+}
+
+/* Chat Area - Estilo mejorado */
 #chatContainer {
-    background-color: #2d333b;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #444c56;
-    margin-top: 20px;
+    background: linear-gradient(135deg, rgba(8, 26, 34, 0.95) 0%, rgba(5, 16, 21, 0.95) 100%);
+    border-radius: 15px;
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    transition: all 0.4s ease;
+}
+
+#chatContainer:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(2, 129, 168, 0.2);
+    transform: translateY(-3px);
 }
 
 #chatMessages {
-    background-color: #444c56;
-    padding: 10px;
-    height: 200px;
+    height: 300px;
     overflow-y: auto;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    color: #e1e4e8;
+    padding: 1.2rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(2, 129, 168, 0.2);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1.2rem;
+    color: #e0e0e0;
+    line-height: 1.5;
 }
 
 .chat-input-area {
     display: flex;
-    gap: 10px;
+    gap: 1rem;
+    align-items: center;
 }
 
 #inputChat {
     flex-grow: 1;
-    padding: 10px;
-    border: 1px solid #586069;
-    border-radius: 5px;
-    background-color: #444c56;
-    color: #ffffff;
+    padding: 12px 20px;
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    border-radius: 30px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Recursive', sans-serif;
+    transition: all 0.3s ease;
+    outline: none;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+#inputChat:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(2, 129, 168, 0.4), inset 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-color: #0281a8;
+    transform: translateY(-2px);
 }
 
 #btnEnviarMensaje {
-    background-color: #218838;
+    background: linear-gradient(135deg, #0281a8 0%, #026d8f 100%);
     color: #ffffff;
-    border: 1px solid #218838;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
 }
 
 #btnEnviarMensaje:hover {
-    background-color: #28a745;
+    background: linear-gradient(135deg, #026d8f 0%, #025b77 100%);
 }
 
-/* User List */
+/* Listas de usuarios y amigos */
 #listaUsuarios, #listaAmigos {
     list-style: none;
-    padding: 10px;
-    background-color: #2d333b;
-    border-radius: 8px;
-    border: 1px solid #444c56;
-    max-height: 300px;
+    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(2, 129, 168, 0.2);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+    max-height: 350px;
     overflow-y: auto;
+    margin-bottom: 1.5rem;
 }
 
 #listaUsuarios li, #listaAmigos li {
-    padding: 8px;
-    margin-bottom: 5px;
-    border-radius: 4px;
-    background-color: #444c56;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 0.8rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(2, 129, 168, 0.2);
+    transition: all 0.3s ease;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.estado.verde {
-    background-color: #28a745;
-    width: 10px;
-    height: 10px;
+#listaUsuarios li:hover, #listaAmigos li:hover {
+    background-color: rgba(2, 129, 168, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-color: rgba(2, 129, 168, 0.3);
+}
+
+.estado {
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     display: inline-block;
+    margin-right: 0.8rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.estado.verde {
+    background-color: #28a745;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
 }
 
 .estado.rojo {
     background-color: #e5534b;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
+    box-shadow: 0 0 10px rgba(229, 83, 75, 0.5);
 }
 
 /* Sala de Espera */
 #salaEspera {
-    border: 1px solid #444c56;
-    background-color: #2d333b;
-    padding: 20px;
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(8, 26, 34, 0.95) 0%, rgba(5, 16, 21, 0.95) 100%);
+    border-radius: 15px;
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    padding: 1.8rem;
+    margin-top: 2rem;
     display: none;
-    margin-top: 20px;
+    transition: all 0.4s ease;
+}
+
+#salaEspera:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(2, 129, 168, 0.3);
+    transform: translateY(-5px);
+}
+
+#salaEspera h3 {
+    color: #0281a8;
+    font-size: 1.6rem;
+    margin-bottom: 1.2rem;
+    text-shadow: 0 2px 10px rgba(2, 129, 168, 0.3);
+    letter-spacing: 1px;
 }
 
 #listaJugadoresSala {
     list-style: none;
-    padding: 10px;
-    margin-top: 10px;
-    background-color: #444c56;
-    border-radius: 5px;
+    padding: 1.2rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(2, 129, 168, 0.2);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1.5rem;
 }
 
 #listaJugadoresSala li {
-    padding: 10px;
-    background-color: #3a3f47;
-    color: #e1e4e8;
-    border-bottom: 1px solid #586069;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 0.8rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(2, 129, 168, 0.2);
+    color: #e0e0e0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+#listaJugadoresSala li:hover {
+    background-color: rgba(2, 129, 168, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-color: rgba(2, 129, 168, 0.3);
+}
+
+#listaJugadoresSala li:last-child {
+    margin-bottom: 0;
 }
 
 #btnIniciarPartida, #btnListoJugador {
-    background-color: #005cc5;
-    color: #ffffff;
-    margin-top: 10px;
+    background: linear-gradient(135deg, #0281a8 0%, #026d8f 100%);
+    margin-top: 1.2rem;
+    padding: 0.9rem 2rem;
+    font-size: 1rem;
 }
 
-/* Invitaciones */
+/* Panel de invitaciones */
 #invitacionPanel {
-    background-color: #2d333b;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid #444c56;
-    margin-top: 20px;
+    background: linear-gradient(135deg, rgba(8, 26, 34, 0.95) 0%, rgba(5, 16, 21, 0.95) 100%);
+    border-radius: 15px;
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    padding: 1.8rem;
+    margin-top: 2rem;
+    transition: all 0.4s ease;
 }
 
-/* Error Container */
+#invitacionPanel:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(2, 129, 168, 0.2);
+    transform: translateY(-3px);
+}
+
+#invitacionPanel h3 {
+    color: #0281a8;
+    font-size: 1.6rem;
+    margin-bottom: 1.2rem;
+    text-shadow: 0 2px 10px rgba(2, 129, 168, 0.3);
+    letter-spacing: 1px;
+}
+
+/* Error Container con efecto de pulso */
 #errorContainer {
-    background-color: #e5534b;
-    padding: 10px;
-    border-radius: 5px;
-    color: #ffffff;
-    font-weight: bold;
-    margin-top: 10px;
+    color: #ff4d4d;
+    text-align: center;
+    margin-top: 15px;
+    background-color: rgba(255, 77, 77, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #ff4d4d;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: errorPulse 2s infinite;
     display: none;
 }
 
-/* Miscellaneous */
+@keyframes errorPulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+}
+
+/* Utilidades */
 .hidden {
     display: none;
 }
 
 .bold {
     font-weight: bold;
+    color: #0281a8;
+}
+
+/* Estilizar la barra de desplazamiento - Coherente con la landing */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(2, 129, 168, 0.6);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(2, 129, 168, 0.8);
+}
+
+/* Botón de regreso a la parte superior - Coherente con la landing */
+#backToTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background-color: #0281a8;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 50px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 99;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    display: none;
+}
+
+#backToTop:hover {
+    opacity: 1;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Footer */
+footer {
+    background-color: rgba(8, 12, 15, 0.95);
+    padding: 2rem 0;
+    margin-top: 3rem;
+    border-top: 1px solid rgba(2, 129, 168, 0.3);
+    text-align: center;
+}
+
+footer:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(2, 129, 168, 0) 0%, rgba(2, 129, 168, 0.7) 50%, rgba(2, 129, 168, 0) 100%);
+}
+
+footer h2 {
+    color: #0281a8;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(2, 129, 168, 0.3);
+}
+
+footer p {
+    color: #bbb;
+    font-size: 0.9rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Animaciones de aparición para elementos */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 /* Responsive Styles */
-@media (max-width: 768px) {
-    header, footer {
-        text-align: center;
-        padding: 15px;
+@media (max-width: 1200px) {
+    .container-fluid, .container {
+        max-width: 95%;
     }
+}
 
-    .container-fluid {
-        padding: 10px;
-    }
-
-    .card {
-        margin-bottom: 15px;
-    }
-
-    .card-body {
-        padding: 15px;
-    }
-
-    #chatContainer {
-        margin-top: 15px;
-        padding: 10px;
-    }
-
-    .chat-input-area {
+@media (max-width: 992px) {
+    .row {
         flex-direction: column;
     }
+    
+    .col-md-8, .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+}
 
+@media (max-width: 768px) {
+    .container-fluid, .container {
+        padding: 1.5rem;
+    }
+    
+    header {
+        padding: 1.2rem 0;
+    }
+    
+    .card-header {
+        padding: 1rem 1.2rem;
+        font-size: 1.2rem;
+    }
+    
+    .card-body {
+        padding: 1.2rem;
+    }
+    
+    .form-control, #inputChat {
+        padding: 10px 18px;
+    }
+    
+    .btn {
+        padding: 0.7rem 1.8rem;
+        font-size: 0.9rem;
+    }
+    
     #btnEnviarMensaje {
-        width: 100%;
-        margin-top: 10px;
+        padding: 0.7rem 1.2rem;
     }
-
-    #listaUsuarios {
-        max-height: 200px;
+    
+    #chatMessages {
+        height: 250px;
     }
-
-    #salaEspera {
-        padding: 15px;
+    
+    #salaEspera, #invitacionPanel {
+        padding: 1.5rem;
     }
 }
 
 @media (max-width: 576px) {
+    .container-fluid, .container {
+        padding: 1rem;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
     .chat-input-area {
         flex-direction: column;
-        gap: 5px;
+        gap: 0.8rem;
     }
-
+    
     #inputChat {
         width: 100%;
     }
-
-    #listaUsuarios {
-        padding: 5px;
+    
+    #btnEnviarMensaje {
+        width: 100%;
     }
-
-    #listaUsuarios li {
-        padding: 5px;
+    
+    .card-header {
+        padding: 0.8rem 1rem;
+        font-size: 1.1rem;
     }
-
-    .card-header, .card-body {
-        padding: 10px;
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    #listaUsuarios li, #listaAmigos li, #listaJugadoresSala li {
+        padding: 0.7rem 1rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .btnAgregarAmigo {
+        margin-top: 0.5rem;
+        margin-left: 0;
+    }
+    
+    #listaUsuarios, #listaAmigos {
+        padding: 1rem;
     }
 }
