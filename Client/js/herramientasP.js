@@ -62,7 +62,7 @@ function crearLinea() {
     var id = "linea_" + Date.now();
     var nuevaLinea = L.polyline([], {
         color: 'red',
-        weight: 3,
+        weight: 5,
         nombre: 'Línea de medición'
     }).addTo(calcoActivo);
   
@@ -72,7 +72,7 @@ function crearLinea() {
         marcadores: [],
         nombre: "Línea " + (Object.keys(lineas).length + 1),
         color: 'red',
-        ancho: 3,
+        ancho: 5,
         tipo: 'solid'
     };
   
@@ -971,7 +971,8 @@ function calcularPendiente(punto1, punto2) {
 
 
 function cerrarMedicion() {
-    document.getElementById('medicionDistancia').style.display = 'none';
+    document.getElementById('medicionDistancia').style.display = elemento.option.color;
+    finalizarMedicion();
 }
 
 function seleccionarElemento(elemento) {
@@ -985,12 +986,13 @@ function seleccionarElemento(elemento) {
 
     // Primero verificar el tipo de elemento
     if (elemento instanceof L.Polyline || elemento instanceof L.Polygon) {
-        elemento.setStyle({ color: '#FFFF00', weight: 4 });
+        // Resaltar el elemento
+        elemento.setStyle({color: elementoSeleccionado.options.color, weight: 5});
         if (elemento.editing) {
             elemento.editing.enable();
         }
     } else if (elemento instanceof L.Marker) {
-        elemento.setOpacity(0.7);
+        elemento.setOpacity(0.9);
         if (elemento.dragging) {
             elemento.dragging.enable();
         }
@@ -1396,10 +1398,6 @@ function deseleccionarElemento(elemento) {
     if (elemento) {
         if (elemento instanceof L.Polygon || elemento instanceof L.Polyline) {
             elemento.setStyle(elemento.options.originalStyle || {
-                color: '#3388ff',
-                weight: 2,
-                opacity: 0.5,
-                fillOpacity: 0.1
             });
         } else if (elemento instanceof L.Marker) {
             elemento.setOpacity(1);

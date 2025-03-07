@@ -7,7 +7,9 @@
         "start": "http-server -p 8080 -c-1 --index index.html",
         "start-py": "python3 server/server.py",
         "start-js": "node server/node.js",
-        "dev": "concurrently \"npm run start-py\" \"npm run start-js\" \"npm start\""
+        "dev": "concurrently \"npm run start-py\" \"npm run start-js\" \"npm start\"",
+        "test": "jest",
+        "test:watch": "jest --watch"
     },
     "dependencies": {
         "@mapbox/corslite": "^0.0.7",
@@ -24,7 +26,6 @@
         "html2canvas": "^1.4.1",
         "http": "^0.0.1-security",
         "http-server": "^14.1.1",
-        "leaflet": "^1.9.4",
         "leaflet-bing-layer": "^3.3.1",
         "leaflet-control-geocoder": "^2.4.0",
         "leaflet-draw": "^1.0.4",
@@ -52,9 +53,34 @@
         "socket.io-client": "^4.8.0"
     },
     "devDependencies": {
+        "@babel/core": "^7.26.9",
+        "@babel/preset-env": "^7.26.9",
+        "babel-jest": "^29.7.0",
         "concurrently": "^6.5.1",
         "eslint": "^8.57.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
+        "leaflet": "^1.9.4",
         "prettier": "^2.8.8"
+    },
+    "jest": {
+        "testEnvironment": "jsdom",
+        "setupFiles": ["<rootDir>/Client/js/Test/jest.setup.js"],
+        "moduleNameMapper": {
+            "^@/(.*)$": "<rootDir>/Client/js/$1"
+        },
+        "transform": {
+            "^.+\\.js$": "babel-jest"
+        }
+    },
+    "babel": {
+        "presets": [
+            ["@babel/preset-env", {
+                "targets": {
+                    "node": "current"
+                }
+            }]
+        ]
     },
     "keywords": [],
     "author": "EHR051",

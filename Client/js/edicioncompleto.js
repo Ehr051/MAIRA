@@ -491,10 +491,27 @@ function inicializarSelectores() {
 function actualizarEtiquetaUnidad(elemento) {
     if (!elemento?.options) return;
 
+    // Remover etiqueta existente
+    if (elemento.etiquetaPersonalizada) {
+        calcoActivo.removeLayer(elemento.etiquetaPersonalizada);
+        elemento.etiquetaPersonalizada = null;
+    }
+
     // Construir etiqueta con formato correcto
     const designacion = elemento.options.designacion || '';
     const dependencia = elemento.options.dependencia || '';
-    let etiqueta = `${designacion}/${dependencia}`;
+    let etiqueta = '';
+    
+    if (designacion && dependencia) {
+        etiqueta = `${designacion}/${dependencia}`;
+    } else if (designacion) {
+        etiqueta = designacion;
+    } else if (dependencia) {
+        etiqueta = dependencia;
+    }
+
+    // No crear etiqueta si no hay texto
+    if (!etiqueta.trim()) return;
 
     // Añadir estado reforzado/disminuido
     if (elemento.options.estado) {
@@ -502,48 +519,49 @@ function actualizarEtiquetaUnidad(elemento) {
         if (elemento.options.estado === 'disminuido') etiqueta += ' (-)';
     }
 
-    // Remover etiqueta existente
-    if (elemento.etiquetaPersonalizada) {
-        calcoActivo.removeLayer(elemento.etiquetaPersonalizada);
-    }
-
-    // Crear nueva etiqueta
-    if (etiqueta.trim() !== '') {
-        const latLng = elemento.getLatLng();
-        const desplazamientoX = 0.040; // Aumentado para mover más a la derecha
-        const desplazamientoY = 0;     // Centrado verticalmente
-
-        elemento.etiquetaPersonalizada = L.marker([latLng.lat + desplazamientoY, latLng.lng + desplazamientoX], {
-            icon: L.divIcon({
-                className: 'etiqueta-personalizada',
-                html: `<div style="
-                    color: black; 
-                    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
-                    font-weight: bold;
-                    white-space: nowrap;
-                    ">${etiqueta}</div>`,
-                iconSize: [100, 20],
-                iconAnchor: [0, 10] // Centrado vertical
-            }),
-            interactive: false
-        }).addTo(calcoActivo);
-
-        // Actualizar posición en movimiento
-        elemento.on('move', function(e) {
-            if (elemento.etiquetaPersonalizada) {
-                const newLatLng = e.latlng;
-                elemento.etiquetaPersonalizada.setLatLng([
-                    newLatLng.lat + desplazamientoY, 
-                    newLatLng.lng + desplazamientoX
-                ]);
-            }
-        });
-    } else {
-        elemento.etiquetaPersonalizada = null;
-    }
+    // En lugar de crear un marcador separado, añadimos la etiqueta directamente al div icon
+    // Para futuras manipulaciones, guardaremos referencia al texto original
+    elemento.etiquetaTexto = etiqueta;
+    
+    // Función que actualiza la posición de la etiqueta basada en el zoom actual
+    const actualizarPosicionEtiqueta = function() {
+        if (!elemento || !elemento._icon) return;
+        
+        // Crear o actualizar el div de etiqueta
+        let etiquetaDiv = elemento._icon.querySelector('.etiqueta-unidad');
+        if (!etiquetaDiv) {
+            etiquetaDiv = document.createElement('div');
+            etiquetaDiv.className = 'etiqueta-unidad';
+            etiquetaDiv.style = `
+                position: absolute;
+                bottom: -10px;
+                right: -5px;
+                color: black;
+                font-weight: bold;
+                white-space: nowrap;
+                text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+                pointer-events: none;
+                z-index: 1000;
+            `;
+            elemento._icon.appendChild(etiquetaDiv);
+        }
+        
+        etiquetaDiv.textContent = elemento.etiquetaTexto;
+    };
+    
+    // Aplicar inicialmente
+    actualizarPosicionEtiqueta();
+    
+    // Actualizar cuando cambie el zoom
+    elemento.off('add'); // Remover eventos previos
+    elemento.on('add', actualizarPosicionEtiqueta);
+    
+    window.mapa.off('zoomend', actualizarPosicionEtiqueta);
+    window.mapa.on('zoomend', actualizarPosicionEtiqueta);
 }
 
 function actualizarEtiquetaEquipo(elemento) {
+    // Reutilizar la misma lógica para unidades y equipos
     actualizarEtiquetaUnidad(elemento);
 }
 
