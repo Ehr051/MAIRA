@@ -1994,7 +1994,7 @@ function agregarMarcador(sidc, nombre) {
             el.addEventListener('dblclick', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                mostrarMenuContextual();
+                mostrarMenuContextual(e, el);
             });
             
             // Agregar menú contextual
