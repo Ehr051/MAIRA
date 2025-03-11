@@ -26,6 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
             descripcion: 'Administra recursos, unidades y comunica órdenes en tiempo real durante operaciones.',
             url: 'gestionbatalla.html'
         }
+        {
+            id: 'Cuadro de organizacion',
+            nombre: 'Cuadro de organizacion',
+            icono: 'CO.png',
+            descripcion: 'Diseña Cuadros de organizacion de elementos militares.',
+            url: 'CO.html'
+        }
     ];
 
     // Esperar a que el div de selección de modo esté visible
