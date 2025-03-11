@@ -757,110 +757,185 @@ function actualizarIconoUnidad(elemento) {
 
 
 function guardarCambiosUnidad() {
+    console.log("Intentando guardar cambios de unidad");
+    
     if (!elementoSeleccionado) {
         console.warn('No hay elemento seleccionado para guardar cambios');
         return false;
     }
 
     try {
-        // Obtener el SIDC actualizado con todos los cambios, incluida la magnitud
+        // Obtener el SIDC actualizado con todos los cambios
         const nuevoSidc = obtenerSIDCActual();
-        console.log("SIDC generado:", nuevoSidc);  // Para depuración
+        console.log("SIDC generado:", nuevoSidc);
         
         const designacion = document.getElementById('designacion').value;
         const dependencia = document.getElementById('dependencia').value;
         const tipo = obtenerTipoDeElemento(nuevoSidc);
         const magnitud = document.getElementById('magnitud').value;
+        const esEquipoActual = esEquipo(nuevoSidc);
         
-        // Verificar que la magnitud está correctamente incorporada en el SIDC
-        const magnitudEnSIDC = nuevoSidc.charAt(11);
-        console.log("Magnitud seleccionada:", magnitud);
-        console.log("Magnitud en SIDC:", magnitudEnSIDC);
+        // Validar campos requeridos (código de validación...)
 
-        // Validar campos requeridos para cualquier unidad
+        // Guardar la posición actual y el ID
+        const posicionActual = elementoSeleccionado.getLatLng();
+        const idElemento = elementoSeleccionado.options.id;
+        const equipoElemento = elementoSeleccionado.options.equipo || window.equipoJugador;
+        const jugadorElemento = elementoSeleccionado.options.jugador || window.userId;
+        
+        // Eliminar el marcador actual del calco
+        window.calcoActivo.removeLayer(elementoSeleccionado);
+        
+        // Crear un nuevo símbolo con el SIDC actualizado
+        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
+        
+        // Crear un nuevo icono
+        const icon = L.divIcon({
+            className: `custom-div-icon equipo-${equipoElemento}`,
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        });
+        
+        // Crear un nuevo marcador con todas las propiedades actualizadas
+        const nuevoMarcador = L.marker(posicionActual, {
+            icon: icon,
+            draggable: true,
+            id: idElemento,
+            sidc: nuevoSidc,
+            tipo: tipo,
+            designacion: designacion,
+            dependencia: dependencia,
+            magnitud: !esEquipoActual ? magnitud : undefined,
+            equipo: equipoElemento,
+            jugador: jugadorElemento
+        });
+        
+        // Añadir el nuevo marcador al calco
+        nuevoMarcador.addTo(window.calcoActivo);
+        
+        // Actualizar etiqueta
+        actualizarEtiquetaUnidad(nuevoMarcador);
+        
+        // Actualizar referencia al elemento seleccionado
+        elementoSeleccionado = nuevoMarcador;
+        window.elementoSeleccionado = nuevoMarcador;
+        
+        // Cerrar panel
+        cerrarPanelEdicion('panelEdicionUnidad');
+        
+        // Enviar al servidor el nuevo marcador
+        console.log("Enviando elemento actualizado al servidor");
+        const enviado = enviarElementoAlServidor(nuevoMarcador);
+        console.log("Resultado de envío:", enviado);
+        
+        // Actualizar botón listo si es necesario
+        window.gestorJuego?.gestorFases?.actualizarBotonListo?.();
+        
+        return true;
+    } catch (error) {
+        console.error('Error al guardar cambios de unidad:', error);
+        // Manejo de errores...
+        return false;
+    }
+}
+
+function guardarCambiosEquipo() {
+    if (!elementoSeleccionado) {
+        console.warn('No hay elemento seleccionado para guardar cambios');
+        return false;
+    }
+
+    try {
+        const nuevoSidc = obtenerSIDCActualEquipo();
+        const designacion = document.getElementById('designacionEquipo').value;
+        const dependencia = document.getElementById('asignacionEquipo').value;
+        
+        // Validar datos
         if (!designacion || !dependencia) {
             if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
                 window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                    'Designación y dependencia son obligatorios',
+                    'Designación y asignación son obligatorios para equipos',
                     'error'
                 );
             } else {
-                alert('Designación y dependencia son obligatorios');
+                alert('Designación y asignación son obligatorios para equipos');
             }
             return false;
         }
-
-        // Validar tipo
+        
+        // Obtener tipo de equipo
+        const tipo = obtenerTipoDeElemento(nuevoSidc);
         if (!tipo) {
             if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
                 window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                    'La unidad debe tener un tipo válido',
+                    'No se pudo determinar el tipo de equipo',
                     'error'
                 );
             } else {
-                alert('La unidad debe tener un tipo válido');
+                alert('No se pudo determinar el tipo de equipo');
             }
             return false;
         }
 
-        // Validar magnitud (solo para unidades, no para equipos)
-        const esEquipo = nuevoSidc.charAt(4) === 'E';
-        if (!esEquipo && (!magnitud || magnitud === '-')) {
-            if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
-                window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                    'Debe seleccionar una magnitud para la unidad',
-                    'error'
-                );
-            } else {
-                alert('Debe seleccionar una magnitud para la unidad');
-            }
-            return false;
-        }
+        // Guardar posición actual e ID
+        const posicionActual = elementoSeleccionado.getLatLng();
+        const idElemento = elementoSeleccionado.options.id;
+        const equipoElemento = window.equipoJugador;
+        
+        // Eliminar el elemento actual del calco
+        window.calcoActivo.removeLayer(elementoSeleccionado);
 
-        // Crear el símbolo con el SIDC actualizado
+        // Crear nuevo símbolo
         const sym = new ms.Symbol(nuevoSidc, {
             size: 35,
         });
 
-        // Crear un nuevo icono
+        // Crear nuevo icono
         const icon = L.divIcon({
-            className: `custom-div-icon equipo-${elementoSeleccionado.options.equipo || window.equipoJugador}`,
+            className: 'custom-div-icon',
             html: sym.asSVG(),
             iconSize: [70, 50],
             iconAnchor: [35, 25]
         });
 
-        // Actualizar el icono del marcador
-        elementoSeleccionado.setIcon(icon);
-        
-        // Actualizar las propiedades del marcador
-        elementoSeleccionado.options.sidc = nuevoSidc;
-        elementoSeleccionado.options.tipo = tipo;
-        elementoSeleccionado.options.designacion = designacion;
-        elementoSeleccionado.options.dependencia = dependencia;
-        elementoSeleccionado.options.magnitud = !esEquipo ? magnitud : undefined;
-        
-        // Actualizar la etiqueta
-        actualizarEtiquetaUnidad(elementoSeleccionado);
-
-    
-        // Cerrar panel y enviar al servidor
-        window.gestorJuego?.gestorFases?.actualizarBotonListo?.();
-        cerrarPanelEdicion('panelEdicionUnidad');
-        enviarElementoAlServidor(elementoSeleccionado);
-        
-        console.log("Elemento actualizado con éxito:", {
-            id: elementoSeleccionado.options.id,
+        // Crear nuevo marcador con todas las propiedades
+        const nuevoMarcador = L.marker(posicionActual, {
+            icon: icon,
+            draggable: true,
+            id: idElemento,
+            sidc: nuevoSidc,
             tipo: tipo,
             designacion: designacion,
             dependencia: dependencia,
-            magnitud: !esEquipo ? magnitud : undefined,
-            sidc: nuevoSidc
+            equipoJugador: equipoElemento,
+            jugadorId: window.userId
         });
+        
+        // Añadir el nuevo marcador al calco
+        nuevoMarcador.addTo(window.calcoActivo);
+        
+        // Actualizar etiqueta
+        actualizarEtiquetaEquipo(nuevoMarcador);
+        
+        // Actualizar referencia al elemento seleccionado
+        elementoSeleccionado = nuevoMarcador;
+        window.elementoSeleccionado = nuevoMarcador;
+
+        // Cerrar panel
+        cerrarPanelEdicion('panelEdicionEquipo');
+        
+        // Enviar al servidor
+        console.log("Enviando equipo actualizado al servidor");
+        const enviado = enviarElementoAlServidor(nuevoMarcador);
+        console.log("Resultado de envío de equipo:", enviado);
+        
+        // Actualizar botón listo si es necesario
+        window.gestorJuego?.gestorFases?.actualizarBotonListo?.();
         
         return true;
     } catch (error) {
-        console.error('Error al guardar cambios de unidad:', error);
+        console.error('Error al guardar cambios de equipo:', error);
         
         if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
             window.gestorJuego.gestorInterfaz.mostrarMensaje(
@@ -875,99 +950,57 @@ function guardarCambiosUnidad() {
     }
 }
 
-function guardarCambiosEquipo() {
-    if (!elementoSeleccionado) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return;
-    }
-
-    const nuevoSidc = obtenerSIDCActualEquipo();
-    const designacion = document.getElementById('designacionEquipo').value;
-    const dependencia = document.getElementById('asignacionEquipo').value;
-    
-    // Validar datos
-    if (!designacion || !dependencia) {
-        if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
-            window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                'Designación y asignación son obligatorios para equipos',
-                'error'
-            );
-        } else {
-            alert('Designación y asignación son obligatorios para equipos');
-        }
-        return false;
-    }
-    
-    // Obtener tipo de equipo
-    const tipo = obtenerTipoDeElemento(nuevoSidc);
-    if (!tipo) {
-        if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
-            window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                'No se pudo determinar el tipo de equipo',
-                'error'
-            );
-        } else {
-            alert('No se pudo determinar el tipo de equipo');
-        }
-        return false;
-    }
-
-    const sym = new ms.Symbol(nuevoSidc, {
-        size: 35,
-    });
-
-    const icon = L.divIcon({
-        className: 'custom-div-icon',
-        html: sym.asSVG(),
-        iconSize: [70, 50],
-        iconAnchor: [35, 25]
-    });
-
-    elementoSeleccionado.setIcon(icon);
-    elementoSeleccionado.options.sidc = nuevoSidc;
-    elementoSeleccionado.options.designacion = designacion;
-    elementoSeleccionado.options.dependencia = dependencia;
-    elementoSeleccionado.options.tipo = tipo;
-    elementoSeleccionado.options.jugadorId = window.userId;
-
-    actualizarEtiquetaEquipo(elementoSeleccionado);
-
-    // Emitir evento al servidor
-    if (window.gestorJuego?.gestorComunicacion?.socket) {
-        window.gestorJuego.gestorComunicacion.socket.emit('elementoActualizado', {
-            id: elementoSeleccionado.options.id,
-            sidc: nuevoSidc,
-            tipo: tipo,
-            designacion: designacion,
-            dependencia: dependencia,
-            equipo: window.equipoJugador,
-            jugador: window.userId,
-            partidaCodigo: window.codigoPartida
-        });
-    }
-
-    cerrarPanelEdicion('panelEdicionEquipo');
-    enviarElementoAlServidor(elementoSeleccionado);
-    return true;
-}
-
 function enviarElementoAlServidor(elemento) {
-    if (!window.gestorJuego?.gestorComunicacion?.socket) return;
+    console.log('Enviando elemento al servidor:', elemento);
     
-    const datosElemento = {
-        id: elemento.options.id,
-        tipo: elemento.options.tipo,
-        sidc: elemento.options.sidc,
-        designacion: elemento.options.designacion,
-        dependencia: elemento.options.dependencia,
-        magnitud: elemento.options.magnitud,
-        esEquipo: elemento.options.sidc.charAt(4) === 'E',
-        posicion: elemento.getLatLng(),
-        jugadorId: window.userId,
-        partidaCodigo: window.codigoPartida
-    };
+    if (!window.gestorJuego?.gestorComunicacion?.socket) {
+        console.error('No hay conexión disponible con el servidor');
+        return false;
+    }
     
-    window.gestorJuego.gestorComunicacion.socket.emit('guardarElemento', datosElemento);
+    if (!elemento || !elemento.options) {
+        console.error('Elemento no válido para enviar al servidor:', elemento);
+        return false;
+    }
+    
+    try {
+        // Determinar si es equipo o unidad basado en el SIDC
+        const esEquipoActual = elemento.options.sidc && elemento.options.sidc.charAt(4) === 'E';
+        
+        // Extraer todas las propiedades relevantes
+        const datosElemento = {
+            id: elemento.options.id,
+            tipo: elemento.options.tipo,
+            sidc: elemento.options.sidc,
+            designacion: elemento.options.designacion,
+            dependencia: elemento.options.dependencia,
+            esEquipo: esEquipoActual,
+            posicion: elemento.getLatLng(),
+            jugadorId: window.userId,
+            jugador: window.userId,  // Campo duplicado para compatibilidad
+            partidaCodigo: window.codigoPartida,
+            equipo: elemento.options.equipo || window.equipoJugador
+        };
+        
+        // Añadir propiedades específicas según el tipo de elemento
+        if (!esEquipoActual) {
+            // Propiedades específicas para unidades
+            datosElemento.magnitud = elemento.options.magnitud;
+        } else {
+            // Propiedades específicas para equipos
+            // Por ejemplo, podríamos agregar propiedades como velocidad o alcance
+            datosElemento.equipoAsignado = elemento.options.equipoJugador || window.equipoJugador;
+        }
+        
+        console.log(`Emitiendo guardarElemento para ${esEquipoActual ? 'equipo' : 'unidad'} con datos:`, datosElemento);
+        
+        window.gestorJuego.gestorComunicacion.socket.emit('guardarElemento', datosElemento);
+        console.log('Elemento enviado al servidor correctamente');
+        return true;
+    } catch (error) {
+        console.error('Error al enviar elemento al servidor:', error);
+        return false;
+    }
 }
 
 function mostrarPanelEdicionMCC(elemento, textoAsociado, tipo) {

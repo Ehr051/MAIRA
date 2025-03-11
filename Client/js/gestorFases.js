@@ -143,26 +143,50 @@ class GestorFases extends GestorBase {
         }
     }
     
-    actualizarZonaRemota(zonaData) {
-        const equipo = zonaData.equipo;
-        if (!equipo) return false;
+    // En gestorFases.js
+actualizarZonaRemota(zonaData) {
+    const equipo = zonaData.equipo;
+    if (!equipo) return false;
 
-        try {
-            // Crear capa de zona
-            this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, zonaData.estilo);
-            this.zonasDespliegue[equipo] = zonaData.bounds;
-
-            // Solo mostrar si es director o es mi equipo
-            if (this.esDirector(window.userId) || window.equipoJugador === equipo) {
-                this.zonasLayers[equipo].addTo(window.calcoActivo);
-            }
-
-            return true;
-        } catch (error) {
-            console.error('Error en actualizarZonaRemota:', error);
-            return false;
+    try {
+        console.log('Actualizando zona remota:', zonaData);
+        
+        // Limpiar zona anterior si existe
+        if (this.zonasLayers[equipo]) {
+            window.calcoActivo.removeLayer(this.zonasLayers[equipo]);
+            this.zonasLayers[equipo] = null;
         }
+        
+        // Crear capa de zona
+        this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, zonaData.estilo);
+        this.zonasDespliegue[equipo] = zonaData.bounds;
+
+        console.log('Equipo del jugador:', window.equipoJugador);
+        console.log('Es director:', this.esDirector(window.userId));
+        
+        // Mostrar zona
+        const esDirector = this.esDirector(window.userId);
+        const esMiEquipo = window.equipoJugador === equipo;
+        
+        console.log('¿Debería mostrarse la zona?', {
+            esDirector: esDirector, 
+            esMiEquipo: esMiEquipo,
+            equipo: equipo
+        });
+        
+        if (esDirector || esMiEquipo) {
+            this.zonasLayers[equipo].addTo(window.calcoActivo);
+            console.log(`Zona ${equipo} añadida al mapa`);
+        } else {
+            console.log(`Zona ${equipo} NO añadida al mapa (no es director ni mi equipo)`);
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error en actualizarZonaRemota:', error);
+        return false;
     }
+}
 
     habilitarZonaAzul() {
         // Limpiar botones anteriores
@@ -613,6 +637,8 @@ confirmarZona(equipo) {
                 { color: '#ff0000', weight: 2, opacity: 0.8, fill: true, fillColor: '#ff0000', fillOpacity: 0.2 }
         };
 
+        console.log('Emitiendo zonaConfirmada con datos:', zonaData);
+        
         // Emitir al servidor
         this.gestorJuego?.gestorComunicacion?.socket.emit('zonaConfirmada', {
             zona: zonaData,
@@ -626,8 +652,6 @@ confirmarZona(equipo) {
         this.zonasDespliegue[equipo] = zonaData.bounds;
         this.zonaTemporalLayer = null;
         this.dibujandoZona = null;
-
-        
 
         // Si es zona azul, finalizar definición de zonas
         if (equipo === 'azul') {

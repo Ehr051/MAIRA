@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
             icono: 'battle-management-icon.png',
             descripcion: 'Administra recursos, unidades y comunica órdenes en tiempo real durante operaciones.',
             url: 'gestionbatalla.html'
-        }
+        },
         {
             id: 'Cuadro de organizacion',
             nombre: 'Cuadro de organizacion',

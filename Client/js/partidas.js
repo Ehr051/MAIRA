@@ -169,61 +169,9 @@ function unirsePartida(codigo) {
     }
 }
 
-function emitirUnirseAPartida(codigo) {
-    console.log('Emitiendo evento unirseAPartida con userId:', userId);
-    socket.emit('unirseAPartida', { 
-        codigo: codigo,
-        userId: userId 
-    });
-
-    // Escuchar la respuesta de unión exitosa
-    socket.once('unidoAPartida', function (datosPartida) {
-        console.log("Unido a la partida con éxito:", datosPartida);
-        ocultarIndicadorCarga();
-        partidaActual = datosPartida; // Guardar los datos de la partida actual
-        mostrarSalaEspera(partidaActual); // Mostrar la sala de espera con la información recibida
-        
-        // Cambiar de sala para el chat
-        if (window.cambiarSalaChat) {
-            window.cambiarSalaChat(codigo);
-        }
-    });
-
-    // Escuchar si la unión falla
-    socket.once('errorUnirsePartida', function (error) {
-        console.error('Error al unirse a la partida:', error);
-        ocultarIndicadorCarga();
-        mostrarError(error.mensaje);
-        
-        // Si hay error, asegurarse de que estamos en la sala general
-        if (window.cambiarSalaChat) {
-            window.cambiarSalaChat('general');
-        }
-    });
-
-    // Escuchar actualización de jugadores
-    socket.on('actualizarSalaDeEspera', function (data) {
-        console.log('Actualizando sala de espera con datos:', data);
-        if (partidaActual && partidaActual.codigo === data.codigo) {
-            actualizarListaJugadoresSala(data.jugadores);
-        }
-    });
-
-    // Limpiar listeners anteriores de actualización de equipo
-    socket.off('equipoJugadorActualizado');
-    
-    // Escuchar actualización de equipo
-    socket.on('equipoJugadorActualizado', function (data) {
-        console.log('Equipo del jugador actualizado:', data);
-        if (partidaActual && data.jugadores) {
-            actualizarListaJugadoresSala(data.jugadores);
-        }
-    });
-}
-
 function unirseAPartida(codigo) {
     if (typeof codigo !== 'string' || codigo.length === 0) {
-        console.error('Código de partida no válido:', codigo);
+        console.error('El código de partida no es válido:', codigo);
         mostrarError('Código de partida no válido');
         return;
     }
@@ -231,21 +179,76 @@ function unirseAPartida(codigo) {
     console.log('Intentando unirse a la partida con código:', codigo);
     mostrarIndicadorCarga();
 
-    socket.emit('unirseAPartida', { codigo: codigo });
+    // Si ya estamos en la partida con el mismo código, redirigimos a la sala de espera
+    if (partidaActual && partidaActual.codigo === codigo) {
+        console.log('Ya estás en esta partida, mostrando sala de espera');
+        mostrarSalaEspera(partidaActual);
+        ocultarIndicadorCarga();
+        return;
+    }
 
+    // Si ya estamos en otra partida, salimos de la partida actual antes de unirnos a otra
+    if (partidaActual) {
+        console.log('Ya estás en una partida. Saliendo de la partida actual antes de unirse a otra.');
+        socket.emit('salirPartida', { codigo: partidaActual.codigo }, () => {
+            partidaActual = null; // Limpiar la partida actual antes de unirse a la nueva
+            emitirUnirseAPartida(codigo);
+        });
+    } else {
+        emitirUnirseAPartida(codigo);
+    }
+}
+
+function emitirUnirseAPartida(codigo) {
+    console.log('Emitiendo evento unirseAPartida con:', {
+        codigo: codigo,
+        userId: userId, 
+        userName: userName
+    });
+    
+    socket.emit('unirseAPartida', { 
+        codigo: codigo,
+        userId: userId,
+        userName: userName
+    });
+
+    // Configurar listeners para manejar respuestas
     socket.once('unidoAPartida', function(datosPartida) {
         ocultarIndicadorCarga();
         console.log("Unido a la partida con éxito:", datosPartida);
+        
+        // Guardar datos para transición a juegodeguerra.html
         partidaActual = datosPartida;
+        
+        // Encontrar el equipo del jugador
+        const miJugador = datosPartida.jugadores.find(j => j.id === userId);
+        const equipoJugador = miJugador ? miJugador.equipo : null;
+        
+        // Guardar en sessionStorage para mantener durante navegación
+        sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+            partidaActual: datosPartida,
+            userId: userId,
+            userName: userName,
+            equipoJugador: equipoJugador
+        }));
+        
+        // Mostrar sala de espera
         mostrarSalaEspera(datosPartida);
+        
+        // Cambiar de sala para el chat
+        if (window.cambiarSalaChat) {
+            window.cambiarSalaChat(codigo);
+        }
     });
 
     socket.once('errorUnirsePartida', function(error) {
         ocultarIndicadorCarga();
         console.error('Error al unirse a la partida:', error);
-        mostrarError(error.mensaje);
+        mostrarError(error.mensaje || 'Error al unirse a la partida');
     });
 }
+
+
 
 function crearPartida(e) {
     e.preventDefault();
@@ -457,12 +460,39 @@ function iniciarPartida() {
 // Modificar la función manejarPartidaIniciada en iniciarpartida.js
 function manejarPartidaIniciada(datosPartida) {
     console.log('Partida iniciada, preparando redirección...', datosPartida);
-    if (datosPartida && datosPartida.codigo) {
-        localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
-        window.location.href = `juegodeguerra.html?codigo=${datosPartida.codigo}`;
-    } else {
+    
+    if (!datosPartida || !datosPartida.codigo) {
         console.error('Datos de partida inválidos:', datosPartida);
         mostrarError('Error al iniciar la partida: datos inválidos');
+        return;
+    }
+    
+    try {
+        // Encontrar información del jugador actual
+        const miJugador = datosPartida.jugadores.find(j => j.id === userId);
+        const equipoJugador = miJugador ? miJugador.equipo : null;
+        
+        // Guardar en localStorage para persistencia
+        localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
+        
+        // Guardar en sessionStorage para mejor rendimiento durante la navegación
+        const datosSesion = {
+            partidaActual: datosPartida,
+            userId: userId,
+            userName: userName,
+            equipoJugador: equipoJugador,
+            codigoPartida: datosPartida.codigo
+        };
+        
+        sessionStorage.setItem('datosPartidaActual', JSON.stringify(datosSesion));
+        
+        console.log('Datos guardados para transición, redirigiendo a juego...');
+        
+        // Redirigir a la página del juego
+        window.location.href = `juegodeguerra.html?codigo=${datosPartida.codigo}`;
+    } catch (error) {
+        console.error('Error al preparar la redirección:', error);
+        mostrarError('Error al iniciar la partida: ' + error.message);
     }
 }
 
