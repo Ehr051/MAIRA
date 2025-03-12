@@ -125,6 +125,7 @@ async function handleLogin(event) {
             // Guardar información del usuario
             localStorage.setItem('userId', data.user_id);
             localStorage.setItem('username', username);
+            localStorage.setItem('isLoggedIn', 'true');
             // Usar la función de landing3d.js para mostrar selección de modo con animación
             if (window.mostrarSeleccionModo) {
                 window.mostrarSeleccionModo();

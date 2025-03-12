@@ -1,6 +1,22 @@
 // Carrusel tipo coverflow para selección de modos
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar carrusel de la página principal
+    // Al principio de document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si hay una sesión activa y mostrar directamente la selección de modos
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (isLoggedIn) {
+        // Ocultar el contenido principal
+        const container = document.querySelector('.container');
+        if (container) {
+            container.style.display = 'none';
+        }
+        
+        // Asegurarse de que la pantalla de selección de modo esté visible
+        const seleccionModo = document.getElementById('seleccionModo');
+        if (seleccionModo) {
+            seleccionModo.style.display = 'flex';
+    }
+}
+// Inicializar carrusel de la página principal
     initHeaderCarousel();
     
     // Configuración de modos
@@ -102,6 +118,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // Primero verificamos si ya existe un botón de logout para no duplicarlo
+        if (!document.querySelector('.custom-logout-btn')) {
+            // Crear el botón de cerrar sesión completamente desde cero
+            const logoutButton = document.createElement('button');
+            logoutButton.textContent = 'Cerrar Sesión';
+            logoutButton.className = 'custom-logout-btn'; // Solo una clase personalizada
+            
+            // Estilos completamente inline sin usar clases predefinidas
+            logoutButton.style.cssText = `
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 16px;
+                cursor: pointer;
+                font-weight: bold;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 9999;
+                font-size: 14px;
+                width: auto;
+                display: inline-block;
+                text-align: center;
+                white-space: nowrap;
+            `;
+            
+            logoutButton.addEventListener('click', function() {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                window.location.reload();
+            });
+            
+            // Añadir el botón directamente al body en lugar del contenedor
+            document.body.appendChild(logoutButton);
+        }
+
         // Crear el contenedor del carrusel
         const coverflowContainer = document.createElement('div');
         coverflowContainer.className = 'coverflow-container';
@@ -131,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         coverflowContainer.appendChild(coverflowCarousel);
         
+
         // Flechas de navegación
         const leftArrow = document.createElement('div');
         leftArrow.className = 'coverflow-arrow left';
@@ -156,16 +213,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         coverflowContainer.appendChild(indicators);
         
-        // Insertar el carrusel después del título
-        if (titulo) {
-            titulo.after(coverflowContainer);
-        } else {
-            container.appendChild(coverflowContainer);
+            // Insertar el carrusel después del título
+            if (titulo) {
+                titulo.after(coverflowContainer);
+            } else {
+                container.appendChild(coverflowContainer);
+            }
+            
+            // Inicializar el carrusel
+            initCoverflowInteraction(coverflowCarousel, leftArrow, rightArrow, indicators, btnPlaneamiento, btnJuegoGuerra);
         }
-        
-        // Inicializar el carrusel
-        initCoverflowInteraction(coverflowCarousel, leftArrow, rightArrow, indicators, btnPlaneamiento, btnJuegoGuerra);
-    }
+    
 
     function initCoverflowInteraction(carousel, leftArrow, rightArrow, indicators, btnPlaneamiento, btnJuegoGuerra) {
         const items = Array.from(carousel.querySelectorAll('.coverflow-item'));

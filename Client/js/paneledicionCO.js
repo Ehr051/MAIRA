@@ -264,11 +264,10 @@ function mostrarPanelEdicionUnidad(elemento) {
         return;
     }
     
-    // Centrar el panel
-    centrarPanel(panel);
-    
-    // Mostrar el panel
+    // Asegurar que el panel sea visible
     panel.style.display = 'block';
+    panel.classList.add('show');
+    document.body.classList.add('panel-open');
     
     // Inicializar los selectores si no se han inicializado aún
     inicializarSelectores();
@@ -277,9 +276,38 @@ function mostrarPanelEdicionUnidad(elemento) {
     document.getElementById('designacion').value = '';
     document.getElementById('dependencia').value = '';
     
+    // Resetear selectores a valores por defecto
+    if (document.getElementById('afiliacion')) {
+        document.getElementById('afiliacion').value = 'F';
+    }
+    
+    if (document.getElementById('estado')) {
+        document.getElementById('estado').value = 'P';
+    }
+    
+    if (document.getElementById('magnitud')) {
+        document.getElementById('magnitud').value = '-';
+    }
+    
+    // Desmarcar checkboxes
+    if (document.getElementById('puestoComando')) {
+        document.getElementById('puestoComando').checked = false;
+    }
+    
+    if (document.getElementById('fuerzaTarea')) {
+        document.getElementById('fuerzaTarea').checked = false;
+    }
+    
+    // Resetear el display de SIDC
+    if (document.getElementById('sidcDisplay')) {
+        document.getElementById('sidcDisplay').innerHTML = '';
+    }
+    
     // Cargar los datos del elemento en el panel
     if (elemento && elemento.getAttribute) {
         var sidc = elemento.getAttribute('data-sidc');
+        console.log("Cargando SIDC:", sidc);
+        
         var label = elemento.querySelector('.symbol-label');
         var labelText = label ? label.textContent : '';
         
@@ -324,15 +352,24 @@ function mostrarPanelEdicionUnidad(elemento) {
             // Determinar tipo de unidad y seleccionar los valores en cascada
             var tipoUnidad = determinarTipoUnidad(sidc);
             if (tipoUnidad.categoria && tipoUnidad.arma) {
-                document.getElementById('arma').value = `${tipoUnidad.categoria}|${tipoUnidad.arma}`;
-                actualizarTipos(`${tipoUnidad.categoria}|${tipoUnidad.arma}`);
-                
-                if (tipoUnidad.tipo) {
-                    document.getElementById('tipo').value = tipoUnidad.tipo;
-                    actualizarCaracteristicas(`${tipoUnidad.categoria}|${tipoUnidad.arma}`, tipoUnidad.tipo);
+                var armaSelect = document.getElementById('arma');
+                if (armaSelect) {
+                    armaSelect.value = `${tipoUnidad.categoria}|${tipoUnidad.arma}`;
+                    actualizarTipos(`${tipoUnidad.categoria}|${tipoUnidad.arma}`);
                     
-                    if (tipoUnidad.caracteristica) {
-                        document.getElementById('caracteristica').value = tipoUnidad.caracteristica;
+                    if (tipoUnidad.tipo) {
+                        var tipoSelect = document.getElementById('tipo');
+                        if (tipoSelect) {
+                            tipoSelect.value = tipoUnidad.tipo;
+                            actualizarCaracteristicas(`${tipoUnidad.categoria}|${tipoUnidad.arma}`, tipoUnidad.tipo);
+                            
+                            if (tipoUnidad.caracteristica) {
+                                var caracteristicaSelect = document.getElementById('caracteristica');
+                                if (caracteristicaSelect) {
+                                    caracteristicaSelect.value = tipoUnidad.caracteristica;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -362,6 +399,65 @@ function mostrarPanelEdicionUnidad(elemento) {
     
     // Asegurarse de que las pestañas estén configuradas
     configurarTabsPanel();
+}
+
+
+/* Editar elemento seleccionado */
+function editarElementoSeleccionado() {
+    if (!selectedElement) return;
+    
+    // Mostrar panel de edición adecuado según tipo de elemento
+    var sidc = selectedElement.getAttribute('data-sidc');
+    if (!sidc) return;
+    
+    // Determinar tipo de elemento usando las funciones auxiliares
+    if (window.esEquipo && window.esEquipo(sidc)) {
+        // Es un equipo, usar la función de edición de equipo si está disponible
+        if (window.mostrarPanelEdicionEquipo) {
+            window.mostrarPanelEdicionEquipo(selectedElement);
+        } else {
+            console.warn("Función mostrarPanelEdicionEquipo no encontrada");
+            // Usar el panel de unidad como fallback
+            if (window.mostrarPanelEdicionUnidad) {
+                window.mostrarPanelEdicionUnidad(selectedElement);
+            } else {
+                mostrarPanelEdicionUnidad(selectedElement);
+            }
+        }
+    } else if (window.esUnidad && window.esUnidad(sidc)) {
+        // Es una unidad, usar la función de edición de unidad
+        if (window.mostrarPanelEdicionUnidad) {
+            window.mostrarPanelEdicionUnidad(selectedElement);
+        } else {
+            mostrarPanelEdicionUnidad(selectedElement);
+        }
+    } else {
+        // Si no se puede determinar, usar el panel de unidad por defecto
+        if (window.mostrarPanelEdicionUnidad) {
+            window.mostrarPanelEdicionUnidad(selectedElement);
+        } else {
+            mostrarPanelEdicionUnidad(selectedElement);
+        }
+    }
+}
+
+
+/**
+ * Determina si un elemento es un equipo basado en su SIDC
+ * @param {string} sidc - Código SIDC del elemento
+ * @returns {boolean} - true si es un equipo, false si no
+ */
+function esEquipo(sidc) {
+    return sidc && sidc.length >= 5 && sidc.charAt(4) === 'E';
+}
+
+/**
+ * Determina si un elemento es una unidad basado en su SIDC
+ * @param {string} sidc - Código SIDC del elemento
+ * @returns {boolean} - true si es una unidad, false si no
+ */
+function esUnidad(sidc) {
+    return sidc && sidc.length >= 5 && sidc.charAt(4) === 'U';
 }
 
 /**
@@ -399,6 +495,203 @@ function configurarTabsPanel() {
         tabs[0].click();
     }
 }
+
+
+/**
+ * Muestra el panel de edición de equipo y carga los datos del elemento seleccionado
+ * @param {Object} elemento - Elemento DOM del equipo a editar
+ */
+function mostrarPanelEdicionEquipo(elemento) {
+    console.log("Mostrando panel de edición de equipo");
+    
+    // Obtener el panel de edición
+    var panel = document.getElementById('panelEdicionEquipo');
+    if (!panel) {
+        console.error("Panel de edición de equipo no encontrado");
+        // Si no existe un panel específico para equipos, usar el de unidades como fallback
+        mostrarPanelEdicionUnidad(elemento);
+        return;
+    }
+    
+    // Mostrar el panel
+    panel.style.display = 'block';
+    panel.classList.add('show');
+    document.body.classList.add('panel-open');
+    
+    // Limpiar y cargar los datos del elemento en el panel
+    if (elemento && elemento.getAttribute) {
+        var sidc = elemento.getAttribute('data-sidc');
+        var label = elemento.querySelector('.symbol-label');
+        var labelText = label ? label.textContent : '';
+        
+        // Separar designación/asignación
+        var designacion = '';
+        var asignacion = '';
+        if (labelText) {
+            var partes = labelText.split('/');
+            designacion = partes[0] || '';
+            asignacion = partes[1] || '';
+        }
+        
+        // Cargar valores en los campos si existen
+        if (document.getElementById('designacionEquipo')) {
+            document.getElementById('designacionEquipo').value = designacion.trim();
+        }
+        
+        if (document.getElementById('asignacionEquipo')) {
+            document.getElementById('asignacionEquipo').value = asignacion.trim();
+        }
+        
+        // Cargar datos de SIDC
+        if (sidc && sidc.length >= 2 && document.getElementById('afiliacionEquipo')) {
+            document.getElementById('afiliacionEquipo').value = sidc.charAt(1);
+        }
+        
+        // Cargar más datos específicos de equipos aquí, según sea necesario
+    }
+    
+    // Actualizar preview si existe la función
+    if (window.actualizarPreviewSimboloEquipo) {
+        window.actualizarPreviewSimboloEquipo();
+    }
+    
+    // Configurar botones
+    var guardarBtn = document.getElementById('guardarCambiosEquipo');
+    if (guardarBtn) {
+        guardarBtn.onclick = function() {
+            guardarCambiosEquipo(window.selectedElement);
+        };
+    }
+    
+    var cerrarBtn = document.getElementById('cerrarPanelEdicionEquipo');
+    if (cerrarBtn) {
+        cerrarBtn.onclick = function() {
+            cerrarPanelEdicion('panelEdicionEquipo');
+        };
+    }
+    
+    // Guardar referencia al panel actual
+    panelEdicionActual = panel;
+}
+
+/**
+ * Función auxiliar para actualizar la vista previa del símbolo de equipo
+ */
+function actualizarPreviewSimboloEquipo() {
+    if (!window.selectedElement) return;
+    
+    var sidc = window.selectedElement.getAttribute('data-sidc');
+    if (!sidc) return;
+    
+    // Actualizar afiliación si existe el selector
+    var afiliacionSelect = document.getElementById('afiliacionEquipo');
+    if (afiliacionSelect) {
+        sidc = sidc.substr(0, 1) + afiliacionSelect.value + sidc.substr(2);
+    }
+    
+    // Mostrar preview si existe el contenedor
+    var previewContainer = document.getElementById('previewEquipo');
+    if (!previewContainer) return;
+    
+    try {
+        var sym = new ms.Symbol(sidc, {size: 40});
+        previewContainer.innerHTML = sym.asSVG();
+        
+        // Mostrar código SIDC
+        var sidcText = document.createElement('div');
+        sidcText.className = 'sidc-text';
+        sidcText.textContent = sidc;
+        previewContainer.appendChild(sidcText);
+        
+        // Mostrar designación y asignación
+        var designacion = document.getElementById('designacionEquipo')?.value || '';
+        var asignacion = document.getElementById('asignacionEquipo')?.value || '';
+
+        if (designacion || asignacion) {
+            var texto = document.createElement('div');
+            texto.style = 'margin-top: 5px; font-weight: bold;';
+            texto.textContent = designacion + (asignacion ? '/' + asignacion : '');
+            previewContainer.appendChild(texto);
+        }
+    } catch (error) {
+        console.error("Error al actualizar preview del símbolo de equipo:", error);
+        previewContainer.innerHTML = '<div class="error">Error al generar símbolo</div>';
+    }
+}
+
+/**
+ * Guarda los cambios de un equipo editado
+ * @param {Object} elemento - Elemento DOM del equipo editado
+ */
+function guardarCambiosEquipo(elemento) {
+    if (!elemento) return;
+
+    // Obtener valores del panel
+    var designacion = document.getElementById('designacionEquipo')?.value || '';
+    var asignacion = document.getElementById('asignacionEquipo')?.value || '';
+    var afiliacion = document.getElementById('afiliacionEquipo')?.value || 'F';
+    
+    // Guardar estado anterior para deshacer
+    var sidc = elemento.getAttribute('data-sidc');
+    var label = elemento.querySelector('.symbol-label');
+    var labelText = label ? label.textContent : '';
+    
+    var accion = {
+        tipo: 'editar',
+        id: elemento.id,
+        valorAnterior: {
+            sidc: sidc,
+            label: labelText
+        }
+    };
+    
+    // Actualizar SIDC - solo cambiamos la afiliación (pos 2)
+    var nuevoSidc = sidc.substr(0, 1) + afiliacion + sidc.substr(2);
+    elemento.setAttribute('data-sidc', nuevoSidc);
+    
+    // Actualizar símbolo visual
+    var symbolContainer = elemento.querySelector('.symbol-container');
+    if (symbolContainer) {
+        try {
+            var symbol = new ms.Symbol(nuevoSidc, { size: 45, standard: 'APP6', fill: true });
+            symbolContainer.innerHTML = symbol.asSVG();
+        } catch (error) {
+            console.error("Error al actualizar símbolo visual:", error);
+        }
+    }
+    
+    // Actualizar etiqueta
+    if (label) {
+        var nuevoLabel = designacion;
+        if (asignacion) {
+            nuevoLabel += '/' + asignacion;
+        }
+        label.textContent = nuevoLabel;
+    }
+    
+    // Guardar el nuevo estado para deshacer
+    accion.valorNuevo = {
+        sidc: nuevoSidc,
+        label: label ? label.textContent : ''
+    };
+    
+    // Registrar acción para deshacer si está disponible
+    if (window.registrarAccion) {
+        window.registrarAccion(accion);
+        if (window.actualizarBotonesHistorial) {
+            window.actualizarBotonesHistorial();
+        }
+    }
+    
+    // Actualizar conexiones si es necesario
+    if (window.jsPlumbInstance) {
+        window.jsPlumbInstance.revalidate(elemento.id);
+    }
+    
+    // Cerrar panel
+    cerrarPanelEdicion('panelEdicionEquipo');
+}
+
 
 /**
  * Determina el tipo de unidad a partir del SIDC
@@ -509,7 +802,8 @@ function actualizarPreviewSimbolo() {
 function cerrarPanelEdicion(panelId) {
     const panel = document.getElementById(panelId);
     if (panel) {
-        panel.style.display = 'none';
+        panel.classList.remove('show');
+        document.body.classList.remove('panel-open');
         panelEdicionActual = null;
     }
 }
@@ -687,3 +981,6 @@ window.cerrarPanelEdicion = cerrarPanelEdicion;
 window.actualizarPreviewSimbolo = actualizarPreviewSimbolo;
 window.guardarCambiosUnidad = guardarCambiosUnidad;
 window.inicializarSelectores = inicializarSelectores;
+window.mostrarPanelEdicionEquipo = mostrarPanelEdicionEquipo;
+window.actualizarPreviewSimboloEquipo = actualizarPreviewSimboloEquipo;
+window.guardarCambiosEquipo = guardarCambiosEquipo;

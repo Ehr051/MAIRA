@@ -112,7 +112,7 @@ function inicializarCuadroOrganizacion() {
     
     // Inicializar botones de amigo/enemigo
     inicializarBotonesAmigoEnemigo();
-    
+    inicializarSubmenus();
     // Configurar eventos
     configurarEventosCanvas();
     configurarBotonesPrincipales();
@@ -231,33 +231,141 @@ function mostrarResultadosBusqueda(resultados) {
     resultadosBusquedaDiv.appendChild(li);
   });
 }
+function rehacerOrg() {
+    if (historial.indice >= historial.acciones.length - 1) return;
+    
+    historial.indice++;
+    var accion = historial.acciones[historial.indice];
+    console.log("Rehaciendo acción:", accion);
+    
+    // Implementar lógica para rehacer cada tipo de acción
+    switch (accion.tipo) {
+        case 'crear':
+            // Recrear el elemento
+            recrearElemento(accion);
+            break;
+            
+        case 'eliminar':
+            var elemento = document.getElementById(accion.id);
+            if (elemento) {
+                jsPlumbInstance.removeAllEndpoints(elemento);
+                canvas.removeChild(elemento);
+            }
+            break;
+            
+        case 'editar':
+            var elemento = document.getElementById(accion.id);
+            if (elemento) {
+                // Aplicar SIDC
+                elemento.setAttribute('data-sidc', accion.valorNuevo.sidc);
+                
+                // Actualizar símbolo
+                var symbolContainer = elemento.querySelector('.symbol-container');
+                if (symbolContainer) {
+                    try {
+                        var symbol = new ms.Symbol(accion.valorNuevo.sidc, { size: 40, standard: 'APP6', fill: true });
+                        symbolContainer.innerHTML = symbol.asSVG();
+                    } catch (error) {
+                        console.error("Error al actualizar símbolo:", error);
+                    }
+                }
+                
+                // Actualizar etiqueta
+                var label = elemento.querySelector('.symbol-label');
+                if (label) {
+                    label.textContent = accion.valorNuevo.label;
+                }
+            }
+            break;
+            
+        case 'mover':
+            var elemento = document.getElementById(accion.id);
+            if (elemento) {
+                elemento.style.left = accion.posicionNueva.left + 'px';
+                elemento.style.top = accion.posicionNueva.top + 'px';
+                jsPlumbInstance.revalidate(elemento);
+            }
+            break;
+            
+        case 'conectar':
+            jsPlumbInstance.connect({
+                source: accion.conexion.sourceId,
+                target: accion.conexion.targetId,
+                anchor: ["Bottom", "Top"]
+            });
+            break;
+    }
+    
+    actualizarBotonesHistorial();
+}
 
-/* Funciones de menú */
+/* Funciones de menú adaptadas a la estructura de CO.html */
 function toggleMenu(menuId, e) {
-  if (e && e.stopPropagation) { e.stopPropagation(); }
-  var menu = document.getElementById(menuId);
-  if (!menu) return;
-  
-  // Si estamos haciendo clic en un submenú, no cerramos los demás menús
-  if (!menuId.includes('Btn')) {
-    closeMenus();
-  }
-  
-  // Mostrar/ocultar este menú
-  menu.classList.toggle('show');
-  
-  // Si estamos mostrando un submenú con clase simbolo-grid, activarla
-  if (menu.classList.contains('simbolo-grid')) {
-    menu.classList.toggle('show');
-  }
+    if (e) {
+        e.stopPropagation(); 
+    }
+    
+    var menu = document.getElementById(menuId);
+    if (!menu) {
+        console.warn("Menú no encontrado:", menuId);
+        return;
+    }
+    
+    console.log("Toggle menu:", menuId);
+    
+    // Verificar la estructura para determinar qué tipo de menú es
+    if (menu.classList.contains('collapse') || menu.classList.contains('submenu')) {
+        // Es un submenu (probablemente con clase 'collapse') - solo alternar su visibilidad
+        menu.classList.toggle('show');
+    } else if (menuId.endsWith('Btn')) {
+        // Es un botón que controla un elemento colapsable
+        var targetId;
+        
+        // Estrategia 1: Quitar 'Btn' del ID
+        targetId = menuId.replace('Btn', '');
+        var target = document.getElementById(targetId);
+        
+        // Estrategia 2: Buscar entre elementos hermanos
+        if (!target) {
+            var parent = menu.parentElement;
+            var siblings = parent.children;
+            for (var i = 0; i < siblings.length; i++) {
+                if (siblings[i].classList.contains('collapse') || siblings[i].classList.contains('submenu')) {
+                    target = siblings[i];
+                    break;
+                }
+            }
+        }
+        
+        // Alternar visibilidad si encontramos el target
+        if (target) {
+            target.classList.toggle('show');
+        } else {
+            console.warn("No se pudo encontrar el elemento colapsable para:", menuId);
+        }
+    } else {
+        // Es un menú principal - cerrar otros y alternar este
+        closeMenus();
+        menu.classList.toggle('show');
+        
+        // Si este menú tiene clase simbolo-grid, alternar también
+        if (menu.classList.contains('simbolo-grid')) {
+            menu.classList.toggle('show');
+        }
+    }
 }
 
 function closeMenus() {
-  var menus = document.querySelectorAll('.menu.show');
-  for (var i = 0; i < menus.length; i++) {
-    menus[i].classList.remove('show');
-  }
+    var menus = document.querySelectorAll('.menu.show');
+    for (var i = 0; i < menus.length; i++) {
+        // Cerrar sólo menús principales, no los submenús
+        if (!menus[i].closest('.submenu') && !menus[i].classList.contains('collapse')) {
+            menus[i].classList.remove('show');
+        }
+    }
 }
+
+
 
 /* Configuración de paneles y tabs */
 function configurarPaneles() {
@@ -426,27 +534,21 @@ function inicializarEventosElementos() {
   });
 }
 
+// Modificar la función mostrarMenuContextual para añadir auto-cierre al hacer click
 
-
-// Modificar la función mostrarMenuContextual para añadir auto-cierre al hacer clic
+/* Mostrar menú contextual */
 function mostrarMenuContextual(e, elemento) {
     // Seleccionar el elemento primero
     seleccionarElemento(elemento);
-    
-    // Eliminar cualquier menú contextual existente
-    var menuAnterior = document.querySelector('.menu-contextual');
-    if (menuAnterior) {
-        document.body.removeChild(menuAnterior);
-    }
     
     // Crear menú contextual
     var menuContextual = document.createElement('div');
     menuContextual.className = 'menu-contextual';
     menuContextual.innerHTML = `
         <ul>
-            <li><a href="#" onclick="editarElementoSeleccionado(); document.body.removeChild(this.closest('.menu-contextual')); return false;"><i class="fas fa-edit"></i> Editar</a></li>
-            <li><a href="#" onclick="eliminarElementoSeleccionado(); document.body.removeChild(this.closest('.menu-contextual')); return false;"><i class="fas fa-trash"></i> Eliminar</a></li>
-            <li><a href="#" onclick="iniciarConexion(); document.body.removeChild(this.closest('.menu-contextual')); return false;"><i class="fas fa-link"></i> Conectar</a></li>
+            <li><a href="#" id="menu-editar"><i class="fas fa-edit"></i> Editar</a></li>
+            <li><a href="#" id="menu-eliminar"><i class="fas fa-trash"></i> Eliminar</a></li>
+            <li><a href="#" id="menu-conectar"><i class="fas fa-link"></i> Conectar</a></li>
         </ul>
     `;
     
@@ -456,7 +558,29 @@ function mostrarMenuContextual(e, elemento) {
     menuContextual.style.top = e.pageY + 'px';
     document.body.appendChild(menuContextual);
     
-    // Configurar evento para cerrar el menú al hacer clic fuera
+    // Configurar eventos para las opciones del menú
+    menuContextual.querySelector('#menu-editar').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.body.removeChild(menuContextual);
+        editarElementoSeleccionado();
+    });
+    
+    menuContextual.querySelector('#menu-eliminar').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.body.removeChild(menuContextual);
+        eliminarElementoSeleccionado();
+    });
+    
+    menuContextual.querySelector('#menu-conectar').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.body.removeChild(menuContextual);
+        iniciarConexion();
+    });
+    
+    // Configurar evento para cerrar el menú
     function cerrarMenu(event) {
         if (!menuContextual.contains(event.target)) {
             if (document.body.contains(menuContextual)) {
@@ -472,7 +596,41 @@ function mostrarMenuContextual(e, elemento) {
     }, 0);
 }
 
-/* Configurar botones principales */
+
+// Añadir al final de inicializarCuadroOrganizacion()
+function inicializarSubmenus() {
+    // Configurar todos los toggles de submenús
+    var submenuToggles = document.querySelectorAll('.submenu > button');
+    submenuToggles.forEach(function(toggle) {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Obtener el target del botón
+            var targetId = this.getAttribute('data-target') || this.getAttribute('data-bs-target');
+            if (!targetId) {
+                // Si no tiene atributo data-target, buscar el ID del siguiente elemento
+                var nextElement = this.nextElementSibling;
+                if (nextElement && nextElement.id) {
+                    targetId = nextElement.id;
+                }
+            }
+            
+            if (targetId) {
+                var target = document.getElementById(targetId.replace('#', ''));
+                if (target) {
+                    if (target.classList.contains('show')) {
+                        target.classList.remove('show');
+                    } else {
+                        target.classList.add('show');
+                    }
+                }
+            }
+        });
+    });
+}
+
+
 /* Configurar botones principales */
 function configurarBotonesPrincipales() {
     // Configuración para el modo de conexión
@@ -671,374 +829,99 @@ function deseleccionarElemento() {
     }
   }
 
-  /* Editar elemento seleccionado */
-function editarElementoSeleccionado() {
-    if (!selectedElement) return;
-    
-    // Mostrar panel de edición adecuado según tipo de elemento
-    var sidc = selectedElement.getAttribute('data-sidc');
-    if (sidc) {
-      // Usar función del módulo de edición si está disponible
-      if (window.mostrarPanelEdicionUnidad) {
-        window.mostrarPanelEdicionUnidad(selectedElement);
-      } else {
-        mostrarPanelEdicionUnidad(selectedElement);
-      }
-    }
-  }
-  
 
-  /* Eliminar elemento seleccionado */
-  function eliminarElementoSeleccionado() {
-    if (!selectedElement) return;
+
+
+/* Guardar cambios de una unidad editada */
+function guardarCambiosUnidad(elemento) {
+    if (!elemento) {
+        console.error("No hay elemento para guardar cambios");
+        return;
+    }
+
+    console.log("Guardando cambios para elemento:", elemento.id);
+
+    // Obtener valores del panel
+    const designacion = document.getElementById('designacion').value;
+    const dependencia = document.getElementById('dependencia').value;
     
-    // Guardar información para deshacer
-    var id = selectedElement.id;
-    var sidc = selectedElement.getAttribute('data-sidc');
-    var label = selectedElement.querySelector('.symbol-label');
-    var labelText = label ? label.textContent : '';
-    var style = {
-      left: selectedElement.style.left,
-      top: selectedElement.style.top
+    // Guardar estado anterior para deshacer
+    const sidc = elemento.getAttribute('data-sidc');
+    const label = elemento.querySelector('.symbol-label');
+    const labelText = label ? label.textContent : '';
+    
+    const accion = {
+        tipo: 'editar',
+        id: elemento.id,
+        valorAnterior: {
+            sidc: sidc,
+            label: labelText
+        }
     };
     
-    // Eliminar todas las conexiones
-    jsPlumbInstance.removeAllEndpoints(selectedElement);
+    // Obtener el nuevo SIDC
+    const nuevoSidc = obtenerSIDCActual();
     
-    // Eliminar el elemento del DOM
-    canvas.removeChild(selectedElement);
-    
-    // Registrar la acción para deshacer
-    registrarAccion({
-      tipo: 'eliminar',
-      id: id,
-      sidc: sidc,
-      label: labelText,
-      style: style,
-      conexiones: obtenerConexionesElemento(id)
-    });
-    
-    // Actualizar estado
-    selectedElement = null;
-    actualizarBotonesHistorial();
-    
-    // Deshabilitar botón de eliminar
-    var btnEliminar = document.getElementById('btnEliminar');
-    if (btnEliminar) {
-      btnEliminar.disabled = true;
-    }
-  }
-  
-  /* Obtener las conexiones de un elemento para restaurarlas */
-  function obtenerConexionesElemento(elementId) {
-    var conexiones = [];
-    var conectores = jsPlumbInstance.getAllConnections();
-    
-    for (var i = 0; i < conectores.length; i++) {
-      var conector = conectores[i];
-      if (conector.sourceId === elementId || conector.targetId === elementId) {
-        conexiones.push({
-          sourceId: conector.sourceId,
-          targetId: conector.targetId,
-          // Guardar configuración adicional si es necesario
-          anchors: [conector.endpoints[0].anchor.type, conector.endpoints[1].anchor.type],
-          paintStyle: conector.getPaintStyle()
-        });
-      }
+    // Verificar que se obtuvo correctamente
+    if (!nuevoSidc) {
+        console.error("Error al obtener nuevo SIDC");
+        return;
     }
     
-    return conexiones;
-  }
-  
-  /* Historial: Deshacer/Rehacer */
-  function registrarAccion(accion) {
-    // Si hay acciones después del punto actual, eliminarlas
-    if (historial.indice < historial.acciones.length - 1) {
-      historial.acciones = historial.acciones.slice(0, historial.indice + 1);
-    }
+    console.log("Nuevo SIDC:", nuevoSidc);
+    elemento.setAttribute('data-sidc', nuevoSidc);
     
-    // Agregar nueva acción
-    historial.acciones.push(accion);
-    historial.indice = historial.acciones.length - 1;
-    
-    // Limitar tamaño del historial (opcional)
-    if (historial.acciones.length > 50) {
-      historial.acciones.shift();
-      historial.indice--;
-    }
-  }
-  
-  function actualizarBotonesHistorial() {
-    var btnDeshacer = document.getElementById('btnDeshacer');
-    var btnRehacer = document.getElementById('btnRehacer');
-    
-    if (btnDeshacer) {
-      btnDeshacer.disabled = historial.indice < 0;
-    }
-    
-    if (btnRehacer) {
-      btnRehacer.disabled = historial.indice >= historial.acciones.length - 1;
-    }
-  }
-  
-  function deshacerOrg() {
-    if (historial.indice < 0) return;
-    
-    var accion = historial.acciones[historial.indice];
-    console.log("Deshaciendo acción:", accion);
-    
-    switch (accion.tipo) {
-      case 'crear':
-        var elemento = document.getElementById(accion.id);
-        if (elemento) {
-          jsPlumbInstance.removeAllEndpoints(elemento);
-          canvas.removeChild(elemento);
+    // Actualizar símbolo visual
+    const symbolContainer = elemento.querySelector('.symbol-container');
+    if (symbolContainer) {
+        try {
+            const symbol = new ms.Symbol(nuevoSidc, { size: 45, standard: 'APP6', fill: true });
+            symbolContainer.innerHTML = symbol.asSVG();
+            console.log("Símbolo actualizado correctamente");
+        } catch (error) {
+            console.error("Error al actualizar símbolo visual:", error);
         }
-        break;
-        
-      case 'eliminar':
-        // Restaurar el elemento eliminado
-        recrearElemento(accion);
-        break;
-        
-      case 'editar':
-        var elemento = document.getElementById(accion.id);
-        if (elemento) {
-          // Restaurar SIDC
-          elemento.setAttribute('data-sidc', accion.valorAnterior.sidc);
-          
-          // Restaurar símbolo
-          var symbolContainer = elemento.querySelector('.symbol-container');
-          if (symbolContainer) {
-            try {
-              var symbol = new ms.Symbol(accion.valorAnterior.sidc, { size: 40, standard: 'APP6', fill: true });
-              symbolContainer.innerHTML = symbol.asSVG();
-            } catch (error) {
-              console.error("Error al restaurar símbolo:", error);
-            }
-          }
-          
-          // Restaurar etiqueta
-          var label = elemento.querySelector('.symbol-label');
-          if (label) {
-            label.textContent = accion.valorAnterior.label;
-          }
-        }
-        break;
-        
-      case 'mover':
-        var elemento = document.getElementById(accion.id);
-        if (elemento) {
-          elemento.style.left = accion.posicionAnterior.left + 'px';
-          elemento.style.top = accion.posicionAnterior.top + 'px';
-          jsPlumbInstance.revalidate(elemento);
-        }
-        break;
-        
-      case 'conectar':
-        jsPlumbInstance.deleteConnection(
-          jsPlumbInstance.getConnections({
-            source: accion.conexion.sourceId,
-            target: accion.conexion.targetId
-          })[0]
-        );
-        break;
+    } else {
+        console.error("No se encontró contenedor de símbolo");
     }
     
-    historial.indice--;
-    actualizarBotonesHistorial();
-  }
-  
-  function rehacerOrg() {
-    if (historial.indice >= historial.acciones.length - 1) return;
-    
-    historial.indice++;
-    var accion = historial.acciones[historial.indice];
-    console.log("Rehaciendo acción:", accion);
-    
-    switch (accion.tipo) {
-      case 'crear':
-        // Recrear el elemento
-        var nuevoElemento = recrearElemento(accion);
-        break;
-        
-      case 'eliminar':
-        var elemento = document.getElementById(accion.id);
-        if (elemento) {
-          jsPlumbInstance.removeAllEndpoints(elemento);
-          canvas.removeChild(elemento);
+    // Actualizar etiqueta
+    if (label) {
+        let nuevoLabel = designacion;
+        if (dependencia) {
+            nuevoLabel += '/' + dependencia;
         }
-        break;
-        
-      case 'editar':
-        var elemento = document.getElementById(accion.id);
-        if (elemento) {
-          // Aplicar SIDC
-          elemento.setAttribute('data-sidc', accion.valorNuevo.sidc);
-          
-          // Actualizar símbolo
-          var symbolContainer = elemento.querySelector('.symbol-container');
-          if (symbolContainer) {
-            try {
-              var symbol = new ms.Symbol(accion.valorNuevo.sidc, { size: 40, standard: 'APP6', fill: true });
-              symbolContainer.innerHTML = symbol.asSVG();
-            } catch (error) {
-              console.error("Error al actualizar símbolo:", error);
-            }
-          }
-          
-          // Actualizar etiqueta
-          var label = elemento.querySelector('.symbol-label');
-          if (label) {
-            label.textContent = accion.valorNuevo.label;
-          }
-        }
-        break;
-        
-      case 'mover':
-        var elemento = document.getElementById(accion.id);
-        if (elemento) {
-          elemento.style.left = accion.posicionNueva.left + 'px';
-          elemento.style.top = accion.posicionNueva.top + 'px';
-          jsPlumbInstance.revalidate(elemento);
-        }
-        break;
-        
-      case 'conectar':
-        jsPlumbInstance.connect({
-          source: accion.conexion.sourceId,
-          target: accion.conexion.targetId,
-          anchor: ["Bottom", "Top"]
-        });
-        break;
+        label.textContent = nuevoLabel;
+        console.log("Etiqueta actualizada:", nuevoLabel);
+    } else {
+        console.error("No se encontró etiqueta");
     }
     
-    actualizarBotonesHistorial();
-  }
-  
-  /* Recrear un elemento desde datos guardados (para deshacer/rehacer) */
-  function recrearElemento(datos) {
-    // Crear el contenedor del símbolo
-    var el = document.createElement('div');
-    el.id = datos.id;
-    el.className = 'military-symbol';
-    el.setAttribute('data-sidc', datos.sidc);
+    // Guardar el nuevo estado para deshacer
+    accion.valorNuevo = {
+        sidc: nuevoSidc,
+        label: label ? label.textContent : ''
+    };
     
-    // Configurar posición
-    if (datos.style) {
-      el.style.left = datos.style.left;
-      el.style.top = datos.style.top;
-    }
-    
-    // Crear el símbolo con la biblioteca milsymbol
-    var container = document.createElement('div');
-    container.className = 'symbol-container';
-    try {
-      var symbol = new ms.Symbol(datos.sidc, { size: 40, standard: 'APP6', fill: true });
-      container.innerHTML = symbol.asSVG();
-    } catch (error) {
-      console.error("Error al recrear símbolo:", error);
-    }
-    el.appendChild(container);
-    
-    // Crear la etiqueta con el nombre
-    var label = document.createElement('div');
-    label.className = 'symbol-label';
-    label.textContent = datos.label || '';
-    el.appendChild(label);
-    
-    // Agregar al canvas
-    canvas.appendChild(el);
-    
-    // Hacer arrastrable con jsPlumb
-    jsPlumbInstance.draggable(el, {
-      containment: "parent",
-      grid: [10, 10]
-    });
-    
-    // Configurar eventos del elemento
-    el.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (enModoConexion) {
-        if (window.manejarClickEnModoConexion) {
-          window.manejarClickEnModoConexion(el);
-        } else {
-          manejarClickEnModoConexion(el);
+    // Registrar acción para deshacer si está disponible
+    if (window.registrarAccion) {
+        window.registrarAccion(accion);
+        if (window.actualizarBotonesHistorial) {
+            window.actualizarBotonesHistorial();
         }
-      } else {
-        seleccionarElemento(el);
-      }
-    });
-    
-    // Agregar evento de doble clic para edición
-    el.addEventListener('dblclick', function(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      mostrarMenuContextual();
-    });
-    
-    // Agregar menú contextual
-    el.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      mostrarMenuContextual(e, el);
-    });
-    
-    // Añadir botones de edición al pasar el ratón
-    var editBtn = document.createElement('div');
-    editBtn.className = 'symbol-edit-btn';
-    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-    editBtn.style.display = 'none';
-    editBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      editarElementoSeleccionado();
-    });
-    el.appendChild(editBtn);
-    
-    var deleteBtn = document.createElement('div');
-    deleteBtn.className = 'symbol-delete-btn';
-    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteBtn.style.display = 'none';
-    deleteBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      eliminarElementoSeleccionado();
-    });
-    el.appendChild(deleteBtn);
-    
-    el.addEventListener('mouseenter', function() {
-      editBtn.style.display = 'block';
-      deleteBtn.style.display = 'block';
-    });
-    
-    el.addEventListener('mouseleave', function() {
-      editBtn.style.display = 'none';
-      deleteBtn.style.display = 'none';
-    });
-    
-    // Restaurar conexiones si hay datos
-    if (datos.conexiones) {
-      for (var i = 0; i < datos.conexiones.length; i++) {
-        var conexion = datos.conexiones[i];
-        // Solo recrear conexiones donde ambos elementos existen
-        var source = document.getElementById(conexion.sourceId);
-        var target = document.getElementById(conexion.targetId);
-        if (source && target) {
-          jsPlumbInstance.connect({
-            source: conexion.sourceId,
-            target: conexion.targetId,
-            anchors: conexion.anchors || ["Bottom", "Top"],
-            paintStyle: conexion.paintStyle || { stroke: "#456", strokeWidth: 2 }
-          });
-        }
-      }
     }
     
-    return el;
-  }
-  
-  /* Funciones para exportar e importar */
-/* Funciones para exportar e importar */
-function guardarCuadroOrganizacion() {
+    // Actualizar conexiones si es necesario
+    if (window.jsPlumbInstance) {
+        window.jsPlumbInstance.revalidate(elemento.id);
+    }
+    
+    // Cerrar panel
+    cerrarPanelEdicion('panelEdicionUnidad');
+    
+    // Volver a seleccionar el elemento para mostrar que sigue seleccionado
+    seleccionarElemento(elemento);
+}function guardarCuadroOrganizacion() {
     console.log("Guardando cuadro de organización...");
     
     // Recopilar todas las entidades y conexiones
@@ -2260,6 +2143,102 @@ function agregarTitulo() {
         fontSize: 24,
         bold: true
     });
+}
+
+/* Historial: Deshacer/Rehacer */
+function registrarAccion(accion) {
+    // Si hay acciones después del punto actual, eliminarlas
+    if (historial.indice < historial.acciones.length - 1) {
+        historial.acciones = historial.acciones.slice(0, historial.indice + 1);
+    }
+    
+    // Agregar nueva acción
+    historial.acciones.push(accion);
+    historial.indice = historial.acciones.length - 1;
+    
+    // Limitar tamaño del historial (opcional)
+    if (historial.acciones.length > 50) {
+        historial.acciones.shift();
+        historial.indice--;
+    }
+    
+    // Actualizar estados de botones de historial
+    actualizarBotonesHistorial();
+}
+
+function deshacerOrg() {
+    if (historial.indice < 0) return;
+    
+    var accion = historial.acciones[historial.indice];
+    console.log("Deshaciendo acción:", accion);
+    
+    // Implementar lógica para deshacer cada tipo de acción
+    switch (accion.tipo) {
+        case 'crear':
+            var elemento = document.getElementById(accion.id);
+            if (elemento) {
+                jsPlumbInstance.removeAllEndpoints(elemento);
+                canvas.removeChild(elemento);
+            }
+            break;
+            
+        // Implementar otros casos según tus necesidades
+    }
+    
+    historial.indice--;
+    actualizarBotonesHistorial();
+}
+
+function eliminarElementoSeleccionado() {
+    if (!selectedElement) return;
+    
+    // Guardar información para deshacer
+    var id = selectedElement.id;
+    var sidc = selectedElement.getAttribute('data-sidc');
+    var label = selectedElement.querySelector('.symbol-label');
+    var labelText = label ? label.textContent : '';
+    var style = {
+        left: selectedElement.style.left,
+        top: selectedElement.style.top
+    };
+    
+    // Eliminar todas las conexiones
+    jsPlumbInstance.removeAllEndpoints(selectedElement);
+    
+    // Eliminar el elemento del DOM
+    canvas.removeChild(selectedElement);
+    
+    // Registrar la acción para deshacer
+    registrarAccion({
+        tipo: 'eliminar',
+        id: id,
+        sidc: sidc,
+        label: labelText,
+        style: style
+    });
+    
+    // Actualizar estado
+    selectedElement = null;
+    actualizarBotonesHistorial();
+    
+    // Deshabilitar botón de eliminar
+    var btnEliminar = document.getElementById('btnEliminar');
+    if (btnEliminar) {
+        btnEliminar.disabled = true;
+    }
+}
+
+function actualizarBotonesHistorial() {
+    var btnDeshacer = document.getElementById('btnDeshacer');
+    var btnRehacer = document.getElementById('btnRehacer');
+    
+    if (btnDeshacer) {
+        btnDeshacer.disabled = historial.indice < 0;
+    }
+    
+    if (btnRehacer) {
+        btnRehacer.disabled = historial.indice >= historial.acciones.length - 1;
+    }
 }
 
 /**

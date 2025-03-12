@@ -11,8 +11,10 @@ import random
 import string
 import bcrypt
 import traceback
+import subprocess
+import signal
+import sys
 from dotenv import load_dotenv
-import os
 from datetime import datetime
 from config import SERVER_URL, CLIENT_URL, SERVER_IP
 
@@ -1667,6 +1669,70 @@ def handle_iniciar_combate(data):
         print(f"[ERROR] Error en iniciarCombate: {str(e)}")
 
 
+
+# Variable global para guardar referencia al proceso del control de gestos
+gesture_process = None
+
+@app.route('/gestos/iniciar', methods=['POST'])
+def iniciar_gestos():
+    global gesture_process
+    
+    # Si ya hay un proceso en ejecución, no iniciamos otro
+    if gesture_process is not None:
+        return jsonify({"status": "error", "message": "El control de gestos ya está en ejecución"})
+    
+    try:
+        # Ruta al script de control de gestos con la ruta correcta
+        gestos_script = '/Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py'
+        
+        # Inicia el script en un proceso separado
+        gesture_process = subprocess.Popen([sys.executable, gestos_script])
+        
+        return jsonify({"status": "success", "message": "Control de gestos iniciado correctamente"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Error al iniciar el control de gestos: {str(e)}"})
+
+@app.route('/gestos/detener', methods=['POST'])
+def detener_gestos():
+    global gesture_process
+    
+    if gesture_process is None:
+        return jsonify({"status": "error", "message": "El control de gestos no está en ejecución"})
+    
+    try:
+        # Terminar el proceso
+        gesture_process.terminate()
+        gesture_process = None
+        return jsonify({"status": "success", "message": "Control de gestos detenido correctamente"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Error al detener el control de gestos: {str(e)}"})
+
+@app.route('/gestos/estado', methods=['GET'])
+def estado_gestos():
+    global gesture_process
+    
+    estado = "activo" if gesture_process is not None else "inactivo"
+    return jsonify({"status": estado})
+
+@app.route('/gestos/calibrar', methods=['POST'])
+def calibrar_gestos():
+    global gesture_process
+    
+    if gesture_process is None:
+        return jsonify({"status": "error", "message": "El control de gestos no está en ejecución"})
+    
+    try:
+        # Terminar el proceso actual y reiniciarlo con flag de calibración
+        gesture_process.terminate()
+        
+        gestos_script = '/Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py'
+        gesture_process = subprocess.Popen([sys.executable, gestos_script, "--calibrar"])
+        
+        return jsonify({"status": "success", "message": "Calibración iniciada"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": f"Error al iniciar calibración: {str(e)}"})
+    
+    
 if __name__ == '__main__':
     socketio.run(app, 
                  debug=True, 

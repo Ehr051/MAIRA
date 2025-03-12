@@ -250,6 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
     console.warn("Botón de perfil de elevación no encontrado");
     }
+    inicializarControlGestos();
 });
 
 function actualizarLinea(id) {
@@ -1658,9 +1659,6 @@ function pegarElemento() {
         console.log('No hay elemento para pegar');
     }
 }
-/**
- * Muestra el perfil de elevación para la línea seleccionada.
- */
 
 function crearControlElevacion(stats, elevationData) {
     if (!stats || !elevationData || !Array.isArray(elevationData)) {
@@ -1884,6 +1882,95 @@ function agregarInteractividadPerfil(svg, data, x, y, width, height) {
     });
 }
 
+function obtenerURLServidor() {
+    // Opción 1: Usar la URL de la configuración global si está definida
+    if (window.SERVER_URL) {
+        return window.SERVER_URL;
+    }
+    
+    // Opción 2: Intentar obtener del GestorComunicación
+    if (window.GestorComunicacion && window.GestorComunicacion.instance && 
+        window.GestorComunicacion.instance.configuracion && 
+        window.GestorComunicacion.instance.configuracion.urlServidor) {
+        return window.GestorComunicacion.instance.configuracion.urlServidor;
+    }
+    
+    // Opción 3: Construir URL basada en la ubicación actual
+    const currentHost = window.location.hostname;
+    const probablePort = "5000"; // Puerto donde suele correr Flask
+    
+    return `http://${currentHost}:${probablePort}`;
+}
+
+function inicializarControlGestos() {
+    const btnControlGestos = document.getElementById('btnControlGestos');
+    if (!btnControlGestos) return; // Si no existe el botón, no inicializar
+    
+    let gestosActivos = false;
+    const API_BASE_URL = obtenerURLServidor();
+
+    // Comprobar estado inicial
+    fetch(`${API_BASE_URL}/gestos/estado`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            gestosActivos = data.status === "activo";
+            actualizarBotonGestos();
+        })
+        .catch(error => console.log('No se pudo obtener el estado del control de gestos:', error));
+
+    function actualizarBotonGestos() {
+        if (gestosActivos) {
+            btnControlGestos.innerHTML = '<i class="fas fa-hand-paper"></i> Desactivar Control por Gestos';
+            btnControlGestos.classList.add('activo');
+        } else {
+            btnControlGestos.innerHTML = '<i class="fas fa-hand-paper"></i> Activar Control por Gestos';
+            btnControlGestos.classList.remove('activo');
+        }
+    }
+
+    btnControlGestos.addEventListener('click', function(e) {
+        e.preventDefault();
+        const endpoint = gestosActivos ? `${API_BASE_URL}/gestos/detener` : `${API_BASE_URL}/gestos/iniciar`;
+        
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === "success") {
+                gestosActivos = !gestosActivos;
+                actualizarBotonGestos();
+                
+                // Mostrar mensaje de confirmación
+                const mensaje = gestosActivos ? 
+                    "Control por gestos activado. Usa tus manos para controlar el cursor." : 
+                    "Control por gestos desactivado.";
+                
+                mostrarNotificacion(mensaje);
+            } else {
+                console.error("Error:", data.message);
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Error al comunicarse con el servidor");
+        });
+    });
+}
 
 
 // Hacer estas funciones disponibles globalmente

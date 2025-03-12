@@ -407,14 +407,13 @@ html, body {
     display: block;
 }
 
-/* Paneles de Edición - MEJORADOS */
+/* Estilos para paneles laterales emergentes */
 .panel {
     position: fixed;
-    top: 50px;  /* Justo debajo de la barra principal */
+    top: 50px; /* Altura de la barra superior */
     right: 0;
     width: 350px;
-    height: calc(100vh - 50px);  /* Altura total menos la barra superior */
-    max-height: none;  /* Eliminar máximo de altura */
+    height: calc(100vh - 50px); /* Altura total menos la barra superior */
     background-color: var(--color-secundario);
     border-left: 1px solid var(--color-border);
     box-shadow: -4px 0 10px var(--color-shadow);
@@ -422,17 +421,17 @@ html, body {
     overflow-y: auto;
     z-index: 1000;
     display: none;
-    color: var(--color-texto);
-    border-radius: 0;  /* Sin bordes redondeados en el lado derecho */
-    transform: translateX(100%);  /* Inicialmente fuera de la pantalla */
+    transform: translateX(100%);
     transition: transform 0.3s ease;
 }
 
 .panel.show {
     display: block;
-    transform: translateX(0);  /* Deslizar a la vista */
+    transform: translateX(0);
 }
 
+
+/* Estilos para contenido del panel lateral */
 .panel h3 {
     margin-bottom: 20px;
     padding-bottom: 10px;
@@ -1351,4 +1350,141 @@ html, body {
     z-index: 1000;
     font-size: 14px;
     pointer-events: none;
+}
+
+/* Estilos para los paneles de edición */
+#panelEdicionUnidad, #panelEdicionEquipo {
+    position: fixed;
+    top: 50px;
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 50px);
+    background-color: var(--color-secundario);
+    border-left: 1px solid var(--color-border);
+    box-shadow: -4px 0 10px var(--color-shadow);
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: none;
+}
+
+#panelEdicionUnidad.show, #panelEdicionEquipo.show {
+    transform: translateX(0);
+    display: block;
+}
+
+/* Estilos para el panel de edición */
+#panelEdicionUnidad {
+    position: fixed;
+    top: 50px; /* Justo debajo de la barra superior */
+    right: 0;
+    width: 350px;
+    height: calc(100vh - 50px); /* Altura total menos la barra superior */
+    background-color: var(--color-secundario, #333); /* Valor fallback si la variable no está definida */
+    border-left: 1px solid var(--color-border, #555);
+    box-shadow: -4px 0 10px var(--color-shadow, rgba(0, 0, 0, 0.3));
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+#panelEdicionUnidad.show {
+    display: block !important;
+    animation: slideInRight 0.3s forwards;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Estilos para títulos del panel */
+#panelEdicionUnidad h3 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border, #555);
+    color: var(--color-primario, #0281a8);
+}
+
+/* Estilos para las pestañas */
+#panelEdicionUnidad .tab {
+    display: flex;
+    border-bottom: 1px solid var(--color-border, #555);
+    margin-bottom: 15px;
+}
+
+#panelEdicionUnidad .tab button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: var(--color-texto, #eee);
+    flex: 1;
+    text-align: center;
+}
+
+#panelEdicionUnidad .tab button.active {
+    color: var(--color-primario, #0281a8);
+    border-bottom: 2px solid var(--color-primario, #0281a8);
+}
+
+/* Estilos para el contenido de las pestañas */
+#panelEdicionUnidad .tabcontent {
+    display: none;
+    padding: 10px 0;
+}
+
+#panelEdicionUnidad .tabcontent.active {
+    display: block;
+}
+
+/* Estilos para los campos de formulario */
+#panelEdicionUnidad input,
+#panelEdicionUnidad select {
+    width: 100%;
+    padding: 8px;
+    background-color: #3a3a3a;
+    border: 1px solid var(--color-border, #555);
+    color: var(--color-texto, #eee);
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#panelEdicionUnidad input:focus,
+#panelEdicionUnidad select:focus {
+    border-color: var(--color-primario, #0281a8);
+    outline: none;
+}
+
+/* Estilos para los botones del panel */
+#panelEdicionUnidad .panel-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--color-border, #555);
+}
+
+#panelEdicionUnidad .panel-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#panelEdicionUnidad .panel-buttons button:first-child {
+    background-color: var(--color-primario, #0281a8);
+    color: white;
+}
+
+#panelEdicionUnidad .panel-buttons button:last-child {
+    background-color: var(--color-gray, #6c757d);
+    color: white;
 }

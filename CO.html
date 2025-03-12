@@ -50,7 +50,7 @@
                 <a href="#" id="guardarOrgBtn"><i class="fas fa-save"></i> Guardar Cuadro</a>
                 <a href="#" id="exportarOrgBtn"><i class="fas fa-file-export"></i> Exportar como Imagen</a>
                 <a href="#" id="imprimirOrgBtn"><i class="fas fa-print"></i> Imprimir</a>
-                <a href="planeamiento.html" id="volverBtn"><i class="fas fa-arrow-left"></i> Volver a Planeamiento</a>
+                <a href="index.html" id="volverBtn"><i class="fas fa-arrow-left"></i> Salir</a>
             </div>
         </div>
         
@@ -527,7 +527,43 @@
         </div>
         
     </div>
-
+    <div id="panelEdicionEquipo" class="panel">
+        <h3>Editar Equipo</h3>
+        
+        <div id="sidcDisplayEquipo"></div>
+        
+        <div class="tab">
+            <button class="tablinks" data-tab="SIDCEquipo">SIDC</button>
+            <button class="tablinks" data-tab="InformacionEquipo">Información</button>
+        </div>
+    
+        <div id="SIDCEquipo" class="tabcontent">
+            <div>
+                <label for="afiliacionEquipo">Afiliación:</label>
+                <select id="afiliacionEquipo">
+                    <option value="-">Desconocido</option>
+                    <option value="F">Amigo</option>
+                    <option value="J">Hostil/Enemigo</option>
+                </select>
+            </div>
+        </div>
+    
+        <div id="InformacionEquipo" class="tabcontent">
+            <div>
+                <label for="designacionEquipo">Designación:</label>
+                <input type="text" id="designacionEquipo">
+            </div>
+            <div>
+                <label for="asignacionEquipo">Asignación:</label>
+                <input type="text" id="asignacionEquipo">
+            </div>
+        </div>
+    
+        <div class="panel-buttons">
+            <button id="guardarCambiosEquipo">Guardar Cambios</button>
+            <button onclick="cerrarPanelEdicion('panelEdicionEquipo')">Cerrar</button>
+        </div>
+    </div>
     <!-- Editing Panels -->
     <div id="panelEdicionUnidad" class="panel">
         <h3>Editar Unidad</h3>
@@ -617,76 +653,6 @@
 
     </div>
 
-    <!-- Line Editing Panel -->
-    <div id="panelEdicionLinea" class="panel">
-        <h3>Editar Línea</h3>
-        <div>
-            <label for="nombreLinea">Nombre:</label>
-            <input type="text" id="nombreLinea">
-        </div>
-        <div>
-            <label for="colorLinea">Color:</label>
-            <input type="color" id="colorLinea">
-        </div>
-        <div>
-            <label for="anchoLinea">Ancho:</label>
-            <input type="number" id="anchoLinea" min="1" max="10">
-        </div> 
-        <div>
-            <label for="tipoLinea">Tipo:</label>
-            <select id="tipoLinea">
-                <option value="solid">Sólida</option>
-                <option value="dashed">Punteada</option>
-            </select> 
-        </div>
-        <div class="panel-buttons">
-            <button id="guardarCambiosLinea">Guardar Cambios</button>
-            <button onclick="cerrarPanelEdicion('panelEdicionLinea')">Cerrar</button>
-        </div>
-    </div>
-
-    <!-- MCC Editing Panel -->
-    <div id="panelEdicionMCC" class="panel">
-        <h3>Editar Elemento MCC</h3>
-        <div>
-            <label for="textoMCC">Texto:</label>
-            <input type="text" id="textoMCC">
-        </div>
-        <div>
-            <label for="colorMCC">Color:</label>
-            <input type="color" id="colorMCC">
-        </div>
-        <div>
-            <label for="anchoMCC">Ancho:</label>
-            <input type="number" id="anchoMCC" min="1" max="10">
-        </div>
-        <div>
-            <label for="colorRellenoMCC">Color de relleno:</label>
-            <input type="color" id="colorRellenoMCC">
-        </div>
-        <div>
-            <label for="tipoLineaMCC">Tipo de línea:</label>
-            <select id="tipoLineaMCC">
-                <option value="solid">Sólida</option>
-                <option value="dashed">Punteada</option>
-            </select>
-        </div>
-        <div id="rellenoMCC" style="display: none;">
-            <label for="tipoRellenoMCC">Tipo de relleno:</label>
-            <select id="tipoRellenoMCC">
-                <option value="none">Sin relleno</option>
-                <option value="solid">Sólido</option>
-                <option value="diagonal">Diagonal</option>
-                <option value="rombos">Rombos</option>
-                <option value="cuadros">Cuadros</option>
-                <option value="puntos">Puntos</option>
-            </select>
-        </div>
-        <div class="panel-buttons">
-            <button id="guardarCambiosMCC">Guardar Cambios</button>
-            <button onclick="cerrarPanelEdicion('panelEdicionMCC')">Cerrar</button>
-        </div>
-    </div>
     
     <div class="zoom-controls">
         <button id="zoomInBtn" title="Acercar"><i class="fas fa-plus"></i></button>
