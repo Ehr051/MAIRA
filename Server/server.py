@@ -779,6 +779,163 @@ def cancelar_partida(data):
         finally:
             conn.close()
 
+# Estructuras de datos para gestión de batalla
+operaciones_batalla = {}  # {nombre_operacion: {elementos: {}, info: {}}}
+
+# Eventos Socket.IO para gestión de batalla
+@socketio.on('elementoConectado')
+def handle_elemento_conectado_batalla(data):
+    sid = request.sid
+    user_id = data.get('id')
+    operacion = data.get('operacion')
+    
+    if not operacion or not user_id:
+        return
+    
+    # Crear operación si no existe
+    if operacion not in operaciones_batalla:
+        operaciones_batalla[operacion] = {
+            'elementos': {},
+            'info': {
+                'creada': data.get('timestamp', ''),
+                'creador': data.get('usuario', 'desconocido')
+            }
+        }
+    
+    # Unirse a la sala de la operación
+    join_room(operacion)
+    
+    # Guardar datos del elemento
+    operaciones_batalla[operacion]['elementos'][user_id] = data
+    
+    # Asociar sesión con usuario
+    user_sid_map[sid] = user_id
+    
+    # Enviar lista de elementos existentes al nuevo elemento
+    emit('elementosConectados', operaciones_batalla[operacion]['elementos'])
+    
+    # Notificar a otros elementos sobre la conexión
+    emit('nuevoElementoConectado', data, room=operacion, skip_sid=sid)
+    
+    print(f"Elemento {user_id} conectado a operación {operacion}")
+
+@socketio.on('actualizarPosicion')
+def handle_actualizar_posicion_batalla(data):
+    sid = request.sid
+    user_id = data.get('id')
+    
+    if user_id not in user_sid_map.values():
+        return
+    
+    # Buscar la operación del elemento
+    operacion = None
+    for op_nombre, op_data in operaciones_batalla.items():
+        if user_id in op_data['elementos']:
+            operacion = op_nombre
+            break
+    
+    if not operacion:
+        return
+    
+    # Actualizar datos del elemento
+    operaciones_batalla[operacion]['elementos'][user_id].update(data)
+    
+    # Notificar a otros en la operación
+    emit('actualizacionPosicion', data, room=operacion, skip_sid=sid)
+
+@socketio.on('mensajeChat')
+def handle_mensaje_chat_batalla(data):
+    sid = request.sid
+    emisor_id = data.get('emisor', {}).get('id')
+    
+    if not emisor_id:
+        return
+    
+    # Buscar la operación del emisor
+    operacion = None
+    for op_nombre, op_data in operaciones_batalla.items():
+        if emisor_id in op_data['elementos']:
+            operacion = op_nombre
+            break
+    
+    if not operacion:
+        return
+    
+    # Si es mensaje privado
+    if data.get('privado') and data.get('destinatario'):
+        destinatario_id = data.get('destinatario')
+        
+        # Buscar el sid del destinatario
+        dest_sid = None
+        for s, uid in user_sid_map.items():
+            if uid == destinatario_id:
+                dest_sid = s
+                break
+        
+        if dest_sid:
+            emit('mensajeChat', data, room=dest_sid)
+    else:
+        # Mensaje general para la operación
+        emit('mensajeChat', data, room=operacion, skip_sid=sid)
+
+@socketio.on('nuevoInforme')
+def handle_nuevo_informe(data):
+    sid = request.sid
+    emisor_id = data.get('emisor', {}).get('id')
+    
+    if not emisor_id:
+        return
+    
+    # Buscar la operación del emisor
+    operacion = None
+    for op_nombre, op_data in operaciones_batalla.items():
+        if emisor_id in op_data['elementos']:
+            operacion = op_nombre
+            break
+    
+    if not operacion:
+        return
+    
+    # Si tiene destinatario específico
+    if data.get('destinatario') and data.get('destinatario') != "comando" and data.get('destinatario') != "todos":
+        destinatario_id = data.get('destinatario')
+        
+        # Buscar el sid del destinatario
+        dest_sid = None
+        for s, uid in user_sid_map.items():
+            if uid == destinatario_id:
+                dest_sid = s
+                break
+        
+        if dest_sid:
+            emit('nuevoInforme', data, room=dest_sid)
+    elif data.get('destinatario') == "todos":
+        # Informe para todos en la operación
+        emit('nuevoInforme', data, room=operacion, skip_sid=sid)
+    else:
+        # Informe para comando o sin destinatario específico
+        emit('nuevoInforme', data, room=operacion)
+
+@socketio.on('informeLeido')
+def handle_informe_leido(data):
+    # Marcar informe como leído (versión simple)
+    informe_id = data.get('informeId')
+    if informe_id:
+        # Aquí podrías agregar lógica para actualizar el estado en una base de datos
+        # Por ahora, solo emitimos confirmación
+        emit('informeMarcadoLeido', {'informeId': informe_id})
+
+# Rutas API para consulta de operaciones
+@app.route('/api/operaciones', methods=['GET'])
+def get_operaciones_batalla():
+    return jsonify(list(operaciones_batalla.keys()))
+
+@app.route('/api/operaciones/<nombre_operacion>/elementos', methods=['GET'])
+def get_elementos_operacion_batalla(nombre_operacion):
+    if nombre_operacion in operaciones_batalla:
+        return jsonify(operaciones_batalla[nombre_operacion]['elementos'])
+    return jsonify({"error": "Operación no encontrada"}), 404
+
 @socketio.on('actualizarJugador')
 def actualizar_jugador(data):
     codigo_partida = data['codigo']

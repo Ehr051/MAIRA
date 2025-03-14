@@ -9,6 +9,9 @@ var medicionDistancia = false;
 document.addEventListener('DOMContentLoaded', async function() {
     console.log("DOM completamente cargado y parseado");
     
+    // Determinar si estamos en modo de Gestión de Batalla basado en la URL actual
+    const esModoGestionBatalla = window.location.pathname.includes('gestionbatalla.html');
+    
     try {
         // Esperar a que el índice de tiles esté cargado antes de continuar
         await window.elevationHandler.cargarIndiceTiles;
@@ -18,9 +21,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
     
-    
-    
-    // Definir bounds iniciales (puedes ajustar estos valores según la lógica de tu aplicación)
+    // Definir bounds iniciales
     const boundsIniciales = {
         north: -34.0,
         south: -34.1,
@@ -36,15 +37,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Error durante la inicialización de datos de elevación:', error);
     }
 
-    if (!window.mapaInicializado) {
-        inicializarMapa();
-        window.mapaInicializado = true;
+    // Si estamos en modo de Gestión de Batalla
+    if (esModoGestionBatalla) {
+        // Ocultar loading container después de la carga inicial
+        setTimeout(() => {
+            document.querySelector('.loading-container').style.display = 'none';
+            // Mostrar pantalla de login y ocultar el contenido principal
+            document.getElementById('login-container').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+        }, 1000);
+    } else {
+        // Modo normal de juego
+        if (!window.mapaInicializado) {
+            inicializarMapa();
+            window.mapaInicializado = true;
+        }
+        inicializarControles();
+        initializeBuscarLugar();
     }
-
-    
-
-    inicializarControles();
-    initializeBuscarLugar();
 });
 
 // Inicializar controles
