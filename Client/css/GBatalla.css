@@ -1,537 +1,551 @@
-/* Estilo general del panel lateral */
+/**
+ * GBatalla.css
+ * Estilos específicos para el modo Gestión de Batalla en MAIRA
+ * @version 1.1.0
+ */
+
+/* Estilos generales del panel lateral */
 .panel-lateral {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 350px;
-    height: 100vh;
-    background-color: rgba(255, 255, 255, 0.9);
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease;
-    border-left: 1px solid #ddd;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 350px;
+  height: 100vh;
+  background-color: rgba(250, 250, 250, 0.95);
+  box-shadow: -2px 0 15px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-left: 1px solid #ddd;
+  color: #333;
+  font-family: inherit;
+}
+
+.panel-lateral.oculto {
+  transform: translateX(350px);
+}
+
+/* Estilos de encabezado */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #343a40;
+  color: white;
+  border-bottom: 1px solid #495057;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.panel-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.panel-header button:hover {
+  color: #ccc;
+}
+
+/* Pestañas del panel */
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  background-color: #f8f9fa;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background-color: #e9ecef;
+}
+
+.tab-btn.active {
+  border-bottom-color: #007bff;
+  color: #007bff;
+}
+
+/* Contenido del panel */
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Información de usuario */
+.info-usuario {
+  padding: 12px;
+  margin-bottom: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.usuario-datos p {
+  margin: 5px 0;
+}
+
+.estado-conexion {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e9ecef;
+}
+
+.indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.indicator.online {
+  background-color: #28a745;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+.indicator.offline {
+  background-color: #dc3545;
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+}
+
+/* Lista de elementos */
+.elementos-lista {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.elemento-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.elemento-item:last-child {
+  border-bottom: none;
+}
+
+.elemento-item:hover {
+  background-color: #f8f9fa;
+}
+
+.elemento-item.usuario-actual {
+  background-color: #e6f7ff;
+}
+
+.elemento-icon {
+  position: relative;
+  margin-right: 12px;
+}
+
+.elemento-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 1px solid white;
+}
+
+.elemento-status.online {
+  background-color: #28a745;
+}
+
+.elemento-status.offline {
+  background-color: #dc3545;
+}
+
+.elemento-info {
+  flex: 1;
+}
+
+.elemento-nombre {
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+
+.elemento-usuario {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.elemento-tiempo {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 3px;
+}
+
+.elemento-acciones {
+  display: flex;
+}
+
+.elemento-acciones button {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  margin-left: 5px;
+  transition: color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.elemento-acciones button:hover {
+  color: #0056b3;
+}
+
+/* Chat */
+.chat-tipo {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.chat-tipo button {
+  flex: 1;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chat-tipo button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.chat-tipo button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.chat-tipo button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+#chat-destinatario {
+  margin-bottom: 12px;
+}
+
+#chat-destinatario select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.chat-messages {
+  height: calc(100vh - 250px);
+  overflow-y: auto;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  padding: 8px 12px;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  max-width: 85%;
+  word-break: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.message-usuario {
+  background-color: #dcf8c6;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.message-recibido {
+  background-color: #f1f0f0;
+  margin-right: auto;
+  border-bottom-left-radius: 4px;
+}
+
+.message-sistema {
+  background-color: #fff3cd;
+  align-self: center;
+  max-width: 90%;
+  text-align: center;
+  font-style: italic;
+  border-radius: 4px;
+}
+
+.chat-input {
+  display: flex;
+  margin-top: 12px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+}
+
+.chat-input input:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.chat-input button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-input button:hover {
+  background-color: #0069d9;
+}
+
+/* Informes */
+.informes-botones {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.informes-botones button {
+  flex: 1;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.informes-botones button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.informes-botones button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.informes-botones button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.filtro-informes {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.filtro-informes button {
+  flex: 1;
+  padding: 6px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filtro-informes button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.filtro-informes button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.filtro-informes button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.informes-lista {
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+}
+
+.informe {
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.informe:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.informe-urgente {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.orden {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.informe-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.informe-tipo {
+  margin-right: 10px;
+  color: #666;
+}
+
+.informe-urgente .informe-tipo {
+  color: #721c24;
+}
+
+.orden .informe-tipo {
+  color: #155724;
+}
+
+.informe-titulo {
+  flex: 1;
+}
+
+.informe-titulo small {
+  color: #999;
+  font-size: 0.8rem;
+  margin-left: 5px;
+}
+
+.informe-remitente {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.informe-contenido {
+  white-space: pre-line;
+  margin-top: 8px;
+  color: #333;
+}
+
+.informe-acciones {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.btn-ubicacion {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-ubicacion:hover {
+  background-color: #0069d9;
+}
+
+/* Formulario de crear informe */
+#form-informe .form-group {
+  margin-bottom: 12px;
+}
+
+#form-informe label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+#form-informe select,
+#form-informe input,
+#form-informe textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+#form-informe textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.form-buttons button {
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+#enviar-informe {
+  background-color: #007bff;
+    color: white;
+    border: none;
+}
+
+#cancelar-informe {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
     color: #333;
-    font-family: inherit;
-  }
-  
-  .panel-lateral.oculto {
-    transform: translateX(350px);
-  }
-  
-  /* Estilos de encabezado */
-  .panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    background-color: #343a40;
-    color: white;
-    border-bottom: 1px solid #495057;
-  }
-  
-  .panel-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-  
-  .panel-header button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: color 0.2s ease;
-  }
-  
-  .panel-header button:hover {
-    color: #ccc;
-  }
-  
-  /* Pestañas del panel */
-  .panel-tabs {
-    display: flex;
-    border-bottom: 1px solid #ddd;
-    background-color: #f8f9fa;
-  }
-  
-  .tab-btn {
-    flex: 1;
-    padding: 10px;
-    background: none;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    font-weight: 500;
-    color: #495057;
-    transition: all 0.3s ease;
-  }
-  
-  .tab-btn:hover {
-    background-color: #e9ecef;
-  }
-  
-  .tab-btn.active {
-    border-bottom-color: #007bff;
-    color: #007bff;
-  }
-  
-  /* Contenido del panel */
-  .panel-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-  }
-  
-  .tab-content {
-    display: none;
-  }
-  
-  .tab-content.active {
-    display: block;
-  }
-  
-  /* Información de usuario */
-  .info-usuario {
-    padding: 12px;
-    margin-bottom: 15px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid #e9ecef;
-  }
-  
-  .usuario-datos p {
-    margin: 5px 0;
-  }
-  
-  .estado-conexion {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #e9ecef;
-  }
-  
-  .indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 8px;
-  }
-  
-  .indicator.online {
-    background-color: #28a745;
-    box-shadow: 0 0 5px #28a745;
-  }
-  
-  .indicator.offline {
-    background-color: #dc3545;
-    box-shadow: 0 0 5px #dc3545;
-  }
-  
-  /* Lista de elementos */
-  .elementos-lista {
-    max-height: calc(100vh - 300px);
-    overflow-y: auto;
-    border: 1px solid #e9ecef;
-    border-radius: 4px;
-  }
-  
-  .elemento-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #e9ecef;
-    transition: background-color 0.2s ease;
-  }
-  
-  .elemento-item:hover {
-    background-color: #f8f9fa;
-  }
-  
-  .elemento-item.usuario-actual {
-    background-color: #e6f7ff;
-  }
-  
-  .elemento-icon {
-    position: relative;
-    margin-right: 12px;
-  }
-  
-  .elemento-status {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    border: 1px solid white;
-  }
-  
-  .elemento-status.online {
-    background-color: #28a745;
-  }
-  
-  .elemento-status.offline {
-    background-color: #dc3545;
-  }
-  
-  .elemento-info {
-    flex: 1;
-  }
-  
-  .elemento-nombre {
-    font-weight: 500;
-    margin-bottom: 3px;
-  }
-  
-  .elemento-usuario {
-    font-size: 0.85rem;
-    color: #666;
-  }
-  
-  .elemento-tiempo {
-    font-size: 0.75rem;
-    color: #999;
-    margin-top: 3px;
-  }
-  
-  .elemento-acciones {
-    display: flex;
-  }
-  
-  .elemento-acciones button {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    margin-left: 5px;
-    transition: color 0.2s ease;
-  }
-  
-  .elemento-acciones button:hover {
-    color: #0056b3;
-  }
-  
-  /* Chat */
-  .chat-tipo {
-    display: flex;
-    margin-bottom: 12px;
-  }
-  
-  .chat-tipo button {
-    flex: 1;
-    padding: 8px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .chat-tipo button:first-child {
-    border-radius: 4px 0 0 4px;
-  }
-  
-  .chat-tipo button:last-child {
-    border-radius: 0 4px 4px 0;
-  }
-  
-  .chat-tipo button.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-  }
-  
-  #chat-destinatario {
-    margin-bottom: 12px;
-  }
-  
-  #chat-destinatario select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-  }
-  
-  .chat-messages {
-    height: calc(100vh - 250px);
-    overflow-y: auto;
-    padding: 12px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid #e9ecef;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .message {
-    padding: 8px 12px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    max-width: 85%;
-    word-break: break-word;
-  }
-  
-  .message-usuario {
-    background-color: #dcf8c6;
-    margin-left: auto;
-    border-bottom-right-radius: 4px;
-  }
-  
-  .message-recibido {
-    background-color: #f1f0f0;
-    margin-right: auto;
-    border-bottom-left-radius: 4px;
-  }
-  
-  .message-sistema {
-    background-color: #fff3cd;
-    align-self: center;
-    max-width: 90%;
-    text-align: center;
-    font-style: italic;
-    border-radius: 4px;
-  }
-  
-  .chat-input {
-    display: flex;
-    margin-top: 12px;
-  }
-  
-  .chat-input input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px 0 0 4px;
-    outline: none;
-  }
-  
-  .chat-input input:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-  
-  .chat-input button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    border: none;
-    color: white;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  .chat-input button:hover {
-    background-color: #0069d9;
-  }
-  
-  /* Informes */
-  .informes-botones {
-    display: flex;
-    margin-bottom: 15px;
-  }
-  
-  .informes-botones button {
-    flex: 1;
-    padding: 8px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .informes-botones button:first-child {
-    border-radius: 4px 0 0 4px;
-  }
-  
-  .informes-botones button:last-child {
-    border-radius: 0 4px 4px 0;
-  }
-  
-  .informes-botones button.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-  }
-  
-  .filtro-informes {
-    display: flex;
-    margin-bottom: 12px;
-  }
-  
-  .filtro-informes button {
-    flex: 1;
-    padding: 6px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .filtro-informes button:first-child {
-    border-radius: 4px 0 0 4px;
-  }
-  
-  .filtro-informes button:last-child {
-    border-radius: 0 4px 4px 0;
-  }
-  
-  .filtro-informes button.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-  }
-  
-  .informes-lista {
-    max-height: calc(100vh - 240px);
-    overflow-y: auto;
-  }
-  
-  .informe {
-    padding: 12px;
-    margin-bottom: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    transition: all 0.3s ease;
-  }
-  
-  .informe:hover {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .informe-urgente {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-  }
-  
-  .orden {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-  }
-  
-  .informe-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  
-  .informe-tipo {
-    margin-right: 10px;
-    color: #666;
-  }
-  
-  .informe-urgente .informe-tipo {
-    color: #721c24;
-  }
-  
-  .orden .informe-tipo {
-    color: #155724;
-  }
-  
-  .informe-titulo {
-    flex: 1;
-  }
-  
-  .informe-titulo small {
-    color: #999;
-    font-size: 0.8rem;
-    margin-left: 5px;
-  }
-  
-  .informe-remitente {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 8px;
-  }
-  
-  .informe-contenido {
-    white-space: pre-line;
-    margin-top: 8px;
-    color: #333;
-  }
-  
-  .informe-acciones {
-    margin-top: 12px;
-    text-align: right;
-  }
-  
-  .btn-ubicacion {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background-color 0.2s ease;
-  }
-  
-  .btn-ubicacion:hover {
-    background-color: #0069d9;
-  }
-  
-  /* Formulario de crear informe */
-  #form-informe .form-group {
-    margin-bottom: 12px;
-  }
-  
-  #form-informe label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-  }
-  
-  #form-informe select,
-  #form-informe input,
-  #form-informe textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  #form-informe textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  .form-buttons {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 15px;
-  }
-  
-  .form-buttons button {
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px;
-  }
-  
-  #enviar-informe {
-    background-color: #007bff;
-    color: white;
-    border: none;
-  }
-  
-  #cancelar-informe {
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    color: #333;
-  }
-  
-  /* Botón del panel */
-  /* Añade esto a tu CSS para asegurar que el botón del panel siempre esté visible */
+}
+
+/* Botón del panel */
 .boton-panel {
-    position: fixed; /* Cambiado de absolute a fixed */
+    position: fixed;
     right: 15px;
     top: 80px;
-    z-index: 1200; /* Aumentado para asegurar que esté por encima de otros elementos */
+    z-index: 1200;
     background-color: white;
     border: 1px solid #ddd;
     width: 32px;
@@ -543,14 +557,14 @@
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-  }
-  
-  .boton-panel:hover {
+}
+
+.boton-panel:hover {
     background-color: #f8f9fa;
-  }
-  
-  /* Menú contextual */
-  .context-menu {
+}
+
+/* Menú contextual */
+.context-menu {
     position: absolute;
     z-index: 1000;
     background-color: white;
@@ -559,9 +573,9 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 5px 0;
     min-width: 150px;
-  }
-  
-  .context-menu button {
+}
+
+.context-menu button {
     display: block;
     width: 100%;
     padding: 8px 12px;
@@ -570,55 +584,107 @@
     text-align: left;
     cursor: pointer;
     transition: background-color 0.2s ease;
-  }
-  
-  .context-menu button:hover {
+}
+
+.context-menu button:hover {
     background-color: #f8f9fa;
-  }
-  
-  /* Notificaciones */
-  .notificacion {
+}
+
+/* Notificaciones */
+.notificaciones-container {
     position: fixed;
     top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background-color: white;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+}
+
+.notificacion {
+    position: relative;
+    padding: 15px;
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    padding: 12px 15px;
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: slideIn 0.3s forwards;
+    opacity: 0;
+    transform: translateX(50px);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-width: 300px;
-    z-index: 2000;
-    transition: transform 0.3s ease;
-  }
-  
-  .notificacion.show {
-    transform: translateX(-50%) translateY(0);
-  }
-  
-  .notificacion-info {
+}
+
+.notificacion.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notificacion-info {
     border-left: 4px solid #17a2b8;
-  }
-  
-  .notificacion-exito {
+}
+
+.notificacion-exito {
     border-left: 4px solid #28a745;
-  }
-  
-  .notificacion-error {
+}
+
+.notificacion-error {
     border-left: 4px solid #dc3545;
-  }
-  
-  .notificacion-cerrar {
+}
+
+.notificacion-contenido {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notificacion-icono {
+    font-size: 1.2rem;
+}
+
+.notificacion-info .notificacion-icono {
+    color: #17a2b8;
+}
+
+.notificacion-exito .notificacion-icono {
+    color: #28a745;
+}
+
+.notificacion-error .notificacion-icono {
+    color: #dc3545;
+}
+
+.notificacion-cerrar {
     background: none;
     border: none;
-    font-size: 1.2rem;
+    color: #777;
     cursor: pointer;
-    margin-left: 10px;
-  }
-  
-  /* Login container estilizado */
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    transition: color 0.2s ease;
+}
+
+.notificacion-cerrar:hover {
+    color: #333;
+}
 
 /* Formulario de login mejorado */
 #login-container {
@@ -632,106 +698,103 @@
     align-items: center;
     justify-content: center;
     z-index: 2000;
-  }
-  
-  .login-content {
+}
+
+.login-content {
     background-color: #fafafa;
     border-radius: 8px;
     width: 90%;
-    max-width: 500px; /* Reducido de 600px */
+    max-width: 500px;
     padding: 20px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
     margin: 20px;
     overflow-y: auto;
     max-height: 90vh;
-  }
-  
-  .login-header {
+}
+
+.login-header {
     text-align: center;
-    margin-bottom: 15px; /* Reducido de 25px */
+    margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 1px solid #eaeaea;
-  }
-  
-  .login-header .logo {
-    max-width: 120px; /* Reducido de 150px */
+}
+
+.login-header .logo {
+    max-width: 120px;
     margin-bottom: 10px;
-  }
-  
-  .login-header h2 {
+}
+
+.login-header h2 {
     color: #333;
     font-weight: 600;
     font-size: 1.4rem;
     margin: 0;
-  }
-  
-  /* Hacer el formulario más compacto */
-  #login-form .form-group {
-    margin-bottom: 10px; /* Reducido de 15px */
-  }
-  
-  #login-form label {
+}
+
+#login-form .form-group {
+    margin-bottom: 10px;
+}
+
+#login-form label {
     display: block;
-    margin-bottom: 3px; /* Reducido de 5px */
+    margin-bottom: 3px;
     font-weight: 500;
     color: #333;
     font-size: 0.9rem;
-  }
-  
-  #login-form input,
-  #login-form select {
+}
+
+#login-form input,
+#login-form select {
     width: 100%;
-    padding: 8px; /* Reducido de 10px */
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9rem;
     background-color: white;
-  }
-  
-  .form-section {
+}
+
+.form-section {
     border: 1px solid #ddd;
     border-radius: 6px;
-    padding: 12px; /* Reducido de 15px */
-    margin-bottom: 15px; /* Reducido de 20px */
+    padding: 12px;
+    margin-bottom: 15px;
     background-color: #f8f9fa;
-  }
-  
-  .form-section h4 {
+}
+
+.form-section h4 {
     margin: 0 0 10px 0;
     color: #333;
     font-weight: 600;
     font-size: 1rem;
-  }
-  
-  /* Mejorar la vista previa SIDC */
-  .sidc-preview-container {
+}
+
+.sidc-preview-container {
     margin-top: 12px;
     text-align: center;
     background-color: white;
     border: 1px solid #eee;
     border-radius: 4px;
     padding: 8px;
-  }
-  
-  .sidc-preview-container label {
+}
+
+.sidc-preview-container label {
     font-size: 0.85rem;
     color: #666;
-  }
-  
-  #sidc-preview {
+}
+
+#sidc-preview {
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 5px;
-    min-height: 60px; /* Reducido de 80px */
-  }
-  
-  /* Mejorar botón primario */
-  .btn-primary {
-    background-color: #1a73e8; /* Azul de Google, más moderno */
+    min-height: 60px;
+}
+
+.btn-primary {
+    background-color: #1a73e8;
     color: white;
     border: none;
-    padding: 10px 20px; /* Reducido de 12px */
+    padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     width: 100%;
@@ -740,173 +803,431 @@
     margin-top: 5px;
     font-size: 0.95rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  }
-  
-  .btn-primary:hover {
+}
+
+.btn-primary:hover {
     background-color: #0d62d1;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2), 0 2px 5px rgba(0,0,0,0.2);
-  }
-  
-  .btn-primary:active {
+}
+
+.btn-primary:active {
     transform: translateY(1px);
-  }
-  
-  /* Modificar opciones de radio */
-  .radio-group .radio-options {
+}
+
+.radio-group .radio-options {
     display: flex;
-    gap: 15px; /* Espacio entre opciones */
-  }
-  
-  .radio-options label {
+    gap: 15px;
+}
+
+.radio-options label {
     margin-right: 0;
     font-weight: normal;
     display: flex;
     align-items: center;
     cursor: pointer;
-  }
-  
-  .radio-options input[type="radio"] {
+}
+
+.radio-options input[type="radio"] {
     width: auto;
     margin-right: 5px;
     cursor: pointer;
-  }
-  
-  /* Estilos responsivos */
-  @media (max-width: 576px) {
-    .login-content {
-      width: 95%;
-      padding: 15px;
-      margin: 10px;
-    }
-    
-    .form-section {
-      padding: 10px;
-    }
-    
-    #sidc-preview {
-      min-height: 50px;
-    }
-    
-    .login-header .logo {
-      max-width: 100px;
-    }
-    
-    .login-header h2 {
-      font-size: 1.2rem;
-    }
-  }
-  
-  /* Modales */
-  .modal-content {
+}
+
+/* Modales */
+.modal-content {
     border-radius: 8px;
     border: none;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  .modal-header {
+}
+
+.modal-header {
     background-color: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
     border-radius: 8px 8px 0 0;
-  }
-  
-  .modal-footer {
+}
+
+.modal-footer {
     background-color: #f8f9fa;
     border-top: 1px solid #e9ecef;
     border-radius: 0 0 8px 8px;
-  }
-  
-  /* Estilos responsivos */
-/* Mejoras para el panel lateral en dispositivos móviles */
-@media (max-width: 768px) {
+}
+
+/* Estilos responsivos para pantallas medianas (tablets) */
+@media (max-width: 992px) {
     .panel-lateral {
-      width: 100%;  /* Ocupar todo el ancho en móviles */
-      max-width: 350px;  /* Pero limitar el tamaño máximo */
+        width: 320px;
     }
     
     .panel-lateral.oculto {
-      transform: translateX(100%);  /* Ocultar completamente fuera de la pantalla */
+        transform: translateX(320px);
     }
-    
-    /* Asegurar que el área de chat sea completamente visible */
+
+    .feature {
+        padding: 15px;
+        font-size: 0.9rem;
+    }
+
     .chat-messages {
-      height: calc(100vh - 280px);  /* Altura ajustada para móviles */
-      padding-bottom: 60px;  /* Espacio adicional para asegurar que los mensajes no queden bajo el área de input */
+        height: calc(100vh - 280px);
+    }
+
+    .features-grid, 
+    .applications-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .benefits-list {
+        grid-template-columns: 1fr;
+    }
+
+    .elemento-item {
+        padding: 8px;
+    }
+
+    .elemento-nombre {
+        font-size: 0.9rem;
+    }
+
+    .elemento-usuario, .elemento-tiempo {
+        font-size: 0.8rem;
+    }
+}
+
+/* Estilos responsivos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .panel-lateral {
+        width: 100%;
+        max-width: 100%;
     }
     
-    /* Rediseño del área de entrada de chat para móviles */
-    .chat-input {
-      position: sticky;
-      bottom: 0;
-      background-color: white;
-      padding: 10px;
-      margin-top: 5px;
-      border-top: 1px solid #eee;
-      z-index: 10;
+    .panel-lateral.oculto {
+        transform: translateX(100%);
     }
-    
-    /* Ajuste general de paddings y márgenes para aprovechar espacio */
-    .panel-content, .tab-content, .info-usuario {
-      padding: 8px;
-      margin-bottom: 8px;
-    }
-    
-    /* Asegurar que el botón del panel siempre sea visible */
+
     .boton-panel {
-      position: fixed !important;
-      z-index: 1500 !important;
-      width: 40px;
-      height: 40px;
-      background-color: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1500;
     }
+
+    .login-content {
+        width: 95%;
+        max-width: none;
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .sidc-preview-container {
+        padding: 5px;
+    }
+
+    #sidc-preview {
+        min-height: 50px;
+    }
+
+    .form-section {
+        padding: 10px;
+    }
+
+    .login-header .logo {
+        max-width: 100px;
+    }
+
+    .login-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .element-icon {
+        margin-right: 8px;
+    }
+
+    .chat-messages {
+        height: calc(100vh - 320px);
+        padding: 10px;
+    }
+
+    .message {
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        max-width: 90%;
+    }
+
+    .informes-lista {
+        max-height: calc(100vh - 260px);
+    }
+
+    .informe {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .informe-header {
+        margin-bottom: 5px;
+    }
+
+    .informe-tipo {
+        margin-right: 8px;
+        font-size: 0.9rem;
+    }
+
+    .informe-titulo {
+        font-size: 0.9rem;
+    }
+
+    .informe-remitente {
+        font-size: 0.8rem;
+    }
+
+    .informe-contenido {
+        font-size: 0.9rem;
+    }
+
+    .panel-tabs {
+        flex-wrap: nowrap;
+    }
+
+    .tab-btn {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+    }
+
+    .info-usuario {
+        padding: 8px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+
+    .elementos-lista {
+        max-height: calc(100vh - 250px);
+    }
+
+    /* Ajuste de formularios para móviles */
+    #form-informe label {
+        margin-bottom: 3px;
+        font-size: 0.9rem;
+    }
+
+    #form-informe select,
+    #form-informe input,
+    #form-informe textarea {
+        padding: 6px;
+        font-size: 0.9rem;
+    }
+
+    #form-informe textarea {
+        min-height: 80px;
+    }
+}
+
+/* Estilos para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .login-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .btn-primary {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        margin-bottom: 8px;
+    }
+
+    .panel-content {
+        padding: 10px;
+    }
+
+    .tab-btn {
+        font-size: 0.8rem;
+        padding: 8px 3px;
+    }
+
+    .chat-input input {
+        padding: 8px;
+    }
+
+    .chat-input button {
+        padding: 8px 12px;
+    }
+
+    .notificaciones-container {
+        top: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+    }
+
+    .notificacion {
+        padding: 10px;
+    }
+
+    /* Ajustar posiciones para no obstruir controles en dispositivos pequeños */
+    .chat-messages {
+        padding-bottom: 60px; /* Espacio para el área de entrada */
+    }
+
+    /* Optimizar pantalla de login */
+    .radio-group .radio-options {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /* Optimizar para toques en pantalla táctil */
+    .elemento-acciones button,
+    .chat-input button,
+    .btn-ubicacion {
+        min-height: 36px; /* Altura mínima recomendada para elementos tocables */
+    }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) {
+    .elemento-item:active {
+        background-color: #f0f0f0;
+    }
+
+    .chat-input button:active,
+    .btn-primary:active,
+    .btn-ubicacion:active {
+        opacity: 0.8;
+    }
+
+    /* Aumentar área de toque para enlaces y botones en dispositivos táctiles */
+    .elemento-acciones button {
+        padding: 8px 10px;
+    }
+
+    /* Asegurar que los formularios sean usables en pantallas táctiles */
+    #form-informe select,
+    #form-informe input {
+        font-size: 16px; /* Prevenir zoom automático en iOS */
+    }
+}
+
+/* Soporte para modo oscuro del sistema si está disponible */
+@media (prefers-color-scheme: dark) {
+    .panel-lateral {
+        background-color: rgba(30, 30, 30, 0.95);
+        color: #e0e0e0;
+    }
+
+    .panel-header {
+        background-color: #121212;
+    }
+
+    .tab-btn {
+        color: #e0e0e0;
+    }
+
+    .info-usuario {
+        background-color: #252525;
+        border-color: #333;
+    }
+
+    .chat-messages {
+        background-color: #1e1e1e;
+    }
+
+    .message-usuario {
+        background-color: #2c4f2c;
+    }
+
+    .message-recibido {
+        background-color: #2c2c2c;
+    }
+
+    .message-sistema {
+        background-color: #3e3e22;
+    }
+
+    .chat-input input {
+        background-color: #333;
+        color: #e0e0e0;
+        border-color: #444;
+    }
+
+    /* Adaptar otros elementos según sea necesario para modo oscuro */
+}
+
+
+/* Estilos para la selección de operación */
+#operacion-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: white;
+  margin-bottom: 5px;
+}
+
+#operacion-select option.opcion-nueva {
+  font-weight: bold;
+  color: #007bff;
+}
+
+#operacion-select optgroup {
+  font-weight: 600;
+}
+
+#operacion-select optgroup option {
+  font-weight: normal;
+  padding-left: 10px;
+}
+
+.etiqueta-nueva {
+  font-size: 0.8rem;
+  color: #007bff;
+  margin-top: 5px;
+  font-style: italic;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilos para la selección de operación */
+#operacion-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: white;
+  margin-bottom: 5px;
+  appearance: menulist; /* Asegura que se vea como un menú desplegable estándar */
+  -webkit-appearance: menulist; /* Para Safari */
+  text-overflow: ellipsis;
+}
+
+/* Mejorar visibilidad en dispositivos móviles */
+@media (max-width: 768px) {
+  #operacion-select {
+      font-size: 16px; /* Prevenir zoom en iOS */
+      padding: 10px; /* Mayor área táctil */
   }
   
-  /* Mejoras en las animaciones de transición */
-  .panel-lateral {
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  #operacion-select option {
+      padding: 10px; /* Mayor área táctil para opciones */
   }
-  
-  /* Estilos para agrupación de mensajes del mismo usuario */
-  .message-group {
-    margin-bottom: 12px;
-  }
-  
-  .message-group .sender-name {
-    font-weight: bold;
-    margin-bottom: 3px;
-  }
-  
-  .message-group .message {
-    margin-bottom: 2px;
-  }
-  
-  .message-group .timestamp {
-    font-size: 0.7rem;
-    color: #999;
-    text-align: right;
-  }
-  
-  /* Indicador de escribiendo */
-  .typing-indicator {
-    padding: 5px 10px;
-    background-color: #f1f0f0;
-    border-radius: 10px;
-    margin-right: auto;
-    color: #666;
-    font-style: italic;
-    font-size: 0.9em;
-    display: none;
-  }
-  
-  /* Estilo para indicador de mensajes leídos */
-  .read-status {
-    font-size: 0.7rem;
-    color: #4a6da7;
-    margin-left: 5px;
-  }
-  
-  /* Mejor resaltado para chat privado activo */
-  .private-chat-active {
-    background-color: #e6f7ff;
-    border-left: 3px solid #1890ff;
-  }
+}
+
+#operacion-select option[value="nueva"] {
+  font-weight: bold;
+  color: #007bff;
+}
+
+#operacion-select optgroup {
+  font-weight: 600;
+}
+
+#operacion-select optgroup option {
+  font-weight: normal;
+  padding-left: 10px;
+}

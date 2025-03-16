@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             nombre: 'Gestión de Batalla',
             icono: 'battle-management-icon.png',
             descripcion: 'Administra recursos, unidades y comunica órdenes en tiempo real durante operaciones.',
-            url: 'gestionbatalla.html'
+            url: 'inicioGB.html'
         },
         {
             id: 'Cuadro de organizacion',
