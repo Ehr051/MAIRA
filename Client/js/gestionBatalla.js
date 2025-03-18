@@ -2086,6 +2086,408 @@ MAIRA.GestionBatalla = (function() {
     };
 })();
 
+/**
+ * Mejoras para el archivo gestionBatalla.js
+ * 
+ * Estas funciones deben añadirse o modificarse en el archivo gestionBatalla.js
+ * para mejorar la funcionalidad del panel lateral y la selección de elementos.
+ */
+
+/**
+ * Inicializa el panel lateral y asegura que sea visible
+ * Esta función debe ejecutarse durante la inicialización
+ */
+function inicializarPanelLateral() {
+    // Buscar el panel lateral
+    const panelLateral = document.getElementById('panel-lateral');
+    if (!panelLateral) {
+        console.error("Panel lateral no encontrado en el DOM");
+        return;
+    }
+
+    // Asegurar que sea visible
+    panelLateral.classList.remove('oculto');
+    
+    // Configurar botón para mostrar/ocultar el panel
+    const botonPanel = document.querySelector('.boton-panel');
+    if (botonPanel) {
+        botonPanel.addEventListener('click', function() {
+            panelLateral.classList.toggle('oculto');
+        });
+    } else {
+        // Si no existe el botón, crearlo
+        const nuevoBoton = document.createElement('div');
+        nuevoBoton.className = 'boton-panel';
+        nuevoBoton.innerHTML = '<i class="fas fa-bars"></i>';
+        nuevoBoton.addEventListener('click', function() {
+            panelLateral.classList.toggle('oculto');
+        });
+        document.body.appendChild(nuevoBoton);
+    }
+    
+    // Inicializar pestañas del panel
+    inicializarPestañasPanel();
+    
+    console.log("Panel lateral inicializado correctamente");
+}
+
+/**
+ * Inicializa las pestañas del panel lateral
+ */
+function inicializarPestañasPanel() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    if (tabButtons.length === 0 || tabContents.length === 0) {
+        console.warn("No se encontraron pestañas o contenidos de pestañas");
+        return;
+    }
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Quitar clase active de todos los botones y contenidos
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Añadir clase active al botón clickeado
+            button.classList.add('active');
+            
+            // Mostrar el contenido correspondiente
+            const tabId = button.getAttribute('data-tab');
+            const activeContent = document.getElementById(tabId);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+        });
+    });
+    
+    // Activar la primera pestaña por defecto
+    if (tabButtons[0] && tabContents[0]) {
+        tabButtons[0].classList.add('active');
+        tabContents[0].classList.add('active');
+    }
+}
+
+/**
+ * Mejora la función para seleccionar un elemento en el mapa
+ * Esta función debe reemplazar o complementar la existente
+ */
+function seleccionarElemento(elemento) {
+    // Guardar referencia al elemento seleccionado
+    window.elementoSeleccionado = elemento;
+    
+    // Cambiar estilo visual del elemento seleccionado (opcional)
+    if (elemento) {
+        // Obtener todos los marcadores y restaurar su estilo original
+        window.calcoActivo.eachLayer(function(layer) {
+            if (layer instanceof L.Marker) {
+                // Restaurar estilo original
+                layer.setOpacity(1.0);
+            }
+        });
+        
+        // Destacar el elemento seleccionado
+        elemento.setOpacity(0.8);
+        
+        // Mostrar panel de edición si existe
+        const panelEdicion = document.getElementById('panel-edicion');
+        if (panelEdicion) {
+            panelEdicion.classList.remove('oculto');
+            
+            // Llenar el panel con los datos del elemento
+            llenarPanelEdicion(elemento);
+        }
+        
+        console.log("Elemento seleccionado:", elemento.options);
+    }
+}
+
+/**
+ * Llena el panel de edición con los datos del elemento seleccionado
+ */
+function llenarPanelEdicion(elemento) {
+    if (!elemento) return;
+    
+    const opciones = elemento.options;
+    
+    // Llenar campos si existen
+    const campoDesignacion = document.getElementById('editar-designacion');
+    if (campoDesignacion && opciones.designacion !== undefined) {
+        campoDesignacion.value = opciones.designacion;
+    }
+    
+    const campoDependencia = document.getElementById('editar-dependencia');
+    if (campoDependencia && opciones.dependencia !== undefined) {
+        campoDependencia.value = opciones.dependencia;
+    }
+    
+    const campoMagnitud = document.getElementById('editar-magnitud');
+    if (campoMagnitud && opciones.magnitud !== undefined) {
+        campoMagnitud.value = opciones.magnitud;
+    }
+    
+    // Si hay un campo SIDC, actualizarlo
+    const campoSIDC = document.getElementById('editar-sidc');
+    if (campoSIDC && opciones.sidc !== undefined) {
+        campoSIDC.value = opciones.sidc;
+    }
+    
+    // Mostrar vista previa del símbolo
+    const previewDiv = document.getElementById('symbol-preview');
+    if (previewDiv && opciones.sidc && typeof ms !== 'undefined') {
+        try {
+            const symbol = new ms.Symbol(opciones.sidc, { size: 40 });
+            previewDiv.innerHTML = symbol.asSVG();
+        } catch (e) {
+            console.error("Error al generar símbolo para vista previa:", e);
+        }
+    }
+}
+
+/**
+ * Guarda los cambios del elemento que se está editando
+ * Esta función se debe llamar desde el botón "Guardar Cambios" del panel
+ */
+function guardarCambiosElemento() {
+    const elemento = window.elementoSeleccionado;
+    if (!elemento) {
+        console.warn("No hay elemento seleccionado para guardar cambios");
+        return;
+    }
+    
+    // Obtener valores de los campos
+    const designacion = document.getElementById('editar-designacion')?.value || '';
+    const dependencia = document.getElementById('editar-dependencia')?.value || '';
+    const magnitud = document.getElementById('editar-magnitud')?.value || '';
+    
+    // Actualizar opciones del elemento
+    elemento.options.designacion = designacion;
+    elemento.options.dependencia = dependencia;
+    elemento.options.magnitud = magnitud;
+    
+    // Si se cambió el símbolo, actualizar la visualización
+    if (elemento.options.sidc) {
+        const sym = new ms.Symbol(elemento.options.sidc, {
+            size: 35,
+            uniqueDesignation: designacion,
+            higherFormation: dependencia
+        });
+        
+        // Actualizar el icono
+        elemento.setIcon(L.divIcon({
+            className: 'elemento-militar',
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        }));
+    }
+    
+    // Notificar cambios si es modo online
+    if (socket && socket.connected) {
+        socket.emit('actualizacionElemento', {
+            id: elemento.options.id,
+            designacion: designacion,
+            dependencia: dependencia,
+            magnitud: magnitud,
+            sidc: elemento.options.sidc,
+            posicion: elemento.getLatLng()
+        });
+    }
+    
+    // Cerrar panel de edición o mostrar mensaje
+    const panelEdicion = document.getElementById('panel-edicion');
+    if (panelEdicion) {
+        panelEdicion.classList.add('oculto');
+    }
+    
+    // Restaurar estilo visual
+    elemento.setOpacity(1.0);
+    
+    // Limpiar referencia
+    window.elementoSeleccionado = null;
+    
+    console.log("Cambios guardados:", elemento.options);
+}
+
+/**
+ * Modificación a la función agregarMarcador para gestión de batalla
+ * Esta función debe ser compatible con el contexto de gestionBatalla.js
+ */
+function agregarMarcadorGB(sidc, nombre) {
+    window.mapa.once('click', function(event) {
+        const latlng = event.latlng;
+        
+        // Configurar SIDC 
+        let sidcFormateado = sidc.padEnd(15, '-');
+        
+        // Crear símbolo
+        const sym = new ms.Symbol(sidcFormateado, { 
+            size: 35,
+            uniqueDesignation: "",  // Se llenará en la edición
+            higherFormation: ""     // Se llenará en la edición
+        });
+        
+        // Crear ID único para el elemento
+        const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Crear marcador
+        const marcador = L.marker(latlng, {
+            icon: L.divIcon({
+                className: 'elemento-militar',
+                html: sym.asSVG(),
+                iconSize: [70, 50],
+                iconAnchor: [35, 25]
+            }),
+            draggable: true,
+            sidc: sidcFormateado,
+            nombre: nombre || 'Elemento',
+            id: elementoId,
+            designacion: '',
+            dependencia: '',
+            magnitud: sidcFormateado.charAt(11) || '-',
+            estado: 'operativo',
+            usuario: usuarioInfo?.usuario || 'Usuario',
+            usuarioId: usuarioInfo?.id || ''
+        });
+        
+        // Configurar eventos
+        marcador.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            seleccionarElemento(this);
+        });
+        
+        marcador.on('contextmenu', function(e) {
+            L.DomEvent.stopPropagation(e);
+            window.mostrarMenuContextual(e, this);
+        });
+        
+        // Agregar al mapa
+        window.calcoActivo.addLayer(marcador);
+        
+        // Notificar a otros usuarios
+        if (socket && socket.connected) {
+            socket.emit('nuevoElemento', {
+                id: elementoId,
+                sidc: sidcFormateado,
+                nombre: nombre || 'Elemento',
+                posicion: latlng,
+                designacion: '',
+                dependencia: '',
+                magnitud: sidcFormateado.charAt(11) || '-',
+                estado: 'operativo',
+                usuario: usuarioInfo?.usuario || 'Usuario',
+                usuarioId: usuarioInfo?.id || ''
+            });
+        }
+        
+        // Seleccionar automáticamente para edición
+        seleccionarElemento(marcador);
+    });
+}
+
+/**
+ * Muestra un menú contextual para el elemento
+ */
+function mostrarMenuContextual(e, elemento) {
+    L.DomEvent.stopPropagation(e);
+    L.DomEvent.preventDefault(e);
+    
+    // Eliminar menú existente si lo hay
+    const menuExistente = document.querySelector('.context-menu');
+    if (menuExistente) {
+        menuExistente.remove();
+    }
+    
+    // Crear nuevo menú
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    
+    // Agregar opciones al menú
+    const opcionEditar = document.createElement('button');
+    opcionEditar.textContent = 'Editar';
+    opcionEditar.onclick = function() {
+        seleccionarElemento(elemento);
+        menu.remove();
+    };
+    menu.appendChild(opcionEditar);
+    
+    const opcionEliminar = document.createElement('button');
+    opcionEliminar.textContent = 'Eliminar';
+    opcionEliminar.onclick = function() {
+        if (window.calcoActivo && elemento) {
+            window.calcoActivo.removeLayer(elemento);
+            
+            // Notificar a otros usuarios
+            if (socket && socket.connected && elemento.options.id) {
+                socket.emit('eliminarElemento', {
+                    id: elemento.options.id
+                });
+            }
+        }
+        menu.remove();
+    };
+    menu.appendChild(opcionEliminar);
+    
+    // Ubicar el menú en la posición del clic
+    menu.style.left = e.originalEvent.clientX + 'px';
+    menu.style.top = e.originalEvent.clientY + 'px';
+    
+    // Añadir al DOM
+    document.body.appendChild(menu);
+    
+    // Cerrar el menú al hacer clic en cualquier otro lugar
+    const cerrarMenu = function() {
+        if (menu.parentNode) {
+            menu.remove();
+        }
+        document.removeEventListener('click', cerrarMenu);
+    };
+    
+    setTimeout(() => {
+        document.addEventListener('click', cerrarMenu);
+    }, 100);
+    
+    return false;
+}
+
+/**
+ * Inicializa la funcionalidad de los botones de edición
+ * Esta función se debe llamar durante la inicialización
+ */
+function inicializarBotonesEdicion() {
+    // Botón guardar cambios
+    const btnGuardar = document.getElementById('btn-guardar-cambios');
+    if (btnGuardar) {
+        btnGuardar.addEventListener('click', guardarCambiosElemento);
+    } else {
+        console.warn("Botón guardar cambios no encontrado");
+    }
+    
+    // Botón cancelar 
+    const btnCancelar = document.getElementById('btn-cancelar-edicion');
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', function() {
+            // Ocultar panel de edición
+            const panelEdicion = document.getElementById('panel-edicion');
+            if (panelEdicion) {
+                panelEdicion.classList.add('oculto');
+            }
+            
+            // Restaurar estilo visual
+            if (window.elementoSeleccionado) {
+                window.elementoSeleccionado.setOpacity(1.0);
+                window.elementoSeleccionado = null;
+            }
+        });
+    }
+}
+
+// Conectar con agregarMarcador global para mantener compatibilidad
+window.agregarMarcadorGB = agregarMarcadorGB;
+window.seleccionarElemento = seleccionarElemento;
+window.mostrarMenuContextual = mostrarMenuContextual;
+
+
 // Configuración de la carga
 (function() {
     // Muestra progreso de carga

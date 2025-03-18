@@ -1165,47 +1165,6 @@ function agregarOpcionAnchoFlecha(panel, elemento) {
     };
 }
 
-function actualizarTextoElemento(elemento, nuevoTexto, tipo) {
-    elemento.options.nombre = nuevoTexto;
-
-    if (elemento.textoAsociado) {
-        calcoActivo.removeLayer(elemento.textoAsociado);
-    }
-
-    if (nuevoTexto.trim() !== '') {
-        let posicion;
-        let desplazamientoX = 0.030; // Ajusta según sea necesario
-        let desplazamientoY = -0.020; // Ajusta según sea necesario
-
-        if (tipo === 'poligono') {
-            posicion = elemento.getBounds().getCenter();
-        } else if (tipo === 'flecha' || tipo === 'flechaAncha' || tipo === 'linea') {
-            let latlngs = elemento.getLatLngs();
-            posicion = latlngs[Math.floor(latlngs.length / 2)];
-        } else {
-            posicion = elemento.getLatLng();
-        }
-
-        elemento.textoAsociado = L.marker([posicion.lat + desplazamientoY, posicion.lng + desplazamientoX], {
-            icon: L.divIcon({
-                className: 'texto-elemento',
-                html: `<div style="color: black; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;">${nuevoTexto}</div>`,
-                iconSize: [100, 40],
-                iconAnchor: [0, 20]
-            }),
-            interactive: false
-        }).addTo(calcoActivo);
-
-        // Actualizar posición del texto cuando el elemento se mueve o el mapa hace zoom
-        elemento.on('move', function(e) {
-            actualizarPosicionTextoElemento(this);
-        });
-
-        mapa.on('zoomend', function() {
-            actualizarPosicionTextoElemento(elemento);
-        });
-    }
-}
 
 function actualizarFlechaAncha(elemento) {
     let latlngs = elemento.getLatLngs();

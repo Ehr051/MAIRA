@@ -1,19 +1,30 @@
 // networkConfig.js
-if (typeof SERVER_URL === 'undefined') {
-    var currentHost = window.location.hostname;
-    var currentProtocol = window.location.protocol;
-    
-    // Si estamos en un dominio ngrok, no añadir puerto
-    if (currentHost.includes('ngrok')) {
-        var SERVER_URL = currentProtocol + "//" + currentHost;
-        var CLIENT_URL = currentProtocol + "//" + currentHost;
-    } else {
-        // URLs locales con puertos específicos
-        var SERVER_URL = "https://" + currentHost + ":5000";
-        var CLIENT_URL = "https://" + currentHost + ":8080";
-    }
+// Versión simplificada compatible con el código existente
+
+// Detectar automáticamente protocolo y host
+var currentHost = window.location.hostname;
+var currentProtocol = window.location.protocol;
+
+// Variables globales para ser usadas en toda la aplicación
+var SERVER_URL, CLIENT_URL;
+
+// Si estamos en un dominio ngrok, NO añadir puerto
+if (currentHost.includes('ngrok')) {
+    SERVER_URL = `${currentProtocol}//${currentHost}`;
+    CLIENT_URL = `${currentProtocol}//${currentHost}`;
+    console.log("Detectado ngrok: usando configuración optimizada");
+} else {
+    // URLs locales con puertos específicos
+    SERVER_URL = `${currentProtocol}//${currentHost}:5000`;
+    CLIENT_URL = `${currentProtocol}//${currentHost}:8080`;
 }
 
+// Log de las URLs configuradas
+console.log("URLs configuradas:", {
+    SERVER_URL: SERVER_URL,
+    CLIENT_URL: CLIENT_URL
+});
 
-
-
+// Asegurar que las variables están disponibles globalmente
+window.SERVER_URL = SERVER_URL;
+window.CLIENT_URL = CLIENT_URL;

@@ -245,30 +245,348 @@ window.agregarMarcador = function(sidc, nombre) {
         // 7. Agregar al mapa y notificar
         window.calcoActivo.addLayer(marcador);
 
-        if (modoJuegoGuerra) {
-            window.gestorJuego.gestorAcciones.configurarEventosElemento(marcador);
-            window.gestorUnidades?.agregarUnidad(marcador);
-            
-            window.gestorJuego.gestorComunicacion?.socket?.emit('elementoCreado', {
-                tipo: 'unidad',
-                datos: {
-                    id: marcador.options.id,
-                    sidc: marcador.options.sidc,
-                    nombre: marcador.options.nombre,
-                    posicion: marcador.getLatLng(),
-                    equipo: marcador.options.equipo,
-                    jugador: marcador.options.jugador,
-                    designacion: marcador.options.designacion,
-                    dependencia: marcador.options.dependencia,
-                    magnitud: marcador.options.magnitud
-                },
-                jugadorId: window.userId,
-                partidaCodigo: window.codigoPartida
-            });
+        if (nombre === 'Punto Inicial' || nombre === 'PI') {
+            agregarPuntoControl('PI');
+            return;
+        } else if (nombre === 'Punto Terminal' || nombre === 'PT') {
+            agregarPuntoControl('PT');
+            return;
+        } else if (nombre === 'Punto de Desdoblamiento' || nombre === 'PD') {
+            agregarPuntoControl('PD');
+            return;
+        } else if (nombre === 'Punto de Encolumnamiento' || nombre === 'PE') {
+            agregarPuntoControl('PE');
+            return;
+        } else if (nombre === 'Punto de Pasaje' || nombre === 'PP') {
+            agregarPuntoControl('PP');
+            return;
         }
     });
 };
 
+
+window.agregarPuntoControl = function(tipo) {
+    // Handler para click en mapa
+    window.mapa.once('click', function(event) {
+        const latlng = event.latlng;
+        let pcNumero = '';
+        let pcTipo = tipo || 'PC';
+        let color = '#2196F3'; // Color predeterminado para PC (azul)
+        
+        // Determinar si es un punto de control simple o un punto militar especial
+        const esPuntoMilitar = ['PI', 'PT', 'PD', 'PE', 'PP'].includes(pcTipo);
+        
+        // Asignar número según tipo y determinar SIDC para puntos militares
+        if (pcTipo === 'PC') {
+            // Contar PCs existentes para generar número automático
+            const pcsExistentes = [];
+            window.calcoActivo.eachLayer(function(layer) {
+                if (layer.options && layer.options.tipo === 'PC') {
+                    const numero = parseInt(layer.options.numero) || 0;
+                    if (!isNaN(numero)) {
+                        pcsExistentes.push(numero);
+                    }
+                }
+            });
+            
+            // Encontrar el siguiente número disponible
+            pcNumero = pcsExistentes.length > 0 ? Math.max(...pcsExistentes) + 1 : 1;
+        }
+        
+        let pcIcon;
+        
+        // Crear ícono según el tipo de punto
+        if (pcTipo === 'PC') {
+            // Crear círculo para PC
+            pcIcon = L.divIcon({
+                className: `punto-control-icon pc`,
+                html: `<div class="pc-marker-container">
+                          <div class="pc-marker" style="background-color: ${color}; color: white;">
+                              <div class="pc-text">${pcNumero}</div>
+                          </div>
+                       </div>`,
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],  // Anclaje en la parte inferior del ícono
+                popupAnchor: [0, -40]  // Posición del popup
+            });
+        } else {
+            // Crear símbolo militar para PI, PT, PD, PE, PP
+            let sidc = '';
+            switch(pcTipo) {
+                case 'PI':
+                    sidc = 'GFGPGPP---'; // Usar símbolo de punto de pasaje
+                    break;
+                case 'PT':
+                    sidc = 'GFGPGPP---'; // Usar símbolo de punto de pasaje
+                    break;
+                case 'PD':
+                    sidc = 'GFGPGPP---'; // Punto de desdoblamiento
+                    break;
+                case 'PE':
+                    sidc = 'GFGPGPP---'; // Punto de encolumnamiento
+                    break;
+                case 'PP':
+                    sidc = 'GFGPGPP---'; // Punto de pasaje
+                    break;
+            }
+            
+            // Crear símbolo militar con milsymbol.js
+            const symbol = new ms.Symbol(sidc, {
+                size: 35,
+                uniqueDesignation: pcTipo, // Poner el texto en el centro del símbolo
+                infoFields: false, // Esto oculta los campos de información adicionales
+                colorMode: "Light", // Para mejor contraste
+                fill: true, // Asegurarse de que el símbolo esté relleno
+                monoColor: "black" // Para mejor visibilidad
+            });
+            
+            pcIcon = L.divIcon({
+                className: `punto-control-icon ${pcTipo.toLowerCase()}`,
+                html: symbol.asSVG(),
+                iconSize: [35, 35],
+                iconAnchor: [17.5, 70], // Anclaje en la parte inferior central
+                popupAnchor: [0, 35]   // Popup encima del símbolo
+            });
+        }
+        
+        // Crear marcador
+        const pcMarcador = L.marker(latlng, {
+            icon: pcIcon,
+            draggable: true,
+            tipo: pcTipo,
+            numero: pcNumero,
+            color: color,
+            id: `pc_${Date.now()}`
+        });
+        
+        // Configurar popup con información del punto
+        let popupContent = `
+            <div class="pc-popup">
+                <h4>${pcTipo}${pcTipo === 'PC' ? ' #' + pcNumero : ''}</h4>
+                <p class="coord-info">(${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)})</p>`;
+        
+        // Campos específicos según el tipo
+        if (pcTipo === 'PC') {
+            popupContent += `
+                <div>
+                    <label>Número:</label>
+                    <input type="number" class="pc-numero" value="${pcNumero}" min="1">
+                </div>
+                <div>
+                    <label>Mostrar:</label>
+                    <select class="pc-display-type">
+                        <option value="numero-completo">PC ${pcNumero}</option>
+                        <option value="solo-numero">${pcNumero}</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Color:</label>
+                    <input type="color" class="pc-color" value="${color}">
+                </div>`;
+        }
+        
+        popupContent += `
+                <div class="popup-buttons">
+                    <button class="pc-save">Guardar</button>
+                    <button class="pc-delete">Eliminar</button>
+                </div>
+            </div>`;
+        
+        pcMarcador.bindPopup(popupContent);
+        
+        // Evento click en el marcador
+        pcMarcador.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            window.elementoSeleccionado = this;
+            
+            // Abrir popup al hacer click
+            if (!this.isPopupOpen()) {
+                this.openPopup();
+            }
+            
+            // Configurar eventos en el popup
+            setTimeout(() => {
+                const saveBtn = document.querySelector('.pc-save');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', function() {
+                        // Actualizar si es PC
+                        if (pcTipo === 'PC') {
+                            const numInput = document.querySelector('.pc-numero');
+                            const colorInput = document.querySelector('.pc-color');
+                            const displayType = document.querySelector('.pc-display-type');
+                            
+                            if (numInput) {
+                                const nuevoNumero = numInput.value;
+                                pcMarcador.options.numero = nuevoNumero;
+                            }
+                            
+                            if (colorInput) {
+                                const nuevoColor = colorInput.value;
+                                pcMarcador.options.color = nuevoColor;
+                            }
+                            
+                            // Obtener texto a mostrar según selección
+                            let textoMostrar = pcMarcador.options.numero;
+                            if (displayType && displayType.value === 'numero-completo') {
+                                textoMostrar = `PC ${pcMarcador.options.numero}`;
+                            }
+                            
+                            // Recrear ícono con nuevos valores
+                            const newIcon = L.divIcon({
+                                className: `punto-control-icon pc`,
+                                html: `<div class="pc-marker-container">
+                                          <div class="pc-marker" style="background-color: ${pcMarcador.options.color}; color: white;">
+                                              <div class="pc-text">${textoMostrar}</div>
+                                          </div>
+                                       </div>`,
+                                iconSize: [35, 35],
+                                iconAnchor: [20, 40],
+                                popupAnchor: [0, -40]
+                            });
+                            
+                            pcMarcador.setIcon(newIcon);
+                        }
+                        
+                        pcMarcador.closePopup();
+                    });
+                }
+                
+                const deleteBtn = document.querySelector('.pc-delete');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', function() {
+                        window.calcoActivo.removeLayer(pcMarcador);
+                        pcMarcador.closePopup();
+                    });
+                }
+            }, 100);
+        });
+        
+        // Actualizar coordenadas en el popup al mover
+        pcMarcador.on('dragend', function(e) {
+            const newLatLng = this.getLatLng();
+            const popup = this.getPopup();
+            if (popup) {
+                const content = popup.getContent();
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = content;
+                const coordInfo = tempDiv.querySelector('.coord-info');
+                if (coordInfo) {
+                    coordInfo.textContent = `(${newLatLng.lat.toFixed(6)}, ${newLatLng.lng.toFixed(6)})`;
+                    popup.setContent(tempDiv.innerHTML);
+                }
+            }
+        });
+        
+        // Añadir al calco activo
+        window.calcoActivo.addLayer(pcMarcador);
+    });
+};
+
+// Agregar estilos CSS para PC
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Contenedor común para todos los puntos */
+        .punto-control-icon {
+            background: transparent;
+        }
+        
+        .pc-marker-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Estilo para PC (círculo) */
+        .pc-marker {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .pc-text {
+            text-align: center;
+            max-width: 28px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Estilos para el popup */
+        .pc-popup {
+            padding: 10px;
+        }
+        
+        .pc-popup h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        
+        
+        .punto-control-icon text {
+            transform: translateX(-75px); /* Mueve el texto a la izquierda */
+            font-size: 35px;!important;
+            font-weight: bold;
+            fill: black !important;
+        }
+
+        .pc-popup .coord-info {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .pc-popup label {
+            display: block;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .pc-popup input, .pc-popup select {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .popup-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .popup-buttons button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .pc-save {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .pc-delete {
+            background: #F44336;
+            color: white;
+        }
+    `;
+    document.head.appendChild(style);
+})();
 
 // Inicialización cuando el DOM está completamente cargado
 document.addEventListener('DOMContentLoaded', function() {
@@ -290,9 +608,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     inicializarBotonesAmigoEnemigo();
+    // Agregar opciones de PC, PI y PT al menú MCC
+    // Agregar opciones de puntos al menú MCC
+setTimeout(function() {
+    const menuMCC = document.querySelector('#mccGeneralesBtn .simbolo-grid');
+    if (menuMCC) {
+        // Definir los tipos de puntos
+        const puntos = [
+            { tipo: 'PC', nombre: 'Punto de Control' },
+            { tipo: 'PI', nombre: 'Punto Inicial' },
+            { tipo: 'PT', nombre: 'Punto Terminal' },
+            { tipo: 'PD', nombre: 'Punto de Desdoblamiento'},
+            { tipo: 'PE', nombre: 'Punto de Encolumnamiento' },
+            { tipo: 'PP', nombre: 'Punto de Pasaje' }
+        ];
+        
+        // Crear y añadir elementos para cada tipo de punto
+        puntos.forEach(punto => {
+            const opcion = document.createElement('a');
+            opcion.href = '#';
+            opcion.innerHTML = ` ${punto.nombre} (${punto.tipo})`;
+            opcion.onclick = function() { 
+                agregarPuntoControl(punto.tipo); 
+                return false; 
+            };
+            
+            menuMCC.appendChild(opcion);
+        });
+        
+        console.log('Opciones de puntos añadidas al menú MCC');
+    } else {
+        console.warn('No se encontró el menú MCC para añadir opciones de puntos');
+    }
+}, 1000); // Esperar 1 segundo para asegurarse de que el menú MCC ya se cargó
 });
+
+
 
 // Exportación de funciones para uso en otros archivos
 window.buscarSimbolo = buscarSimbolo;
 window.actualizarSidc = actualizarSidc;
 window.agregarMarcador = agregarMarcador;
+window.agregarPuntoControl = agregarPuntoControl;

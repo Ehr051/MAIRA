@@ -1,5 +1,6 @@
-# config.py
+# config.py - versión compatible con ngrok
 import socket
+import os
 
 def get_local_ip():
     try:
@@ -13,7 +14,22 @@ def get_local_ip():
         return 'localhost'
 
 SERVER_PORT = 5000
-CLIENT_PORT = 8080
 SERVER_IP = get_local_ip()
-SERVER_URL = f'http://{SERVER_IP}:{SERVER_PORT}'
-CLIENT_URL = f'http://{SERVER_IP}:{CLIENT_PORT}'
+
+# Verificar si estamos en un entorno de ngrok (puedes añadir una variable de entorno)
+USING_NGROK = os.getenv('USING_NGROK', 'false').lower() == 'true'
+
+if USING_NGROK:
+    # Si usas ngrok, obtendrías la URL completa de una variable de entorno
+    NGROK_URL = os.getenv('NGROK_URL', '')
+    if NGROK_URL:
+        SERVER_URL = NGROK_URL
+        CLIENT_URL = NGROK_URL
+    else:
+        # Si no hay URL de ngrok, usar la configuración normal
+        SERVER_URL = f'http://{SERVER_IP}:{SERVER_PORT}'
+        CLIENT_URL = SERVER_URL
+else:
+    # Configuración normal (no ngrok)
+    SERVER_URL = f'http://{SERVER_IP}:{SERVER_PORT}'
+    CLIENT_URL = SERVER_URL

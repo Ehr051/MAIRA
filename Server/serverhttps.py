@@ -27,10 +27,26 @@ load_dotenv(os.path.join(server_dir, '.env'))
 BASE_DIR = os.path.dirname(server_dir)
 CLIENT_DIR = os.path.join(BASE_DIR, 'Client')
 
-# Configuración de la aplicación y SocketIO
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='/')
+# Agregar soporte para proxy como ngrok
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
+
+# Detectar si estamos usando ngrok
+is_ngrok = 'ngrok' in request.headers.get('Host', '') if request else any('ngrok' in arg for arg in sys.argv)
+
+# Configuración optimizada para Socket.IO
+socketio = SocketIO(
+    app, 
+    cors_allowed_origins="*", 
+    logger=True, 
+    engineio_logger=True,
+    ping_timeout=60,
+    ping_interval=25,
+    transports=['polling'] if is_ngrok else ['websocket', 'polling'],
+    upgrade=not is_ngrok
+)
 
 # Configuración de la base de datos
 db_config = {
@@ -140,37 +156,72 @@ def login():
 
 @app.route('/api/crear-usuario', methods=['POST'])
 def crear_usuario():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
-    unidad = data.get('unidad')
-
-    if not all([username, password, email, unidad]):
-        return jsonify({"success": False, "message": "Todos los campos son requeridos"}), 400
-
-    conn = get_db_connection()
-    if conn is None:
-        return jsonify({"success": False, "message": "Error conectando a la base de datos"}), 500
-
     try:
-        cursor = conn.cursor()
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        cursor.execute(
-            "INSERT INTO usuarios (username, password, email, unidad) VALUES (%s, %s, %s, %s)",
-            (username, hashed_password, email, unidad)
-        )
-        conn.commit()
-        return jsonify({"success": True, "message": "Usuario creado exitosamente"})
+        app.logger.info("Recibida solicitud para crear usuario")
+        data = request.json
+        app.logger.info(f"Datos recibidos: {data}")
+        
+        username = data.get('username')
+        password = data.get('password')
+        email = data.get('email')
+        unidad = data.get('unidad')
+        
+        app.logger.info(f"Campos extraídos: username={username}, email={email}, unidad={unidad}")
+
+        if not all([username, password, email, unidad]):
+            app.logger.warning("Error: Campos incompletos")
+            return jsonify({"success": False, "message": "Todos los campos son requeridos"}), 400
+
+        conn = get_db_connection()
+        if conn is None:
+            app.logger.error("Error: No se pudo conectar a la base de datos")
+            return jsonify({"success": False, "message": "Error conectando a la base de datos"}), 500
+
+        try:
+            cursor = conn.cursor()
+            app.logger.info("Conexión a la base de datos establecida")
+            
+            # Verificar si el usuario ya existe
+            cursor.execute("SELECT id FROM usuarios WHERE username = %s OR email = %s", (username, email))
+            existing = cursor.fetchone()
+            
+            if existing:
+                app.logger.info(f"Usuario o email ya existe: {existing}")
+                return jsonify({"success": False, "message": "El nombre de usuario o correo ya está en uso"}), 400
+            
+            app.logger.info("Generando hash de contraseña...")
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            app.logger.info("Hash generado")
+            
+            app.logger.info("Ejecutando INSERT...")
+            # Agregar el campo is_online con valor 0 (no en línea)
+            cursor.execute(
+                "INSERT INTO usuarios (username, password, email, unidad, is_online) VALUES (%s, %s, %s, %s, %s)",
+                (username, hashed_password, email, unidad, 0)
+            )
+            app.logger.info("INSERT ejecutado, realizando commit...")
+            conn.commit()
+            app.logger.info("Usuario creado exitosamente")
+            
+            return jsonify({"success": True, "message": "Usuario creado exitosamente"})
+        except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            app.logger.error(f"Error detallado al crear usuario: {e}")
+            app.logger.error(error_trace)
+            return jsonify({"success": False, "message": "Error al crear usuario", "error": str(e)}), 500
+        finally:
+            if conn:
+                cursor.close()
+                conn.close()
+                app.logger.info("Conexión a la base de datos cerrada")
     except Exception as e:
-        print("Error al crear usuario:", e)
-        return jsonify({"success": False, "message": "Error al crear usuario", "error": str(e)}), 500
-    finally:
-        if conn:
-            cursor.close()
-            conn.close()
-
-
+        import traceback
+        error_trace = traceback.format_exc()
+        app.logger.error(f"Error general en crear_usuario: {e}")
+        app.logger.error(error_trace)
+        return jsonify({"success": False, "message": "Error interno del servidor", "error": str(e)}), 500
+    
 @socketio.on('connect')
 def handle_connect():
     print(f'Cliente conectado: {request.sid}')
@@ -2103,14 +2154,25 @@ def calibrar_gestos():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error al iniciar calibración: {str(e)}"})
     
-# Al final, actualiza la sección de ejecución para usar SSL:
+# actualizacion la sección de ejecución para usar SSL:
 if __name__ == '__main__':
+    # Detectar si estamos usando ngrok
+    is_ngrok = any('ngrok' in arg for arg in sys.argv)
+    
     # Ruta a los certificados
     cert_path = os.path.join(BASE_DIR, 'ssl', 'cert.pem')
     key_path = os.path.join(BASE_DIR, 'ssl', 'key.pem')
     
-    # Verificar si existen los certificados
-    if os.path.exists(cert_path) and os.path.exists(key_path):
+    # En modo ngrok, no usamos SSL ya que ngrok ya lo proporciona
+    if is_ngrok:
+        print("Modo ngrok detectado, optimizando configuración...")
+        socketio.run(app, 
+                     debug=True, 
+                     host='0.0.0.0',
+                     port=5000,
+                     allow_unsafe_werkzeug=True)
+    # Verificar si existen los certificados para modo normal
+    elif os.path.exists(cert_path) and os.path.exists(key_path):
         print("Iniciando servidor con HTTPS...")
         socketio.run(app, 
                      debug=True, 

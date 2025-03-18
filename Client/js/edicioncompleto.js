@@ -664,43 +664,6 @@ function obtenerSIDCActualEquipo() {
     return sidc;
 }
 
-function mostrarPanelEdicionLinea(elemento) {
-    mostrarPanelEdicion('panelEdicionLinea');
-    console.log("Mostrando panel de edición de línea");
-    var panel = document.getElementById('panelEdicionLinea');
-    if (!panel) {
-        console.error('Panel de edición de línea no encontrado');
-        return;
-    }
-
-    panel.style.display = 'block';
-    elementoSeleccionado = elemento;
-
-    document.getElementById('nombreLinea').value = elemento.nombre || '';
-    document.getElementById('colorLinea').value = elemento.color || '#3388ff';
-    document.getElementById('anchoLinea').value = elemento.ancho || 3;
-    document.getElementById('tipoLinea').value = elemento.tipo || 'solid';
-}
-
-function guardarCambiosLinea() {
-    if (!elementoSeleccionado) return;
-    
-    elementoSeleccionado.options.nombre = document.getElementById('nombreLinea').value;
-    elementoSeleccionado.options.color = document.getElementById('colorLinea').value;
-    elementoSeleccionado.options.weight = parseInt(document.getElementById('anchoLinea').value);
-    elementoSeleccionado.options.dashArray = document.getElementById('tipoLinea').value === 'dashed' ? '5, 5' : null;
-    elementoSeleccionado.setStyle(elementoSeleccionado.options);
-
-    if (elementoSeleccionado.textoMarcador) {
-        elementoSeleccionado.textoMarcador.setIcon(L.divIcon({
-            className: 'texto-linea',
-            html: `<div style="color: black;">${elementoSeleccionado.options.nombre}</div>`,
-            iconSize: [100, 20]
-        }));
-    }
-
-    cerrarPanelEdicion('panelEdicionLinea');
-}
 
 function actualizarEstiloElemento() {
     if (!elementoSeleccionado) return;
@@ -1003,7 +966,7 @@ function enviarElementoAlServidor(elemento) {
     }
 }
 
-function mostrarPanelEdicionMCC(elemento, textoAsociado, tipo) {
+function mostrarPanelEdicionMCC(elemento, tipo) {
     console.log("Mostrando panel de edición MCC para tipo:", tipo);
     mostrarPanelEdicion('panelEdicionMCC');
     
@@ -1013,11 +976,29 @@ function mostrarPanelEdicionMCC(elemento, textoAsociado, tipo) {
         return;
     }
 
-    // Obtener el texto actual del elemento
-    let textoMCC = elemento.options.nombre || '';
-    if (elemento.textoAsociado && elemento.textoAsociado.getIcon) {
-        textoMCC = elemento.textoAsociado.getIcon().options.html.replace(/<div[^>]*>(.*?)<\/div>/g, '$1');
+    // Eliminar cualquier textoAsociado existente y quedarse solo con textoMarcador
+    if (elemento.textoAsociado && elemento.textoMarcador) {
+        console.log("Eliminando textoAsociado duplicado antes de editar");
+        calcoActivo.removeLayer(elemento.textoAsociado);
+        elemento.textoAsociado = null;
     }
+
+    // Obtener el texto actual del elemento
+    let textoMCC = '';
+    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
+        const divTexto = elemento.textoMarcador._icon.querySelector('div');
+        if (divTexto) {
+            textoMCC = divTexto.textContent;
+        }
+    } else if (elemento.textoAsociado && elemento.textoAsociado._icon) {
+        const divTexto = elemento.textoAsociado._icon.querySelector('div');
+        if (divTexto) {
+            textoMCC = divTexto.textContent;
+        }
+    } else {
+        textoMCC = elemento.options.nombre || elemento.nombre || '';
+    }
+    
     document.getElementById('textoMCC').value = textoMCC;
 
     // Cargar propiedades actuales
@@ -1059,14 +1040,356 @@ function guardarCambiosMCC(elemento, tipo) {
         aplicarRelleno(elemento, nuevoRelleno, nuevoColorRelleno);
     }
 
-    // Actualizar el texto
-    actualizarTextoElemento(elemento, nuevoTexto, tipo);
+    // Actualizar directamente el textoMarcador si existe
+    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
+        const divTexto = elemento.textoMarcador._icon.querySelector('div');
+        if (divTexto) {
+            divTexto.textContent = nuevoTexto;
+            // Actualizar también las propiedades
+            elemento.options.nombre = nuevoTexto;
+            elemento.nombre = nuevoTexto;
+        }
+    } 
+    // Si no existe textoMarcador pero sí textoAsociado, eliminarlo y crear textoMarcador
+    else if (elemento.textoAsociado) {
+        calcoActivo.removeLayer(elemento.textoAsociado);
+        elemento.textoAsociado = null;
+        
+        // Crear nuevo textoMarcador con las propiedades correctas
+        let posicion;
+        if (tipo === 'poligono') {
+            posicion = elemento.getBounds().getCenter();
+        } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
+            const latlngs = elemento.getLatLngs();
+            posicion = latlngs[Math.floor(latlngs.length / 2)];
+        } else {
+            posicion = elemento.getLatLng();
+        }
+        
+        elemento.textoMarcador = L.marker(posicion, {
+            icon: L.divIcon({
+                className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
+                html: `<div style="color: black;">${nuevoTexto}</div>`,
+                iconSize: [100, 20]
+            }),
+            draggable: true,
+            interactive: true
+        }).addTo(calcoActivo);
+        
+        // Actualizar propiedades
+        elemento.options.nombre = nuevoTexto;
+        elemento.nombre = nuevoTexto;
+    }
+    // Si no existe ninguno, crear textoMarcador
+    else if (nuevoTexto.trim() !== '') {
+        let posicion;
+        if (tipo === 'poligono') {
+            posicion = elemento.getBounds().getCenter();
+        } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
+            const latlngs = elemento.getLatLngs();
+            posicion = latlngs[Math.floor(latlngs.length / 2)];
+        } else {
+            posicion = elemento.getLatLng();
+        }
+        
+        elemento.textoMarcador = L.marker(posicion, {
+            icon: L.divIcon({
+                className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
+                html: `<div style="color: black;">${nuevoTexto}</div>`,
+                iconSize: [100, 20]
+            }),
+            draggable: true,
+            interactive: true
+        }).addTo(calcoActivo);
+        
+        // Actualizar propiedades
+        elemento.options.nombre = nuevoTexto;
+        elemento.nombre = nuevoTexto;
+    }
 
     cerrarPanelEdicion('panelEdicionMCC');
     console.log('Cambios MCC guardados');
 }
 
+/**
+ * Muestra el panel de edición de línea
+ * @param {Object} elemento - El elemento de línea a editar
+ */
+function mostrarPanelEdicionLinea(elemento) {
+    mostrarPanelEdicion('panelEdicionLinea');
+    console.log("Mostrando panel de edición de línea para:", elemento);
+    var panel = document.getElementById('panelEdicionLinea');
+    if (!panel) {
+        console.error('Panel de edición de línea no encontrado');
+        return;
+    }
+
+    panel.style.display = 'block';
+    elementoSeleccionado = elemento;
+    
+    // Detectar nombre actual examinando todas las posibles fuentes
+    let nombreActual = '';
+    
+    // Prioridad 1: Verificar textoMarcador
+    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
+        const divTexto = elemento.textoMarcador._icon.querySelector('div');
+        if (divTexto) {
+            nombreActual = divTexto.textContent;
+            console.log("Nombre obtenido de textoMarcador:", nombreActual);
+        }
+    }
+    
+    // Prioridad 2: Verificar textoAsociado
+    if (!nombreActual && elemento.textoAsociado) {
+        if (elemento.textoAsociado._icon) {
+            const divTexto = elemento.textoAsociado._icon.querySelector('div');
+            if (divTexto) {
+                nombreActual = divTexto.textContent;
+                console.log("Nombre obtenido de textoAsociado:", nombreActual);
+            }
+        }
+    }
+    
+    // Prioridad 3: Verificar propiedades del elemento
+    if (!nombreActual) {
+        nombreActual = elemento.options?.nombre || elemento.nombre || '';
+        console.log("Nombre obtenido de propiedades:", nombreActual);
+    }
+
+    document.getElementById('nombreLinea').value = nombreActual;
+    document.getElementById('colorLinea').value = elemento.options?.color || elemento.color || '#3388ff';
+    document.getElementById('anchoLinea').value = elemento.options?.weight || elemento.ancho || 3;
+    document.getElementById('tipoLinea').value = (elemento.options?.dashArray || elemento.tipo === 'dashed') ? 'dashed' : 'solid';
+}
+
+function guardarCambiosLinea() {
+    if (!elementoSeleccionado) return;
+    
+    // Obtener los nuevos valores
+    const nuevoNombre = document.getElementById('nombreLinea').value;
+    const nuevoColor = document.getElementById('colorLinea').value;
+    const nuevoAncho = parseInt(document.getElementById('anchoLinea').value);
+    const nuevoDashArray = document.getElementById('tipoLinea').value === 'dashed' ? '5, 5' : null;
+    
+    console.log("Guardando cambios, nuevo nombre:", nuevoNombre);
+    
+    // Actualizar propiedades del elemento
+    elementoSeleccionado.options = elementoSeleccionado.options || {};
+    elementoSeleccionado.options.nombre = nuevoNombre;
+    elementoSeleccionado.options.color = nuevoColor;
+    elementoSeleccionado.options.weight = nuevoAncho;
+    elementoSeleccionado.options.dashArray = nuevoDashArray;
+    
+    // También actualizar propiedades directas
+    elementoSeleccionado.nombre = nuevoNombre;
+    elementoSeleccionado.color = nuevoColor;
+    elementoSeleccionado.ancho = nuevoAncho;
+    elementoSeleccionado.tipo = document.getElementById('tipoLinea').value;
+    
+    // Aplicar estilo visual
+    elementoSeleccionado.setStyle({
+        color: nuevoColor,
+        weight: nuevoAncho,
+        dashArray: nuevoDashArray
+    });
+    
+    // IMPORTANTE: Actualizar SOLO el textoMarcador existente, NO llamar a actualizarTextoElemento
+    if (elementoSeleccionado.textoMarcador && elementoSeleccionado.textoMarcador._icon) {
+        const divTexto = elementoSeleccionado.textoMarcador._icon.querySelector('div');
+        if (divTexto) {
+            console.log("Actualizando texto directamente:", nuevoNombre);
+            divTexto.textContent = nuevoNombre;
+        }
+    }
+    
+    // Eliminar cualquier textoAsociado que pudiera existir
+    if (elementoSeleccionado.textoAsociado) {
+        console.log("Eliminando textoAsociado duplicado");
+        try {
+            calcoActivo.removeLayer(elementoSeleccionado.textoAsociado);
+            elementoSeleccionado.textoAsociado = null;
+        } catch (e) {
+            console.error("Error al eliminar textoAsociado:", e);
+        }
+    }
+    
+    cerrarPanelEdicion('panelEdicionLinea');
+}
+
+function crearNuevoTextoMarcador(elemento, texto) {
+    // Calcular posición adecuada
+    let posicion;
+    if (elemento instanceof L.Polygon) {
+        posicion = elemento.getBounds().getCenter();
+    } else if (elemento instanceof L.Polyline) {
+        const latlngs = elemento.getLatLngs();
+        posicion = latlngs[Math.floor(latlngs.length / 2)];
+    } else {
+        posicion = elemento.getLatLng();
+    }
+    
+    // Crear el marcador con la clase correcta
+    elemento.textoMarcador = L.marker(posicion, {
+        icon: L.divIcon({
+            className: elemento instanceof L.Polygon ? 'texto-poligono' : 'texto-linea',
+            html: `<div style="color: black;">${texto}</div>`,
+            iconSize: [100, 20]
+        }),
+        draggable: true,
+        interactive: true
+    }).addTo(window.calcoActivo);
+    
+    console.log("Nuevo textoMarcador creado:", elemento.textoMarcador);
+    
+    // Configurar eventos para mantener sincronización
+    if (elemento instanceof L.Polyline || elemento instanceof L.Polygon) {
+        elemento.on('edit', function() {
+            if (this.textoMarcador) {
+                let nuevaPos;
+                if (this instanceof L.Polygon) {
+                    nuevaPos = this.getBounds().getCenter();
+                } else {
+                    const pts = this.getLatLngs();
+                    nuevaPos = pts[Math.floor(pts.length / 2)];
+                }
+                this.textoMarcador.setLatLng(nuevaPos);
+            }
+        });
+    }
+    
+    return elemento.textoMarcador;
+}
+
 function actualizarTextoElemento(elemento, nuevoTexto, tipo) {
+    console.log(`Actualizando texto de ${tipo} a "${nuevoTexto}"`);
+    
+    // 1. Eliminar textoAsociado si existe (para evitar duplicados)
+    if (elemento.textoAsociado) {
+        console.log("Eliminando textoAsociado existente");
+        calcoActivo.removeLayer(elemento.textoAsociado);
+        elemento.textoAsociado = null;
+    }
+    
+    // 2. Verificar si existe un textoMarcador y actualizarlo
+    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
+        console.log("Actualizando textoMarcador existente");
+        const divTexto = elemento.textoMarcador._icon.querySelector('div');
+        if (divTexto) {
+            divTexto.textContent = nuevoTexto;
+            elemento.options.nombre = nuevoTexto;
+            elemento.nombre = nuevoTexto;
+            return; // Terminamos aquí
+        }
+    }
+    
+    // 3. Si no existe textoMarcador, creamos uno nuevo
+    if (nuevoTexto.trim() !== '') {
+        console.log("Creando nuevo textoMarcador");
+        let posicion;
+        
+        if (tipo === 'poligono') {
+            posicion = elemento.getBounds().getCenter();
+        } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
+            const latlngs = elemento.getLatLngs();
+            posicion = latlngs[Math.floor(latlngs.length / 2)];
+        } else {
+            posicion = elemento.getLatLng();
+        }
+        
+        // Crear textoMarcador en lugar de textoAsociado
+        elemento.textoMarcador = L.marker(posicion, {
+            icon: L.divIcon({
+                className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
+                html: `<div style="color: black;">${nuevoTexto}</div>`,
+                iconSize: [100, 20]
+            }),
+            draggable: true,
+            interactive: true
+        }).addTo(calcoActivo);
+        
+        // Configurar eventos para mantener el texto en la línea/polígono
+        if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha' || tipo === 'poligono') {
+            elemento.on('edit', function() {
+                if (this.textoMarcador) {
+                    let nuevaPosicion;
+                    if (this instanceof L.Polygon) {
+                        nuevaPosicion = this.getBounds().getCenter();
+                    } else if (this instanceof L.Polyline) {
+                        const latlngs = this.getLatLngs();
+                        nuevaPosicion = latlngs[Math.floor(latlngs.length / 2)];
+                    }
+                    this.textoMarcador.setLatLng(nuevaPosicion);
+                }
+            });
+        }
+    }
+    
+    // Actualizar el nombre del elemento
+    elemento.options.nombre = nuevoTexto;
+    elemento.nombre = nuevoTexto;
+}
+
+/**
+ * Crea un textoMarcador para el elemento
+ * @param {Object} elemento - El elemento al que se asociará el textoMarcador
+ * @param {string} texto - El texto a mostrar
+ */
+function crearTextoMarcador(elemento, texto) {
+    // Determinar la posición según el tipo de elemento
+    let posicion;
+    if (elemento instanceof L.Polygon) {
+        posicion = elemento.getBounds().getCenter();
+    } else if (elemento instanceof L.Polyline || elemento._latlngs) {
+        const latlngs = elemento.getLatLngs();
+        posicion = latlngs[Math.floor(latlngs.length / 2)];
+    } else {
+        posicion = window.mapa.getCenter();
+    }
+    
+    // Determinar la clase CSS correcta
+    let claseCss = 'texto-linea';
+    if (elemento instanceof L.Polygon) {
+        claseCss = 'texto-poligono';
+    }
+    
+    // Crear el marcador con las propiedades correctas
+    const textoMarcador = L.marker(posicion, {
+        icon: L.divIcon({
+            className: claseCss,
+            html: `<div style="color: black;">${texto}</div>`,
+            iconSize: [100, 20]
+        }),
+        draggable: true,
+        interactive: true
+    }).addTo(calcoActivo || window.mapa);
+    
+    // Asignar al elemento
+    elemento.textoMarcador = textoMarcador;
+    
+    console.log(`Creado nuevo textoMarcador con clase ${claseCss} y texto "${texto}"`);
+    return textoMarcador;
+}
+
+/**
+ * Versión modificada de actualizarTextoElemento que respeta textoMarcador
+ * @param {Object} elemento - El elemento cuyo texto se actualizará
+ * @param {string} nuevoTexto - El nuevo texto
+ * @param {string} tipo - El tipo de elemento ('linea', 'poligono', etc.)
+ */
+function actualizarTextoElemento(elemento, nuevoTexto, tipo) {
+    // Verificar si ya existe un textoMarcador y actualizarlo
+    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
+        const divTexto = elemento.textoMarcador._icon.querySelector('div');
+        if (divTexto) {
+            divTexto.textContent = nuevoTexto;
+            // Actualizar el nombre del elemento
+            elemento.options.nombre = nuevoTexto;
+            elemento.nombre = nuevoTexto;
+            return; // Terminamos aquí si actualizamos el textoMarcador
+        }
+    }
+    
+    // Si no hay textoMarcador, continuar con la lógica original
     // Eliminar el texto asociado existente si lo hay
     if (elemento.textoAsociado) {
         calcoActivo.removeLayer(elemento.textoAsociado);
@@ -1121,6 +1444,7 @@ function actualizarTextoElemento(elemento, nuevoTexto, tipo) {
 
     // Actualizar el nombre del elemento
     elemento.options.nombre = nuevoTexto;
+    elemento.nombre = nuevoTexto;
 }
 
 function actualizarPosicionTexto(elemento) {
@@ -1149,27 +1473,168 @@ function determinarTipoRelleno(elemento) {
 function obtenerPatronRelleno(tipoRelleno, color) {
     switch(tipoRelleno) {
         case 'diagonal':
-            return new L.StripePattern({color: color, weight: 2, spaceWeight: 4, angle: 45});
-        // Añadir más casos para otros tipos de patrones
+            // Patrón de líneas diagonales
+            return new L.StripePattern({
+                color: color,
+                weight: 2,
+                spaceWeight: 4,
+                angle: 45
+            });
+            
+        case 'rombos':
+            // Patrón de rombos (dos patrones diagonales superpuestos)
+            return {
+                tipo: 'compuesto',
+                patrones: [
+                    new L.StripePattern({
+                        color: color,
+                        weight: 2,
+                        spaceWeight: 6,
+                        angle: 45
+                    }),
+                    new L.StripePattern({
+                        color: color,
+                        weight: 2,
+                        spaceWeight: 6,
+                        angle: -45
+                    })
+                ]
+            };
+            
+        case 'cuadros':
+            // Patrón de cuadrícula (dos patrones rectos superpuestos)
+            return {
+                tipo: 'compuesto',
+                patrones: [
+                    new L.StripePattern({
+                        color: color,
+                        weight: 2,
+                        spaceWeight: 6,
+                        angle: 0  // Horizontal
+                    }),
+                    new L.StripePattern({
+                        color: color,
+                        weight: 2,
+                        spaceWeight: 6,
+                        angle: 90  // Vertical
+                    })
+                ]
+            };
+            
+        case 'puntos':
+            // Creamos un patrón de puntos real utilizando un patrón SVG
+            const dotPattern = new L.PatternCircle({
+                x: 5,
+                y: 5,
+                radius: 2,
+                fill: true,
+                color: color,
+                fillColor: color,
+                fillOpacity: 1.0,
+                weight: 0
+            });
+            
+            // Creamos un contenedor para los puntos
+            const pattern = new L.Pattern({
+                width: 10,
+                height: 10
+            });
+            
+            // Agregamos el círculo al patrón
+            pattern.addShape(dotPattern);
+            
+            return pattern;
+            
         default:
             return null;
     }
 }
 
 function aplicarRelleno(elemento, tipoRelleno, color) {
+    // Limpiar patrones anteriores
+    if (elemento._capasSecundarias) {
+        elemento._capasSecundarias.forEach(capa => {
+            if (window.calcoActivo && window.calcoActivo.hasLayer(capa)) {
+                window.calcoActivo.removeLayer(capa);
+            } else if (window.mapa && window.mapa.hasLayer(capa)) {
+                window.mapa.removeLayer(capa);
+            }
+        });
+        elemento._capasSecundarias = null;
+    }
+    
+    // Si hay algún patrón aplicado al elemento, eliminarlo
+    if (elemento.options.fillPattern && elemento.options.fillPattern._removeShapes) {
+        window.mapa.removePattern(elemento.options.fillPattern);
+    }
+    
     switch(tipoRelleno) {
         case 'none':
             elemento.setStyle({fillOpacity: 0, fillPattern: null});
             break;
+            
         case 'solid':
-            elemento.setStyle({fillOpacity: 0.2, fillColor: color, fillPattern: null});
+            elemento.setStyle({
+                fillOpacity: 0.2, 
+                fillColor: color, 
+                fillPattern: null
+            });
             break;
-        default:
-            let patron = obtenerPatronRelleno(tipoRelleno, color);
-            if (patron) {
-                patron.addTo(window.mapa);
-                elemento.setStyle({fillPattern: patron, fillOpacity: 1});
+            
+        case 'rombos':
+        case 'cuadros':
+            const patronCompuesto = obtenerPatronRelleno(tipoRelleno, color);
+            if (patronCompuesto && patronCompuesto.tipo === 'compuesto') {
+                // Añadir patrones al mapa
+                patronCompuesto.patrones.forEach(patron => {
+                    patron.addTo(window.mapa);
+                });
+                
+                // Aplicar el primer patrón al elemento principal
+                elemento.setStyle({
+                    fillPattern: patronCompuesto.patrones[0],
+                    fillOpacity: 0.7
+                });
+                
+                // Crear un duplicado del polígono para el segundo patrón
+                const coords = elemento.getLatLngs();
+                const segundaLayer = L.polygon(coords, {
+                    fillPattern: patronCompuesto.patrones[1],
+                    fillOpacity: 0.7,
+                    color: 'transparent', // Sin borde
+                    weight: 0
+                }).addTo(window.calcoActivo || window.mapa);
+                
+                // Guardar referencia para poder eliminarlo después
+                elemento._capasSecundarias = [segundaLayer];
             }
+            break;
+            
+        case 'puntos':
+            const patronPuntos = obtenerPatronRelleno(tipoRelleno, color);
+            if (patronPuntos) {
+                // Añadir el patrón al mapa
+                patronPuntos.addTo(window.mapa);
+                
+                // Aplicar el patrón directamente al elemento
+                elemento.setStyle({
+                    fillPattern: patronPuntos,
+                    fillOpacity: 1
+                });
+            }
+            break;
+            
+        default:
+            // Para diagonal y otros patrones simples
+            let patron = obtenerPatronRelleno(tipoRelleno, color);
+            if (patron && patron.addTo) {
+                patron.addTo(window.mapa);
+                elemento.setStyle({
+                    fillPattern: patron,
+                    fillOpacity: 1
+                });
+            }
+            break;
     }
 }
 
@@ -1248,7 +1713,7 @@ function editarElementoSeleccionado() {
             console.log("Elemento sin SIDC identificado");
         }
     } else if (elementoSeleccionado instanceof L.Polyline || elementoSeleccionado instanceof L.Polygon) {
-        mostrarPanelEdicionMCC(elementoSeleccionado, elementoSeleccionado.textoAsociado, determinarTipoMCC(elementoSeleccionado));
+        mostrarPanelEdicionMCC(elementoSeleccionado, determinarTipoMCC(elementoSeleccionado));
     }
 }
 

@@ -1,59 +1,34 @@
-// Modificación para getServerUrl.js
-async function inicializarConexion() {
-    try {
-        // Intentar obtener la URL del servidor
-        const currentHost = window.location.hostname;
-        const baseUrl = `http://${currentHost}:5000`;
-        
-        // Configurar Socket.IO con opciones explícitas
-        const socket = io(baseUrl, {
-            transports: ['websocket', 'polling'],
-            upgrade: true,
-            rememberUpgrade: true,
-            path: '/socket.io',
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000,
-            timeout: 20000,
-            autoConnect: true,
-            cors: {
-                origin: "*",
-                methods: ["GET", "POST"],
-                credentials: true
-            }
-        });
+// networkConfig.js
+// Versión simplificada compatible con el código existente
 
-        // Manejadores de eventos de conexión
-        socket.on('connect', () => {
-            console.log('Conectado al servidor:', socket.id);
-        });
+// Detectar automáticamente protocolo y host
+var currentHost = window.location.hostname;
+var currentProtocol = window.location.protocol;
 
-        socket.on('connect_error', (error) => {
-            console.error('Error de conexión:', error);
-            // Intentar reconectar con polling si falla websocket
-            if (socket.io.opts.transports.includes('websocket')) {
-                console.log('Cambiando a polling...');
-                socket.io.opts.transports = ['polling'];
-            }
-        });
+// Variables globales para ser usadas en toda la aplicación
+var SERVER_URL, CLIENT_URL, API_BASE_URL;
 
-        return socket;
-    } catch (error) {
-        console.error('Error al inicializar la conexión:', error);
-        throw error;
-    }
+// Si estamos en un dominio ngrok, NO añadir puerto
+if (currentHost.includes('ngrok')) {
+    SERVER_URL = `${currentProtocol}//${currentHost}`;
+    CLIENT_URL = `${currentProtocol}//${currentHost}`;
+    API_BASE_URL = `${currentProtocol}//${currentHost}`;
+    console.log("Detectado ngrok: usando configuración optimizada");
+} else {
+    // URLs locales con puertos específicos
+    SERVER_URL = `${currentProtocol}//${currentHost}:5000`;
+    CLIENT_URL = `${currentProtocol}//${currentHost}:8080`;
+    API_BASE_URL = `${currentProtocol}//${currentHost}:5000`;
 }
 
-// Agregar verificación de estado de conexión
-function verificarConexion() {
-    const socket = window.socket;
-    if (!socket || !socket.connected) {
-        console.log('Reconectando...');
-        return inicializarConexion();
-    }
-    return socket;
-}
+// Log de las URLs configuradas
+console.log("URLs configuradas:", {
+    SERVER_URL: SERVER_URL,
+    CLIENT_URL: CLIENT_URL,
+    API_BASE_URL: API_BASE_URL
+});
 
-// Exportar para uso en otros archivos
-window.inicializarConexion = inicializarConexion;
-window.verificarConexion = verificarConexion;
+// Asegurar que las variables están disponibles globalmente
+window.SERVER_URL = SERVER_URL;
+window.CLIENT_URL = CLIENT_URL;
+window.API_BASE_URL = API_BASE_URL;
