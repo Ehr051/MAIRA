@@ -9,10 +9,11 @@ var currentProtocol = window.location.protocol;
 var SERVER_URL, CLIENT_URL;
 
 // Si estamos en un dominio ngrok, NO añadir puerto
-if (currentHost.includes('ngrok')) {
+if (currentHost.includes('ngrok') || currentHost.includes('trycloudflare.com')) {
     SERVER_URL = `${currentProtocol}//${currentHost}`;
     CLIENT_URL = `${currentProtocol}//${currentHost}`;
-    console.log("Detectado ngrok: usando configuración optimizada");
+    console.log("Detectado tunnel service: usando configuración optimizada");
+
 } else {
     // URLs locales con puertos específicos
     SERVER_URL = `${currentProtocol}//${currentHost}:5000`;

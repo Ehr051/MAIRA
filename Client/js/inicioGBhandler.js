@@ -70,6 +70,7 @@ function iniciarConexion() {
     
     // Recibir mensaje de chat
     socket.on('mensajeChat', function(mensaje) {
+        console.log('Mensaje recibido en cliente:', mensaje);
         agregarMensajeChat(mensaje);
     });
     
@@ -200,15 +201,27 @@ function cargarDatosIniciales() {
     }
 }
 
+
 /**
- * Actualiza el estado de conexión en la interfaz
+ * Actualiza el indicador de estado de conexión
  * @param {boolean} conectado - Estado de la conexión
  */
 function actualizarEstadoConexion(conectado) {
-    const estadoEl = document.getElementById('estadoConexion');
-    if (estadoEl) {
-        estadoEl.textContent = conectado ? 'Conectado' : 'Desconectado';
-        estadoEl.className = conectado ? 'text-success' : 'text-danger';
+    console.log("Actualizando estado de conexión:", conectado ? "Conectado" : "Desconectado");
+    
+    const indicator = document.querySelector('.indicator');
+    const statusText = document.getElementById('status-text');
+    
+    if (indicator) {
+        indicator.className = conectado ? 'indicator online' : 'indicator offline';
+    } else {
+        console.warn("Elemento indicator no encontrado");
+    }
+    
+    if (statusText) {
+        statusText.textContent = conectado ? 'Conectado' : 'Desconectado';
+    } else {
+        console.warn("Elemento status-text no encontrado");
     }
 }
 
@@ -595,16 +608,18 @@ function unirseOperacionExistente() {
         return;
     }
     
-    // Obtener solo el nombre de usuario, lo demás se configurará luego
+    // Obtener datos del usuario y elemento
     const usuario = document.getElementById('nombreUsuario').value;
+    const designacion = document.getElementById('elemento-designacion').value || "Elemento";
+    const dependencia = document.getElementById('elemento-dependencia').value || "";
     
     if (!usuario) {
         mostrarError('El nombre de usuario es obligatorio');
         return;
     }
     
-    // Obtener SIDC básico para una unidad de infantería
-    const sidc = "SFGPUCI-----"; // Unidad de Infantería Amiga básica
+    // SIDC para una unidad de infantería amigable
+    const sidc = "SFGPUCI-----";
     
     // Mostrar indicador de carga
     const botonSubmit = document.querySelector('#elementoForm button[type="submit"]');
@@ -612,69 +627,69 @@ function unirseOperacionExistente() {
         const textoOriginal = botonSubmit.innerHTML;
         botonSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uniéndose...';
         botonSubmit.disabled = true;
-        
-        // Restaurar después de 10 segundos por seguridad
-        setTimeout(() => {
-            botonSubmit.innerHTML = textoOriginal;
-            botonSubmit.disabled = false;
-        }, 10000);
     }
     
-    // Crear ID único para el elemento
+    // Crear ID único para usuario y elemento
+    const usuarioId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Crear info de usuario y elemento
+    // Crear info de usuario
     usuarioInfo = {
-        id: generarId(),
-        usuario: usuario
+        id: usuarioId,
+        usuario: usuario,
+        operacion: operacionSeleccionada.nombre
     };
     
-    // Elemento completo con todos los campos que usan simbolosP.js y edicioncompleto.js
+    // Elemento con información completa
     elementoTrabajo = {
-        // Campos básicos
         id: elementoId,
         sidc: sidc,
-        tipo: "U",  // Unidad
-        designacion: "",
-        dependencia: "",
-        magnitud: "E", // Magnitud por defecto (Compañía)
-        
-        // Campos adicionales usados en el mapa
+        tipo: "U",
+        designacion: designacion,
+        dependencia: dependencia,
+        magnitud: "E",
         nombre: `Elemento de ${usuario}`,
         usuario: usuario,
-        usuarioId: usuarioInfo.id,
+        usuarioId: usuarioId,
         creado: new Date().toISOString(),
-        
-        // Campos para la visualización
-        draggable: true, // Permitir arrastrar
-        editable: true,  // Permitir editar
-        visible: true,   // Visible inicialmente
-        
-        // Campos de estado
+        draggable: true,
+        editable: true,
+        visible: true,
         estado: "operativo",
-        edicionPendiente: true, // Flag para indicar que debe abrirse el editor
-        
-        // Campos de posición (inicialmente en el centro del mapa - se ajustará)
-        posicion: null, // Se establecerá al cargar el mapa
-        
-        // Datos de la operación
+        edicionPendiente: true,
+        posicion: null,
         operacionId: operacionSeleccionada.id,
         operacionNombre: operacionSeleccionada.nombre
     };
     
-    console.log("Datos de unión:", {
-        operacionId: operacionSeleccionada.id,
-        usuario: usuarioInfo,
-        elemento: elementoTrabajo
-    });
+    // Crear un OBJETO DE PARTICIPANTE que combina usuario e información del elemento
+    // Este objeto es más fácil de almacenar y compartir en el servidor
+    const participanteCompleto = {
+        id: usuarioId,
+        usuario: usuario,
+        elemento: elementoTrabajo,
+        operacion: operacionSeleccionada.nombre,
+        timestamp: new Date().toISOString(),
+        conectado: true
+    };
     
-    // Enviar al servidor
+
+    // Guardar en localStorage
+    localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
+    localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
+    localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionSeleccionada));
+    localStorage.setItem('gb_participante_completo', JSON.stringify(participanteCompleto));
+    
+    console.log("Datos completos de participante a enviar:", participanteCompleto);
+    
+    // Enviar al servidor usando eventos alternativos para asegurar compatibilidad
     socket.emit('unirseOperacionGB', {
         operacionId: operacionSeleccionada.id,
         usuario: usuarioInfo,
-        elemento: elementoTrabajo
+        elemento: elementoTrabajo,
+        participante: participanteCompleto // Añadir todo el objeto de participante
     }, function(respuesta) {
-        console.log("Respuesta recibida:", respuesta);
+        console.log("Respuesta del servidor:", respuesta);
         
         // Restaurar botón
         if (botonSubmit) {
@@ -687,17 +702,16 @@ function unirseOperacionExistente() {
             return;
         }
         
-        // Guardar en localStorage para recuperar en caso de recarga
-        localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
-        localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
-        localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionSeleccionada));
+        // También emitir evento explícito de nuevo elemento
+        socket.emit('nuevoElemento', participanteCompleto);
+        
         
         // Mensaje de éxito
         mostrarMensajeSistema(`Unido correctamente a la operación "${operacionSeleccionada.nombre}"`);
         
-        // Redireccionar a gestión de batalla
+        // Redireccionar a gestionbatalla
         setTimeout(() => {
-            window.location.href = `gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}&editar=true&elementoId=${elementoId}`;
+            window.location.href = `gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
         }, 1000);
     });
 }
@@ -935,14 +949,14 @@ function enviarMensaje() {
     
     // Crear objeto de mensaje
     const mensajeObj = {
-        emisor: usuarioInfo ? usuarioInfo.usuario : 'Usuario',
-        contenido: mensaje,
-        tipo: 'chat',
+        usuario: usuarioInfo ? usuarioInfo.usuario : 'Usuario',
+        mensaje: mensaje,
+        sala: 'general', // Añade la sala que espera el servidor
         timestamp: new Date().toISOString()
     };
     
     // Enviar al servidor
-    socket.emit('enviarMensaje', mensajeObj, respuesta => {
+    socket.emit('mensajeChat', mensajeObj, respuesta => {
         if (respuesta && respuesta.error) {
             mostrarError(respuesta.error);
         }
@@ -965,14 +979,44 @@ function enviarMensaje() {
  * @param {Object} mensaje - Objeto del mensaje
  */
 function agregarMensajeChat(mensaje) {
+    console.log('Agregando mensaje a la interfaz:', mensaje);
     const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) {
+        console.error('Contenedor de chat no encontrado');
+        return;
+    }
+    
     const messageDiv = document.createElement('div');
+    
+    // Determinar el emisor, contenido y tipo correctamente
+    let emisor = '';
+    let contenido = '';
+    let hora = '';
+    let tipo = '';
+    
+    // Estructura normalizada
+    if (mensaje.usuario) {
+        // Formato desde el servidor
+        emisor = mensaje.usuario;
+        contenido = mensaje.mensaje;
+        tipo = mensaje.tipo || 'other';
+        hora = mensaje.timestamp ? new Date(mensaje.timestamp) : new Date();
+    } else if (mensaje.emisor) {
+        // Formato usado localmente
+        emisor = mensaje.emisor;
+        contenido = mensaje.contenido;
+        tipo = mensaje.tipo || 'other';
+        hora = mensaje.timestamp ? new Date(mensaje.timestamp) : new Date();
+    } else {
+        console.warn('Formato de mensaje desconocido:', mensaje);
+        return; // No podemos mostrar este mensaje
+    }
     
     // Determinar clase según tipo de mensaje
     let className = 'message ';
-    if (mensaje.tipo === 'self') {
+    if (tipo === 'self') {
         className += 'message-self';
-    } else if (mensaje.tipo === 'system') {
+    } else if (tipo === 'system') {
         className += 'message-system';
     } else {
         className += 'message-other';
@@ -980,24 +1024,27 @@ function agregarMensajeChat(mensaje) {
     
     messageDiv.className = className;
     
-    // Formatear hora
-    const hora = new Date(mensaje.timestamp).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    // Formatear hora correctamente
+    const horaFormateada = typeof hora === 'object' && hora.toLocaleTimeString ? 
+        hora.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        }) : 'Sin hora';
     
     // Construir HTML del mensaje
-    if (mensaje.tipo === 'system') {
-        messageDiv.textContent = mensaje.contenido;
+    if (tipo === 'system') {
+        messageDiv.textContent = contenido || 'Mensaje del sistema';
     } else {
         messageDiv.innerHTML = `
-            <div><strong>${mensaje.emisor}</strong> <small>${hora}</small></div>
-            <div>${mensaje.contenido}</div>
+            <div><strong>${emisor || 'Desconocido'}</strong> <small>${horaFormateada}</small></div>
+            <div>${contenido || 'Sin contenido'}</div>
         `;
     }
     
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    console.log('Mensaje agregado correctamente:', emisor, contenido);
 }
 
 /**

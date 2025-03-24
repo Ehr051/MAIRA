@@ -10,6 +10,7 @@ from pymysql.cursors import DictCursor
 import json
 import random
 import string
+import time
 import bcrypt
 import traceback
 import subprocess
@@ -73,6 +74,65 @@ usuarios_conectados = {}
 partidas = {}
 user_sid_map = {}
 
+# Constantes para rutas de archivos
+BASE_UPLOADS_DIR = os.path.join(CLIENT_DIR, 'uploads')
+INFORMES_DIR = os.path.join(BASE_UPLOADS_DIR, 'informes')
+CHAT_DIR = os.path.join(BASE_UPLOADS_DIR, 'chat')
+OPERACIONES_DIR = os.path.join(BASE_UPLOADS_DIR, 'operaciones')
+TEMP_DIR = os.path.join(BASE_UPLOADS_DIR, 'temp')
+
+# Asegurar que los directorios existan
+for dir_path in [
+    BASE_UPLOADS_DIR, 
+    INFORMES_DIR, 
+    os.path.join(INFORMES_DIR, 'imagenes'),
+    os.path.join(INFORMES_DIR, 'audio'),
+    os.path.join(INFORMES_DIR, 'video'),
+    os.path.join(INFORMES_DIR, 'documentos'),
+    CHAT_DIR, 
+    os.path.join(CHAT_DIR, 'imagenes'),
+    os.path.join(CHAT_DIR, 'audio'),
+    os.path.join(CHAT_DIR, 'video'),
+    OPERACIONES_DIR,
+    TEMP_DIR
+]:
+    os.makedirs(dir_path, exist_ok=True)
+
+@app.route('/Client/uploads/<path:filename>')
+def serve_upload(filename):
+    """Sirve archivos desde el directorio de uploads"""
+    # Extraer la primera parte de la ruta para determinar el tipo
+    parts = filename.split('/')
+    
+    if len(parts) >= 1:
+        if parts[0] in ['informes', 'chat', 'operaciones', 'temp']:
+            return send_from_directory(BASE_UPLOADS_DIR, filename)
+    
+    # Si no es una ruta válida, devolver 404
+    return "", 404
+
+@app.route('/Client/audio/<path:filename>')
+def serve_audio(filename):
+    """Sirve archivos de audio desde el directorio correcto"""
+    audio_dir = os.path.join(CLIENT_DIR, 'audio')
+    try:
+        # Verificar si existe el directorio, crearlo si no
+        if not os.path.exists(audio_dir):
+            os.makedirs(audio_dir)
+            print(f"Directorio de audio creado: {audio_dir}")
+            
+        # Verificar si el archivo existe
+        file_path = os.path.join(audio_dir, filename)
+        if not os.path.exists(file_path):
+            print(f"Archivo de audio no encontrado: {file_path}")
+            return "", 404
+            
+        return send_from_directory(audio_dir, filename)
+    except Exception as e:
+        print(f"Error al servir archivo de audio {filename}: {e}")
+        return "", 404
+
+
 # Rutas para servir archivos estáticos
 @app.route('/')
 def serve_index():
@@ -82,6 +142,8 @@ def serve_index():
 def serve_client_files(path):
     return send_from_directory(CLIENT_DIR, path)
 
+
+ 
 @app.route('/<path:path>')
 def serve_static(path):
     # Intenta servir el archivo directamente
@@ -118,6 +180,37 @@ def get_config():
         'SERVER_IP': SERVER_IP
     })
 
+@app.route('/api/adjuntos/<informe_id>', methods=['GET'])
+def obtener_adjunto_api(informe_id):
+    try:
+        # Obtener informe
+        informe = obtener_informe_por_id(informe_id)
+        
+        if not informe:
+            return jsonify({"error": "Informe no encontrado"}), 404
+            
+        if not informe.get('tieneAdjunto') or not informe.get('adjunto'):
+            return jsonify({"error": "El informe no tiene adjunto"}), 404
+            
+        # Cargar datos del adjunto si están disponibles
+        datos_adjunto = cargar_adjunto_desde_filesystem(informe_id)
+        
+        if not datos_adjunto:
+            return jsonify({"error": "No se pudo cargar el adjunto"}), 500
+            
+        # Devolver información del adjunto con los datos
+        return jsonify({
+            "informe_id": informe_id,
+            "datos": datos_adjunto,
+            "tipo": informe['adjunto'].get('tipo', 'application/octet-stream'),
+            "nombre": informe['adjunto'].get('nombre', 'adjunto')
+        })
+        
+    except Exception as e:
+        print(f"Error al obtener adjunto API: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -252,18 +345,51 @@ def handle_login(data):
         emit('usuariosConectados', list(usuarios_conectados.values()), broadcast=True)
 
 
+# Revisar y eliminar estructuras de datos potencialmente huérfanas
 @socketio.on('disconnect')
-def handle_disconnect():
-    user_id = user_sid_map.pop(request.sid, None)
+def handle_disconnect_improved():
+    """Versión mejorada del manejo de desconexión con limpieza completa"""
+    sid = request.sid
+    user_id = user_sid_map.get(sid)
+    
+    # Limpiar mapeo de SID a user_id
+    if sid in user_sid_map:
+        del user_sid_map[sid]
+    
+    # Si el usuario estaba identificado
     if user_id:
-        usuarios_conectados.pop(user_id, None)
-        connection = get_db_connection()
-        with connection.cursor() as cursor:
-            cursor.execute('UPDATE usuarios SET is_online = 0 WHERE id = %s', (user_id,))
-        connection.commit()
-        connection.close()
+        print(f"Desconexión: Usuario {user_id} ({sid})")
+        
+        # Actualizar estado en la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    cursor.execute("UPDATE usuarios SET is_online = 0 WHERE id = %s", (user_id,))
+                conn.commit()
+            except Exception as e:
+                print(f"Error al actualizar estado en BD: {e}")
+            finally:
+                conn.close()
+        
+        # Limpiar de estructuras en memoria
+        if user_id in usuarios_conectados:
+            # Notificar a otros usuarios
+            sala_actual = usuarios_conectados[user_id].get('sala_actual')
+            if sala_actual:
+                emit('usuarioDesconectado', {
+                    'id': user_id,
+                    'username': usuarios_conectados[user_id].get('username', 'Usuario')
+                }, room=sala_actual)
+                
+            # Eliminar de la lista
+            del usuarios_conectados[user_id]
+        
+        # Notificar a todos los usuarios conectados
         emit('usuariosConectados', list(usuarios_conectados.values()), broadcast=True)
-    print(f'Cliente desconectado: {request.sid}')
+        
+        # Limpiar partidas o operaciones huérfanas
+        limpiar_recursos_inactivos()
 
 @socketio.on('login')
 def handle_login(data):
@@ -362,7 +488,19 @@ def crear_partida(data):
         emit('errorCrearPartida', {'mensaje': f'Error general al crear la partida: {str(e)}'})
 
 
-# En server.py, modificar la función actualizar_lista_partidas
+# Agrega esta función en serverhttps.py donde están las demás funciones
+def actualizar_estadisticas(sala, tipo_evento):
+    """
+    Actualiza las estadísticas de uso para una sala
+    """
+    try:
+        # Implementación básica para evitar error
+        print(f"Estadística: {tipo_evento} en sala {sala}")
+        # Aquí podrías agregar el código real para actualizar estadísticas si es necesario
+    except Exception as e:
+        print(f"Error al actualizar estadísticas: {e}")
+
+
 def actualizar_lista_partidas():
     conn = get_db_connection()
     if conn is None:
@@ -793,12 +931,55 @@ def enviar_invitacion(data):
             emit('invitacionPartida', {'invitador': get_username_by_id(invitador_id), 'codigoPartida': codigo_partida}, room=sid_invitado)
 
 @socketio.on('mensajeChat')
-def handle_mensaje_chat(data):
-    sala = data.get('sala', 'general')
-    mensaje = data['mensaje']
-    usuario = usuarios_conectados[user_sid_map[request.sid]]['username']
-    emit('mensajeChat', {'usuario': usuario, 'mensaje': mensaje}, room=sala)
-
+@socketio.on('mensajeJuego')  # Registrar ambos eventos para compatibilidad
+def handle_all_messages(data):
+    try:
+        # Extraer información básica del mensaje
+        user_id = user_sid_map.get(request.sid)
+        
+        # Determinar la sala correcta
+        sala = (data.get('sala') or data.get('partidaCodigo') or 
+                data.get('operacion') or 'general')
+        
+        # Normalizar el formato del mensaje
+        mensaje_normalizado = {
+            'id': data.get('id', f"msg_{time.time()}_{random.randint(1000, 9999)}"),
+            'usuario': data.get('usuario') or data.get('emisor', {}).get('nombre') or 
+                       usuarios_conectados.get(user_id, {}).get('username', 'Usuario'),
+            'mensaje': data.get('mensaje') or data.get('contenido', ''),
+            'tipo': data.get('tipo', 'global'),
+            'timestamp': datetime.now().isoformat(),
+            'estado': 'enviado'
+        }
+        
+        # Manejar mensajes privados
+        if data.get('privado') and data.get('destinatario'):
+            destinatario_id = data.get('destinatario')
+            dest_sid = next((sid for sid, uid in user_sid_map.items() if uid == destinatario_id), None)
+            
+            if dest_sid:
+                # Enviar al destinatario
+                emit('mensajeChat', mensaje_normalizado, room=dest_sid)
+                # Confirmar al emisor
+                emit('mensajeChat', {**mensaje_normalizado, 'estado': 'enviado'}, room=request.sid)
+                print(f"Mensaje privado enviado: {user_id} -> {destinatario_id}")
+            else:
+                # Destinatario no conectado
+                emit('mensajeChat', {**mensaje_normalizado, 'estado': 'error'}, room=request.sid)
+                print(f"Destinatario no conectado: {destinatario_id}")
+        else:
+            # Mensaje para toda la sala
+            emit('mensajeChat', mensaje_normalizado, room=sala)
+            print(f"Mensaje enviado a sala: {sala}")
+        
+        # Registrar estadísticas si es necesario
+        if sala not in ['general', 'lobby']:
+            actualizar_estadisticas(sala, 'mensaje')
+            
+    except Exception as e:
+        print(f"Error al procesar mensaje: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al procesar mensaje: {str(e)}'}, room=request.sid)
 @socketio.on('cancelarPartida')
 def cancelar_partida(data):
     codigo_partida = data['codigo']
@@ -923,40 +1104,6 @@ def handle_actualizar_posicion_batalla(data):
     # Notificar a otros en la operación
     emit('actualizacionPosicion', data, room=operacion, skip_sid=sid)
 
-@socketio.on('mensajeChat')
-def handle_mensaje_chat_batalla(data):
-    sid = request.sid
-    emisor_id = data.get('emisor', {}).get('id')
-    
-    if not emisor_id:
-        return
-    
-    # Buscar la operación del emisor
-    operacion = None
-    for op_nombre, op_data in operaciones_batalla.items():
-        if emisor_id in op_data['elementos']:
-            operacion = op_nombre
-            break
-    
-    if not operacion:
-        return
-    
-    # Si es mensaje privado
-    if data.get('privado') and data.get('destinatario'):
-        destinatario_id = data.get('destinatario')
-        
-        # Buscar el sid del destinatario
-        dest_sid = None
-        for s, uid in user_sid_map.items():
-            if uid == destinatario_id:
-                dest_sid = s
-                break
-        
-        if dest_sid:
-            emit('mensajeChat', data, room=dest_sid)
-    else:
-        # Mensaje general para la operación
-        emit('mensajeChat', data, room=operacion, skip_sid=sid)
 
 @socketio.on('nuevoInforme')
 def handle_nuevo_informe(data):
@@ -1139,6 +1286,7 @@ def handle_unidad_desplegada(data):
                 print(f'Error al manejar despliegue de unidad: {e}')
 
 # Eventos específicos para Gestión de Batalla (GB)
+        
 
 @socketio.on('crearOperacionGB')
 def handle_crear_operacion_gb(data, callback=None):
@@ -1154,6 +1302,10 @@ def handle_crear_operacion_gb(data, callback=None):
                 callback({"error": "El nombre de la operación es obligatorio"})
             return
         
+        # Obtener ID del usuario creador
+        user_id = user_sid_map.get(request.sid)
+        username = creador
+        
         # Generar ID único para la operación
         operacion_id = f"op_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
         
@@ -1162,10 +1314,10 @@ def handle_crear_operacion_gb(data, callback=None):
             "id": operacion_id,
             "nombre": nombre,
             "descripcion": descripcion,
-            "creador": creador,
+            "creador": username,
             "fechaCreacion": datetime.now().isoformat(),
             "elementos": {},
-            "participantes": 0
+            "participantes": 0  # Se incrementará al añadir al creador
         }
         
         # Guardar en memoria
@@ -1174,16 +1326,59 @@ def handle_crear_operacion_gb(data, callback=None):
                 'elementos': {},
                 'info': nueva_operacion
             }
+            
+            # Añadir al creador como primer elemento
+            if user_id:
+                elemento_data = {
+                    'id': user_id,
+                    'usuario': username,
+                    'elemento': data.get('elemento', {}),
+                    'conectado': True,
+                    'timestamp': datetime.now().isoformat()
+                }
+                operaciones_batalla[nombre]['elementos'][user_id] = elemento_data
+                
+                # Actualizar contador de participantes
+                operaciones_batalla[nombre]['info']['participantes'] = len(operaciones_batalla[nombre]['elementos'])
+                
+                print(f"Usuario creador {username} añadido a la operación {nombre}")
         
         # Unir al creador a la sala
         join_room(nombre)
         
+        # Almacenar la operación actual para este usuario
+        if user_id in usuarios_conectados:
+            usuarios_conectados[user_id]['operacion_actual'] = nombre
+            usuarios_conectados[user_id]['sala_actual'] = nombre
+        
         # Responder con la operación creada
         if callback:
-            callback({"operacion": nueva_operacion})
+            callback({
+                "success": True, 
+                "operacion": {
+                    "id": operacion_id,
+                    "nombre": nombre,
+                    "descripcion": descripcion,
+                    "creador": username,
+                    "fechaCreacion": nueva_operacion["fechaCreacion"],
+                    "participantes": operaciones_batalla[nombre]['info']['participantes']
+                }
+            })
         
         # Notificar a todos los usuarios sobre la nueva operación
-        emit('operacionesGB', {'operaciones': list(operaciones_batalla.keys())}, broadcast=True)
+        operaciones_lista = [
+            {
+                'id': op_data['info'].get('id', f"op_{i}"),
+                'nombre': op_nombre,
+                'descripcion': op_data['info'].get('descripcion', ''),
+                'creador': op_data['info'].get('creador', 'Desconocido'),
+                'fechaCreacion': op_data['info'].get('fechaCreacion', ''),
+                'participantes': len(op_data['elementos'])
+            }
+            for i, (op_nombre, op_data) in enumerate(operaciones_batalla.items())
+        ]
+        
+        emit('operacionesGB', {'operaciones': operaciones_lista}, broadcast=True)
         
         print(f"Operación GB '{nombre}' creada con éxito, ID: {operacion_id}")
         
@@ -1192,6 +1387,7 @@ def handle_crear_operacion_gb(data, callback=None):
         traceback.print_exc()
         if callback:
             callback({"error": str(e)})
+
 
 @socketio.on('obtenerOperacionesGB')
 def handle_obtener_operaciones_gb():
@@ -1215,88 +1411,53 @@ def handle_obtener_operaciones_gb():
         print(f"Error al obtener operaciones GB: {e}")
         emit('error', {'mensaje': f"Error al obtener operaciones: {str(e)}"})
 
-@socketio.on('unirseOperacionGB')
-def handle_unirse_operacion_gb(data, callback=None):
-    try:
-        print("Recibiendo solicitud para unirse a operación GB:", data)
-        
-        operacion_id = data.get('operacionId')
-        usuario = data.get('usuario')
-        elemento = data.get('elemento')
-        
-        if not operacion_id or not usuario or not elemento:
-            if callback:
-                callback({"error": "Datos incompletos para unirse a la operación"})
-            return
-            
-        # Buscar la operación por ID
-        operacion_nombre = None
-        for nombre, op_data in operaciones_batalla.items():
-            if op_data['info'].get('id') == operacion_id:
-                operacion_nombre = nombre
-                break
-                
-        if not operacion_nombre:
-            if callback:
-                callback({"error": "Operación no encontrada"})
-            return
-            
-        # Agregar usuario a la operación
-        operaciones_batalla[operacion_nombre]['elementos'][usuario['id']] = {
-            'id': usuario['id'],
-            'usuario': usuario['usuario'],
-            'elemento': elemento,
-            'timestamp': datetime.now().isoformat(),
-            'conectado': True
-        }
-        
-        # Unir al usuario a la sala
-        join_room(operacion_nombre)
-        
-        # Actualizar asociación sid-usuario
-        user_sid_map[request.sid] = usuario['id']
-        
-        # Responder con la operación
-        if callback:
-            callback({
-                "operacion": {
-                    "id": operacion_id,
-                    "nombre": operacion_nombre,
-                    "elementos": list(operaciones_batalla[operacion_nombre]['elementos'].values())
-                },
-                "usuario": usuario,
-                "elemento": elemento
-            })
-            
-        # Notificar a otros en la sala
-        emit('nuevaConexion', {
-            'id': usuario['id'],
-            'usuario': usuario['usuario'],
-            'elemento': elemento,
-            'timestamp': datetime.now().isoformat()
-        }, room=operacion_nombre, skip_sid=request.sid)
-        
-        print(f"Usuario {usuario['usuario']} unido a operación '{operacion_nombre}'")
-        
-    except Exception as e:
-        print(f"Error al unirse a operación GB: {e}")
-        traceback.print_exc()
-        if callback:
-            callback({"error": str(e)})
 
 @socketio.on('solicitarElementos')
-def handle_solicitar_elementos(data):
+def handle_request_elements(data):
     try:
         operacion = data.get('operacion')
-        if not operacion or operacion not in operaciones_batalla:
-            return emit('error', {'mensaje': 'Operación no encontrada'})
+        if not operacion:
+            emit('error', {'mensaje': 'Operación no especificada'})
+            return
+        
+        # Obtener y normalizar elementos
+        elementos_raw = obtener_elementos_por_operacion(operacion)
+        elementos_normalizados = []
+        
+        # Normalizar formato
+        for elem in elementos_raw:
+            # Asegurar que tiene ID único
+            if 'id' not in elem:
+                continue
+                
+            # Verificar si es duplicado (mismo ID)
+            if any(e['id'] == elem['id'] for e in elementos_normalizados):
+                continue
+                
+            # Añadir campos mínimos si faltan
+            elem_normalizado = {
+                'id': elem['id'],
+                'usuario': elem.get('usuario', 'Desconocido'),
+                'elemento': elem.get('elemento', {}),
+                'conectado': elem.get('conectado', True),
+                'timestamp': elem.get('timestamp', datetime.now().isoformat())
+            }
             
-        elementos = list(operaciones_batalla[operacion]['elementos'].values())
-        emit('listaElementos', elementos)
+            elementos_normalizados.append(elem_normalizado)
+        
+        print(f"Enviando {len(elementos_normalizados)} elementos normalizados para operación {operacion}")
+        emit('listaElementos', elementos_normalizados)
+        
+        registrar_actividad('solicitud_elementos', request.sid, {
+            'operacion': operacion, 
+            'elementos_count': len(elementos_normalizados)
+        })
         
     except Exception as e:
-        print(f"Error al solicitar elementos: {e}")
-        emit('error', {'mensaje': str(e)})
+        print(f"Error en solicitarElementos: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al obtener lista de elementos: {str(e)}'})
+
 
 @socketio.on('registrarOperacion')
 def handle_registrar_operacion(data):
@@ -2017,10 +2178,37 @@ def handle_mensaje_juego(data):
 
 
 @socketio.on('joinRoom')
-def join_room_handler(room):
-    print(f"Usuario {request.sid} uniéndose a la sala: {room}")
-    join_room(room)
-    emit('salaActualizada', {'sala': room})
+def join_room_unified(data):
+    """Handler unificado para unirse a salas"""
+    # Normalizar el parámetro - podría ser un string o un objeto
+    if isinstance(data, dict):
+        room_name = data.get('sala') or data.get('codigo') or data.get('operacion')
+    else:
+        room_name = data
+    
+    if not room_name:
+        emit('error', {'mensaje': 'No se proporcionó nombre de sala'})
+        return
+    
+    # Guardar la sala actual del usuario
+    user_id = user_sid_map.get(request.sid)
+    if user_id:
+        usuarios_conectados[user_id]['sala_actual'] = room_name
+    
+    # Unirse a la sala
+    join_room(room_name)
+    print(f"Usuario {user_id} ({request.sid}) unido a sala: {room_name}")
+    
+    # Notificar al usuario
+    emit('salaActualizada', {'sala': room_name})
+    
+    # Si la sala está asociada a una operación/partida, también unir a subgrupos
+    if user_id and 'equipo' in usuarios_conectados.get(user_id, {}):
+        equipo = usuarios_conectados[user_id]['equipo']
+        if equipo:
+            room_equipo = f"{room_name}_{equipo}"
+            join_room(room_equipo)
+            print(f"Usuario {user_id} unido a sala de equipo: {room_equipo}")
 
 
 @socketio.on('sectorDefinido')
@@ -2045,6 +2233,94 @@ def handle_sector_definido(data):
         
     except Exception as e:
         emit('error', {'mensaje': str(e)})
+
+
+@socketio.on('mensajeMultimedia')
+def handle_mensaje_multimedia(data):
+    """Maneja mensajes con contenido multimedia (imágenes, audio, video)"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return {'error': 'Usuario no autenticado'}
+            
+        # Validar datos mínimos
+        if 'tipo_contenido' not in data or 'contenido' not in data:
+            emit('error', {'mensaje': 'Formato de mensaje inválido'})
+            return {'error': 'Formato inválido'}
+            
+        # Generar ID único para el mensaje
+        mensaje_id = f"media_{time.time()}_{random.randint(1000, 9999)}"
+        
+        # Obtener sala/operación
+        sala = data.get('sala', 'general')
+        
+        # Datos del usuario
+        username = usuarios_conectados.get(user_id, {}).get('username', 'Usuario')
+        
+        # Procesar contenido multimedia
+        tipo_contenido = data['tipo_contenido']  # image, audio, video
+        contenido_raw = data['contenido']  # base64
+        
+        # Crear objeto de adjunto para procesamiento
+        adjunto = {
+            'nombre': data.get('nombre_archivo', f"{tipo_contenido}_{mensaje_id}.{tipo_contenido}"),
+            'tipo': data.get('mime_type', f"{tipo_contenido}/octet-stream"),
+            'datos': contenido_raw,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Guardar archivo
+        adjunto_info = guardar_adjunto_en_filesystem(
+            mensaje_id, 
+            adjunto, 
+            tipo_origen='chat'
+        )
+        
+        if not adjunto_info:
+            emit('error', {'mensaje': 'Error al guardar archivo multimedia'})
+            return {'error': 'Error al guardar archivo'}
+            
+        # Construir mensaje
+        mensaje = {
+            'id': mensaje_id,
+            'usuario': username,
+            'tipo_mensaje': 'multimedia',
+            'tipo_contenido': tipo_contenido,
+            'adjunto': adjunto_info,
+            'texto': data.get('texto', ''),  # Texto opcional 
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Enviar a la sala o destinatario específico
+        if data.get('destinatario') and data.get('destinatario') != 'todos':
+            # Mensaje privado
+            dest_sid = None
+            for s, uid in user_sid_map.items():
+                if uid == data['destinatario']:
+                    dest_sid = s
+                    break
+                    
+            if dest_sid:
+                mensaje['privado'] = True
+                emit('mensajeMultimedia', mensaje, room=dest_sid)
+                emit('mensajeMultimedia', mensaje, room=request.sid)  # Eco al emisor
+            else:
+                emit('error', {'mensaje': 'Destinatario no encontrado'})
+        else:
+            # Mensaje a toda la sala
+            emit('mensajeMultimedia', mensaje, room=sala)
+            
+        # Guardar mensaje en historial si es necesario
+        # guardar_mensaje_multimedia_en_db(mensaje)
+        
+        return {'success': True, 'mensaje_id': mensaje_id}
+    except Exception as e:
+        print(f"Error en mensajeMultimedia: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al procesar mensaje multimedia: {str(e)}'})
+        return {'error': str(e)}
+
 
 @socketio.on('zonaDespliegueDefinida')
 def handle_zona_despliegue(data):
@@ -2090,6 +2366,728 @@ def handle_iniciar_combate(data):
     except Exception as e:
         print(f"[ERROR] Error en iniciarCombate: {str(e)}")
 
+
+
+
+## 1. Eventos para mensajes privados
+
+@socketio.on('mensajePrivado')
+def handle_private_message(mensaje):
+    """Maneja mensajes privados entre usuarios"""
+    try:
+        # Validar mensaje
+        if not mensaje or not isinstance(mensaje, dict):
+            emit('error', {'mensaje': 'Formato de mensaje inválido'})
+            return
+        
+        # Verificar campos requeridos
+        if 'emisor' not in mensaje or 'contenido' not in mensaje or 'destinatario' not in mensaje:
+            emit('error', {'mensaje': 'Faltan campos requeridos en el mensaje privado'})
+            return
+        
+        # Añadir ID único si no lo tiene
+        if 'id' not in mensaje:
+            mensaje['id'] = f"msg_{time.time()}_{random.randint(1000, 9999)}"
+        
+        # Añadir timestamp si no lo tiene
+        if 'timestamp' not in mensaje:
+            mensaje['timestamp'] = datetime.now().isoformat()
+        
+        # Añadir estado de mensaje
+        mensaje['estado'] = 'enviado'
+        
+        # Determinar destinatario(s)
+        if mensaje['destinatario'] == 'todos':
+            # Broadcast a todos en la sala (excepto el emisor)
+            sala = mensaje.get('sala', 'general')
+            mensaje_broadcast = mensaje.copy()
+            emit('mensajePrivado', mensaje_broadcast, room=sala, include_self=False)
+        elif mensaje['destinatario'] == 'comando':
+            # Enviar a la central/comando (implementar según tu lógica)
+            # Por ejemplo, podrías tener una lista de usuarios con rol de comando
+            usuarios_comando = get_users_with_role('comando')
+            for usuario_id in usuarios_comando:
+                if usuario_id != mensaje['emisor']['id']:  # No enviar a sí mismo
+                    emit('mensajePrivado', mensaje, room=usuario_id)
+        else:
+            # Mensaje a un usuario específico
+            emit('mensajePrivado', mensaje, room=mensaje['destinatario'])
+        
+        # Echo al emisor (para confirmar envío)
+        emit('mensajePrivado', mensaje)
+        
+        # Guardar en historial si es necesario
+        guardar_mensaje_en_db(mensaje)
+        
+        return {'success': True, 'id': mensaje['id']}
+    
+    except Exception as e:
+        print(f"Error en mensajePrivado: {e}")
+        emit('error', {'mensaje': f'Error al procesar mensaje privado: {str(e)}'})
+        return {'error': str(e)}
+
+
+## 2. Soporte para archivos adjuntos en informes
+
+
+@socketio.on('nuevoInforme')
+def handle_new_report(informe):
+    """Maneja nuevos informes con soporte para adjuntos"""
+    try:
+        # Validar informe
+        if not informe or not isinstance(informe, dict):
+            emit('error', {'mensaje': 'Formato de informe inválido'})
+            return {'error': 'Formato inválido'}
+        
+        # Verificar campos requeridos
+        campos_requeridos = ['id', 'emisor', 'destinatario', 'tipo', 'asunto', 'contenido']
+        for campo in campos_requeridos:
+            if campo not in informe:
+                emit('error', {'mensaje': f'Falta campo requerido en informe: {campo}'})
+                return {'error': f'Falta campo: {campo}'}
+        
+        # Añadir timestamp si no lo tiene
+        if 'timestamp' not in informe:
+            informe['timestamp'] = datetime.now().isoformat()
+        
+        # Manejar adjunto si existe
+        if informe.get('tieneAdjunto') and informe.get('adjunto'):
+            # Validar tamaño máximo (5MB)
+            datos_adjunto = informe['adjunto'].get('datos', '')
+            if len(datos_adjunto) > 5 * 1024 * 1024:  # 5MB en bytes
+                emit('error', {'mensaje': 'El archivo adjunto excede el tamaño máximo permitido (5MB)'})
+                return {'error': 'Archivo demasiado grande'}
+            
+            # Opcional: Guardar adjunto en sistema de archivos
+            # Esta implementación depende de tu infraestructura
+            # guardar_adjunto_en_filesystem(informe['id'], informe['adjunto'])
+        
+        # Guardar informe en la base de datos
+        guardar_informe_en_db(informe)
+        
+        # Determinar destinatario(s)
+        if informe['destinatario'] == 'todos':
+            # Broadcast a todos en la operación
+            sala = informe.get('operacion', 'general')
+            emit('nuevoInforme', informe, room=sala, include_self=False)
+        elif informe['destinatario'] == 'comando':
+            # Enviar a la central/comando (implementar según tu lógica)
+            usuarios_comando = get_users_with_role('comando')
+            for usuario_id in usuarios_comando:
+                if usuario_id != informe['emisor']['id']:  # No enviar a sí mismo
+                    emit('nuevoInforme', informe, room=usuario_id)
+        else:
+            # Informe a un usuario específico
+            emit('nuevoInforme', informe, room=informe['destinatario'])
+        
+        # Confirmar al emisor
+        emit('informeEnviado', {'id': informe['id'], 'success': True})
+        
+        return {'success': True, 'id': informe['id']}
+    
+    except Exception as e:
+        print(f"Error en nuevoInforme: {e}")
+        emit('error', {'mensaje': f'Error al procesar informe: {str(e)}'})
+        return {'error': str(e)}
+
+ # Definir la carpeta de subida
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+def actualizar_adjunto_en_db(informe_id, adjunto_db):
+    """Actualiza información de un adjunto en la base de datos (o memoria temporal)"""
+    try:
+        if 'adjuntos_info' not in globals():
+            globals()['adjuntos_info'] = {}
+        globals()['adjuntos_info'][informe_id] = adjunto_db
+        return True
+    except Exception as e:
+        print(f"Error al actualizar adjunto en DB: {e}")
+        return False
+
+## 3. Evento para obtener informe completo (para ver adjuntos)
+
+
+@socketio.on('obtenerInformeCompleto')
+def handle_get_full_report(data):
+    """Obtiene un informe completo, incluyendo adjuntos"""
+    try:
+        if not data or 'informeId' not in data:
+            emit('error', {'mensaje': 'ID de informe no especificado'})
+            return {'error': 'ID no especificado'}
+        
+        # Obtener informe de la base de datos
+        informe_id = data['informeId']
+        informe = obtener_informe_por_id(informe_id)
+        
+        if not informe:
+            print(f"Informe no encontrado: {informe_id}")
+            emit('error', {'mensaje': 'Informe no encontrado'})
+            return {'error': 'Informe no encontrado'}
+        
+        # Si el informe tiene adjunto pero no están los datos, intentar cargarlos
+        if informe.get('tieneAdjunto') and informe.get('adjunto') and not informe['adjunto'].get('datos'):
+            datos_adjunto = cargar_adjunto_desde_filesystem(informe_id)
+            if datos_adjunto:
+                informe['adjunto']['datos'] = datos_adjunto
+                print(f"Adjunto cargado correctamente para informe {informe_id}")
+            else:
+                print(f"No se pudo cargar el adjunto para el informe {informe_id}")
+        
+        # Emitir el informe completo
+        emit('informeCompleto', {'informe': informe})
+        
+        return {'success': True}
+    except Exception as e:
+        print(f"Error en obtenerInformeCompleto: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al obtener informe: {str(e)}'})
+        return {'error': str(e)}
+
+## 4. Mejorar el evento de lista de elementos
+
+
+@socketio.on('solicitarElementos')
+def handle_request_elements(data):
+    """Proporciona la lista completa de elementos en una operación"""
+    try:
+        if not data or 'operacion' not in data:
+            emit('error', {'mensaje': 'Operación no especificada'})
+            return
+        
+        operacion = data['operacion']
+        
+        # Obtener lista de elementos/participantes para la operación
+        elementos = obtener_elementos_por_operacion(operacion)
+        
+        # Enviar solo al solicitante
+        emit('listaElementos', elementos)
+        
+        # Registrar actividad (opcional)
+        registrar_actividad('solicitud_elementos', request.sid, {'operacion': operacion})
+        
+        return {'success': True, 'count': len(elementos)}
+    
+    except Exception as e:
+        print(f"Error en solicitarElementos: {e}")
+        emit('error', {'mensaje': f'Error al obtener lista de elementos: {str(e)}'})
+
+
+
+## 7. Añadir soporte para usuarios con rol de comando
+
+def get_users_with_role(rol):
+    """Obtiene IDs de usuarios con un rol específico"""
+    try:
+        # Implementar según tu modelo de datos
+        # Por ejemplo, si tienes una colección/tabla de usuarios con campo 'roles'
+        usuarios = db.usuarios.find({'roles': rol})
+        return [usuario['id'] for usuario in usuarios]
+    except Exception as e:
+        print(f"Error al obtener usuarios con rol {rol}: {e}")
+        return []
+
+## 8. Actualización de la función para unirse a operación
+
+
+@socketio.on('unirseOperacionGB')
+def handle_join_operation(data, callback=None):
+    """Maneja la unión de un usuario a una operación"""
+    try:
+        # Validar datos
+        if not data or not isinstance(data, dict):
+            emit('error', {'mensaje': 'Formato de datos inválido'})
+            if callback: callback({"error": "Formato de datos inválido"})
+            return
+            
+        if 'operacionId' not in data and 'usuario' not in data and 'elemento' not in data:
+            emit('error', {'mensaje': 'Datos incompletos para unirse a operación'})
+            if callback: callback({"error": "Datos incompletos"})
+            return
+        
+        # Obtener datos
+        operacion_id = data.get('operacionId')
+        usuario = data.get('usuario', {})
+        elemento = data.get('elemento', {})
+        posicion = data.get('posicion')
+        
+        # Buscar operación por ID
+        operacion = None
+        operacion_nombre = None
+        
+        for nombre, op_data in operaciones_batalla.items():
+            if op_data['info'].get('id') == operacion_id:
+                operacion = op_data
+                operacion_nombre = nombre
+                break
+                
+        if not operacion or not operacion_nombre:
+            emit('error', {'mensaje': 'Operación no encontrada'})
+            if callback: callback({"error": "Operación no encontrada"})
+            return
+            
+        # Preparar datos del elemento
+        datos_elemento = {
+            'id': usuario.get('id'),
+            'usuario': usuario.get('usuario'),
+            'elemento': elemento,
+            'conectado': True,
+            'posicion': posicion,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Guardar en memoria
+        operacion['elementos'][usuario.get('id')] = datos_elemento
+        
+        # Actualizar contador
+        operacion['info']['participantes'] = len(operacion['elementos'])
+        
+        # Unir usuario a la sala
+        join_room(operacion_nombre)
+        
+        # Registrar actividad
+        registrar_actividad('union_operacion', request.sid, {
+            'usuario': usuario.get('usuario'),
+            'operacion': operacion_nombre
+        })
+        
+        # Notificar a otros usuarios en la operación
+        emit('nuevaConexion', datos_elemento, room=operacion_nombre, include_self=False)
+        
+        # Responder al usuario que se unió
+        respuesta = {
+            "usuario": usuario,
+            "elemento": elemento,
+            "operacion": {
+                'id': operacion_id,
+                'nombre': operacion_nombre,
+                **operacion['info']
+            }
+        }
+        
+        emit('unidoOperacionGB', respuesta)
+        
+        if callback:
+            callback({"success": True, "operacion": respuesta['operacion']})
+            
+        print(f"Usuario {usuario.get('usuario')} unido a operación {operacion_nombre}")
+        
+    except Exception as e:
+        print(f"Error en unirseOperacionGB: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al unirse a operación: {str(e)}'})
+        if callback:
+            callback({"error": str(e)})
+
+## Funciones adicionales para la base de datos
+def obtener_elementos_por_operacion(operacion_nombre):
+    """
+    Obtiene todos los elementos de una operación
+    
+    Args:
+        operacion_nombre (str): Nombre de la operación
+        
+    Returns:
+        list: Lista de elementos en la operación
+    """
+    try:
+        if operacion_nombre in operaciones_batalla:
+            return list(operaciones_batalla[operacion_nombre]['elementos'].values())
+        return []
+    except Exception as e:
+        print(f"Error al obtener elementos por operación: {e}")
+        return []
+
+def obtener_operacion_por_nombre(operacion_nombre):
+    """
+    Obtiene una operación por su nombre
+    
+    Args:
+        operacion_nombre (str): Nombre de la operación
+        
+    Returns:
+        dict: Datos de la operación o None si no existe
+    """
+    try:
+        if operacion_nombre in operaciones_batalla:
+            info = operaciones_batalla[operacion_nombre]['info']
+            return {
+                'id': info.get('id', operacion_nombre),
+                'nombre': operacion_nombre,
+                'creador': info.get('creador', 'Desconocido'),
+                'fechaCreacion': info.get('fechaCreacion', ''),
+                'descripcion': info.get('descripcion', ''),
+                'elementos': len(operaciones_batalla[operacion_nombre]['elementos'])
+            }
+        return None
+    except Exception as e:
+        print(f"Error al obtener operación por nombre: {e}")
+        return None
+
+def guardar_elemento_en_operacion(operacion_id, datos_elemento):
+    """
+    Guarda un elemento en una operación
+    
+    Args:
+        operacion_id (str): ID de la operación
+        datos_elemento (dict): Datos del elemento a guardar
+        
+    Returns:
+        bool: True si se guardó correctamente, False en caso contrario
+    """
+    try:
+        # Buscar operación por ID
+        for nombre_op, operacion_data in operaciones_batalla.items():
+            if operacion_data['info'].get('id') == operacion_id:
+                # Guardar elemento
+                elemento_id = datos_elemento.get('id')
+                if not elemento_id:
+                    return False
+                    
+                operacion_data['elementos'][elemento_id] = datos_elemento
+                
+                # Actualizar contador de participantes
+                operacion_data['info']['participantes'] = len(operacion_data['elementos'])
+                
+                return True
+                
+        # Si llegamos aquí, no se encontró la operación
+        print(f"No se encontró operación con ID {operacion_id}")
+        return False
+    except Exception as e:
+        print(f"Error al guardar elemento en operación: {e}")
+        traceback.print_exc()
+        return False
+    
+def guardar_mensaje_en_db(mensaje):
+    """Guarda un mensaje en la base de datos"""
+    try:
+        # Implementar según tu base de datos
+        # Ejemplo para MongoDB:
+        db.mensajes.insert_one(mensaje)
+    except Exception as e:
+        print(f"Error al guardar mensaje: {e}")
+
+# Variables globales para almacenamiento de informes y adjuntos
+informes_db = {}
+adjuntos_info = {}
+
+# Definir la carpeta de subida
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def guardar_informe_en_db(informe):
+    """Guarda un informe en memoria (versión simplificada)"""
+    try:
+        # Extraer ID del informe
+        informe_id = informe['id']
+        
+        # Si tiene adjunto con datos binarios grandes, separarlos
+        if informe.get('tieneAdjunto') and informe.get('adjunto') and informe['adjunto'].get('datos'):
+            # Guardar adjunto en filesystem
+            ruta = guardar_adjunto_en_filesystem(informe_id, informe['adjunto'])
+            
+            # Eliminar datos binarios para almacenamiento en memoria
+            informe_memoria = informe.copy()
+            if 'datos' in informe_memoria['adjunto']:
+                del informe_memoria['adjunto']['datos']
+            
+            # Añadir ruta al adjunto
+            informe_memoria['adjunto']['ruta'] = ruta
+            
+            # Guardar informe sin datos binarios
+            informes_db[informe_id] = informe_memoria
+        else:
+            # Guardar informe completo
+            informes_db[informe_id] = informe.copy()
+        
+        print(f"Informe {informe_id} guardado correctamente")
+        return True
+    except Exception as e:
+        print(f"Error al guardar informe: {e}")
+        traceback.print_exc()
+        return False
+
+def guardar_adjunto_en_filesystem(informe_id, adjunto, tipo_origen='informe'):
+    """
+    Guarda un archivo adjunto en el sistema de archivos
+    
+    Args:
+        informe_id (str): ID del informe o mensaje
+        adjunto (dict): Información del adjunto
+        tipo_origen (str): 'informe' o 'chat'
+        
+    Returns:
+        dict: Información del archivo guardado incluyendo ruta
+    """
+    try:
+        # Determinar directorio base según origen
+        if tipo_origen == 'informe':
+            base_dir = INFORMES_DIR
+        elif tipo_origen == 'chat':
+            base_dir = CHAT_DIR
+        else:
+            base_dir = BASE_UPLOADS_DIR
+        
+        # Determinar subdirectorio según tipo de archivo
+        tipo_base = adjunto.get('tipo', '').split('/')[0]  # Obtener 'image', 'audio', 'video', etc.
+        
+        if tipo_base == 'image':
+            subdir = 'imagenes'
+        elif tipo_base == 'audio':
+            subdir = 'audio'
+        elif tipo_base == 'video':
+            subdir = 'video'
+        else:
+            subdir = 'documentos'
+            
+        # Construir ruta completa
+        directorio = os.path.join(base_dir, subdir)
+        os.makedirs(directorio, exist_ok=True)
+        
+        # Extraer datos del adjunto
+        nombre_archivo = adjunto.get('nombre', f"adjunto_{informe_id}")
+        tipo_archivo = adjunto.get('tipo', 'application/octet-stream')
+        datos_base64 = adjunto.get('datos', '')
+        
+        # Asegurar nombre de archivo seguro
+        nombre_seguro = secure_filename(nombre_archivo)
+        
+        # Añadir timestamp e ID para evitar colisiones
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        nombre_final = f"{timestamp}_{informe_id}_{nombre_seguro}"
+        
+        # Ruta relativa (para almacenar en BD)
+        ruta_relativa = os.path.join(
+            'uploads',
+            'informes' if tipo_origen == 'informe' else 'chat', 
+            subdir, 
+            nombre_final
+        )
+        
+        # Ruta absoluta (para sistema de archivos)
+        ruta_absoluta = os.path.join(directorio, nombre_final)
+        
+        # Eliminar prefijo base64 si existe
+        if ';base64,' in datos_base64:
+            datos_base64 = datos_base64.split(';base64,')[1]
+        
+        # Convertir de base64 a binario
+        import base64
+        datos_binarios = base64.b64decode(datos_base64)
+        
+        # Guardar archivo
+        with open(ruta_absoluta, 'wb') as f:
+            f.write(datos_binarios)
+        
+        print(f"Archivo {tipo_base} guardado en: {ruta_absoluta}")
+        
+        # Para imágenes, crear versión en miniatura para previsualización
+        if tipo_base == 'image':
+            try:
+                from PIL import Image
+                import io
+                
+                # Crear miniatura
+                with Image.open(io.BytesIO(datos_binarios)) as img:
+                    img.thumbnail((300, 300))
+                    thumb_path = os.path.join(directorio, f"thumb_{nombre_final}")
+                    img.save(thumb_path)
+                    
+                    # Ruta de thumbnail (relativa)
+                    thumb_relativa = os.path.join(
+                        'uploads',
+                        'informes' if tipo_origen == 'informe' else 'chat', 
+                        subdir, 
+                        f"thumb_{nombre_final}"
+                    )
+            except ImportError:
+                print("Pillow no disponible, no se creó miniatura")
+                thumb_relativa = None
+            except Exception as e:
+                print(f"Error al crear miniatura: {e}")
+                thumb_relativa = None
+        else:
+            thumb_relativa = None
+        
+        # Guardar información del adjunto
+        adjunto_info = {
+            'nombre': nombre_archivo,
+            'nombre_seguro': nombre_final,
+            'tipo': tipo_archivo,
+            'tipo_base': tipo_base,
+            'tamaño': len(datos_binarios),
+            'ruta': ruta_relativa,        # Ruta relativa para la BD
+            'ruta_absoluta': ruta_absoluta,  # Ruta absoluta (opcional)
+            'ruta_thumbnail': thumb_relativa,
+            'timestamp': adjunto.get('timestamp', datetime.now().isoformat())
+        }
+        
+        return adjunto_info
+    except Exception as e:
+        print(f"Error al guardar adjunto: {e}")
+        traceback.print_exc()
+        return None
+    
+
+
+def obtener_info_adjunto(informe_id):
+    """Obtiene información de un adjunto por el ID del informe"""
+    try:
+        # Primero buscar en el diccionario de adjuntos
+        if informe_id in adjuntos_info:
+            return adjuntos_info[informe_id]
+        
+        # Si no está, buscar en el informe
+        if informe_id in informes_db and informes_db[informe_id].get('adjunto'):
+            return informes_db[informe_id]['adjunto']
+            
+        return None
+    except Exception as e:
+        print(f"Error al obtener información del adjunto: {e}")
+        return None
+
+def cargar_adjunto_desde_filesystem(adjunto_info):
+    """
+    Carga un archivo adjunto desde el sistema de archivos
+    
+    Args:
+        adjunto_info (dict): Información del adjunto
+        
+    Returns:
+        str: Datos del archivo en formato base64
+    """
+    try:
+        # Determinar ruta del archivo
+        if not adjunto_info or 'ruta' not in adjunto_info:
+            print("Información de adjunto inválida o sin ruta")
+            return None
+            
+        # Convertir ruta relativa a absoluta
+        ruta_relativa = adjunto_info['ruta']
+        ruta_absoluta = os.path.join(CLIENT_DIR, ruta_relativa)
+        
+        # Verificar que el archivo exista
+        if not os.path.exists(ruta_absoluta):
+            print(f"Archivo adjunto no encontrado: {ruta_absoluta}")
+            
+            # Intentar búsqueda alternativa si falla
+            nombre_seguro = adjunto_info.get('nombre_seguro')
+            tipo_base = adjunto_info.get('tipo_base', '').lower()
+            
+            if nombre_seguro and tipo_base:
+                # Buscar en estructura alternativa
+                posibles_rutas = [
+                    os.path.join(INFORMES_DIR, 'imagenes' if tipo_base == 'image' else tipo_base, nombre_seguro),
+                    os.path.join(CHAT_DIR, 'imagenes' if tipo_base == 'image' else tipo_base, nombre_seguro),
+                ]
+                
+                for ruta in posibles_rutas:
+                    if os.path.exists(ruta):
+                        ruta_absoluta = ruta
+                        print(f"Archivo encontrado en ruta alternativa: {ruta}")
+                        break
+                else:
+                    print("No se encontró el archivo en rutas alternativas")
+                    return None
+            else:
+                return None
+        
+        # Leer archivo
+        with open(ruta_absoluta, 'rb') as f:
+            datos_binarios = f.read()
+        
+        # Convertir a base64
+        import base64
+        datos_base64 = base64.b64encode(datos_binarios).decode('utf-8')
+        
+        # Añadir prefijo según tipo MIME
+        tipo_mime = adjunto_info.get('tipo', 'application/octet-stream')
+        prefijo = f"data:{tipo_mime};base64,"
+        datos_completos = prefijo + datos_base64
+        
+        return datos_completos
+    except Exception as e:
+        print(f"Error al cargar adjunto: {e}")
+        traceback.print_exc()
+        return None
+def obtener_informe_por_id(informe_id):
+    """Obtiene un informe por su ID y carga su adjunto si existe"""
+    try:
+        # Obtener informe base
+        informe = informes_db.get(informe_id)
+        if not informe:
+            return None
+            
+        # Si tiene adjunto, cargar el contenido
+        if informe and informe.get('tieneAdjunto') and informe.get('adjunto'):
+            adjunto_info = informe['adjunto']
+            
+            # Verificar si el adjunto tiene ruta
+            if 'ruta' in adjunto_info:
+                try:
+                    # Cargar datos del archivo
+                    with open(adjunto_info['ruta'], 'rb') as f:
+                        datos_binarios = f.read()
+                    
+                    # Convertir a base64
+                    import base64
+                    datos_base64 = base64.b64encode(datos_binarios).decode('utf-8')
+                    
+                    # Añadir prefijo según tipo MIME
+                    prefijo = f"data:{adjunto_info['tipo']};base64,"
+                    datos_completos = prefijo + datos_base64
+                    
+                    # Añadir datos al adjunto
+                    informe['adjunto']['datos'] = datos_completos
+                except Exception as e:
+                    print(f"Error al cargar adjunto del informe {informe_id}: {e}")
+        
+        return informe
+    except Exception as e:
+        print(f"Error al obtener informe: {e}")
+        traceback.print_exc()
+        return None
+
+
+def registrar_actividad(tipo_actividad, sid, datos=None):
+    """
+    Registra actividad en el sistema para fines de logging y depuración
+    
+    Args:
+        tipo_actividad (str): Tipo de actividad realizada
+        sid (str): Socket ID del usuario
+        datos (dict, opcional): Datos adicionales sobre la actividad
+    """
+    try:
+        # Obtener información del usuario si está disponible
+        user_id = user_sid_map.get(sid)
+        username = None
+        
+        if user_id and user_id in usuarios_conectados:
+            username = usuarios_conectados[user_id].get('username', 'Unknown')
+        
+        # Crear registro de actividad
+        actividad = {
+            'tipo': tipo_actividad,
+            'sid': sid,
+            'user_id': user_id,
+            'username': username,
+            'timestamp': datetime.now().isoformat(),
+            'datos': datos or {}
+        }
+        
+        # Imprimir en consola para depuración
+        print(f"Actividad: {tipo_actividad} por usuario {username or 'anónimo'} ({user_id or 'no identificado'})")
+        
+        # Aquí podrías guardar en una base de datos si es necesario
+        # También podrías implementar algún tipo de sistema de rotación de logs
+        
+        return True
+    except Exception as e:
+        print(f"Error al registrar actividad: {e}")
+        return False
 
 
 # Variable global para guardar referencia al proceso del control de gestos
@@ -2154,6 +3152,9 @@ def calibrar_gestos():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error al iniciar calibración: {str(e)}"})
     
+
+
+
 # actualizacion la sección de ejecución para usar SSL:
 if __name__ == '__main__':
     # Detectar si estamos usando ngrok

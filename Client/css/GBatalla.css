@@ -572,6 +572,7 @@
 }
 
 /* Botón del panel */
+/* Mejorar la visibilidad del botón del panel en PC */
 .boton-panel {
   position: fixed;
   right: 15px;
@@ -579,16 +580,17 @@
   z-index: 1200;
   background-color: #0281a8;
   border: none;
-  width: 36px;
-  height: 36px;
+  width: 40px; /* Ligeramente más grande */
+  height: 40px; /* Ligeramente más grande */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Sombra más notoria */
   transition: all 0.3s ease;
   color: white;
+  font-size: 18px; /* Texto más grande */
 }
 
 .boton-panel:hover {
@@ -1676,4 +1678,109 @@
 
 .miradial-item:hover + .miradial-label {
   opacity: 1;
+}
+
+/* Hacer más visible el botón de cierre del panel */
+#cerrar-panel {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem; /* Más grande */
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 8px; /* Área táctil más grande */
+}
+
+#cerrar-panel:hover {
+  color: #0281a8;
+}
+
+@media (max-width: 768px) {
+  #cerrar-panel {
+    font-size: 1.8rem; /* Aún más grande en móviles */
+    padding: 10px; /* Área táctil mayor para móviles */
+    color: #ff5252; /* Color diferente para hacerlo más notorio */
+  }
+}
+/* Esto puedes agregarlo al final de tu archivo CSS */
+#cerrar-panel {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+#cerrar-panel:hover {
+  color: #ff5252;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  #cerrar-panel {
+      padding: 10px;
+      color: #ff5252;
+      background-color: rgba(0, 0, 0, 0.2);
+  }
+}
+/* Fix for the panel toggle button - override planeamiento.css */
+.boton-panel {
+  position: fixed !important;
+  right: 15px !important;
+  top: 80px !important;
+  z-index: 1500 !important; /* Increased z-index */
+  background-color: #0281a8 !important;
+  border: none !important;
+  width: 40px !important; /* Fixed width */
+  height: 40px !important; /* Fixed height */
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s ease !important;
+  color: white !important;
+  font-size: 18px !important;
+  padding: 0 !important; /* Override planeamiento.css padding */
+}
+
+.boton-panel:hover {
+  background-color: #026d8f !important;
+  transform: scale(1.1) !important;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .boton-panel {
+    top: 15px !important;
+    right: 15px !important;
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 18px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+}
+
+.elemento-item.usuario-actual {
+  background-color: #e8f5e9;
+  border-left: 3px solid #4CAF50;
+  font-weight: bold;
+}
+
+.elemento-item {
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.elemento-item:hover {
+  background-color: #f5f5f5;
 }
