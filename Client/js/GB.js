@@ -465,39 +465,74 @@ MAIRA.GestionBatalla = (function() {
      * Cambia la pestaña activa del panel
      * @param {string} tabId - ID de la pestaña a activar
      */
-    function cambiarTab(tabId) {
-        console.log("Cambiando a pestaña:", tabId);
+    // En GB.js, justo después de cambiar la pestaña
+function cambiarTab(tabId) {
+    console.log(`Cambiando a pestaña: ${tabId}`);
+    
+    // Ocultar todas las pestañas
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Desactivar todos los botones
+    const botones = document.querySelectorAll('.tab-btn');
+    botones.forEach(btn => btn.classList.remove('active'));
+    
+    // Activar la pestaña solicitada
+    const tabSeleccionado = document.getElementById(tabId);
+    const btnSeleccionado = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    
+    if (tabSeleccionado) {
+        tabSeleccionado.classList.add('active');
+        console.log(`Contenido de pestaña activado: ${tabId}`);
         
-        // Desactivar todas las pestañas y contenidos
-        document.querySelectorAll('.tab-btn').forEach(function(btn) {
-            btn.classList.remove('active');
-        });
-        
-        document.querySelectorAll('.tab-content').forEach(function(content) {
-            content.classList.remove('active');
-        });
-        
-        // Activar la pestaña seleccionada
-        const botonTab = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-        if (botonTab) {
-            botonTab.classList.add('active');
-            console.log("Botón de pestaña activado:", tabId);
-        } else {
-            console.error("Botón de pestaña no encontrado:", tabId);
+        // Verificar que realmente se muestre
+        if (window.getComputedStyle(tabSeleccionado).display === 'none') {
+            console.error(`El contenido de la pestaña ${tabId} está configurado como display:none a pesar de tener la clase active`);
+            tabSeleccionado.style.display = 'block';
         }
-        
-        const contenidoTab = document.getElementById(tabId);
-        if (contenidoTab) {
-            contenidoTab.classList.add('active');
-            console.log("Contenido de pestaña activado:", tabId);
-        } else {
-            console.error("Contenido de pestaña no encontrado:", tabId);
-        }
-        
-        // Guardar estado actual
-        estadosUI.tabActiva = tabId;
-        localStorage.setItem('gb_tab_activa', tabId);
+    } else {
+        console.error(`No se encontró la pestaña con ID: ${tabId}`);
     }
+    
+    if (btnSeleccionado) {
+        btnSeleccionado.classList.add('active');
+        console.log(`Botón de pestaña activado: ${tabId}`);
+    } else {
+        console.error(`No se encontró el botón para la pestaña: ${tabId}`);
+    }
+    
+    // Si es la pestaña de informes, forzar la actualización de la lista
+    if (tabId === 'tab-informes') {
+        // Verificar si existe la función para actualizar informes
+        if (MAIRA.Informes && typeof MAIRA.Informes.actualizarListaInformes === 'function') {
+            MAIRA.Informes.actualizarListaInformes();
+        }
+        
+        // Forzar el botón de "Ver Informes" a estar activo
+        const btnVerInformes = document.getElementById('btn-ver-informes');
+        const btnCrearInforme = document.getElementById('btn-crear-informe');
+        
+        if (btnVerInformes) {
+            btnVerInformes.classList.add('active');
+            
+            // También mostrar la lista
+            const verInformes = document.getElementById('ver-informes');
+            if (verInformes) {
+                verInformes.classList.remove('d-none');
+            }
+        }
+        
+        if (btnCrearInforme) {
+            btnCrearInforme.classList.remove('active');
+            
+            // Ocultar el form de crear
+            const crearInforme = document.getElementById('crear-informe');
+            if (crearInforme) {
+                crearInforme.classList.add('d-none');
+            }
+        }
+    }
+}
     /**
      * Inicializa el sistema de notificaciones
      */

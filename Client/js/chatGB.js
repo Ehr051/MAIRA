@@ -1861,96 +1861,256 @@ function iniciarChatPrivado(elementoId) {
      * @param {string} mimeType - Tipo MIME del archivo
      * @param {string} [texto] - Texto opcional para acompañar el contenido
      */
-    function enviarMensajeMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto) {
-        console.log(`Preparando envío de mensaje multimedia: ${tipoContenido}`);
-        
-        if (!contenidoBase64) {
-            console.error("Contenido multimedia vacío");
-            MAIRA.Utils.mostrarNotificacion("No hay contenido para enviar", "error");
+    
+// En chatGB.js, modificar la función enviarMensajeMultimedia:
+function enviarMensajeMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto) {
+    console.log(`Preparando envío de mensaje multimedia: ${tipoContenido}`);
+    
+    if (!contenidoBase64) {
+        console.error("Contenido multimedia vacío");
+        MAIRA.Utils.mostrarNotificacion("No hay contenido para enviar", "error");
+        return;
+    }
+    
+    // Verificar tamaño
+    const dataSize = estimarTamanyoBase64(contenidoBase64);
+    const MAX_SIZE = 1.5 * 1024 * 1024; // 1.5MB límite
+    
+    if (dataSize > MAX_SIZE) {
+        if (tipoContenido === 'image') {
+            // Comprimir imagen antes de enviar
+            MAIRA.Utils.mostrarNotificacion("La imagen es grande, comprimiendo...", "info");
+            comprimirImagen(contenidoBase64, 0.7, 800, 600)
+                .then(imagenComprimida => {
+                    const nuevoSize = estimarTamanyoBase64(imagenComprimida);
+                    if (nuevoSize > MAX_SIZE) {
+                        MAIRA.Utils.mostrarNotificacion("La imagen sigue siendo demasiado grande. Intente con una más pequeña.", "error");
+                    } else {
+                        enviarContenidoMultimedia(tipoContenido, imagenComprimida, nombreArchivo, mimeType, texto);
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al comprimir imagen:", err);
+                    MAIRA.Utils.mostrarNotificacion("Error al procesar la imagen", "error");
+                });
+            return;
+        } else if (tipoContenido === 'video' || tipoContenido === 'audio') {
+            MAIRA.Utils.mostrarNotificacion(`El archivo es demasiado grande (${Math.round(dataSize/1024)}KB). Máximo recomendado: 1.5MB`, "warning");
+            // Intentar enviar de todos modos, pero dividido en partes más pequeñas
+            dividirYEnviarMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto);
+            return;
+        } else {
+            MAIRA.Utils.mostrarNotificacion(`El archivo es demasiado grande para enviar por chat`, "error");
             return;
         }
-        
-        // Verificar conexión al servidor
-        if (!socket || !socket.connected) {
-            MAIRA.Utils.mostrarNotificacion("No hay conexión con el servidor", "error");
-            return;
-        }
-        
-        // Determinar si es mensaje privado
-        const btnChatPrivado = document.getElementById('btn-chat-privado');
-        let destinatario = null;
-        
-        if (btnChatPrivado && btnChatPrivado.classList.contains('active')) {
-            const selectDestinatario = document.getElementById('select-destinatario');
-            if (!selectDestinatario || !selectDestinatario.value) {
-                MAIRA.Utils.mostrarNotificacion("Selecciona un destinatario para el mensaje privado", "error");
-                return;
+    }
+    
+    // Si no hay problemas de tamaño, enviar normalmente
+    enviarContenidoMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto);
+}
+
+// Función auxiliar para estimar tamaño
+function estimarTamanyoBase64(base64String) {
+    const base64 = base64String.replace(/^data:.*;base64,/, '');
+    return Math.ceil((base64.length * 3) / 4);
+}
+
+// Función para comprimir imagen
+function comprimirImagen(base64Image, calidad, maxWidth, maxHeight) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function() {
+            let width = img.width;
+            let height = img.height;
+            
+            // Redimensionar si es necesario
+            if (width > maxWidth || height > maxHeight) {
+                const ratio = Math.min(maxWidth / width, maxHeight / height);
+                width = Math.floor(width * ratio);
+                height = Math.floor(height * ratio);
             }
-            destinatario = selectDestinatario.value;
-        }
-        
-        // Crear mensaje
-        const mensajeId = `media_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-        
-        const mensaje = {
-            id: mensajeId,
-            emisor: {
-                id: usuarioInfo.id,
-                nombre: usuarioInfo.usuario,
-                elemento: usuarioInfo.elemento
-            },
-            tipo_contenido: tipoContenido,
-            contenido: contenidoBase64,
-            nombre_archivo: nombreArchivo,
-            mime_type: mimeType,
-            texto: texto || '',
-            sala: operacionActual,
-            destinatario: destinatario,
-            timestamp: new Date().toISOString(),
-            tipo: destinatario ? 'privado' : 'global'
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Comprimir
+            resolve(canvas.toDataURL('image/jpeg', calidad));
         };
         
-        // Mostrar indicador de carga
-        const loadingId = `loading_${mensajeId}`;
-        const esPrivado = destinatario !== null;
+        img.onerror = function() {
+            reject(new Error("Error al cargar imagen para compresión"));
+        };
         
-        agregarMensajeChat(
-            esPrivado ? `Tú → ${obtenerNombreDestinatario(destinatario)}` : 'Tú',
-            `<div id="${loadingId}" class="mensaje-multimedia-loading">
-                <i class="fas fa-spinner fa-spin"></i> Enviando ${tipoContenido}...
-            </div>`,
-            "enviado",
-            "enviando",
-            mensajeId
-        );
-        
-        // Enviar mensaje al servidor
-        socket.emit('mensajeMultimedia', mensaje, function(respuesta) {
-            console.log("Respuesta del servidor:", respuesta);
-            
-            // Eliminar indicador de carga
-            const loadingElement = document.getElementById(loadingId);
-            if (loadingElement) {
-                loadingElement.remove();
-            }
-            
-            if (respuesta && respuesta.error) {
-                MAIRA.Utils.mostrarNotificacion(`Error al enviar: ${respuesta.error}`, "error");
-                agregarMensajeChat(null, null, null, "error", mensajeId);
-            } else {
-                // Mensaje enviado correctamente
-                agregarMensajeChat(null, null, null, "enviado", mensajeId);
-                
-                // Actualizar vista con contenido multimedia
-                actualizarVistaMultimedia(mensajeId, tipoContenido, contenidoBase64, texto);
-                
-                // Registrar en mensajes enviados para evitar duplicados
-                if (mensajesEnviados) {
-                    mensajesEnviados.add(mensajeId);
-                }
-            }
-        });
+        img.src = base64Image;
+    });
+}
+
+// Función para dividir y enviar en partes
+function dividirYEnviarMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto) {
+    // Extraer datos base64 (sin encabezado)
+    const matches = contenidoBase64.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+        MAIRA.Utils.mostrarNotificacion("Formato de datos inválido", "error");
+        return;
     }
+    
+    const data = matches[2];
+    const headerMime = matches[1]; // En caso de que mimeType sea incorrecto
+    const mimeTypeActual = mimeType || headerMime;
+    
+    // Dividir en partes de 500KB
+    const chunkSize = 500 * 1024;
+    const chunks = Math.ceil(data.length / chunkSize);
+    
+    if (chunks > 5) {
+        MAIRA.Utils.mostrarNotificacion("El archivo es demasiado grande para enviar por chat", "error");
+        return;
+    }
+    
+    MAIRA.Utils.mostrarNotificacion(`Enviando ${tipoContenido} en ${chunks} partes...`, "info");
+    
+    // Identificador único para este grupo de mensajes
+    const grupoId = `mult_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    
+    // Enviar cada parte
+    for (let i = 0; i < chunks; i++) {
+        const inicio = i * chunkSize;
+        const fin = Math.min(data.length, inicio + chunkSize);
+        const chunk = data.substring(inicio, fin);
+        
+        // Reconstruir el base64 con encabezado
+        const chunkBase64 = `data:${mimeTypeActual};base64,${chunk}`;
+        
+        // Crear mensaje con metadatos para reconstrucción
+        const mensajeChunk = {
+            tipo_contenido: tipoContenido,
+            contenido: chunkBase64,
+            nombre_archivo: nombreArchivo,
+            mime_type: mimeTypeActual,
+            texto: i === 0 ? texto : '', // Solo incluir texto en la primera parte
+            parte: i + 1,
+            total_partes: chunks,
+            grupo_id: grupoId
+        };
+        
+        // Enviar parte
+        setTimeout(() => {
+            enviarContenidoMultimedia(
+                tipoContenido, 
+                chunkBase64, 
+                nombreArchivo, 
+                mimeTypeActual, 
+                i === 0 ? texto : '',
+                mensajeChunk
+            );
+        }, i * 1000); // Esperar 1 segundo entre envíos para evitar saturación
+    }
+}
+
+// Función para enviar el contenido multimedia
+function enviarContenidoMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto, datosAdicionales = null) {
+    // Verificar conexión al servidor
+    if (!socket || !socket.connected) {
+        MAIRA.Utils.mostrarNotificacion("No hay conexión con el servidor", "error");
+        return;
+    }
+    
+    // Determinar si es mensaje privado
+    const btnChatPrivado = document.getElementById('btn-chat-privado');
+    let destinatario = null;
+    
+    if (btnChatPrivado && btnChatPrivado.classList.contains('active')) {
+        const selectDestinatario = document.getElementById('select-destinatario');
+        if (!selectDestinatario || !selectDestinatario.value) {
+            MAIRA.Utils.mostrarNotificacion("Selecciona un destinatario para el mensaje privado", "error");
+            return;
+        }
+        destinatario = selectDestinatario.value;
+    }
+    
+    // Crear mensaje
+    const mensajeId = `media_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    
+    const mensaje = {
+        id: mensajeId,
+        emisor: {
+            id: usuarioInfo.id,
+            nombre: usuarioInfo.usuario,
+            elemento: usuarioInfo.elemento || (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementoTrabajo) || {}
+        },
+        tipo_contenido: tipoContenido,
+        contenido: contenidoBase64,
+        nombre_archivo: nombreArchivo,
+        mime_type: mimeType,
+        texto: texto || '',
+        sala: operacionActual,
+        destinatario: destinatario,
+        timestamp: new Date().toISOString(),
+        tipo: destinatario ? 'privado' : 'global'
+    };
+    
+    // Agregar datos adicionales si existen
+    if (datosAdicionales) {
+        Object.assign(mensaje, datosAdicionales);
+    }
+    
+    // Mostrar indicador de carga
+    const loadingId = `loading_${mensajeId}`;
+    const esPrivado = destinatario !== null;
+    
+    agregarMensajeChat(
+        esPrivado ? `Tú → ${obtenerNombreDestinatario(destinatario)}` : 'Tú',
+        `<div id="${loadingId}" class="mensaje-multimedia-loading">
+            <i class="fas fa-spinner fa-spin"></i> Enviando ${tipoContenido}...
+        </div>`,
+        "enviado",
+        "enviando",
+        mensajeId
+    );
+    
+    // Enviar mensaje al servidor con timeout para evitar bloqueos
+    const timeoutId = setTimeout(() => {
+        // Si pasaron 30 segundos sin respuesta, consideramos que falló
+        const loadingElement = document.getElementById(loadingId);
+        if (loadingElement) {
+            loadingElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error al enviar: Timeout`;
+        }
+        agregarMensajeChat(null, null, null, "error", mensajeId);
+        MAIRA.Utils.mostrarNotificacion("Error al enviar contenido multimedia: Timeout", "error");
+    }, 30000);
+    
+    // Enviar mensaje
+    socket.emit('mensajeMultimedia', mensaje, function(respuesta) {
+        clearTimeout(timeoutId);
+        console.log("Respuesta del servidor:", respuesta);
+        
+        // Eliminar indicador de carga
+        const loadingElement = document.getElementById(loadingId);
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+        
+        if (respuesta && respuesta.error) {
+            MAIRA.Utils.mostrarNotificacion(`Error al enviar: ${respuesta.error}`, "error");
+            agregarMensajeChat(null, null, null, "error", mensajeId);
+        } else {
+            // Mensaje enviado correctamente
+            agregarMensajeChat(null, null, null, "enviado", mensajeId);
+            
+            // Actualizar vista con contenido multimedia
+            actualizarVistaMultimedia(mensajeId, tipoContenido, contenidoBase64, texto);
+            
+            // Registrar en mensajes enviados para evitar duplicados
+            if (mensajesEnviados) {
+                mensajesEnviados.add(mensajeId);
+            }
+        }
+    });
+}
     
     /**
      * Recibe un mensaje multimedia y lo muestra en el chat
@@ -2879,6 +3039,51 @@ function enviarMensajePrivado(destinatarioId, contenido) {
         console.log(`Lista de destinatarios actualizada con ${elementosAgregados} participantes disponibles`);
         return elementosAgregados;
     }
+
+    // En chatGB.js
+function manejarMensajeNoEntregado(mensaje) {
+    // Marcar mensaje como pendiente
+    mensaje.estado = "pendiente";
+    
+    // Almacenar en localStorage para reintento posterior
+    const mensajesPendientes = JSON.parse(localStorage.getItem('gb_mensajes_pendientes') || '[]');
+    mensajesPendientes.push(mensaje);
+    localStorage.setItem('gb_mensajes_pendientes', JSON.stringify(mensajesPendientes));
+    
+    // Actualizar interfaz
+    actualizarEstadoMensaje(mensaje.id, "pendiente");
+    
+    console.log("Mensaje guardado para reenvío cuando se recupere la conexión");
+}
+
+// Función para reintentar envío
+function reenviarMensajesPendientes() {
+    const mensajesPendientes = JSON.parse(localStorage.getItem('gb_mensajes_pendientes') || '[]');
+    if (!mensajesPendientes.length) return;
+    
+    console.log(`Reintentando envío de ${mensajesPendientes.length} mensajes pendientes`);
+    
+    // Filtrar mensajes para esta operación
+    const mensajesOperacion = mensajesPendientes.filter(m => m.sala === operacionActual);
+    
+    mensajesOperacion.forEach(mensaje => {
+        if (socket && socket.connected) {
+            // Intentar reenviar
+            if (mensaje.tipo === 'privado') {
+                socket.emit('mensajePrivado', mensaje);
+            } else {
+                socket.emit('mensajeChat', mensaje);
+            }
+            
+            // Actualizar estado en la interfaz
+            actualizarEstadoMensaje(mensaje.id, "enviando");
+        }
+    });
+    
+    // Guardar solo los mensajes de otras operaciones
+    const mensajesRestantes = mensajesPendientes.filter(m => m.sala !== operacionActual);
+    localStorage.setItem('gb_mensajes_pendientes', JSON.stringify(mensajesRestantes));
+}
 
 
     // Exponer API pública

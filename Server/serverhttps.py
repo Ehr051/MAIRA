@@ -73,6 +73,7 @@ def get_db_connection():
 usuarios_conectados = {}
 partidas = {}
 user_sid_map = {}
+user_id_sid_map = {} 
 
 # Constantes para rutas de archivos
 BASE_UPLOADS_DIR = os.path.join(CLIENT_DIR, 'uploads')
@@ -1053,15 +1054,7 @@ def handle_elemento_conectado_batalla(data):
     if not operacion or not user_id:
         return
     
-    # Crear operación si no existe
-    if operacion not in operaciones_batalla:
-        operaciones_batalla[operacion] = {
-            'elementos': {},
-            'info': {
-                'creada': data.get('timestamp', ''),
-                'creador': data.get('usuario', 'desconocido')
-            }
-        }
+    # Crear operación si no existe...
     
     # Unirse a la sala de la operación
     join_room(operacion)
@@ -1069,17 +1062,12 @@ def handle_elemento_conectado_batalla(data):
     # Guardar datos del elemento
     operaciones_batalla[operacion]['elementos'][user_id] = data
     
-    # Asociar sesión con usuario
+    # Actualizar ambos mapeos
     user_sid_map[sid] = user_id
+    user_id_sid_map[user_id] = sid
     
-    # Enviar lista de elementos existentes al nuevo elemento
-    emit('elementosConectados', operaciones_batalla[operacion]['elementos'])
+    print(f"GestionBatalla: Elemento {user_id} conectado a operación {operacion}, SID {sid}")
     
-    # Notificar a otros elementos sobre la conexión
-    emit('nuevoElementoConectado', data, room=operacion, skip_sid=sid)
-    
-    print(f"Elemento {user_id} conectado a operación {operacion}")
-
 @socketio.on('actualizarPosicion')
 def handle_actualizar_posicion_batalla(data):
     sid = request.sid
@@ -1107,50 +1095,121 @@ def handle_actualizar_posicion_batalla(data):
 
 @socketio.on('nuevoInforme')
 def handle_nuevo_informe(data):
-    sid = request.sid
-    emisor_id = data.get('emisor', {}).get('id')
-    
-    if not emisor_id:
-        return
-    
-    # Buscar la operación del emisor
-    operacion = None
-    for op_nombre, op_data in operaciones_batalla.items():
-        if emisor_id in op_data['elementos']:
-            operacion = op_nombre
-            break
-    
-    if not operacion:
-        return
-    
-    # Si tiene destinatario específico
-    if data.get('destinatario') and data.get('destinatario') != "comando" and data.get('destinatario') != "todos":
-        destinatario_id = data.get('destinatario')
+    """Maneja la recepción de un nuevo informe o documento"""
+    try:
+        # Añadir timestamp del servidor si no existe
+        if 'timestamp' not in data:
+            data['timestamp'] = datetime.now().isoformat()
         
-        # Buscar el sid del destinatario
-        dest_sid = None
-        for s, uid in user_sid_map.items():
-            if uid == destinatario_id:
-                dest_sid = s
-                break
+        # Obtener información de sala para reenvío
+        sala = data.get('operacion', 'general')
         
-        if dest_sid:
-            emit('nuevoInforme', data, room=dest_sid)
-    elif data.get('destinatario') == "todos":
-        # Informe para todos en la operación
-        emit('nuevoInforme', data, room=operacion, skip_sid=sid)
-    else:
-        # Informe para comando o sin destinatario específico
-        emit('nuevoInforme', data, room=operacion)
+        # Determinar a quién enviar el documento
+        destinatario = data.get('destinatario')
+        
+        if destinatario == 'todos':
+            # Reenviar a todos los clientes en la sala
+            emit('nuevoInforme', data, room=sala)
+            print(f"Informe enviado a todos: {data.get('id')} - {data.get('asunto')}")
+        
+        elif destinatario == 'comando':
+            # Reenviar solo a quienes tengan rol de comando
+            # Como implementación básica, lo enviamos a todos en la sala
+            emit('nuevoInforme', data, room=sala)
+            print(f"Informe enviado al comando: {data.get('id')} - {data.get('asunto')}")
+        
+        else:
+            # Reenviar al destinatario específico
+            # Encontrar el sid del destinatario
+            destinatario_sid = None
+            for sid, user_data in connected_users.items():
+                if user_data.get('id') == destinatario:
+                    destinatario_sid = sid
+                    break
+            
+            if destinatario_sid:
+                # Enviar al destinatario específico
+                emit('nuevoInforme', data, room=destinatario_sid)
+                print(f"Informe enviado a usuario específico: {destinatario} (sid: {destinatario_sid})")
+            else:
+                print(f"Destinatario {destinatario} no encontrado para enviar informe")
+            
+            # También enviar al emisor para que lo vea en su lista
+            emit('nuevoInforme', data, room=request.sid)
+        
+        # Responder al emisor que se envió correctamente
+        return {'success': True, 'id': data.get('id')}
+    except Exception as e:
+        print(f"Error al procesar nuevo informe: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {'error': 'Error al procesar el informe', 'details': str(e)}
 
 @socketio.on('informeLeido')
 def handle_informe_leido(data):
-    # Marcar informe como leído (versión simple)
-    informe_id = data.get('informeId')
-    if informe_id:
-        # Aquí podrías agregar lógica para actualizar el estado en una base de datos
-        # Por ahora, solo emitimos confirmación
-        emit('informeMarcadoLeido', {'informeId': informe_id})
+    """Maneja la marcación de informes como leídos"""
+    try:
+        informe_id = data.get('informeId')
+        
+        if not informe_id:
+            return {'error': 'ID de informe no especificado'}
+        
+        # Obtener información del usuario que lo marcó como leído
+        usuario_id = request.sid
+        
+        # Buscar el usuario en la lista de usuarios conectados
+        usuario_info = None
+        for sid, user_data in connected_users.items():
+            if sid == usuario_id:
+                usuario_info = user_data
+                break
+        
+        # Crear objeto de confirmación
+        confirmacion = {
+            'informeId': informe_id,
+            'usuarioId': usuario_id,
+            'usuario': usuario_info.get('usuario', 'Usuario desconocido') if usuario_info else 'Usuario desconocido',
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Obtener la sala (operación) del usuario
+        sala = usuario_info.get('operacion', 'general') if usuario_info else 'general'
+        
+        # Emitir confirmación a todos en la sala
+        emit('informeMarcadoLeido', confirmacion, room=sala)
+        
+        print(f"Informe marcado como leído: {informe_id} por usuario {confirmacion.get('usuario')}")
+        return {'success': True}
+    
+    except Exception as e:
+        print(f"Error al marcar informe como leído: {str(e)}")
+        return {'error': 'Error al marcar informe como leído', 'details': str(e)}
+
+
+@socketio.on('obtenerInformeCompleto')
+def handle_obtener_informe(data):
+    """Obtiene información completa de un informe por su ID"""
+    try:
+        # Aquí normalmente buscarías el informe en una base de datos
+        # Como no tenemos implementado un almacenamiento permanente,
+        # simplemente devolvemos lo que se recibió
+        informe_id = data.get('informeId')
+        
+        if not informe_id:
+            return {'error': 'ID de informe no especificado'}
+        
+        print(f"Solicitud de informe completo: {informe_id}")
+        
+        # En una implementación real, buscaríamos el informe por su ID
+        # Por ahora, devolvemos un mensaje de éxito con los datos recibidos
+        return {
+            'success': True, 
+            'informe': data
+        }
+    
+    except Exception as e:
+        print(f"Error al obtener informe completo: {str(e)}")
+        return {'error': 'Error al obtener el informe', 'details': str(e)}
 
 # Rutas API para consulta de operaciones
 @app.route('/api/operaciones', methods=['GET'])
@@ -2370,127 +2429,88 @@ def handle_iniciar_combate(data):
 
 
 ## 1. Eventos para mensajes privados
-
 @socketio.on('mensajePrivado')
-def handle_private_message(mensaje):
-    """Maneja mensajes privados entre usuarios"""
+def handle_mensaje_privado(mensaje):
     try:
-        # Validar mensaje
-        if not mensaje or not isinstance(mensaje, dict):
-            emit('error', {'mensaje': 'Formato de mensaje inválido'})
-            return
+        print(f"Recibido mensaje privado: {mensaje}")
         
-        # Verificar campos requeridos
-        if 'emisor' not in mensaje or 'contenido' not in mensaje or 'destinatario' not in mensaje:
-            emit('error', {'mensaje': 'Faltan campos requeridos en el mensaje privado'})
-            return
+        # Obtener el destinatario
+        destinatario_id = mensaje.get('destinatario')
+        if not destinatario_id:
+            print("Error: mensaje privado sin destinatario")
+            return {'error': 'Mensaje sin destinatario'}
         
-        # Añadir ID único si no lo tiene
-        if 'id' not in mensaje:
-            mensaje['id'] = f"msg_{time.time()}_{random.randint(1000, 9999)}"
+        # Obtener SID del destinatario usando el mapeo inverso
+        destinatario_sid = user_id_sid_map.get(destinatario_id)
         
-        # Añadir timestamp si no lo tiene
-        if 'timestamp' not in mensaje:
-            mensaje['timestamp'] = datetime.now().isoformat()
+        if not destinatario_sid:
+            print(f"Error: SID para destinatario {destinatario_id} no encontrado")
+            # Aún así enviar confirmación al emisor
+            emit('mensajePrivado', mensaje, room=request.sid)
+            return {'error': 'Destinatario no encontrado o desconectado'}
         
-        # Añadir estado de mensaje
-        mensaje['estado'] = 'enviado'
+        print(f"Enviando mensaje privado de {mensaje.get('emisor', {}).get('nombre')} a {destinatario_id} (SID: {destinatario_sid})")
         
-        # Determinar destinatario(s)
-        if mensaje['destinatario'] == 'todos':
-            # Broadcast a todos en la sala (excepto el emisor)
-            sala = mensaje.get('sala', 'general')
-            mensaje_broadcast = mensaje.copy()
-            emit('mensajePrivado', mensaje_broadcast, room=sala, include_self=False)
-        elif mensaje['destinatario'] == 'comando':
-            # Enviar a la central/comando (implementar según tu lógica)
-            # Por ejemplo, podrías tener una lista de usuarios con rol de comando
-            usuarios_comando = get_users_with_role('comando')
-            for usuario_id in usuarios_comando:
-                if usuario_id != mensaje['emisor']['id']:  # No enviar a sí mismo
-                    emit('mensajePrivado', mensaje, room=usuario_id)
-        else:
-            # Mensaje a un usuario específico
-            emit('mensajePrivado', mensaje, room=mensaje['destinatario'])
+        # Enviar al destinatario usando su SID
+        emit('mensajePrivado', mensaje, room=destinatario_sid)
         
-        # Echo al emisor (para confirmar envío)
-        emit('mensajePrivado', mensaje)
+        # También enviar confirmación al emisor
+        emit('mensajePrivado', mensaje, room=request.sid)
         
-        # Guardar en historial si es necesario
-        guardar_mensaje_en_db(mensaje)
-        
-        return {'success': True, 'id': mensaje['id']}
-    
+        return {'success': True, 'id': mensaje.get('id')}
     except Exception as e:
-        print(f"Error en mensajePrivado: {e}")
-        emit('error', {'mensaje': f'Error al procesar mensaje privado: {str(e)}'})
-        return {'error': str(e)}
-
-
-## 2. Soporte para archivos adjuntos en informes
+        import traceback
+        traceback.print_exc()
+        print(f"Error al procesar mensaje privado: {str(e)}")
+        return {'error': 'Error al procesar mensaje privado', 'details': str(e)}## 2. Soporte para archivos adjuntos en informes
 
 
 @socketio.on('nuevoInforme')
-def handle_new_report(informe):
-    """Maneja nuevos informes con soporte para adjuntos"""
+def handle_nuevo_informe(data):
     try:
-        # Validar informe
-        if not informe or not isinstance(informe, dict):
-            emit('error', {'mensaje': 'Formato de informe inválido'})
-            return {'error': 'Formato inválido'}
+        print(f"Recibido nuevo informe: {data}")
         
-        # Verificar campos requeridos
-        campos_requeridos = ['id', 'emisor', 'destinatario', 'tipo', 'asunto', 'contenido']
-        for campo in campos_requeridos:
-            if campo not in informe:
-                emit('error', {'mensaje': f'Falta campo requerido en informe: {campo}'})
-                return {'error': f'Falta campo: {campo}'}
+        # Añadir timestamp si no existe
+        if 'timestamp' not in data:
+            data['timestamp'] = datetime.now().isoformat()
         
-        # Añadir timestamp si no lo tiene
-        if 'timestamp' not in informe:
-            informe['timestamp'] = datetime.now().isoformat()
+        # Obtener sala y destinatario
+        sala = data.get('operacion', 'general')
+        destinatario = data.get('destinatario')
         
-        # Manejar adjunto si existe
-        if informe.get('tieneAdjunto') and informe.get('adjunto'):
-            # Validar tamaño máximo (5MB)
-            datos_adjunto = informe['adjunto'].get('datos', '')
-            if len(datos_adjunto) > 5 * 1024 * 1024:  # 5MB en bytes
-                emit('error', {'mensaje': 'El archivo adjunto excede el tamaño máximo permitido (5MB)'})
-                return {'error': 'Archivo demasiado grande'}
-            
-            # Opcional: Guardar adjunto en sistema de archivos
-            # Esta implementación depende de tu infraestructura
-            # guardar_adjunto_en_filesystem(informe['id'], informe['adjunto'])
-        
-        # Guardar informe en la base de datos
-        guardar_informe_en_db(informe)
-        
-        # Determinar destinatario(s)
-        if informe['destinatario'] == 'todos':
-            # Broadcast a todos en la operación
-            sala = informe.get('operacion', 'general')
-            emit('nuevoInforme', informe, room=sala, include_self=False)
-        elif informe['destinatario'] == 'comando':
-            # Enviar a la central/comando (implementar según tu lógica)
-            usuarios_comando = get_users_with_role('comando')
-            for usuario_id in usuarios_comando:
-                if usuario_id != informe['emisor']['id']:  # No enviar a sí mismo
-                    emit('nuevoInforme', informe, room=usuario_id)
+        if destinatario == 'todos':
+            # Reenviar a todos en la sala
+            emit('nuevoInforme', data, room=sala)
+            print(f"Informe enviado a todos en sala {sala}")
+        elif destinatario == 'comando':
+            # Aquí podrías filtrar por rol de comando
+            # Por ahora, lo enviamos a todos en la sala
+            emit('nuevoInforme', data, room=sala)
+            print(f"Informe enviado a comando en sala {sala}")
         else:
-            # Informe a un usuario específico
-            emit('nuevoInforme', informe, room=informe['destinatario'])
+            # Buscar SID del destinatario
+            destinatario_sid = user_id_sid_map.get(destinatario)
+            
+            if destinatario_sid:
+                emit('nuevoInforme', data, room=destinatario_sid)
+                print(f"Informe enviado a usuario {destinatario} (SID: {destinatario_sid})")
+            else:
+                print(f"Error: SID para destinatario {destinatario} no encontrado")
+            
+            # Enviar copia al emisor para confirmar
+            emit('nuevoInforme', data, room=request.sid)
         
-        # Confirmar al emisor
-        emit('informeEnviado', {'id': informe['id'], 'success': True})
-        
-        return {'success': True, 'id': informe['id']}
-    
+        return {'success': True, 'id': data.get('id')}
     except Exception as e:
-        print(f"Error en nuevoInforme: {e}")
-        emit('error', {'mensaje': f'Error al procesar informe: {str(e)}'})
-        return {'error': str(e)}
+        import traceback
+        traceback.print_exc()
+        print(f"Error al procesar nuevo informe: {str(e)}")
+        return {'error': 'Error al procesar el informe', 'details': str(e)}
+    
 
- # Definir la carpeta de subida
+
+
+# Definir la carpeta de subida
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -2505,47 +2525,6 @@ def actualizar_adjunto_en_db(informe_id, adjunto_db):
     except Exception as e:
         print(f"Error al actualizar adjunto en DB: {e}")
         return False
-
-## 3. Evento para obtener informe completo (para ver adjuntos)
-
-
-@socketio.on('obtenerInformeCompleto')
-def handle_get_full_report(data):
-    """Obtiene un informe completo, incluyendo adjuntos"""
-    try:
-        if not data or 'informeId' not in data:
-            emit('error', {'mensaje': 'ID de informe no especificado'})
-            return {'error': 'ID no especificado'}
-        
-        # Obtener informe de la base de datos
-        informe_id = data['informeId']
-        informe = obtener_informe_por_id(informe_id)
-        
-        if not informe:
-            print(f"Informe no encontrado: {informe_id}")
-            emit('error', {'mensaje': 'Informe no encontrado'})
-            return {'error': 'Informe no encontrado'}
-        
-        # Si el informe tiene adjunto pero no están los datos, intentar cargarlos
-        if informe.get('tieneAdjunto') and informe.get('adjunto') and not informe['adjunto'].get('datos'):
-            datos_adjunto = cargar_adjunto_desde_filesystem(informe_id)
-            if datos_adjunto:
-                informe['adjunto']['datos'] = datos_adjunto
-                print(f"Adjunto cargado correctamente para informe {informe_id}")
-            else:
-                print(f"No se pudo cargar el adjunto para el informe {informe_id}")
-        
-        # Emitir el informe completo
-        emit('informeCompleto', {'informe': informe})
-        
-        return {'success': True}
-    except Exception as e:
-        print(f"Error en obtenerInformeCompleto: {e}")
-        traceback.print_exc()
-        emit('error', {'mensaje': f'Error al obtener informe: {str(e)}'})
-        return {'error': str(e)}
-
-## 4. Mejorar el evento de lista de elementos
 
 
 @socketio.on('solicitarElementos')

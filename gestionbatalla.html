@@ -56,7 +56,6 @@
   <script src="/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
 
   <!-- Scripts personalizados -->
-  <script src="/Client/js/nerworkConfig.js"></script>
   <script src="/Client/js/elevation.worker.js"></script>
   <script src="/Client/js/elevationHandler.js"></script>
   <script src="/Client/js/vegetacionhandler.js"></script>
@@ -67,12 +66,13 @@
   <script src="/Client/js/herramientasP.js"></script>
   <script src="/Client/js/dibujosMCCP.js"></script>
   <script src="/Client/js/atajosP.js"></script>
+  
   <script src="/Client/js/CalculoMarcha.js"></script>
   <script src="/Client/js/graficoMarcha.js"></script>
   <script src="/Client/js/panelMarcha.js"></script>
+  <script src="/Client/js/indexP.js"></script>
   
   <!-- Scripts principales -->
-  <script src="/Client/js/indexP.js"></script>
   <script src="/Client/js/miradial.js"></script>
 
   <!-- Scripts modularizados para gestión de batalla -->
@@ -896,7 +896,7 @@
         <div class="panel-tabs">
           <button class="tab-btn active" data-tab="tab-elementos">Elementos</button>
           <button class="tab-btn" data-tab="tab-chat">Chat</button>
-          <button class="tab-btn" data-tab="tab-informes">Informes</button>
+          <button class="tab-btn" data-tab="tab-Documentos">Documentos</button>
         </div>
         
         <div class="panel-content">
@@ -939,60 +939,9 @@
             </div>
           </div>
           
-          <!-- Pestaña Informes -->
-          <div class="tab-content" id="tab-informes">
-            <div class="informes-botones">
-              <button id="btn-ver-informes" class="active">Ver Informes</button>
-              <button id="btn-crear-informe">Crear Informe</button>
-            </div>
-            
-            <!-- Ver Informes -->
-            <div id="ver-informes">
-              <div class="filtro-informes">
-                <button id="btn-filtro-todos" class="active">Todos</button>
-                <button id="btn-filtro-informes">Informes</button>
-                <button id="btn-filtro-ordenes">Órdenes</button>
-              </div>
-              <div id="lista-informes" class="informes-lista">
-                <!-- Los informes se cargan dinámicamente -->
-              </div>
-            </div>
-            
-            <!-- Crear Informe -->
-            <div id="crear-informe" class="d-none">
-              <form id="form-informe">
-                <div class="form-group">
-                  <label for="tipo-informe">Tipo:</label>
-                  <select id="tipo-informe" required>
-                    <option value="normal">Normal</option>
-                    <option value="urgente">Urgente</option>
-                    <option value="orden">Orden</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="destinatario-informe">Destinatario:</label>
-                  <select id="destinatario-informe" required>
-                    <option value="comando">Comando</option>
-                    <option value="todos">Todos</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="asunto-informe">Asunto:</label>
-                  <input type="text" id="asunto-informe" required>
-                </div>
-                <div class="form-group">
-                  <label for="contenido-informe">Contenido:</label>
-                  <textarea id="contenido-informe" rows="4" required></textarea>
-                </div>
-                <div class="form-buttons">
-                  <button type="submit" id="enviar-informe">Enviar</button>
-                  <button type="button" id="cancelar-informe">Cancelar</button>
-                </div>
-              </form>
-            </div>
+          <!-- Pestaña Documentos-->
+          <div class="tab-content" id="tab-Documentos">
           </div>
-        </div>
-      </div>
       
       <!-- Contenedores de cálculo de marcha y otros módulos -->
       <div id="calculoMarchaContainer" style="display: none;"></div>
