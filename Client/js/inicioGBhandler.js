@@ -633,13 +633,11 @@ function unirseOperacionExistente() {
     const usuarioId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-   
-   // Crear objeto de datos de usuario
-    const usuarioInfo = {
-    id: usuarioId, // ID único del usuario
-    usuario: document.getElementById('nombreUsuario').value,
-    operacion: operacionId,
-    elemento: elementoInfo
+    // Crear info de usuario
+    usuarioInfo = {
+        id: usuarioId,
+        usuario: usuario,
+        operacion: operacionSeleccionada.nombre
     };
     
     // Elemento con información completa
@@ -652,8 +650,7 @@ function unirseOperacionExistente() {
         magnitud: "E",
         nombre: `Elemento de ${usuario}`,
         usuario: usuario,
-        usuarioId: window.userId,
-        creador: usuario,
+        usuarioId: usuarioId,
         creado: new Date().toISOString(),
         draggable: true,
         editable: true,
@@ -664,10 +661,11 @@ function unirseOperacionExistente() {
         operacionId: operacionSeleccionada.id,
         operacionNombre: operacionSeleccionada.nombre
     };
-
+    
+    // Crear un OBJETO DE PARTICIPANTE que combina usuario e información del elemento
     // Este objeto es más fácil de almacenar y compartir en el servidor
     const participanteCompleto = {
-        usuarioId: window.userId,
+        id: usuarioId,
         usuario: usuario,
         elemento: elementoTrabajo,
         operacion: operacionSeleccionada.nombre,

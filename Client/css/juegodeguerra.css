@@ -289,3 +289,45 @@ h1 {
     90% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-20px); }
 }
+
+/* Estilos para el panel de turnos */
+.equipo-azul {
+    color: #0077ff;
+    text-shadow: 0 0 2px rgba(0,119,255,0.5);
+}
+
+.equipo-rojo {
+    color: #ff3333;
+    text-shadow: 0 0 2px rgba(255,51,51,0.5);
+}
+
+#panelTurnos {
+    background-color: rgba(0,0,0,0.8);
+    border-radius: 5px;
+    padding: 10px 15px;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    font-family: 'Arial', sans-serif;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#tiempoRestante {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+/* Animación para avisos de tiempo */
+@keyframes parpadeo {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+.tiempo-urgente {
+    animation: parpadeo 1s infinite;
+    color: #ff3333;
+}

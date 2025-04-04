@@ -72,31 +72,32 @@
   <script src="/Client/js/graficoMarcha.js"></script>
   <script src="/Client/js/panelMarcha.js"></script>
   
-  <!-- Scripts principales -->
-  <script src="/Client/js/indexP.js"></script>
-
-  <!-- Scripts para el modo juego de guerra -->
-  <script src="/Client/js/hexgrid.js"></script>
-  <script src="/Client/js/miradial.js"></script>
-  <script src="/Client/js/gestorUnidades.js"></script> 
-
-  <!-- Dependencias -->
-  <script src="/Client/js/eventemitter.js"></script>
-  <script src="/Client/js/gestorBase.js"></script>
-  <!-- Gestores del juego -->
-  <script src="/Client/js/gestorComunicacion.js"></script>
-  <script src="/Client/js/gestorEventos.js"></script>
-  <script src="/Client/js/gestorCarga.js"></script>
-  <script src="/Client/js/gestorEstado.js"></script>
-  <script src="/Client/js/gestorMapa.js"></script>
-  <script src="/Client/js/gestorAcciones.js"></script>
-  <script src="/Client/js/gestorFases.js"></script>
-  <script src="/Client/js/gestorTurnos.js"></script>
-  <script src="/Client/js/gestorInterfaz.js"></script>
+ <!-- 1. Primero EventEmitter -->
+ <script src="/Client/js/eventemitter.js"></script>
   
-  <script src="/Client/js/gestorChat.js"></script>
+ <!-- 2. GestorBase que depende de EventEmitter -->
+ <script src="/Client/js/gestorBase.js"></script>
 
-  <script src="/Client/js/gestorJuego.js"></script>
+ <!-- 3. Scripts principales que no dependen de gestores -->
+ <script src="/Client/js/indexP.js"></script>
+ <script src="/Client/js/hexgrid.js"></script>
+ <script src="/Client/js/miradial.js"></script>
+ 
+ <!-- 4. Gestores que heredan de GestorBase -->
+ <script src="/Client/js/gestorComunicacion.js"></script>
+ <script src="/Client/js/gestorEventos.js"></script>
+ <script src="/Client/js/gestorCarga.js"></script>
+ <script src="/Client/js/gestorEstado.js"></script>
+ <script src="/Client/js/gestorMapa.js"></script>
+ <script src="/Client/js/gestorAcciones.js"></script>
+ <script src="/Client/js/gestorFases.js"></script>
+ <script src="/Client/js/gestorTurnos.js"></script>
+ <script src="/Client/js/gestorInterfaz.js"></script>
+ <script src="/Client/js/gestorUnidades.js"></script>
+ <script src="/Client/js/gestorChat.js"></script>
+
+ <!-- 5. GestorJuego al final ya que coordina todos los demás -->
+ <script src="/Client/js/gestorJuego.js"></script>
 </head>
 <body>
   <!-- Loading container al principio del body -->

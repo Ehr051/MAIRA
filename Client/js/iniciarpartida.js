@@ -381,10 +381,48 @@ async function inicializarSocket() {
             mostrarSalaEspera(partida);
         });
         
-        socket.on('partidaIniciada', function(data) {
-            console.log('Partida iniciada, redirigiendo...', data);
-            window.location.href = `juegodeguerra.html?codigo=${data.codigo}`;
+        socket.on('partidaIniciada', function(datosPartida) {
+        console.log('Recibidos datos de partida iniciada:', datosPartida);
+        
+        if (!datosPartida || !datosPartida.jugadores) {
+            console.error('Datos de partida inválidos:', datosPartida);
+            mostrarError('Error al iniciar partida: datos inválidos');
+            return;
+        }
+
+        // Guardar datos importantes en localStorage
+        localStorage.setItem('partidaActual', JSON.stringify({
+            codigo: datosPartida.codigo,
+            jugadores: datosPartida.jugadores,
+            equipoJugador: datosPartida.jugadores.find(j => j.id === userId)?.equipo
+        }));
+
+        // Verificar y establecer director si es necesario
+        const jugadoresAzules = datosPartida.jugadores.filter(j => j.equipo === 'azul');
+        if (jugadoresAzules.length > 0 && !datosPartida.director) {
+            const primerJugadorAzul = jugadoresAzules[0];
+            if (primerJugadorAzul.id === userId) {
+                console.log('Asignado como director temporal');
+                socket.emit('asignarDirectorTemporal', {
+                    jugadorId: userId,
+                    partidaCodigo: datosPartida.codigo
+                });
+            }
+        }
+
+        console.log('Redirigiendo a juego de guerra...');
+        window.location.href = `juegodeguerra.html?codigo=${datosPartida.codigo}`;
+    });
+
+        // Agregar evento para director asignado
+        socket.on('directorAsignado', function(datos) {
+            console.log('Director asignado:', datos);
+            if (datos.director === userId) {
+                console.log('Soy el director temporal');
+            }
         });
+
+
 
         socket.on('errorCreacionPartida', function(error) {
             mostrarError(error.mensaje);

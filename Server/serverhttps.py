@@ -1550,12 +1550,12 @@ def handle_registrar_operacion(data):
 def handle_zona_confirmada(data):
     try:
         codigo_partida = data.get('partidaCodigo')
-        print(f"Zona confirmada recibida para partida {codigo_partida}")
+        print(f"Recibiendo zonaConfirmada: {data}")
         
-        # Emitir a todos en la sala
-        socketio.emit('zonaConfirmada', data, room=codigo_partida)
+        # Emitir a todos en la sala incluyendo al emisor
+        socketio.emit('zonaConfirmada', data, room=codigo_partida, include_self=True)
         
-        # Si es zona azul, cambiar a fase despliegue
+        # Si es zona azul, cambiar fase
         if data['zona']['equipo'] == 'azul':
             socketio.emit('cambioFase', {
                 'fase': 'preparacion',
@@ -1563,8 +1563,11 @@ def handle_zona_confirmada(data):
                 'jugadorId': data['jugadorId'],
                 'timestamp': datetime.now().isoformat()
             }, room=codigo_partida)
+            
     except Exception as e:
         print(f"Error en zonaConfirmada: {str(e)}")
+        emit('error', {'mensaje': str(e)})
+
 
 @socketio.on('cambioFase')
 def handle_cambio_fase(data):
@@ -1580,6 +1583,9 @@ def handle_cambio_fase(data):
         print(f"Cambio de fase enviado a sala {partida_codigo}")
     except Exception as e:
         print(f"Error al manejar cambio de fase: {e}")
+
+
+
 
 
 @socketio.on('inicioDespliegue')
@@ -1783,23 +1789,44 @@ def handle_jugador_listo_despliegue(data):
             # Verificar si todos completaron despliegue
             cursor.execute("""
                 SELECT COUNT(*) as total, 
-                    COUNT(CASE WHEN listo_despliegue = true THEN 1 END) as listos
-                FROM usuarios_partida 
-                WHERE partida_id = %s
+                    COUNT(CASE WHEN listo_despliegue = true THEN 1 END) as listos,
+                    p.id as partida_id
+                FROM usuarios_partida up
+                JOIN partidas p ON p.id = up.partida_id 
+                WHERE p.codigo = %s
+                GROUP BY p.id
             """, (codigo_partida,))
             
             estado = cursor.fetchone()
-            if estado['total'] == estado['listos']:
-                socketio.emit('iniciarCombate', {
+            
+            if estado and estado['total'] == estado['listos']:
+                cursor.execute("""
+                    SELECT up.usuario_id, u.username, up.equipo
+                    FROM usuarios_partida up
+                    JOIN usuarios u ON u.id = up.usuario_id
+                    WHERE up.partida_id = %s
+                    ORDER BY up.equipo, up.usuario_id
+                """, (estado['partida_id'],))
+                
+                jugadores = cursor.fetchall()
+                
+                # Estructura de datos correcta para iniciar turnos
+                datos_turnos = {
                     'fase': 'combate',
                     'subfase': 'turno',
+                    'turnoActual': 1,
+                    'equipoActual': 'azul',
+                    'jugadores': {
+                        'azul': [j for j in jugadores if j['equipo'] == 'azul'],
+                        'rojo': [j for j in jugadores if j['equipo'] == 'rojo']
+                    },
                     'timestamp': datetime.now().isoformat()
-                }, room=codigo_partida)
+                }
                 
+                socketio.emit('iniciarCombate', datos_turnos, room=codigo_partida)
     except Exception as e:
         print(f"[ERROR] Despliegue: {str(e)}")
         emit('error', {'mensaje': str(e)})
-
 
 @socketio.on('salirSalaEspera')
 def salir_sala_espera(data):
@@ -1969,6 +1996,33 @@ def actualizar_equipo_jugador(data):
             emit('errorActualizarEquipo', {'mensaje': 'Error al actualizar el equipo'})
         finally:
             conn.close()
+
+@socketio.on('asignarDirectorTemporal')
+def handle_asignar_director_temporal(data):
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        jugador_id = data.get('jugadorId')
+        
+        partida = partidas.get(codigo_partida)
+        if not partida:
+            return False
+            
+        jugador = next((j for j in partida['jugadores'] if j['id'] == jugador_id and j['equipo'] == 'azul'), None)
+        if jugador:
+            partida['director'] = jugador_id
+            partida['director_temporal'] = True
+            
+            socketio.emit('directorAsignado', {
+                'director': jugador_id,
+                'temporal': True,
+                'partidaCodigo': codigo_partida
+            }, room=codigo_partida)
+            
+        return True
+        
+    except Exception as e:
+        print(f"Error en handle_asignar_director_temporal: {str(e)}")
+        return False
 
 @socketio.on('obtenerInfoJugador')
 def handle_obtener_info_jugador(data):
@@ -2409,23 +2463,43 @@ def handle_zona_despliegue(data):
         emit('error', {'mensaje': str(e)})
 
 @socketio.on('iniciarCombate')
-def handle_iniciar_combate(data):
+def handle_iniciar_combate(datos):
     try:
-        codigo_partida = data.get('partidaCodigo')
-        print(f"[DEBUG] Iniciando fase de combate para partida {codigo_partida}")
+        partidaCodigo = datos.get('partidaCodigo')
         
-        # Broadcast a todos en la sala
-        socketio.emit('combateIniciado', {
-            'partidaCodigo': codigo_partida,
-            'fase': 'combate',
-            'subfase': 'turno',
-            'timestamp': datetime.now().isoformat()
-        }, room=codigo_partida)
+        # Emitir a todos los jugadores de la partida
+        emit('iniciarCombate', datos, room=partidaCodigo)
+        
+        # Actualizar estado de la partida
+        partida = partidas.get(partidaCodigo)
+        if partida:
+            partida['fase'] = 'combate'
+            partida['subfase'] = 'movimiento'
+            
+    except Exception as e:
+        emit('error', {'mensaje': str(e)})
+
+@socketio.on('cambioTurno')
+def handle_cambio_turno(datos):
+    try:
+        partidaCodigo = datos.get('partidaCodigo')
+        
+        # Emitir a todos los jugadores de la partida
+        emit('cambioTurno', datos, room=partidaCodigo)
         
     except Exception as e:
-        print(f"[ERROR] Error en iniciarCombate: {str(e)}")
-
-
+        emit('error', {'mensaje': str(e)})
+        
+@socketio.on('finTurno')
+def handle_fin_turno(datos):
+    try:
+        partidaCodigo = datos.get('partidaCodigo')
+        
+        # Emitir a todos los jugadores de la partida
+        emit('finTurno', datos, room=partidaCodigo)
+        
+    except Exception as e:
+        emit('error', {'mensaje': str(e)})
 
 
 ## 1. Eventos para mensajes privados

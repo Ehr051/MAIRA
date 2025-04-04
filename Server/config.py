@@ -18,8 +18,13 @@ SERVER_IP = get_local_ip()
 
 # Verificar si estamos en un entorno de ngrok (puedes añadir una variable de entorno)
 USING_NGROK = os.getenv('USING_NGROK', 'false').lower() == 'true'
+USING_CLOUDFLARE = os.getenv('USING_CLOUDFLARE', 'false').lower() == 'true'
+CLOUDFLARE_URL = os.getenv('CLOUDFLARE_URL', '')
 
-if USING_NGROK:
+if USING_CLOUDFLARE and CLOUDFLARE_URL:
+    SERVER_URL = CLOUDFLARE_URL
+    CLIENT_URL = CLOUDFLARE_URL
+elif USING_NGROK:
     # Si usas ngrok, obtendrías la URL completa de una variable de entorno
     NGROK_URL = os.getenv('NGROK_URL', '')
     if NGROK_URL:
@@ -30,6 +35,7 @@ if USING_NGROK:
         SERVER_URL = f'http://{SERVER_IP}:{SERVER_PORT}'
         CLIENT_URL = SERVER_URL
 else:
+
     # Configuración normal (no ngrok)
     SERVER_URL = f'http://{SERVER_IP}:{SERVER_PORT}'
     CLIENT_URL = SERVER_URL
