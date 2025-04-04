@@ -1585,9 +1585,6 @@ def handle_cambio_fase(data):
         print(f"Error al manejar cambio de fase: {e}")
 
 
-
-
-
 @socketio.on('inicioDespliegue')
 def handle_inicio_despliegue(data):
     try:
@@ -1655,62 +1652,29 @@ def verificar_todos_jugadores_listos(codigo_partida):
             conn.close()
 
 @socketio.on('guardarElemento')
-def handle_guardar_elemento(datos):
+def handle_guardar_elemento(data):
     try:
-        jugador_id = datos['jugadorId']
-        partida_codigo = datos['partidaCodigo']
+        partida_codigo = data.get('partidaCodigo')
+        jugador_id = data.get('jugadorId')
         
-        conn = get_db_connection()
-        with conn.cursor() as cursor:
-            # Verificar si el elemento ya existe
-            cursor.execute("""
-                SELECT id 
-                FROM marcadores_jugadores 
-                WHERE id = %s
-            """, (datos['id'],))
-            
-            existe = cursor.fetchone()
-            
-            if existe:
-                # Actualizar elemento existente
-                cursor.execute("""
-                    UPDATE marcadores_jugadores 
-                    SET tipo = %s, sidc = %s, designacion = %s, dependencia = %s, magnitud = %s,
-                        posicion_lat = %s, posicion_lng = %s, actualizado_en = NOW()
-                    WHERE id = %s
-                """, (
-                    datos['tipo'], datos['sidc'], datos['designacion'], datos['dependencia'], 
-                    datos['magnitud'], datos['posicion'].get('lat'), datos['posicion'].get('lng'),
-                    datos['id']
-                ))
-            else:
-                # Insertar nuevo elemento
-                cursor.execute("""
-                    INSERT INTO marcadores_jugadores 
-                    (id, jugador_id, partida_codigo, tipo, sidc, designacion, dependencia, magnitud,
-                     posicion_lat, posicion_lng, creado_en)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-                """, (
-                    datos['id'], jugador_id, partida_codigo, datos['tipo'], datos['sidc'],
-                    datos['designacion'], datos['dependencia'], datos['magnitud'],
-                    datos['posicion'].get('lat'), datos['posicion'].get('lng')
-                ))
-            
-            conn.commit()
-            
-            # Confirmar guardado exitoso
-            emit('elementoGuardado', {
-                'id': datos['id'],
-                'exito': True
+        # Validar datos
+        if not all([data.get('tipo'), data.get('magnitud'), 
+                    data.get('designacion'), data.get('dependencia')]):
+            emit('error', {
+                'mensaje': 'Datos incompletos',
+                'detalles': 'Verifique tipo, magnitud, designación y dependencia'
             })
-            
+            return
+
+        # Emitir a todos en la sala
+        socketio.emit('elementoCreado', data, room=partida_codigo)
+        
+        # Confirmar al emisor
+        emit('elementoGuardado', {'success': True})
+
     except Exception as e:
-        print(f"Error al guardar elemento: {e}")
-        traceback.print_exc()
-        emit('error', {
-            'mensaje': 'Error al guardar elemento en el servidor',
-            'detalles': str(e)
-        })
+        print(f"[ERROR] Error guardando elemento: {str(e)}")
+        emit('error', {'mensaje': str(e)})
 
 @socketio.on('jugadorListo')
 def handle_jugador_listo(data):

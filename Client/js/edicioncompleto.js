@@ -914,54 +914,38 @@ function guardarCambiosEquipo() {
 }
 
 function enviarElementoAlServidor(elemento) {
-    console.log('Enviando elemento al servidor:', elemento);
-    
-    if (!window.gestorJuego?.gestorComunicacion?.socket) {
-        console.error('No hay conexión disponible con el servidor');
-        return false;
-    }
-    
-    if (!elemento || !elemento.options) {
-        console.error('Elemento no válido para enviar al servidor:', elemento);
-        return false;
-    }
-    
     try {
-        // Determinar si es equipo o unidad basado en el SIDC
-        const esEquipoActual = elemento.options.sidc && elemento.options.sidc.charAt(4) === 'E';
+        // Obtener socket desde gestor global
+        const socket = window.gestorJuego?.gestorComunicacion?.socket;
         
-        // Extraer todas las propiedades relevantes
-        const datosElemento = {
-            id: elemento.options.id,
-            tipo: elemento.options.tipo,
-            sidc: elemento.options.sidc,
-            designacion: elemento.options.designacion,
-            dependencia: elemento.options.dependencia,
-            esEquipo: esEquipoActual,
-            posicion: elemento.getLatLng(),
-            jugadorId: window.userId,
-            jugador: window.userId,  // Campo duplicado para compatibilidad
-            partidaCodigo: window.codigoPartida,
-            equipo: elemento.options.equipo || window.equipoJugador
-        };
-        
-        // Añadir propiedades específicas según el tipo de elemento
-        if (!esEquipoActual) {
-            // Propiedades específicas para unidades
-            datosElemento.magnitud = elemento.options.magnitud;
-        } else {
-            // Propiedades específicas para equipos
-            // Por ejemplo, podríamos agregar propiedades como velocidad o alcance
-            datosElemento.equipoAsignado = elemento.options.equipoJugador || window.equipoJugador;
+        if (!socket?.connected) {
+            console.error('[EdicionCompleto] Socket no conectado');
+            return false;
         }
-        
-        console.log(`Emitiendo guardarElemento para ${esEquipoActual ? 'equipo' : 'unidad'} con datos:`, datosElemento);
-        
-        window.gestorJuego.gestorComunicacion.socket.emit('guardarElemento', datosElemento);
-        console.log('Elemento enviado al servidor correctamente');
-        return true;
+
+        const datosElemento = {
+            ...elemento.options,
+            coordenadas: elemento.getLatLng(),
+            jugadorId: window.userId,
+            partidaCodigo: window.codigoPartida
+        };
+
+        console.log('[EdicionCompleto] Enviando elemento:', datosElemento);
+        socket.emit('guardarElemento', datosElemento);
+
+        // Esperar confirmación
+        return new Promise((resolve) => {
+            socket.once('elementoGuardado', (respuesta) => {
+                console.log('[EdicionCompleto] Respuesta servidor:', respuesta);
+                resolve(true);
+            });
+
+            // Timeout de 5 segundos
+            setTimeout(() => resolve(false), 5000);
+        });
+
     } catch (error) {
-        console.error('Error al enviar elemento al servidor:', error);
+        console.error('[EdicionCompleto] Error enviando elemento:', error);
         return false;
     }
 }

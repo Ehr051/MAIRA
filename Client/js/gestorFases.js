@@ -55,6 +55,9 @@ class GestorFases extends GestorBase {
         this.esDirectorTemporal = false;
         this.primerJugador = null;
         this.zonasLayers = {}; // Añadido para manejar las capas de zonas
+        this.zonasDefinidas = {};
+        this.zonasDespliegue = {};
+        this.zonasLayers = {};
         this.elementosVisibles = {
             sector: null,
             zonaRoja: null,
@@ -143,50 +146,56 @@ class GestorFases extends GestorBase {
         }
     }
     
-    // En gestorFases.js
-actualizarZonaRemota(zonaData) {
-    const equipo = zonaData.equipo;
-    if (!equipo) return false;
-
-    try {
-        console.log('Actualizando zona remota:', zonaData);
-        
-        // Limpiar zona anterior si existe
-        if (this.zonasLayers[equipo]) {
-            window.calcoActivo.removeLayer(this.zonasLayers[equipo]);
-            this.zonasLayers[equipo] = null;
+        actualizarZonaRemota(zonaData) {
+        const equipo = zonaData.equipo;
+        if (!equipo) {
+            console.error('[GestorFases] Error: Zona sin equipo definido');
+            return false;
         }
-        
-        // Crear capa de zona
-        this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, zonaData.estilo);
-        this.zonasDespliegue[equipo] = zonaData.bounds;
-
-        console.log('Equipo del jugador:', window.equipoJugador);
-        console.log('Es director:', this.esDirector(window.userId));
-        
-        // Mostrar zona
-        const esDirector = this.esDirector(window.userId);
-        const esMiEquipo = window.equipoJugador === equipo;
-        
-        console.log('¿Debería mostrarse la zona?', {
-            esDirector: esDirector, 
-            esMiEquipo: esMiEquipo,
-            equipo: equipo
-        });
-        
-        if (esDirector || esMiEquipo) {
+    
+        try {
+            // Limpiar zona anterior si existe
+            if (this.zonasLayers[equipo]) {
+                window.calcoActivo.removeLayer(this.zonasLayers[equipo]);
+                this.zonasLayers[equipo] = null;
+            }
+    
+            // Crear nueva zona
+            const estiloZona = {
+                color: equipo === 'azul' ? '#0000ff' : '#ff0000',
+                weight: 2,
+                opacity: 0.8,
+                fillOpacity: 0.2,
+                ...zonaData.estilo
+            };
+    
+            // Crear polígono y agregarlo al mapa
+            this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, estiloZona);
+            
+            // Actualizar estado
+            this.zonasDefinidas[equipo] = true;
+            this.zonasDespliegue[equipo] = zonaData.bounds;
+    
+            // Controlar visibilidad según roles - AQUÍ ESTÁ EL ERROR
+            const esDirector = this.esDirector(window.userId);
+            const esMiEquipo = window.equipoJugador === equipo;
+    
+            // Siempre mostrar la zona, con diferente opacidad según permisos
             this.zonasLayers[equipo].addTo(window.calcoActivo);
-            console.log(`Zona ${equipo} añadida al mapa`);
-        } else {
-            console.log(`Zona ${equipo} NO añadida al mapa (no es director ni mi equipo)`);
+            if (esDirector || esMiEquipo) {
+                this.zonasLayers[equipo].setStyle({ opacity: 1, fillOpacity: 0.2 });
+            } else {
+                this.zonasLayers[equipo].setStyle({ opacity: 0.5, fillOpacity: 0.1 });
+            }
+    
+            console.log(`[GestorFases] Zona ${equipo} actualizada. Director: ${esDirector}, MiEquipo: ${esMiEquipo}`);
+            
+            return true;
+        } catch (error) {
+            console.error('[GestorFases] Error actualizando zona remota:', error);
+            return false;
         }
-
-        return true;
-    } catch (error) {
-        console.error('Error en actualizarZonaRemota:', error);
-        return false;
     }
-}
 
     habilitarZonaAzul() {
         // Limpiar botones anteriores
@@ -729,26 +738,7 @@ procesarZonaConfirmada(datos) {
     }
 }
 
-actualizarZonaRemota(zonaData) {
-    const equipo = zonaData.equipo;
-    if (!equipo) return false;
 
-    try {
-        // Crear capa de zona
-        this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, zonaData.estilo);
-        this.zonasDespliegue[equipo] = zonaData.bounds;
-
-        // Solo mostrar si es director o es mi equipo
-        if (this.esDirector(window.userId) || window.equipoJugador === equipo) {
-            this.zonasLayers[equipo].addTo(window.calcoActivo);
-        }
-
-        return true;
-    } catch (error) {
-        console.error('Error en actualizarZonaRemota:', error);
-        return false;
-    }
-}
     validarConfiguracion(config) {
         if (!config || !Array.isArray(config.jugadores) || config.jugadores.length === 0) {
             throw new Error("Configuración inválida: La lista de jugadores es obligatoria");
@@ -1507,66 +1497,44 @@ obtenerElementosJugador(jugadorId) {
     
         
 
-    // Reemplazar el método marcarJugadorListo en GestorFases.js
 marcarJugadorListo() {
     try {
-        // 1. Validar que estamos en la fase correcta
-        if (this.fase !== 'preparacion' || this.subfase !== 'despliegue') {
-            console.warn('[GestorFases] No se puede marcar como listo: fase incorrecta');
-            return false;
-        }
-        
-        // 2. Validar elementos desplegados
-        if (!this.validarElementosJugador(window.userId)) {
-            console.warn('[GestorFases] Validación de elementos fallida');
-            return false;
-        }
-        
-        console.log('[GestorFases] Elementos validados, marcando jugador como listo');
-        
-        // 3. Buscar y actualizar el jugador en la lista
-        const jugadorIndex = this.jugadores.findIndex(j => j.id === window.userId);
-        if (jugadorIndex === -1) {
-            console.error('[GestorFases] Jugador no encontrado en la lista de jugadores');
-            return false;
-        }
-        
-        this.jugadores[jugadorIndex].listo = true;
-        
-        // 4. Emitir al servidor
-        if (this.gestorJuego?.gestorComunicacion?.socket) {
-            console.log('[GestorFases] Enviando estado listo al servidor');
-            this.gestorJuego.gestorComunicacion.socket.emit('jugadorListoDespliegue', {
-                jugadorId: window.userId,
-                partidaCodigo: window.codigoPartida,
-                timestamp: new Date().toISOString()
-            });
-        } else {
-            console.warn('[GestorFases] No hay conexión al servidor disponible');
-        }
-        
-        // 5. Actualizar interfaz
-        const btnListo = document.getElementById('btn-listo-despliegue');
-        if (btnListo) {
-            btnListo.disabled = true;
-            btnListo.textContent = 'Listo ✓';
-        }
-        
-        // 6. Verificar si todos están listos para iniciar combate
-        if (this.todosJugadoresListos() && this.esDirector(window.userId)) {
-            console.log('[GestorFases] Todos los jugadores listos, iniciando combate');
-            setTimeout(() => this.iniciarFaseCombate(), 1000);
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('[GestorFases] Error al marcar jugador como listo:', error);
-        if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
-            this.gestorJuego.gestorInterfaz.mostrarMensaje(
-                'Error al marcar como listo: ' + (error.message || 'Error desconocido'),
+        // Validar elementos
+        const elementos = this.obtenerElementosJugador(window.userId);
+        if (!elementos || elementos.length === 0) {
+            this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                'Debe desplegar al menos un elemento',
                 'error'
             );
+            return false;
         }
+
+        // Validar datos completos
+        const elementosValidos = elementos.every(elem => 
+            elem.tipo && 
+            elem.magnitud && 
+            elem.designacion && 
+            elem.dependencia
+        );
+
+        if (!elementosValidos) {
+            this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+                'Complete todos los datos de los elementos',
+                'error'
+            );
+            return false;
+        }
+
+        // Emitir al servidor
+        this.gestorJuego?.gestorComunicacion?.socket.emit('jugadorListo', {
+            jugadorId: window.userId,
+            partidaCodigo: window.codigoPartida,
+            elementos: elementos
+        });
+
+        return true;
+    } catch (error) {
+        console.error('[GestorFases] Error al marcar jugador listo:', error);
         return false;
     }
 }
