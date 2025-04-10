@@ -723,7 +723,6 @@ function guardarCambiosUnidad() {
 }
 
 
-
 function guardarCambiosUnidadGB() {
     console.log("Intentando guardar cambios de unidad en modo GB");
     
@@ -736,11 +735,10 @@ function guardarCambiosUnidadGB() {
         // IMPORTANTE: Identificar correctamente el ID del usuario original
         const idElementoOriginal = elementoSeleccionadoGB.options.id;
         let idUsuarioFinal = idElementoOriginal;
-        let idUsuarioBase = null; // Declarar la variable aquí para que esté disponible en todo el ámbito
+        let idUsuarioBase = null;
 
         // Si es un elemento creado manualmente, extraer el ID de usuario
         if (idElementoOriginal && idElementoOriginal.startsWith('elemento_')) {
-            // Extraer el ID de usuario que está después del prefijo "elemento_"
             const match = idElementoOriginal.match(/elemento_(\d+)_/);
             if (match && match[1]) {
                 idUsuarioBase = match[1];
@@ -869,10 +867,58 @@ function guardarCambiosUnidadGB() {
         elementoSeleccionadoGB = nuevoMarcador;
         window.elementoSeleccionadoGB = nuevoMarcador;
         
-        // Actualizar en elementosConectados con el ID correcto
+        // NUEVO: Actualizar en elementosConectados con el ID correcto
         if (window.elementosConectados && idUsuarioFinal) {
             if (window.elementosConectados[idUsuarioFinal]) {
                 window.elementosConectados[idUsuarioFinal].marcador = nuevoMarcador;
+                
+                // NUEVO: Actualizar también los datos internos con toda la información necesaria
+                window.elementosConectados[idUsuarioFinal].datos = {
+                    ...window.elementosConectados[idUsuarioFinal].datos,
+                    id: idUsuarioFinal,
+                    sidc: nuevoSidc,
+                    designacion: designacion,
+                    dependencia: dependencia,
+                    magnitud: !esEquipoActual ? magnitud : undefined,
+                    elemento: {
+                        sidc: nuevoSidc,
+                        designacion: designacion,
+                        dependencia: dependencia,
+                        magnitud: !esEquipoActual ? magnitud : undefined,
+                    },
+                    posicion: {
+                        lat: posicionActual.lat,
+                        lng: posicionActual.lng,
+                        precision: 10,
+                        rumbo: 0,
+                        velocidad: 0
+                    }
+                };
+                
+                // NUEVO: Si es el propio usuario, actualizar elementoTrabajo global
+                if (jugadorElemento === window.usuarioInfo?.id) {
+                    // Actualizar elementoTrabajo
+                    window.elementoTrabajo = {
+                        ...window.elementoTrabajo,
+                        sidc: nuevoSidc,
+                        designacion: designacion,
+                        dependencia: dependencia,
+                        magnitud: !esEquipoActual ? magnitud : undefined
+                    };
+                    
+                    // Guardar en localStorage
+                    localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
+                    
+                    // Actualizar referencia en MAIRA
+                    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+                        window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
+                    }
+                    
+                    console.log("✅ elementoTrabajo actualizado y guardado en localStorage:", window.elementoTrabajo);
+                }
+                
+                // NUEVO: Guardar todos los elementos en localStorage para persistencia
+                guardarElementosEnLocalStorage();
             }
         }
         
@@ -891,6 +937,13 @@ function guardarCambiosUnidadGB() {
             if (window.MAIRA?.Utils?.mostrarNotificacion) {
                 window.MAIRA.Utils.mostrarNotificacion("Cambios guardados correctamente", "success");
             }
+            
+            // NUEVO: Forzar sincronización después de un breve retraso
+            setTimeout(() => {
+                if (typeof forzarSincronizacionElementos === 'function') {
+                    forzarSincronizacionElementos();
+                }
+            }, 500);
         }
 
         return enviado;
@@ -899,6 +952,278 @@ function guardarCambiosUnidadGB() {
         return false;
     }
 }
+
+function cargarYCrearMarcadoresDesdeLocalStorage() {
+    console.log("🔄 Cargando elementos desde localStorage y creando marcadores");
+    
+    try {
+        const elementosGuardados = localStorage.getItem('elementos_conectados');
+        if (!elementosGuardados) {
+            console.log("📭 No hay elementos guardados en localStorage");
+            return 0;
+        }
+        
+        const elementosParsed = JSON.parse(elementosGuardados);
+        console.log(`📥 Encontrados ${Object.keys(elementosParsed).length} elementos en localStorage`);
+        
+        // Eliminar elementos inválidos
+        const elementosValidos = {};
+        Object.entries(elementosParsed).forEach(([id, elem]) => {
+            if (elem && elem.datos && elem.datos.id) {
+                elementosValidos[id] = elem;
+            }
+        });
+        
+        // Actualizar elementosConectados
+        let contadorNuevos = 0;
+        let contadorActualizados = 0;
+        
+        Object.entries(elementosValidos).forEach(([id, elem]) => {
+            if (!elementosConectados[id]) {
+                // Elemento nuevo
+                elementosConectados[id] = {
+                    datos: elem.datos,
+                    marcador: null
+                };
+                contadorNuevos++;
+            } else {
+                // Elemento existente, actualizar datos
+                elementosConectados[id].datos = {
+                    ...elementosConectados[id].datos,
+                    ...elem.datos
+                };
+                contadorActualizados++;
+            }
+            
+            // Crear marcador si tiene posición y no tiene ya uno
+            if (elem.datos.posicion && 
+                elem.datos.posicion.lat && 
+                elem.datos.posicion.lng && 
+                !elementosConectados[id].marcador) {
+                
+                console.log(`🔄 Creando marcador para elemento ${id} desde localStorage`);
+                try {
+                    elementosConectados[id].marcador = crearMarcadorElemento(elem.datos);
+                } catch (e) {
+                    console.error(`❌ Error al crear marcador para ${id}:`, e);
+                }
+            }
+            
+            // También actualizar en la lista visual
+            agregarElementoALista(elem.datos);
+        });
+        
+        console.log(`✅ Proceso completado: ${contadorNuevos} nuevos, ${contadorActualizados} actualizados`);
+        return contadorNuevos + contadorActualizados;
+    } catch (e) {
+        console.error("❌ Error al cargar elementos desde localStorage:", e);
+        return 0;
+    }
+}
+
+
+// 2. Función auxiliar para guardar elementos en localStorage
+function guardarElementosEnLocalStorage() {
+    try {
+        // Evitar elementos inválidos o sin datos
+        const elementosValidos = {};
+        
+        Object.entries(window.elementosConectados || {}).forEach(([id, elem]) => {
+            if (elem && elem.datos && elem.datos.id) {
+                elementosValidos[id] = { datos: elem.datos };
+            }
+        });
+        
+        // Verificar que no estamos guardando un objeto vacío
+        if (Object.keys(elementosValidos).length === 0) {
+            console.warn("⚠️ No hay elementos válidos para guardar en localStorage");
+            return false;
+        }
+        
+        localStorage.setItem('elementos_conectados', JSON.stringify(elementosValidos));
+        console.log(`✅ Guardados ${Object.keys(elementosValidos).length} elementos en localStorage`);
+        return true;
+    } catch (e) {
+        console.error("❌ Error al guardar elementos en localStorage:", e);
+        return false;
+    }
+}
+
+
+
+window.enviarElementoAlServidor = function(elemento) {
+    console.log("🔄 Procesando envío de elemento al servidor:", elemento);
+    
+    // Buscar el socket
+    let socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+    
+    if (!socket || !socket.connected) {
+        console.error("❌ No hay conexión de socket disponible");
+        MAIRA.Utils.mostrarNotificacion("Error: No hay conexión con el servidor", "error");
+        
+        // Guardar localmente aunque no haya conexión
+        guardarElementosEnLocalStorage();
+        return false;
+    }
+    
+    try {
+        // Obtener datos del usuario actual
+        const idUsuarioActual = 
+            elemento.options?.usuarioId || 
+            elemento.options?.jugadorId || 
+            window.usuarioInfo?.id || 
+            (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
+        
+        // Obtener operación actual
+        const operacionActual = 
+            window.operacionActual || 
+            window.MAIRA?.GestionBatalla?.operacionActual || 
+            'general';
+        
+        // Preparar datos completos
+        const datosElemento = {
+            id: elemento.options.id || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            sidc: elemento.options.sidc || 'SFGPUCI-----',
+            designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
+            dependencia: elemento.options.dependencia || '',
+            magnitud: elemento.options.magnitud || '-',
+            coordenadas: elemento.getLatLng(),
+            tipo: elemento.options.tipo || 'unidad',
+            usuario: elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario',
+            usuarioId: idUsuarioActual,
+            jugadorId: idUsuarioActual, // Para compatibilidad
+            operacion: operacionActual,
+            timestamp: new Date().toISOString(),
+            posicion: {
+                lat: elemento.getLatLng().lat,
+                lng: elemento.getLatLng().lng,
+                precision: 10,
+                rumbo: elemento.options.rumbo || 0,
+                velocidad: 0
+            },
+            elemento: {
+                sidc: elemento.options.sidc || 'SFGPUCI-----',
+                designacion: elemento.options.designacion || elemento.options.nombre || '',
+                dependencia: elemento.options.dependencia || '',
+                magnitud: elemento.options.magnitud || '-'
+            },
+            conectado: true
+        };
+        
+        console.log("📤 Enviando elemento al servidor:", datosElemento);
+        
+        // SOLUCIÓN IMPORTANTE: Enviar a través de múltiples eventos para asegurar compatibilidad
+        // como en la versión original, pero usando todas las vías posibles
+        socket.emit('actualizarElemento', datosElemento);
+        socket.emit('nuevoElemento', datosElemento);
+        socket.emit('anunciarElemento', datosElemento);
+        socket.emit('actualizarPosicionGB', datosElemento);
+        
+        // Enviar mensaje para forzar visibilidad - esto es importante para notificar a otros
+        const mensajeInfo = {
+            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            usuario: 'Sistema',
+            mensaje: `${window.usuarioInfo?.usuario || 'Usuario'} ha actualizado un elemento`,
+            tipo: 'sistema',
+            sala: operacionActual,
+            timestamp: new Date().toISOString(),
+            emisor: {
+                id: idUsuarioActual,
+                nombre: datosElemento.usuario,
+                elemento: datosElemento.elemento
+            }
+        };
+        socket.emit('mensajeChat', mensajeInfo);
+        
+        // Actualizar estructura local de elementos conectados - usa la función existente
+        console.log("🔄 Actualizando elemento localmente");
+        // Si la función actializarElementoConectado existe, usarla
+        if (typeof actualizarElementoConectado === 'function') {
+            actualizarElementoConectado(datosElemento.id, datosElemento, datosElemento.posicion);
+        } 
+        // Si no, actualizar directamente en elementosConectados
+        else if (window.elementosConectados) {
+            if (!window.elementosConectados[datosElemento.id]) {
+                window.elementosConectados[datosElemento.id] = {
+                    datos: datosElemento,
+                    marcador: elemento
+                };
+            } else {
+                window.elementosConectados[datosElemento.id].datos = datosElemento;
+                window.elementosConectados[datosElemento.id].marcador = elemento;
+            }
+        }
+        
+        // NUEVO: Guardar en localStorage para persistencia
+        try {
+            const elementosGuardados = {};
+            Object.entries(window.elementosConectados || {}).forEach(([id, elem]) => {
+                if (elem.datos) {
+                    elementosGuardados[id] = { datos: elem.datos };
+                }
+            });
+            localStorage.setItem('elementos_conectados', JSON.stringify(elementosGuardados));
+            console.log("✅ Elementos guardados en localStorage");
+        } catch (e) {
+            console.error("❌ Error al guardar en localStorage:", e);
+        }
+        
+        // Si es el elemento de trabajo del usuario actual, actualizar elementoTrabajo
+        if (idUsuarioActual === window.usuarioInfo?.id) {
+            // Actualizar elementoTrabajo
+            window.elementoTrabajo = {
+                ...window.elementoTrabajo,
+                sidc: datosElemento.sidc,
+                designacion: datosElemento.designacion,
+                dependencia: datosElemento.dependencia,
+                magnitud: datosElemento.magnitud
+            };
+            
+            // Guardar en localStorage
+            localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
+            
+            console.log("✅ elementoTrabajo actualizado y guardado en localStorage");
+        }
+        
+        // Mostrar notificación al usuario
+        MAIRA.Utils.mostrarNotificacion("Elemento actualizado correctamente", "success");
+        
+        // Forzar sincronización completa para asegurar propagación
+        if (typeof forzarSincronizacionElementos === 'function') {
+            setTimeout(forzarSincronizacionElementos, 500);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error("❌ Error enviando elemento:", error);
+        MAIRA.Utils.mostrarNotificacion("Error al guardar el elemento", "error");
+        return false;
+    }
+};
+
+
+function configurarEventoReconexion() {
+    if (socket) {
+        socket.on('connect', function() {
+            console.log("📡 Reconectado al servidor, sincronizando elementos");
+            
+            // Primero cargar y crear marcadores desde localStorage
+            cargarYCrearMarcadoresDesdeLocalStorage();
+            
+            // Esperar un momento para que la conexión se estabilice
+            setTimeout(() => {
+                // Limpiar duplicados
+                limpiarElementosDuplicados();
+                
+                // Forzar sincronización completa
+                if (typeof forzarSincronizacionElementos === 'function') {
+                    forzarSincronizacionElementos();
+                }
+            }, 1000);
+        });
+    }
+}
+
 
 
 function actualizarIconoEnLista(elementoId, sidc) {
@@ -1035,7 +1360,14 @@ window.enviarElementoAlServidor = function(elemento) {
     
     if (!socket || !socket.connected) {
         console.error("❌ No hay conexión de socket disponible");
-        MAIRA.Utils.mostrarNotificacion("Error: No hay conexión con el servidor", "error");
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error: No hay conexión con el servidor", "error");
+        }
+        
+        // NUEVO: Guardar en localStorage aún sin conexión
+        const datosParaGuardar = prepararDatosElemento(elemento);
+        guardarElementoLocalStorage(datosParaGuardar);
+        
         return false;
     }
     
@@ -1086,11 +1418,52 @@ window.enviarElementoAlServidor = function(elemento) {
         console.log("📤 Enviando elemento al servidor:", datosElemento);
         
         // SOLUCIÓN IMPORTANTE: Enviar a través de múltiples eventos para asegurar compatibilidad
-        // Estos eventos deberían ser recibidos por todos los clientes
         socket.emit('actualizarElemento', datosElemento);
         socket.emit('nuevoElemento', datosElemento);
         socket.emit('anunciarElemento', datosElemento);
         socket.emit('actualizarPosicionGB', datosElemento);
+        
+        // IMPORTANTE: Enviar mensaje de servidor para notificar a todos sobre el cambio
+        const mensajeSistema = {
+            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            usuario: 'Sistema',
+            mensaje: `${datosElemento.usuario} ha actualizado un elemento: ${datosElemento.designacion || datosElemento.elemento?.designacion || ''}`,
+            tipo: 'sistema',
+            sala: operacionActual,
+            timestamp: new Date().toISOString(),
+            emisor: {
+                id: idUsuarioActual,
+                nombre: datosElemento.usuario,
+                elemento: datosElemento.elemento
+            }
+        };
+        socket.emit('mensajeChat', mensajeSistema);
+        
+        // Si es el elemento de trabajo del usuario actual, actualizar localmente
+        if (idUsuarioActual === window.usuarioInfo?.id) {
+            // Actualizar elementoTrabajo
+            window.elementoTrabajo = {
+                ...window.elementoTrabajo,
+                sidc: datosElemento.sidc,
+                designacion: datosElemento.designacion,
+                dependencia: datosElemento.dependencia,
+                magnitud: datosElemento.magnitud
+            };
+            
+            // Guardar en localStorage
+            localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
+            
+            // Actualizar referencia en MAIRA
+            if (window.MAIRA && window.MAIRA.GestionBatalla) {
+                window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
+            }
+            
+            console.log("✅ elementoTrabajo actualizado y guardado en localStorage:", window.elementoTrabajo);
+        }
+        
+        // Actualizar estructura local de elementos conectados
+        console.log("🔄 Actualizando elemento localmente");
+        actualizarElementoConectadoLocal(datosElemento, elemento);
         
         // Mensaje de broadcast para notificar a todos
         const mensajeInfo = {
@@ -1102,25 +1475,104 @@ window.enviarElementoAlServidor = function(elemento) {
         };
         socket.emit('mensajeChat', mensajeInfo);
         
-        // Actualizar estructura local de elementos conectados
-        console.log("🔄 Actualizando elemento localmente");
-        actualizarElementoConectadoLocal(datosElemento, elemento);
-        
         // Mostrar notificación al usuario
-        MAIRA.Utils.mostrarNotificacion("Elemento actualizado correctamente", "success");
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Elemento actualizado correctamente", "success");
+        }
         
-        // Forzar sincronización después de 1 segundo para asegurar propagación
+        // NUEVO: Forzar múltiples sincronizaciones con distintos intervalos
         setTimeout(() => {
-            forzarSincronizacionElementos();
-        }, 1000);
+            if (typeof window.forzarSincronizacionElementos === 'function') {
+                console.log("Forzando primera sincronización (500ms)");
+                window.forzarSincronizacionElementos();
+            }
+        }, 500);
+        
+        setTimeout(() => {
+            if (typeof window.forzarSincronizacionElementos === 'function') {
+                console.log("Forzando segunda sincronización (2s)");
+                window.forzarSincronizacionElementos();
+            }
+        }, 2000);
         
         return true;
     } catch (error) {
         console.error("❌ Error enviando elemento:", error);
-        MAIRA.Utils.mostrarNotificacion("Error al guardar el elemento", "error");
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error al guardar el elemento", "error");
+        }
         return false;
     }
 };
+
+// Función auxiliar para preparar datos de elemento
+function prepararDatosElemento(elemento) {
+    const idUsuarioActual = 
+        elemento.options?.usuarioId || 
+        elemento.options?.jugadorId || 
+        window.usuarioInfo?.id || 
+        (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
+    
+    const operacionActual = 
+        window.operacionActual || 
+        window.MAIRA?.GestionBatalla?.operacionActual || 
+        'general';
+    
+    return {
+        id: elemento.options.id || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        sidc: elemento.options.sidc || 'SFGPUCI-----',
+        designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
+        dependencia: elemento.options.dependencia || '',
+        magnitud: elemento.options.magnitud || '-',
+        coordenadas: elemento.getLatLng(),
+        tipo: elemento.options.tipo || 'unidad',
+        usuario: elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario',
+        usuarioId: idUsuarioActual,
+        jugadorId: idUsuarioActual,
+        operacion: operacionActual,
+        timestamp: new Date().toISOString(),
+        posicion: {
+            lat: elemento.getLatLng().lat,
+            lng: elemento.getLatLng().lng,
+            precision: 10,
+            rumbo: elemento.options.rumbo || 0,
+            velocidad: 0
+        },
+        elemento: {
+            sidc: elemento.options.sidc || 'SFGPUCI-----',
+            designacion: elemento.options.designacion || elemento.options.nombre || '',
+            dependencia: elemento.options.dependencia || '',
+            magnitud: elemento.options.magnitud || '-'
+        },
+        conectado: true
+    };
+}
+
+// Función para guardar elemento en localStorage
+function guardarElementoLocalStorage(datosElemento) {
+    try {
+        // Cargar elementos actuales
+        let elementosGuardados = {};
+        const datosAlmacenados = localStorage.getItem('elementos_conectados');
+        if (datosAlmacenados) {
+            elementosGuardados = JSON.parse(datosAlmacenados);
+        }
+        
+        // Actualizar elemento específico
+        elementosGuardados[datosElemento.id] = {
+            datos: datosElemento
+        };
+        
+        // Guardar de vuelta en localStorage
+        localStorage.setItem('elementos_conectados', JSON.stringify(elementosGuardados));
+        console.log(`✅ Elemento ${datosElemento.id} guardado en localStorage correctamente`);
+        
+        return true;
+    } catch (e) {
+        console.error(`❌ Error al guardar elemento ${datosElemento.id} en localStorage:`, e);
+        return false;
+    }
+}
 
 // Función auxiliar mejorada para actualizar elementos localmente
 function actualizarElementoConectadoLocal(datosElemento, marcador) {
@@ -1131,6 +1583,11 @@ function actualizarElementoConectadoLocal(datosElemento, marcador) {
         window.elementosConectados = {};
     }
     
+    // Guardar una referencia previa si existe
+    const elementoExistentePrevio = window.elementosConectados[datosElemento.id] 
+                                  ? JSON.parse(JSON.stringify(window.elementosConectados[datosElemento.id].datos)) 
+                                  : null;
+    
     // Si el elemento no existe, añadirlo
     if (!window.elementosConectados[datosElemento.id]) {
         window.elementosConectados[datosElemento.id] = {
@@ -1139,11 +1596,28 @@ function actualizarElementoConectadoLocal(datosElemento, marcador) {
         };
         console.log(`✅ Nuevo elemento añadido a elementosConectados: ${datosElemento.id}`);
     } else {
-        // Si existe, actualizar los datos manteniendo el marcador
+        // Si existe, mantener los datos SIDC, designación, etc. (no sobreescribir)
+        if (elementoExistentePrevio && elementoExistentePrevio.sidc) {
+            // Conservar los datos importantes anteriores que podrían perderse
+            datosElemento.sidc = datosElemento.sidc || elementoExistentePrevio.sidc;
+            datosElemento.designacion = datosElemento.designacion || elementoExistentePrevio.designacion;
+            datosElemento.dependencia = datosElemento.dependencia || elementoExistentePrevio.dependencia;
+            datosElemento.magnitud = datosElemento.magnitud || elementoExistentePrevio.magnitud;
+            
+            // También asegurar que elemento.sidc se mantiene
+            if (datosElemento.elemento) {
+                datosElemento.elemento.sidc = datosElemento.sidc;
+                datosElemento.elemento.designacion = datosElemento.designacion;
+                datosElemento.elemento.dependencia = datosElemento.dependencia;
+                datosElemento.elemento.magnitud = datosElemento.magnitud;
+            }
+        }
+        
+        // Actualizar datos
         window.elementosConectados[datosElemento.id].datos = datosElemento;
         
         // Si el marcador es diferente, reemplazarlo
-        if (window.elementosConectados[datosElemento.id].marcador !== marcador) {
+        if (window.elementosConectados[datosElemento.id].marcador !== marcador && marcador) {
             // Eliminar marcador anterior del mapa
             const marcadorAnterior = window.elementosConectados[datosElemento.id].marcador;
             if (marcadorAnterior && window.mapa) {
@@ -1156,6 +1630,21 @@ function actualizarElementoConectadoLocal(datosElemento, marcador) {
             window.elementosConectados[datosElemento.id].marcador = marcador;
             console.log(`✅ Marcador actualizado para elemento: ${datosElemento.id}`);
         }
+    }
+    
+    // NUEVO: Guardar cambios en localStorage para mayor persistencia
+    try {
+        const elementosParaGuardar = {};
+        
+        // Solo guardar los datos, no los marcadores (no son serializables)
+        Object.entries(window.elementosConectados).forEach(([id, elem]) => {
+            elementosParaGuardar[id] = { datos: elem.datos };
+        });
+        
+        localStorage.setItem('elementos_conectados', JSON.stringify(elementosParaGuardar));
+        console.log("✅ Elementos conectados guardados en localStorage");
+    } catch (e) {
+        console.error("❌ Error al guardar elementos en localStorage:", e);
     }
     
     // Sincronizar con MAIRA.GestionBatalla
@@ -1173,6 +1662,10 @@ function actualizarElementoConectadoLocal(datosElemento, marcador) {
         }
     }
 }
+
+// Hacerla disponible globalmente
+window.actualizarElementoConectadoLocal = actualizarElementoConectadoLocal;
+
 
 function mostrarPanelEdicionMCC(elemento, tipo) {
     console.log("Mostrando panel de edición MCC para tipo:", tipo);
@@ -1999,3 +2492,4 @@ window.actualizarCampoSIDC = actualizarCampoSIDC;
 window.esEquipo = esEquipo;
 window.esUnidad = esUnidad;
 window.actualizarIconoEnLista = actualizarIconoEnLista;
+window.configurarEventoReconexion = configurarEventoReconexion;

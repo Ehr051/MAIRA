@@ -1661,58 +1661,36 @@ function conectarAlServidor() {
             timeout: 20000
         });
         
-        // Evento de conexión exitosa
+        
         socket.on('connect', function() {
-            console.log('Conectado al servidor. ID:', socket.id);
+            console.log("📡 Conectado al servidor");
             
-            // Actualizar estado de conexión en la UI si existe la función
-            if (typeof MAIRA.Utils.actualizarEstadoConexion === 'function') {
-                MAIRA.Utils.actualizarEstadoConexion(true);
-            }
+            // Limpiar elementos al conectar
+            limpiarElementosDuplicados();
             
-            // Unirse a salas necesarias
-            socket.emit('joinRoom', 'general');
-            
-            if (operacionActual) {
-                socket.emit('joinRoom', operacionActual);
-                console.log(`Unido a sala de operación: ${operacionActual}`);
-            }
-            
-            // Verificar si somos el creador
-            const esCreador = new URLSearchParams(window.location.search).get('creador') === 'true';
-            
-            // Enviar datos de usuario/elemento si existen
-            if (usuarioInfo && elementoTrabajo) {
-                const datosBroadcast = {
-                    id: usuarioInfo.id,
+            // Enviar nuestro propio elemento
+            if (usuarioInfo && ultimaPosicion) {
+                const datosPropios = {
+                    id: usuarioInfo.id,  // Usar ID fijo del usuario
                     usuario: usuarioInfo.usuario,
                     elemento: elementoTrabajo,
                     posicion: ultimaPosicion,
                     operacion: operacionActual,
                     timestamp: new Date().toISOString(),
-                    conectado: true,
-                    esCreador: esCreador
+                    conectado: true
                 };
                 
-                console.log(`Enviando datos iniciales al servidor${esCreador ? ' como creador' : ''}`, datosBroadcast);
-                
-                // Evento principal para anunciar nuestra presencia
-                socket.emit('anunciarElemento', datosBroadcast);
-                
-                // Procesar elemento propio para listas locales
-                procesarElementosPropios();
-                
-                forzarSincronizacionElementos();
-                // Solicitar elementos existentes
-                solicitarListaElementos();
+                // Anunciar nuestra presencia
+                socket.emit('actualizarPosicionGB', datosPropios);
+                socket.emit('nuevoElemento', datosPropios);
+                socket.emit('anunciarElemento', datosPropios);
             }
-            if (MAIRA.Elementos?.solicitarListaElementos) {
-                MAIRA.Elementos.solicitarListaElementos();
-            }
-            // Enviar datos pendientes si hay
-            if (typeof enviarPendientes === 'function') {
-                enviarPendientes();
-            }
+            
+            // Solicitar la lista completa
+            socket.emit('solicitarElementos', {
+                operacion: operacionActual,
+                solicitante: usuarioInfo?.id
+            });
         });
         
         // Evento de desconexión
@@ -2078,45 +2056,27 @@ window.enviarElementoAlServidor = function(elemento) {
     }
 };
 
-// Función auxiliar para actualizar elementos localmente
-function actualizarElementoConectadoLocal(datosElemento, marcador) {
-    // Si no existe el objeto elementosConectados, crearlo
-    if (!window.elementosConectados) {
-        window.elementosConectados = {};
+
+// Añadir este evento para guardar el estado cuando el usuario cierra/recarga la página
+window.addEventListener('beforeunload', function() {
+    // Guardar elementoTrabajo
+    if (window.elementoTrabajo) {
+        localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
     }
     
-    // Si el elemento no existe, añadirlo
-    if (!window.elementosConectados[datosElemento.id]) {
-        window.elementosConectados[datosElemento.id] = {
-            datos: datosElemento,
-            marcador: marcador
-        };
-    } else {
-        // Si existe, actualizar los datos manteniendo el marcador
-        window.elementosConectados[datosElemento.id].datos = datosElemento;
-        
-        // Si el marcador es diferente, reemplazarlo
-        if (window.elementosConectados[datosElemento.id].marcador !== marcador) {
-            window.elementosConectados[datosElemento.id].marcador = marcador;
+    // Guardar elementosConectados
+    if (window.elementosConectados) {
+        try {
+            const elementosParaGuardar = {};
+            Object.entries(window.elementosConectados).forEach(([id, elem]) => {
+                elementosParaGuardar[id] = { datos: elem.datos };
+            });
+            localStorage.setItem('elementos_conectados', JSON.stringify(elementosParaGuardar));
+        } catch (e) {
+            console.error("Error al guardar elementos en localStorage:", e);
         }
     }
-    
-    // Si existe la función para actualizar la lista visual, usarla
-    if (typeof window.MAIRA?.Elementos?.actualizarElementoVisual === 'function') {
-        window.MAIRA.Elementos.actualizarElementoVisual(datosElemento.id);
-    }
-    
-    // Forzar sincronización para actualizar a todos
-    setTimeout(() => {
-        if (typeof window.forzarSincronizacionElementos === 'function') {
-            window.forzarSincronizacionElementos();
-        }
-    }, 500);
-}
-
-// Hacerla disponible globalmente
-window.actualizarElementoConectadoLocal = actualizarElementoConectadoLocal;
-
+});
 
 function actualizarIconoMarcador(marcador, datos) {
     try {
@@ -2402,6 +2362,7 @@ function iniciarBroadcastPeriodico(esCreador) {
         if (MAIRA.Informes && typeof MAIRA.Informes.configurarEventosSocket === 'function') {
             MAIRA.Informes.configurarEventosSocket(socket);
         }
+        configurarEventoReconexion();
     }
     
 // Función para unificar las actualizaciones visuales
