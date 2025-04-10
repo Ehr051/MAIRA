@@ -10,6 +10,7 @@ from pymysql.cursors import DictCursor
 import json
 import random
 import string
+from werkzeug.utils import secure_filename
 import time
 import bcrypt
 import traceback
@@ -17,8 +18,13 @@ import subprocess
 import signal
 import ssl
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 from config import SERVER_URL, CLIENT_URL, SERVER_IP
+
+usuarios_conectados = {}  
+operaciones_batalla = {}
+informes_db = {}
+adjuntos_info = {}
 
 # Obtener la ruta absoluta de la carpeta `server`
 server_dir = os.path.dirname(os.path.abspath(__file__))
@@ -405,6 +411,26 @@ def handle_login(data):
         connection.commit()
         connection.close()
         emit('usuariosConectados', list(usuarios_conectados.values()), broadcast=True)
+
+
+@socketio.on('actualizarEstadoGB')
+def handle_actualizar_estado_gb(data):
+    try:
+        operacion = data.get('operacion')
+        elemento_id = data.get('id')
+        nuevo_estado = data.get('estado')
+        
+        if not all([operacion, elemento_id, nuevo_estado]):
+            return
+            
+        if operacion in operaciones_batalla:
+            if elemento_id in operaciones_batalla[operacion]['elementos']:
+                # Actualizar estado
+                operaciones_batalla[operacion]['elementos'][elemento_id]['estado'] = nuevo_estado
+                # Emitir actualización
+                emit('estadoActualizadoGB', data, room=operacion)
+    except Exception as e:
+        print(f"Error actualizando estado GB: {e}")
 
 @socketio.on('crearPartida')
 def crear_partida(data):
@@ -1068,12 +1094,15 @@ def handle_elemento_conectado_batalla(data):
     
     print(f"GestionBatalla: Elemento {user_id} conectado a operación {operacion}, SID {sid}")
     
-@socketio.on('actualizarPosicion')
+@socketio.on('actualizarPosicionGB')
 def handle_actualizar_posicion_batalla(data):
     sid = request.sid
     user_id = data.get('id')
     
+    print(f"🔄 Posición recibida: Usuario {user_id}, Coords: {data.get('posicion', {}).get('lat')}, {data.get('posicion', {}).get('lng')}")
+    
     if user_id not in user_sid_map.values():
+        print(f"⚠️ Usuario {user_id} no registrado en user_sid_map")
         return
     
     # Buscar la operación del elemento
@@ -1084,15 +1113,90 @@ def handle_actualizar_posicion_batalla(data):
             break
     
     if not operacion:
+        print(f"⚠️ No se encontró operación para usuario {user_id}")
         return
     
     # Actualizar datos del elemento
     operaciones_batalla[operacion]['elementos'][user_id].update(data)
     
     # Notificar a otros en la operación
+    print(f"📤 Enviando actualización a sala {operacion} (excepto {sid})")
+    emit('actualizarPosicionGB', data, room=operacion, skip_sid=sid)
+    
+    # También emitir con nombre alternativo para retrocompatibilidad
     emit('actualizacionPosicion', data, room=operacion, skip_sid=sid)
 
+@socketio.on('anunciarElemento')
+def handle_anunciar_elemento(data):
+    sid = request.sid
+    elemento_id = data.get('id')
+    operacion = data.get('operacion')
+    
+    print(f"📣 Elemento anunciado: ID={elemento_id}, operación={operacion}")
+    
+    if not operacion or not elemento_id:
+        print("⚠️ Datos incompletos en anunciarElemento")
+        return
+    
+    # Si la operación no existe, crearla
+    if operacion not in operaciones_batalla:
+        operaciones_batalla[operacion] = {
+            'elementos': {},
+            'info': {
+                'id': f"op_{int(datetime.now().timestamp())}",
+                'nombre': operacion,
+                'creador': data.get('usuario', 'Usuario'),
+                'fechaCreacion': datetime.now().isoformat()
+            }
+        }
+    
+    # Actualizar el elemento
+    operaciones_batalla[operacion]['elementos'][elemento_id] = data
+    
+    # Notificar a otros clientes
+    print(f"📤 Enviando elemento a sala {operacion} (excepto {sid})")
+    emit('anunciarElemento', data, room=operacion, skip_sid=sid)
+    emit('nuevoElemento', data, room=operacion, skip_sid=sid)
+    emit('actualizarPosicionGB', data, room=operacion, skip_sid=sid)
 
+@socketio.on('nuevoElemento')
+def handle_nuevo_elemento(data):
+    sid = request.sid
+    elemento_id = data.get('id')
+    operacion = data.get('operacion')
+    
+    print(f"🆕 Nuevo elemento: ID={elemento_id}, operación={operacion}")
+    
+    if not operacion or not elemento_id:
+        print("⚠️ Datos incompletos en nuevoElemento")
+        return
+    
+    # Si la operación no existe, crearla
+    if operacion not in operaciones_batalla:
+        operaciones_batalla[operacion] = {
+            'elementos': {},
+            'info': {
+                'id': f"op_{int(datetime.now().timestamp())}",
+                'nombre': operacion,
+                'creador': data.get('usuario', 'Usuario'),
+                'fechaCreacion': datetime.now().isoformat()
+            }
+        }
+    
+    # Actualizar el elemento
+    operaciones_batalla[operacion]['elementos'][elemento_id] = data
+    
+    # Notificar a otros clientes
+    print(f"📤 Enviando a sala {operacion} (excepto {sid})")
+    emit('nuevoElemento', data, room=operacion, skip_sid=sid)
+    
+    # Confirmar al emisor
+    emit('elementoRecibido', {
+        'id': elemento_id,
+        'timestamp': datetime.now().isoformat()
+    }, room=sid)
+
+    
 @socketio.on('nuevoInforme')
 def handle_nuevo_informe(data):
     """Maneja la recepción de un nuevo informe o documento"""
@@ -1122,7 +1226,7 @@ def handle_nuevo_informe(data):
             # Reenviar al destinatario específico
             # Encontrar el sid del destinatario
             destinatario_sid = None
-            for sid, user_data in connected_users.items():
+            for sid, user_data in usuarios_conectados.items():  # Cambiar connected_users por usuarios_conectados
                 if user_data.get('id') == destinatario:
                     destinatario_sid = sid
                     break
@@ -1159,7 +1263,7 @@ def handle_informe_leido(data):
         
         # Buscar el usuario en la lista de usuarios conectados
         usuario_info = None
-        for sid, user_data in connected_users.items():
+        for sid, user_data in usuarios_conectados.items():
             if sid == usuario_id:
                 usuario_info = user_data
                 break
@@ -1471,51 +1575,6 @@ def handle_obtener_operaciones_gb():
         emit('error', {'mensaje': f"Error al obtener operaciones: {str(e)}"})
 
 
-@socketio.on('solicitarElementos')
-def handle_request_elements(data):
-    try:
-        operacion = data.get('operacion')
-        if not operacion:
-            emit('error', {'mensaje': 'Operación no especificada'})
-            return
-        
-        # Obtener y normalizar elementos
-        elementos_raw = obtener_elementos_por_operacion(operacion)
-        elementos_normalizados = []
-        
-        # Normalizar formato
-        for elem in elementos_raw:
-            # Asegurar que tiene ID único
-            if 'id' not in elem:
-                continue
-                
-            # Verificar si es duplicado (mismo ID)
-            if any(e['id'] == elem['id'] for e in elementos_normalizados):
-                continue
-                
-            # Añadir campos mínimos si faltan
-            elem_normalizado = {
-                'id': elem['id'],
-                'usuario': elem.get('usuario', 'Desconocido'),
-                'elemento': elem.get('elemento', {}),
-                'conectado': elem.get('conectado', True),
-                'timestamp': elem.get('timestamp', datetime.now().isoformat())
-            }
-            
-            elementos_normalizados.append(elem_normalizado)
-        
-        print(f"Enviando {len(elementos_normalizados)} elementos normalizados para operación {operacion}")
-        emit('listaElementos', elementos_normalizados)
-        
-        registrar_actividad('solicitud_elementos', request.sid, {
-            'operacion': operacion, 
-            'elementos_count': len(elementos_normalizados)
-        })
-        
-    except Exception as e:
-        print(f"Error en solicitarElementos: {e}")
-        traceback.print_exc()
-        emit('error', {'mensaje': f'Error al obtener lista de elementos: {str(e)}'})
 
 
 @socketio.on('registrarOperacion')
@@ -2597,106 +2656,201 @@ def handle_request_elements(data):
 def get_users_with_role(rol):
     """Obtiene IDs de usuarios con un rol específico"""
     try:
-        # Implementar según tu modelo de datos
-        # Por ejemplo, si tienes una colección/tabla de usuarios con campo 'roles'
-        usuarios = db.usuarios.find({'roles': rol})
-        return [usuario['id'] for usuario in usuarios]
+        conn = get_db_connection()
+        if conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id FROM usuarios WHERE rol = %s", (rol,))
+                usuarios = cursor.fetchall()
+                return [usuario['id'] for usuario in usuarios]
+            conn.close()
     except Exception as e:
         print(f"Error al obtener usuarios con rol {rol}: {e}")
-        return []
+    return []
+
+def guardar_mensaje_en_db(mensaje):
+    """Guarda un mensaje en la base de datos"""
+    try:
+        conn = get_db_connection()
+        if conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO mensajes (id, contenido, emisor_id, timestamp)
+                    VALUES (%s, %s, %s, %s)
+                """, (mensaje['id'], json.dumps(mensaje), mensaje.get('emisor_id'), mensaje.get('timestamp')))
+                conn.commit()
+            conn.close()
+    except Exception as e:
+        print(f"Error al guardar mensaje: {e}")
 
 ## 8. Actualización de la función para unirse a operación
 
 
+
 @socketio.on('unirseOperacionGB')
-def handle_join_operation(data, callback=None):
-    """Maneja la unión de un usuario a una operación"""
+def handle_join_operation_gb(data):
     try:
-        # Validar datos
-        if not data or not isinstance(data, dict):
-            emit('error', {'mensaje': 'Formato de datos inválido'})
-            if callback: callback({"error": "Formato de datos inválido"})
-            return
-            
-        if 'operacionId' not in data and 'usuario' not in data and 'elemento' not in data:
-            emit('error', {'mensaje': 'Datos incompletos para unirse a operación'})
-            if callback: callback({"error": "Datos incompletos"})
-            return
-        
-        # Obtener datos
+        participante = data.get('participante')
         operacion_id = data.get('operacionId')
-        usuario = data.get('usuario', {})
-        elemento = data.get('elemento', {})
-        posicion = data.get('posicion')
         
-        # Buscar operación por ID
-        operacion = None
-        operacion_nombre = None
-        
-        for nombre, op_data in operaciones_batalla.items():
-            if op_data['info'].get('id') == operacion_id:
-                operacion = op_data
-                operacion_nombre = nombre
-                break
-                
-        if not operacion or not operacion_nombre:
-            emit('error', {'mensaje': 'Operación no encontrada'})
-            if callback: callback({"error": "Operación no encontrada"})
-            return
+        if not participante or not operacion_id:
+            return {'error': 'Datos de participante incompletos'}
             
-        # Preparar datos del elemento
-        datos_elemento = {
-            'id': usuario.get('id'),
-            'usuario': usuario.get('usuario'),
-            'elemento': elemento,
-            'conectado': True,
-            'posicion': posicion,
-            'timestamp': datetime.now().isoformat()
-        }
+        # Unir a la sala Socket.IO
+        join_room(participante['operacion'])
         
-        # Guardar en memoria
-        operacion['elementos'][usuario.get('id')] = datos_elemento
-        
-        # Actualizar contador
-        operacion['info']['participantes'] = len(operacion['elementos'])
-        
-        # Unir usuario a la sala
-        join_room(operacion_nombre)
-        
-        # Registrar actividad
-        registrar_actividad('union_operacion', request.sid, {
-            'usuario': usuario.get('usuario'),
-            'operacion': operacion_nombre
-        })
-        
-        # Notificar a otros usuarios en la operación
-        emit('nuevaConexion', datos_elemento, room=operacion_nombre, include_self=False)
-        
-        # Responder al usuario que se unió
-        respuesta = {
-            "usuario": usuario,
-            "elemento": elemento,
-            "operacion": {
-                'id': operacion_id,
-                'nombre': operacion_nombre,
-                **operacion['info']
+        # Actualizar estructura de datos
+        if participante['operacion'] not in operaciones_batalla:
+            operaciones_batalla[participante['operacion']] = {
+                'elementos': {},
+                'info': {
+                    'id': operacion_id,
+                    'nombre': participante['operacion'],
+                    'creado': datetime.now().isoformat()
+                }
             }
+        
+        # Guardar participante completo
+        operaciones_batalla[participante['operacion']]['elementos'][participante['id']] = participante
+        
+        # Notificar a otros usuarios
+        emit('elementoConectadoGB', participante,
+             room=participante['operacion'],
+             skip_sid=request.sid)
+             
+        # Mensaje del sistema
+        emit('mensajeChat', {
+            'usuario': 'Sistema',
+            'mensaje': f"{participante['usuario']} se ha unido a la operación",
+            'tipo': 'sistema',
+            'timestamp': datetime.now().isoformat()
+        }, room=participante['operacion'])
+        
+        print(f"Participante {participante['id']} unido a operación {participante['operacion']}")
+        
+        # Enviar lista actualizada
+        elementos_actuales = list(operaciones_batalla[participante['operacion']]['elementos'].values())
+        emit('listaElementosGB', elementos_actuales, room=participante['operacion'])
+        
+        return {
+            'success': True,
+            'operacion': participante['operacion'],
+            'elementos': elementos_actuales
         }
-        
-        emit('unidoOperacionGB', respuesta)
-        
-        if callback:
-            callback({"success": True, "operacion": respuesta['operacion']})
-            
-        print(f"Usuario {usuario.get('usuario')} unido a operación {operacion_nombre}")
         
     except Exception as e:
         print(f"Error en unirseOperacionGB: {e}")
         traceback.print_exc()
-        emit('error', {'mensaje': f'Error al unirse a operación: {str(e)}'})
-        if callback:
-            callback({"error": str(e)})
+        return {'error': str(e)}
 
+
+
+@socketio.on('solicitarElementos')
+def handle_request_elements(data):
+    try:
+        operacion = data.get('operacion')
+        solicitante = data.get('solicitante')
+        
+        if not operacion:
+            emit('error', {'mensaje': 'Operación no especificada'})
+            return
+            
+        # Verificar si la operación existe
+        if operacion not in operaciones_batalla:
+            operaciones_batalla[operacion] = {
+                'elementos': {},
+                'info': {'id': operacion}
+            }
+
+        # Obtener elementos de la operación
+        elementos_raw = list(operaciones_batalla[operacion]['elementos'].values())
+        elementos_normalizados = []
+        
+        # Normalizar formato
+        for elem in elementos_raw:
+            # Validar ID
+            if 'id' not in elem:
+                continue
+                
+            # Evitar duplicados
+            if any(e['id'] == elem['id'] for e in elementos_normalizados):
+                continue
+            
+            # Normalizar estructura
+            elem_normalizado = {
+                'id': elem['id'],
+                'usuario': elem.get('usuario', 'Desconocido'),
+                'elemento': elem.get('elemento', {}),
+                'posicion': elem.get('posicion', {}),
+                'conectado': elem.get('conectado', True),
+                'timestamp': elem.get('timestamp', datetime.now().isoformat()),
+                'operacion': operacion
+            }
+            
+            # Solo incluir elementos activos/conectados
+            if elem_normalizado['conectado']:
+                elementos_normalizados.append(elem_normalizado)
+
+        print(f"Enviando {len(elementos_normalizados)} elementos para operación {operacion}")
+        
+        # Enviar al solicitante específico si se proporciona ID
+        if solicitante:
+            emit('listaElementos', elementos_normalizados, room=request.sid)
+        else:
+            # Enviar a toda la sala de operación
+            emit('listaElementos', elementos_normalizados, room=operacion)
+        
+        # Registrar actividad
+        registrar_actividad('solicitud_elementos', request.sid, {
+            'operacion': operacion,
+            'solicitante': solicitante,
+            'elementos_count': len(elementos_normalizados)
+        })
+
+    except Exception as e:
+        print(f"Error en solicitarElementos: {str(e)}")
+        traceback.print_exc()
+        emit('error', {
+            'mensaje': f'Error al obtener lista de elementos: {str(e)}',
+            'operacion': operacion
+        })
+
+def obtener_elementos_por_operacion(operacion):
+    """Obtiene todos los elementos de una operación específica"""
+    if operacion not in operaciones_batalla:
+        return []
+    return list(operaciones_batalla[operacion]['elementos'].values())
+
+@socketio.on('actualizarPosicionGB')
+def handle_update_position_gb(data):
+    try:
+        operacion = data.get('operacion')
+        elemento_id = data.get('id')
+        
+        if not operacion or not elemento_id:
+            emit('error', {'mensaje': 'Datos de actualización incompletos'})
+            return
+            
+        if operacion in operaciones_batalla:
+            # Actualizar datos del elemento
+            operaciones_batalla[operacion]['elementos'][elemento_id] = data
+            
+            # Emitir actualización a otros participantes de la operación
+            # excluyendo al emisor
+            emit('actualizarPosicionGB', data, 
+                 room=operacion, 
+                 skip_sid=request.sid)
+            
+            # Registrar actividad
+            registrar_actividad('actualizacion_posicion', request.sid, {
+                'operacion': operacion,
+                'elemento_id': elemento_id,
+                'posicion': data.get('posicion')
+            })
+                 
+    except Exception as e:
+        print(f"Error actualizando posición GB: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al actualizar posición: {str(e)}'})
 ## Funciones adicionales para la base de datos
 def obtener_elementos_por_operacion(operacion_nombre):
     """
@@ -2777,14 +2931,6 @@ def guardar_elemento_en_operacion(operacion_id, datos_elemento):
         traceback.print_exc()
         return False
     
-def guardar_mensaje_en_db(mensaje):
-    """Guarda un mensaje en la base de datos"""
-    try:
-        # Implementar según tu base de datos
-        # Ejemplo para MongoDB:
-        db.mensajes.insert_one(mensaje)
-    except Exception as e:
-        print(f"Error al guardar mensaje: {e}")
 
 # Variables globales para almacenamiento de informes y adjuntos
 informes_db = {}
@@ -3067,6 +3213,78 @@ def obtener_informe_por_id(informe_id):
         traceback.print_exc()
         return None
 
+def limpiar_recursos_inactivos():
+    """
+    Limpia recursos inactivos del servidor:
+    - Usuarios desconectados
+    - Partidas abandonadas
+    - Elementos huérfanos
+    """
+    try:
+        tiempo_actual = datetime.now()
+        tiempo_limite = timedelta(minutes=30)  # 30 minutos de inactividad
+        
+        # 1. Limpiar usuarios inactivos
+        usuarios_eliminar = []
+        for user_id, user_data in usuarios_conectados.items():
+            ultima_actividad = user_data.get('ultima_actividad')
+            if ultima_actividad and (tiempo_actual - ultima_actividad) > tiempo_limite:
+                usuarios_eliminar.append(user_id)
+        
+        for user_id in usuarios_eliminar:
+            if user_id in usuarios_conectados:
+                del usuarios_conectados[user_id]
+                print(f"Usuario inactivo eliminado: {user_id}")
+        
+        # 2. Limpiar partidas abandonadas
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Marcar partidas sin jugadores como finalizadas
+                    cursor.execute("""
+                        UPDATE partidas p
+                        SET estado = 'finalizada'
+                        WHERE estado IN ('esperando', 'en_curso')
+                        AND (
+                            SELECT COUNT(*) 
+                            FROM usuarios_partida up 
+                            WHERE up.partida_id = p.id
+                        ) = 0
+                    """)
+                    
+                    # Limpiar registros de usuarios_partida huérfanos
+                    cursor.execute("""
+                        DELETE FROM usuarios_partida
+                        WHERE partida_id NOT IN (
+                            SELECT id FROM partidas
+                            WHERE estado IN ('esperando', 'en_curso')
+                        )
+                    """)
+                    
+                conn.commit()
+            except Exception as e:
+                print(f"Error al limpiar partidas: {e}")
+            finally:
+                conn.close()
+        
+        # 3. Limpiar elementos sin usuario asociado
+        for operacion in operaciones_batalla.values():
+            elementos_eliminar = []
+            for elemento_id, elemento in operacion['elementos'].items():
+                if elemento_id not in usuarios_conectados:
+                    elementos_eliminar.append(elemento_id)
+            
+            for elemento_id in elementos_eliminar:
+                del operacion['elementos'][elemento_id]
+                print(f"Elemento huérfano eliminado: {elemento_id}")
+        
+        print("Limpieza de recursos completada")
+        
+    except Exception as e:
+        print(f"Error en limpieza de recursos: {e}")
+        import traceback
+        traceback.print_exc()
 
 def registrar_actividad(tipo_actividad, sid, datos=None):
     """

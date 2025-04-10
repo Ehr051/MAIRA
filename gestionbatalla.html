@@ -61,7 +61,7 @@
   <script src="/Client/js/vegetacionhandler.js"></script>
   <script src="/Client/js/mapaP.js"></script>
   <script src="/Client/js/calcosP.js"></script>
-  <script src="/Client/js/edicioncompleto.js"></script>
+  <!--<script src="/Client/js/edicioncompleto.js"></script>-->
   <script src="/Client/js/simbolosP.js"></script>
   <script src="/Client/js/herramientasP.js"></script>
   <script src="/Client/js/dibujosMCCP.js"></script>
@@ -77,6 +77,7 @@
 
   <!-- Scripts modularizados para gestión de batalla -->
   <script src="/Client/js/utilsGB.js"></script>
+  <script src="/Client/js/edicionGB.js"></script>
   <script src="/Client/js/elementosGB.js"></script>
   <script src="/Client/js/chatGB.js"></script>
   <script src="/Client/js/informesGB.js"></script>
@@ -713,6 +714,54 @@
         <button id="cerrarMedicion">X</button>
       </div>
 
+
+
+
+      <div id="perfilElevacionDisplay" class="sub-panel" style="display: none;">
+        <div class="display-header">
+            <h3>Perfil de Elevación</h3>
+            <div class="display-controls">
+                <button id="btnFullscreenElevation" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+                <button id="btnSaveElevation" class="btn-save" title="Guardar">↓</button>
+                <button id="btnPrintElevation" class="btn-print" title="Imprimir">⎙</button>
+                <button id="elevation-close-button" class="btn-cerrar" onclick="cerrarPanel('perfilElevacionDisplay')">×</button>
+            </div>
+        </div>
+        <div class="display-content" style="display: none;">
+            <!-- Contenido del perfil de elevación se cargará aquí -->
+        </div>
+      </div>
+  
+
+      <div id="panelEdicionLinea" class="panel">
+        <h3>Editar Línea</h3>
+        <div>
+            <label for="nombreLinea">Nombre:</label>
+            <input type="text" id="nombreLinea">
+        </div>
+        <div>
+            <label for="colorLinea">Color:</label>
+            <input type="color" id="colorLinea">
+        </div>
+        <div>
+            <label for="anchoLinea">Ancho:</label>
+            <input type="number" id="anchoLinea" min="1" max="10">
+        </div> 
+        <div>
+            <label for="tipoLinea">Tipo:</label>
+            <select id="tipoLinea">
+                <option value="solid">Sólida</option>
+                <option value="dashed">Punteada</option>
+            </select> 
+        </div>
+        <div class="panel-buttons">
+            <button id="guardarCambiosLinea">Guardar Cambios</button>
+            <button onclick="cerrarPanelEdicion('panelEdicionLinea')">Cerrar</button>
+        </div>
+      </div>
+
+
+
       <!-- Paneles de edición reutilizados del original, solo mostramos el primero como ejemplo -->
       <div id="panelEdicionUnidad" class="panel">
         <h3>Editar Unidad</h3>
@@ -959,8 +1008,8 @@
     </main>
 
     <!-- Menú contextual para elementos -->
-    <div id="context-menu" style="display: none;" class="context-menu">
-      <button id="btn-editar-elemento"><i class="fas fa-edit"></i> Editar</button>
+    <div id="context-menu" style="display: none;" class="context-menu"> </button>
+      <button onclick="window.MAIRA.EdicionGB.editarElementoGBSeleccionado()"><i class="fas fa-edit"></i> Editar</button>
       <button id="btn-eliminar-elemento"><i class="fas fa-trash"></i> Eliminar</button>
       <button id="btn-compartir-elemento"><i class="fas fa-share-alt"></i> Compartir</button>
     </div>

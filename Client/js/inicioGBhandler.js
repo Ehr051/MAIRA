@@ -23,86 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inicializarPreviewSIDC();
 });
 
-/**
- * Inicia la conexión con el servidor
- */
-function iniciarConexion() {
-    const serverURL = obtenerURLServidor();
-    socket = io(serverURL);
-    
-    // Evento de conexión
-    socket.on('connect', function() {
-        console.log('Conectado al servidor');
-        mostrarMensajeSistema('Conectado al servidor');
-        actualizarEstadoConexion(true);
-        
-        // Solicitar operaciones activas
-        socket.emit('obtenerOperacionesGB');
-        
-        // Solicitar usuarios conectados
-        socket.emit('obtenerUsuariosConectados');
-    });
-    
-    // Evento de desconexión
-    socket.on('disconnect', function() {
-        console.log('Desconectado del servidor');
-        mostrarMensajeSistema('Desconectado del servidor');
-        actualizarEstadoConexion(false);
-    });
-    
-    // Evento de error
-    socket.on('error', function(error) {
-        console.error('Error de conexión:', error);
-        mostrarError('Error de conexión: ' + error);
-    });
-    
-    // Recibir operaciones
-    socket.on('operacionesGB', function(data) {
-        operacionesActivas = data.operaciones || [];
-        actualizarListaOperaciones();
-    });
-    
-    // Recibir usuarios conectados
-    socket.on('usuariosConectados', function(data) {
-        usuariosConectados = data.usuarios || [];
-        actualizarListaUsuarios();
-    });
-    
-    // Recibir mensaje de chat
-    socket.on('mensajeChat', function(mensaje) {
-        console.log('Mensaje recibido en cliente:', mensaje);
-        agregarMensajeChat(mensaje);
-    });
-    
-    // Recibir actualización de operación
-    socket.on('actualizacionOperacionGB', function(operacion) {
-        const index = operacionesActivas.findIndex(op => op.id === operacion.id);
-        if (index !== -1) {
-            operacionesActivas[index] = operacion;
-        } else {
-            operacionesActivas.push(operacion);
-        }
-        actualizarListaOperaciones();
-        
-        // Si es la operación seleccionada, actualizar detalles
-        if (operacionSeleccionada && operacionSeleccionada.id === operacion.id) {
-            mostrarDetallesOperacion(operacion);
-        }
-    });
-    
-    // Usuario unido a operación con éxito
-    socket.on('unidoOperacionGB', function(data) {
-        usuarioInfo = data.usuario;
-        elementoInfo = data.elemento;
-        
-        // Guardar en localStorage para recuperar en caso de recarga
-        localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
-        localStorage.setItem('gb_elemento_info', JSON.stringify(elementoInfo));
-        
-        // Redireccionar a la página de gestión de batalla
-        window.location.href = `/gestionbatalla.html?operacion=${data.operacion.nombre}`;
-    });
-}
+
 
 /**
  * Obtiene la URL del servidor
@@ -202,28 +123,7 @@ function cargarDatosIniciales() {
 }
 
 
-/**
- * Actualiza el indicador de estado de conexión
- * @param {boolean} conectado - Estado de la conexión
- */
-function actualizarEstadoConexion(conectado) {
-    console.log("Actualizando estado de conexión:", conectado ? "Conectado" : "Desconectado");
-    
-    const indicator = document.querySelector('.indicator');
-    const statusText = document.getElementById('status-text');
-    
-    if (indicator) {
-        indicator.className = conectado ? 'indicator online' : 'indicator offline';
-    } else {
-        console.warn("Elemento indicator no encontrado");
-    }
-    
-    if (statusText) {
-        statusText.textContent = conectado ? 'Conectado' : 'Desconectado';
-    } else {
-        console.warn("Elemento status-text no encontrado");
-    }
-}
+
 
 /**
  * Muestra un mensaje de error
@@ -602,119 +502,7 @@ function agregarCampoCaracteristica() {
     tipoGroup.parentNode.insertBefore(container, tipoGroup.nextSibling);
 }
 
-function unirseOperacionExistente() {
-    if (!operacionSeleccionada) {
-        mostrarError('No hay operación seleccionada');
-        return;
-    }
-    
-    // Obtener datos del usuario y elemento
-    const usuario = document.getElementById('nombreUsuario').value;
-    const designacion = document.getElementById('elemento-designacion').value || "Elemento";
-    const dependencia = document.getElementById('elemento-dependencia').value || "";
-    
-    if (!usuario) {
-        mostrarError('El nombre de usuario es obligatorio');
-        return;
-    }
-    
-    // SIDC para una unidad de infantería amigable
-    const sidc = "SFGPUCI-----";
-    
-    // Mostrar indicador de carga
-    const botonSubmit = document.querySelector('#elementoForm button[type="submit"]');
-    if (botonSubmit) {
-        const textoOriginal = botonSubmit.innerHTML;
-        botonSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uniéndose...';
-        botonSubmit.disabled = true;
-    }
-    
-    // Crear ID único para usuario y elemento
-    const usuarioId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Crear info de usuario
-    usuarioInfo = {
-        id: usuarioId,
-        usuario: usuario,
-        operacion: operacionSeleccionada.nombre
-    };
-    
-    // Elemento con información completa
-    elementoTrabajo = {
-        id: elementoId,
-        sidc: sidc,
-        tipo: "U",
-        designacion: designacion,
-        dependencia: dependencia,
-        magnitud: "E",
-        nombre: `Elemento de ${usuario}`,
-        usuario: usuario,
-        usuarioId: usuarioId,
-        creado: new Date().toISOString(),
-        draggable: true,
-        editable: true,
-        visible: true,
-        estado: "operativo",
-        edicionPendiente: true,
-        posicion: null,
-        operacionId: operacionSeleccionada.id,
-        operacionNombre: operacionSeleccionada.nombre
-    };
-    
-    // Crear un OBJETO DE PARTICIPANTE que combina usuario e información del elemento
-    // Este objeto es más fácil de almacenar y compartir en el servidor
-    const participanteCompleto = {
-        id: usuarioId,
-        usuario: usuario,
-        elemento: elementoTrabajo,
-        operacion: operacionSeleccionada.nombre,
-        timestamp: new Date().toISOString(),
-        conectado: true
-    };
-    
 
-    // Guardar en localStorage
-    localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
-    localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
-    localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionSeleccionada));
-    localStorage.setItem('gb_participante_completo', JSON.stringify(participanteCompleto));
-    
-    console.log("Datos completos de participante a enviar:", participanteCompleto);
-    
-    // Enviar al servidor usando eventos alternativos para asegurar compatibilidad
-    socket.emit('unirseOperacionGB', {
-        operacionId: operacionSeleccionada.id,
-        usuario: usuarioInfo,
-        elemento: elementoTrabajo,
-        participante: participanteCompleto // Añadir todo el objeto de participante
-    }, function(respuesta) {
-        console.log("Respuesta del servidor:", respuesta);
-        
-        // Restaurar botón
-        if (botonSubmit) {
-            botonSubmit.innerHTML = 'Unirse a la Operación';
-            botonSubmit.disabled = false;
-        }
-        
-        if (respuesta && respuesta.error) {
-            mostrarError(respuesta.error);
-            return;
-        }
-        
-        // También emitir evento explícito de nuevo elemento
-        socket.emit('nuevoElemento', participanteCompleto);
-        
-        
-        // Mensaje de éxito
-        mostrarMensajeSistema(`Unido correctamente a la operación "${operacionSeleccionada.nombre}"`);
-        
-        // Redireccionar a gestionbatalla
-        setTimeout(() => {
-            window.location.href = `gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
-        }, 1000);
-    });
-}
 
 // Función para crear campo de identidad
 function crearCampoIdentidad() {
@@ -1053,4 +841,219 @@ function agregarMensajeChat(mensaje) {
  */
 function generarId() {
     return 'user_' + Date.now() + Math.random().toString(36).substr(2, 5);
+}
+
+
+function actualizarEstadoConexion(conectado) {
+    console.log("Actualizando estado de conexión:", conectado ? "Conectado" : "Desconectado");
+    
+    // Buscar elementos de indicación de estado
+    const indicator = document.getElementById('connection-indicator');
+    const statusText = document.getElementById('status-text');
+    
+    // Si no se encuentran, no emitir error, simplemente registrar e ignorar
+    if (!indicator) {
+        console.log("Elemento indicator no encontrado");
+    } else {
+        // Actualizar clase y título según corresponda
+        if (conectado) {
+            indicator.className = 'connection-indicator connected';
+            indicator.title = 'Conectado al servidor';
+        } else {
+            indicator.className = 'connection-indicator disconnected';
+            indicator.title = 'Desconectado del servidor';
+        }
+    }
+    
+    if (!statusText) {
+        console.log("Elemento status-text no encontrado");
+    } else {
+        statusText.textContent = conectado ? 'Conectado' : 'Desconectado';
+        statusText.className = conectado ? 'text-success' : 'text-danger';
+    }
+    
+    // Actualizar estado global
+    window.conectadoAlServidor = conectado;
+}
+
+function unirseOperacionExistente() {
+    if (!operacionSeleccionada) {
+        mostrarError('No hay operación seleccionada');
+        return;
+    }
+    
+    console.log("Intentando unirse a operación:", operacionSeleccionada);
+    
+    // Obtener datos del usuario y elemento
+    const usuario = document.getElementById('nombreUsuario').value;
+    const designacion = document.getElementById('elemento-designacion').value || "Elemento";
+    const dependencia = document.getElementById('elemento-dependencia').value || "";
+    
+    if (!usuario) {
+        mostrarError('El nombre de usuario es obligatorio');
+        return;
+    }
+    
+    // SIDC para una unidad de infantería amigable
+    const sidc = "SFGPUCI-----";
+    
+    // Mostrar indicador de carga
+    const botonSubmit = document.querySelector('#elementoForm button[type="submit"]');
+    if (botonSubmit) {
+        const textoOriginal = botonSubmit.innerHTML;
+        botonSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uniéndose...';
+        botonSubmit.disabled = true;
+        
+        // Restaurar después de 10 segundos como máximo si no hay respuesta
+        setTimeout(() => {
+            if (botonSubmit.disabled) {
+                botonSubmit.innerHTML = textoOriginal;
+                botonSubmit.disabled = false;
+                mostrarError('No se recibió respuesta del servidor. Intenta nuevamente.');
+            }
+        }, 10000);
+    }
+    
+    // Crear ID único para usuario y elemento
+    const usuarioId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Crear info de usuario
+    usuarioInfo = {
+        id: usuarioId,
+        usuario: usuario,
+        operacion: operacionSeleccionada.nombre
+    };
+    
+    // Elemento con información básica simplificada
+    elementoTrabajo = {
+        id: elementoId,
+        sidc: sidc,
+        designacion: designacion,
+        dependencia: dependencia,
+        magnitud: "E",
+        estado: "operativo"
+    };
+    
+    // Guardar en localStorage
+    localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
+    localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
+    localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionSeleccionada));
+    
+    console.log("Datos a enviar para unirse:", {
+        operacion: operacionSeleccionada,
+        usuario: usuarioInfo,
+        elemento: elementoTrabajo
+    });
+    
+    // Enviar al servidor
+    socket.emit('unirseOperacion', {
+        operacion: operacionSeleccionada.nombre,
+        usuario: usuarioInfo,
+        elemento: elementoTrabajo
+    }, function(respuesta) {
+        console.log("Respuesta recibida para unirseOperacion:", respuesta);
+        
+        // Restaurar estado del botón
+        if (botonSubmit) {
+            botonSubmit.innerHTML = 'Unirse a la Operación';
+            botonSubmit.disabled = false;
+        }
+        
+        if (respuesta && respuesta.error) {
+            mostrarError(respuesta.error);
+            return;
+        }
+        
+        mostrarMensajeSistema(`Unido correctamente a la operación "${operacionSeleccionada.nombre}"`);
+        
+        // Redirigir a página de batalla
+        // IMPORTANTE: Verificar la ruta correcta en tu entorno
+        window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
+    });
+    
+    // Si después de 5 segundos no hay respuesta, asumir éxito y redireccionar
+    // Esto es un respaldo en caso de que el callback no se ejecute
+    setTimeout(() => {
+        if (botonSubmit && botonSubmit.disabled) {
+            console.log("No se recibió callback, redireccionando de todos modos");
+            window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
+        }
+    }, 5000);
+}
+
+// Reemplaza la función iniciarConexion con esta versión mejorada
+function iniciarConexion() {
+    const serverURL = obtenerURLServidor();
+    
+    // Opciones de socket.io para mejorar la estabilidad de la conexión
+    socket = io(serverURL, {
+        reconnectionAttempts: 5,
+        timeout: 10000,
+        transports: ['websocket', 'polling']
+    });
+    
+    // Evento de conexión
+    socket.on('connect', function() {
+        console.log('Conectado al servidor. ID de socket:', socket.id);
+        mostrarMensajeSistema('Conectado al servidor');
+        actualizarEstadoConexion(true);
+        
+        // Solicitar operaciones activas
+        socket.emit('obtenerOperacionesGB');
+        
+        // Solicitar usuarios conectados
+        socket.emit('obtenerUsuariosConectados');
+    });
+    
+    // Evento de desconexión
+    socket.on('disconnect', function(reason) {
+        console.log('Desconectado del servidor. Razón:', reason);
+        mostrarMensajeSistema('Desconectado del servidor: ' + reason);
+        actualizarEstadoConexion(false);
+    });
+    
+    // Evento de error
+    socket.on('error', function(error) {
+        console.error('Error de conexión:', error);
+        mostrarError('Error de conexión: ' + error);
+    });
+    
+    // Evento de reconexión
+    socket.on('reconnect', function(attemptNumber) {
+        console.log('Reconectado al servidor después de', attemptNumber, 'intentos');
+        mostrarMensajeSistema('Reconectado al servidor');
+        actualizarEstadoConexion(true);
+        
+        // Volver a solicitar datos
+        socket.emit('obtenerOperacionesGB');
+        socket.emit('obtenerUsuariosConectados');
+    });
+    
+    // Recibir operaciones
+    socket.on('operacionesGB', function(data) {
+        console.log('Operaciones recibidas:', data);
+        operacionesActivas = data.operaciones || [];
+        actualizarListaOperaciones();
+    });
+    
+    // Recibir usuarios conectados
+    socket.on('usuariosConectados', function(data) {
+        console.log('Usuarios conectados recibidos:', data);
+        usuariosConectados = data.usuarios || [];
+        actualizarListaUsuarios();
+    });
+    
+    // Recibir mensaje de chat
+    socket.on('mensajeChat', function(mensaje) {
+        console.log('Mensaje recibido en cliente:', mensaje);
+        agregarMensajeChat(mensaje);
+    });
+    
+    // AGREGAR: Ping periódico para mantener la conexión activa
+    setInterval(function() {
+        if (socket && socket.connected) {
+            socket.emit('ping');
+        }
+    }, 30000); // Cada 30 segundos
 }

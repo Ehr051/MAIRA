@@ -15,6 +15,7 @@ MAIRA.GestionBatalla = (function() {
     let watchId = null;
     let usuarioInfo = null;
     let elementoTrabajo = null;
+    
     let socket = null;
     let panelVisible = true;
     let elementosConectados = {};
@@ -1378,6 +1379,7 @@ function configurarEventosChat() {
         }
     }
 
+
 /**
  * Mejora en la configuración de Socket.io para gestión de batalla
  */
@@ -1472,10 +1474,7 @@ function conectarAlServidor() {
                     "sistema");
             });
 
-            socket.on('actualizacionPosicion', function(data) {
-                // console.log('Actualización de posición recibida:', data); // Desactivado para evitar spam en consola
-                actualizarPosicionElemento(data);
-            });
+            
 
             
             socket.on('operacionesGB', function(data) {
@@ -1541,31 +1540,41 @@ function enviarPendientes() {
 /**
  * Envía la posición actual al servidor
  */
-function enviarPosicionActual() {
-    if (!socket || !socket.connected || !usuarioInfo || !ultimaPosicion) {
-        console.warn("No se puede enviar posición: datos insuficientes o sin conexión");
+function actualizarPosicionActual(lat, lng, heading) {
+    // Actualizar posición local
+    ultimaPosicion = {
+        lat: lat,
+        lng: lng,
+        heading: heading,
+        timestamp: new Date().toISOString()
+    };
+
+    // Actualizar marcador en el mapa
+    actualizarMarcadorUsuario(lat, lng, heading);
+
+    // Enviar al servidor usando la función enviarPosicion
+    enviarPosicion(ultimaPosicion);
+}
+
+function enviarPosicion(posicion) {
+    if (!socket?.connected || !usuarioInfo) {
+        console.warn("No se puede enviar posición - sin conexión o usuario");
         return;
     }
     
-    // Crear paquete de posición
     const datos = {
         id: usuarioInfo.id,
         usuario: usuarioInfo.usuario,
         elemento: elementoTrabajo,
-        posicion: {
-            lat: ultimaPosicion.lat,
-            lng: ultimaPosicion.lng,
-            precision: ultimaPosicion.precision,
-            rumbo: ultimaPosicion.rumbo || 0,
-            velocidad: ultimaPosicion.velocidad || 0
-        },
+        posicion: posicion,
+        operacion: operacionActual,
         timestamp: new Date().toISOString()
     };
     
-    // Enviar al servidor
-    socket.emit('actualizarPosicion', datos);
-    console.log("Posición enviada al servidor");
+    console.log("Enviando actualización de posición GB:", datos);
+    socket.emit('actualizarPosicionGB', datos);
 }
+
 
 
 /**
@@ -1843,206 +1852,11 @@ function recibirMensajeChat(mensaje) {
 
 
     
-    /**
-     * Agrega un elemento a la lista del panel
-     * @param {Object} elemento - Datos del elemento
-     */
-    function agregarElementoALista(elemento) {
-        const listaElementos = document.getElementById('lista-elementos');
-        if (!listaElementos) return;
-        
-        const esUsuarioActual = elemento.id === usuarioInfo?.id;
-        
-        const elementoHTML = `
-            <div class="elemento-item ${esUsuarioActual ? 'usuario-actual' : ''}" data-id="${elemento.id}">
-                <div class="elemento-icon">
-                    <div class="sidc-preview"></div>
-                    <span class="elemento-status ${elemento.conectado ? 'online' : 'offline'}"></span>
-                </div>
-                <div class="elemento-info">
-                    <div class="elemento-nombre">${elemento.elemento.designacion || 'Sin designación'}/${elemento.elemento.dependencia || ''}</div>
-                    <div class="elemento-usuario">${elemento.usuario}</div>
-                    <div class="elemento-tiempo">${formatearFecha(elemento.timestamp)}</div>
-                </div>
-                <div class="elemento-acciones">
-                    <button title="Ver detalles" onclick="MAIRA.GestionBatalla.mostrarDetallesElemento('${elemento.id}')">
-                        <i class="fas fa-info-circle"></i>
-                    </button>
-                    <button title="Centrar en mapa" onclick="MAIRA.GestionBatalla.centrarEnElemento('${elemento.id}')">
-                        <i class="fas fa-crosshairs"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        listaElementos.insertAdjacentHTML('beforeend', elementoHTML);
-        
-        // Actualizar el icono SIDC
-        const contenedor = listaElementos.querySelector(`.elemento-item[data-id="${elemento.id}"] .sidc-preview`);
-        if (contenedor && elemento.elemento.sidc && typeof ms !== 'undefined') {
-            try {
-                const sym = new ms.Symbol(elemento.elemento.sidc, {size: 20});
-                contenedor.innerHTML = sym.asSVG();
-            } catch (e) {
-                console.warn("Error al generar símbolo para elemento en lista:", e);
-                contenedor.innerHTML = '<div style="width:20px;height:20px;background:#888;border-radius:50%;"></div>';
-            }
-        }
-    }
     
-    /**
-     * Actualiza la posición de un elemento en el mapa
-     * @param {Object} data - Datos de posición
-     */
-    function actualizarPosicionElemento(data) {
-        if (!data || !data.id) return;
-        
-        console.log(`Actualizando posición para elemento: ${data.id}`, data);
-        
-        // Si este elemento no existe en nuestra lista, añadirlo
-        if (!elementosConectados[data.id]) {
-            console.log("Elemento no registrado localmente, añadiendo:", data);
-            elementosConectados[data.id] = {
-                datos: data,
-                marcador: null
-            };
-        }
-        
-        // Actualizar datos
-        elementosConectados[data.id].datos.posicion = data.posicion;
-        elementosConectados[data.id].datos.timestamp = data.timestamp;
-        
-        // Verificar que datos.elemento exista
-        if (!elementosConectados[data.id].datos.elemento && data.elemento) {
-            elementosConectados[data.id].datos.elemento = data.elemento;
-        }
-        
-        // Si no tenemos marcador pero ahora tenemos posición válida, crear el marcador
-        if (!elementosConectados[data.id].marcador && data.posicion && 
-            data.posicion.lat !== undefined && data.posicion.lng !== undefined) {
-            console.log("Creando marcador para elemento con nuevas coordenadas:", data.id);
-            crearMarcadorElemento(elementosConectados[data.id].datos);
-        } 
-        // Si ya tenemos marcador, actualizar su posición
-        else if (elementosConectados[data.id].marcador) {
-            elementosConectados[data.id].marcador.setLatLng([
-                data.posicion.lat,
-                data.posicion.lng
-            ]);
-            
-            // Actualizar rotación si disponible
-            if (data.posicion.rumbo !== undefined && elementosConectados[data.id].marcador.setRotationAngle) {
-                try {
-                    elementosConectados[data.id].marcador.setRotationAngle(data.posicion.rumbo);
-                } catch (e) {
-                    console.warn("Error al actualizar rotación:", e);
-                }
-            }
-        }
-        
-        // Actualizar tiempo en la interfaz
-        const elementoItem = document.querySelector(`.elemento-item[data-id="${data.id}"] .elemento-tiempo`);
-        if (elementoItem) {
-            elementoItem.textContent = formatearFecha(data.timestamp);
-        }
-    }
     
-    function crearMarcadorElemento(elemento) {
-        if (!elemento) {
-            console.error("No se proporcionaron datos para crear marcador");
-            return;
-        }
-        
-        // Verificar que tengamos posición válida
-        if (!elemento.posicion || elemento.posicion.lat === undefined || elemento.posicion.lng === undefined) {
-            console.warn("Posición inválida para crear marcador:", elemento);
-            return;
-        }
-        
-        // Verificar si ya existe el marcador
-        if (elementosConectados[elemento.id]?.marcador) {
-            console.log("Marcador ya existe, actualizando posición");
-            elementosConectados[elemento.id].marcador.setLatLng([
-                elemento.posicion.lat, 
-                elemento.posicion.lng
-            ]);
-            return;
-        }
-        
-        console.log("Creando nuevo marcador para elemento:", elemento);
-        
-        // Verificar que elemento.elemento contenga los datos
-        const elementoData = elemento.elemento || {};
-        
-        // Crear etiqueta en formato correcto: designacion/dependencia
-        let etiqueta = "";
-        if (elementoData.designacion) {
-            etiqueta = elementoData.designacion;
-            if (elementoData.dependencia) {
-                etiqueta += "/" + elementoData.dependencia;
-            }
-        } else if (elemento.usuario) {
-            etiqueta = elemento.usuario; // Usar nombre de usuario si no hay designación
-        }
-        
-        // Verificar si tenemos un SIDC válido
-        const sidc = elementoData.sidc || 'SFGPUCI-----'; // Valor predeterminado si no hay SIDC
-        
-        // Crear icono con SIDC
-        let iconHTML = '';
-        try {
-            if (typeof ms !== 'undefined') {
-                const sym = new ms.Symbol(sidc, {
-                    size: 35,
-                    direction: elemento.posicion.rumbo || 0,
-                    uniqueDesignation: etiqueta
-                });
-                iconHTML = sym.asSVG();
-            } else {
-                // Icono por defecto si no hay biblioteca milsymbol
-                iconHTML = '<div style="width:35px;height:35px;background:blue;border-radius:50%;"></div>';
-            }
-        } catch (e) {
-            console.warn("Error al crear símbolo para marcador:", e);
-            iconHTML = '<div style="width:35px;height:35px;background:blue;border-radius:50%;"></div>';
-        }
-        
-        // Crear marcador
-        try {
-            const marcador = L.marker([elemento.posicion.lat, elemento.posicion.lng], {
-                icon: L.divIcon({
-                    className: 'custom-div-icon elemento',
-                    html: iconHTML,
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 20]
-                }),
-                title: etiqueta ? `${etiqueta} (${elemento.usuario})` : elemento.usuario,
-                draggable: false,
-                elementoId: elemento.id
-            });
-            
-            // Añadir al mapa
-            if (window.mapa) {
-                marcador.addTo(window.calcoActivo || window.mapa);
-                
-                // Configurar eventos
-                marcador.on('click', function() {
-                    mostrarDetallesElemento(elemento.id);
-                });
-            }
-            
-            // Guardar referencia
-            elementosConectados[elemento.id] = elementosConectados[elemento.id] || {};
-            elementosConectados[elemento.id].marcador = marcador;
-            elementosConectados[elemento.id].datos = elemento;
-            
-            console.log(`Marcador creado exitosamente para: ${etiqueta || elemento.usuario}`);
-            return marcador;
-        } catch (e) {
-            console.error("Error al crear marcador para elemento:", e);
-            return null;
-        }
-    }
+    
+    
+    
     
 
     function grabarVideo() {
@@ -2721,7 +2535,7 @@ function recibirMensajeChat(mensaje) {
                         iconSize: [70, 50],
                         iconAnchor: [35, 25]
                     }),
-                    draggable: true,
+                    draggable: false,
                     sidc: sidcFormateado,
                     nombre: nombre || 'Elemento',
                     id: elementoId,
@@ -5961,163 +5775,97 @@ function configEventosActualizacionDinamica() {
 
 
 
-/**
- * Mejora en la inicialización de la lista de elementos
- * @param {Array} elementos - Lista de elementos conectados
- */
-function inicializarListaElementos(elementos) {
-    console.log("Inicializando lista de elementos:", elementos?.length || 0);
+function actualizarListaDestinatarios() {
+    console.log("Actualizando lista de destinatarios para mensajes privados...");
     
-    const listaElementos = document.getElementById('lista-elementos');
-    if (!listaElementos) {
-        console.error("Contenedor de lista de elementos no encontrado (lista-elementos)");
+    // Obtener el select
+    const selectDestinatario = document.getElementById('select-destinatario');
+    if (!selectDestinatario) {
+        console.error("No se encontró el selector de destinatarios");
         return;
     }
     
-    // Limpiar lista actual y mantener el objeto global
-    listaElementos.innerHTML = '';
-    elementosConectados = {};
+    // Mantener las opciones fijas (como "Puesto Comando")
+    const opcionesFijas = Array.from(selectDestinatario.querySelectorAll('option:not([data-elemento])')); 
     
-    // Si no hay elementos, mostrar mensaje
-    if (!elementos || elementos.length === 0) {
-        listaElementos.innerHTML = '<div class="no-elementos">No hay participantes conectados en esta operación</div>';
-        console.log("No hay elementos para mostrar");
-        return;
+    // Si no hay opciones fijas, crear algunas por defecto
+    if (opcionesFijas.length === 0) {
+        opcionesFijas.push(
+            createOption("", "Seleccionar destinatario..."),
+            createOption("todos", "Todos los participantes"),
+            createOption("comando", "Comando/Central")
+        );
+        
+        // Separador
+        const separador = document.createElement('option');
+        separador.disabled = true;
+        separador.textContent = '───────────────';
+        opcionesFijas.push(separador);
     }
     
-    // Agregar cada elemento
-    elementos.forEach(function(elem) {
-        // Asegurarse de que el elemento tiene datos válidos
-        if (!elem || !elem.id) {
-            console.warn("Elemento sin ID recibido:", elem);
+    // Limpiar todas las opciones actuales
+    selectDestinatario.innerHTML = '';
+    
+    // Restaurar opciones fijas
+    opcionesFijas.forEach(opcion => {
+        selectDestinatario.appendChild(opcion);
+    });
+    
+    // Obtener ID propio para excluirlo de la lista
+    const idUsuarioActual = (window.usuarioInfo && window.usuarioInfo.id) || 
+                         (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.usuarioInfo && window.MAIRA.GestionBatalla.usuarioInfo.id);
+    
+    // Obtener lista actualizada de elementos conectados (usando cualquier fuente disponible)
+    const elementos = window.elementosConectados || 
+                     (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) || {};
+    
+    console.log("Elementos disponibles para chat privado:", Object.keys(elementos).length, elementos);
+    
+    // Iterar sobre elementos
+    Object.keys(elementos).forEach(id => {
+        // Evitar agregarse a sí mismo
+        if (id === idUsuarioActual) {
+            console.log(`Omitiendo usuario propio (${id}) como destinatario`);
             return;
         }
         
-        // Guardar en nuestra estructura de datos
-        elementosConectados[elem.id] = {
-            datos: elem,
-            marcador: null
-        };
+        const elemento = elementos[id].datos || elementos[id];
+        if (!elemento) return;
         
-        // Agregar a la interfaz visual
-        agregarElementoALista(elem);
+        console.log(`-> Elemento ${id}: ${elemento.usuario || 'Sin nombre'}`);
         
-        // Intentar crear marcador en el mapa
-        try {
-            if (elem.posicion) {
-                crearMarcadorElemento(elem);
-            } else {
-                console.log("Elemento sin posición, no se crea marcador:", elem.id);
-            }
-        } catch (error) {
-            console.error("Error al crear marcador para elemento:", error);
-        }
-    });
-    
-    console.log(`Inicializados ${Object.keys(elementosConectados).length} elementos conectados`);
-    
-    // Actualizar lista de destinatarios para mensajes privados
-    actualizarListaDestinatarios();
-    
-    // Emitir evento personalizado para notificar que la lista se actualizó
-    document.dispatchEvent(new CustomEvent('listaElementosActualizada', {
-        detail: { elementos: Object.values(elementosConectados) }
-    }));
-}
-
-/**
- * Mejora en la función de actualizar lista de destinatarios
- */
-function actualizarListaDestinatarios() {
-    const selectDestinatario = document.getElementById('select-destinatario');
-    if (!selectDestinatario) {
-        console.error("Selector de destinatario no encontrado");
-        return;
-    }
-    
-    console.log("Actualizando lista de destinatarios para mensajes privados");
-    
-    // Guardar opción seleccionada actualmente si existe
-    const destinatarioActual = selectDestinatario.value;
-    
-    // Limpiar opciones actuales
-    selectDestinatario.innerHTML = '';
-    
-    // Opción predeterminada
-    const optionDefault = document.createElement('option');
-    optionDefault.value = "";
-    optionDefault.textContent = "Seleccionar destinatario...";
-    selectDestinatario.appendChild(optionDefault);
-    
-    // Opción para todos (broadcast)
-    const optionTodos = document.createElement('option');
-    optionTodos.value = "todos";
-    optionTodos.textContent = "Todos los participantes";
-    selectDestinatario.appendChild(optionTodos);
-    
-    // Agregar opción para Comando/Central si existe en la operación
-    const optionComando = document.createElement('option');
-    optionComando.value = "comando";
-    optionComando.textContent = "Comando/Central";
-    selectDestinatario.appendChild(optionComando);
-    
-    // Separador visual
-    const optionSeparator = document.createElement('option');
-    optionSeparator.disabled = true;
-    optionSeparator.textContent = "───────────────";
-    selectDestinatario.appendChild(optionSeparator);
-    
-    // Contador de elementos añadidos
-    let elementosAgregados = 0;
-    
-    // Añadir opciones para cada elemento conectado
-    Object.entries(elementosConectados).forEach(([id, datos]) => {
-        // No incluir al usuario actual en la lista
-        if (id !== usuarioInfo?.id) {
-            const elemento = datos.datos;
-            if (elemento && elemento.usuario) {
-                const option = document.createElement('option');
-                option.value = id;
+        // Crear formato de nombre
+        let nombreMostrado = elemento.usuario || 'Usuario';
+        
+        // Añadir designación/dependencia si está disponible
+        if (elemento.elemento) {
+            if (elemento.elemento.designacion) {
+                nombreMostrado = `${elemento.elemento.designacion} (${nombreMostrado})`;
                 
-                // Texto informativo con usuario y elemento
-                let textoElemento = "";
-                if (elemento.elemento) {
-                    if (elemento.elemento.designacion) {
-                        textoElemento = elemento.elemento.designacion;
-                        if (elemento.elemento.dependencia) {
-                            textoElemento += "/" + elemento.elemento.dependencia;
-                        }
-                    }
+                if (elemento.elemento.dependencia) {
+                    nombreMostrado = `${elemento.elemento.designacion} / ${elemento.elemento.dependencia} (${nombreMostrado})`;
                 }
-                
-                option.textContent = elemento.usuario + (textoElemento ? ` (${textoElemento})` : '');
-                selectDestinatario.appendChild(option);
-                elementosAgregados++;
             }
         }
+        
+        // Crear opción
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = nombreMostrado;
+        option.dataset.elemento = 'true';
+        
+        selectDestinatario.appendChild(option);
     });
     
-    // Restaurar selección previa si es posible
-    if (destinatarioActual && selectDestinatario.querySelector(`option[value="${destinatarioActual}"]`)) {
-        selectDestinatario.value = destinatarioActual;
+    console.log(`Lista de destinatarios actualizada con ${selectDestinatario.options.length - opcionesFijas.length} participantes disponibles`);
+    
+    // Función auxiliar para crear opciones
+    function createOption(value, text) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        return option;
     }
-    
-    // Log informativo
-    console.log(`Lista de destinatarios actualizada con ${elementosAgregados} participantes disponibles`);
-    
-    // Si no hay elementos, deshabilitar la opción de chat privado
-    if (elementosAgregados === 0) {
-        // Mostrar mensaje en el chat
-        agregarMensajeChat("Sistema", "No hay participantes disponibles para mensajes privados", "sistema");
-        
-        // Volver al chat general
-        const btnChatGeneral = document.getElementById('btn-chat-general');
-        if (btnChatGeneral) {
-            btnChatGeneral.click();
-        }
-    }
-    
-    return elementosAgregados;
 }
 
 /**
@@ -6138,22 +5886,7 @@ function recibirListaElementos(elementos) {
     }
 }
 
-/**
- * Solicita la lista de elementos de la operación actual
- */
-function solicitarListaElementos() {
-    console.log("Solicitando lista de elementos para la operación:", operacionActual);
-    
-    if (!socket || !socket.connected) {
-        console.warn("No se puede solicitar la lista de elementos: sin conexión");
-        return;
-    }
-    
-    socket.emit('solicitarElementos', { 
-        operacion: operacionActual,
-        solicitante: usuarioInfo?.id
-    });
-}
+
 
 /**
  * Mejora para el envío de mensajes de chat (privados y públicos)

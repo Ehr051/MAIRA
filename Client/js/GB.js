@@ -7,6 +7,48 @@
 // Namespace principal para evitar conflictos
 window.MAIRA = window.MAIRA || {};
 
+
+// Poner esto al principio del archivo GB.js, antes de la definición de MAIRA.GestionBatalla
+(function() {
+    // Inicialización inmediata de estructura MAIRA
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.GestionBatalla) {
+        window.MAIRA.GestionBatalla = {
+            elementosConectados: {},
+            usuarioInfo: null,
+            elementoTrabajo: null,
+            operacionActual: "",
+            actualizarElementoConectado: function(id, datos, posicion) {
+                if (!window.MAIRA.GestionBatalla.elementosConectados) {
+                    window.MAIRA.GestionBatalla.elementosConectados = {};
+                }
+                
+                if (!window.MAIRA.GestionBatalla.elementosConectados[id]) {
+                    window.MAIRA.GestionBatalla.elementosConectados[id] = {
+                        datos: datos || {},
+                        marcador: null
+                    };
+                } else {
+                    window.MAIRA.GestionBatalla.elementosConectados[id].datos = {
+                        ...window.MAIRA.GestionBatalla.elementosConectados[id].datos,
+                        ...(datos || {}),
+                        posicion: posicion || window.MAIRA.GestionBatalla.elementosConectados[id].datos.posicion
+                    };
+                }
+                
+                window.elementosConectados = window.MAIRA.GestionBatalla.elementosConectados;
+                return window.MAIRA.GestionBatalla.elementosConectados[id];
+            }
+        };
+    }
+    
+    // Crear referencia global para elementosConectados
+    window.elementosConectados = window.MAIRA.GestionBatalla.elementosConectados;
+    
+    console.log("Estructura MAIRA inicializada preventivamente");
+})();
+
+
 // Módulo principal de Gestión de Batalla
 MAIRA.GestionBatalla = (function() {
     // Variables privadas del módulo
@@ -18,6 +60,7 @@ MAIRA.GestionBatalla = (function() {
     let socket = null;
     let panelVisible = true;
     let elementosConectados = {};
+    let listaElementosDiv = null;
     let ultimaPosicion = null;
     let operacionActual = "";
     let colaPendiente = {
@@ -38,18 +81,20 @@ MAIRA.GestionBatalla = (function() {
      */
     function inicializar() {
         console.log("Inicializando modo Gestión de Batalla v2.0.0");
-        
-        // Verificar modo correcto
+        // Al inicio del archivo o donde se inicializa GB
+        window.MAIRA = window.MAIRA || {};
+        window.MAIRA.modoGB = true;
+        window.socket = window.socket || null;
+        window.MAIRA.GestionBatalla = window.MAIRA.GestionBatalla || {};
+            // Verificar modo correcto
         const esModoGestionBatalla = window.location.pathname.includes('gestionbatalla.html');
         if (!esModoGestionBatalla) {
             console.warn("No estamos en modo Gestión de Batalla");
             return;
         }
         
-        // Cargar información
         if (!cargarInfoDesdeLocalStorage()) {
-            console.warn("No se pudo cargar información del usuario");
-            return; // Si falla, ya se redirigió a la sala de espera
+            return;
         }
         
         // Cargar operación
@@ -63,7 +108,10 @@ MAIRA.GestionBatalla = (function() {
         
         // Inicializar componentes
         inicializarInterfaz();
-        
+
+        // Añadir al inicio de la función
+        inicializarEstructuraElementos();
+
         // Mostrar contenido principal
         document.getElementById('main-content').style.display = 'block';
         
@@ -73,6 +121,7 @@ MAIRA.GestionBatalla = (function() {
             window.inicializarMapa();
         }
         
+
         // Establecer conexión con el servidor
         conectarAlServidor();
         
@@ -88,6 +137,10 @@ MAIRA.GestionBatalla = (function() {
                 ultimaPosicion: ultimaPosicion,
                 elementosConectados: elementosConectados
             });
+        }
+
+        if (MAIRA.Elementos && typeof MAIRA.Elementos.seleccionarElementoGB === 'function') {
+            MAIRA.Elementos.seleccionarElementoGB(elemento);
         }
         
         // THEN initialize Chat module (after elements)
@@ -112,10 +165,344 @@ MAIRA.GestionBatalla = (function() {
         }
         // Obtener posición inicial
         obtenerPosicionInicial();
-        sincronizarElementos();
+
+        // Iniciar envío periódico
+        iniciarEnvioPeriodico();
         configurarEventosSocket();
+        centralizarElementosConectados();
+        // Añadir aquí:
+        inicializarSistemaTracking();
+
+        if (MAIRA.Chat && typeof MAIRA.Chat.inicializarNotificacionesChat === 'function') {
+            MAIRA.Chat.inicializarNotificacionesChat();
+        }
+        
+        // Sincronizar elementos con el chat
+        if (MAIRA.Chat && typeof MAIRA.Chat.sincronizarElementosChat === 'function') {
+            MAIRA.Chat.sincronizarElementosChat(elementosConectados);
+        }
+        if (!window.mapa || typeof window.inicializarMapa === 'function') {
+            console.log("Inicializando mapa desde Gestión de Batalla");
+            window.inicializarMapa();
+        }
+        // Inicializar MiRadial después de que el mapa esté listo
+        if (window.mapa && window.MiRadial && typeof window.MiRadial.init === 'function') {
+            console.log("Inicializando MiRadial para GB");
+            window.MiRadial.init(window.mapa);
+        } else {
+            console.warn("MiRadial no disponible o mapa no inicializado");
+        }
+        configurarEventosMiRadialGB();
+
         console.log("Inicialización de Gestión de Batalla completada");
     }
+
+
+
+
+// Integración del sistema de tracking
+function inicializarSistemaTracking() {
+    console.log("Inicializando sistema de tracking de elementos...");
+    
+    // Verificar si hay preferencia guardada
+    const trackingActivadoPrevio = localStorage.getItem('tracking_activado') === 'true';
+    
+    // Añadir botón de tracking global en la interfaz
+    const controlsContainer = document.querySelector('.leaflet-top.leaflet-right');
+    if (controlsContainer) {
+        const trackingControl = L.Control.extend({
+            options: {
+                position: 'topright'
+            },
+            onAdd: function() {
+                const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control tracking-control');
+                const button = L.DomUtil.create('a', 'tracking-button', container);
+                button.id = 'btnTrackingGlobal';
+                button.href = '#';
+                button.title = 'Mostrar/ocultar recorrido de todos los elementos';
+                button.innerHTML = '<i class="fas fa-route"></i>';
+                
+                // Aplicar clase activa si estaba activado previamente
+                if (trackingActivadoPrevio) {
+                    button.classList.add('active');
+                }
+                
+                L.DomEvent.on(button, 'click', function(e) {
+                    L.DomEvent.stop(e);
+                    if (typeof toggleTracking === 'function') {
+                        toggleTracking();
+                        button.classList.toggle('active');
+                    } else {
+                        console.warn("Función toggleTracking no disponible");
+                    }
+                });
+                
+                return container;
+            }
+        });
+        
+        // Añadir al mapa
+        if (window.mapa) {
+            window.mapa.addControl(new trackingControl());
+        }
+    }
+    
+    // Activar tracking si estaba activo previamente
+    if (trackingActivadoPrevio && typeof iniciarTrackingElementos === 'function') {
+        setTimeout(iniciarTrackingElementos, 2000); // Retraso para asegurar que los elementos estén cargados
+    }
+    
+    // Añadir estilos CSS para el botón de tracking
+    const style = document.createElement('style');
+    style.textContent = `
+        .tracking-button {
+            background-color: white;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            display: block;
+            color: #333;
+        }
+        .tracking-button.active {
+            background-color: #ffcc00;
+            color: black;
+        }
+        .tracking-button:hover {
+            background-color: #f4f4f4;
+        }
+        .btn-tracking {
+            color: #f90;
+        }
+    `;
+    document.head.appendChild(style);
+    
+    console.log("Sistema de tracking inicializado");
+}
+
+
+
+
+function inicializarEstructuraElementos() {
+    console.log("Inicializando estructura centralizada para elementos");
+    
+    // Crear namespace MAIRA si no existe
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.GestionBatalla) window.MAIRA.GestionBatalla = {};
+    
+    // Inicializar elementosConectados de forma centralizada
+    if (!window.MAIRA.GestionBatalla.elementosConectados) {
+        window.MAIRA.GestionBatalla.elementosConectados = {};
+    }
+    
+    // Crear referencia global para compatibilidad
+    window.elementosConectados = window.MAIRA.GestionBatalla.elementosConectados;
+    
+    // Mejorar función de actualización de elementos
+    window.MAIRA.GestionBatalla.actualizarElementoConectado = function(id, datos, posicion) {
+        // No procesar actualizaciones vacías
+        if (!id) {
+            console.warn("ID no proporcionado para actualizar elemento");
+            return null;
+        }
+        
+        // Obtener referencia a elementosConectados centralizado
+        const elementosConectados = window.MAIRA.GestionBatalla.elementosConectados;
+        
+        // Crear o actualizar elemento
+        if (!elementosConectados[id]) {
+            elementosConectados[id] = {
+                datos: datos || {},
+                marcador: null
+            };
+        } else {
+            // Preservar marcador existente
+            const marcadorExistente = elementosConectados[id].marcador;
+            
+            // Actualizar datos con cuidado para evitar pérdida de información
+            elementosConectados[id].datos = {
+                ...elementosConectados[id].datos,
+                ...(datos || {}),
+                posicion: posicion || (datos && datos.posicion) || elementosConectados[id].datos.posicion
+            };
+            
+            // Asegurar que el marcador se conserva
+            elementosConectados[id].marcador = marcadorExistente;
+            
+            // Actualizar posición del marcador si existe
+            if (marcadorExistente && posicion && typeof posicion.lat !== 'undefined' && typeof posicion.lng !== 'undefined') {
+                try {
+                    marcadorExistente.setLatLng([posicion.lat, posicion.lng]);
+                    console.log(`Posición de marcador ${id} actualizada: ${posicion.lat}, ${posicion.lng}`);
+                } catch (e) {
+                    console.error(`Error al actualizar posición de marcador ${id}:`, e);
+                }
+            }
+        }
+        
+        // Sincronizar con referencias globales
+        window.elementosConectados = window.MAIRA.GestionBatalla.elementosConectados;
+        
+        return elementosConectados[id];
+    };
+    
+    console.log("Estructura de elementos inicializada correctamente");
+    return true;
+}
+
+
+
+function enviarBroadcastPeriodico() {
+    if (!socket?.connected || !usuarioInfo?.id) return;
+
+    const datos = {
+        id: usuarioInfo.id,
+        usuario: usuarioInfo.usuario,
+        elemento: elementoTrabajo,
+        posicion: ultimaPosicion,
+        operacion: operacionActual,
+        conectado: true,
+        timestamp: new Date().toISOString()
+    };
+
+    // Enviar usando múltiples canales para asegurar compatibilidad
+    socket.emit('actualizarPosicionGB', datos);
+    socket.emit('elementoConectado', datos);
+    socket.emit('anunciarElemento', datos);
+    socket.emit('nuevoElemento', datos);
+
+    console.log("Broadcast periódico enviado:", datos);
+}
+
+
+
+/**
+ * Maneja el estado de conexión de un elemento
+ */
+function manejarEstadoConexion(elementoId, estaConectado) {
+    const elemento = elementosConectados[elementoId];
+    if (!elemento) {
+        console.warn(`Elemento ${elementoId} no encontrado para actualizar estado`);
+        return;
+    }
+
+    // Actualizar estado en datos
+    elemento.conectado = estaConectado;
+    elemento.ultimaConexion = new Date().toISOString();
+
+    // Actualizar visual en la lista
+    const itemLista = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
+    if (itemLista) {
+        itemLista.classList.toggle('desconectado', !estaConectado);
+        const indicadorEstado = itemLista.querySelector('.estado-conexion');
+        if (indicadorEstado) {
+            indicadorEstado.textContent = estaConectado ? '●' : '○';
+            indicadorEstado.title = estaConectado ? 'Conectado' : 'Desconectado';
+            indicadorEstado.className = `estado-conexion ${estaConectado ? 'conectado' : 'desconectado'}`;
+        }
+    }
+
+    // Actualizar visual en el mapa
+    if (elemento.marcador) {
+        const opacidad = estaConectado ? 1 : 0.5;
+        elemento.marcador.setOpacity(opacidad);
+        
+        // Actualizar estilo del icono
+        const iconoActual = elemento.marcador.options.icon;
+        if (iconoActual && iconoActual.options.html) {
+            const nuevoIcono = L.divIcon({
+                ...iconoActual.options,
+                className: `elemento-militar ${estaConectado ? '' : 'desconectado'}`
+            });
+            elemento.marcador.setIcon(nuevoIcono);
+        }
+    }
+}
+
+/**
+ * Maneja la reconexión de un elemento
+ */
+function manejarReconexion(datosElemento) {
+    console.log("Manejando reconexión de elemento:", datosElemento);
+
+    const elementoExistente = elementosConectados[datosElemento.id];
+    
+    if (elementoExistente) {
+        // Actualizar posición y estado
+        if (elementoExistente.marcador) {
+            const nuevaPosicion = L.latLng(
+                datosElemento.posicion.lat, 
+                datosElemento.posicion.lng
+            );
+            elementoExistente.marcador.setLatLng(nuevaPosicion);
+        }
+
+        // Actualizar datos
+        elementoExistente.datos = {
+            ...elementoExistente.datos,
+            ...datosElemento
+        };
+
+        // Marcar como conectado
+        manejarEstadoConexion(datosElemento.id, true);
+
+        console.log(`Elemento ${datosElemento.id} reconectado y actualizado`);
+    } else {
+        // Si no existe, crear nuevo
+        agregarNuevoElemento(datosElemento);
+    }
+}
+
+/**
+ * Maneja la desconexión de un elemento
+ */
+function manejarDesconexion(elementoId) {
+    console.log("Manejando desconexión de elemento:", elementoId);
+    
+    // Marcar como desconectado pero mantener en el mapa
+    manejarEstadoConexion(elementoId, false);
+
+    // Iniciar temporizador para limpieza si no se reconecta
+    const TIEMPO_LIMPIEZA = 30 * 60 * 1000; // 30 minutos
+    setTimeout(() => {
+        const elemento = elementosConectados[elementoId];
+        if (elemento && !elemento.conectado) {
+            console.log(`Eliminando elemento ${elementoId} por inactividad`);
+            eliminarElemento(elementoId);
+        }
+    }, TIEMPO_LIMPIEZA);
+}
+
+
+
+
+
+function centralizarElementosConectados() {
+    console.log("Centralizando referencias de elementosConectados");
+    
+    // Si no existe estructura MAIRA, crearla
+    if (!window.MAIRA) window.MAIRA = {};
+    if (!window.MAIRA.GestionBatalla) window.MAIRA.GestionBatalla = {};
+    
+    // Asegurar que existe elementosConectados
+    if (!window.MAIRA.GestionBatalla.elementosConectados) {
+        window.MAIRA.GestionBatalla.elementosConectados = {};
+        
+        // Si ya existe la referencia global, copiar sus datos
+        if (window.elementosConectados) {
+            Object.assign(window.MAIRA.GestionBatalla.elementosConectados, window.elementosConectados);
+        }
+    }
+    
+    // Hacer que la referencia global apunte a la referencia central
+    window.elementosConectados = window.MAIRA.GestionBatalla.elementosConectados;
+    
+    // Retornar la referencia centralizada
+    return window.MAIRA.GestionBatalla.elementosConectados;
+}
+
+
+
     
     /**
      * Inicializa todos los componentes de la interfaz
@@ -144,6 +531,8 @@ MAIRA.GestionBatalla = (function() {
         console.log("Componentes de interfaz inicializados");
     }
     
+   
+
     /**
      * Inicializa los eventos de click para las pestañas
      */
@@ -170,41 +559,7 @@ MAIRA.GestionBatalla = (function() {
         }
     }
     
-    /**
-     * Carga la información de usuario y elemento desde localStorage
-     * @returns {boolean} - Verdadero si se cargó correctamente
-     */
-    function cargarInfoDesdeLocalStorage() {
-        try {
-            // Intentar cargar información de usuario
-            const usuarioGuardado = localStorage.getItem('gb_usuario_info');
-            if (usuarioGuardado) {
-                usuarioInfo = JSON.parse(usuarioGuardado);
-                console.log("Información de usuario cargada:", usuarioInfo);
-            }
-            
-            // Intentar cargar información de elemento
-            const elementoGuardado = localStorage.getItem('gb_elemento_info');
-            if (elementoGuardado) {
-                elementoTrabajo = JSON.parse(elementoGuardado);
-                console.log("Información de elemento cargada:", elementoTrabajo);
-            }
-            
-            // Verificar si se cargaron ambos
-            if (!usuarioInfo || !elementoTrabajo) {
-                console.warn("Información de usuario o elemento no encontrada en localStorage");
-                redirigirASalaEspera();
-                return false;
-            }
-            
-            return true;
-        } catch (error) {
-            console.error("Error al cargar información desde localStorage:", error);
-            redirigirASalaEspera();
-            return false;
-        }
-    }
-    
+   
     /**
      * Carga la operación desde la URL o localStorage
      * @returns {boolean} - Verdadero si se cargó correctamente
@@ -383,6 +738,15 @@ MAIRA.GestionBatalla = (function() {
         if (btnFullscreen) {
             btnFullscreen.addEventListener('click', function() {
                 toggleFullScreen();
+            });
+        }
+        // Botón de tracking
+        const btnTracking = document.getElementById('btnTracking');
+        if (btnTracking) {
+            btnTracking.addEventListener('click', function() {
+                if (MAIRA.Elementos && typeof MAIRA.Elementos.toggleTracking === 'function') {
+                    MAIRA.Elementos.toggleTracking();
+                }
             });
         }
     }
@@ -796,58 +1160,96 @@ function cambiarTab(tabId) {
                     
                     // Crear icono con SIDC
                     const symbol = new ms.Symbol(elementoTrabajo.sidc, {
-                        size: 30,
+                        size: 35,
                         direction: heading || 0,
                         uniqueDesignation: etiqueta
                     });
                     
                     // Comprobar que el símbolo se generó correctamente
                     if (symbol) {
-                        // Crear marcador
+                        // Crear marcador compatible con el sistema existente
                         marcadorUsuario = L.marker(nuevaPosicion, {
                             icon: L.divIcon({
-                                className: 'custom-div-icon usuario',
+                                className: 'elemento-militar usuario',
                                 html: symbol.asSVG(),
-                                iconSize: [40, 40],
-                                iconAnchor: [20, 20]
+                                iconSize: [70, 50],
+                                iconAnchor: [35, 25]
                             }),
                             title: 'Tu posición',
                             sidc: elementoTrabajo.sidc,
-                            designacion: elementoTrabajo.designacion,
-                            dependencia: elementoTrabajo.dependencia
+                            nombre: etiqueta || usuarioInfo?.usuario || 'Mi posición',
+                            id: elementoTrabajo.id || `usuario_${Date.now()}`,
+                            designacion: elementoTrabajo.designacion || '',
+                            dependencia: elementoTrabajo.dependencia || '',
+                            magnitud: elementoTrabajo.magnitud || '-',
+                            estado: 'operativo',
+                            draggable: false
                         });
                         
                         // Asegurarse de que se añada al calco activo o al mapa
                         if (window.calcoActivo) {
-                            marcadorUsuario.addTo(window.calcoActivo);
+                            window.calcoActivo.addLayer(marcadorUsuario);
                         } else {
-                            marcadorUsuario.addTo(window.mapa);
+                            window.mapa.addLayer(marcadorUsuario);
                         }
                         
                         console.log("Marcador de usuario añadido al mapa");
                         
-                        // Configurar evento de clic para el menú contextual
+                        // Configurar eventos compatibles con la edición
+                        marcadorUsuario.on('click', function(e) {
+                            L.DomEvent.stopPropagation(e);
+                            if (window.seleccionarElemento) {
+                                window.seleccionarElemento(this);
+                            }
+                        });
+                        
                         marcadorUsuario.on('contextmenu', function(e) {
+                            L.DomEvent.stopPropagation(e);
                             if (window.mostrarMenuContextual) {
                                 window.mostrarMenuContextual(e, this);
                             }
                         });
+                        
+                        // Actualizar referencia en elementosConectados
+                        if (usuarioInfo?.id) {
+                            if (!elementosConectados[usuarioInfo.id]) {
+                                elementosConectados[usuarioInfo.id] = {
+                                    datos: {
+                                        id: usuarioInfo.id,
+                                        usuario: usuarioInfo.usuario,
+                                        elemento: elementoTrabajo,
+                                        posicion: nuevaPosicion,
+                                        conectado: true,
+                                        timestamp: new Date().toISOString()
+                                    },
+                                    marcador: marcadorUsuario
+                                };
+                            } else {
+                                elementosConectados[usuarioInfo.id].marcador = marcadorUsuario;
+                                elementosConectados[usuarioInfo.id].datos.posicion = nuevaPosicion;
+                            }
+                        }
                     } else {
                         console.error("No se pudo generar el símbolo militar");
-                        crearMarcadorSimple(nuevaPosicion);
+                        crearMarcadorUsuarioSimple(nuevaPosicion);
                     }
                 } catch (error) {
                     console.error("Error al crear símbolo militar:", error);
-                    crearMarcadorSimple(nuevaPosicion);
+                    crearMarcadorUsuarioSimple(nuevaPosicion);
                 }
             } else {
                 console.log("Usando marcador estándar (no se encontró milsymbol o no hay SIDC)");
-                crearMarcadorSimple(nuevaPosicion);
+                crearMarcadorUsuarioSimple(nuevaPosicion);
             }
         } else {
             // Actualizar posición si ya existe
             console.log("Actualizando posición del marcador existente");
             marcadorUsuario.setLatLng(nuevaPosicion);
+            
+            // Actualizar en elementosConectados
+            if (usuarioInfo?.id && elementosConectados[usuarioInfo.id]) {
+                elementosConectados[usuarioInfo.id].datos.posicion = nuevaPosicion;
+            }
             
             // Actualizar dirección si está disponible
             if (heading !== null && heading !== undefined && typeof heading === 'number') {
@@ -876,11 +1278,8 @@ function cambiarTab(tabId) {
         }
     }
     
-    /**
-     * Función auxiliar para crear un marcador simple cuando no se puede usar milsymbol
-     * @param {L.LatLng} posicion - Posición del marcador
-     */
-    function crearMarcadorSimple(posicion) {
+    function crearMarcadorUsuarioSimple(posicion) {
+        // Crear un marcador con las propiedades que espera el sistema
         marcadorUsuario = L.marker(posicion, {
             icon: L.divIcon({
                 className: 'custom-div-icon usuario',
@@ -888,21 +1287,52 @@ function cambiarTab(tabId) {
                 iconSize: [24, 24],
                 iconAnchor: [12, 12]
             }),
-            title: 'Tu posición'
+            title: 'Tu posición',
+            nombre: usuarioInfo?.usuario || 'Mi posición',
+            id: usuarioInfo?.id || `usuario_${Date.now()}`,
+            draggable: false
         });
         
         if (window.calcoActivo) {
-            marcadorUsuario.addTo(window.calcoActivo);
+            window.calcoActivo.addLayer(marcadorUsuario);
         } else {
-            marcadorUsuario.addTo(window.mapa);
+            window.mapa.addLayer(marcadorUsuario);
         }
         
-        // Configurar evento de clic para el menú contextual
+        // Configurar eventos compatibles con edicioncompleto.js
+        marcadorUsuario.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            if (window.seleccionarElemento) {
+                window.seleccionarElemento(this);
+            }
+        });
+        
         marcadorUsuario.on('contextmenu', function(e) {
+            L.DomEvent.stopPropagation(e);
             if (window.mostrarMenuContextual) {
                 window.mostrarMenuContextual(e, this);
             }
         });
+        
+        // Actualizar referencia en elementosConectados
+        if (usuarioInfo?.id) {
+            if (!elementosConectados[usuarioInfo.id]) {
+                elementosConectados[usuarioInfo.id] = {
+                    datos: {
+                        id: usuarioInfo.id,
+                        usuario: usuarioInfo.usuario,
+                        elemento: elementoTrabajo,
+                        posicion: posicion,
+                        conectado: true,
+                        timestamp: new Date().toISOString()
+                    },
+                    marcador: marcadorUsuario
+                };
+            } else {
+                elementosConectados[usuarioInfo.id].marcador = marcadorUsuario;
+                elementosConectados[usuarioInfo.id].datos.posicion = posicion;
+            }
+        }
         
         console.log("Marcador simple añadido al mapa");
     }
@@ -936,77 +1366,165 @@ function cambiarTab(tabId) {
     /**
      * Inicia el seguimiento de posición
      */
-    function iniciarSeguimiento() {
-        console.log("Iniciando seguimiento de posición");
-        
-        // Comprobar si ya hay un seguimiento activo
-        if (seguimientoActivo) {
-            console.log("El seguimiento ya está activo");
-            return;
-        }
-        
-        // Comprobar soporte de geolocalización
-        if (!navigator.geolocation) {
-            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta geolocalización", "error");
-            if (MAIRA.Chat && MAIRA.Chat.agregarMensajeChat) {
-                MAIRA.Chat.agregarMensajeChat("Sistema", "Tu navegador no soporta geolocalización.", "sistema");
-            }
-            return;
-        }
-        
-        // Configurar botón de seguimiento como activo
-        const btnSeguimiento = document.getElementById('btn-seguimiento');
-        if (btnSeguimiento) {
-            btnSeguimiento.classList.add('active');
-            btnSeguimiento.innerHTML = '<i class="fas fa-location-arrow text-primary"></i> Seguimiento activo';
-        }
-        
-        // Mostrar mensaje en el chat
-        if (MAIRA.Chat && MAIRA.Chat.agregarMensajeChat) {
-            MAIRA.Chat.agregarMensajeChat("Sistema", "Iniciando seguimiento de posición...", "sistema");
-        }
-        
-        // Opciones de seguimiento optimizadas para móviles
-        const opcionesSeguimiento = {
-            enableHighAccuracy: true,
-            maximumAge: 5000,
-            timeout: 10000
-        };
-        
-        // Para dispositivos móviles, reducir frecuencia para ahorrar batería
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            opcionesSeguimiento.maximumAge = 10000; // Más tiempo entre actualizaciones
-        }
-        
-        try {
-            // Iniciar seguimiento continuo
-            watchId = navigator.geolocation.watchPosition(
-                posicionActualizada,
-                errorPosicion,
-                opcionesSeguimiento
-            );
-            
-            // Activar la variable de seguimiento
-            seguimientoActivo = true;
-            
-            if (MAIRA.Chat && MAIRA.Chat.agregarMensajeChat) {
-                MAIRA.Chat.agregarMensajeChat("Sistema", "Seguimiento de posición activado", "sistema");
-            }
-            console.log("Seguimiento iniciado con éxito");
-            
-            // Guardar estado en localStorage
-            localStorage.setItem('seguimiento_activo', 'true');
-        } catch (e) {
-            console.error("Error al iniciar seguimiento:", e);
-            MAIRA.Utils.mostrarNotificacion("Error al iniciar seguimiento de posición", "error");
-            
-            // Revertir estado del botón
-            if (btnSeguimiento) {
-                btnSeguimiento.classList.remove('active');
-                btnSeguimiento.innerHTML = '<i class="fas fa-location-arrow"></i> Seguimiento';
-            }
-        }
+
+function iniciarSeguimiento() {
+    // Si ya hay seguimiento activo, simplemente regresar
+    if (seguimientoActivo) return;
+    
+    console.log("Iniciando seguimiento en segundo plano");
+    
+    // Configurar botón de seguimiento como activo
+    const btnSeguimiento = document.getElementById('btn-seguimiento');
+    if (btnSeguimiento) {
+        btnSeguimiento.classList.add('active');
+        btnSeguimiento.innerHTML = '<i class="fas fa-broadcast-tower text-danger"></i> Compartiendo ubicación';
     }
+    
+    // Mostrar mensaje en el chat
+    if (MAIRA.Chat && MAIRA.Chat.agregarMensajeChat) {
+        MAIRA.Chat.agregarMensajeChat("Sistema", "Compartiendo tu ubicación en tiempo real...", "sistema");
+    }
+    
+    // Opciones optimizadas
+    const opcionesSeguimiento = {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000
+    };
+    
+    // Inicia seguimiento continuo
+    watchId = navigator.geolocation.watchPosition(
+        posicionActualizada,
+        errorPosicion,
+        opcionesSeguimiento
+    );
+    
+    // Activar envío periódico incluso si la app está en segundo plano
+    intervaloPosicion = setInterval(() => {
+        enviarPosicionActual();
+    }, 15000); // Cada 15 segundos para ahorrar batería
+    
+    // Mostrar indicador permanente de compartir ubicación
+    mostrarIndicadorCompartiendo();
+    
+    // Activar la variable de seguimiento
+    seguimientoActivo = true;
+    
+    // Guardar estado en localStorage para recuperar si se cierra la app
+    localStorage.setItem('seguimiento_activo', 'true');
+    localStorage.setItem('tiempo_inicio_seguimiento', Date.now().toString());
+    
+    // Notificar al usuario
+    MAIRA.Utils.mostrarNotificacion("Compartiendo ubicación en tiempo real", "success", 5000);
+}
+
+// Función para mostrar un indicador permanente
+function mostrarIndicadorCompartiendo() {
+    // Si ya existe, no crear otro
+    if (document.getElementById('indicador-compartiendo')) return;
+    
+    // Crear elemento
+    const indicador = document.createElement('div');
+    indicador.id = 'indicador-compartiendo';
+    indicador.className = 'indicador-compartiendo';
+    indicador.innerHTML = `
+        <div class="icono-pulsante"><i class="fas fa-broadcast-tower"></i></div>
+        <div class="texto-indicador">
+            <div>Compartiendo ubicación en tiempo real</div>
+            <button id="btn-detener-compartir">Detener</button>
+        </div>
+    `;
+    
+    // Estilos
+    indicador.style.position = 'fixed';
+    indicador.style.bottom = '20px';
+    indicador.style.left = '20px';
+    indicador.style.backgroundColor = 'rgba(255, 59, 48, 0.9)';
+    indicador.style.color = 'white';
+    indicador.style.padding = '10px 15px';
+    indicador.style.borderRadius = '30px';
+    indicador.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    indicador.style.zIndex = '9999';
+    indicador.style.display = 'flex';
+    indicador.style.alignItems = 'center';
+    indicador.style.fontWeight = 'bold';
+    
+    // Icono pulsante
+    const iconoPulsante = indicador.querySelector('.icono-pulsante');
+    iconoPulsante.style.marginRight = '10px';
+    iconoPulsante.style.animation = 'pulsar 2s infinite';
+    
+    // Añadir estilos de animación
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulsar {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Configurar botón para detener
+    document.body.appendChild(indicador);
+    document.getElementById('btn-detener-compartir').addEventListener('click', function() {
+        detenerSeguimiento();
+    });
+}
+
+// Función para mostrar un indicador permanente
+function mostrarIndicadorCompartiendo() {
+    // Si ya existe, no crear otro
+    if (document.getElementById('indicador-compartiendo')) return;
+    
+    // Crear elemento
+    const indicador = document.createElement('div');
+    indicador.id = 'indicador-compartiendo';
+    indicador.className = 'indicador-compartiendo';
+    indicador.innerHTML = `
+        <div class="icono-pulsante"><i class="fas fa-broadcast-tower"></i></div>
+        <div class="texto-indicador">
+            <div>Compartiendo ubicación en tiempo real</div>
+            <button id="btn-detener-compartir">Detener</button>
+        </div>
+    `;
+    
+    // Estilos
+    indicador.style.position = 'fixed';
+    indicador.style.bottom = '20px';
+    indicador.style.left = '20px';
+    indicador.style.backgroundColor = 'rgba(255, 59, 48, 0.9)';
+    indicador.style.color = 'white';
+    indicador.style.padding = '10px 15px';
+    indicador.style.borderRadius = '30px';
+    indicador.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    indicador.style.zIndex = '9999';
+    indicador.style.display = 'flex';
+    indicador.style.alignItems = 'center';
+    indicador.style.fontWeight = 'bold';
+    
+    // Icono pulsante
+    const iconoPulsante = indicador.querySelector('.icono-pulsante');
+    iconoPulsante.style.marginRight = '10px';
+    iconoPulsante.style.animation = 'pulsar 2s infinite';
+    
+    // Añadir estilos de animación
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulsar {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Configurar botón para detener
+    document.body.appendChild(indicador);
+    document.getElementById('btn-detener-compartir').addEventListener('click', function() {
+        detenerSeguimiento();
+    });
+}
     
     /**
      * Detiene el seguimiento de posición
@@ -1091,8 +1609,8 @@ function cambiarTab(tabId) {
                 operacion: operacionActual
             };
             
-            // Enviar al servidor - NOTA: cambiar 'actualizarPosicion' por el evento correcto
-            socket.emit('actualizarPosicion', datosPosicion);
+            // Enviar al servidor - NOTA: cambiar 'actualizarPosicionGBGB' por el evento correcto
+            socket.emit('actualizarPosicionGB', datosPosicion);
             
             // IMPORTANTE: También actualizar la posición en elementosConectados local
             if (elementosConectados[usuarioInfo.id]) {
@@ -1121,18 +1639,36 @@ function cambiarTab(tabId) {
     }
     
 
-/**
- * Mejora en la configuración de Socket.io para gestión de batalla
- */
-    
+
 function conectarAlServidor() {
     try {
-        const serverURL = MAIRA.Utils.obtenerURLServidor();
-        socket = io(serverURL);
+        // Obtener la URL del servidor (asegúrate de que esta función exista)
+        const serverURL = MAIRA.Utils.obtenerURLServidor ? 
+                          MAIRA.Utils.obtenerURLServidor() : 
+                          (window.location.hostname === 'localhost' ? 
+                           'http://localhost:3000' : window.location.origin);
         
+        console.log("Conectando al servidor:", serverURL);
+        window.socket = socket;
+        window.MAIRA.GestionBatalla.socket = socket;
+
+        // Configuración del socket con reconexión automática
+        socket = io(serverURL, {
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000
+        });
+        
+        // Evento de conexión exitosa
         socket.on('connect', function() {
-            console.log('Conectado al servidor');
-            MAIRA.Utils.actualizarEstadoConexion(true);
+            console.log('Conectado al servidor. ID:', socket.id);
+            
+            // Actualizar estado de conexión en la UI si existe la función
+            if (typeof MAIRA.Utils.actualizarEstadoConexion === 'function') {
+                MAIRA.Utils.actualizarEstadoConexion(true);
+            }
             
             // Unirse a salas necesarias
             socket.emit('joinRoom', 'general');
@@ -1145,7 +1681,7 @@ function conectarAlServidor() {
             // Verificar si somos el creador
             const esCreador = new URLSearchParams(window.location.search).get('creador') === 'true';
             
-            // Enviar datos de usuario/elemento
+            // Enviar datos de usuario/elemento si existen
             if (usuarioInfo && elementoTrabajo) {
                 const datosBroadcast = {
                     id: usuarioInfo.id,
@@ -1155,105 +1691,67 @@ function conectarAlServidor() {
                     operacion: operacionActual,
                     timestamp: new Date().toISOString(),
                     conectado: true,
-                    esCreador: esCreador,
-                    sala: operacionActual // Añadir sala explícitamente
+                    esCreador: esCreador
                 };
                 
-                console.log(`Enviando datos completos${esCreador ? ' como creador' : ''}:`, datosBroadcast);
+                console.log(`Enviando datos iniciales al servidor${esCreador ? ' como creador' : ''}`, datosBroadcast);
                 
-                // MODIFICACIÓN: Usar múltiples eventos con alta prioridad
-                // Evento anunciarElemento con más detalles
+                // Evento principal para anunciar nuestra presencia
                 socket.emit('anunciarElemento', datosBroadcast);
                 
-                // Evento nuevoElemento para compatibilidad
-                socket.emit('nuevoElemento', datosBroadcast);
-                
-                // Evento unirseOperacion para registrar en la operación
-                socket.emit('unirseOperacion', {
-                    ...datosBroadcast,
-                    operacionId: operacionActual // Añadir ID de operación explícitamente
-                });
-                
-                // Evento actualizarPosicion para posicionamiento
-                socket.emit('actualizarPosicion', datosBroadcast);
-                
-                // Eventos adicionales para máxima compatibilidad
-                socket.emit('heartbeat', datosBroadcast);
-                socket.emit('elementoConectado', datosBroadcast);
-                
-                // Si es creador, eventos adicionales
-                if (esCreador) {
-                    socket.emit('creadorConectado', datosBroadcast);
-                    socket.emit('registrarParticipante', datosBroadcast);
-                }
-                
-                // IMPORTANTE: Enviar mensaje al chat para forzar registro
-                // Esto es crucial porque algunos servidores reconocen mejor los
-                // elementos a través del chat
-                socket.emit('mensajeChat', {
-                    id: `msg_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-                    usuario: "Sistema",
-                    mensaje: `${usuarioInfo.usuario} se ha conectado a la operación`,
-                    tipo: 'sistema',
-                    sala: operacionActual,
-                    timestamp: new Date().toISOString(),
-                    emisor: {
-                        id: usuarioInfo.id,
-                        nombre: usuarioInfo.usuario,
-                        elemento: elementoTrabajo
-                    }
-                });
-                
-                // Procesar nuestro propio elemento
+                // Procesar elemento propio para listas locales
                 procesarElementosPropios();
                 
-                // Actualizar lista de destinatarios de chat con reintento
-                const intentarActualizarDestinatarios = () => {
-                    if (MAIRA.Chat && typeof MAIRA.Chat.actualizarListaDestinatarios === 'function') {
-                        MAIRA.Chat.actualizarListaDestinatarios();
-                    }
-                };
-                
-                // Múltiples intentos con retraso creciente
-                setTimeout(intentarActualizarDestinatarios, 500);
-                setTimeout(intentarActualizarDestinatarios, 1500);
-                setTimeout(intentarActualizarDestinatarios, 3000);
+                forzarSincronizacionElementos();
+                // Solicitar elementos existentes
+                solicitarListaElementos();
             }
-            
-            // Iniciar broadcast periódico (más frecuente para creador)
-            iniciarBroadcastPeriodico(esCreador);
-            
-            // Solicitar elementos existentes con múltiples intentos
-            const solicitarElementos = () => {
-                socket.emit('solicitarElementos', { 
-                    operacion: operacionActual,
-                    solicitante: usuarioInfo?.id
-                });
-                console.log("Solicitando lista de elementos de la operación");
-            };
-            
-            // Solicitar inmediatamente y luego con retraso
-            solicitarElementos();
-            setTimeout(solicitarElementos, 2000);
+            if (MAIRA.Elementos?.solicitarListaElementos) {
+                MAIRA.Elementos.solicitarListaElementos();
+            }
+            // Enviar datos pendientes si hay
+            if (typeof enviarPendientes === 'function') {
+                enviarPendientes();
+            }
         });
         
+        // Evento de desconexión
         socket.on('disconnect', function(reason) {
             console.log('Desconectado del servidor. Razón:', reason);
-            MAIRA.Utils.mostrarNotificacion("Desconectado del servidor: " + reason, "error", 5000);
-            MAIRA.Utils.actualizarEstadoConexion(false);
+            
+            // Mostrar notificación si existe la función
+            if (typeof MAIRA.Utils.mostrarNotificacion === 'function') {
+                MAIRA.Utils.mostrarNotificacion("Se perdió la conexión con el servidor: " + reason, "error", 5000);
+            }
+            
+            // Actualizar estado de conexión en la UI si existe la función
+            if (typeof MAIRA.Utils.actualizarEstadoConexion === 'function') {
+                MAIRA.Utils.actualizarEstadoConexion(false);
+            }
+            
+            // Marcar elementos como desconectados
+            marcarElementosDesconectados();
         });
-
+        
+        // Evento de error
         socket.on('error', function(error) {
             console.error('Error de socket:', error);
-            MAIRA.Utils.mostrarNotificacion("Error de socket: " + error, "error");
+            if (typeof MAIRA.Utils.mostrarNotificacion === 'function') {
+                MAIRA.Utils.mostrarNotificacion("Error de conexión: " + error, "error");
+            }
         });
-
-
+        
+        // Evento de reconexión exitosa
         socket.on('reconnect', function() {
-            console.log('Reconectado al servidor. Enviando datos actualizados...');
+            console.log('Reconectado al servidor');
             
+            // Actualizar estado de conexión en la UI si existe la función
+            if (typeof MAIRA.Utils.actualizarEstadoConexion === 'function') {
+                MAIRA.Utils.actualizarEstadoConexion(true);
+            }
+            
+            // Volver a anunciar nuestra presencia
             if (usuarioInfo && elementoTrabajo) {
-                // Anunciar elemento al reconectar
                 socket.emit('anunciarElemento', {
                     id: usuarioInfo.id,
                     usuario: usuarioInfo.usuario,
@@ -1262,99 +1760,448 @@ function conectarAlServidor() {
                     operacion: operacionActual,
                     timestamp: new Date().toISOString()
                 });
-                
-                // Solicitar elementos actualizados
-                socket.emit('solicitarElementos', { 
-                    operacion: operacionActual,
-                    solicitante: usuarioInfo.id 
-                });
+            }
+            
+            // Solicitar elementos actualizados
+            solicitarListaElementos();
+            
+            // Manejar reconexión del chat si existe la función
+            if (MAIRA.Chat && typeof MAIRA.Chat.manejarReconexionChat === 'function') {
+                MAIRA.Chat.manejarReconexionChat();
             }
         });
         
-
-        socket.on('listaElementos', function(elementos) {
-            console.log(`Recibidos ${elementos?.length || 0} elementos del servidor`);
-            
-            if (!elementos || !Array.isArray(elementos)) {
-                console.warn("Lista de elementos vacía o inválida recibida");
-                return;
-            }
-            
-            // Process directly with MAIRA.Elementos module if available
-            if (MAIRA.Elementos && typeof MAIRA.Elementos.inicializarListaElementos === 'function') {
-                MAIRA.Elementos.inicializarListaElementos(elementos);
-                return;
-            }
-
-            // Initialize connected elements
-            elementosConectados = {};
-            
-            // Process each received element
-            elementos.forEach(elemento => {
-                // Basic validation
-                if (!elemento || !elemento.id) return;
-                
-                // Save element with existing marker if any
-                elementosConectados[elemento.id] = {
-                    datos: elemento,
-                    marcador: null
-                };
-                
-                // Create marker if position is available
-                if (elemento.posicion && elemento.posicion.lat && elemento.posicion.lng) {
-                    if (MAIRA.Elementos && typeof MAIRA.Elementos.crearMarcadorElemento === 'function') {
-                        MAIRA.Elementos.crearMarcadorElemento(elemento);
-                    }
-                }
-            });
-            
-            // Also process own element
-            procesarElementosPropios();
-            
-            // Synchronize with chat module for private messages
-            if (MAIRA.Chat && typeof MAIRA.Chat.actualizarListaDestinatarios === 'function') {
-                MAIRA.Chat.actualizarListaDestinatarios();
-            }
-        });
-
-
+        // Configurar los eventos específicos de cada módulo
+        configurarEventosSocket();
         
-        // Configurar eventos específicos para mensajes
-        socket.on('mensajeChat', function(mensaje) {
-            console.log('Mensaje recibido:', mensaje);
-            
-            // Normalizar formato del mensaje
-            const emisor = mensaje.usuario || mensaje.emisor?.nombre || 'Desconocido';
-            const contenido = mensaje.mensaje || mensaje.contenido || '';
-            const tipo = mensaje.tipo || 'other';
-            const timestamp = mensaje.timestamp ? new Date(mensaje.timestamp) : new Date();
-            const destinatario = mensaje.destinatario;
-            
-            // Incluir en el chat
-            if (MAIRA.Chat && typeof MAIRA.Chat.agregarMensajeChat === 'function') {
-                MAIRA.Chat.agregarMensajeChat(emisor, contenido, tipo, timestamp, { destinatario });
-            }
-        });
-        
-        // Evento para mensajes privados
-        socket.on('mensajePrivado', function(mensaje) {
-            console.log('Mensaje privado recibido:', mensaje);
-            
-            if (MAIRA.Chat && typeof MAIRA.Chat.agregarMensajeChat === 'function') {
-                const emisor = mensaje.emisor?.nombre || 'Privado';
-                const contenido = mensaje.contenido || '';
-                const timestamp = mensaje.timestamp ? new Date(mensaje.timestamp) : new Date();
-                
-                MAIRA.Chat.agregarMensajeChat(emisor, contenido, 'privado', timestamp);
-                
-                // Mostrar notificación visual
-                MAIRA.Utils.mostrarNotificacion(`Mensaje privado de ${emisor}`, "info", 3000);
-            }
-        });
+        return true;
     } catch (error) {
-        console.error('Error al conectar con el servidor:', error);
+        console.error('Error crítico al conectar con el servidor:', error);
+        if (typeof MAIRA.Utils.mostrarNotificacion === 'function') {
+            MAIRA.Utils.mostrarNotificacion("Error al conectar con el servidor", "error");
+        }
+        return false;
     }
 }
+
+
+function obtenerURLServidor() {
+        // Intentar obtener de la configuración global
+        if (window.SERVER_URL) {
+            return window.SERVER_URL;
+        }
+        
+        // Obtener URL base del servidor
+        const protocol = window.location.protocol;
+        const hostname = window.location.hostname;
+        let port = window.location.port;
+        
+        // Si es localhost, usar puerto específico
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            port = port || '5000';
+            return `${protocol}//${hostname}:${port}`;
+        }
+        
+        // Si no hay puerto, usar el mismo protocolo y host
+        if (!port) {
+            return `${protocol}//${hostname}`;
+        }
+        
+        return `${protocol}//${hostname}:${port}`;
+    }
+
+function marcarElementosDesconectados() {
+    // Marcar elementos desconectados en la interfaz
+    if (elementosLista) {
+        elementosLista.forEach(elemento => {
+            if (!elemento.conectado) {
+                elemento.estado = 'desconectado';
+                actualizarElementoEnInterfaz(elemento);
+            }
+        });
+    }
+}
+
+function procesarElementosPropios() {
+    console.log("Procesando elemento propio para incluirlo en la lista de elementos conectados");
+    
+    // Verificar que tengamos datos del usuario y elemento
+    if (!usuarioInfo) {
+        console.warn("No hay información de usuario para procesar");
+        
+        // Intentar obtener desde otras referencias
+        if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.usuarioInfo) {
+            usuarioInfo = window.MAIRA.GestionBatalla.usuarioInfo;
+        } else if (window.usuarioInfo) {
+            usuarioInfo = window.usuarioInfo;
+        } else {
+            return;
+        }
+    }
+    
+    if (!elementoTrabajo) {
+        console.warn("No hay información de elemento de trabajo");
+        
+        // Intentar obtener desde otras referencias
+        if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementoTrabajo) {
+            elementoTrabajo = window.MAIRA.GestionBatalla.elementoTrabajo;
+        } else if (window.elementoTrabajo) {
+            elementoTrabajo = window.elementoTrabajo;
+        } else {
+            return;
+        }
+    }
+    
+    // Crear elemento propio
+    const elementoPropio = {
+        id: usuarioInfo.id,
+        usuario: usuarioInfo.usuario,
+        elemento: elementoTrabajo,
+        posicion: ultimaPosicion,
+        conectado: true,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Añadir a la estructura global
+    if (!elementosConectados) elementosConectados = {};
+    
+    elementosConectados[usuarioInfo.id] = {
+        datos: elementoPropio,
+        marcador: marcadorUsuario
+    };
+    
+    // Asegurar que también está en la estructura de GestionBatalla
+    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+        if (!window.MAIRA.GestionBatalla.elementosConectados) {
+            window.MAIRA.GestionBatalla.elementosConectados = {};
+        }
+        window.MAIRA.GestionBatalla.elementosConectados[usuarioInfo.id] = elementosConectados[usuarioInfo.id];
+    }
+    
+    // Actualizar referencia global
+    window.elementosConectados = elementosConectados;
+    
+    // Añadir a la interfaz visual si no existe
+    if (!document.querySelector(`.elemento-item[data-id="${usuarioInfo.id}"]`)) {
+        agregarElementoALista(elementoPropio);
+    }
+    
+    // Actualizar destinatarios de chat
+    if (window.MAIRA && window.MAIRA.Chat && typeof window.MAIRA.Chat.actualizarListaDestinatarios === 'function') {
+        window.MAIRA.Chat.actualizarListaDestinatarios();
+    }
+    
+    console.log("Elemento propio procesado y añadido:", elementoPropio);
+    return elementoPropio;
+    
+}
+
+
+function diagnosticoElementos() {
+    console.group("===== DIAGNÓSTICO DE ELEMENTOS CONECTADOS =====");
+    console.log(`Total de elementos registrados: ${Object.keys(elementosConectados).length}`);
+    
+    Object.entries(elementosConectados).forEach(([id, elem]) => {
+        console.group(`Elemento ID: ${id}`);
+        console.log("Datos:", elem.datos);
+        console.log("Marcador presente:", !!elem.marcador);
+        console.log("Usuario:", elem.datos?.usuario || 'N/A');
+        console.log("Designación:", elem.datos?.elemento?.designacion || 'N/A');
+        console.log("Posición:", elem.datos?.posicion ? `Lat: ${elem.datos.posicion.lat}, Lng: ${elem.datos.posicion.lng}` : 'Sin posición');
+        console.log("Elemento visual en DOM:", !!document.querySelector(`.elemento-item[data-id="${id}"]`));
+        console.groupEnd();
+    });
+    
+    console.log("===== ELEMENTOS VISUALES EN DOM =====");
+    const elementosVisuales = document.querySelectorAll('.elemento-item');
+    console.log(`Total elementos en DOM: ${elementosVisuales.length}`);
+    
+    elementosVisuales.forEach(elemento => {
+        const elementoId = elemento.getAttribute('data-id');
+        console.log(`Elemento visual ID: ${elementoId}, Existe en datos: ${!!elementosConectados[elementoId]}`);
+    });
+    
+    // También verificar destinatarios del chat
+    if (document.getElementById('select-destinatario')) {
+        console.group("===== DESTINATARIOS DE CHAT =====");
+        const options = document.getElementById('select-destinatario').options;
+        console.log(`Total opciones en select: ${options.length}`);
+        
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].disabled) continue;
+            console.log(`Opción ${i}: Valor=${options[i].value}, Texto=${options[i].textContent}`);
+        }
+        console.groupEnd();
+    }
+    
+    console.groupEnd();
+    return "Diagnóstico completado - Ver consola para detalles";
+}
+
+window.diagnosticoElementos = diagnosticoElementos;
+
+// Simplificación del cargarInfoDesdeLocalStorage para evitar redirecciones innecesarias
+function cargarInfoDesdeLocalStorage() {
+    try {
+        const usuarioData = localStorage.getItem('gb_usuario_info');
+        const elementoData = localStorage.getItem('gb_elemento_info');
+        const operacionData = localStorage.getItem('gb_operacion_seleccionada');
+
+        if (!usuarioData || !elementoData || !operacionData) {
+            console.warn("Falta información necesaria en localStorage");
+            return false;
+        }
+
+        try {
+            usuarioInfo = JSON.parse(usuarioData);
+            elementoTrabajo = JSON.parse(elementoData);
+            operacionSeleccionada = JSON.parse(operacionData);
+
+            console.log("Información cargada:", {
+                usuario: usuarioInfo,
+                elemento: elementoTrabajo,
+                operacion: operacionSeleccionada
+            });
+
+            return true;
+        } catch (parseError) {
+            console.error("Error parseando datos:", parseError);
+            return false;
+        }
+    } catch (error) {
+        console.error("Error cargando información:", error);
+        return false;
+    }
+}
+
+
+window.enviarElementoAlServidor = function(elemento) {
+    console.log("Procesando envío de elemento al servidor:", elemento);
+    
+    // Buscar el socket utilizando todas las rutas posibles
+    let socket = null;
+    
+    // Opción 1: Socket en variables globales
+    if (window.socket && window.socket.connected) {
+        socket = window.socket;
+    } 
+    // Opción 2: Socket en MAIRA.GestionBatalla
+    else if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.socket) {
+        socket = window.MAIRA.GestionBatalla.socket;
+    }
+    // Opción 3: Socket del io global (solo como último recurso)
+    else if (typeof io !== 'undefined') {
+        socket = io.connect(); // Esto crea una nueva conexión
+    }
+    
+    if (!socket) {
+        console.error("No se pudo encontrar ningún socket disponible");
+        
+        // Como último recurso, intentar obtener el socket desde los eventos existentes
+        try {
+            const eventosPeriodicos = window.setInterval(function() {
+                if (window.socket && window.socket.connected) {
+                    console.log("Socket encontrado, reintentando envío...");
+                    window.enviarElementoAlServidor(elemento);
+                    clearInterval(eventosPeriodicos);
+                }
+            }, 1000);
+            
+            // Detener después de 10 segundos para no consumir recursos innecesariamente
+            setTimeout(() => clearInterval(eventosPeriodicos), 10000);
+        } catch (error) {
+            console.error("Error al configurar reintento:", error);
+        }
+        
+        return false;
+    }
+    
+    try {
+        // Obtener datos del usuario actual
+        const idUsuarioActual = 
+            elemento.options?.usuarioId || 
+            elemento.options?.jugadorId || 
+            window.usuarioInfo?.id || 
+            (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
+        
+        // Obtener operación actual
+        const operacionActual = 
+            window.operacionActual || 
+            window.MAIRA?.GestionBatalla?.operacionActual || 
+            'general';
+        
+        // Preparar datos completos
+        const datosElemento = {
+            id: elemento.options.id || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            sidc: elemento.options.sidc || 'SFGPUCI-----',
+            designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
+            dependencia: elemento.options.dependencia || '',
+            magnitud: elemento.options.magnitud || '-',
+            coordenadas: elemento.getLatLng(),
+            tipo: elemento.options.tipo || 'unidad',
+            usuario: elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario',
+            usuarioId: idUsuarioActual,
+            jugadorId: idUsuarioActual, // Para compatibilidad
+            operacion: operacionActual,
+            timestamp: new Date().toISOString(),
+            posicion: {
+                lat: elemento.getLatLng().lat,
+                lng: elemento.getLatLng().lng,
+                precision: 10,
+                rumbo: elemento.options.rumbo || 0,
+                velocidad: 0
+            },
+            elemento: {
+                sidc: elemento.options.sidc || 'SFGPUCI-----',
+                designacion: elemento.options.designacion || elemento.options.nombre || '',
+                dependencia: elemento.options.dependencia || '',
+                magnitud: elemento.options.magnitud || '-'
+            },
+            conectado: true
+        };
+        
+        console.log("Enviando elemento al servidor:", datosElemento);
+        
+        // Enviar a través de múltiples eventos para asegurar compatibilidad
+        socket.emit('actualizarElemento', datosElemento);
+        socket.emit('nuevoElemento', datosElemento);
+        socket.emit('anunciarElemento', datosElemento);
+        socket.emit('actualizarPosicionGB', datosElemento);
+        
+        // Actualizar estructura local de elementos conectados
+        actualizarElementoConectadoLocal(datosElemento, elemento);
+        
+        return true;
+    } catch (error) {
+        console.error("Error enviando elemento:", error);
+        return false;
+    }
+};
+
+// Función auxiliar para actualizar elementos localmente
+function actualizarElementoConectadoLocal(datosElemento, marcador) {
+    // Si no existe el objeto elementosConectados, crearlo
+    if (!window.elementosConectados) {
+        window.elementosConectados = {};
+    }
+    
+    // Si el elemento no existe, añadirlo
+    if (!window.elementosConectados[datosElemento.id]) {
+        window.elementosConectados[datosElemento.id] = {
+            datos: datosElemento,
+            marcador: marcador
+        };
+    } else {
+        // Si existe, actualizar los datos manteniendo el marcador
+        window.elementosConectados[datosElemento.id].datos = datosElemento;
+        
+        // Si el marcador es diferente, reemplazarlo
+        if (window.elementosConectados[datosElemento.id].marcador !== marcador) {
+            window.elementosConectados[datosElemento.id].marcador = marcador;
+        }
+    }
+    
+    // Si existe la función para actualizar la lista visual, usarla
+    if (typeof window.MAIRA?.Elementos?.actualizarElementoVisual === 'function') {
+        window.MAIRA.Elementos.actualizarElementoVisual(datosElemento.id);
+    }
+    
+    // Forzar sincronización para actualizar a todos
+    setTimeout(() => {
+        if (typeof window.forzarSincronizacionElementos === 'function') {
+            window.forzarSincronizacionElementos();
+        }
+    }, 500);
+}
+
+// Hacerla disponible globalmente
+window.actualizarElementoConectadoLocal = actualizarElementoConectadoLocal;
+
+
+function actualizarIconoMarcador(marcador, datos) {
+    try {
+        // Crear símbolo militar
+        const sym = new ms.Symbol(datos.sidc, {
+            size: 35,
+            direction: datos.posicion?.rumbo || 0,
+            uniqueDesignation: datos.designacion || datos.nombre || ''
+        });
+        
+        // Actualizar icono
+        marcador.setIcon(L.divIcon({
+            className: 'elemento-militar',
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        }));
+        
+        // Actualizar opciones
+        marcador.options.sidc = datos.sidc;
+        marcador.options.designacion = datos.designacion;
+        marcador.options.dependencia = datos.dependencia;
+        marcador.options.magnitud = datos.magnitud;
+        marcador.options.draggable = false;
+        
+        return true;
+    } catch (e) {
+        console.error("Error actualizando icono:", e);
+        return false;
+    }
+}
+/**
+ * Función getSocket mejorada para acceder al socket desde cualquier parte
+ */
+
+function getSocket() {
+    return window.socket;
+}
+
+// Asegúrate de que esté disponible globalmente
+window.MAIRA.GestionBatalla.getSocket = getSocket;
+
+/**
+ * Verificador automático de conexión de socket
+ * Añade esto al final de GB.js
+ */
+function iniciarVerificadorSocket() {
+    console.log("Iniciando verificador automático de conexión de socket");
+    
+    // Intervalo para verificar y reparar conexión
+    setInterval(() => {
+        const _socket = getSocket();
+        
+        if (!_socket) {
+            console.error("No se pudo obtener referencia al socket");
+            return;
+        }
+        
+        if (!_socket.connected) {
+            console.warn("Socket desconectado detectado. Intentando reconectar...");
+            
+            if (typeof _socket.connect === 'function') {
+                _socket.connect();
+            }
+            
+            // Forzar sincronización si se reconecta
+            setTimeout(() => {
+                if (_socket.connected) {
+                    console.log("Socket reconectado exitosamente");
+                    
+                    if (typeof forzarSincronizacionElementos === 'function') {
+                        forzarSincronizacionElementos();
+                    }
+                }
+            }, 1000);
+        }
+    }, 30000); // Cada 30 segundos
+}
+
+// Iniciar el verificador
+iniciarVerificadorSocket();
+
+// Exponer función a nivel global
+window.getSocket = getSocket;
+
 
 
 // Función auxiliar para añadir elemento visual si no existe
@@ -1388,7 +2235,7 @@ function iniciarBroadcastPeriodico(esCreador) {
             };
             
             // IMPORTANTE: Usar varios eventos para máxima compatibilidad
-            socket.emit('actualizarPosicion', datosBroadcast);
+            socket.emit('actualizarPosicionGB', datosBroadcast);
             socket.emit('nuevoElemento', datosBroadcast);
             socket.emit('anunciarElemento', datosBroadcast);
             socket.emit('heartbeat', datosBroadcast); // Añadir evento heartbeat para compatibilidad
@@ -1416,7 +2263,7 @@ function iniciarBroadcastPeriodico(esCreador) {
             esCreador: esCreador
         };
         
-        socket.emit('actualizarPosicion', datosBroadcast);
+        socket.emit('actualizarPosicionGB', datosBroadcast);
         socket.emit('nuevoElemento', datosBroadcast);
         socket.emit('anunciarElemento', datosBroadcast);
         socket.emit('heartbeat', datosBroadcast);
@@ -1433,7 +2280,121 @@ function iniciarBroadcastPeriodico(esCreador) {
      * Configura los eventos específicos de Socket.io
      */
     function configurarEventosSocket() {
-        // Este método será implementado por cada módulo según sus necesidades
+        if (!socket) {
+            console.error("Socket no disponible para configurar eventos");
+            return;
+        }
+    
+        console.log("Configurando eventos centrales de socket para GB");
+    
+        // Limpiar eventos previos
+        socket.off('listaElementos');
+        socket.off('nuevoElemento');
+        socket.off('anunciarElemento');
+        socket.off('actualizarPosicionGB');
+        socket.off('actualizacionPosicion');
+        socket.off('elementoConectado');
+        socket.off('elementoDesconectado');
+        socket.off('actualizarElemento');
+    
+        // Añadir manejador para actualizarElemento
+        socket.on('actualizarElemento', function(elemento) {
+            console.log("Elemento actualizado recibido:", elemento);
+            
+            if (!elemento || !elemento.id) return;
+            
+            if (MAIRA.Elementos && typeof MAIRA.Elementos.procesarElementosRecibidos === 'function') {
+                MAIRA.Elementos.procesarElementosRecibidos(elemento);
+            }
+        });
+    
+        // Evento para lista de elementos
+        socket.on('listaElementos', function(elementos) {
+            console.log(`Recibidos ${elementos?.length || 0} elementos del servidor:`, elementos);
+            
+            if (!elementos || !Array.isArray(elementos) || elementos.length === 0) {
+                console.log("Lista de elementos vacía recibida");
+                return;
+            }
+            
+            // Procesar elementos recibidos
+            if (MAIRA.Elementos && typeof MAIRA.Elementos.procesarElementosRecibidos === 'function') {
+                MAIRA.Elementos.procesarElementosRecibidos(elementos);
+            }
+        });
+    
+        // Evento para nuevos elementos
+        socket.on('nuevoElemento', function(elemento) {
+            console.log("Nuevo elemento recibido:", elemento);
+            
+            if (!elemento || !elemento.id) return;
+            
+            if (MAIRA.Elementos && typeof MAIRA.Elementos.procesarElementosRecibidos === 'function') {
+                MAIRA.Elementos.procesarElementosRecibidos(elemento);
+            }
+        });
+    
+        // Eventos similares para anunciarElemento
+        socket.on('anunciarElemento', function(elemento) {
+            console.log("Elemento anunciado recibido:", elemento);
+            
+            if (!elemento || !elemento.id) return;
+            
+            if (MAIRA.Elementos && typeof MAIRA.Elementos.procesarElementosRecibidos === 'function') {
+                MAIRA.Elementos.procesarElementosRecibidos(elemento);
+            }
+        });
+    
+        socket.on('actualizarPosicionGB', function(datos) {
+            if (!datos?.id || !datos?.posicion) return;
+            
+            console.log("🔍 POSICIÓN RECIBIDA:", datos.id, {
+                lat: datos.posicion.lat,
+                lng: datos.posicion.lng,
+                rumbo: datos.posicion.rumbo,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Actualizar en la estructura local mediante el módulo de elementos
+            if (MAIRA.Elementos?.actualizarPosicionElemento) {
+                MAIRA.Elementos.actualizarPosicionElemento(datos);
+            } else if (elementosConectados[datos.id]) {
+                // Actualización manual si el módulo no está disponible
+                console.log("⚠️ Usando actualización manual (sin módulo Elementos)");
+                elementosConectados[datos.id].datos.posicion = datos.posicion;
+                
+                if (elementosConectados[datos.id].marcador) {
+                    try {
+                        elementosConectados[datos.id].marcador.setLatLng([
+                            datos.posicion.lat,
+                            datos.posicion.lng
+                        ]);
+                        console.log(`✅ Posición de marcador ${datos.id} actualizada manualmente a:`, 
+                                    datos.posicion.lat, datos.posicion.lng);
+                    } catch (e) {
+                        console.error(`❌ Error al actualizar posición manualmente:`, e);
+                    }
+                } else {
+                    console.warn(`⚠️ Elemento ${datos.id} no tiene marcador para actualizar`);
+                }
+            } else {
+                console.warn(`⚠️ Elemento ${datos.id} no encontrado en elementosConectados`);
+            }
+        });
+
+        // Asegurar compatibilidad con otros nombres de evento
+        socket.on('actualizacionPosicion', function(datos) {
+            console.log("🔄 Evento actualizacionPosicion recibido:", datos.id);
+            if (MAIRA.Elementos?.actualizarPosicionElemento) {
+                MAIRA.Elementos.actualizarPosicionElemento(datos);
+            }
+        });
+    
+        // Delegar configuración a otros módulos
+        if (MAIRA.Elementos && typeof MAIRA.Elementos.configurarEventosSocket === 'function') {
+            MAIRA.Elementos.configurarEventosSocket(socket);
+        }
+        
         if (MAIRA.Chat && typeof MAIRA.Chat.configurarEventosSocket === 'function') {
             MAIRA.Chat.configurarEventosSocket(socket);
         }
@@ -1441,500 +2402,114 @@ function iniciarBroadcastPeriodico(esCreador) {
         if (MAIRA.Informes && typeof MAIRA.Informes.configurarEventosSocket === 'function') {
             MAIRA.Informes.configurarEventosSocket(socket);
         }
-        
-        if (MAIRA.Elementos && typeof MAIRA.Elementos.configurarEventosSocket === 'function') {
-            MAIRA.Elementos.configurarEventosSocket(socket);
-        }
-    }
-
-    /**
-     * Procesa el elemento propio para incluirlo en la lista de elementos conectados
-     */
-
-    function procesarElementosPropios() {
-        console.log("Procesando elemento propio para incluirlo en la lista de elementos conectados");
-        
-        // Verificar que tengamos datos del usuario y su elemento
-        if (!usuarioInfo || !elementoTrabajo) {
-            console.warn("No hay información de usuario o elemento para procesar");
-            return;
-        }
-        
-        // Crear entrada para el elemento propio
-        const elementoPropio = {
-            id: usuarioInfo.id,
-            usuario: usuarioInfo.usuario,
-            elemento: elementoTrabajo,
-            posicion: ultimaPosicion,
-            conectado: true,
-            timestamp: new Date().toISOString(),
-            operacion: operacionActual
-        };
-        
-        // Añadir a la lista de elementos conectados
-        elementosConectados[usuarioInfo.id] = {
-            datos: elementoPropio,
-            marcador: marcadorUsuario
-        };
-        
-        console.log("Elemento propio añadido a la lista de elementos conectados:", elementoPropio);
-        
-        // Agregar a la interfaz visual
-        if (MAIRA.Elementos && typeof MAIRA.Elementos.agregarElementoALista === 'function') {
-            MAIRA.Elementos.agregarElementoALista(elementoPropio);
-        }
-        
-        // Actualizar lista de destinatarios de chat
-        if (MAIRA.Chat && typeof MAIRA.Chat.actualizarListaDestinatarios === 'function') {
-            MAIRA.Chat.actualizarListaDestinatarios();
-        }
-        
-        // IMPORTANTE: Emitir nuestro elemento al servidor para que otros lo reciban
-        if (socket && socket.connected) {
-            // Usar varios eventos para máxima compatibilidad
-            socket.emit('nuevoElemento', elementoPropio);
-            socket.emit('anunciarElemento', elementoPropio);
-            
-            // Enviar mensaje explícito al chat
-            socket.emit('mensajeChat', {
-                id: `msg_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-                usuario: "Sistema",
-                mensaje: `${usuarioInfo.usuario} está en línea`,
-                tipo: 'sistema',
-                sala: operacionActual,
-                timestamp: new Date().toISOString(),
-                emisor: {
-                    id: usuarioInfo.id,
-                    nombre: usuarioInfo.usuario,
-                    elemento: elementoTrabajo
-                }
-            });
-            
-            console.log("Elemento propio emitido al servidor para otros jugadores");
-        }
-    }
-
-// Añadir nueva función para sincronizar elementos entre módulos
-    function sincronizarElementos() {
-        // 1. Actualizar módulo de Elementos si está disponible
-        if (MAIRA.Elementos) {
-            // Si existe una función para actualizar los elementos, usarla
-            if (typeof MAIRA.Elementos.actualizarElementosConectados === 'function') {
-                MAIRA.Elementos.actualizarElementosConectados(elementosConectados);
-            } else {
-                // Si no existe, intentar asignar directamente a elementosConectados
-                console.log("actualizarElementosConectados no disponible, asignando directamente");
-                window.elementosConectados = elementosConectados;
-            }
-            
-            // Actualizar UI
-            if (typeof MAIRA.Elementos.mejorarListaElementos === 'function') {
-                MAIRA.Elementos.mejorarListaElementos();
-            }
-        } else {
-            // Hacer disponible globalmente como fallback
-            window.elementosConectados = elementosConectados;
-        }
-        
-        // 2. Actualizar lista de destinatarios para chat
-        if (MAIRA.Chat && typeof MAIRA.Chat.actualizarListaDestinatarios === 'function') {
-            setTimeout(() => {
-                MAIRA.Chat.actualizarListaDestinatarios();
-            }, 300); // Demora para permitir que el DOM se actualice
-        }
-    }
-
-
-// In chatGB.js, replace actualizarListaDestinatarios
-    function actualizarListaDestinatarios() {
-        const selectDestinatario = document.getElementById('select-destinatario');
-        if (!selectDestinatario) {
-            console.error("Selector de destinatario no encontrado");
-            return;
-        }
-        
-        console.log("Actualizando lista de destinatarios para mensajes privados...");
-        
-        // Get connected elements from the global scope
-        let elementos = {};
-        if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
-            elementos = window.MAIRA.GestionBatalla.elementosConectados;
-        } else if (window.elementosConectados) {
-            elementos = window.elementosConectados;
-        } else {
-            elementos = elementosConectados; // Local variable
-        }
-        
-        console.log(`Elementos disponibles para chat privado: ${Object.keys(elementos).length}`, elementos);
-        
-        // Save currently selected option
-        const destinatarioActual = selectDestinatario.value;
-        
-        // Clear current options
-        selectDestinatario.innerHTML = '';
-        
-        // Default options
-        selectDestinatario.innerHTML = `
-            <option value="">Seleccionar destinatario...</option>
-            <option value="comando">Puesto Comando</option>
-            <option disabled>───────────────</option>
-        `;
-        
-        // Counter of added elements
-        let elementosAgregados = 0;
-        
-        // Process each element directly from the elementosConectados object
-        Object.entries(elementos).forEach(([id, elem]) => {
-            // Don't include current user
-            if (id === usuarioInfo?.id) return;
-            
-            // Determine how to access the data based on structure
-            let datosElemento;
-            if (elem.datos) {
-                datosElemento = elem.datos;
-            } else {
-                datosElemento = elem;
-            }
-            
-            // Verify it has minimum necessary data
-            if (!datosElemento || !datosElemento.usuario) {
-                console.warn(`Elemento con ID ${id} no tiene datos suficientes para añadir como destinatario`);
-                return;
-            }
-            
-            // Create option for recipient
-            const option = document.createElement('option');
-            option.value = id;
-            
-            // Determine descriptive text
-            let nombreUsuario = datosElemento.usuario;
-            let infoElemento = "";
-            
-            // Add military element info if available
-            if (datosElemento.elemento) {
-                if (datosElemento.elemento.designacion) {
-                    infoElemento = datosElemento.elemento.designacion;
-                    if (datosElemento.elemento.dependencia) {
-                        infoElemento += "/" + datosElemento.elemento.dependencia;
-                    }
-                }
-            }
-            
-            option.textContent = nombreUsuario + (infoElemento ? ` (${infoElemento})` : '');
-            selectDestinatario.appendChild(option);
-            elementosAgregados++;
-        });
-        
-        // Restore previous selection if exists
-        if (destinatarioActual && Array.from(selectDestinatario.options).some(opt => opt.value === destinatarioActual)) {
-            selectDestinatario.value = destinatarioActual;
-        }
-        
-        console.log(`Lista de destinatarios actualizada con ${elementosAgregados} participantes disponibles`);
-        return elementosAgregados;
-    }
-
-    /**
-     * Envía los mensajes, informes y posiciones pendientes cuando se conecta
-     */
-    function enviarPendientes() {
-        console.log("Intentando enviar datos pendientes");
-        
-        if (!socket || !socket.connected) {
-            console.warn("No se pueden enviar datos pendientes: sin conexión");
-            return;
-        }
-        
-        // Enviar mensajes pendientes
-        if (colaPendiente.mensajes && colaPendiente.mensajes.length > 0) {
-            console.log(`Enviando ${colaPendiente.mensajes.length} mensajes pendientes`);
-            
-            colaPendiente.mensajes.forEach(mensaje => {
-                socket.emit('mensajeChat', mensaje);
-            });
-            
-            // Limpiar mensajes enviados
-            colaPendiente.mensajes = [];
-        }
-        
-        // Enviar informes pendientes
-        if (colaPendiente.informes && colaPendiente.informes.length > 0) {
-            console.log(`Enviando ${colaPendiente.informes.length} informes pendientes`);
-            
-            colaPendiente.informes.forEach(informe => {
-                socket.emit('nuevoInforme', informe);
-            });
-            
-            // Limpiar informes enviados
-            colaPendiente.informes = [];
-        }
-        
-        // Enviar posiciones pendientes
-        if (colaPendiente.posiciones && colaPendiente.posiciones.length > 0) {
-            console.log(`Enviando ${colaPendiente.posiciones.length} posiciones pendientes`);
-            
-            // Solo enviar la última posición para no sobrecargar
-            const ultimaPosicionPendiente = colaPendiente.posiciones[colaPendiente.posiciones.length - 1];
-            socket.emit('actualizarPosicion', ultimaPosicionPendiente);
-            
-            // Limpiar posiciones enviadas
-            colaPendiente.posiciones = [];
-        }
-    }
-    /**
-     * Envía la posición actual al servidor
-     */
-    function enviarPosicionActual() {
-        if (!socket || !socket.connected || !usuarioInfo) {
-            console.warn("No se puede enviar posición: sin conexión o sin datos de usuario");
-            return;
-        }
-        
-        // Si no hay posición, intentar obtenerla
-        if (!ultimaPosicion || !ultimaPosicion.lat || !ultimaPosicion.lng) {
-            console.warn("No hay posición para enviar. Intentando obtener posición actual...");
-            obtenerPosicionInicial();
-            return;
-        }
-        
-        console.log("Enviando posición actual al servidor:", ultimaPosicion);
-        
-        // Crear paquete de datos completo
-        const datos = {
-            id: usuarioInfo.id,
-            usuario: usuarioInfo.usuario,
-            elemento: elementoTrabajo,  // Incluir el elemento completo
-            posicion: {
-                lat: ultimaPosicion.lat,
-                lng: ultimaPosicion.lng,
-                precision: ultimaPosicion.precision || 10,
-                rumbo: ultimaPosicion.rumbo || 0,
-                velocidad: ultimaPosicion.velocidad || 0
-            },
-            conectado: true,
-            timestamp: new Date().toISOString(),
-            operacion: operacionActual
-        };
-        
-        // Enviar al servidor - múltiples eventos para asegurar compatibilidad
-        socket.emit('actualizarPosicion', datos);
-        socket.emit('actualizacionPosicion', datos);  // Evento alternativo
-        
-        // IMPORTANTE: También actualizar nuestros datos locales
-        if (elementosConectados[usuarioInfo.id]) {
-            elementosConectados[usuarioInfo.id].datos.posicion = datos.posicion;
-            elementosConectados[usuarioInfo.id].datos.timestamp = datos.timestamp;
-        }
-        
-        console.log("Posición enviada al servidor");
     }
     
-    function iniciarEnvioPosicionPeriodico() {
-        // Limpiar intervalo existente si lo hay
-        if (window.envioPosicionInterval) {
-            clearInterval(window.envioPosicionInterval);
-        }
+// Función para unificar las actualizaciones visuales
+function actualizarVisualizacionElemento(elemento) {
+    // 1. Actualizar marcador en el mapa
+    if (elemento.posicion) {
+        const elementoExistente = window.elementosConectados[elemento.id];
         
-        // Establecer intervalo para enviar posición cada 30 segundos
-        window.envioPosicionInterval = setInterval(() => {
-            if (socket && socket.connected && usuarioInfo) {
-                enviarPosicionActual();
-            }
-        }, 30000);
-        
-        console.log("Iniciado envío periódico de posición");
-        
-        // Enviar posición inmediatamente
-        enviarPosicionActual();
-    }
-
-    /**
-     * Integra los datos del elemento de GBinicio con la función agregarMarcador
-     * @param {Object} datosElemento - Datos del elemento recibidos de GBinicio
-     */
-    function inicializarElementoDesdeGBinicio(datosElemento) {
-        console.log("Inicializando elemento desde GBinicio:", datosElemento);
-        
-        if (!datosElemento || !datosElemento.sidc) {
-            console.error("Datos de elemento incompletos o inválidos");
-            return;
-        }
-        
-        // Guardar los datos en la variable global
-        elementoTrabajo = datosElemento;
-        
-        // Guardar en localStorage para persistencia
-        localStorage.setItem('gb_elemento_info', JSON.stringify(datosElemento));
-        
-        // Si ya tenemos posición, crear el marcador
-        if (ultimaPosicion) {
-            console.log("Creando marcador con la posición actual y datos del elemento");
-            // Actualizar el marcador del usuario con los datos del elemento
-            setTimeout(() => {
-                actualizarMarcadorUsuario(
-                    ultimaPosicion.lat,
-                    ultimaPosicion.lng,
-                    ultimaPosicion.rumbo || 0
-                );
-            }, 500);
-        } else {
-            console.log("No hay posición disponible, intentando obtenerla");
-            // Intentar obtener la posición
-            obtenerPosicionInicial();
-        }
-        
-        // Actualizar información en el panel lateral
-        actualizarInfoUsuarioPanel();
-    }
-    
-    function agregarMarcadorGB(sidc, nombre) {
-        console.log("Agregando marcador con SIDC:", sidc, "Nombre:", nombre);
-        
-        // Verificar si existe la función global
-        if (typeof window.agregarMarcador === 'function') {
-            // Usar la función global pero con datos mejorados
-            window.agregarMarcador(sidc, nombre, function(marcador) {
-                // Callback cuando se crea el marcador
-                if (marcador) {
-                    // Añadir propiedades adicionales específicas de GB
-                    marcador.options.usuario = usuarioInfo?.usuario || 'Usuario';
-                    marcador.options.usuarioId = usuarioInfo?.id || '';
-                    marcador.options.operacion = operacionActual;
-                    marcador.options.timestamp = new Date().toISOString();
-                    
-                    // Notificar a otros usuarios si estamos conectados
-                    if (socket && socket.connected) {
-                        socket.emit('nuevoElemento', {
-                            id: marcador.options.id,
-                            sidc: marcador.options.sidc,
-                            nombre: marcador.options.nombre,
-                            posicion: marcador.getLatLng(),
-                            designacion: marcador.options.designacion || '',
-                            dependencia: marcador.options.dependencia || '',
-                            magnitud: marcador.options.magnitud || '-',
-                            estado: marcador.options.estado || 'operativo',
-                            usuario: usuarioInfo?.usuario || 'Usuario',
-                            usuarioId: usuarioInfo?.id || '',
-                            operacion: operacionActual,
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-                    
-                    console.log("Marcador creado y notificado:", marcador.options);
-                }
-            });
-        } else {
-            console.warn("La función window.agregarMarcador no está disponible");
-            MAIRA.Utils.mostrarNotificacion("Función de agregar marcador no disponible", "error");
+        if (elementoExistente && elementoExistente.marcador) {
+            // Actualizar marcador existente
+            elementoExistente.marcador.setLatLng([elemento.posicion.lat, elemento.posicion.lng]);
             
-            // Implementación alternativa
-            window.mapa.once('click', function(event) {
-                const latlng = event.latlng;
-                crearMarcadorPersonalizado(latlng, sidc, nombre);
-            });
+            // Actualizar icono si es necesario
+            if (elemento.sidc && elementoExistente.marcador.options.sidc !== elemento.sidc) {
+                actualizarIconoMarcador(elementoExistente.marcador, elemento);
+            }
+        } else {
+            // Crear nuevo marcador
+            crearMarcadorElemento(elemento);
         }
     }
     
-    /**
-     * Crea un marcador personalizado en caso de que no esté disponible window.agregarMarcador
-     * @param {L.LatLng} latlng - Posición del marcador
-     * @param {string} sidc - Código SIDC del marcador
-     * @param {string} nombre - Nombre descriptivo del elemento
-     */
-    function crearMarcadorPersonalizado(latlng, sidc, nombre) {
-        // Crear ID único para el elemento
-        const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Configurar SIDC 
-        let sidcFormateado = sidc;
-        if (sidcFormateado.length < 15) {
-            sidcFormateado = sidc.padEnd(15, '-');
-        }
-        
-        try {
-            // Crear símbolo militar
-            if (typeof ms !== 'undefined' && typeof ms.Symbol === 'function') {
-                const sym = new ms.Symbol(sidcFormateado, { 
-                    size: 35,
-                    uniqueDesignation: nombre || "",
-                    higherFormation: ""
-                });
-                
-                // Crear marcador
-                const marcador = L.marker(latlng, {
-                    icon: L.divIcon({
-                        className: 'elemento-militar',
-                        html: sym.asSVG(),
-                        iconSize: [70, 50],
-                        iconAnchor: [35, 25]
-                    }),
-                    draggable: true,
-                    sidc: sidcFormateado,
-                    nombre: nombre || 'Elemento',
-                    id: elementoId,
-                    designacion: '',
-                    dependencia: '',
-                    magnitud: sidcFormateado.charAt(11) || '-',
-                    estado: 'operativo',
+    // 2. Actualizar/crear elemento en la lista visual
+    const elementoExistenteEnLista = document.querySelector(`.elemento-item[data-id="${elemento.id}"]`);
+    if (elementoExistenteEnLista) {
+        // Actualizar elemento existente
+        actualizarElementoEnLista(elemento);
+    } else {
+        // Agregar nuevo elemento
+        agregarElementoALista(elemento);
+    }
+}
+
+
+
+// Modificacion en window.agregarMarcador para asignar correctamente el propietario
+window.agregarMarcadorGB = function(sidc, nombre, callback) {
+    console.log("Agregando marcador GB con SIDC:", sidc, "Nombre:", nombre);
+    
+    // Si no hay mapa, no podemos hacer nada
+    if (!window.mapa) {
+        console.error("No hay mapa disponible para agregar marcador");
+        return;
+    }
+    
+    // Usar la función global tradicional
+    window.agregarMarcador(sidc, nombre, function(marcador) {
+        // Callback cuando se crea el marcador
+        if (marcador) {
+            // Añadir propiedades adicionales específicas de GB
+            marcador.options.usuario = usuarioInfo?.usuario || 'Usuario';
+            marcador.options.usuarioId = usuarioInfo?.id || '';
+            marcador.options.jugador = usuarioInfo?.id || '';  // Asegurarse de asignar el propietario
+            marcador.options.jugadorId = usuarioInfo?.id || ''; // Redundancia para compatibilidad
+            marcador.options.operacion = operacionActual;
+            marcador.options.timestamp = new Date().toISOString();
+            
+            // Generar ID único si no tiene
+            if (!marcador.options.id) {
+                marcador.options.id = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            }
+            
+            // Notificar a otros usuarios si estamos conectados
+            if (socket && socket.connected) {
+                const elementoData = {
+                    id: marcador.options.id,
+                    sidc: marcador.options.sidc,
+                    nombre: marcador.options.nombre,
+                    posicion: marcador.getLatLng(),
+                    designacion: marcador.options.designacion || '',
+                    dependencia: marcador.options.dependencia || '',
+                    magnitud: marcador.options.magnitud || '-',
+                    estado: marcador.options.estado || 'operativo',
                     usuario: usuarioInfo?.usuario || 'Usuario',
-                    usuarioId: usuarioInfo?.id || ''
-                });
+                    usuarioId: usuarioInfo?.id || '',
+                    jugador: usuarioInfo?.id || '',  // Importante: asignar propietario
+                    jugadorId: usuarioInfo?.id || '',
+                    operacion: operacionActual,
+                    timestamp: new Date().toISOString()
+                };
                 
-                // Configurar eventos
-                marcador.on('click', function(e) {
-                    L.DomEvent.stopPropagation(e);
-                    if (window.seleccionarElemento) {
-                        window.seleccionarElemento(this);
-                    }
-                });
+                // Enviar múltiples eventos para mejor compatibilidad
+                socket.emit('nuevoElemento', elementoData);
+                socket.emit('anunciarElemento', elementoData);
                 
-                marcador.on('contextmenu', function(e) {
-                    L.DomEvent.stopPropagation(e);
-                    if (window.mostrarMenuContextual) {
-                        window.mostrarMenuContextual(e, this);
-                    }
-                });
-                
-                // Agregar al mapa
-                if (window.calcoActivo) {
-                    window.calcoActivo.addLayer(marcador);
-                } else if (window.mapa) {
-                    window.mapa.addLayer(marcador);
+                // También almacenar localmente
+                if (window.MAIRA?.GestionBatalla?.actualizarElementoConectado) {
+                    window.MAIRA.GestionBatalla.actualizarElementoConectado(
+                        elementoData.id, 
+                        elementoData, 
+                        elementoData.posicion
+                    );
+                } else if (window.elementosConectados) {
+                    window.elementosConectados[elementoData.id] = {
+                        datos: elementoData,
+                        marcador: marcador
+                    };
                 }
-                
-                // Notificar a otros usuarios
-                if (socket && socket.connected) {
-                    socket.emit('nuevoElemento', {
-                        id: elementoId,
-                        sidc: sidcFormateado,
-                        nombre: nombre || 'Elemento',
-                        posicion: latlng,
-                        designacion: '',
-                        dependencia: '',
-                        magnitud: sidcFormateado.charAt(11) || '-',
-                        estado: 'operativo',
-                        usuario: usuarioInfo?.usuario || 'Usuario',
-                        usuarioId: usuarioInfo?.id || '',
-                        operacion: operacionActual,
-                        timestamp: new Date().toISOString()
-                    });
-                }
-                
-                // Seleccionar automáticamente para edición
-                if (window.seleccionarElemento && typeof window.seleccionarElemento === 'function') {
-                    window.seleccionarElemento(marcador);
-                }
-                
-                console.log("Marcador personalizado creado:", nombre || 'Elemento');
-            } else {
-                console.error("La biblioteca milsymbol no está disponible");
-                MAIRA.Utils.mostrarNotificacion("No se puede crear el marcador: biblioteca de símbolos no disponible", "error");
             }
-        } catch (e) {
-            console.error("Error al crear marcador personalizado:", e);
-            MAIRA.Utils.mostrarNotificacion("Error al crear el marcador", "error");
+            
+            // Si hay callback, ejecutarlo
+            if (typeof callback === 'function') {
+                callback(marcador);
+            }
         }
-    }
+    });
+};
+    
     
     /**
      * Guarda el estado actual de la sesión
@@ -2159,22 +2734,308 @@ function iniciarBroadcastPeriodico(esCreador) {
     // Exponer para uso desde la consola
     window.diagnosticoSistema = diagnosticoSistema;
 
+    function actualizarElementoModificado(elementoId, nuevosDatos) {
+        console.log(`Actualizando elemento modificado: ${elementoId}`);
+        
+        // Verificar que el elemento exista
+        if (!elementosConectados[elementoId]) {
+            console.warn(`No se encontró el elemento ${elementoId} para actualizar`);
+            return false;
+        }
+        
+        // Preservar el marcador y actualizar datos
+        const marcadorExistente = elementosConectados[elementoId].marcador;
+        
+        // Actualizar datos del elemento
+        elementosConectados[elementoId].datos = {
+            ...elementosConectados[elementoId].datos,
+            ...nuevosDatos
+        };
+        
+        // Actualizar marcador si existe
+        if (marcadorExistente) {
+            // Actualizar icono si cambió el SIDC
+            if (nuevosDatos.sidc && typeof ms !== 'undefined') {
+                try {
+                    // Crear etiqueta
+                    let etiqueta = "";
+                    if (nuevosDatos.designacion) {
+                        etiqueta = nuevosDatos.designacion;
+                        if (nuevosDatos.dependencia) {
+                            etiqueta += "/" + nuevosDatos.dependencia;
+                        }
+                    }
+                    
+                    // Crear nuevo símbolo
+                    const sym = new ms.Symbol(nuevosDatos.sidc, {
+                        size: 35,
+                        uniqueDesignation: etiqueta
+                    });
+                    
+                    // Actualizar icono del marcador
+                    marcadorExistente.setIcon(L.divIcon({
+                        className: 'elemento-militar',
+                        html: sym.asSVG(),
+                        iconSize: [70, 50],
+                        iconAnchor: [35, 25]
+                    }));
+                    
+                    // Actualizar opciones del marcador
+                    marcadorExistente.options.sidc = nuevosDatos.sidc;
+                    marcadorExistente.options.nombre = nuevosDatos.nombre || etiqueta;
+                    marcadorExistente.options.designacion = nuevosDatos.designacion || '';
+                    marcadorExistente.options.dependencia = nuevosDatos.dependencia || '';
+                    marcadorExistente.options.magnitud = nuevosDatos.magnitud || '-';
+                    
+                    console.log(`Marcador actualizado con nuevo SIDC: ${nuevosDatos.sidc}`);
+                } catch (e) {
+                    console.error("Error al actualizar símbolo del marcador:", e);
+                }
+            }
+        }
+        
+        // Actualizar referencia en MAIRA.GestionBatalla
+        if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
+            window.MAIRA.GestionBatalla.elementosConectados[elementoId] = elementosConectados[elementoId];
+        }
+        
+        // Actualizar elemento visual en la lista
+        if (MAIRA.Elementos && typeof MAIRA.Elementos.actualizarElementoVisual === 'function') {
+            MAIRA.Elementos.actualizarElementoVisual(elementoId);
+        }
+        
+        // Enviar actualización al servidor si estamos conectados
+        if (socket && socket.connected) {
+            // Preparar datos para enviar
+            const datosActualizados = {
+                ...elementosConectados[elementoId].datos,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Enviar a través de múltiples eventos para mejor compatibilidad
+            socket.emit('actualizarElemento', datosActualizados);
+            socket.emit('nuevoElemento', datosActualizados);
+            socket.emit('anunciarElemento', datosActualizados);
+            
+            console.log("Datos del elemento enviados al servidor:", datosActualizados);
+            return true;
+        } else {
+            console.warn("No se pudieron enviar datos actualizados: sin conexión");
+            return false;
+        }
+    }
+
+    function iniciarEnvioPeriodico() {
+        // Limpiar intervalo existente si hay
+        if (window.envioPosicionInterval) {
+            clearInterval(window.envioPosicionInterval);
+        }
+        
+        // Iniciar envío periódico de posición y heartbeat
+        window.envioPosicionInterval = setInterval(() => {
+            if (socket && socket.connected && usuarioInfo) {
+                // Crear paquete de datos completo
+                const datos = {
+                    id: usuarioInfo.id,
+                    usuario: usuarioInfo.usuario,
+                    elemento: elementoTrabajo,
+                    posicion: ultimaPosicion,
+                    operacion: operacionActual,
+                    timestamp: new Date().toISOString(),
+                    conectado: true
+                };
+                
+                // Enviar por múltiples canales para máxima compatibilidad
+                socket.emit('actualizarPosicionGB', datos);
+                socket.emit('actualizacionPosicion', datos);
+                socket.emit('anunciarElemento', datos);
+                socket.emit('heartbeat', datos);
+                
+                console.log("Datos periódicos enviados al servidor");
+            }
+        }, 10000); // Cada 10 segundos
+        
+        // Enviar inmediatamente la primera vez
+        if (socket && socket.connected && usuarioInfo) {
+            enviarPosicionActual();
+        }
+        
+        return true;
+    }
+    // Añadir al final de MAIRA.GestionBatalla (dentro del return antes del último })
+    function editarelementoSeleccionadoGB() {
+        if (!window.elementoSeleccionadoGB) return;
+        
+        console.log("Editando elemento seleccionado:", window.elementoSeleccionadoGB);
+        
+        if (window.elementoSeleccionadoGB instanceof L.Marker) {
+            if (window.elementoSeleccionadoGB.options && window.elementoSeleccionadoGB.options.sidc) {
+                if (window.esUnidad && window.esUnidad(window.elementoSeleccionadoGB.options.sidc)) {
+                    window.mostrarPanelEdicionUnidad(window.elementoSeleccionadoGB);
+                } else if (window.esEquipo && window.esEquipo(window.elementoSeleccionadoGB.options.sidc)) {
+                    window.mostrarPanelEdicionEquipo(window.elementoSeleccionadoGB);
+                } else {
+                    // Elementos sin SIDC específico
+                    window.mostrarPanelEdicionMCC(window.elementoSeleccionadoGB, 'elemento');
+                }
+            }
+        } else if (window.elementoSeleccionadoGB instanceof L.Polyline || window.elementoSeleccionadoGB instanceof L.Polygon) {
+            window.mostrarPanelEdicionMCC(window.elementoSeleccionadoGB, window.determinarTipoMCC(window.elementoSeleccionadoGB));
+        } else if (window.elementoSeleccionadoGB instanceof L.Path) {
+            window.mostrarPanelEdicionLinea(window.elementoSeleccionadoGB);
+        }
+    }
+
+
+    function configurarEventosMiRadialGB() {
+        if (!window.MiRadial) {
+            console.warn('MiRadial no disponible');
+            return;
+        }
+    
+        // Indicar que estamos en modo GB
+        window.MAIRA = window.MAIRA || {};
+        window.MAIRA.modoGB = true;
+    
+        // Establecer la fase correcta en MiRadial
+        window.MiRadial.faseJuego = 'gb';
+    
+        // Asegurar la disponibilidad global de la función buscarElementoEnPosicion
+        window.buscarElementoEnPosicion = function(latlng) {
+            console.log("Buscando elemento en posición:", latlng);
+            
+            if (!window.mapa) {
+                console.error("Mapa no disponible para buscar elementos");
+                return null;
+            }
+            
+            let elementoEncontrado = null;
+            let distanciaMinima = Infinity;
+            const puntoClick = window.mapa.latLngToContainerPoint(latlng);
+            const radioDeteccion = 80; // Aumentado a 80 píxeles para ser más permisivo
+            
+            // Primero buscar en elementos conectados
+            Object.values(window.elementosConectados || {}).forEach(elemento => {
+                if (elemento.marcador) {
+                    try {
+                        const pos = elemento.marcador.getLatLng();
+                        const puntoMarcador = window.mapa.latLngToContainerPoint(pos);
+                        const distancia = puntoClick.distanceTo(puntoMarcador);
+                        
+                        console.log(`Distancia a elemento ${elemento.datos?.id}: ${distancia}px`);
+                        
+                        if (distancia < radioDeteccion && distancia < distanciaMinima) {
+                            elementoEncontrado = elemento.marcador;
+                            distanciaMinima = distancia;
+                        }
+                    } catch (e) {
+                        console.error("Error al calcular distancia para elemento:", e);
+                    }
+                }
+            });
+            
+            // Si no se encontró nada, buscar en todas las capas del mapa
+            if (!elementoEncontrado) {
+                window.mapa.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker && layer.options.isElementoMilitar) {
+                        try {
+                            const pos = layer.getLatLng();
+                            const puntoMarcador = window.mapa.latLngToContainerPoint(pos);
+                            const distancia = puntoClick.distanceTo(puntoMarcador);
+                            
+                            console.log(`Distancia a capa ${layer.options?.id}: ${distancia}px`);
+                            
+                            if (distancia < radioDeteccion && distancia < distanciaMinima) {
+                                elementoEncontrado = layer;
+                                distanciaMinima = distancia;
+                            }
+                        } catch (e) {
+                            console.error("Error al procesar capa en mapa:", e);
+                        }
+                    }
+                });
+            }
+            
+            console.log(`Elemento encontrado: ${elementoEncontrado?.options?.id || null}, distancia: ${distanciaMinima}px`);
+            return elementoEncontrado;
+        };
+    
+        // Prevenir menú contextual del sistema en el mapa
+        window.mapa.getContainer().addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+    
+            // Convertir coordenadas del evento a coordenadas geográficas
+            const containerPoint = L.point(e.clientX, e.clientY).subtract(
+                L.DomUtil.getPosition(window.mapa.getContainer())
+            );
+            const latlng = window.mapa.containerPointToLatLng(containerPoint);
+            
+            console.log("Click derecho en posición:", latlng);
+            
+            // Buscar elemento en la posición usando la función global
+            let elemento = window.buscarElementoEnPosicion(latlng);
+            
+            if (elemento) {
+                // Si hay un elemento, seleccionarlo y mostrar menú de elemento
+                console.log("Elemento encontrado, mostrando menú de elemento:", elemento);
+                
+                // CRÍTICO: Asignar ambas referencias
+                window.elementoSeleccionadoGB = elemento;
+                window.elementoSeleccionado = elemento;
+                
+                // Mostrar menú
+                window.MiRadial.mostrarMenu(e.pageX, e.pageY, 'elemento', elemento);
+            } else {
+                // Si no hay elemento, mostrar menú de mapa
+                console.log("No se encontró elemento, mostrando menú de mapa");
+                window.MiRadial.mostrarMenu(e.pageX, e.pageY, 'mapa');
+            }
+        });
+    }
+
+    window.marcarElementosDesconectados = marcarElementosDesconectados;
+
+    // Exponer globalmente
+    window.actualizarElementoModificado = actualizarElementoModificado;
 
     // API pública del módulo
     return {
         inicializar,
+        // acceso al sistema de tracking
+        iniciarTracking: function() {
+            if (typeof iniciarTrackingElementos === 'function') {
+                iniciarTrackingElementos();
+            }
+        },
+        detenerTracking: function() {
+            if (typeof detenerTrackingElementos === 'function') {
+                detenerTrackingElementos();
+            }
+        },
+        toggleTracking: function() {
+            if (typeof toggleTracking === 'function') {
+                toggleTracking();
+            }
+        },
         togglePanel,
         iniciarSeguimiento,
         detenerSeguimiento,
         toggleSeguimiento,
         centrarEnPosicion,
         mostrarTodosElementos,
-        agregarMarcadorGB,
-        inicializarElementoDesdeGBinicio,
         actualizarMarcadorUsuario,
-        enviarPosicionActual,
+        marcarElementosDesconectados,
+        actualizarMarcadorUsuario,
+        
         cambiarTab,
-        procesarElementosPropios,
+        
+        manejarEstadoConexion,
+        manejarReconexion,
+        manejarDesconexion,
+        configurarEventosSocket,
+        // Añadir esta función
+        actualizarElementoModificado,
         // Importante: exponer elementosConectados
         elementosConectados: elementosConectados
     };
@@ -2183,6 +3044,7 @@ function iniciarBroadcastPeriodico(esCreador) {
 
 // Conectar con agregarMarcador global para mantener compatibilidad
 window.agregarMarcadorGB = MAIRA.GestionBatalla.agregarMarcadorGB;
+// Exponer funciones globalmente
 
 // Exponer togglePanel a nivel global para que los botones del HTML puedan acceder a él
 window.togglePanel = function(forzarEstado) {
@@ -2232,3 +3094,51 @@ window.cambiarTab = function(tabId) {
         }
     }, 100);
 })();
+
+// Agregar o reemplazar en GB.js
+window.editarelementoSeleccionadoGB = function() {
+    console.log("Editando elemento seleccionado:", window.elementoSeleccionadoGB || window.elementoSeleccionado);
+    
+    // Asegurar que tenemos una referencia al elemento
+    const elemento = window.elementoSeleccionadoGB || window.elementoSeleccionado;
+    if (!elemento) {
+        console.error("No hay elemento seleccionado para editar");
+        return;
+    }
+    
+    // Determinar qué tipo de elemento es y qué panel mostrar
+    if (elemento instanceof L.Marker) {
+        console.log("Editando marcador:", elemento);
+        if (elemento.options && elemento.options.sidc) {
+            if (window.esUnidad && window.esUnidad(elemento.options.sidc)) {
+                console.log("Mostrando panel de edición de unidad");
+                window.mostrarPanelEdicionUnidad(elemento);
+            } else if (window.esEquipo && window.esEquipo(elemento.options.sidc)) {
+                console.log("Mostrando panel de edición de equipo");
+                window.mostrarPanelEdicionEquipo(elemento);
+            } else {
+                console.log("Mostrando panel de edición MCC para elemento");
+                if (window.mostrarPanelEdicionMCC) {
+                    window.mostrarPanelEdicionMCC(elemento, 'elemento');
+                }
+            }
+        } else {
+            console.log("Marcador sin SIDC, mostrando panel genérico");
+            if (window.mostrarPanelEdicionMCC) {
+                window.mostrarPanelEdicionMCC(elemento, 'elemento');
+            }
+        }
+    } else if (elemento instanceof L.Polyline || elemento instanceof L.Polygon) {
+        console.log("Editando línea/polígono");
+        if (window.mostrarPanelEdicionMCC && window.determinarTipoMCC) {
+            window.mostrarPanelEdicionMCC(elemento, window.determinarTipoMCC(elemento));
+        }
+    } else if (elemento instanceof L.Path) {
+        console.log("Editando path");
+        if (window.mostrarPanelEdicionLinea) {
+            window.mostrarPanelEdicionLinea(elemento);
+        }
+    } else {
+        console.error("Tipo de elemento no reconocido:", elemento);
+    }
+};

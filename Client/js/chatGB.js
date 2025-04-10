@@ -36,7 +36,7 @@ MAIRA.Chat = (function() {
         
         // Inicializar componentes UI
         inicializarInterfazChat();
-        
+        configurarEventosSocket();
         // Configurar eventos
         configurarEventosChat();
         
@@ -318,67 +318,33 @@ function iniciarChatPrivado(elementoId) {
 /**
  * Añade al módulo GB.js - Función para incluir en configurarEventosSocket
  */
+
     socket.on('listaElementos', function(elementos) {
-        console.log(`Recibidos ${elementos.length} elementos del servidor`);
+        console.log("Recibida lista de elementos:", elementos?.length || 0);
         
-        // Combinar lista recibida con el elemento propio
+        if (!elementos || !Array.isArray(elementos)) {
+            console.warn("Lista de elementos inválida");
+            return;
+        }
+        
+        // Procesar elementos
         const elementosActualizados = {};
-        
-        // Procesamos elementos recibidos
         elementos.forEach(elemento => {
-            if (elemento && elemento.id) {
-                // Verificar si este elemento ya existe
-                const marcadorExistente = elementosConectados[elemento.id]?.marcador || null;
-                
+            if (elemento?.id) {
                 elementosActualizados[elemento.id] = {
                     datos: elemento,
-                    marcador: marcadorExistente
+                    marcador: elementosConectados[elemento.id]?.marcador
                 };
-                
-                // Crear marcador si no existe
-                if (!marcadorExistente && MAIRA.Elementos && typeof MAIRA.Elementos.crearMarcadorElemento === 'function') {
-                    MAIRA.Elementos.crearMarcadorElemento(elemento);
-                }
             }
         });
-        
-        // Añadir elemento propio si no está en la lista
-        if (usuarioInfo && !elementosActualizados[usuarioInfo.id]) {
-            // Incluir el elemento propio en la lista
-            elementosActualizados[usuarioInfo.id] = {
-                datos: {
-                    id: usuarioInfo.id,
-                    usuario: usuarioInfo.usuario,
-                    elemento: elementoTrabajo,
-                    posicion: ultimaPosicion,
-                    conectado: true,
-                    timestamp: new Date().toISOString()
-                },
-                marcador: marcadorUsuario
-            };
-            
-            console.log("Añadido elemento propio a la lista:", elementosActualizados[usuarioInfo.id]);
-        }
-        
-        // Actualizar la lista global
+    
+        // Actualizar lista global
         elementosConectados = elementosActualizados;
         
-        // Notificar a otros módulos
-        if (MAIRA.Elementos && typeof MAIRA.Elementos.actualizarListaElementos === 'function') {
-            MAIRA.Elementos.actualizarListaElementos(elementosConectados);
-        }
-        
-        // Actualizar destinatarios para mensajes privados
-        if (MAIRA.Chat && typeof MAIRA.Chat.actualizarListaDestinatarios === 'function') {
-            MAIRA.Chat.actualizarListaDestinatarios(elementosConectados);
-        }
-        
-        console.log("Lista de elementos procesada. Total:", Object.keys(elementosConectados).length);
+        // Actualizar destinatarios chat
+        actualizarListaDestinatarios();
     });
-
-        console.log("Eventos de socket para chat configurados");
     }
-
     /**
      * Agrega un mensaje al chat
      * @param {string|Object} emisor - Nombre del emisor o mensaje completo
@@ -482,187 +448,50 @@ function iniciarChatPrivado(elementoId) {
         console.log(`Mensaje agregado: ${emisor} - ${mensaje ? mensaje.substring(0, 20) + '...' : ''}`);
     }
     
-    /**
-     * Mejora para el envío de mensajes de chat (privados y públicos)
+        /**
+     * Envía un mensaje de chat (texto, multimedia, privado o global)
      */
-    function enviarMensajeChat() {
-        const mensajeInput = document.getElementById('mensaje-chat');
-        if (!mensajeInput) {
-            console.error("Input de chat no encontrado");
-            return;
-        }
-        
-        const contenido = mensajeInput.value.trim();
-        if (!contenido) {
-            console.log("Mensaje vacío, no se envía");
-            return;
-        }
-        
-        console.log("Preparando envío de mensaje:", contenido);
-        
-        // Determinar si es mensaje privado o general
-        const btnChatPrivado = document.getElementById('btn-chat-privado');
-        const selectDestinatario = document.getElementById('select-destinatario');
-        
-        const esPrivado = btnChatPrivado && btnChatPrivado.classList.contains('active');
-        const destinatarioId = esPrivado && selectDestinatario ? selectDestinatario.value : null;
-        
-        if (esPrivado && (!destinatarioId || destinatarioId === "")) {
-            agregarMensajeChat("Sistema", "Selecciona un destinatario para el mensaje privado", "sistema");
-            return;
-        }
-        
-        // Verificar si tenemos la información del usuario
-        if (!usuarioInfo) {
-            agregarMensajeChat("Sistema", "No se ha iniciado sesión correctamente", "sistema");
-            return;
-        }
-        
-        // Generar ID único para el mensaje
-        const mensajeId = `msg_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-        
-        // Crear mensaje con formato necesario para el servidor
-        const mensaje = {
-            id: mensajeId,
-            emisor: {
-                id: usuarioInfo.id,
-                nombre: usuarioInfo.usuario,
-                elemento: usuarioInfo.elemento || elementoTrabajo
-            },
-            contenido: contenido,
-            sala: operacionActual || 'general',
-            timestamp: new Date().toISOString(),
-            tipo: esPrivado ? 'privado' : 'global',
-            destinatario: esPrivado ? destinatarioId : null
-        };
-        
-        // MODIFICACIÓN IMPORTANTE: Asegurarnos de que se envíe correctamente
-        if (socket && socket.connected) {
-            // Enviar más eventos para máxima compatibilidad
-            if (esPrivado) {
-                // Para mensajes privados
-                console.log(`Enviando mensaje privado a ${destinatarioId}:`, mensaje);
-                socket.emit('mensajePrivado', mensaje);
-                
-                // Envío secundario para compatibilidad
-                socket.emit('mensaje', {
-                    ...mensaje,
-                    tipo: 'privado',
-                    receptor: destinatarioId
-                });
-            } else {
-                // Para mensajes globales
-                console.log("Enviando mensaje global:", mensaje);
-                socket.emit('mensajeChat', mensaje);
-                
-                // Envío secundario para compatibilidad
-                socket.emit('mensaje', {
-                    ...mensaje,
-                    tipo: 'global'
-                });
-            }
-            
-            // Mostrar localmente nuestro mensaje
-            agregarMensajeChat(
-                esPrivado ? `Tú → ${obtenerNombreDestinatario(destinatarioId)}` : 'Tú',
-                contenido,
-                "enviado",
-                "enviando",
-                mensajeId
-            );
-        } else {
-            // Sin conexión
-            agregarMensajeChat(null, null, null, "pendiente", mensajeId);
-            agregarMensajeChat("Sistema", "No estás conectado al servidor. El mensaje se enviará cuando se restablezca la conexión.", "sistema");
-        }
-        
-        // Limpiar input
-        mensajeInput.value = '';
-        mensajeInput.focus();
-    }
-    
-    /**
-     * Procesa un mensaje recibido del servidor
-     * @param {Object} mensaje - El mensaje recibido
-     */
-    function recibirMensajeChat(mensaje) {
-        if (!mensaje) {
-            console.warn("Mensaje vacío recibido");
-            return;
-        }
-        
-        try {
-            console.log("Procesando mensaje recibido:", mensaje);
-            
-            // Normalizar el formato del mensaje para mostrar
-            let emisorNombre = '';
-            let contenidoMensaje = '';
-            let tipoMensaje = 'recibido';
-            
-            // Detectar formato del mensaje (varios formatos posibles)
-            if (mensaje.usuario && mensaje.mensaje !== undefined) {
-                // Formato del servidor principal
-                emisorNombre = mensaje.usuario;
-                contenidoMensaje = mensaje.mensaje;
-            } else if (mensaje.emisor) {
-                // Formato alternativo
-                emisorNombre = typeof mensaje.emisor === 'object' ? 
-                    mensaje.emisor.nombre || mensaje.emisor.usuario : 
-                    mensaje.emisor;
-                contenidoMensaje = mensaje.contenido || '';
-            } else {
-                console.warn("Formato de mensaje desconocido:", mensaje);
-                return;
-            }
-            
-            // Mensaje del sistema
-            if (emisorNombre === "Sistema" || emisorNombre === "Servidor") {
-                tipoMensaje = "sistema";
-            }
-            
-            // Si es mensaje propio (enviado por nosotros)
-            if (emisorNombre === usuarioInfo?.usuario) {
-                // No mostrar nuestros propios mensajes que recibimos eco del servidor
-                if (mensaje.id && mensajesEnviados && mensajesEnviados.has(mensaje.id)) {
-                    console.log("Mensaje propio ya mostrado, actualizando solo estado:", mensaje.id);
-                    // Solo actualizar estado si existe id
-                    if (mensaje.id && mensaje.estado) {
-                        agregarMensajeChat(null, null, null, mensaje.estado, mensaje.id);
-                    }
-                    return;
-                }
-                tipoMensaje = "enviado";
-            }
-            
-            // Evitar duplicados si tiene ID y ya lo hemos recibido
-            if (mensaje.id && mensajesRecibidos && mensajesRecibidos.has(mensaje.id)) {
-                console.log("Mensaje duplicado ignorado:", mensaje.id);
-                return;
-            }
-            
-            // Registrar ID para evitar duplicados
-            if (mensaje.id && mensajesRecibidos) {
-                mensajesRecibidos.add(mensaje.id);
-            }
-            
-            // Añadir este mensaje a los enviados si es nuestro
-            if (tipoMensaje === "enviado" && mensaje.id && mensajesEnviados) {
-                mensajesEnviados.add(mensaje.id);
-            }
-            
-            // Mostrar el mensaje
-            agregarMensajeChat(
-                emisorNombre, 
-                contenidoMensaje, 
-                tipoMensaje, 
-                mensaje.estado || 'recibido', 
-                mensaje.id
-            );
-        } catch (error) {
-            console.error("Error al procesar mensaje:", error);
-        }
+   function enviarMensajeChat() {
+    if (!socket?.connected) {
+        console.error("No hay conexión con el servidor");
+        return;
     }
 
+    const mensajeInput = document.getElementById('mensaje-chat');
+    const contenido = mensajeInput?.value?.trim();
+    
+    if (!contenido) return;
+
+    const esPrivado = document.getElementById('btn-chat-privado')?.classList.contains('active');
+    const destinatarioId = esPrivado ? document.getElementById('select-destinatario')?.value : null;
+
+    const mensaje = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2,9)}`,
+        emisor: {
+            id: usuarioInfo.id,
+            nombre: usuarioInfo.usuario
+        },
+        contenido: contenido,
+        sala: operacionActual,
+        timestamp: new Date().toISOString(),
+        tipo: esPrivado ? 'privado' : 'global',
+        destinatario: destinatarioId
+    };
+
+    // Mostrar localmente
+    agregarMensajeChat(
+        esPrivado ? `Tú → ${obtenerNombreDestinatario(destinatarioId)}` : 'Tú',
+        contenido,
+        "enviado"
+    );
+
+    // Emitir mensaje
+    socket.emit(esPrivado ? 'mensajePrivado' : 'mensajeChat', mensaje);
+
+    mensajeInput.value = '';
+    mensajeInput.focus();
+}
+    
     /**
      * Maneja mensajes privados recibidos
      * @param {Object} mensaje - Mensaje privado recibido
@@ -1862,7 +1691,7 @@ function iniciarChatPrivado(elementoId) {
      * @param {string} [texto] - Texto opcional para acompañar el contenido
      */
     
-// En chatGB.js, modificar la función enviarMensajeMultimedia:
+// Reemplazar en chatGB.js - Función para enviar contenido multimedia
 function enviarMensajeMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto) {
     console.log(`Preparando envío de mensaje multimedia: ${tipoContenido}`);
     
@@ -1872,42 +1701,124 @@ function enviarMensajeMultimedia(tipoContenido, contenidoBase64, nombreArchivo, 
         return;
     }
     
-    // Verificar tamaño
-    const dataSize = estimarTamanyoBase64(contenidoBase64);
-    const MAX_SIZE = 1.5 * 1024 * 1024; // 1.5MB límite
+    // Generar ID único para el mensaje
+    const mensajeId = `media_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     
-    if (dataSize > MAX_SIZE) {
-        if (tipoContenido === 'image') {
-            // Comprimir imagen antes de enviar
-            MAIRA.Utils.mostrarNotificacion("La imagen es grande, comprimiendo...", "info");
-            comprimirImagen(contenidoBase64, 0.7, 800, 600)
-                .then(imagenComprimida => {
-                    const nuevoSize = estimarTamanyoBase64(imagenComprimida);
-                    if (nuevoSize > MAX_SIZE) {
-                        MAIRA.Utils.mostrarNotificacion("La imagen sigue siendo demasiado grande. Intente con una más pequeña.", "error");
-                    } else {
-                        enviarContenidoMultimedia(tipoContenido, imagenComprimida, nombreArchivo, mimeType, texto);
-                    }
-                })
-                .catch(err => {
-                    console.error("Error al comprimir imagen:", err);
-                    MAIRA.Utils.mostrarNotificacion("Error al procesar la imagen", "error");
-                });
-            return;
-        } else if (tipoContenido === 'video' || tipoContenido === 'audio') {
-            MAIRA.Utils.mostrarNotificacion(`El archivo es demasiado grande (${Math.round(dataSize/1024)}KB). Máximo recomendado: 1.5MB`, "warning");
-            // Intentar enviar de todos modos, pero dividido en partes más pequeñas
-            dividirYEnviarMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto);
-            return;
-        } else {
-            MAIRA.Utils.mostrarNotificacion(`El archivo es demasiado grande para enviar por chat`, "error");
+    // Determinar si es mensaje privado
+    const btnChatPrivado = document.getElementById('btn-chat-privado');
+    let destinatario = null;
+    
+    if (btnChatPrivado && btnChatPrivado.classList.contains('active')) {
+        const selectDestinatario = document.getElementById('select-destinatario');
+        if (!selectDestinatario || !selectDestinatario.value) {
+            MAIRA.Utils.mostrarNotificacion("Selecciona un destinatario para el mensaje privado", "error");
             return;
         }
+        destinatario = selectDestinatario.value;
     }
     
-    // Si no hay problemas de tamaño, enviar normalmente
-    enviarContenidoMultimedia(tipoContenido, contenidoBase64, nombreArchivo, mimeType, texto);
+    // Mostrar mensaje de carga
+    const esPrivado = destinatario !== null;
+    const loadingId = `loading_${mensajeId}`;
+    
+    agregarMensajeChat(
+        esPrivado ? `Tú → ${obtenerNombreDestinatario(destinatario)}` : 'Tú',
+        `<div id="${loadingId}" class="mensaje-multimedia-loading">
+            <i class="fas fa-spinner fa-spin"></i> Enviando ${tipoContenido}...
+        </div>`,
+        "enviado",
+        "enviando",
+        mensajeId
+    );
+    
+    // Crear mensaje multimedia
+    const mensaje = {
+        id: mensajeId,
+        emisor: {
+            id: usuarioInfo.id,
+            nombre: usuarioInfo.usuario,
+            elemento: usuarioInfo.elemento || (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementoTrabajo) || {}
+        },
+        tipo_contenido: tipoContenido,
+        contenido: contenidoBase64,
+        nombre_archivo: nombreArchivo,
+        mime_type: mimeType,
+        texto: texto || '',
+        sala: operacionActual,
+        destinatario: destinatario,
+        timestamp: new Date().toISOString(),
+        tipo: destinatario ? 'privado' : 'global'
+    };
+    
+    // Enviar mensaje al servidor con timeout para evitar bloqueos
+    const timeoutId = setTimeout(() => {
+        // Si pasaron 30 segundos sin respuesta, consideramos que falló
+        const loadingElement = document.getElementById(loadingId);
+        if (loadingElement) {
+            loadingElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error al enviar: Timeout`;
+        }
+        agregarMensajeChat(null, null, null, "error", mensajeId);
+        MAIRA.Utils.mostrarNotificacion("Error al enviar contenido multimedia: Timeout", "error");
+    }, 30000);
+    
+    // IMPORTANTE: Enviar con retry si falla
+    const intentarEnviar = (intentosRestantes = 3) => {
+        if (intentosRestantes <= 0) {
+            clearTimeout(timeoutId);
+            const loadingElement = document.getElementById(loadingId);
+            if (loadingElement) {
+                loadingElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error al enviar: Máximos intentos`;
+            }
+            agregarMensajeChat(null, null, null, "error", mensajeId);
+            MAIRA.Utils.mostrarNotificacion("Error al enviar contenido multimedia: Máximos intentos", "error");
+            return;
+        }
+        
+        socket.emit('mensajeMultimedia', mensaje, function(respuesta) {
+            if (respuesta && respuesta.error) {
+                console.log(`Error en intento ${4-intentosRestantes}/3, reintentando...`);
+                // Reintento con delay
+                setTimeout(() => intentarEnviar(intentosRestantes - 1), 2000);
+            } else {
+                // Éxito
+                clearTimeout(timeoutId);
+                const loadingElement = document.getElementById(loadingId);
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+                agregarMensajeChat(null, null, null, "enviado", mensajeId);
+                
+                // Actualizar vista con contenido multimedia
+                actualizarVistaMultimedia(mensajeId, tipoContenido, contenidoBase64, texto);
+                
+                // Registrar en mensajes enviados para evitar duplicados
+                if (mensajesEnviados) {
+                    mensajesEnviados.add(mensajeId);
+                }
+            }
+        });
+    };
+    
+    // Iniciar envío
+    if (socket && socket.connected) {
+        intentarEnviar();
+    } else {
+        clearTimeout(timeoutId);
+        const loadingElement = document.getElementById(loadingId);
+        if (loadingElement) {
+            loadingElement.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error: Sin conexión`;
+        }
+        agregarMensajeChat(null, null, null, "pendiente", mensajeId);
+        MAIRA.Utils.mostrarNotificacion("No hay conexión con el servidor. Se guardará para enviar más tarde.", "warning");
+        
+        // Guardar para enviar cuando se conecte
+        const mensajesPendientes = JSON.parse(localStorage.getItem('mensajes_multimedia_pendientes') || '[]');
+        mensajesPendientes.push(mensaje);
+        localStorage.setItem('mensajes_multimedia_pendientes', JSON.stringify(mensajesPendientes));
+    }
 }
+
+
 
 // Función auxiliar para estimar tamaño
 function estimarTamanyoBase64(base64String) {
@@ -2705,54 +2616,6 @@ function actualizarDestinatarios(elementosConectados) {
 }
 
 /**
- * Mejora para procesar elementos al conectar
- * Esta función debe ser añadida a la lógica de conexión al servidor
- */
-function procesarElementosPropios() {
-    console.log("Procesando elemento propio para incluirlo en la lista de elementos conectados");
-    
-    // Verificar que tengamos datos del usuario y su elemento
-    if (!usuarioInfo || !elementoTrabajo) {
-        console.warn("No hay información de usuario o elemento para procesar");
-        return;
-    }
-    
-    // Comprobar si ya existe en la lista
-    const usuarioId = usuarioInfo.id;
-    if (elementosConectados[usuarioId]) {
-        console.log("El elemento propio ya está en la lista");
-        return;
-    }
-    
-    // Crear entrada para el elemento propio
-    const elementoPropio = {
-        id: usuarioId,
-        usuario: usuarioInfo.usuario,
-        elemento: elementoTrabajo,
-        posicion: ultimaPosicion,
-        conectado: true,
-        timestamp: new Date().toISOString()
-    };
-    
-    // Añadir a la lista de elementos conectados
-    elementosConectados[usuarioId] = {
-        datos: elementoPropio,
-        marcador: marcadorUsuario
-    };
-    
-    console.log("Elemento propio añadido a la lista de elementos conectados:", elementoPropio);
-    
-    // Actualizar los módulos que necesitan esta información
-    if (MAIRA.Elementos && typeof MAIRA.Elementos.actualizarListaElementos === 'function') {
-        MAIRA.Elementos.actualizarListaElementos(elementosConectados);
-    }
-    
-    if (MAIRA.Chat && typeof MAIRA.Chat.actualizarDestinatarios === 'function') {
-        MAIRA.Chat.actualizarDestinatarios(elementosConectados);
-    }
-}
-
-/**
  * Función para el módulo chat que envía mensaje privado
  */
 function enviarMensajePrivado(destinatarioId, contenido) {
@@ -2921,127 +2784,424 @@ function enviarMensajePrivado(destinatarioId, contenido) {
         });
     }
     
-    /**
-     * Actualiza la lista de destinatarios para mensajes privados
-     * Esta versión es más robusta para manejar diferentes formatos de datos
-     */
 
 
-    function actualizarListaDestinatarios() {
-        const selectDestinatario = document.getElementById('select-destinatario');
-        if (!selectDestinatario) {
-            console.error("Selector de destinatario no encontrado");
+/**
+ * Mejorar la sincronización de elementos con el chat
+ */
+function sincronizarElementosChat(elementos) {
+    if (!elementos) {
+        console.warn("No se proporcionaron elementos para sincronizar en el chat");
+        return;
+    }
+    
+    console.log(`Sincronizando módulo Chat con ${Object.keys(elementos).length} elementos`);
+    
+    // Actualizar referencia local a elementos conectados
+    elementosConectados = elementos;
+    
+    // Actualizar la referencia global para coherencia
+    window.elementosConectados = elementos;
+    
+    // Actualizar lista de destinatarios
+    actualizarListaDestinatarios();
+    
+    // Actualizar estado de elementos en la interfaz si existe una función para ello
+    if (typeof actualizarEstadoElementosChat === 'function') {
+        actualizarEstadoElementosChat();
+    }
+}
+
+/**
+ * Función mejorada para actualizar la lista de destinatarios
+ */
+
+function actualizarListaDestinatarios() {
+    console.log("Actualizando lista de destinatarios para mensajes privados...");
+    
+    // Obtener el select
+    const selectDestinatario = document.getElementById('select-destinatario');
+    if (!selectDestinatario) {
+        console.error("No se encontró el selector de destinatarios");
+        return;
+    }
+    
+    // Guardar selección actual
+    const seleccionActual = selectDestinatario.value;
+    
+    // Mantener opciones fijas (comando, todos)
+    const opcionesFijas = Array.from(selectDestinatario.querySelectorAll('option:not([data-elemento])'));
+    
+    // Limpiar select
+    selectDestinatario.innerHTML = '';
+    
+    // Restaurar opciones fijas
+    opcionesFijas.forEach(opcion => {
+        selectDestinatario.appendChild(opcion);
+    });
+    
+    // Si no hay opciones fijas, crear las básicas
+    if (opcionesFijas.length === 0) {
+        const opcionTodos = document.createElement('option');
+        opcionTodos.value = 'todos';
+        opcionTodos.textContent = 'Todos los participantes';
+        selectDestinatario.appendChild(opcionTodos);
+        
+        const opcionComando = document.createElement('option');
+        opcionComando.value = 'comando';
+        opcionComando.textContent = 'Comando/Central';
+        selectDestinatario.appendChild(opcionComando);
+        
+        const separador = document.createElement('option');
+        separador.disabled = true;
+        separador.textContent = '───────────────';
+        selectDestinatario.appendChild(separador);
+    }
+    
+    // Obtener ID propio para excluirlo
+    const idUsuarioActual = (window.usuarioInfo && window.usuarioInfo.id) || 
+                           (window.MAIRA && window.MAIRA.GestionBatalla && 
+                            window.MAIRA.GestionBatalla.usuarioInfo && 
+                            window.MAIRA.GestionBatalla.usuarioInfo.id);
+    
+    // Obtener lista actualizada de elementos
+    const elementos = window.elementosConectados || 
+                     (window.MAIRA && window.MAIRA.GestionBatalla && 
+                      window.MAIRA.GestionBatalla.elementosConectados) || {};
+    
+    console.log("Elementos disponibles para chat privado:", Object.keys(elementos).length, elementos);
+    
+    // Añadir cada elemento como opción (excluyendo al usuario actual)
+    Object.entries(elementos).forEach(([id, elemento]) => {
+        // No añadir al usuario actual a la lista
+        if (id === idUsuarioActual) {
+            console.log(`Omitiendo usuario propio (${id}) como destinatario`);
             return;
         }
         
-        console.log("Actualizando lista de destinatarios para mensajes privados...");
+        // Datos del elemento
+        const datos = elemento.datos || elemento;
+        if (!datos) return;
         
-        // Primero intentamos obtener de MAIRA.Elementos si está disponible
-        let elementos = {};
-        if (window.MAIRA && window.MAIRA.Elementos && 
-            typeof window.MAIRA.Elementos.obtenerElementosConectados === 'function') {
-            elementos = window.MAIRA.Elementos.obtenerElementosConectados();
-            console.log("Usando elementos de MAIRA.Elementos:", elementos);
-        } 
-        // Luego intentamos obtener de window.elementosConectados
-        else if (window.elementosConectados) {
-            elementos = window.elementosConectados;
-            console.log("Usando elementos de window.elementosConectados:", elementos);
-        } 
-        // Luego de MAIRA.GestionBatalla
-        else if (window.MAIRA && window.MAIRA.GestionBatalla && 
-                 window.MAIRA.GestionBatalla.elementosConectados) {
-            elementos = window.MAIRA.GestionBatalla.elementosConectados;
-            console.log("Usando elementos de MAIRA.GestionBatalla:", elementos);
-        } 
-        // Por último, usar elementos locales
-        else {
-            elementos = elementosConectados || {};
-            console.log("Usando elementos locales:", elementos);
-        }
+        console.log(`-> Elemento ${id}: ${datos.usuario || 'Sin nombre'}`);
         
-        // Debug más detallado
-        console.log(`Elementos disponibles para chat privado: ${Object.keys(elementos).length}`, elementos);
-        Object.entries(elementos).forEach(([id, elem]) => {
-            console.log(`-> Elemento ${id}: ${elem.datos?.usuario || 'Sin nombre'}`);
-        });
+        // Crear formato de nombre
+        let nombreMostrado = datos.usuario || 'Usuario';
         
-        // Guardar opción seleccionada actualmente
-        const destinatarioActual = selectDestinatario.value;
-        
-        // Limpiar opciones actuales
-        selectDestinatario.innerHTML = '';
-        
-        // Opciones predeterminadas
-        selectDestinatario.innerHTML = `
-            <option value="">Seleccionar destinatario...</option>
-            <option value="comando">Puesto Comando</option>
-            <option disabled>───────────────</option>
-        `;
-        
-        // Contador de elementos añadidos
-        let elementosAgregados = 0;
-        
-        // Procesar cada elemento - IMPORTANTE: MÁS INFORMACIÓN DE DEPURACIÓN
-        Object.entries(elementos).forEach(([id, elem]) => {
-            // No incluir al usuario actual como destinatario
-            if (id === usuarioInfo?.id) {
-                console.log(`Omitiendo usuario propio (${id}) como destinatario`);
-                return;
-            }
-            
-            // Obtener los datos correctamente
-            let datosElemento = null;
-            if (elem && elem.datos) {
-                datosElemento = elem.datos;
-            } else {
-                datosElemento = elem;
-            }
-            
-            // Depuración detallada
-            console.log(`Procesando elemento para destinatario: ID=${id}, Datos:`, datosElemento);
-            
-            // Verificar que tenga datos mínimos necesarios
-            if (!datosElemento || !datosElemento.usuario) {
-                console.warn(`Elemento con ID ${id} no tiene datos suficientes para añadir como destinatario`);
-                return;
-            }
-            
-            // Crear opción para el destinatario
-            const option = document.createElement('option');
-            option.value = id;
-            
-            // Determinar texto descriptivo
-            let nombreUsuario = datosElemento.usuario;
-            let infoElemento = "";
-            
-            // Agregar información del elemento militar si está disponible
-            if (datosElemento.elemento) {
-                if (datosElemento.elemento.designacion) {
-                    infoElemento = datosElemento.elemento.designacion;
-                    if (datosElemento.elemento.dependencia) {
-                        infoElemento += "/" + datosElemento.elemento.dependencia;
-                    }
+        // Añadir designación/dependencia si está disponible
+        if (datos.elemento) {
+            if (datos.elemento.designacion) {
+                nombreMostrado = `${datos.elemento.designacion} (${nombreMostrado})`;
+                
+                if (datos.elemento.dependencia) {
+                    nombreMostrado = `${datos.elemento.designacion} / ${datos.elemento.dependencia} (${nombreMostrado})`;
                 }
             }
-            
-            option.textContent = nombreUsuario + (infoElemento ? ` (${infoElemento})` : '');
-            selectDestinatario.appendChild(option);
-            elementosAgregados++;
-            console.log(`Añadido destinatario: ${option.textContent} con valor ${id}`);
-        });
-        
-        // Restaurar selección previa si existe
-        if (destinatarioActual && Array.from(selectDestinatario.options).some(opt => opt.value === destinatarioActual)) {
-            selectDestinatario.value = destinatarioActual;
         }
         
-        console.log(`Lista de destinatarios actualizada con ${elementosAgregados} participantes disponibles`);
-        return elementosAgregados;
+        // Crear opción
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = nombreMostrado;
+        option.dataset.elemento = 'true';
+        
+        selectDestinatario.appendChild(option);
+    });
+    
+    // Restaurar selección anterior si es posible
+    if (seleccionActual && Array.from(selectDestinatario.options).some(opt => opt.value === seleccionActual)) {
+        selectDestinatario.value = seleccionActual;
     }
+    
+    console.log(`Lista de destinatarios actualizada con ${selectDestinatario.options.length - opcionesFijas.length} participantes disponibles`);
+}
 
-    // En chatGB.js
-function manejarMensajeNoEntregado(mensaje) {
+
+/**
+ * Procesa un mensaje de chat para extraer información de elementos
+ */
+function procesarMensajeParaElementos(mensaje) {
+    if (!mensaje || !mensaje.emisor) return;
+    
+    // Verificar si hay información de emisor en el mensaje
+    if (mensaje.emisor && mensaje.emisor.id && mensaje.emisor.nombre) {
+        console.log("Extrayendo información de elemento desde mensaje de chat:", mensaje.emisor);
+        
+        // Construir objeto de elemento
+        const elementoDesdeChat = {
+            id: mensaje.emisor.id,
+            usuario: mensaje.emisor.nombre,
+            elemento: mensaje.emisor.elemento || {},
+            timestamp: mensaje.timestamp || new Date().toISOString(),
+            conectado: true
+        };
+        
+        // Procesar como un elemento recibido
+        if (typeof procesarElementosRecibidos === 'function') {
+            procesarElementosRecibidos(elementoDesdeChat);
+        } else if (typeof MAIRA?.Elementos?.procesarElementosRecibidos === 'function') {
+            MAIRA.Elementos.procesarElementosRecibidos(elementoDesdeChat);
+        } else if (window.elementosConectados) {
+            // Solución manual si no hay función específica
+            window.elementosConectados[elementoDesdeChat.id] = {
+                datos: elementoDesdeChat
+            };
+            
+            // Actualizar destinatarios
+            actualizarListaDestinatarios();
+        }
+    }
+}
+
+
+/**
+ * Solución para evitar mensajes duplicados en el chat
+ * Añade esta función en chatGB.js o modifica la existente
+ */
+
+// Mejora para evitar mensajes duplicados
+function recibirMensajeChat(mensaje) {
+    if (!mensaje) {
+        console.warn("Mensaje vacío recibido");
+        return;
+    }
+    
+    try {
+        console.log("Procesando mensaje recibido:", mensaje);
+        
+        // Obtener el ID del usuario actual
+        const usuarioActualId = usuarioInfo?.id || 
+                               (window.MAIRA?.GestionBatalla?.usuarioInfo?.id) || 
+                               (window.usuarioInfo?.id);
+        
+        // Normalizar el formato del mensaje para mostrar
+        let emisorId = '';
+        let emisorNombre = '';
+        let contenidoMensaje = '';
+        let tipoMensaje = 'recibido';
+        
+        // Extraer el ID del emisor según el formato del mensaje
+        if (mensaje.emisor && mensaje.emisor.id) {
+            emisorId = mensaje.emisor.id;
+            emisorNombre = mensaje.emisor.nombre || mensaje.emisor.usuario || 'Desconocido';
+            contenidoMensaje = mensaje.contenido || mensaje.mensaje || '';
+        } else if (mensaje.usuarioId) {
+            emisorId = mensaje.usuarioId;
+            emisorNombre = mensaje.usuario || 'Desconocido';
+            contenidoMensaje = mensaje.mensaje || '';
+        } else {
+            emisorNombre = mensaje.usuario || 'Desconocido';
+            contenidoMensaje = mensaje.mensaje || '';
+        }
+        
+        // IMPORTANTE: Detectar si es un mensaje propio según el ID
+        const esMensajePropio = (emisorId && emisorId === usuarioActualId) || 
+                               (emisorNombre === usuarioInfo?.usuario);
+        
+        // IMPORTANTE: Verificar si este mensaje ya fue procesado antes para evitar duplicados
+        if (mensaje.id && mensajesRecibidos && mensajesRecibidos.has(mensaje.id)) {
+            console.log(`Mensaje duplicado ignorado: ${mensaje.id}`);
+            return;
+        }
+        
+        // Registrar ID de mensaje para evitar duplicados futuros
+        if (mensaje.id && mensajesRecibidos) {
+            mensajesRecibidos.add(mensaje.id);
+        }
+        
+        // CASO 1: Mensaje propio que ya mostramos al enviarlo
+        if (esMensajePropio && mensaje.id && mensajesEnviados && mensajesEnviados.has(mensaje.id)) {
+            console.log(`Mensaje propio ya mostrado (echo del servidor), ignorando: ${mensaje.id}`);
+            return;
+        }
+        
+        // CASO 2: Mensaje del sistema
+        if (emisorNombre === "Sistema" || emisorNombre === "Servidor") {
+            tipoMensaje = "sistema";
+        }
+        // CASO 3: Mensaje propio que aún no hemos mostrado
+        else if (esMensajePropio) {
+            tipoMensaje = "enviado";
+            
+            // Registrar como mensaje enviado para evitar duplicados
+            if (mensaje.id && mensajesEnviados) {
+                mensajesEnviados.add(mensaje.id);
+            }
+        }
+        
+        // Mostrar el mensaje
+        console.log(`Mostrando mensaje ${esMensajePropio ? 'propio' : 'recibido'}: ${emisorNombre} - ${contenidoMensaje.substring(0, 20)}`);
+        
+        agregarMensajeChat(
+            emisorNombre, 
+            contenidoMensaje, 
+            tipoMensaje, 
+            mensaje.estado || 'recibido', 
+            mensaje.id
+        );
+        
+        // Extraer información de elemento
+        extraerInfoElementoDesdeChat(mensaje);
+        
+    } catch (error) {
+        console.error("Error al procesar mensaje:", error);
+    }
+}
+
+// Función auxiliar para extraer información de elemento desde el chat
+function extraerInfoElementoDesdeChat(mensaje) {
+    // Si hay información de emisor con ID
+    if (mensaje.emisor && mensaje.emisor.id) {
+        console.log("Extrayendo información de elemento desde mensaje:", mensaje.emisor);
+        
+        const elementoDatos = {
+            id: mensaje.emisor.id,
+            usuario: mensaje.emisor.nombre || mensaje.emisor.usuario,
+            elemento: mensaje.emisor.elemento || {},
+            timestamp: mensaje.timestamp,
+            conectado: true
+        };
+        
+        // Si hay información de posición, añadirla
+        if (mensaje.emisor.posicion || mensaje.posicion) {
+            elementoDatos.posicion = mensaje.emisor.posicion || mensaje.posicion;
+        }
+        
+        // Actualizar en elementosConectados si existe
+        actualizarElementoEnLista(elementoDatos);
+    }
+    // O si hay userId directo
+    else if (mensaje.usuarioId && mensaje.usuario) {
+        const elementoDatos = {
+            id: mensaje.usuarioId,
+            usuario: mensaje.usuario,
+            timestamp: mensaje.timestamp,
+            conectado: true
+        };
+        
+        // Actualizar en elementosConectados si existe
+        actualizarElementoEnLista(elementoDatos);
+    }
+}
+
+/**
+ * Procesa un elemento específico para detección de mensajes o notificaciones
+ * @param {Object} elemento - El elemento a procesar
+ * @param {boolean} [esNuevo=false] - Indica si es un elemento recién conectado
+ */
+function procesarElementoParaChat(elemento, esNuevo = false) {
+    if (!elemento || !elemento.id) return;
+    
+    // Si es un elemento nuevo, mostrar notificación en el chat
+    if (esNuevo && elemento.id !== usuarioInfo?.id) {
+        const nombreElemento = elemento.usuario || 
+                              elemento.nombre || 
+                              (elemento.elemento && elemento.elemento.designacion) || 
+                              'Elemento';
+                              
+        agregarMensajeChat("Sistema", `${nombreElemento} se ha conectado`, "sistema");
+        
+        // Si tiene permisos de notificación, mostrar una notificación nativa
+        if (Notification && Notification.permission === "granted") {
+            const notificacion = new Notification("Nuevo participante", {
+                body: `${nombreElemento} se ha conectado a la operación`,
+                icon: "/images/icon.png"
+            });
+            
+            // Cerrar automáticamente después de 5 segundos
+            setTimeout(() => notificacion.close(), 5000);
+        }
+    }
+}
+
+/**
+ * Inicializa permiso de notificaciones para el chat
+ * Debe llamarse durante la inicialización del módulo
+ */
+function inicializarNotificacionesChat() {
+    // Verificar si el navegador soporta notificaciones
+    if (!("Notification" in window)) {
+        console.log("Este navegador no soporta notificaciones desktop");
+        return;
+    }
+    
+    // Comprobar si ya tenemos permisos
+    if (Notification.permission === "granted") {
+        console.log("Permisos de notificación ya concedidos");
+        return;
+    }
+    
+    // Si no se ha decidido, pedir permiso
+    if (Notification.permission !== "denied") {
+        // Intentar solicitar permiso en respuesta a una acción del usuario
+        document.addEventListener('click', function solicitarPermiso() {
+            Notification.requestPermission().then(function(permission) {
+                if (permission === "granted") {
+                    console.log("Permiso de notificaciones concedido");
+                }
+                // Eliminar el listener después de la primera solicitud
+                document.removeEventListener('click', solicitarPermiso);
+            });
+        });
+    }
+}
+
+/**
+ * Mejora para la reconexión y reenvío de mensajes pendientes
+ * Esta función debe ser llamada cuando se detecte una reconexión
+ */
+function manejarReconexionChat() {
+    console.log("Manejando reconexión para el chat");
+    
+    // Actualizar lista de destinatarios
+    setTimeout(actualizarListaDestinatarios, 1000);
+    
+    // Intentar reenviar mensajes pendientes
+    const mensajesPendientes = JSON.parse(localStorage.getItem('gb_mensajes_pendientes') || '[]');
+    if (mensajesPendientes.length > 0) {
+        console.log(`Intentando reenviar ${mensajesPendientes.length} mensajes pendientes`);
+        
+        // Filtrar mensajes para esta operación
+        const mensajesOperacion = mensajesPendientes.filter(m => m.sala === operacionActual);
+        
+        let reenviados = 0;
+        mensajesOperacion.forEach(mensaje => {
+            if (socket && socket.connected) {
+                try {
+                    // Marcar como enviando
+                    actualizarEstadoMensaje(mensaje.id, "enviando");
+                    
+                    // Seleccionar evento correcto según tipo
+                    if (mensaje.tipo === 'privado' || mensaje.destinatario) {
+                        socket.emit('mensajePrivado', mensaje);
+                    } else if (mensaje.tipo_contenido) {
+                        socket.emit('mensajeMultimedia', mensaje);
+                    } else {
+                        socket.emit('mensajeChat', mensaje);
+                    }
+                    
+                    reenviados++;
+                } catch (error) {
+                    console.error(`Error al reenviar mensaje ${mensaje.id}:`, error);
+                    actualizarEstadoMensaje(mensaje.id, "error");
+                }
+            }
+        });
+        
+        // Guardar solo los mensajes no reenviados o de otras operaciones
+        const mensajesRestantes = mensajesPendientes.filter(m => 
+            m.sala !== operacionActual || (m.sala === operacionActual && reenviados === 0)
+        );
+        
+        localStorage.setItem('gb_mensajes_pendientes', JSON.stringify(mensajesRestantes));
+        
+        if (reenviados > 0) {
+            agregarMensajeChat("Sistema", `Se han reenviado ${reenviados} mensajes pendientes`, "sistema");
+            MAIRA.Utils.mostrarNotificacion(`${reenviados} mensajes reenviados`, "success");
+        }
+    }
+}   
+    function manejarMensajeNoEntregado(mensaje) {
     // Marcar mensaje como pendiente
     mensaje.estado = "pendiente";
     
@@ -3084,10 +3244,62 @@ function reenviarMensajesPendientes() {
     const mensajesRestantes = mensajesPendientes.filter(m => m.sala !== operacionActual);
     localStorage.setItem('gb_mensajes_pendientes', JSON.stringify(mensajesRestantes));
 }
+/**
+     * Envía los mensajes, informes y posiciones pendientes cuando se conecta
+     */
+function enviarPendientes() {
+    console.log("Intentando enviar datos pendientes");
+    
+    if (!socket || !socket.connected) {
+        console.warn("No se pueden enviar datos pendientes: sin conexión");
+        return;
+    }
+    
+    // Enviar mensajes pendientes
+    if (colaPendiente.mensajes && colaPendiente.mensajes.length > 0) {
+        console.log(`Enviando ${colaPendiente.mensajes.length} mensajes pendientes`);
+        
+        colaPendiente.mensajes.forEach(mensaje => {
+            socket.emit('mensajeChat', mensaje);
+        });
+        
+        // Limpiar mensajes enviados
+        colaPendiente.mensajes = [];
+    }
+    
+    // Enviar informes pendientes
+    if (colaPendiente.informes && colaPendiente.informes.length > 0) {
+        console.log(`Enviando ${colaPendiente.informes.length} informes pendientes`);
+        
+        colaPendiente.informes.forEach(informe => {
+            socket.emit('nuevoInforme', informe);
+        });
+        
+        // Limpiar informes enviados
+        colaPendiente.informes = [];
+    }
+    
+    // Enviar posiciones pendientes
+    if (colaPendiente.posiciones && colaPendiente.posiciones.length > 0) {
+        console.log(`Enviando ${colaPendiente.posiciones.length} posiciones pendientes`);
+        
+        // Solo enviar la última posición para no sobrecargar
+        const ultimaPosicionPendiente = colaPendiente.posiciones[colaPendiente.posiciones.length - 1];
+        socket.emit('actualizarPosicionGBGB', ultimaPosicionPendiente);
+        
+        // Limpiar posiciones enviadas
+        colaPendiente.posiciones = [];
+    }
+}
 
 
-    // Exponer API pública
-    return {
+return {
+        // ... otras funciones ...
+        sincronizarElementosChat: sincronizarElementosChat,
+        actualizarListaDestinatarios: actualizarListaDestinatarios,
+        procesarMensajeParaElementos: procesarMensajeParaElementos,
+        recibirMensajeChat: recibirMensajeChat,
+
         // Funciones principales
         inicializar: inicializar,
         configurarEventosSocket: configurarEventosSocket,
@@ -3099,7 +3311,13 @@ function reenviarMensajesPendientes() {
         grabarAudioParaChat: grabarAudioParaChat,
         grabarVideoParaChat: grabarVideoParaChat,
         enviarMensajeMultimedia: enviarMensajeMultimedia,
+        enviarPendientes: enviarPendientes,
         ampliarImagen: ampliarImagen,
+        
+        sincronizarElementosChat: sincronizarElementosChat,
+        procesarElementoParaChat: procesarElementoParaChat,
+        inicializarNotificacionesChat: inicializarNotificacionesChat,
+        manejarReconexionChat: manejarReconexionChat,
         
         // Utilidades
         actualizarListaDestinatarios: actualizarListaDestinatarios,

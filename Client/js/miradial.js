@@ -10,6 +10,7 @@
      * Estilos visuales para los diferentes tipos de menú
      * Define colores y estados para terreno y elementos
      */
+    
     const MENU_STYLES = {
         terreno: {
             normal: 'rgba(139, 69, 19, 0.8)',  // marrón
@@ -18,9 +19,12 @@
         elemento: {
             normal: 'rgba(128, 128, 128, 0.8)', // gris
             hover: 'rgba(169, 169, 169, 0.9)'   // gris más claro
+        },
+        mapa: {
+            normal: 'rgba(0, 128, 255, 0.8)',   // azul
+            hover: 'rgba(64, 160, 255, 0.9)'    // azul más claro
         }
     };
-
     /**
      * Definición de items para cada tipo de menú
      * Incluye títulos, acciones, iconos y tooltips
@@ -49,7 +53,44 @@
                     { title: 'Volver', action: 'back', icon: 'fas fa-arrow-left', tooltip: 'Volver al menú anterior' }
                 ]
             }
-        }
+        },
+            gb: {
+                elemento: [
+                    { 
+                        title: 'Editar',
+                        action: 'editarGB',
+                        icon: 'fas fa-edit',
+                        tooltip: 'Editar elemento' 
+                    },
+                    { 
+                        title: 'Seguir',
+                        action: 'seguirGB',
+                        icon: 'fas fa-crosshairs',
+                        tooltip: 'Seguir elemento'
+                    },
+                    { 
+                        title: 'Chat',
+                        action: 'chatGB',
+                        icon: 'fas fa-comment',
+                        tooltip: 'Chat privado'
+                    }
+                ],
+                mapa: [
+                    {
+                        title: 'Agregar',
+                        action: 'agregarGB',
+                        icon: 'fas fa-plus',
+                        tooltip: 'Agregar elemento'
+                    },
+                    {
+                        title: 'Centrar',
+                        action: 'centrarGB',
+                        icon: 'fas fa-crosshairs',
+                        tooltip: 'Centrar mapa'
+                    }
+                ]
+            }
+        
     };
 
     const MiRadial = {
@@ -73,6 +114,8 @@
                 return;
             }
             
+
+
             this.map = map;
             this.setFaseJuego('preparacion');
             
@@ -106,6 +149,7 @@
 
             this.initStyles();
             console.log('MiRadial inicializado');
+            
         },
 
         /**
@@ -369,7 +413,18 @@
          * @param {string} tipo - Tipo de menú ('terreno' o 'elemento')
          * @returns {Array} Array de items del menú
          */
+        // Reemplazar la función getMenuItems
         getMenuItems: function(tipo) {
+            // Si estamos en modo GB
+            if (window.MAIRA?.modoGB) {
+                if (tipo === 'elemento') {
+                    return MENU_ITEMS.gb.elemento || [];
+                } else if (tipo === 'mapa') {
+                    return MENU_ITEMS.gb.mapa || [];
+                }
+            }
+
+            // Resto de la función para el modo juego de guerra...
             if (tipo === 'terreno') {
                 const hexId = this.selectedHex ? 
                     `${this.selectedHex.hex.q},${this.selectedHex.hex.r}` : null;
@@ -445,12 +500,14 @@
          * @param {string} tipo - Tipo de menú a mostrar
          */
         
+        
         mostrarMenu: function(x, y, tipo) {
             console.log('4. MiRadial.mostrarMenu llamado:', {
                 x, y, tipo,
                 selectedUnit: this.selectedUnit,
                 selectedHex: this.selectedHex
             });
+            
             if (!mapa) return;
             this.hideMenu();
             const menuTipo = tipo === 'unidad' ? 'elemento' : tipo;
@@ -459,6 +516,9 @@
             if (menuItems.length === 0) return;
 
             this.menuElement = this.createMenuSVG(menuItems, menuTipo);
+            
+            // IMPORTANTE: Guardar referencia al tipo de menú
+            this.currentMenuType = menuTipo;
 
             // Si se ha seleccionado una unidad, muestra el menú en sus coordenadas
             if (this.selectedUnit) {
@@ -471,7 +531,7 @@
             }
 
             document.body.appendChild(this.menuElement);
-        },
+        }, 
 
         /**
          * Maneja los clics en las opciones del menú
@@ -479,9 +539,65 @@
          * @param {string} submenu - Submenu a mostrar (opcional)
          */
 
-        handleMenuClick: function(action, submenu) {
-            console.log('Acción seleccionada:', action);
 
+
+handleMenuClick: function(action, submenu) {
+    console.log('Acción seleccionada:', action);
+    
+    // Si estamos en modo GB
+    if (window.MAIRA?.modoGB) {
+        switch(action) {
+            case 'editarGB':
+                console.log("Ejecutando editarElementoSeleccionado");
+                if (window.elementoSeleccionadoGB || window.elementoSeleccionado) {
+                    // Asegurar que ambas referencias estén sincronizadas
+                    if (!window.elementoSeleccionadoGB) window.elementoSeleccionadoGB = window.elementoSeleccionado;
+                    if (!window.elementoSeleccionado) window.elementoSeleccionado = window.elementoSeleccionadoGB;
+                    
+                    // Verificar si la función existe
+                    if (typeof window.editarelementoSeleccionadoGB === 'function') {
+                        window.editarelementoSeleccionadoGB();
+                    } else if (typeof window.editarElementoSeleccionado === 'function') {
+                        window.editarElementoSeleccionado();
+                    } else {
+                        console.error("Función de edición no encontrada");
+                    }
+                } else {
+                    console.error("No hay elemento seleccionado para editar");
+                }
+                break;
+            case 'seguirGB':
+                console.log("Iniciando seguimiento de elemento");
+                if (window.MAIRA.Elementos?.iniciarSeguimientoElemento) {
+                    window.MAIRA.Elementos.iniciarSeguimientoElemento(window.elementoSeleccionadoGB?.options?.id);
+                }
+                break;
+            case 'chatGB':
+                console.log("Iniciando chat privado");
+                if (window.MAIRA.Chat?.iniciarChatPrivado) {
+                    window.MAIRA.Chat.iniciarChatPrivado(window.elementoSeleccionadoGB?.options?.id);
+                }
+                break;
+            case 'agregarGB':
+                console.log("Ejecutando agregarMarcadorGB");
+                if (window.agregarMarcadorGB) {
+                    window.agregarMarcadorGB();
+                }
+                break;
+            case 'centrarGB':
+                console.log("Ejecutando centrarEnPosicion");
+                if (window.MAIRA.Elementos?.centrarEnPosicion) {
+                    window.MAIRA.Elementos.centrarEnPosicion();
+                } else if (window.centrarEnPosicion) {
+                    window.centrarEnPosicion();
+                }
+                break;
+        }
+        
+        this.hideMenu();
+        return;
+    }
+  
             switch(action) {
                 case 'terrainInfo':
                     this.showTerrainInfo();
@@ -803,6 +919,49 @@ processElevationInfo: async function (corners, popup) {
                 x: rect.left + rect.width / 2,
                 y: rect.top + rect.height / 2
             };
+        },
+
+        // En MiRadial, antes de configurarModoGB
+        buscarElementoEnPosicion: function(latlng) {
+            let elementoEncontrado = null;
+            let distanciaMinima = Infinity;
+            
+            if (!this.map) return null;
+            
+            const puntoClick = this.map.latLngToContainerPoint(latlng);
+            const radioDeteccion = 20; // píxeles
+            
+            if (window.calcoActivo) {
+                window.calcoActivo.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                        // Convertir posición del marcador a coordenadas de pantalla
+                        const puntoMarcador = this.map.latLngToContainerPoint(layer.getLatLng());
+                        
+                        // Calcular distancia en píxeles
+                        const distancia = puntoClick.distanceTo(puntoMarcador);
+                        
+                        // Actualizar elemento más cercano si está dentro del radio
+                        if (distancia < radioDeteccion && distancia < distanciaMinima) {
+                            elementoEncontrado = layer;
+                            distanciaMinima = distancia;
+                        }
+                    }
+                });
+            }
+            
+            console.log('[MiRadial] Elemento encontrado:', elementoEncontrado, 'distancia:', distanciaMinima);
+            return elementoEncontrado;
+        },
+
+        configurarModoGB: function() {
+            // Prevenir menú contextual del sistema en todo el mapa
+            this.map.getContainer().addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        
+            // Usar el menú radial GB por defecto
+            this.faseJuego = 'gb';
         },
 
         /**

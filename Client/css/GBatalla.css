@@ -1784,3 +1784,85 @@
 .elemento-item:hover {
   background-color: #f5f5f5;
 }
+
+.elemento-item {
+  transition: opacity 0.3s ease;
+}
+
+.elemento-item.desconectado {
+  opacity: 0.6;
+}
+
+.estado-conexion {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.estado-conexion.conectado {
+  color: #2ecc71;
+}
+
+.estado-conexion.desconectado {
+  color: #e74c3c;
+}
+
+.elemento-militar.desconectado {
+  filter: grayscale(50%);
+  opacity: 0.5;
+}
+
+.elemento-item.seleccionado {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196F3;
+}
+
+#panel-detalles-elemento {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+  width: 300px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  display: none;
+}
+
+/* Estilos para las líneas de tracking */
+.tracking-path {
+  animation: dashAnimation 20s linear infinite;
+}
+
+@keyframes dashAnimation {
+  0% {
+      stroke-dashoffset: 20;
+  }
+  100% {
+      stroke-dashoffset: 0;
+  }
+}
+
+
+/* Agregar a /Client/css/GBatalla.css */
+.sidc-preview-container {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+#sidcPreviewGB {
+  display: inline-block;
+}
+
+#modalEdicionGB .modal-dialog {
+  max-width: 500px;
+}
+
+.elemento-item.seleccionado {
+  background-color: #e9ecef;
+  border-left: 3px solid #007bff;
+}
