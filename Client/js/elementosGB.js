@@ -133,7 +133,41 @@ MAIRA.Elementos = (function() {
             return false;
         }
     }
+
     
+// Añadir a elementosGB.js - Función modificada para cargar elementos por operación
+function cargarElementosDesdeLocalStorage() {
+    try {
+        // Obtener operación actual
+        const operacionActual = window.MAIRA?.GestionBatalla?.operacionActual || window.operacionActual || 'general';
+        
+        // Cargar sólo los elementos de esta operación
+        const elementosGuardados = localStorage.getItem(`elementos_conectados_${operacionActual}`);
+        if (!elementosGuardados) {
+            console.log(`📭 No hay elementos guardados para operación ${operacionActual}`);
+            return {};
+        }
+        
+        const elementosParsed = JSON.parse(elementosGuardados);
+        console.log(`📥 Encontrados ${Object.keys(elementosParsed).length} elementos en localStorage para operación ${operacionActual}`);
+        
+        // Verificación de operación
+        const elementosFiltrados = {};
+        Object.entries(elementosParsed).forEach(([id, elem]) => {
+            // Solo incluir elementos de esta operación
+            if (elem?.datos?.operacion === operacionActual || !elem?.datos?.operacion) {
+                elementosFiltrados[id] = elem;
+            }
+        });
+        
+        console.log(`📥 Filtrados ${Object.keys(elementosFiltrados).length} elementos para operación ${operacionActual}`);
+        
+        return elementosFiltrados;
+    } catch (e) {
+        console.error("❌ Error al cargar elementos desde localStorage:", e);
+        return {};
+    }
+}
 
     // Añadir en la sección de obtención de opciones de menú
 function obtenerOpcionesMenuRadial(elemento) {
@@ -1005,84 +1039,7 @@ function forzarSincronizacionElementos() {
     return true;
 }
 
-// Función para limpiar elementos duplicados
-function limpiarElementosDuplicados() {
-    console.log("🧹 Limpiando elementos duplicados o inválidos");
-    
-    // 1. Identificar IDs de usuarios existentes
-    const idsUsuarios = new Set();
-    const elementosAEliminar = [];
-    
-    // Primer paso: recopilar IDs de usuarios válidos
-    Object.entries(elementosConectados).forEach(([id, elem]) => {
-        // Verificar si es un ID de usuario (user_) vs un ID de elemento (elemento_)
-        if (id.startsWith('user_')) {
-            idsUsuarios.add(id);
-        }
-    });
-    
-    console.log(`🔍 Identificados ${idsUsuarios.size} IDs de usuarios únicos`);
-    
-    // 2. Buscar elementos con IDs similares (posibles duplicados)
-    Object.entries(elementosConectados).forEach(([id, elem]) => {
-        // Si es un ID de elemento y no de usuario
-        if (id.startsWith('elemento_')) {
-            // Extraer el ID base del usuario
-            const match = id.match(/elemento_(\d+)_/);
-            if (match && match[1]) {
-                const idBase = match[1];
-                
-                // Buscar si existe un usuario con este ID base
-                let tieneUsuarioCorrespondiente = false;
-                idsUsuarios.forEach(idUsuario => {
-                    if (idUsuario.includes(idBase)) {
-                        tieneUsuarioCorrespondiente = true;
-                    }
-                });
-                
-                // Si hay un usuario correspondiente, marcar para eliminación
-                if (tieneUsuarioCorrespondiente) {
-                    elementosAEliminar.push(id);
-                }
-            }
-        }
-        
-        // También verificar si el elemento es válido (tiene datos)
-        if (!elem || !elem.datos) {
-            elementosAEliminar.push(id);
-        }
-    });
-    
-    // 3. Eliminar elementos duplicados o inválidos
-    elementosAEliminar.forEach(id => {
-        console.log(`🗑️ Eliminando elemento duplicado/inválido: ${id}`);
-        
-        // Eliminar del mapa si tiene marcador
-        if (elementosConectados[id]?.marcador && window.mapa) {
-            try {
-                window.mapa.removeLayer(elementosConectados[id].marcador);
-            } catch (e) {
-                console.warn(`Error al eliminar marcador de ${id}:`, e);
-            }
-        }
-        
-        // Eliminar de la estructura
-        delete elementosConectados[id];
-        
-        // Eliminar de la lista visual
-        const elementoItem = document.querySelector(`.elemento-item[data-id="${id}"]`);
-        if (elementoItem) {
-            elementoItem.remove();
-        }
-    });
-    
-    // 4. Actualizar localStorage con la lista limpia
-    guardarElementosEnLocalStorage();
-    
-    console.log(`✅ Limpieza completada: eliminados ${elementosAEliminar.length} elementos`);
-    
-    return elementosAEliminar.length;
-}
+
 
 // Exponer la función forzar sincronización globalmente para llamarla desde consola
 window.forzarSincronizacionElementos = forzarSincronizacionElementos;
@@ -1856,27 +1813,6 @@ if (window.MAIRA && window.MAIRA.Elementos) {
     window.limpiarElementosDuplicados = limpiarElementosDuplicados;
     
 
-    function configurarEventoReconexion() {
-        if (socket) {
-            socket.on('connect', function() {
-                console.log("📡 Reconectado al servidor, sincronizando elementos");
-                
-                // Primero cargar y crear marcadores desde localStorage
-                cargarYCrearMarcadoresDesdeLocalStorage();
-                
-                // Esperar un momento para que la conexión se estabilice
-                setTimeout(() => {
-                    // Limpiar duplicados
-                    limpiarElementosDuplicados();
-                    
-                    // Forzar sincronización completa
-                    if (typeof forzarSincronizacionElementos === 'function') {
-                        forzarSincronizacionElementos();
-                    }
-                }, 1000);
-            });
-        }
-    }
     /**
      * Esta función mejora la lista de elementos conectados para mostrar más información
      * y permitir interacción directa con cada elemento.
@@ -2324,10 +2260,11 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         window.elementosConectados = elementosConectados;
         console.warn("MAIRA.GestionBatalla no disponible para asignar elementosConectados");
     }
+   
     /**
-     * Crea un marcador para el elemento en el mapa
+     * Crea un marcador para un elemento existente (usado principalmente al recibir datos del servidor)
      * @param {Object} elemento - Datos del elemento
-     * @returns {L.Marker} - Marcador creado
+     * @returns {L.Marker|null} - El marcador creado o null si falla
      */
     function crearMarcadorElemento(elemento) {
         if (!elemento) {
@@ -2341,25 +2278,36 @@ if (window.MAIRA && window.MAIRA.Elementos) {
             return null;
         }
         
-        console.log("Creando marcador para elemento:", elemento);
+        console.log("Creando marcador para elemento:", elemento.id);
         
         try {
-            // Preparar SIDC
-            let sidc = 'SFGPUCI-----'; // Default
+            // Preparar SIDC (código de identificación militar)
+            let sidc = 'SFGPUCI-----'; // Default: Infantería amiga
+            
+            // Intentar obtener el SIDC de varias fuentes posibles
             if (elemento.elemento && elemento.elemento.sidc) {
                 sidc = elemento.elemento.sidc;
             } else if (elemento.sidc) {
                 sidc = elemento.sidc;
             }
             
+            // Obtener designación/dependencia para mostrar en el símbolo
+            const designacion = elemento.elemento?.designacion || 
+                            elemento.designacion || 
+                            elemento.nombre || 
+                            elemento.usuario || '';
+                            
+            const dependencia = elemento.elemento?.dependencia || 
+                            elemento.dependencia || '';
+            
             // Crear símbolo militar
             const sym = new ms.Symbol(sidc, {
                 size: 35,
                 direction: elemento.posicion.rumbo || 0,
-                uniqueDesignation: elemento.elemento?.designacion || elemento.designacion || elemento.nombre || elemento.usuario || ''
+                uniqueDesignation: designacion
             });
             
-            // Crear icono
+            // Crear icono para Leaflet
             const icon = L.divIcon({
                 className: 'elemento-militar',
                 html: sym.asSVG(),
@@ -2367,31 +2315,37 @@ if (window.MAIRA && window.MAIRA.Elementos) {
                 iconAnchor: [35, 25]
             });
             
-            // Opciones del marcador
+            // Opciones del marcador - mantener todos los datos originales
             const opciones = {
                 draggable: false,
                 sidc: sidc,
-                nombre: elemento.nombre || elemento.usuario || '',
+                nombre: elemento.nombre || elemento.usuario || designacion || '',
                 id: elemento.id,
-                designacion: (elemento.elemento && elemento.elemento.designacion) || elemento.designacion || '',
-                dependencia: (elemento.elemento && elemento.elemento.dependencia) || elemento.dependencia || '',
+                designacion: designacion,
+                dependencia: dependencia,
                 magnitud: (elemento.elemento && elemento.elemento.magnitud) || elemento.magnitud || '-',
                 estado: elemento.estado || 'operativo',
                 usuario: elemento.usuario || '',
-                jugador: elemento.id || '',
+                usuarioId: elemento.usuarioId || elemento.id,
+                jugador: elemento.jugador || elemento.id || '',
+                jugadorId: elemento.jugadorId || elemento.id || '',
+                operacion: elemento.operacion || (window.MAIRA?.GestionBatalla?.operacionActual) || 'general',
+                timestamp: elemento.timestamp || new Date().toISOString(),
                 icon: icon,
-                isElementoMilitar: true  // Añadir una marca para identificar fácilmente
+                isElementoMilitar: true
             };
             
-            // Crear marcador
+            // Crear marcador en la posición indicada
             const marcador = L.marker([elemento.posicion.lat, elemento.posicion.lng], opciones);
             
-            // Añadir al mapa
-            if (window.mapa) {
+            // Añadir al mapa (preferir calcoActivo si existe)
+            if (window.calcoActivo) {
+                window.calcoActivo.addLayer(marcador);
+            } else if (window.mapa) {
                 window.mapa.addLayer(marcador);
             }
             
-            // Configurar eventos
+            // Configurar eventos del marcador
             marcador.on('click', function(e) {
                 L.DomEvent.stopPropagation(e);
                 console.log("Click en elemento:", this.options.id);
@@ -2417,27 +2371,34 @@ if (window.MAIRA && window.MAIRA.Elementos) {
                 }
             });
             
-            // Actualizar referencia
-            if (!elementosConectados[elemento.id]) {
-                elementosConectados[elemento.id] = { 
+            // Actualizar estructura de elementos conectados
+            if (!window.elementosConectados) {
+                window.elementosConectados = {};
+            }
+            
+            if (!window.elementosConectados[elemento.id]) {
+                window.elementosConectados[elemento.id] = { 
                     datos: elemento, 
                     marcador: marcador 
                 };
             } else {
-                elementosConectados[elemento.id].marcador = marcador;
+                // Si ya existe, actualizar el marcador
+                window.elementosConectados[elemento.id].marcador = marcador;
             }
             
-            // Guardar en window para fácil acceso
-            if (!window.elementosConectados) {
-                window.elementosConectados = {};
+            // Sincronizar con estructura centralizada si existe
+            if (window.MAIRA?.GestionBatalla) {
+                if (!window.MAIRA.GestionBatalla.elementosConectados) {
+                    window.MAIRA.GestionBatalla.elementosConectados = {};
+                }
+                window.MAIRA.GestionBatalla.elementosConectados[elemento.id] = window.elementosConectados[elemento.id];
             }
-            window.elementosConectados[elemento.id] = elementosConectados[elemento.id];
             
             console.log(`Marcador creado exitosamente para: ${elemento.id} (${elemento.usuario || 'Sin nombre'})`);
             return marcador;
             
-        } catch (e) {
-            console.error("Error al crear marcador para elemento:", e);
+        } catch (error) {
+            console.error("Error al crear marcador para elemento:", error);
             return null;
         }
     }
@@ -3522,80 +3483,7 @@ function ocultarIndicadorSeguimiento() {
         console.log("obtenerElementosConectados llamado, devolviendo:", elementosConectados);
         return elementosConectados;
     }
-    function actualizarElementoConectado(datosElemento, marcador) {
-        console.log("🔄 Actualizando elemento local:", datosElemento.id);
-        
-        // Si no existe el objeto elementosConectados, crearlo
-        if (!window.elementosConectados) {
-            window.elementosConectados = {};
-        }
-        
-        // Si el elemento no existe, añadirlo
-        if (!window.elementosConectados[datosElemento.id]) {
-            window.elementosConectados[datosElemento.id] = {
-                datos: datosElemento,
-                marcador: marcador
-            };
-            console.log(`✅ Nuevo elemento añadido a elementosConectados: ${datosElemento.id}`);
-        } else {
-            // Si existe, actualizar los datos manteniendo el marcador
-            const elementoActualizado = {
-                ...window.elementosConectados[datosElemento.id].datos,
-                ...datosElemento,
-                elemento: {
-                    ...(window.elementosConectados[datosElemento.id].datos?.elemento || {}),
-                    ...(datosElemento.elemento || {})
-                }
-            };
-            
-            window.elementosConectados[datosElemento.id].datos = elementoActualizado;
-            
-            // Si el marcador es diferente, reemplazarlo
-            if (window.elementosConectados[datosElemento.id].marcador !== marcador) {
-                // Eliminar marcador anterior del mapa
-                const marcadorAnterior = window.elementosConectados[datosElemento.id].marcador;
-                if (marcadorAnterior && window.mapa) {
-                    if (window.mapa.hasLayer(marcadorAnterior)) {
-                        window.mapa.removeLayer(marcadorAnterior);
-                        console.log(`🔄 Marcador anterior eliminado del mapa`);
-                    }
-                }
-                
-                window.elementosConectados[datosElemento.id].marcador = marcador;
-                console.log(`✅ Marcador actualizado para elemento: ${datosElemento.id}`);
-            }
-        }
-        
-        // NUEVO: Guardar cambios en localStorage para mayor persistencia
-        try {
-            const elementosParaGuardar = {};
-            
-            // Solo guardar los datos, no los marcadores (no son serializables)
-            Object.entries(window.elementosConectados).forEach(([id, elem]) => {
-                elementosParaGuardar[id] = { datos: elem.datos };
-            });
-            
-            localStorage.setItem('elementos_conectados', JSON.stringify(elementosParaGuardar));
-            console.log("✅ Elementos conectados guardados en localStorage");
-        } catch (e) {
-            console.error("❌ Error al guardar elementos en localStorage:", e);
-        }
-        
-        // Sincronizar con MAIRA.GestionBatalla
-        if (window.MAIRA && window.MAIRA.GestionBatalla) {
-            window.MAIRA.GestionBatalla.elementosConectados = window.elementosConectados;
-        }
-        
-        // Si existe la función para actualizar la lista visual, usarla
-        if (typeof window.MAIRA?.Elementos?.actualizarElementoVisual === 'function') {
-            try {
-                window.MAIRA.Elementos.actualizarElementoVisual(datosElemento.id);
-                console.log(`✅ Interfaz visual actualizada para elemento: ${datosElemento.id}`);
-            } catch (e) {
-                console.error(`❌ Error al actualizar interfaz visual:`, e);
-            }
-        }
-    }
+    
     
     /**
      * Obtiene un elemento por su ID
@@ -3819,19 +3707,7 @@ function detenerTrackingElementos() {
     console.log("Sistema de tracking de elementos detenido");
 }
 
-    // Añadir al final de GB.js, fuera de cualquier función
-window.editarElementoSeleccionado = function() {
-    if (!window.elementoSeleccionadoGB) return;
-    
-    if (window.MAIRA && window.MAIRA.GestionBatalla && 
-        typeof window.MAIRA.GestionBatalla.editarelementoSeleccionadoGB === 'function') {
-        window.MAIRA.GestionBatalla.editarelementoSeleccionadoGB();
-    } else if (window.editarelementoSeleccionadoGB) {
-        window.editarelementoSeleccionadoGB();
-    } else {
-        console.warn("Función de edición no disponible");
-    }
-};
+
 
 /**
  * Actualiza la información de posición en la lista visual
@@ -3880,34 +3756,7 @@ function actualizarInfoPosicionEnLista(elementoId, posicion) {
     }
 }
 
-function editarelementoSeleccionadoGB() {
-    if (!window.elementoSeleccionadoGB) return;
-    
-    console.log("Editando elemento seleccionado:", window.elementoSeleccionadoGB);
-    
-    if (window.elementoSeleccionadoGB instanceof L.Marker) {
-        if (window.elementoSeleccionadoGB.options && window.elementoSeleccionadoGB.options.sidc) {
-            if (window.esUnidad && window.esUnidad(window.elementoSeleccionadoGB.options.sidc)) {
-                window.mostrarPanelEdicionUnidad(window.elementoSeleccionadoGB);
-            } else if (window.esEquipo && window.esEquipo(window.elementoSeleccionadoGB.options.sidc)) {
-                window.mostrarPanelEdicionEquipo(window.elementoSeleccionadoGB);
-            } else {
-                // Elementos sin SIDC específico
-                if (window.mostrarPanelEdicionMCC) {
-                    window.mostrarPanelEdicionMCC(window.elementoSeleccionadoGB, 'elemento');
-                }
-            }
-        }
-    } else if (window.elementoSeleccionadoGB instanceof L.Polyline || window.elementoSeleccionadoGB instanceof L.Polygon) {
-        if (window.mostrarPanelEdicionMCC && window.determinarTipoMCC) {
-            window.mostrarPanelEdicionMCC(window.elementoSeleccionadoGB, window.determinarTipoMCC(window.elementoSeleccionadoGB));
-        }
-    } else if (window.elementoSeleccionadoGB instanceof L.Path) {
-        if (window.mostrarPanelEdicionLinea) {
-            window.mostrarPanelEdicionLinea(window.elementoSeleccionadoGB);
-        }
-    }
-}
+
 
 
 // Exponer para uso desde consola

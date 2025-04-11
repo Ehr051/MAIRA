@@ -2742,8 +2742,132 @@ def handle_join_operation_gb(data):
         traceback.print_exc()
         return {'error': str(e)}
 
+@socketio.on('eliminarOperacionGB')
+def handle_eliminar_operacion_gb(data, callback=None):
+    """Maneja la eliminación de una operación de gestión de batalla por solicitud de usuario"""
+    try:
+        nombre_operacion = data.get('nombre')
+        id_operacion = data.get('id')
+        user_id = user_sid_map.get(request.sid)
+        
+        if not user_id:
+            if callback:
+                callback({"error": "Usuario no identificado"})
+            return
+        
+        # Buscar la operación por nombre o ID
+        operacion_a_eliminar = None
+        for nombre, op_data in operaciones_batalla.items():
+            op_id = op_data.get('info', {}).get('id')
+            if nombre == nombre_operacion or op_id == id_operacion:
+                operacion_a_eliminar = nombre
+                break
+        
+        if not operacion_a_eliminar:
+            if callback:
+                callback({"error": "Operación no encontrada"})
+            return
+        
+        # Verificar que el usuario sea el creador
+        info_operacion = operaciones_batalla[operacion_a_eliminar].get('info', {})
+        creador_id = info_operacion.get('creadorId')
+        creador_username = info_operacion.get('creador')
+        
+        user_username = None
+        for uid, user_data in usuarios_conectados.items():
+            if uid == user_id:
+                user_username = user_data.get('username')
+                break
+        
+        # Permitir eliminar si es creador o administrador
+        is_admin = False  # Implementa tu lógica para detectar administradores
+        is_creator = (creador_id == user_id) or (creador_username == user_username)
+        
+        if not (is_creator or is_admin):
+            if callback:
+                callback({"error": "No tienes permiso para eliminar esta operación"})
+            return
+        
+        # Obtener usuarios para notificarlos
+        usuarios_notificar = [uid for uid in operaciones_batalla[operacion_a_eliminar].get('elementos', {})]
+        
+        # Eliminar la operación
+        del operaciones_batalla[operacion_a_eliminar]
+        print(f"Operación '{operacion_a_eliminar}' eliminada por solicitud del usuario {user_id}")
+        
+        # Notificar a todos los usuarios afectados
+        socketio.emit('operacionEliminada', {
+            'id': id_operacion,
+            'nombre': operacion_a_eliminar,
+            'mensaje': f"Operación '{operacion_a_eliminar}' ha sido eliminada por {user_username or 'un usuario'}"
+        }, room=operacion_a_eliminar)
+        
+        # Enviar también un mensaje de chat para los que están en la sala
+        socketio.emit('mensajeChat', {
+            'usuario': 'Sistema',
+            'mensaje': f"Operación '{operacion_a_eliminar}' ha sido eliminada",
+            'tipo': 'sistema',
+            'timestamp': datetime.now().isoformat()
+        }, room=operacion_a_eliminar)
+        
+        # Actualizar la lista de operaciones para todos
+        operaciones_lista = [
+            {
+                'id': op['info'].get('id', f"op_{i}"),
+                'nombre': nombre,
+                'descripcion': op['info'].get('descripcion', ''),
+                'creador': op['info'].get('creador', 'Desconocido'),
+                'fechaCreacion': op['info'].get('fechaCreacion', ''),
+                'participantes': len(op['elementos'])
+            }
+            for i, (nombre, op) in enumerate(operaciones_batalla.items())
+        ]
+        socketio.emit('operacionesGB', {'operaciones': operaciones_lista}, broadcast=True)
+        
+        # Responder al cliente
+        if callback:
+            callback({"success": True})
+        
+    except Exception as e:
+        print(f"Error al eliminar operación GB: {e}")
+        traceback.print_exc()
+        if callback:
+            callback({"error": f"Error al eliminar la operación: {str(e)}"})
 
 
+@socketio.on('verificarOperacionesInactivas')
+def handle_verificar_operaciones_inactivas(data=None, callback=None):
+    """Maneja solicitud de verificación de operaciones inactivas"""
+    try:
+        print("Solicitud de verificación de operaciones inactivas recibida")
+        operaciones_eliminadas = limpiarOperacionesInactivas()
+        
+        # Actualizar la lista de operaciones para todos si se eliminó alguna
+        if operaciones_eliminadas > 0:
+            operaciones_lista = [
+                {
+                    'id': op['info'].get('id', f"op_{i}"),
+                    'nombre': nombre,
+                    'descripcion': op['info'].get('descripcion', ''),
+                    'creador': op['info'].get('creador', 'Desconocido'),
+                    'fechaCreacion': op['info'].get('fechaCreacion', ''),
+                    'participantes': len(op['elementos'])
+                }
+                for i, (nombre, op) in enumerate(operaciones_batalla.items())
+            ]
+            socketio.emit('operacionesGB', {'operaciones': operaciones_lista}, broadcast=True)
+        
+        # Responder al cliente
+        if callback:
+            callback({"operacionesEliminadas": operaciones_eliminadas})
+            
+    except Exception as e:
+        print(f"Error al verificar operaciones inactivas: {e}")
+        traceback.print_exc()
+        if callback:
+            callback({"error": str(e)})
+
+            
 @socketio.on('solicitarElementos')
 def handle_request_elements(data):
     try:
@@ -3111,6 +3235,62 @@ def obtener_info_adjunto(informe_id):
         print(f"Error al obtener información del adjunto: {e}")
         return None
 
+def limpiarOperacionesInactivas():
+    """
+    Elimina operaciones inactivas que no tienen participantes durante un tiempo
+    """
+    try:
+        tiempo_inactividad = 10 * 60  # 10 minutos en segundos
+        ahora = datetime.now()
+        operaciones_a_eliminar = []
+        
+        # Recorrer todas las operaciones
+        for nombre_op, op_data in list(operaciones_batalla.items()):
+            info = op_data.get('info', {})
+            ultima_actividad = None
+            
+            # Intentar obtener timestamp de última actividad
+            if 'ultimaActividad' in info:
+                try:
+                    ultima_actividad = datetime.fromisoformat(info['ultimaActividad'])
+                except:
+                    ultima_actividad = None
+            
+            # Si no hay timestamp, usar fecha de creación
+            if not ultima_actividad and 'fechaCreacion' in info:
+                try:
+                    ultima_actividad = datetime.fromisoformat(info['fechaCreacion'])
+                except:
+                    ultima_actividad = datetime.now() - timedelta(hours=1)  # Valor por defecto
+            
+            # Si no hay ninguna fecha, usar hace 1 hora
+            if not ultima_actividad:
+                ultima_actividad = datetime.now() - timedelta(hours=1)
+            
+            # Verificar participantes
+            participantes = len(op_data.get('elementos', {}))
+            tiempo_transcurrido = (ahora - ultima_actividad).total_seconds()
+            
+            # Si no hay participantes Y ha pasado el tiempo de inactividad
+            if participantes == 0 and tiempo_transcurrido > tiempo_inactividad:
+                operaciones_a_eliminar.append(nombre_op)
+        
+        # Eliminar las operaciones inactivas
+        operaciones_eliminadas = 0
+        for nombre_op in operaciones_a_eliminar:
+            if nombre_op in operaciones_batalla:
+                del operaciones_batalla[nombre_op]
+                operaciones_eliminadas += 1
+                print(f"Operación '{nombre_op}' eliminada por inactividad")
+        
+        print(f"Limpieza completada: {operaciones_eliminadas} operaciones eliminadas")
+        return operaciones_eliminadas
+    except Exception as e:
+        print(f"Error al limpiar operaciones inactivas: {e}")
+        traceback.print_exc()
+        return 0
+
+
 def cargar_adjunto_desde_filesystem(adjunto_info):
     """
     Carga un archivo adjunto desde el sistema de archivos
@@ -3347,6 +3527,10 @@ def iniciar_gestos():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error al iniciar el control de gestos: {str(e)}"})
 
+
+
+
+
 @app.route('/gestos/detener', methods=['POST'])
 def detener_gestos():
     global gesture_process
@@ -3389,6 +3573,24 @@ def calibrar_gestos():
     
 
 
+# Inicializar limpieza periódica de operaciones inactivas
+@socketio.on('connect')
+def init_cleanup_tasks():
+    """Inicializa tareas de limpieza periódica cuando se conecta un usuario"""
+    # Verificar si ya hay una tarea programada
+    if not hasattr(app, '_cleanup_task'):
+        # Programar limpieza periódica (cada hora)
+        def periodic_cleanup():
+            print("Ejecutando limpieza periódica de operaciones inactivas...")
+            limpiarOperacionesInactivas()
+            # Reprogramar para la próxima hora
+            socketio.sleep(60 * 60)  # 1 hora
+            socketio.start_background_task(periodic_cleanup)
+        
+        # Iniciar la tarea en segundo plano
+        socketio.start_background_task(periodic_cleanup)
+        app._cleanup_task = True
+        print("Tarea de limpieza periódica inicializada")
 
 # actualizacion la sección de ejecución para usar SSL:
 if __name__ == '__main__':

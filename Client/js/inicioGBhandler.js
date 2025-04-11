@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar preview SIDC
     inicializarPreviewSIDC();
+
+    setInterval(verificarOperacionesInactivas, 5 * 60 * 1000);
 });
 
 
@@ -153,9 +155,84 @@ function mostrarMensajeSistema(mensaje) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+
+// Añadir esto a inicioGBhandler.js, cerca de la función cargarDatosIniciales()
+function verificarYLimpiarDatosAnteriores() {
+    console.log("Verificando datos anteriores en localStorage...");
+    
+    // Verificar si hay una operación guardada
+    const operacionGuardada = localStorage.getItem('gb_operacion_seleccionada');
+    if (!operacionGuardada) {
+        console.log("No hay operación guardada, limpiando datos huérfanos");
+        limpiarDatosHuerfanos();
+        return;
+    }
+    
+    try {
+        // Verificar si la operación es válida
+        const datosOperacion = JSON.parse(operacionGuardada);
+        const nombreOperacion = datosOperacion.nombre;
+        
+        // Preguntar al usuario si desea recuperar la sesión anterior
+        if (confirm(`Se encontró una sesión anterior en la operación "${nombreOperacion}". ¿Desea recuperarla?\n\nSi selecciona "Cancelar", se limpiarán los datos de la sesión anterior.`)) {
+            // Si el usuario quiere recuperar, simplemente guardamos el estado
+            localStorage.setItem('en_operacion_gb', 'true');
+            console.log(`✅ Usuario eligió recuperar sesión de operación "${nombreOperacion}"`);
+        } else {
+            // Si no, limpiamos todo
+            limpiarLocalStorageOperacion(nombreOperacion);
+            limpiarDatosHuerfanos();
+            console.log(`✅ Usuario eligió NO recuperar sesión, datos limpiados`);
+        }
+    } catch (e) {
+        console.error(`Error al procesar operación guardada: ${e}`);
+        limpiarDatosHuerfanos();
+    }
+}
+
+// Función para limpiar todos los datos huérfanos relacionados con GB
+function limpiarDatosHuerfanos() {
+    // Lista de prefijos de claves que deben limpiarse
+    const prefijosGB = [
+        'elementos_conectados_',
+        'tracking_',
+        'gb_'
+    ];
+    
+    // Recorrer todas las claves de localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        
+        // Verificar si la clave comienza con alguno de los prefijos
+        if (prefijosGB.some(prefijo => clave.startsWith(prefijo))) {
+            localStorage.removeItem(clave);
+            console.log(`🗑️ Eliminada clave huérfana: ${clave}`);
+        }
+    }
+    
+    // También eliminar otras claves específicas
+    const clavesEspecificas = [
+        'ultima_posicion',
+        'seguimiento_activo',
+        'tracking_activado',
+        'elemento_trabajo',
+        'en_operacion_gb'
+    ];
+    
+    clavesEspecificas.forEach(clave => {
+        if (localStorage.getItem(clave)) {
+            localStorage.removeItem(clave);
+            console.log(`🗑️ Eliminada clave específica: ${clave}`);
+        }
+    });
+    
+    console.log("✅ Limpieza de datos huérfanos completada");
+}
+
 /**
  * Actualiza la lista de operaciones en la interfaz
  */
+// Reemplazar en inicioGBhandler.js - función actualizarListaOperaciones
 function actualizarListaOperaciones() {
     const listaOperaciones = document.querySelector('#listaOperaciones .list-group');
     listaOperaciones.innerHTML = '';
@@ -187,6 +264,9 @@ function actualizarListaOperaciones() {
                 </button>
             </div>
         `;
+        
+        // Agregar botón de eliminar si el usuario es el creador
+        crearBotonEliminarOperacion(operacionItem, operacion);
         
         // Eventos para botones de detalles y unirse
         const btnDetalles = operacionItem.querySelector('.btn-details');
@@ -981,6 +1061,109 @@ function unirseOperacionExistente() {
         }
     }, 5000);
 }
+
+// Añadir a inicioGBhandler.js
+function crearBotonEliminarOperacion(operacionItem, operacion) {
+    // Solo mostrar botón de eliminar al creador
+    const usuarioActual = localStorage.getItem('gb_usuario_info');
+    const datosUsuario = usuarioActual ? JSON.parse(usuarioActual) : null;
+    
+    if (datosUsuario && (operacion.creador === datosUsuario.usuario || operacion.creadorId === datosUsuario.id)) {
+        const btnEliminar = document.createElement('button');
+        btnEliminar.className = 'btn btn-sm btn-danger btn-delete ml-2';
+        btnEliminar.innerHTML = '<i class="fas fa-trash"></i>';
+        btnEliminar.title = 'Eliminar operación';
+        
+        btnEliminar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            
+            // Confirmar eliminación
+            if (confirm(`¿Estás seguro de eliminar la operación "${operacion.nombre}"? Esta acción no se puede deshacer.`)) {
+                eliminarOperacion(operacion.id);
+            }
+        });
+        
+        const actionsDiv = operacionItem.querySelector('.operation-actions');
+        if (actionsDiv) {
+            actionsDiv.appendChild(btnEliminar);
+        }
+    }
+}
+
+function eliminarOperacion(operacionId) {
+    // Mostrar indicador de carga
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = '<div class="spinner"><i class="fas fa-spinner fa-spin"></i></div><div>Eliminando operación...</div>';
+    document.body.appendChild(loadingOverlay);
+    
+    // Enviar solicitud al servidor
+    socket.emit('eliminarOperacionGB', { id: operacionId }, function(respuesta) {
+        // Quitar indicador de carga
+        document.body.removeChild(loadingOverlay);
+        
+        if (respuesta && respuesta.error) {
+            mostrarError(respuesta.error);
+            return;
+        }
+        
+        // Actualizar la lista de operaciones
+        const index = operacionesActivas.findIndex(op => op.id === operacionId);
+        if (index !== -1) {
+            operacionesActivas.splice(index, 1);
+            actualizarListaOperaciones();
+        }
+        
+        // Limpiar localStorage relacionado con esta operación
+        limpiarDatosOperacion(operacionId);
+        
+        mostrarMensajeSistema(`Operación eliminada correctamente`);
+    });
+}
+
+function limpiarDatosOperacion(operacionId) {
+    // Buscar operación para obtener el nombre
+    const operacion = operacionesActivas.find(op => op.id === operacionId);
+    const nombreOperacion = operacion?.nombre || '';
+    
+    // Limpiar datos de esta operación en localStorage
+    if (nombreOperacion) {
+        localStorage.removeItem(`elementos_conectados_${nombreOperacion}`);
+    }
+    
+    // Si el usuario estaba en esta operación, limpiar sus datos
+    const operacionGuardada = localStorage.getItem('gb_operacion_seleccionada');
+    if (operacionGuardada) {
+        try {
+            const datosOperacion = JSON.parse(operacionGuardada);
+            if (datosOperacion.id === operacionId) {
+                localStorage.removeItem('gb_operacion_seleccionada');
+                localStorage.removeItem('gb_elemento_info');
+                // No eliminamos usuario_info para mantener la identidad
+            }
+        } catch (e) {
+            console.error("Error al leer operación guardada:", e);
+        }
+    }
+}
+
+// Añadir a inicioGBhandler.js
+function verificarOperacionesInactivas() {
+    // Solo el servidor debería hacer esta verificación normalmente,
+    // pero agregamos este respaldo en el cliente
+    console.log("Verificando operaciones inactivas...");
+    
+    socket.emit('verificarOperacionesInactivas', {}, function(respuesta) {
+        if (respuesta && respuesta.operacionesEliminadas) {
+            console.log(`Se eliminaron ${respuesta.operacionesEliminadas} operaciones inactivas`);
+            
+            // Actualizar la lista de operaciones
+            socket.emit('obtenerOperacionesGB');
+        }
+    });
+}
+
+
 
 // Reemplaza la función iniciarConexion con esta versión mejorada
 function iniciarConexion() {

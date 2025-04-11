@@ -2449,58 +2449,254 @@ function recibirMensajeChat(mensaje) {
         actualizarInfoUsuarioPanel();
     }
     
-    /**
-     * Función para agregar marcadores que utiliza tanto los datos de usuario como la función window.agregarMarcador
-     * @param {string} sidc - Código SIDC del marcador
-     * @param {string} nombre - Nombre descriptivo del elemento
-     */
-    function agregarMarcadorGB(sidc, nombre) {
-        console.log("Agregando marcador con SIDC:", sidc, "Nombre:", nombre);
-        
-        // Verificar si existe la función global
-        if (typeof window.agregarMarcador === 'function') {
-            // Usar la función global pero con datos mejorados
-            window.agregarMarcador(sidc, nombre, function(marcador) {
-                // Callback cuando se crea el marcador
-                if (marcador) {
-                    // Añadir propiedades adicionales específicas de GB
-                    marcador.options.usuario = usuarioInfo?.usuario || 'Usuario';
-                    marcador.options.usuarioId = usuarioInfo?.id || '';
-                    marcador.options.operacion = operacionActual;
-                    marcador.options.timestamp = new Date().toISOString();
-                    
-                    // Notificar a otros usuarios si estamos conectados
-                    if (socket && socket.connected) {
-                        socket.emit('nuevoElemento', {
-                            id: marcador.options.id,
-                            sidc: marcador.options.sidc,
-                            nombre: marcador.options.nombre,
-                            posicion: marcador.getLatLng(),
-                            designacion: marcador.options.designacion || '',
-                            dependencia: marcador.options.dependencia || '',
-                            magnitud: marcador.options.magnitud || '-',
-                            estado: marcador.options.estado || 'operativo',
-                            usuario: usuarioInfo?.usuario || 'Usuario',
-                            usuarioId: usuarioInfo?.id || '',
-                            operacion: operacionActual,
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-                    
-                    console.log("Marcador creado y notificado:", marcador.options);
-                }
-            });
-        } else {
-            console.warn("La función window.agregarMarcador no está disponible");
-            mostrarNotificacion("Función de agregar marcador no disponible", "error");
+   /**
+ * Función  para crear marcadores de elementos en modo Gestión de Batalla
+ * 
+ * 
+ * @param {Object} config - Opciones de configuración
+ * @param {string} config.sidc - Código SIDC (Sistema de Identificación de Símbolos) del elemento
+ * @param {string} config.nombre - Nombre o designación del elemento
+ * @param {Object} [config.posicion] - Posición del elemento {lat, lng}
+ * @param {string} [config.designacion] - Designación del elemento
+ * @param {string} [config.dependencia] - Dependencia del elemento
+ * @param {string} [config.magnitud] - Magnitud del elemento
+ * @param {Function} [callback] - Función a ejecutar cuando se complete la creación
+ * @returns {L.Marker|null} - El marcador creado o null si falla
+ */
+    window.agregarMarcadorGB = function(config, callback) {
+            console.log("Agregando marcador GB:", config);
             
-            // Implementación alternativa
-            window.mapa.once('click', function(event) {
-                const latlng = event.latlng;
-                crearMarcadorPersonalizado(latlng, sidc, nombre);
-            });
+            // Validar parámetros
+            if (typeof config === 'string') {
+                // Compatibilidad con versión anterior (sidc, nombre, callback)
+                const sidc = config;
+                const nombre = arguments[1];
+                callback = arguments[2];
+                config = { sidc, nombre };
+            }
+            
+            // Verificar si hay mapa
+            if (!window.mapa) {
+                console.error("No hay mapa disponible para agregar marcador");
+                return null;
+            }
+
+            // Obtener referencias centralizadas
+            const usuario = window.usuarioInfo || 
+                        (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.usuarioInfo);
+            
+            const operacion = window.operacionActual || 
+                            (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.operacionActual);
+
+            // Preparar posición
+            let posicion = config.posicion;
+            if (!posicion) {
+                // Si no se proporciona posición, usar el centro del mapa
+                posicion = window.mapa.getCenter();
+            }
+
+            try {
+                // Preparar SIDC
+                const sidc = config.sidc || 'SFGPUCI-----'; // Default: Infantería amiga
+                
+                // Generar ID único vinculado al usuario
+                const elementoId = config.id || 
+                                `elemento_${usuario.id || Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                // Crear símbolo militar
+                const sym = new ms.Symbol(sidc, {
+                    size: 35,
+                    direction: config.rumbo || 0,
+                    uniqueDesignation: config.designacion || config.nombre || ''
+                });
+                
+                // Crear icono
+                const icon = L.divIcon({
+                    className: 'elemento-militar',
+                    html: sym.asSVG(),
+                    iconSize: [70, 50],
+                    iconAnchor: [35, 25]
+                });
+                
+                // Opciones del marcador
+                const opciones = {
+                    draggable: false,
+                    sidc: sidc,
+                    nombre: config.nombre || '',
+                    id: elementoId,
+                    designacion: config.designacion || config.nombre || '',
+                    dependencia: config.dependencia || '',
+                    magnitud: config.magnitud || '-',
+                    estado: config.estado || 'operativo',
+                    usuario: usuario?.usuario || 'Usuario',
+                    usuarioId: usuario?.id || '',
+                    jugador: usuario?.id || '',
+                    jugadorId: usuario?.id || '',
+                    operacion: operacion || 'general',
+                    timestamp: new Date().toISOString(),
+                    icon: icon,
+                    isElementoMilitar: true
+                };
+                
+                // Crear marcador
+                const marcador = L.marker([posicion.lat, posicion.lng], opciones);
+                
+                // Añadir al mapa (preferir calcoActivo si existe)
+                if (window.calcoActivo) {
+                    window.calcoActivo.addLayer(marcador);
+                } else if (window.mapa) {
+                    window.mapa.addLayer(marcador);
+                }
+                
+                // Configurar eventos
+                marcador.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    console.log("Click en elemento:", this.options.id);
+                    if (typeof window.seleccionarElementoGB === 'function') {
+                        window.seleccionarElementoGB(this);
+                    }
+                });
+                
+                marcador.on('contextmenu', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    console.log("Click derecho en elemento:", this.options.id);
+                    window.elementoSeleccionadoGB = this;
+                    window.elementoSeleccionado = this;
+                    if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
+                        window.MiRadial.mostrarMenu(
+                            e.originalEvent.pageX,
+                            e.originalEvent.pageY,
+                            'elemento',
+                            this
+                        );
+                    }
+                });
+                
+                // Crear estructura de datos completa del elemento
+                const elementoData = {
+                    id: elementoId,
+                    sidc: sidc,
+                    nombre: config.nombre || '',
+                    posicion: {
+                        lat: posicion.lat,
+                        lng: posicion.lng,
+                        precision: 10,
+                        rumbo: config.rumbo || 0,
+                        velocidad: 0
+                    },
+                    designacion: config.designacion || config.nombre || '',
+                    dependencia: config.dependencia || '',
+                    magnitud: config.magnitud || '-',
+                    estado: config.estado || 'operativo',
+                    usuario: usuario?.usuario || 'Usuario',
+                    usuarioId: usuario?.id || '',
+                    jugador: usuario?.id || '',
+                    jugadorId: usuario?.id || '',
+                    operacion: operacion || 'general',
+                    timestamp: new Date().toISOString(),
+                    conectado: true,
+                    elemento: {
+                        sidc: sidc,
+                        designacion: config.designacion || config.nombre || '',
+                        dependencia: config.dependencia || '',
+                        magnitud: config.magnitud || '-'
+                    }
+                };
+                
+                // Actualizar estructura local de elementos
+                if (!window.elementosConectados) {
+                    window.elementosConectados = {};
+                }
+                
+                window.elementosConectados[elementoId] = {
+                    datos: elementoData,
+                    marcador: marcador
+                };
+                
+                // Sincronizar con estructura centralizada si existe
+                if (window.MAIRA && window.MAIRA.GestionBatalla) {
+                    if (!window.MAIRA.GestionBatalla.elementosConectados) {
+                        window.MAIRA.GestionBatalla.elementosConectados = {};
+                    }
+                    window.MAIRA.GestionBatalla.elementosConectados[elementoId] = window.elementosConectados[elementoId];
+                }
+                
+                // Notificar a otros usuarios si estamos conectados
+                if (window.socket && window.socket.connected) {
+                    // Enviar múltiples eventos para mejor compatibilidad
+                    socket.emit('nuevoElemento', elementoData);
+                    socket.emit('anunciarElemento', elementoData);
+                    socket.emit('actualizarElemento', elementoData);
+                    socket.emit('actualizarPosicionGB', elementoData);
+                    
+                    console.log("Elemento enviado al servidor:", elementoData);
+                }
+                
+                // Guardar en localStorage
+                guardarElementoEnLocalStorage(elementoData);
+                
+                // Actualizar interfaz si existe la función
+                if (window.MAIRA && window.MAIRA.Elementos && 
+                    typeof window.MAIRA.Elementos.agregarElementoALista === 'function') {
+                    window.MAIRA.Elementos.agregarElementoALista(elementoData);
+                }
+                
+                console.log(`Marcador creado exitosamente: ${elementoId}`);
+                
+                // Ejecutar callback si existe
+                if (typeof callback === 'function') {
+                    callback(marcador);
+                }
+                
+                return marcador;
+                
+            } catch (error) {
+                console.error("Error al crear marcador:", error);
+                
+                if (typeof callback === 'function') {
+                    callback(null);
+                }
+                
+                return null;
+            }
+        };
+
+/**
+ * Función auxiliar para guardar elementos en localStorage
+ * @param {Object} elementoData - Datos del elemento
+ */
+function guardarElementoEnLocalStorage(elementoData) {
+    try {
+        // Obtener operación actual
+        const operacionActual = elementoData.operacion || 
+                              window.operacionActual || 
+                              (window.MAIRA?.GestionBatalla?.operacionActual) || 
+                              'general';
+        
+        // Cargar elementos guardados
+        let elementosGuardados = {};
+        const elementosGuardadosStr = localStorage.getItem(`elementos_conectados_${operacionActual}`);
+        
+        if (elementosGuardadosStr) {
+            elementosGuardados = JSON.parse(elementosGuardadosStr);
         }
+        
+        // Guardar solo los datos (no el marcador)
+        elementosGuardados[elementoData.id] = { datos: elementoData };
+        
+        // Guardar en localStorage
+        localStorage.setItem(`elementos_conectados_${operacionActual}`, 
+                           JSON.stringify(elementosGuardados));
+        
+        console.log(`Elemento guardado en localStorage para operación ${operacionActual}`);
+        
+        // Marcar operación activa
+        localStorage.setItem('en_operacion_gb', 'true');
+        
+    } catch (error) {
+        console.error("Error al guardar elemento en localStorage:", error);
     }
+}
     
     /**
      * Crea un marcador personalizado en caso de que no esté disponible window.agregarMarcador

@@ -568,7 +568,10 @@ function centralizarElementosConectados() {
         // Intentar obtener operación desde URL
         const urlParams = new URLSearchParams(window.location.search);
         const operacionParam = urlParams.get('operacion');
-        
+        // Añadir al inicio de cargarOperacionDesdeURL en GB.js
+        if (!window.MAIRA) window.MAIRA = {};
+        if (!window.MAIRA.GestionBatalla) window.MAIRA.GestionBatalla = {};
+        window.MAIRA.GestionBatalla.operacionActual = operacionParam;
         if (operacionParam) {
             operacionActual = operacionParam;
             console.log("Operación cargada desde URL:", operacionActual);
@@ -733,6 +736,16 @@ function centralizarElementosConectados() {
             });
         }
         
+        // Botón para salir de la operación
+        const btnSalirOperacion = document.getElementById('btn-salir-operacion');
+        if (btnSalirOperacion) {
+            btnSalirOperacion.addEventListener('click', function() {
+                if (confirm('¿Está seguro que desea salir de esta operación? Se perderá la conexión actual.')) {
+                    salirDeOperacionGB();
+                }
+            });
+        }
+
         // Botón de pantalla completa
         const btnFullscreen = document.getElementById('fullscreenBtn');
         if (btnFullscreen) {
@@ -934,14 +947,18 @@ function cambiarTab(tabId) {
     /**
      * Obtiene la posición inicial con mejor soporte para dispositivos móviles
      */
+    // Modificar en GB.js - función de inicialización
     function obtenerPosicionInicial() {
         console.log("Obteniendo posición inicial (versión mejorada para móviles)");
         
+        // No crear marcador hasta tener posición
+        window.esperandoPosicion = true;
+        
         // Opciones optimizadas para dispositivos móviles
         const opcionesPosicion = {
-            enableHighAccuracy: true,        // Usar GPS de alta precisión 
-            timeout: 20000,                  // Tiempo más largo para móviles
-            maximumAge: 0                    // No usar caché de posición
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
         };
         
         // Verificar si el navegador soporta geolocalización
@@ -980,6 +997,8 @@ function cambiarTab(tabId) {
                     
                     // Actualizar interfaz con retardo para asegurar que el mapa está listo
                     setTimeout(() => {
+                        // Crear marcador solo si aún no existe
+                        window.esperandoPosicion = false;
                         actualizarMarcadorUsuario(
                             posicion.coords.latitude, 
                             posicion.coords.longitude, 
@@ -992,10 +1011,10 @@ function cambiarTab(tabId) {
                         }
                     }, 1000);
                 },
-                
                 // Error
                 function(error) {
                     console.error("Error al obtener posición:", error);
+                    window.esperandoPosicion = false;
                     
                     let mensajeError = "Error al obtener tu posición";
                     switch (error.code) {
@@ -1022,6 +1041,7 @@ function cambiarTab(tabId) {
             );
         } catch (e) {
             console.error("Excepción al obtener posición:", e);
+            window.esperandoPosicion = false;
             MAIRA.Utils.mostrarNotificacion("Error inesperado al acceder a tu ubicación", "error");
             cargarPosicionPredeterminada();
         }
@@ -1131,6 +1151,7 @@ function cambiarTab(tabId) {
      * @param {number} lng - Longitud
      * @param {number} heading - Rumbo en grados
      */
+    // Modificar en GB.js - función actualizarMarcadorUsuario
     function actualizarMarcadorUsuario(lat, lng, heading) {
         if (!window.mapa) {
             console.error("Mapa no disponible para actualizar marcador");
@@ -1195,21 +1216,6 @@ function cambiarTab(tabId) {
                         
                         console.log("Marcador de usuario añadido al mapa");
                         
-                        // Configurar eventos compatibles con la edición
-                        marcadorUsuario.on('click', function(e) {
-                            L.DomEvent.stopPropagation(e);
-                            if (window.seleccionarElemento) {
-                                window.seleccionarElemento(this);
-                            }
-                        });
-                        
-                        marcadorUsuario.on('contextmenu', function(e) {
-                            L.DomEvent.stopPropagation(e);
-                            if (window.mostrarMenuContextual) {
-                                window.mostrarMenuContextual(e, this);
-                            }
-                        });
-                        
                         // Actualizar referencia en elementosConectados
                         if (usuarioInfo?.id) {
                             if (!elementosConectados[usuarioInfo.id]) {
@@ -1220,15 +1226,20 @@ function cambiarTab(tabId) {
                                         elemento: elementoTrabajo,
                                         posicion: nuevaPosicion,
                                         conectado: true,
-                                        timestamp: new Date().toISOString()
+                                        timestamp: new Date().toISOString(),
+                                        operacion: operacionActual // Añadir operación
                                     },
                                     marcador: marcadorUsuario
                                 };
                             } else {
                                 elementosConectados[usuarioInfo.id].marcador = marcadorUsuario;
                                 elementosConectados[usuarioInfo.id].datos.posicion = nuevaPosicion;
+                                elementosConectados[usuarioInfo.id].datos.operacion = operacionActual; // Añadir operación
                             }
                         }
+                        
+                        // Guardar en localStorage específico de la operación
+                        guardarElementosEnLocalStorage();
                     } else {
                         console.error("No se pudo generar el símbolo militar");
                         crearMarcadorUsuarioSimple(nuevaPosicion);
@@ -1249,6 +1260,8 @@ function cambiarTab(tabId) {
             // Actualizar en elementosConectados
             if (usuarioInfo?.id && elementosConectados[usuarioInfo.id]) {
                 elementosConectados[usuarioInfo.id].datos.posicion = nuevaPosicion;
+                elementosConectados[usuarioInfo.id].datos.operacion = operacionActual; // Añadir operación
+                guardarElementosEnLocalStorage(); // Guardar cambios
             }
             
             // Actualizar dirección si está disponible
@@ -2365,6 +2378,62 @@ function iniciarBroadcastPeriodico(esCreador) {
         configurarEventoReconexion();
     }
     
+
+    // Añadir en GB.js
+function solicitarPosicionEnSegundoPlano() {
+    // Verificar si la API está disponible
+    if ('geolocation' in navigator && 'permissions' in navigator) {
+        navigator.permissions.query({name: 'geolocation'}).then(result => {
+            if (result.state === 'granted') {
+                // Ya tenemos permiso, iniciar seguimiento con alta precisión
+                iniciarSeguimiento();
+            } else {
+                // Solicitar explícitamente
+                MAIRA.Utils.mostrarNotificacion(
+                    "Para mejor experiencia, permite el acceso a la ubicación en segundo plano", 
+                    "info", 
+                    10000
+                );
+            }
+        });
+    }
+}
+
+// Añadir en GB.js
+let colaPosiciones = [];
+let enviandoPosiciones = false;
+
+function encolarPosicion(posicion) {
+    colaPosiciones.push(posicion);
+    
+    // Si no hay proceso de envío activo, iniciar uno
+    if (!enviandoPosiciones) {
+        procesarColaPosiciones();
+    }
+}
+
+function procesarColaPosiciones() {
+    enviandoPosiciones = true;
+    
+    // Si no hay posiciones o no hay conexión, terminar
+    if (colaPosiciones.length === 0 || !socket?.connected) {
+        enviandoPosiciones = false;
+        return;
+    }
+    
+    // Tomar la última posición (más reciente)
+    const posicionAEnviar = colaPosiciones.pop();
+    
+    // Limpiar cola (solo enviar la más reciente)
+    colaPosiciones = [];
+    
+    // Enviar al servidor
+    socket.emit('actualizarPosicionGB', posicionAEnviar);
+    
+    // Programar siguiente verificación
+    setTimeout(procesarColaPosiciones, 2000);
+}
+
 // Función para unificar las actualizaciones visuales
 function actualizarVisualizacionElemento(elemento) {
     // 1. Actualizar marcador en el mapa
@@ -2450,7 +2519,7 @@ window.agregarMarcadorGB = function(sidc, nombre, callback) {
                 
                 // También almacenar localmente
                 if (window.MAIRA?.GestionBatalla?.actualizarElementoConectado) {
-                    window.MAIRA.GestionBatalla.actualizarElementoConectado(
+                    window.MAIRA.GestionBatalla.actualizarElementoConectadoLocal(
                         elementoData.id, 
                         elementoData, 
                         elementoData.posicion
@@ -2823,30 +2892,36 @@ window.agregarMarcadorGB = function(sidc, nombre, callback) {
         
         return true;
     }
-    // Añadir al final de MAIRA.GestionBatalla (dentro del return antes del último })
-    function editarelementoSeleccionadoGB() {
-        if (!window.elementoSeleccionadoGB) return;
+
+    // Propuesta de función unificada en GB.js
+    function guardarDatosLocalmente(tipoElemento, elementoId, datos) {
+        if (!elementoId || !datos) return false;
         
-        console.log("Editando elemento seleccionado:", window.elementoSeleccionadoGB);
-        
-        if (window.elementoSeleccionadoGB instanceof L.Marker) {
-            if (window.elementoSeleccionadoGB.options && window.elementoSeleccionadoGB.options.sidc) {
-                if (window.esUnidad && window.esUnidad(window.elementoSeleccionadoGB.options.sidc)) {
-                    window.mostrarPanelEdicionUnidad(window.elementoSeleccionadoGB);
-                } else if (window.esEquipo && window.esEquipo(window.elementoSeleccionadoGB.options.sidc)) {
-                    window.mostrarPanelEdicionEquipo(window.elementoSeleccionadoGB);
-                } else {
-                    // Elementos sin SIDC específico
-                    window.mostrarPanelEdicionMCC(window.elementoSeleccionadoGB, 'elemento');
-                }
+        try {
+            // Determinar clave según tipo
+            const clave = tipoElemento === 'elemento' 
+                ? `elementos_conectados_${operacionActual}` 
+                : tipoElemento;
+            
+            // Cargar datos actuales
+            let datosGuardados = {};
+            const datosExistentes = localStorage.getItem(clave);
+            if (datosExistentes) {
+                datosGuardados = JSON.parse(datosExistentes);
             }
-        } else if (window.elementoSeleccionadoGB instanceof L.Polyline || window.elementoSeleccionadoGB instanceof L.Polygon) {
-            window.mostrarPanelEdicionMCC(window.elementoSeleccionadoGB, window.determinarTipoMCC(window.elementoSeleccionadoGB));
-        } else if (window.elementoSeleccionadoGB instanceof L.Path) {
-            window.mostrarPanelEdicionLinea(window.elementoSeleccionadoGB);
+            
+            // Actualizar elemento específico
+            datosGuardados[elementoId] = datos;
+            
+            // Guardar de vuelta
+            localStorage.setItem(clave, JSON.stringify(datosGuardados));
+            console.log(`Datos de ${tipoElemento} guardados localmente para ${elementoId}`);
+            return true;
+        } catch (e) {
+            console.error(`Error al guardar ${tipoElemento} localmente:`, e);
+            return false;
         }
     }
-
 
     function configurarEventosMiRadialGB() {
         if (!window.MiRadial) {
@@ -3055,6 +3130,98 @@ window.cambiarTab = function(tabId) {
         }
     }, 100);
 })();
+
+
+// Añadir a GB.js
+function salirDeOperacionGB() {
+    console.log("Iniciando proceso de salida de operación GB");
+    
+    // Obtener información de la operación actual
+    const operacionActual = localStorage.getItem('gb_operacion_seleccionada');
+    if (!operacionActual) {
+        console.warn("No hay operación activa de la cual salir");
+        return false;
+    }
+    
+    try {
+        const datosOperacion = JSON.parse(operacionActual);
+        const nombreOperacion = datosOperacion.nombre;
+        
+        // 1. Notificar al servidor de la desconexión
+        if (socket && socket.connected) {
+            const userId = usuarioInfo?.id;
+            if (userId) {
+                socket.emit('salirOperacionGB', {
+                    operacion: nombreOperacion,
+                    usuario: userId,
+                    timestamp: new Date().toISOString()
+                });
+                
+                console.log(`📤 Notificación de salida enviada para operación ${nombreOperacion}`);
+            }
+        }
+        
+        // 2. Limpiar datos de localStorage
+        limpiarLocalStorageOperacion(nombreOperacion);
+        
+        // 3. Redirigir al usuario a la página de inicio
+        window.location.href = '/Client/inicioGB.html';
+        
+        return true;
+    } catch (e) {
+        console.error(`Error al salir de operación: ${e}`);
+        
+        // En caso de error, intentar limpiar datos de todas formas
+        limpiarDatosHuerfanos();
+        
+        // Redirigir al usuario a la página de inicio
+        window.location.href = '/Client/inicioGB.html';
+        
+        return false;
+    }
+}
+
+// Implementar el método a nivel global
+window.salirDeOperacionGB = salirDeOperacionGB;
+
+// Añadir a GB.js o a elementosGB.js
+function limpiarLocalStorageOperacion(nombreOperacion) {
+    console.log(`🧹 Limpiando localStorage para operación: ${nombreOperacion}`);
+    
+    try {
+        // Eliminar específicamente los datos de esta operación
+        localStorage.removeItem(`elementos_conectados_${nombreOperacion}`);
+        
+        // Verificar si es la operación actual para limpiar datos relacionados
+        const operacionActual = localStorage.getItem('gb_operacion_seleccionada');
+        if (operacionActual) {
+            try {
+                const datosOperacion = JSON.parse(operacionActual);
+                if (datosOperacion.nombre === nombreOperacion) {
+                    // Limpiar datos de la operación actual
+                    localStorage.removeItem('gb_operacion_seleccionada');
+                    
+                    // No eliminar elemento_trabajo para mantener consistencia de identidad
+                    // pero sí marcar que ya no estamos en una operación
+                    localStorage.setItem('en_operacion_gb', 'false');
+                    
+                    console.log(`✅ Datos de operación actual ${nombreOperacion} eliminados`);
+                }
+            } catch (e) {
+                console.warn(`Error al verificar operación actual: ${e}`);
+            }
+        }
+        
+        // También limpiar datos de tracking si existieran
+        localStorage.removeItem(`tracking_${nombreOperacion}`);
+        
+        console.log(`✅ Limpieza de localStorage completada para ${nombreOperacion}`);
+        return true;
+    } catch (e) {
+        console.error(`❌ Error al limpiar localStorage para operación ${nombreOperacion}: ${e}`);
+        return false;
+    }
+}
 
 // Agregar o reemplazar en GB.js
 window.editarelementoSeleccionadoGB = function() {
