@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from config import SERVER_URL, CLIENT_URL, SERVER_IP
 
+
 usuarios_conectados = {}  
 operaciones_batalla = {}
 informes_db = {}
@@ -1315,16 +1316,7 @@ def handle_obtener_informe(data):
         print(f"Error al obtener informe completo: {str(e)}")
         return {'error': 'Error al obtener el informe', 'details': str(e)}
 
-# Rutas API para consulta de operaciones
-@app.route('/api/operaciones', methods=['GET'])
-def get_operaciones_batalla():
-    return jsonify(list(operaciones_batalla.keys()))
 
-@app.route('/api/operaciones/<nombre_operacion>/elementos', methods=['GET'])
-def get_elementos_operacion_batalla(nombre_operacion):
-    if nombre_operacion in operaciones_batalla:
-        return jsonify(operaciones_batalla[nombre_operacion]['elementos'])
-    return jsonify({"error": "Operación no encontrada"}), 404
 
 @socketio.on('actualizarJugador')
 def actualizar_jugador(data):
@@ -1459,101 +1451,393 @@ def handle_crear_operacion_gb(data, callback=None):
         nombre = data.get('nombre')
         descripcion = data.get('descripcion', '')
         creador = data.get('creador', 'Usuario')
+        creador_id = data.get('creadorId', '')
         
         if not nombre:
             if callback:
                 callback({"error": "El nombre de la operación es obligatorio"})
             return
         
-        # Obtener ID del usuario creador
-        user_id = user_sid_map.get(request.sid)
-        username = creador
-        
+        # Obtener ID del usuario creador desde la sesión si no viene en los datos
+        if not creador_id:
+            user_id = user_sid_map.get(request.sid)
+            if user_id:
+                creador_id = user_id
+                
         # Generar ID único para la operación
         operacion_id = f"op_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
         
-        # Crear estructura de operación
-        nueva_operacion = {
-            "id": operacion_id,
-            "nombre": nombre,
-            "descripcion": descripcion,
-            "creador": username,
-            "fechaCreacion": datetime.now().isoformat(),
-            "elementos": {},
-            "participantes": 0  # Se incrementará al añadir al creador
-        }
+        # Obtener conexión a la base de datos
+        conn = get_db_connection()
+        if not conn:
+            print("Error: No se pudo conectar a la base de datos")
+            if callback:
+                callback({"error": "Error de conexión a la base de datos"})
+            return
         
-        # Guardar en memoria
-        if nombre not in operaciones_batalla:
-            operaciones_batalla[nombre] = {
-                'elementos': {},
-                'info': nueva_operacion
-            }
-            
-            # Añadir al creador como primer elemento
-            if user_id:
-                elemento_data = {
-                    'id': user_id,
-                    'usuario': username,
-                    'elemento': data.get('elemento', {}),
-                    'conectado': True,
-                    'timestamp': datetime.now().isoformat()
-                }
-                operaciones_batalla[nombre]['elementos'][user_id] = elemento_data
+        try:
+            with conn.cursor() as cursor:
+                # Convertir datos a JSON para almacenar en la base de datos
+                config_json = json.dumps({
+                    "nombre": nombre,
+                    "descripcion": descripcion,
+                    "creador": creador,
+                    "creadorId": creador_id,
+                    "fechaCreacion": datetime.now().isoformat()
+                })
                 
-                # Actualizar contador de participantes
-                operaciones_batalla[nombre]['info']['participantes'] = len(operaciones_batalla[nombre]['elementos'])
+                # Insertar la operación en la base de datos
+                cursor.execute("""
+                    INSERT INTO operaciones_gb 
+                    (id, nombre, descripcion, creador, creador_id, config, fecha_creacion, activa) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    operacion_id,
+                    nombre,
+                    descripcion,
+                    creador,
+                    creador_id,
+                    config_json,
+                    datetime.now(),
+                    True
+                ))
                 
-                print(f"Usuario creador {username} añadido a la operación {nombre}")
-        
-        # Unir al creador a la sala
-        join_room(nombre)
-        
-        # Almacenar la operación actual para este usuario
-        if user_id in usuarios_conectados:
-            usuarios_conectados[user_id]['operacion_actual'] = nombre
-            usuarios_conectados[user_id]['sala_actual'] = nombre
-        
-        # Responder con la operación creada
-        if callback:
-            callback({
-                "success": True, 
-                "operacion": {
+                # Confirmar la transacción
+                conn.commit()
+                
+                print(f"Operación '{nombre}' guardada en base de datos con ID: {operacion_id}")
+                
+                # Crear estructura de operación
+                nueva_operacion = {
                     "id": operacion_id,
                     "nombre": nombre,
                     "descripcion": descripcion,
-                    "creador": username,
-                    "fechaCreacion": nueva_operacion["fechaCreacion"],
-                    "participantes": operaciones_batalla[nombre]['info']['participantes']
+                    "creador": creador,
+                    "creadorId": creador_id,
+                    "fechaCreacion": datetime.now().isoformat(),
+                    "elementos": {},
+                    "participantes": 0
                 }
-            })
+                
+                # Guardar en memoria también para acceso rápido
+                if nombre not in operaciones_batalla:
+                    operaciones_batalla[nombre] = {
+                        'elementos': {},
+                        'info': nueva_operacion
+                    }
+                    
+                # Unir al creador a la sala
+                join_room(nombre)
+                
+                # Almacenar la operación actual para este usuario
+                if user_id in usuarios_conectados:
+                    usuarios_conectados[user_id]['operacion_actual'] = nombre
+                    usuarios_conectados[user_id]['sala_actual'] = nombre
+                
+                # Responder con la operación creada
+                if callback:
+                    callback({
+                        "success": True, 
+                        "operacion": {
+                            "id": operacion_id,
+                            "nombre": nombre,
+                            "descripcion": descripcion,
+                            "creador": creador,
+                            "creadorId": creador_id,
+                            "fechaCreacion": nueva_operacion["fechaCreacion"],
+                            "participantes": 0
+                        }
+                    })
+                
+                # Notificar a todos los usuarios sobre la nueva operación
+                emitir_lista_operaciones_actualizada()
+                
+                print(f"Operación GB '{nombre}' creada con éxito, ID: {operacion_id}")
         
-        # Notificar a todos los usuarios sobre la nueva operación
-        operaciones_lista = [
-            {
-                'id': op_data['info'].get('id', f"op_{i}"),
-                'nombre': op_nombre,
-                'descripcion': op_data['info'].get('descripcion', ''),
-                'creador': op_data['info'].get('creador', 'Desconocido'),
-                'fechaCreacion': op_data['info'].get('fechaCreacion', ''),
-                'participantes': len(op_data['elementos'])
-            }
-            for i, (op_nombre, op_data) in enumerate(operaciones_batalla.items())
-        ]
-        
-        emit('operacionesGB', {'operaciones': operaciones_lista}, broadcast=True)
-        
-        print(f"Operación GB '{nombre}' creada con éxito, ID: {operacion_id}")
-        
+        except Exception as e:
+            print(f"Error al guardar operación en base de datos: {e}")
+            traceback.print_exc()
+            if callback:
+                callback({"error": f"Error al guardar en base de datos: {str(e)}"})
+            # Intentar hacer rollback
+            try:
+                conn.rollback()
+            except:
+                pass
+        finally:
+            conn.close()
+            
     except Exception as e:
         print(f"Error al crear operación GB: {e}")
         traceback.print_exc()
         if callback:
             callback({"error": str(e)})
 
+# Función auxiliar para emitir la lista actualizada de operaciones
+def emitir_lista_operaciones_actualizada():
+    try:
+        # Obtener conexión a la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Obtener operaciones activas
+                    cursor.execute("""
+                        SELECT id, nombre, descripcion, creador, creador_id, config, fecha_creacion 
+                        FROM operaciones_gb 
+                        WHERE activa = TRUE
+                        ORDER BY fecha_creacion DESC
+                    """)
+                    
+                    operaciones_db = cursor.fetchall()
+                    
+                    # Convertir a formato para el cliente
+                    operaciones_lista = []
+                    for op in operaciones_db:
+                        # Intentar parsear la configuración JSON
+                        config = {}
+                        try:
+                            if op['config']:
+                                config = json.loads(op['config'])
+                        except:
+                            config = {}
+                            
+                        # Contar participantes
+                        cursor.execute("""
+                            SELECT COUNT(*) as participantes
+                            FROM elementos_gb
+                            WHERE operacion = %s AND conectado = TRUE
+                        """, (op['nombre'],))
+                        
+                        resultado = cursor.fetchone()
+                        participantes = resultado['participantes'] if resultado else 0
+                        
+                        # Crear objeto de operación
+                        operaciones_lista.append({
+                            'id': op['id'],
+                            'nombre': op['nombre'],
+                            'descripcion': op['descripcion'],
+                            'creador': op['creador'],
+                            'creadorId': op['creador_id'],
+                            'fechaCreacion': op['fecha_creacion'].isoformat() if isinstance(op['fecha_creacion'], datetime) else op['fecha_creacion'],
+                            'participantes': participantes,
+                            'config': config
+                        })
+                
+                # Si no hay en la base de datos, usar las que están en memoria
+                if not operaciones_lista:
+                    for nombre, op_data in operaciones_batalla.items():
+                        if 'info' in op_data:
+                            info = op_data['info']
+                            operaciones_lista.append({
+                                'id': info.get('id', f"op_{len(operaciones_lista)}"),
+                                'nombre': nombre,
+                                'descripcion': info.get('descripcion', ''),
+                                'creador': info.get('creador', 'Desconocido'),
+                                'creadorId': info.get('creadorId', ''),
+                                'fechaCreacion': info.get('fechaCreacion', ''),
+                                'participantes': len(op_data['elementos'])
+                            })
+                
+                # Emitir a todos los clientes
+                socketio.emit('operacionesGB', {'operaciones': operaciones_lista}, broadcast=True)
+                
+            except Exception as e:
+                print(f"Error al obtener operaciones de la BD: {e}")
+                traceback.print_exc()
+                
+                # Enviar solo operaciones en memoria como fallback
+                operaciones_lista = []
+                for nombre, op_data in operaciones_batalla.items():
+                    if 'info' in op_data:
+                        info = op_data['info']
+                        operaciones_lista.append({
+                            'id': info.get('id', f"op_{len(operaciones_lista)}"),
+                            'nombre': nombre,
+                            'descripcion': info.get('descripcion', ''),
+                            'creador': info.get('creador', 'Desconocido'),
+                            'creadorId': info.get('creadorId', ''),
+                            'fechaCreacion': info.get('fechaCreacion', ''),
+                            'participantes': len(op_data['elementos'])
+                        })
+                
+                socketio.emit('operacionesGB', {'operaciones': operaciones_lista}, broadcast=True)
+            finally:
+                conn.close()
+        else:
+            # Sin conexión a BD, enviar solo operaciones en memoria
+            operaciones_lista = []
+            for nombre, op_data in operaciones_batalla.items():
+                if 'info' in op_data:
+                    info = op_data['info']
+                    operaciones_lista.append({
+                        'id': info.get('id', f"op_{len(operaciones_lista)}"),
+                        'nombre': nombre,
+                        'descripcion': info.get('descripcion', ''),
+                        'creador': info.get('creador', 'Desconocido'),
+                        'creadorId': info.get('creadorId', ''),
+                        'fechaCreacion': info.get('fechaCreacion', ''),
+                        'participantes': len(op_data['elementos'])
+                    })
+            
+            socketio.emit('operacionesGB', {'operaciones': operaciones_lista}, broadcast=True)
+    except Exception as e:
+        print(f"Error al emitir lista de operaciones: {e}")
+        traceback.print_exc()
 
 @socketio.on('obtenerOperacionesGB')
 def handle_obtener_operaciones_gb():
+    try:
+        # Obtener datos de la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Obtener operaciones activas de la base de datos
+                    cursor.execute("""
+                        SELECT id, nombre, descripcion, creador, creador_id, 
+                               config, fecha_creacion 
+                        FROM operaciones_gb 
+                        WHERE activa = TRUE
+                        ORDER BY fecha_creacion DESC
+                    """)
+                    
+                    operaciones_db = cursor.fetchall()
+                    
+                    # Si no hay resultados, verificar si la tabla existe
+                    if not operaciones_db:
+                        try:
+                            # Verificar si la tabla existe
+                            cursor.execute("""
+                                SELECT COUNT(*) as cuenta
+                                FROM information_schema.tables
+                                WHERE table_schema = DATABASE()
+                                AND table_name = 'operaciones_gb'
+                            """)
+                            
+                            resultado = cursor.fetchone()
+                            tabla_existe = resultado['cuenta'] > 0 if resultado else False
+                            
+                            if not tabla_existe:
+                                print("Tabla operaciones_gb no existe, creando...")
+                                # Crear la tabla si no existe
+                                cursor.execute("""
+                                    CREATE TABLE IF NOT EXISTS `operaciones_gb` (
+                                      `id` VARCHAR(100) NOT NULL,
+                                      `nombre` VARCHAR(255) NOT NULL,
+                                      `descripcion` TEXT,
+                                      `creador` VARCHAR(255) NOT NULL,
+                                      `creador_id` VARCHAR(100),
+                                      `config` JSON,
+                                      `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                      `activa` BOOLEAN NOT NULL DEFAULT TRUE,
+                                      PRIMARY KEY (`id`),
+                                      INDEX `idx_nombre` (`nombre`),
+                                      INDEX `idx_creador_id` (`creador_id`),
+                                      INDEX `idx_activa` (`activa`)
+                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                """)
+                                
+                                # Crear también tabla de elementos si no existe
+                                cursor.execute("""
+                                    CREATE TABLE IF NOT EXISTS `elementos_gb` (
+                                      `id` VARCHAR(100) NOT NULL,
+                                      `operacion` VARCHAR(255) NOT NULL,
+                                      `usuario_id` VARCHAR(100) NOT NULL,
+                                      `usuario` VARCHAR(255) NOT NULL,
+                                      `datos` JSON,
+                                      `posicion` JSON,
+                                      `timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                      `conectado` BOOLEAN NOT NULL DEFAULT TRUE,
+                                      PRIMARY KEY (`id`, `operacion`),
+                                      INDEX `idx_operacion` (`operacion`),
+                                      INDEX `idx_usuario_id` (`usuario_id`),
+                                      INDEX `idx_conectado` (`conectado`)
+                                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                                """)
+                                
+                                conn.commit()
+                                print("Tablas creadas correctamente")
+                        except Exception as e:
+                            print(f"Error verificando/creando tabla: {e}")
+                    
+                    # Convertir a formato para el cliente
+                    operaciones_lista = []
+                    
+                    for op in operaciones_db:
+                        # Intentar parsear la configuración JSON
+                        config = {}
+                        try:
+                            if op['config']:
+                                config = json.loads(op['config'])
+                        except:
+                            config = {}
+                            
+                        # Contar participantes
+                        cursor.execute("""
+                            SELECT COUNT(*) as participantes
+                            FROM elementos_gb
+                            WHERE operacion = %s AND conectado = TRUE
+                        """, (op['nombre'],))
+                        
+                        resultado = cursor.fetchone()
+                        participantes = resultado['participantes'] if resultado else 0
+                        
+                        # Crear objeto de operación
+                        operaciones_lista.append({
+                            'id': op['id'],
+                            'nombre': op['nombre'],
+                            'descripcion': op['descripcion'],
+                            'creador': op['creador'],
+                            'creadorId': op['creador_id'],
+                            'fechaCreacion': op['fecha_creacion'].isoformat() if isinstance(op['fecha_creacion'], datetime) else op['fecha_creacion'],
+                            'participantes': participantes,
+                            'config': config
+                        })
+                
+                # Combinar con operaciones en memoria (para compatibilidad)
+                # Esto maneja el caso de operaciones que existen en memoria pero no en BD
+                for nombre, op_data in operaciones_batalla.items():
+                    if 'info' in op_data:
+                        info = op_data['info']
+                        op_id = info.get('id')
+                        
+                        # Verificar si ya está en la lista de operaciones de BD
+                        existe_en_lista = any(op['id'] == op_id for op in operaciones_lista if op_id)
+                        
+                        if not existe_en_lista:
+                            operaciones_lista.append({
+                                'id': op_id or f"op_mem_{len(operaciones_lista)}",
+                                'nombre': nombre,
+                                'descripcion': info.get('descripcion', ''),
+                                'creador': info.get('creador', 'Desconocido'),
+                                'creadorId': info.get('creadorId', ''),
+                                'fechaCreacion': info.get('fechaCreacion', ''),
+                                'participantes': len(op_data['elementos']),
+                                'fromMemory': True  # Indicador de que viene de memoria
+                            })
+                
+                # Emitir la lista al cliente
+                emit('operacionesGB', {'operaciones': operaciones_lista})
+                print(f"Se enviaron {len(operaciones_lista)} operaciones al cliente")
+            except Exception as e:
+                print(f"Error consultando operaciones: {e}")
+                traceback.print_exc()
+                
+                # Fallback a usar solo operaciones en memoria
+                enviar_operaciones_desde_memoria()
+            finally:
+                conn.close()
+        else:
+            # Sin conexión a BD, usar solo operaciones en memoria
+            enviar_operaciones_desde_memoria()
+    except Exception as e:
+        print(f"Error al obtener operaciones GB: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f"Error al obtener operaciones: {str(e)}"})
+
+def enviar_operaciones_desde_memoria():
+    """Envía las operaciones que están almacenadas en memoria"""
     try:
         # Convertir las operaciones a formato lista para enviar al cliente
         operaciones_lista = [
@@ -1562,18 +1846,19 @@ def handle_obtener_operaciones_gb():
                 'nombre': nombre,
                 'descripcion': op_data['info'].get('descripcion', ''),
                 'creador': op_data['info'].get('creador', 'Desconocido'),
+                'creadorId': op_data['info'].get('creadorId', ''),
                 'fechaCreacion': op_data['info'].get('fechaCreacion', ''),
-                'participantes': len(op_data['elementos'])
+                'participantes': len(op_data['elementos']),
+                'fromMemory': True
             }
             for i, (nombre, op_data) in enumerate(operaciones_batalla.items())
         ]
         
         emit('operacionesGB', {'operaciones': operaciones_lista})
-        
+        print(f"Se enviaron {len(operaciones_lista)} operaciones desde memoria")
     except Exception as e:
-        print(f"Error al obtener operaciones GB: {e}")
+        print(f"Error al enviar operaciones desde memoria: {e}")
         emit('error', {'mensaje': f"Error al obtener operaciones: {str(e)}"})
-
 
 
 
@@ -2686,61 +2971,556 @@ def guardar_mensaje_en_db(mensaje):
 
 
 
-@socketio.on('unirseOperacionGB')
-def handle_join_operation_gb(data):
+@socketio.on('unirseOperacion')
+def handle_join_operation_gb(data, callback=None):
     try:
-        participante = data.get('participante')
-        operacion_id = data.get('operacionId')
+        print("Recibiendo solicitud para unirse a operación:", data)
         
-        if not participante or not operacion_id:
-            return {'error': 'Datos de participante incompletos'}
+        # Extraer datos necesarios
+        operacion_nombre = data.get('operacion')
+        usuario_data = data.get('usuario')
+        elemento_data = data.get('elemento')
+        
+        if not operacion_nombre or not usuario_data or not elemento_data:
+            print("Datos incompletos para unirse a operación")
+            if callback:
+                callback({'error': 'Datos incompletos para unirse a operación'})
+            return
+        
+        # Obtener IDs necesarios
+        usuario_id = usuario_data.get('id')
+        usuario_nombre = usuario_data.get('usuario')
+        elemento_id = elemento_data.get('id')
+        
+        if not usuario_id or not elemento_id:
+            print("IDs de usuario o elemento faltantes")
+            if callback:
+                callback({'error': 'IDs de usuario o elemento faltantes'})
+            return
+        
+        # Verificar si la operación existe en la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Buscar la operación
+                    cursor.execute("""
+                        SELECT id, nombre, descripcion, creador, creador_id, config, fecha_creacion 
+                        FROM operaciones_gb 
+                        WHERE nombre = %s AND activa = TRUE
+                    """, (operacion_nombre,))
+                    
+                    operacion_db = cursor.fetchone()
+                    
+                    # Si no existe, crear un registro básico
+                    if not operacion_db:
+                        print(f"Operación {operacion_nombre} no encontrada en BD, creando registro básico")
+                        
+                        # Generar ID único
+                        operacion_id = f"op_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
+                        
+                        # Insertar operación básica
+                        cursor.execute("""
+                            INSERT INTO operaciones_gb 
+                            (id, nombre, descripcion, creador, creador_id, fecha_creacion, activa) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """, (
+                            operacion_id,
+                            operacion_nombre,
+                            f"Operación {operacion_nombre}",
+                            usuario_nombre,
+                            usuario_id,
+                            datetime.now(),
+                            True
+                        ))
+                        
+                        conn.commit()
+                        operacion_id_db = operacion_id
+                    else:
+                        operacion_id_db = operacion_db['id']
+                    
+                    # Preparar datos del elemento para guardar
+                    datos_json = json.dumps(elemento_data)
+                    
+                    # Crear objeto de posición si no existe
+                    posicion_data = data.get('posicion', {})
+                    if not posicion_data:
+                        posicion_data = {'lat': 0, 'lng': 0}
+                    
+                    posicion_json = json.dumps(posicion_data)
+                    
+                    # Registrar elemento en la base de datos (INSERT o UPDATE)
+                    cursor.execute("""
+                        INSERT INTO elementos_gb 
+                        (id, operacion, usuario_id, usuario, datos, posicion, timestamp, conectado) 
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                        datos = VALUES(datos),
+                        posicion = VALUES(posicion),
+                        timestamp = VALUES(timestamp),
+                        conectado = TRUE
+                    """, (
+                        elemento_id,
+                        operacion_nombre,
+                        usuario_id,
+                        usuario_nombre,
+                        datos_json,
+                        posicion_json,
+                        datetime.now(),
+                        True
+                    ))
+                    
+                    conn.commit()
+                    print(f"Elemento {elemento_id} registrado correctamente en operación {operacion_nombre}")
+                    
+                    # Unir al usuario a la sala de Socket.IO
+                    join_room(operacion_nombre)
+                    
+                    # Guardar operación actual en registro de usuario
+                    if usuario_id in usuarios_conectados:
+                        usuarios_conectados[usuario_id]['operacion_actual'] = operacion_nombre
+                        usuarios_conectados[usuario_id]['sala_actual'] = operacion_nombre
+                    
+                    # Registrar a nivel de memoria también (para acceso rápido)
+                    if operacion_nombre not in operaciones_batalla:
+                        operaciones_batalla[operacion_nombre] = {
+                            'elementos': {},
+                            'info': {
+                                'id': operacion_id_db,
+                                'nombre': operacion_nombre,
+                                'creador': usuario_nombre,
+                                'creadorId': usuario_id,
+                                'fechaCreacion': datetime.now().isoformat()
+                            }
+                        }
+                    
+                    # Añadir elemento a la estructura en memoria
+                    operaciones_batalla[operacion_nombre]['elementos'][elemento_id] = {
+                        'id': elemento_id,
+                        'usuario': usuario_nombre,
+                        'usuario_id': usuario_id,
+                        'elemento': elemento_data,
+                        'posicion': posicion_data,
+                        'conectado': True,
+                        'timestamp': datetime.now().isoformat()
+                    }
+                    
+                    # Enviar mensaje de sistema al chat
+                    socketio.emit('mensajeChat', {
+                        'usuario': 'Sistema',
+                        'mensaje': f"{usuario_nombre} se ha unido a la operación",
+                        'tipo': 'sistema',
+                        'timestamp': datetime.now().isoformat()
+                    }, room=operacion_nombre)
+                    
+                    # Notificar a otros usuarios
+                    socketio.emit('elementoConectadoGB', {
+                        'id': elemento_id,
+                        'usuario': usuario_nombre,
+                        'elemento': elemento_data,
+                        'posicion': posicion_data,
+                        'conectado': True,
+                        'timestamp': datetime.now().isoformat()
+                    }, room=operacion_nombre, skip_sid=request.sid)
+                    
+                    # Enviar confirmación al cliente
+                    respuesta_exito = {
+                        'success': True,
+                        'operacion': operacion_nombre,
+                        'operacionId': operacion_id_db,
+                        'mensaje': f"Unido correctamente a la operación {operacion_nombre}"
+                    }
+                    
+                    if callback:
+                        callback(respuesta_exito)
+                    
+                    # También actualizar la lista de operaciones para todos
+                    emitir_lista_operaciones_actualizada()
+                    
+                    return respuesta_exito
+            except Exception as e:
+                print(f"Error al unirse a operación en base de datos: {e}")
+                traceback.print_exc()
+                
+                # Intentar rollback si es posible
+                try:
+                    conn.rollback()
+                except:
+                    pass
+                
+                if callback:
+                    callback({'error': f"Error al unirse a operación: {str(e)}"})
+                
+                return {'error': f"Error al unirse a operación: {str(e)}"}
+            finally:
+                conn.close()
+        else:
+            print("No se pudo conectar a la base de datos")
             
-        # Unir a la sala Socket.IO
-        join_room(participante['operacion'])
-        
-        # Actualizar estructura de datos
-        if participante['operacion'] not in operaciones_batalla:
-            operaciones_batalla[participante['operacion']] = {
-                'elementos': {},
-                'info': {
-                    'id': operacion_id,
-                    'nombre': participante['operacion'],
-                    'creado': datetime.now().isoformat()
+            # Manejar la unión a nivel de memoria solamente
+            print("Manejando unión a operación solo en memoria")
+            
+            # Si la operación no existe en memoria, crearla
+            if operacion_nombre not in operaciones_batalla:
+                operacion_id = f"op_mem_{int(datetime.now().timestamp())}_{random.randint(1000, 9999)}"
+                operaciones_batalla[operacion_nombre] = {
+                    'elementos': {},
+                    'info': {
+                        'id': operacion_id,
+                        'nombre': operacion_nombre,
+                        'creador': usuario_nombre,
+                        'creadorId': usuario_id,
+                        'fechaCreacion': datetime.now().isoformat()
+                    }
                 }
+            
+            # Añadir elemento a la estructura en memoria
+            operaciones_batalla[operacion_nombre]['elementos'][elemento_id] = {
+                'id': elemento_id,
+                'usuario': usuario_nombre,
+                'usuario_id': usuario_id,
+                'elemento': elemento_data,
+                'posicion': data.get('posicion', {'lat': 0, 'lng': 0}),
+                'conectado': True,
+                'timestamp': datetime.now().isoformat()
             }
-        
-        # Guardar participante completo
-        operaciones_batalla[participante['operacion']]['elementos'][participante['id']] = participante
-        
-        # Notificar a otros usuarios
-        emit('elementoConectadoGB', participante,
-             room=participante['operacion'],
-             skip_sid=request.sid)
-             
-        # Mensaje del sistema
-        emit('mensajeChat', {
-            'usuario': 'Sistema',
-            'mensaje': f"{participante['usuario']} se ha unido a la operación",
-            'tipo': 'sistema',
-            'timestamp': datetime.now().isoformat()
-        }, room=participante['operacion'])
-        
-        print(f"Participante {participante['id']} unido a operación {participante['operacion']}")
-        
-        # Enviar lista actualizada
-        elementos_actuales = list(operaciones_batalla[participante['operacion']]['elementos'].values())
-        emit('listaElementosGB', elementos_actuales, room=participante['operacion'])
-        
-        return {
-            'success': True,
-            'operacion': participante['operacion'],
-            'elementos': elementos_actuales
-        }
-        
+            
+            # Unir al usuario a la sala de Socket.IO
+            join_room(operacion_nombre)
+            
+            # Notificar a otros usuarios
+            socketio.emit('elementoConectadoGB', {
+                'id': elemento_id,
+                'usuario': usuario_nombre,
+                'elemento': elemento_data,
+                'posicion': data.get('posicion', {'lat': 0, 'lng': 0}),
+                'conectado': True,
+                'timestamp': datetime.now().isoformat()
+            }, room=operacion_nombre, skip_sid=request.sid)
+            
+            # Enviar confirmación al cliente
+            respuesta_memoria = {
+                'success': True,
+                'operacion': operacion_nombre,
+                'operacionId': operaciones_batalla[operacion_nombre]['info']['id'],
+                'mensaje': f"Unido correctamente a la operación {operacion_nombre} (modo memoria)",
+                'modoMemoria': True
+            }
+            
+            if callback:
+                callback(respuesta_memoria)
+            
+            return respuesta_memoria
     except Exception as e:
-        print(f"Error en unirseOperacionGB: {e}")
+        print(f"Error general al unirse a operación: {e}")
         traceback.print_exc()
-        return {'error': str(e)}
+        
+        if callback:
+            callback({'error': f"Error general: {str(e)}"})
+        
+        return {'error': f"Error general: {str(e)}"}
+
+# Función para obtener elementos de una operación específica
+@app.route('/api/operaciones/<nombre_operacion>/elementos', methods=['GET'])
+def get_elementos_operacion_batalla(nombre_operacion):
+    """
+    Endpoint REST para obtener todos los elementos de una operación específica
+    
+    Esta función consulta la base de datos para obtener los elementos
+    asociados a una operación de Gestión de Batalla
+    """
+    try:
+        # Verificar si la operación existe en la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Verificar que la operación existe
+                    cursor.execute("""
+                        SELECT id FROM operaciones_gb 
+                        WHERE nombre = %s AND activa = TRUE
+                    """, (nombre_operacion,))
+                    
+                    operacion = cursor.fetchone()
+                    if not operacion:
+                        return jsonify({"error": "Operación no encontrada"}), 404
+                    
+                    # Obtener elementos de la operación
+                    cursor.execute("""
+                        SELECT id, usuario_id, usuario, datos, posicion, timestamp, conectado
+                        FROM elementos_gb
+                        WHERE operacion = %s
+                        ORDER BY timestamp DESC
+                    """, (nombre_operacion,))
+                    
+                    elementos_db = cursor.fetchall()
+                    
+                    # Transformar a formato compatible con el cliente
+                    elementos = []
+                    for elem in elementos_db:
+                        try:
+                            # Convertir campos JSON
+                            datos = json.loads(elem['datos']) if elem['datos'] else {}
+                            posicion = json.loads(elem['posicion']) if elem['posicion'] else {}
+                            
+                            # Crear elemento normalizado
+                            elemento = {
+                                'id': elem['id'],
+                                'usuario_id': elem['usuario_id'],
+                                'usuario': elem['usuario'],
+                                'posicion': posicion,
+                                'conectado': bool(elem['conectado']),
+                                'timestamp': elem['timestamp'].isoformat() if isinstance(elem['timestamp'], datetime) else elem['timestamp'],
+                            }
+                            
+                            # Incluir campos adicionales desde datos
+                            if datos:
+                                elemento.update({
+                                    'sidc': datos.get('sidc', ''),
+                                    'designacion': datos.get('designacion', ''),
+                                    'dependencia': datos.get('dependencia', ''),
+                                    'magnitud': datos.get('magnitud', ''),
+                                    'elemento': datos.get('elemento', {})
+                                })
+                            
+                            elementos.append(elemento)
+                        except Exception as e:
+                            print(f"Error procesando elemento {elem['id']}: {e}")
+                    
+                    return jsonify(elementos)
+            except Exception as e:
+                print(f"Error de base de datos: {e}")
+                traceback.print_exc()
+                return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
+            finally:
+                conn.close()
+        else:
+            # Sin base de datos, obtener elementos de memoria
+            if nombre_operacion in operaciones_batalla:
+                elementos_memoria = list(operaciones_batalla[nombre_operacion]['elementos'].values())
+                return jsonify(elementos_memoria)
+            else:
+                return jsonify({"error": "Operación no encontrada"}), 404
+    except Exception as e:
+        print(f"Error general: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+# Endpoint para obtener todas las operaciones
+@app.route('/api/operaciones', methods=['GET'])
+def get_operaciones_batalla():
+    """
+    Endpoint REST para obtener todas las operaciones activas
+    """
+    try:
+        # Obtener de la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Obtener operaciones
+                    cursor.execute("""
+                        SELECT id, nombre, descripcion, creador, creador_id, config, fecha_creacion 
+                        FROM operaciones_gb 
+                        WHERE activa = TRUE
+                        ORDER BY fecha_creacion DESC
+                    """)
+                    
+                    operaciones_db = cursor.fetchall()
+                    
+                    # Convertir a formato para cliente
+                    operaciones = []
+                    for op in operaciones_db:
+                        # Contar elementos
+                        cursor.execute("""
+                            SELECT COUNT(*) as elementos_count
+                            FROM elementos_gb
+                            WHERE operacion = %s AND conectado = TRUE
+                        """, (op['nombre'],))
+                        
+                        resultado = cursor.fetchone()
+                        elementos_count = resultado['elementos_count'] if resultado else 0
+                        
+                        # Parsear config si existe
+                        config = {}
+                        if op['config']:
+                            try:
+                                config = json.loads(op['config'])
+                            except:
+                                pass
+                        
+                        # Crear objeto de operación
+                        operacion = {
+                            'id': op['id'],
+                            'nombre': op['nombre'],
+                            'descripcion': op['descripcion'],
+                            'creador': op['creador'],
+                            'creadorId': op['creador_id'],
+                            'fechaCreacion': op['fecha_creacion'].isoformat() if isinstance(op['fecha_creacion'], datetime) else op['fecha_creacion'],
+                            'participantes': elementos_count,
+                            'config': config
+                        }
+                        
+                        operaciones.append(operacion)
+                    
+                    return jsonify(operaciones)
+            except Exception as e:
+                print(f"Error de base de datos: {e}")
+                traceback.print_exc()
+                return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
+            finally:
+                conn.close()
+        else:
+            # Obtener de memoria si no hay base de datos
+            operaciones = []
+            for nombre, op_data in operaciones_batalla.items():
+                info = op_data.get('info', {})
+                operaciones.append({
+                    'id': info.get('id', f"op_mem_{len(operaciones)}"),
+                    'nombre': nombre,
+                    'descripcion': info.get('descripcion', ''),
+                    'creador': info.get('creador', 'Desconocido'),
+                    'creadorId': info.get('creadorId', ''),
+                    'fechaCreacion': info.get('fechaCreacion', ''),
+                    'participantes': len(op_data.get('elementos', {})),
+                    'fromMemory': True
+                })
+                
+            return jsonify(operaciones)
+    except Exception as e:
+        print(f"Error general: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+# Función para inicializar las tablas GB al inicio del servidor
+def inicializar_tablas_gb():
+    """
+    Inicializa las tablas necesarias para Gestión de Batalla
+    
+    Esta función verifica si las tablas existen y las crea si no.
+    """
+    try:
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Verificar si la tabla operaciones_gb existe
+                    cursor.execute("""
+                        SELECT COUNT(*) as cuenta
+                        FROM information_schema.tables
+                        WHERE table_schema = DATABASE()
+                        AND table_name = 'operaciones_gb'
+                    """)
+                    
+                    resultado = cursor.fetchone()
+                    tabla_existe = resultado['cuenta'] > 0 if resultado else False
+                    
+                    if not tabla_existe:
+                        print("Creando tablas para Gestión de Batalla...")
+                        
+                        # Crear tabla operaciones_gb
+                        cursor.execute("""
+                            CREATE TABLE IF NOT EXISTS `operaciones_gb` (
+                              `id` VARCHAR(100) NOT NULL,
+                              `nombre` VARCHAR(255) NOT NULL,
+                              `descripcion` TEXT,
+                              `creador` VARCHAR(255) NOT NULL,
+                              `creador_id` VARCHAR(100),
+                              `config` JSON,
+                              `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                              `activa` BOOLEAN NOT NULL DEFAULT TRUE,
+                              PRIMARY KEY (`id`),
+                              INDEX `idx_nombre` (`nombre`),
+                              INDEX `idx_creador_id` (`creador_id`),
+                              INDEX `idx_activa` (`activa`)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                        """)
+                        
+                        # Crear tabla elementos_gb
+                        cursor.execute("""
+                            CREATE TABLE IF NOT EXISTS `elementos_gb` (
+                              `id` VARCHAR(100) NOT NULL,
+                              `operacion` VARCHAR(255) NOT NULL,
+                              `usuario_id` VARCHAR(100) NOT NULL,
+                              `usuario` VARCHAR(255) NOT NULL,
+                              `datos` JSON,
+                              `posicion` JSON,
+                              `timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                              `conectado` BOOLEAN NOT NULL DEFAULT TRUE,
+                              PRIMARY KEY (`id`, `operacion`),
+                              INDEX `idx_operacion` (`operacion`),
+                              INDEX `idx_usuario_id` (`usuario_id`),
+                              INDEX `idx_conectado` (`conectado`)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                        """)
+                        
+                        # Crear tabla mensajes_gb
+                        cursor.execute("""
+                            CREATE TABLE IF NOT EXISTS `mensajes_gb` (
+                              `id` VARCHAR(100) NOT NULL,
+                              `operacion` VARCHAR(255) NOT NULL,
+                              `usuario_id` VARCHAR(100) NOT NULL,
+                              `usuario` VARCHAR(255) NOT NULL,
+                              `mensaje` TEXT NOT NULL,
+                              `tipo` VARCHAR(50) DEFAULT 'texto',
+                              `destinatario` VARCHAR(100) DEFAULT 'todos',
+                              `timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                              PRIMARY KEY (`id`),
+                              INDEX `idx_operacion` (`operacion`),
+                              INDEX `idx_usuario_id` (`usuario_id`),
+                              INDEX `idx_destinatario` (`destinatario`),
+                              INDEX `idx_timestamp` (`timestamp`)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                        """)
+                        
+                        # Crear tabla informes_gb
+                        cursor.execute("""
+                            CREATE TABLE IF NOT EXISTS `informes_gb` (
+                              `id` VARCHAR(100) NOT NULL,
+                              `operacion` VARCHAR(255) NOT NULL,
+                              `usuario_id` VARCHAR(100) NOT NULL,
+                              `usuario` VARCHAR(255) NOT NULL,
+                              `titulo` VARCHAR(255) NOT NULL,
+                              `contenido` TEXT,
+                              `tipo` VARCHAR(50) DEFAULT 'informe',
+                              `estado` VARCHAR(50) DEFAULT 'enviado',
+                              `tiene_adjunto` BOOLEAN DEFAULT FALSE,
+                              `adjunto_info` JSON,
+                              `destinatarios` JSON,
+                              `timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                              PRIMARY KEY (`id`),
+                              INDEX `idx_operacion` (`operacion`),
+                              INDEX `idx_usuario_id` (`usuario_id`),
+                              INDEX `idx_tipo` (`tipo`),
+                              INDEX `idx_estado` (`estado`),
+                              INDEX `idx_timestamp` (`timestamp`)
+                            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                        """)
+                        
+                        conn.commit()
+                        print("Tablas para Gestión de Batalla creadas correctamente")
+                        
+                        return True
+                    else:
+                        print("Las tablas de Gestión de Batalla ya existen")
+                        return True
+                    
+            except Exception as e:
+                print(f"Error inicializando tablas GB: {e}")
+                traceback.print_exc()
+                return False
+            finally:
+                conn.close()
+        else:
+            print("No se pudo conectar a la base de datos para inicializar tablas GB")
+            return False
+    except Exception as e:
+        print(f"Error general inicializando tablas GB: {e}")
+        traceback.print_exc()
+        return False
+
+
 
 @socketio.on('eliminarOperacionGB')
 def handle_eliminar_operacion_gb(data, callback=None):
@@ -2867,7 +3647,302 @@ def handle_verificar_operaciones_inactivas(data=None, callback=None):
         if callback:
             callback({"error": str(e)})
 
+def guardar_elemento_gb(elemento):
+    try:
+        conexion = get_db_connection()
+        with conexion.cursor() as cursor:
+            query = """
+                INSERT INTO elementos_gb (
+                    id, operacion_id, usuario_id, designacion, sidc,
+                    lat, lng, rumbo, velocidad, activo
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, TRUE)
+                ON DUPLICATE KEY UPDATE
+                    lat = VALUES(lat),
+                    lng = VALUES(lng),
+                    rumbo = VALUES(rumbo),
+                    velocidad = VALUES(velocidad),
+                    timestamp = CURRENT_TIMESTAMP,
+                    activo = TRUE
+            """
+            cursor.execute(query, (
+                elemento['id'],
+                elemento['operacion_id'],
+                elemento.get('usuario_id'),
+                elemento.get('designacion'),
+                elemento.get('sidc'),
+                elemento.get('lat'),
+                elemento.get('lng'),
+                elemento.get('rumbo'),
+                elemento.get('velocidad')
+            ))
+            conexion.commit()
+    except Exception as e:
+        print("Error al guardar elemento GB:", e)
+    finally:
+        conexion.close()
+
+def cargar_operaciones_gb():
+    try:
+        conexion = get_db_connection()
+        with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("SELECT * FROM operaciones_gb WHERE estado = 'activa'")
+            operaciones = cursor.fetchall()
+
+            for op in operaciones:
+                nombre = op['nombre']
+                operaciones_batalla[nombre] = {
+                    'info': op,
+                    'elementos': {}
+                }
+
+                cursor.execute("SELECT * FROM elementos_gb WHERE operacion_id = %s AND activo = TRUE", (op['id'],))
+                elementos = cursor.fetchall()
+
+                for el in elementos:
+                    operaciones_batalla[nombre]['elementos'][el['id']] = el
+
+        print(f"Se cargaron {len(operaciones)} operaciones GB activas.")
+    except Exception as e:
+        print("Error al cargar operaciones GB:", e)
+    finally:
+        conexion.close()
+
+@socketio.on('guardarElementoDB')
+def handle_guardar_elemento_db(data):
+    """Guarda un elemento de gestión de batalla en la base de datos"""
+    try:
+        # Verificar datos mínimos
+        elemento_id = data.get('id')
+        operacion = data.get('operacion')
+        usuario_id = data.get('usuarioId') or data.get('jugadorId')
+        usuario = data.get('usuario')
+        
+        if not all([elemento_id, operacion, usuario_id, usuario]):
+            emit('error', {'mensaje': 'Datos incompletos para guardar elemento'})
+            return
+        
+        # Convertir datos a formato JSON para almacenar
+        datos_json = json.dumps({
+            'sidc': data.get('sidc', ''),
+            'designacion': data.get('designacion', ''),
+            'dependencia': data.get('dependencia', ''),
+            'magnitud': data.get('magnitud', ''),
+            'elemento': data.get('elemento', {}),
+            'creador': data.get('creador', usuario_id),
+            'timestamp_cliente': data.get('timestamp', datetime.now().isoformat())
+        })
+        
+        # Convertir posición a formato JSON para almacenar
+        posicion_json = json.dumps(data.get('posicion', {}))
+        
+        # Timestamp del servidor
+        timestamp = datetime.now()
+        
+        # Conectado (por defecto true)
+        conectado = data.get('conectado', True)
+        
+        # Obtener conexión a la base de datos
+        conn = get_db_connection()
+        if not conn:
+            emit('error', {'mensaje': 'Error de conexión a la base de datos'})
+            return
+        
+        try:
+            with conn.cursor() as cursor:
+                # Usar INSERT ... ON DUPLICATE KEY UPDATE
+                cursor.execute("""
+                    INSERT INTO elementos_gb 
+                    (id, operacion, usuario_id, usuario, datos, posicion, timestamp, conectado)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    datos = VALUES(datos),
+                    posicion = VALUES(posicion),
+                    timestamp = VALUES(timestamp),
+                    conectado = VALUES(conectado)
+                """, (elemento_id, operacion, usuario_id, usuario, datos_json, posicion_json, timestamp, conectado))
+                
+                conn.commit()
+                
+                print(f"Elemento {elemento_id} guardado correctamente en operación {operacion}")
+                
+                # Notificar a otros usuarios en la misma operación
+                emit('elementoActualizado', data, room=operacion, skip_sid=request.sid)
+                
+        except Exception as e:
+            print(f"Error al guardar elemento en DB: {e}")
+            emit('error', {'mensaje': f'Error al guardar en base de datos: {str(e)}'})
+        finally:
+            conn.close()
+    
+    except Exception as e:
+        print(f"Error al procesar guardarElementoDB: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al procesar datos: {str(e)}'})
+
+@socketio.on('obtenerElementosDB')
+def handle_obtener_elementos_db(data):
+    """Obtiene elementos de gestión de batalla desde la base de datos"""
+    try:
+        # Verificar datos mínimos
+        operacion = data.get('operacion')
+        
+        if not operacion:
+            emit('error', {'mensaje': 'Operación no especificada'})
+            return
+        
+        # Obtener ID del usuario solicitante (opcional)
+        usuario_id = user_sid_map.get(request.sid)
+        
+        # Obtener conexión a la base de datos
+        conn = get_db_connection()
+        if not conn:
+            emit('error', {'mensaje': 'Error de conexión a la base de datos'})
+            return
+        
+        try:
+            with conn.cursor(DictCursor) as cursor:
+                # Obtener elementos de la operación
+                cursor.execute("""
+                    SELECT * FROM elementos_gb 
+                    WHERE operacion = %s AND conectado = TRUE
+                """, (operacion,))
+                
+                elementos_db = cursor.fetchall()
+                
+                # Convertir a formato esperado por el cliente
+                elementos = []
+                for elem in elementos_db:
+                    # Convertir JSON strings a diccionarios
+                    datos = json.loads(elem['datos'])
+                    posicion = json.loads(elem['posicion'])
+                    
+                    # Crear elemento normalizado
+                    elemento = {
+                        'id': elem['id'],
+                        'operacion': elem['operacion'],
+                        'usuario': elem['usuario'],
+                        'usuarioId': elem['usuario_id'],
+                        'sidc': datos.get('sidc', ''),
+                        'designacion': datos.get('designacion', ''),
+                        'dependencia': datos.get('dependencia', ''),
+                        'magnitud': datos.get('magnitud', ''),
+                        'elemento': datos.get('elemento', {}),
+                        'posicion': posicion,
+                        'timestamp': elem['timestamp'].isoformat(),
+                        'conectado': bool(elem['conectado'])
+                    }
+                    
+                    elementos.append(elemento)
+                
+                print(f"Enviando {len(elementos)} elementos de operación {operacion} a {usuario_id or 'usuario no identificado'}")
+                
+                # Enviar elementos al cliente
+                emit('listaElementos', elementos)
+                
+        except Exception as e:
+            print(f"Error al obtener elementos de DB: {e}")
+            traceback.print_exc()
+            emit('error', {'mensaje': f'Error al obtener elementos de la base de datos: {str(e)}'})
+        finally:
+            conn.close()
+    
+    except Exception as e:
+        print(f"Error al procesar obtenerElementosDB: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al procesar datos: {str(e)}'})
+
+@socketio.on('actualizarPosicionGB')
+def handle_actualizar_posicion_batalla(data):
+    try:
+        sid = request.sid
+        user_id = data.get('id')
+        operacion = data.get('operacion')
+        
+        print(f"🔄 Posición recibida: Usuario {user_id}, Coords: {data.get('posicion', {}).get('lat')}, {data.get('posicion', {}).get('lng')}")
+        
+        if not all([user_id, operacion]):
+            print("⚠️ Datos incompletos en actualizarPosicionGB")
+            return
+        
+        # Obtener conexión a la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Verificar si el elemento existe
+                    cursor.execute("""
+                        SELECT id FROM elementos_gb 
+                        WHERE id = %s AND operacion = %s
+                    """, (user_id, operacion))
+                    
+                    existe = cursor.fetchone()
+                    
+                    # Preparar datos para actualizar o insertar
+                    posicion_json = json.dumps(data.get('posicion', {}))
+                    datos_json = json.dumps({
+                        'sidc': data.get('sidc', data.get('elemento', {}).get('sidc', '')),
+                        'designacion': data.get('designacion', data.get('elemento', {}).get('designacion', '')),
+                        'dependencia': data.get('dependencia', data.get('elemento', {}).get('dependencia', '')),
+                        'magnitud': data.get('magnitud', data.get('elemento', {}).get('magnitud', '')),
+                        'elemento': data.get('elemento', {}),
+                        'timestamp_cliente': data.get('timestamp', datetime.now().isoformat())
+                    })
+                    
+                    # Timestamp del servidor
+                    timestamp = datetime.now()
+                    
+                    if existe:
+                        # Actualizar posición
+                        cursor.execute("""
+                            UPDATE elementos_gb 
+                            SET posicion = %s, timestamp = %s, conectado = TRUE
+                            WHERE id = %s AND operacion = %s
+                        """, (posicion_json, timestamp, user_id, operacion))
+                    else:
+                        # Insertar nuevo elemento
+                        usuario = data.get('usuario', 'Usuario')
+                        cursor.execute("""
+                            INSERT INTO elementos_gb 
+                            (id, operacion, usuario_id, usuario, datos, posicion, timestamp, conectado)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, TRUE)
+                        """, (user_id, operacion, user_id, usuario, datos_json, posicion_json, timestamp))
+                    
+                    conn.commit()
+                    
+                    print(f"✅ Posición actualizada en BD para elemento {user_id} en operación {operacion}")
+                    
+                    # Emitir actualización a otros participantes de la operación
+                    emit('actualizarPosicionGB', data, room=operacion, skip_sid=sid)
+                    
+                    # También emitir con nombre alternativo para retrocompatibilidad
+                    emit('actualizacionPosicion', data, room=operacion, skip_sid=sid)
+                    
+            except Exception as e:
+                print(f"Error al actualizar posición en DB: {e}")
+                traceback.print_exc()
+            finally:
+                conn.close()
+                
+        else:
+            print("⚠️ Error de conexión a la base de datos para actualizar posición")
             
+            # En caso de error de conexión a BD, actualizar en memoria
+            if operacion in operaciones_batalla:
+                operaciones_batalla[operacion]['elementos'][user_id] = data
+                
+                # Emitir actualización a otros participantes de la operación
+                emit('actualizarPosicionGB', data, room=operacion, skip_sid=sid)
+                emit('actualizacionPosicion', data, room=operacion, skip_sid=sid)
+                
+    except Exception as e:
+        print(f"Error actualizando posición GB: {e}")
+        traceback.print_exc()
+        emit('error', {'mensaje': f'Error al actualizar posición: {str(e)}'})
+
+
+@socketio.on('finalizarOperacionGB')
+
+
 @socketio.on('solicitarElementos')
 def handle_request_elements(data):
     try:
@@ -3055,6 +4130,85 @@ def guardar_elemento_en_operacion(operacion_id, datos_elemento):
         traceback.print_exc()
         return False
     
+def limpiar_elementos_antiguos():
+    """Elimina elementos antiguos de la base de datos (> 7 días)"""
+    try:
+        # Obtener conexión a la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Eliminar elementos con más de 7 días
+                    cursor.execute("""
+                        DELETE FROM elementos_gb 
+                        WHERE timestamp < DATE_SUB(NOW(), INTERVAL 7 DAY)
+                    """)
+                    
+                    elementos_eliminados = cursor.rowcount
+                    conn.commit()
+                    
+                    print(f"Limpieza de elementos antiguos: eliminados {elementos_eliminados} elementos")
+                    
+                    return elementos_eliminados
+                    
+            except Exception as e:
+                print(f"Error al limpiar elementos antiguos: {e}")
+                conn.rollback()
+            finally:
+                conn.close()
+    except Exception as e:
+        print(f"Error en limpiar_elementos_antiguos: {e}")
+        
+    return 0
+
+def handle_finalizar_operacion_gb(data):
+    """Finaliza una operación de GB y elimina sus elementos"""
+    try:
+        operacion = data.get('operacion')
+        if not operacion:
+            return {'error': 'Operación no especificada'}
+            
+        # Verificar permisos del usuario (solo creador o admin)
+        user_id = user_sid_map.get(request.sid)
+        
+        # Obtener conexión a la base de datos
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Eliminar elementos de la operación
+                    cursor.execute("""
+                        DELETE FROM elementos_gb 
+                        WHERE operacion = %s
+                    """, (operacion,))
+                    
+                    elementos_eliminados = cursor.rowcount
+                    conn.commit()
+                    
+                    print(f"Operación {operacion} finalizada. Eliminados {elementos_eliminados} elementos")
+                    
+                    # Notificar a todos los usuarios en la sala
+                    socketio.emit('operacionFinalizada', {
+                        'operacion': operacion,
+                        'mensaje': 'Operación finalizada'
+                    }, room=operacion)
+                    
+                    return {'success': True, 'elementos_eliminados': elementos_eliminados}
+                    
+            except Exception as e:
+                print(f"Error al finalizar operación: {e}")
+                conn.rollback()
+                return {'error': str(e)}
+            finally:
+                conn.close()
+                
+        return {'error': 'Error de conexión a la base de datos'}
+        
+    except Exception as e:
+        print(f"Error en finalizarOperacionGB: {e}")
+        traceback.print_exc()
+        return {'error': str(e)}
+    
 
 # Variables globales para almacenamiento de informes y adjuntos
 informes_db = {}
@@ -3095,6 +4249,26 @@ def guardar_informe_en_db(informe):
         print(f"Error al guardar informe: {e}")
         traceback.print_exc()
         return False
+
+
+def guardar_operacion_gb(nombre, descripcion, creador_id):
+    try:
+        conexion = get_db_connection()
+        with conexion.cursor() as cursor:
+            query = """
+                INSERT INTO operaciones_gb (nombre, descripcion, creador_id)
+                VALUES (%s, %s, %s)
+            """
+            cursor.execute(query, (nombre, descripcion, creador_id))
+            conexion.commit()
+            return cursor.lastrowid
+    except Exception as e:
+        print("Error al guardar operación GB:", e)
+        return None
+    finally:
+        conexion.close()
+
+
 
 def guardar_adjunto_en_filesystem(informe_id, adjunto, tipo_origen='informe'):
     """
@@ -3518,7 +4692,7 @@ def iniciar_gestos():
     
     try:
         # Ruta al script de control de gestos con la ruta correcta
-        gestos_script = '/Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py'
+        gestos_script = '/Users/mac/Documents/GitHub/MAIRA_git/Server/interfaz_gestos.py'
         
         # Inicia el script en un proceso separado
         gesture_process = subprocess.Popen([sys.executable, gestos_script])
@@ -3591,6 +4765,8 @@ def init_cleanup_tasks():
         socketio.start_background_task(periodic_cleanup)
         app._cleanup_task = True
         print("Tarea de limpieza periódica inicializada")
+
+inicializar_tablas_gb()
 
 # actualizacion la sección de ejecución para usar SSL:
 if __name__ == '__main__':

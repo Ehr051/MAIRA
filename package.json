@@ -7,7 +7,7 @@
     "start": "http-server -p 8080 -c-1 --index index.html",
     "start-py": "python3 server/server.py",
     "start-js": "node server/node.js",
-    "start-gestos": "python3 /Users/mac/Documents/GitHub/MAIRA_git/Server/detectorGestos.py",
+    "start-gestos": "python3 /Users/mac/Documents/GitHub/MAIRA_git/Server/interfaz_gestos.py",
     "dev": "concurrently \"npm run start-py\" \"npm run start-js\" \"npm start\"",
     "install-gesture-deps": "python3 server/install_deps.py",
     "start-py-https": "python3 server/serverhttps.py",

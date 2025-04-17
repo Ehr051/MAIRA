@@ -395,12 +395,27 @@ function obtenerSIDCActual() {
     if (!elementoSeleccionadoGB?.options?.sidc) return '';
 
     let sidc = elementoSeleccionadoGB.options.sidc;
-    const afiliacion = document.getElementById('afiliacion').value;
-    const estado = document.getElementById('estado').value;
-    const [categoria, arma] = document.getElementById('arma').value.split('|');
-    const tipo = document.getElementById('tipo').value;
-    const caracteristica = document.getElementById('caracteristica').value;
-    const magnitud = document.getElementById('magnitud').value;
+    const afiliacion = document.getElementById('afiliacion')?.value || 'F';
+    const estado = document.getElementById('estado')?.value || 'P';
+    
+    // Safely get and validate category and arm
+    const armaSelect = document.getElementById('arma');
+    if (!armaSelect || !armaSelect.value || !armaSelect.value.includes('|')) {
+        console.warn("Invalid 'arma' value or element not found:", armaSelect?.value);
+        return sidc; // Return original SIDC to avoid errors
+    }
+    
+    const [categoria, arma] = armaSelect.value.split('|');
+    
+    // Validate that category and arm exist in unidadesMilitares
+    if (!unidadesMilitares[categoria] || !unidadesMilitares[categoria][arma]) {
+        console.error(`Category '${categoria}' or arm '${arma}' not found in unidadesMilitares`);
+        return sidc; // Return original SIDC to avoid errors
+    }
+    
+    const tipo = document.getElementById('tipo')?.value || '';
+    const caracteristica = document.getElementById('caracteristica')?.value || '';
+    const magnitud = document.getElementById('magnitud')?.value || '-';
 
     console.log("Construyendo SIDC:", {
         sidc_original: sidc,
@@ -413,25 +428,33 @@ function obtenerSIDCActual() {
         magnitud
     });
 
-    const codigoArma = unidadesMilitares[categoria][arma].codigo;
-    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo].codigo;
-    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas[caracteristica];
+    // Get codes with safety checks
+    const codigoArma = unidadesMilitares[categoria][arma]?.codigo || '';
+    
+    // Also safely check tipo and caracteristica
+    if (!unidadesMilitares[categoria][arma].tipos[tipo]) {
+        console.warn(`Type '${tipo}' not found for arm '${arma}'`);
+        return sidc;
+    }
+    
+    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo]?.codigo || '';
+    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas[caracteristica] || '';
 
     let centroParte = (codigoArma + codigoTipo + codigoCaracteristica).padEnd(6, '-');
     sidc = sidc.substr(0, 1) + afiliacion + sidc.substr(2, 1) + estado + centroParte;
 
     let modificador = '-';
-    if (document.getElementById('puestoComando').checked && document.getElementById('fuerzaTarea').checked) {
+    if (document.getElementById('puestoComando')?.checked && document.getElementById('fuerzaTarea')?.checked) {
         modificador = 'B';
-    } else if (document.getElementById('puestoComando').checked) {
+    } else if (document.getElementById('puestoComando')?.checked) {
         modificador = 'A';
-    } else if (document.getElementById('fuerzaTarea').checked) {
+    } else if (document.getElementById('fuerzaTarea')?.checked) {
         modificador = 'E';
     }
     
     console.log("SIDC intermedio:", sidc, "Modificador:", modificador, "Magnitud:", magnitud);
     
-    // Colocar el modificador y la magnitud en las posiciones correctas
+    // Place modifier and magnitude in correct positions
     sidc = sidc.substr(0, 10) + modificador + magnitud + sidc.substr(12);
     
     console.log("SIDC final:", sidc);
@@ -486,6 +509,251 @@ function inicializarSelectores() {
             });
         });
     }
+}
+
+/**
+ * Función mejorada para guardar los cambios en una unidad con DB
+ * @param {Element} elemento - Elemento al que aplicar los cambios
+ * @returns {boolean} - Éxito de la operación
+ */
+function guardarCambiosUnidad() {
+    console.log("Intentando guardar cambios de unidad");
+    return guardarCambiosUnidadGB();  // Delegate to the GB version
+}
+
+function guardarCambiosUnidadGB() {
+    console.log("Guardando cambios de unidad en modo GB");
+    
+    if (!window.elementoSeleccionadoGB && !window.elementoSeleccionado) {
+        console.warn('No hay elemento seleccionado para guardar cambios');
+        return false;
+    }
+
+    // Use whichever reference is available
+    const elemento = window.elementoSeleccionadoGB || window.elementoSeleccionado;
+
+    try {
+        // Get the updated SIDC with all changes
+        const nuevoSidc = obtenerSIDCActual();
+        console.log("SIDC generado:", nuevoSidc);
+        
+        // Get values from form fields
+        const designacion = document.getElementById('designacion').value;
+        const dependencia = document.getElementById('dependencia').value;
+        const tipo = obtenerTipoDeElemento(nuevoSidc);
+        const magnitud = document.getElementById('magnitud').value;
+        const esEquipoActual = typeof window.esEquipo === 'function' ? 
+                              window.esEquipo(nuevoSidc) : 
+                              nuevoSidc.charAt(4) === 'E';
+        
+        // Preserve important original IDs
+        const elementoOriginalId = elemento.options.id;
+        const jugadorOriginal = elemento.options.jugador || elemento.options.jugadorId || window.usuarioInfo?.id;
+        const usuarioOriginal = elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario';
+        
+        // Save current position and other important data
+        const posicionActual = elemento.getLatLng();
+        const equipoElemento = elemento.options.equipo || window.equipoJugador;
+        
+        // Remove current marker from calco
+        if (window.calcoActivo && window.calcoActivo.hasLayer(elemento)) {
+            window.calcoActivo.removeLayer(elemento);
+        }
+        
+        // Create new symbol with updated SIDC
+        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
+        
+        // Create new icon
+        const icon = L.divIcon({
+            className: `custom-div-icon equipo-${equipoElemento}`,
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        });
+        
+        // Create new marker with all updated properties
+        // CRITICAL: Maintain ALL original identifiers
+        const nuevoMarcador = L.marker(posicionActual, {
+            icon: icon,
+            draggable: false,
+            id: elementoOriginalId,  // Keep original ID
+            sidc: nuevoSidc,
+            tipo: tipo,
+            designacion: designacion,
+            dependencia: dependencia,
+            magnitud: !esEquipoActual ? magnitud : undefined,
+            equipo: equipoElemento,
+            jugador: jugadorOriginal,         // Preserve original player
+            jugadorId: jugadorOriginal,       // Preserve original playerId
+            usuarioId: jugadorOriginal,       // Preserve original userId
+            usuario: usuarioOriginal,         // Preserve original username
+            creador: jugadorOriginal,         // Preserve original creator
+            isElementoMilitar: true
+        });
+        
+        // Add new marker to calco
+        nuevoMarcador.addTo(window.calcoActivo);
+        
+        // Configure events
+        nuevoMarcador.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            if (typeof window.seleccionarElementoGB === 'function') {
+                window.seleccionarElementoGB(this);
+            }
+        });
+        
+        nuevoMarcador.on('contextmenu', function(e) {
+            L.DomEvent.stopPropagation(e);
+            window.elementoSeleccionadoGB = this;
+            window.elementoSeleccionado = this;
+            if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
+                window.MiRadial.mostrarMenu(
+                    e.originalEvent.pageX,
+                    e.originalEvent.pageY,
+                    'elemento',
+                    this
+                );
+            }
+        });
+        
+        // Update label
+        if (typeof actualizarEtiquetaUnidad === 'function') {
+            actualizarEtiquetaUnidad(nuevoMarcador);
+        }
+        
+        // Update selected element reference
+        window.elementoSeleccionadoGB = nuevoMarcador;
+        window.elementoSeleccionado = nuevoMarcador;
+        
+        // Create clean data structure to update elementosConectados
+        // CRITICAL: Keep all identifiers consistent
+        const datosElemento = {
+            id: elementoOriginalId,
+            sidc: nuevoSidc,
+            designacion: designacion,
+            dependencia: dependencia,
+            magnitud: !esEquipoActual ? magnitud : undefined,
+            elemento: {
+                sidc: nuevoSidc,
+                designacion: designacion,
+                dependencia: dependencia,
+                magnitud: !esEquipoActual ? magnitud : undefined,
+            },
+            posicion: {
+                lat: posicionActual.lat,
+                lng: posicionActual.lng,
+                precision: 10,
+                rumbo: 0,
+                velocidad: 0
+            },
+            tipo: tipo,
+            // Keep ALL identity data
+            usuario: usuarioOriginal,
+            usuarioId: jugadorOriginal,
+            jugador: jugadorOriginal,
+            jugadorId: jugadorOriginal,
+            creador: jugadorOriginal,
+            operacion: window.operacionActual || (window.MAIRA?.GestionBatalla?.operacionActual) || 'general',
+            timestamp: new Date().toISOString(),
+            conectado: true
+        };
+        
+        // Update in elementosConectados
+        if (window.elementosConectados && elementoOriginalId) {
+            // If doesn't exist, create it
+            if (!window.elementosConectados[elementoOriginalId]) {
+                window.elementosConectados[elementoOriginalId] = {
+                    datos: datosElemento,
+                    marcador: nuevoMarcador
+                };
+            } else {
+                // IMPORTANT: Preserve identity data when updating
+                window.elementosConectados[elementoOriginalId].datos = {
+                    ...window.elementosConectados[elementoOriginalId].datos,
+                    ...datosElemento,
+                    // Explicitly maintain these critical fields
+                    id: elementoOriginalId,
+                    usuario: usuarioOriginal,
+                    usuarioId: jugadorOriginal,
+                    jugadorId: jugadorOriginal,
+                    jugador: jugadorOriginal,
+                    creador: jugadorOriginal
+                };
+                window.elementosConectados[elementoOriginalId].marcador = nuevoMarcador;
+            }
+            
+            // Sync with MAIRA central
+            if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
+                window.MAIRA.GestionBatalla.elementosConectados[elementoOriginalId] = window.elementosConectados[elementoOriginalId];
+            }
+            
+            // If it's the user's own element, update global elementoTrabajo
+            if (jugadorOriginal === window.usuarioInfo?.id) {
+                // Update elementoTrabajo
+                window.elementoTrabajo = {
+                    ...window.elementoTrabajo,
+                    sidc: nuevoSidc,
+                    designacion: designacion,
+                    dependencia: dependencia,
+                    magnitud: !esEquipoActual ? magnitud : undefined
+                };
+                
+                // Save to localStorage safely
+                try {
+                    localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
+                    
+                    // Update reference in MAIRA
+                    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+                        window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
+                    }
+                } catch (error) {
+                    console.error("Error saving elementoTrabajo:", error);
+                }
+            }
+            
+            // Save all elements to localStorage for persistence
+            if (typeof window.guardarElementosEnLocalStorage === 'function') {
+                window.guardarElementosEnLocalStorage();
+            }
+        }
+        
+        // Close panel
+        if (typeof window.cerrarPanelEdicion === 'function') {
+            window.cerrarPanelEdicion('panelEdicionUnidad');
+        }
+        
+        // Send to server using global function
+        console.log("Sending updated element to server (with preserved identity data)");
+        let enviado = false;
+        
+        if (typeof window.enviarElementoAlServidor === 'function') {
+            enviado = window.enviarElementoAlServidor(nuevoMarcador);
+        }
+        
+        // Update element in visual list
+        if (typeof window.actualizarIconoEnLista === 'function') {
+            window.actualizarIconoEnLista(elementoOriginalId, nuevoSidc);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error saving changes:', error);
+        
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error al guardar cambios: " + error.message, "error");
+        }
+        
+        return false;
+    }
+}
+
+function obtenerCamposFormularioUnidad() {
+    return {
+        sidc: obtenerSIDCActual(),
+        designacion: document.getElementById('designacion').value,
+        dependencia: document.getElementById('dependencia').value,
+        magnitud: document.getElementById('magnitud').value
+    };
 }
 
 function actualizarEtiquetaUnidad(elemento) {
@@ -717,584 +985,16 @@ function actualizarIconoUnidad(elemento) {
     elemento.setIcon(icon);
 }
 
-function guardarCambiosUnidad() {
-    console.log("Intentando guardar cambios de unidad");
-    return guardarCambiosUnidadGB();
-}
-
-
-function guardarCambiosUnidadGB() {
-    console.log("Guardando cambios de unidad en modo GB");
-    
-    if (!window.elementoSeleccionadoGB && !window.elementoSeleccionado) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return false;
-    }
-
-    // Usar cualquiera de las dos referencias que esté disponible
-    const elemento = window.elementoSeleccionadoGB || window.elementoSeleccionado;
-
-    try {
-        // IMPORTANTE: Preservar todos los identificadores originales
-        const elementoOriginalId = elemento.options.id;
-        const jugadorOriginal = elemento.options.jugador || elemento.options.jugadorId || window.usuarioInfo?.id;
-        const usuarioOriginal = elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario';
-        
-        // Obtener el SIDC actualizado con todos los cambios
-        const nuevoSidc = obtenerSIDCActual();
-        console.log("SIDC generado:", nuevoSidc);
-        
-        // Obtener valores de los campos del formulario
-        const designacion = document.getElementById('designacion').value;
-        const dependencia = document.getElementById('dependencia').value;
-        const tipo = obtenerTipoDeElemento(nuevoSidc);
-        const magnitud = document.getElementById('magnitud').value;
-        const esEquipoActual = typeof window.esEquipo === 'function' ? 
-                              window.esEquipo(nuevoSidc) : 
-                              nuevoSidc.charAt(4) === 'E';
-        
-        // Guardar la posición actual y otros datos importantes
-        const posicionActual = elemento.getLatLng();
-        const equipoElemento = elemento.options.equipo || window.equipoJugador;
-        
-        // Eliminar el marcador actual del calco
-        if (window.calcoActivo && window.calcoActivo.hasLayer(elemento)) {
-            window.calcoActivo.removeLayer(elemento);
-        }
-        
-        // Crear un nuevo símbolo con el SIDC actualizado
-        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
-        
-        // Crear un nuevo icono
-        const icon = L.divIcon({
-            className: `custom-div-icon equipo-${equipoElemento}`,
-            html: sym.asSVG(),
-            iconSize: [70, 50],
-            iconAnchor: [35, 25]
-        });
-        
-        // Crear un nuevo marcador con todas las propiedades actualizadas
-        // CRÍTICO: Mantener TODOS los identificadores originales
-        const nuevoMarcador = L.marker(posicionActual, {
-            icon: icon,
-            draggable: false,
-            id: elementoOriginalId,  // Mantener ID original
-            sidc: nuevoSidc,
-            tipo: tipo,
-            designacion: designacion,
-            dependencia: dependencia,
-            magnitud: !esEquipoActual ? magnitud : undefined,
-            equipo: equipoElemento,
-            jugador: jugadorOriginal,         // Preservar jugador original
-            jugadorId: jugadorOriginal,       // Preservar jugadorId original
-            usuarioId: jugadorOriginal,       // Preservar usuarioId original
-            usuario: usuarioOriginal,         // Preservar nombre de usuario original
-            creador: jugadorOriginal,         // Preservar creador original
-            isElementoMilitar: true
-        });
-        
-        // Añadir el nuevo marcador al calco
-        nuevoMarcador.addTo(window.calcoActivo);
-        
-        // Configurar eventos
-        nuevoMarcador.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
-            if (typeof window.seleccionarElementoGB === 'function') {
-                window.seleccionarElementoGB(this);
-            }
-        });
-        
-        nuevoMarcador.on('contextmenu', function(e) {
-            L.DomEvent.stopPropagation(e);
-            window.elementoSeleccionadoGB = this;
-            window.elementoSeleccionado = this;
-            if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
-                window.MiRadial.mostrarMenu(
-                    e.originalEvent.pageX,
-                    e.originalEvent.pageY,
-                    'elemento',
-                    this
-                );
-            }
-        });
-        
-        // Actualizar etiqueta
-        if (typeof actualizarEtiquetaUnidad === 'function') {
-            actualizarEtiquetaUnidad(nuevoMarcador);
-        }
-        
-        // Actualizar referencia al elemento seleccionado
-        window.elementoSeleccionadoGB = nuevoMarcador;
-        window.elementoSeleccionado = nuevoMarcador;
-        
-        // Crear estructura de datos limpia para actualizar elementosConectados
-        // CRÍTICO: Mantener todos los identificadores consistentes
-        const datosElemento = {
-            id: elementoOriginalId,
-            sidc: nuevoSidc,
-            designacion: designacion,
-            dependencia: dependencia,
-            magnitud: !esEquipoActual ? magnitud : undefined,
-            elemento: {
-                sidc: nuevoSidc,
-                designacion: designacion,
-                dependencia: dependencia,
-                magnitud: !esEquipoActual ? magnitud : undefined,
-            },
-            posicion: {
-                lat: posicionActual.lat,
-                lng: posicionActual.lng,
-                precision: 10,
-                rumbo: 0,
-                velocidad: 0
-            },
-            tipo: tipo,
-            // Mantener TODOS los datos de identidad
-            usuario: usuarioOriginal,
-            usuarioId: jugadorOriginal,
-            jugador: jugadorOriginal,
-            jugadorId: jugadorOriginal,
-            creador: jugadorOriginal,
-            operacion: window.operacionActual || (window.MAIRA?.GestionBatalla?.operacionActual) || 'general',
-            timestamp: new Date().toISOString(),
-            conectado: true
-        };
-        
-        // Actualizar en elementosConectados
-        if (window.elementosConectados && elementoOriginalId) {
-            // Si no existe, crearlo
-            if (!window.elementosConectados[elementoOriginalId]) {
-                window.elementosConectados[elementoOriginalId] = {
-                    datos: datosElemento,
-                    marcador: nuevoMarcador
-                };
-            } else {
-                // IMPORTANTE: Preservar datos de identidad al actualizar
-                window.elementosConectados[elementoOriginalId].datos = {
-                    ...window.elementosConectados[elementoOriginalId].datos,
-                    ...datosElemento,
-                    // Mantener explícitamente estos campos críticos
-                    id: elementoOriginalId,
-                    usuario: usuarioOriginal,
-                    usuarioId: jugadorOriginal,
-                    jugadorId: jugadorOriginal,
-                    jugador: jugadorOriginal,
-                    creador: jugadorOriginal
-                };
-                window.elementosConectados[elementoOriginalId].marcador = nuevoMarcador;
-            }
-            
-            // Sincronizar con MAIRA central
-            if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
-                window.MAIRA.GestionBatalla.elementosConectados[elementoOriginalId] = window.elementosConectados[elementoOriginalId];
-            }
-            
-            // Si es el propio usuario, actualizar elementoTrabajo global
-            if (jugadorOriginal === window.usuarioInfo?.id) {
-                // Actualizar elementoTrabajo
-                window.elementoTrabajo = {
-                    ...window.elementoTrabajo,
-                    sidc: nuevoSidc,
-                    designacion: designacion,
-                    dependencia: dependencia,
-                    magnitud: !esEquipoActual ? magnitud : undefined
-                };
-                
-                // Guardar en localStorage de forma segura
-                try {
-                    localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
-                    
-                    // Actualizar referencia en MAIRA
-                    if (window.MAIRA && window.MAIRA.GestionBatalla) {
-                        window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
-                    }
-                } catch (error) {
-                    console.error("Error al guardar elementoTrabajo:", error);
-                }
-            }
-            
-            // Guardar todos los elementos en localStorage para persistencia
-            if (typeof window.guardarElementosEnLocalStorage === 'function') {
-                window.guardarElementosEnLocalStorage();
-            }
-        }
-        
-        // Cerrar panel
-        if (typeof window.cerrarPanelEdicion === 'function') {
-            window.cerrarPanelEdicion('panelEdicionUnidad');
-        }
-        
-        // Enviar al servidor usando la función global
-        console.log("Enviando elemento actualizado al servidor (con datos de identidad preservados)");
-        let enviado = false;
-        
-        if (typeof window.enviarElementoAlServidor === 'function') {
-            enviado = window.enviarElementoAlServidor(nuevoMarcador);
-        }
-        
-        // Actualizar elemento en la lista visual
-        if (typeof window.actualizarIconoEnLista === 'function') {
-            window.actualizarIconoEnLista(elementoOriginalId, nuevoSidc);
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Error al guardar cambios:', error);
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar cambios: " + error.message, "error");
-        }
-        
-        return false;
-    }
-}
-
-function cargarYCrearMarcadoresDesdeLocalStorage() {
-    console.log("🔄 Cargando elementos desde localStorage y creando marcadores");
-    
-    try {
-        const elementosGuardados = localStorage.getItem('elementos_conectados');
-        if (!elementosGuardados) {
-            console.log("📭 No hay elementos guardados en localStorage");
-            return 0;
-        }
-        
-        const elementosParsed = JSON.parse(elementosGuardados);
-        console.log(`📥 Encontrados ${Object.keys(elementosParsed).length} elementos en localStorage`);
-        
-        // Eliminar elementos inválidos
-        const elementosValidos = {};
-        Object.entries(elementosParsed).forEach(([id, elem]) => {
-            if (elem && elem.datos && elem.datos.id) {
-                elementosValidos[id] = elem;
-            }
-        });
-        
-        // Actualizar elementosConectados
-        let contadorNuevos = 0;
-        let contadorActualizados = 0;
-        
-        Object.entries(elementosValidos).forEach(([id, elem]) => {
-            if (!elementosConectados[id]) {
-                // Elemento nuevo
-                elementosConectados[id] = {
-                    datos: elem.datos,
-                    marcador: null
-                };
-                contadorNuevos++;
-            } else {
-                // Elemento existente, actualizar datos
-                elementosConectados[id].datos = {
-                    ...elementosConectados[id].datos,
-                    ...elem.datos
-                };
-                contadorActualizados++;
-            }
-            
-            // Crear marcador si tiene posición y no tiene ya uno
-            if (elem.datos.posicion && 
-                elem.datos.posicion.lat && 
-                elem.datos.posicion.lng && 
-                !elementosConectados[id].marcador) {
-                
-                console.log(`🔄 Creando marcador para elemento ${id} desde localStorage`);
-                try {
-                    elementosConectados[id].marcador = crearMarcadorElemento(elem.datos);
-                } catch (e) {
-                    console.error(`❌ Error al crear marcador para ${id}:`, e);
-                }
-            }
-            
-            // También actualizar en la lista visual
-            agregarElementoALista(elem.datos);
-        });
-        
-        console.log(`✅ Proceso completado: ${contadorNuevos} nuevos, ${contadorActualizados} actualizados`);
-        return contadorNuevos + contadorActualizados;
-    } catch (e) {
-        console.error("❌ Error al cargar elementos desde localStorage:", e);
-        return 0;
-    }
-}
-
-
-// 2. Función auxiliar para guardar elementos en localStorage
-function guardarElementosEnLocalStorage() {
-    try {
-        // Obtener operación actual
-        const operacionActual = window.MAIRA?.GestionBatalla?.operacionActual || 
-                               window.operacionActual || 
-                               'general';
-        
-        // Verificar si hay elementos para guardar
-        if (!window.elementosConectados || Object.keys(window.elementosConectados).length === 0) {
-            console.warn("⚠️ No hay elementos válidos para guardar en localStorage");
-            return false;
-        }
-        
-        // Preparar objeto para guardar (solo datos relevantes, evitando referencias circulares)
-        const elementosParaGuardar = {};
-        
-        Object.entries(window.elementosConectados).forEach(([id, elem]) => {
-            if (elem && elem.datos) {
-                // Crear copia limpia sin referencias a objetos DOM o Leaflet
-                const datosLimpios = {
-                    id: elem.datos.id || id,
-                    sidc: elem.datos.sidc || elem.datos.elemento?.sidc || '',
-                    designacion: elem.datos.designacion || elem.datos.elemento?.designacion || '',
-                    dependencia: elem.datos.dependencia || elem.datos.elemento?.dependencia || '',
-                    magnitud: elem.datos.magnitud || elem.datos.elemento?.magnitud || '',
-                    // CRÍTICO: Mantener todos los campos de identidad
-                    usuario: elem.datos.usuario || '',
-                    usuarioId: elem.datos.usuarioId || elem.datos.jugadorId || '',
-                    jugador: elem.datos.jugador || elem.datos.usuarioId || '',
-                    jugadorId: elem.datos.jugadorId || elem.datos.usuarioId || '',
-                    creador: elem.datos.creador || elem.datos.usuarioId || '',
-                    operacion: operacionActual,
-                    timestamp: elem.datos.timestamp || new Date().toISOString(),
-                    conectado: elem.datos.conectado || true
-                };
-                
-                // Añadir posición si existe (solo los campos numéricos)
-                if (elem.datos.posicion) {
-                    datosLimpios.posicion = {
-                        lat: elem.datos.posicion.lat,
-                        lng: elem.datos.posicion.lng,
-                        precision: elem.datos.posicion.precision || 10,
-                        rumbo: elem.datos.posicion.rumbo || 0,
-                        velocidad: elem.datos.posicion.velocidad || 0
-                    };
-                }
-                
-                // Recrear estructura elemento si existía (solo campos simples)
-                if (elem.datos.elemento) {
-                    datosLimpios.elemento = {
-                        sidc: datosLimpios.sidc,
-                        designacion: datosLimpios.designacion,
-                        dependencia: datosLimpios.dependencia,
-                        magnitud: datosLimpios.magnitud
-                    };
-                }
-                
-                // Guardar solo los datos, NUNCA el marcador (evita referencias circulares)
-                elementosParaGuardar[id] = { 
-                    datos: datosLimpios
-                };
-            }
-        });
-        
-        // Verificar que no está vacío
-        if (Object.keys(elementosParaGuardar).length === 0) {
-            console.warn("⚠️ No hay elementos válidos para guardar en localStorage");
-            return false;
-        }
-        
-        // Convertir a JSON con manejo de error
-        try {
-            const jsonString = JSON.stringify(elementosParaGuardar);
-            
-            // Guardar con prefijo de operación
-            localStorage.setItem(`elementos_conectados_${operacionActual}`, jsonString);
-            // Mantener versión general para compatibilidad
-            localStorage.setItem('elementos_conectados', jsonString);
-            
-            console.log(`✅ Guardados ${Object.keys(elementosParaGuardar).length} elementos para operación ${operacionActual} en localStorage`);
-            
-            // Marcar operación activa
-            localStorage.setItem('en_operacion_gb', 'true');
-            return true;
-        } catch (jsonError) {
-            console.error("❌ Error al convertir a JSON:", jsonError);
-            
-            // Intento de recuperación - eliminar propiedades problemáticas y reintentar
-            for (const id in elementosParaGuardar) {
-                // Eliminar cualquier propiedad que pueda contener referencias circulares
-                delete elementosParaGuardar[id].datos.marcador;
-                delete elementosParaGuardar[id].datos.textoMarcador;
-                delete elementosParaGuardar[id].datos.textoAsociado;
-                delete elementosParaGuardar[id].datos._events;
-                delete elementosParaGuardar[id].datos._eventParents;
-                delete elementosParaGuardar[id].datos._layers;
-            }
-            
-            // Reintentar sin propiedades problemáticas
-            try {
-                const jsonStringRetry = JSON.stringify(elementosParaGuardar);
-                localStorage.setItem(`elementos_conectados_${operacionActual}`, jsonStringRetry);
-                localStorage.setItem('elementos_conectados', jsonStringRetry);
-                console.log(`✅ Guardados ${Object.keys(elementosParaGuardar).length} elementos (versión simplificada) en localStorage`);
-                return true;
-            } catch (retryError) {
-                console.error("❌ Error en segundo intento de guardar:", retryError);
-                return false;
-            }
-        }
-    } catch (error) {
-        console.error("❌ Error al guardar elementos en localStorage:", error);
-        return false;
-    }
-}
 
 
 
-window.enviarElementoAlServidor = function(elemento) {
-    console.log("🔄 Procesando envío de elemento al servidor:", elemento);
-    
-    // Buscar el socket utilizando todas las rutas posibles
-    let socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-    
-    if (!socket || !socket.connected) {
-        console.error("❌ No hay conexión de socket disponible");
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error: No hay conexión con el servidor", "error");
-        }
-        
-        // Guardar localmente aunque no haya conexión
-        guardarElementosEnLocalStorage();
-        return false;
-    }
-    
-    try {
-        // Obtener datos del usuario actual
-        const idUsuarioActual = 
-            elemento.options?.usuarioId || 
-            elemento.options?.jugadorId || 
-            window.usuarioInfo?.id || 
-            (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
-        
-        // Obtener el nombre de usuario actual
-        const nombreUsuarioActual = 
-            elemento.options?.usuario || 
-            window.usuarioInfo?.usuario || 
-            'Usuario';
-        
-        // Obtener operación actual
-        const operacionActual = 
-            window.operacionActual || 
-            window.MAIRA?.GestionBatalla?.operacionActual || 
-            'general';
-        
-        // IMPORTANTE: Mantener todos los identificadores de usuario consistentes
-        // para evitar duplicaciones
-        const datosElemento = {
-            // Datos de identificación - CRÍTICOS para evitar duplicados
-            id: elemento.options.id || idUsuarioActual || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            usuario: nombreUsuarioActual,
-            usuarioId: idUsuarioActual,
-            jugadorId: idUsuarioActual,
-            jugador: idUsuarioActual,
-            creador: idUsuarioActual,
-            
-            // Datos del elemento
-            sidc: elemento.options.sidc || 'SFGPUCI-----',
-            designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
-            dependencia: elemento.options.dependencia || '',
-            magnitud: elemento.options.magnitud || '-',
-            coordenadas: elemento.getLatLng(),
-            tipo: elemento.options.tipo || 'unidad',
-            operacion: operacionActual,
-            timestamp: new Date().toISOString(),
-            posicion: {
-                lat: elemento.getLatLng().lat,
-                lng: elemento.getLatLng().lng,
-                precision: 10,
-                rumbo: elemento.options.rumbo || 0,
-                velocidad: 0
-            },
-            elemento: {
-                sidc: elemento.options.sidc || 'SFGPUCI-----',
-                designacion: elemento.options.designacion || elemento.options.nombre || '',
-                dependencia: elemento.options.dependencia || '',
-                magnitud: elemento.options.magnitud || '-'
-            },
-            conectado: true
-        };
-        
-        console.log("📤 Enviando elemento al servidor (todos los identificadores consistentes):", datosElemento);
-        
-        // IMPORTANTE: Enviar a través de múltiples eventos para asegurar compatibilidad
-        socket.emit('actualizarElemento', datosElemento);
-        socket.emit('nuevoElemento', datosElemento);
-        socket.emit('anunciarElemento', datosElemento);
-        socket.emit('actualizarPosicionGB', datosElemento);
-        
-        // Actualizar estructura local - asegurarnos de guardar la referencia al marcador
-        if (window.elementosConectados) {
-            if (!window.elementosConectados[datosElemento.id]) {
-                window.elementosConectados[datosElemento.id] = {
-                    datos: datosElemento,
-                    marcador: elemento
-                };
-            } else {
-                // IMPORTANTE: Preservar el usuario y los IDs al actualizar
-                const datosActualizados = {
-                    ...window.elementosConectados[datosElemento.id].datos,
-                    ...datosElemento,
-                    // Mantener explícitamente estos campos críticos
-                    id: datosElemento.id,
-                    usuario: datosElemento.usuario,
-                    usuarioId: datosElemento.usuarioId,
-                    jugadorId: datosElemento.jugadorId,
-                    jugador: datosElemento.jugador
-                };
-                
-                window.elementosConectados[datosElemento.id].datos = datosActualizados;
-                window.elementosConectados[datosElemento.id].marcador = elemento;
-            }
-        }
-        
-        // Sincronizar con MAIRA central
-        if (window.MAIRA && window.MAIRA.GestionBatalla) {
-            if (!window.MAIRA.GestionBatalla.elementosConectados) {
-                window.MAIRA.GestionBatalla.elementosConectados = {};
-            }
-            window.MAIRA.GestionBatalla.elementosConectados[datosElemento.id] = 
-                window.elementosConectados[datosElemento.id];
-        }
-        
-        // Guardar en localStorage para persistencia
-        try {
-            guardarElementosEnLocalStorage();
-            console.log("✅ Elementos guardados en localStorage con IDs consistentes");
-        } catch (e) {
-            console.error("❌ Error al guardar en localStorage:", e);
-        }
-        
-        // Si es el elemento propio, actualizar elementoTrabajo
-        if (idUsuarioActual === window.usuarioInfo?.id) {
-            window.elementoTrabajo = {
-                ...window.elementoTrabajo,
-                sidc: datosElemento.sidc,
-                designacion: datosElemento.designacion,
-                dependencia: datosElemento.dependencia,
-                magnitud: datosElemento.magnitud
-            };
-            
-            localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
-            
-            // Actualizar también en MAIRA central
-            if (window.MAIRA && window.MAIRA.GestionBatalla) {
-                window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
-            }
-        }
-        
-        // Mostrar notificación al usuario
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Elemento actualizado correctamente", "success");
-        }
-        
-        return true;
-    } catch (error) {
-        console.error("❌ Error enviando elemento:", error);
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar el elemento", "error");
-        }
-        
-        return false;
-    }
-};
+
+
+
+
+
+
+
 
 
 function configurarEventoReconexion() {
@@ -1303,7 +1003,7 @@ function configurarEventoReconexion() {
             console.log("📡 Reconectado al servidor, sincronizando elementos");
             
             // Primero cargar y crear marcadores desde localStorage
-            cargarYCrearMarcadoresDesdeLocalStorage();
+            cargarElementosDesdeDB();
             
             // Esperar un momento para que la conexión se estabilice
             setTimeout(() => {
@@ -1321,106 +1021,125 @@ function configurarEventoReconexion() {
 
 
 
+/**
+ * Updates the icon in the elements list for an element with the specified ID and SIDC
+ * @param {string} elementoId - ID of the element to update
+ * @param {string} sidc - New SIDC (Symbol Identification Code) for the element
+ */
 function actualizarIconoEnLista(elementoId, sidc) {
     console.log(`Actualizando icono en lista para elemento ${elementoId} con SIDC ${sidc}`);
     
-    // Buscar el elemento en la lista
-    const elementoItem = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
+    // If element doesn't exist in the list, it might need to be created first
+    let elementoItem = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
+    
+    // If element not found in the list but exists in elementosConectados, create it
+    if (!elementoItem && window.elementosConectados && window.elementosConectados[elementoId]) {
+        console.log(`Elemento no encontrado en la lista visual. Creando elemento para ${elementoId}`);
+        
+        // Get the container for the elements list
+        const listaElementos = document.getElementById('lista-elementos');
+        if (!listaElementos) {
+            console.error("Container 'lista-elementos' not found");
+            return;
+        }
+        
+        // Create a new element item
+        const elementoData = window.elementosConectados[elementoId].datos;
+        elementoItem = document.createElement('div');
+        elementoItem.className = 'elemento-item';
+        elementoItem.setAttribute('data-id', elementoId);
+        
+        // Determine connected status
+        const estadoConexion = elementoData.conectado === false ? 'desconectado' : 'conectado';
+        
+        // Get element information
+        const nombreUsuario = elementoData.usuario || 'Usuario';
+        const designacion = elementoData.designacion || elementoData.elemento?.designacion || 'Elemento';
+        const dependencia = elementoData.dependencia || elementoData.elemento?.dependencia || '';
+        
+        // Generate simple empty placeholder for now, we'll update the icon right after
+        elementoItem.innerHTML = `
+            <div class="elemento-icon">
+                <div class="sidc-preview"></div>
+            </div>
+            <div class="elemento-info">
+                <div class="elemento-nombre">${designacion}${dependencia ? '/' + dependencia : ''}</div>
+                <div class="elemento-usuario">${nombreUsuario}</div>
+            </div>
+            <div class="elemento-estado">
+                <span class="estado-conexion ${estadoConexion}" title="${estadoConexion}">
+                    ${estadoConexion === 'conectado' ? '●' : '○'}
+                </span>
+            </div>
+        `;
+        
+        // Add click event to select the element
+        elementoItem.addEventListener('click', function() {
+            if (typeof window.seleccionarElementoEnLista === 'function') {
+                window.seleccionarElementoEnLista(elementoId);
+            } else if (typeof window.MAIRA?.Elementos?.seleccionarElementoEnLista === 'function') {
+                window.MAIRA.Elementos.seleccionarElementoEnLista(elementoId);
+            }
+        });
+        
+        // Add to the list
+        listaElementos.appendChild(elementoItem);
+        console.log(`Elemento visual creado para ${elementoId}`);
+    }
+    
+    // Try again to find the element after possibly creating it
     if (!elementoItem) {
-        console.warn(`No se encontró elemento visual para ID ${elementoId}`);
+        elementoItem = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
+    }
+    
+    // If still not found, abort
+    if (!elementoItem) {
+        console.warn(`No se pudo encontrar ni crear elemento visual para ID ${elementoId}`);
         return;
     }
     
-    // Buscar el contenedor del icono
+    // Find the icon container
     const iconContainer = elementoItem.querySelector('.sidc-preview');
     if (!iconContainer) {
-        console.warn("No se encontró contenedor para el icono");
+        console.warn("No se encontró contenedor para el icono '.sidc-preview'");
         return;
     }
     
     try {
-        // Generar nuevo icono
-        if (typeof ms !== 'undefined') {
+        // Generate new icon using milsymbol library
+        if (typeof ms !== 'undefined' && typeof ms.Symbol === 'function') {
             const sym = new ms.Symbol(sidc, {size: 20});
             iconContainer.innerHTML = sym.asSVG();
-            console.log("✅ Icono actualizado en la lista");
+            console.log(`✅ Icono actualizado en la lista para SIDC ${sidc}`);
         } else {
             console.warn("Biblioteca milsymbol no disponible");
+            // Fallback - use a simple colored box
+            iconContainer.innerHTML = `<div style="width:20px;height:20px;background-color:#3388ff;border-radius:3px;"></div>`;
         }
         
-        // También actualizar otros datos si es necesario
+        // Also update other data if needed
         const nombreElement = elementoItem.querySelector('.elemento-nombre');
         if (nombreElement && window.elementosConectados && window.elementosConectados[elementoId]) {
             const elementoData = window.elementosConectados[elementoId].datos;
-            if (elementoData && elementoData.elemento) {
-                const designacion = elementoData.elemento.designacion || '';
-                const dependencia = elementoData.elemento.dependencia || '';
-                nombreElement.textContent = designacion || (dependencia ? `/${dependencia}` : '') || 'Sin nombre';
+            if (elementoData) {
+                // Format name correctly
+                const designacion = elementoData.designacion || elementoData.elemento?.designacion || '';
+                const dependencia = elementoData.dependencia || elementoData.elemento?.dependencia || '';
+                nombreElement.textContent = designacion + (dependencia ? '/' + dependencia : '');
             }
         }
     } catch (e) {
         console.error("Error al actualizar icono en lista:", e);
     }
+    
+    // Make sure the element is visible
+    elementoItem.style.display = '';
 }
 
+// Make it available globally
+window.actualizarIconoEnLista = actualizarIconoEnLista;
 
-function guardarCambiosEquipoGB() {
-    if (!elementoSeleccionadoGB) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return false;
-    }
 
-    try {
-        const nuevoSidc = obtenerSIDCActualEquipo();
-        const designacion = document.getElementById('designacionGB').value;
-        const dependencia = document.getElementById('dependenciaGB').value;
-        const posicionActual = elementoSeleccionadoGB.getLatLng();
-        
-        // Validar datos
-        if (!designacion || !dependencia) {
-            window.MAIRA.Utils.mostrarNotificacion(
-                'Designación y dependencia son obligatorios',
-                'error'
-            );
-            return false;
-        }
-
-        const datosActualizados = {
-            id: elementoSeleccionadoGB.options.id,
-            sidc: nuevoSidc,
-            tipo: obtenerTipoDeElemento(nuevoSidc),
-            designacion: designacion,
-            dependencia: dependencia,
-            posicion: posicionActual,
-            operacion: window.MAIRA?.GestionBatalla?.operacionActual
-        };
-
-        // Actualizar marcador localmente
-        actualizarIconoGB(elementoSeleccionadoGB, datosActualizados);
-
-        // Emitir al servidor
-        if (window.socket?.connected) {
-            socket.emit('actualizarElementoGB', {
-                ...datosActualizados,
-                origen: 'edicion'
-            });
-        }
-
-        // Cerrar modal
-        $('#modalEdicionGB').modal('hide');
-
-        // Notificar éxito
-        window.MAIRA.Utils.mostrarNotificacion(
-            'Cambios guardados correctamente',
-            'success'
-        );
-
-        return true;
-    } catch (error) {
-        console.error('Error al guardar cambios:', error);
-        return false;
-    }
-}
 
 // Función auxiliar para actualizar el icono
 function actualizarIconoGB(elemento, datos) {
@@ -1447,158 +1166,7 @@ function actualizarIconoGB(elemento, datos) {
     actualizarEtiquetaGB(elemento);
 }
 
-window.enviarElementoAlServidor = function(elemento) {
-    console.log("🔄 Procesando envío de elemento al servidor:", elemento);
-    
-    // Buscar el socket
-    let socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-    
-    if (!socket || !socket.connected) {
-        console.error("❌ No hay conexión de socket disponible");
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error: No hay conexión con el servidor", "error");
-        }
-        
-        // NUEVO: Guardar en localStorage aún sin conexión
-        const datosParaGuardar = prepararDatosElemento(elemento);
-        guardarElementoLocalStorage(datosParaGuardar);
-        
-        return false;
-    }
-    
-    try {
-        // Obtener datos del usuario actual
-        const idUsuarioActual = 
-            elemento.options?.usuarioId || 
-            elemento.options?.jugadorId || 
-            window.usuarioInfo?.id || 
-            (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
-        
-        // Obtener operación actual
-        const operacionActual = 
-            window.operacionActual || 
-            window.MAIRA?.GestionBatalla?.operacionActual || 
-            'general';
-        
-        // Preparar datos completos
-        const datosElemento = {
-            id: elemento.options.id || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            sidc: elemento.options.sidc || 'SFGPUCI-----',
-            designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
-            dependencia: elemento.options.dependencia || '',
-            magnitud: elemento.options.magnitud || '-',
-            coordenadas: elemento.getLatLng(),
-            tipo: elemento.options.tipo || 'unidad',
-            usuario: elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario',
-            usuarioId: idUsuarioActual,
-            jugadorId: idUsuarioActual, // Para compatibilidad
-            operacion: operacionActual,
-            timestamp: new Date().toISOString(),
-            posicion: {
-                lat: elemento.getLatLng().lat,
-                lng: elemento.getLatLng().lng,
-                precision: 10,
-                rumbo: elemento.options.rumbo || 0,
-                velocidad: 0
-            },
-            elemento: {
-                sidc: elemento.options.sidc || 'SFGPUCI-----',
-                designacion: elemento.options.designacion || elemento.options.nombre || '',
-                dependencia: elemento.options.dependencia || '',
-                magnitud: elemento.options.magnitud || '-'
-            },
-            conectado: true
-        };
-        
-        console.log("📤 Enviando elemento al servidor:", datosElemento);
-        
-        // SOLUCIÓN IMPORTANTE: Enviar a través de múltiples eventos para asegurar compatibilidad
-        socket.emit('actualizarElemento', datosElemento);
-        socket.emit('nuevoElemento', datosElemento);
-        socket.emit('anunciarElemento', datosElemento);
-        socket.emit('actualizarPosicionGB', datosElemento);
-        
-        // IMPORTANTE: Enviar mensaje de servidor para notificar a todos sobre el cambio
-        const mensajeSistema = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-            usuario: 'Sistema',
-            mensaje: `${datosElemento.usuario} ha actualizado un elemento: ${datosElemento.designacion || datosElemento.elemento?.designacion || ''}`,
-            tipo: 'sistema',
-            sala: operacionActual,
-            timestamp: new Date().toISOString(),
-            emisor: {
-                id: idUsuarioActual,
-                nombre: datosElemento.usuario,
-                elemento: datosElemento.elemento
-            }
-        };
-        socket.emit('mensajeChat', mensajeSistema);
-        
-        // Si es el elemento de trabajo del usuario actual, actualizar localmente
-        if (idUsuarioActual === window.usuarioInfo?.id) {
-            // Actualizar elementoTrabajo
-            window.elementoTrabajo = {
-                ...window.elementoTrabajo,
-                sidc: datosElemento.sidc,
-                designacion: datosElemento.designacion,
-                dependencia: datosElemento.dependencia,
-                magnitud: datosElemento.magnitud
-            };
-            
-            // Guardar en localStorage
-            localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
-            
-            // Actualizar referencia en MAIRA
-            if (window.MAIRA && window.MAIRA.GestionBatalla) {
-                window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
-            }
-            
-            console.log("✅ elementoTrabajo actualizado y guardado en localStorage:", window.elementoTrabajo);
-        }
-        
-        // Actualizar estructura local de elementos conectados
-        console.log("🔄 Actualizando elemento localmente");
-        actualizarElementoConectadoLocal(datosElemento, elemento);
-        
-        // Mensaje de broadcast para notificar a todos
-        const mensajeInfo = {
-            usuario: 'Sistema',
-            mensaje: `${window.usuarioInfo?.usuario || 'Usuario'} ha actualizado un elemento`,
-            tipo: 'sistema',
-            sala: operacionActual,
-            timestamp: new Date().toISOString()
-        };
-        socket.emit('mensajeChat', mensajeInfo);
-        
-        // Mostrar notificación al usuario
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Elemento actualizado correctamente", "success");
-        }
-        
-        // NUEVO: Forzar múltiples sincronizaciones con distintos intervalos
-        setTimeout(() => {
-            if (typeof window.forzarSincronizacionElementos === 'function') {
-                console.log("Forzando primera sincronización (500ms)");
-                window.forzarSincronizacionElementos();
-            }
-        }, 500);
-        
-        setTimeout(() => {
-            if (typeof window.forzarSincronizacionElementos === 'function') {
-                console.log("Forzando segunda sincronización (2s)");
-                window.forzarSincronizacionElementos();
-            }
-        }, 2000);
-        
-        return true;
-    } catch (error) {
-        console.error("❌ Error enviando elemento:", error);
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar el elemento", "error");
-        }
-        return false;
-    }
-};
+
 
 // Función auxiliar para preparar datos de elemento
 function prepararDatosElemento(elemento) {
@@ -1817,96 +1385,6 @@ function mostrarPanelEdicionMCC(elemento, tipo) {
     };
 }
 
-function guardarCambiosMCC(elemento, tipo) {
-    let nuevoTexto = document.getElementById('textoMCC').value;
-    let nuevoColor = document.getElementById('colorMCC').value;
-    let nuevoAncho = parseInt(document.getElementById('anchoMCC').value);
-    let nuevoTipoLinea = document.getElementById('tipoLineaMCC').value;
-
-    // Actualizar propiedades del elemento
-    elemento.setStyle({
-        color: nuevoColor,
-        weight: nuevoAncho,
-        dashArray: nuevoTipoLinea === 'dashed' ? '5,5' : null
-    });
-
-    if (tipo === 'poligono') {
-        let nuevoRelleno = document.getElementById('tipoRellenoMCC').value;
-        let nuevoColorRelleno = document.getElementById('colorRellenoMCC').value;
-        aplicarRelleno(elemento, nuevoRelleno, nuevoColorRelleno);
-    }
-
-    // Actualizar directamente el textoMarcador si existe
-    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
-        const divTexto = elemento.textoMarcador._icon.querySelector('div');
-        if (divTexto) {
-            divTexto.textContent = nuevoTexto;
-            // Actualizar también las propiedades
-            elemento.options.nombre = nuevoTexto;
-            elemento.nombre = nuevoTexto;
-        }
-    } 
-    // Si no existe textoMarcador pero sí textoAsociado, eliminarlo y crear textoMarcador
-    else if (elemento.textoAsociado) {
-        calcoActivo.removeLayer(elemento.textoAsociado);
-        elemento.textoAsociado = null;
-        
-        // Crear nuevo textoMarcador con las propiedades correctas
-        let posicion;
-        if (tipo === 'poligono') {
-            posicion = elemento.getBounds().getCenter();
-        } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
-            const latlngs = elemento.getLatLngs();
-            posicion = latlngs[Math.floor(latlngs.length / 2)];
-        } else {
-            posicion = elemento.getLatLng();
-        }
-        
-        elemento.textoMarcador = L.marker(posicion, {
-            icon: L.divIcon({
-                className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
-                html: `<div style="color: black;">${nuevoTexto}</div>`,
-                iconSize: [100, 20]
-            }),
-            draggable: true,
-            interactive: true
-        }).addTo(calcoActivo);
-        
-        // Actualizar propiedades
-        elemento.options.nombre = nuevoTexto;
-        elemento.nombre = nuevoTexto;
-    }
-    // Si no existe ninguno, crear textoMarcador
-    else if (nuevoTexto.trim() !== '') {
-        let posicion;
-        if (tipo === 'poligono') {
-            posicion = elemento.getBounds().getCenter();
-        } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
-            const latlngs = elemento.getLatLngs();
-            posicion = latlngs[Math.floor(latlngs.length / 2)];
-        } else {
-            posicion = elemento.getLatLng();
-        }
-        
-        elemento.textoMarcador = L.marker(posicion, {
-            icon: L.divIcon({
-                className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
-                html: `<div style="color: black;">${nuevoTexto}</div>`,
-                iconSize: [100, 20]
-            }),
-            draggable: true,
-            interactive: true
-        }).addTo(calcoActivo);
-        
-        // Actualizar propiedades
-        elemento.options.nombre = nuevoTexto;
-        elemento.nombre = nuevoTexto;
-    }
-
-    cerrarPanelEdicion('panelEdicionMCC');
-    console.log('Cambios MCC guardados');
-}
-
 /**
  * Muestra el panel de edición de línea
  * @param {Object} elemento - El elemento de línea a editar
@@ -1958,59 +1436,7 @@ function mostrarPanelEdicionLinea(elemento) {
     document.getElementById('tipoLinea').value = (elemento.options?.dashArray || elemento.tipo === 'dashed') ? 'dashed' : 'solid';
 }
 
-function guardarCambiosLinea() {
-    if (!elementoSeleccionadoGB) return;
-    
-    // Obtener los nuevos valores
-    const nuevoNombre = document.getElementById('nombreLinea').value;
-    const nuevoColor = document.getElementById('colorLinea').value;
-    const nuevoAncho = parseInt(document.getElementById('anchoLinea').value);
-    const nuevoDashArray = document.getElementById('tipoLinea').value === 'dashed' ? '5, 5' : null;
-    
-    console.log("Guardando cambios, nuevo nombre:", nuevoNombre);
-    
-    // Actualizar propiedades del elemento
-    elementoSeleccionadoGB.options = elementoSeleccionadoGB.options || {};
-    elementoSeleccionadoGB.options.nombre = nuevoNombre;
-    elementoSeleccionadoGB.options.color = nuevoColor;
-    elementoSeleccionadoGB.options.weight = nuevoAncho;
-    elementoSeleccionadoGB.options.dashArray = nuevoDashArray;
-    
-    // También actualizar propiedades directas
-    elementoSeleccionadoGB.nombre = nuevoNombre;
-    elementoSeleccionadoGB.color = nuevoColor;
-    elementoSeleccionadoGB.ancho = nuevoAncho;
-    elementoSeleccionadoGB.tipo = document.getElementById('tipoLinea').value;
-    
-    // Aplicar estilo visual
-    elementoSeleccionadoGB.setStyle({
-        color: nuevoColor,
-        weight: nuevoAncho,
-        dashArray: nuevoDashArray
-    });
-    
-    // IMPORTANTE: Actualizar SOLO el textoMarcador existente, NO llamar a actualizarTextoElemento
-    if (elementoSeleccionadoGB.textoMarcador && elementoSeleccionadoGB.textoMarcador._icon) {
-        const divTexto = elementoSeleccionadoGB.textoMarcador._icon.querySelector('div');
-        if (divTexto) {
-            console.log("Actualizando texto directamente:", nuevoNombre);
-            divTexto.textContent = nuevoNombre;
-        }
-    }
-    
-    // Eliminar cualquier textoAsociado que pudiera existir
-    if (elementoSeleccionadoGB.textoAsociado) {
-        console.log("Eliminando textoAsociado duplicado");
-        try {
-            calcoActivo.removeLayer(elementoSeleccionadoGB.textoAsociado);
-            elementoSeleccionadoGB.textoAsociado = null;
-        } catch (e) {
-            console.error("Error al eliminar textoAsociado:", e);
-        }
-    }
-    
-    cerrarPanelEdicion('panelEdicionLinea');
-}
+
 
 function crearNuevoTextoMarcador(elemento, texto) {
     // Calcular posición adecuada
@@ -2464,33 +1890,33 @@ function openTab(evt, tabName) {
 
 // Inicialización cuando el DOM está completamente cargado
 document.addEventListener('DOMContentLoaded', function() {
+    // Configurar eventos base
     inicializarSelectores();
-
-    document.getElementById('arma').addEventListener('change', function() {
+    
+    // Configurar eventos de elementos de formulario
+    document.getElementById('arma')?.addEventListener('change', function() {
         actualizarTipos(this.value);
     });
-
-    document.getElementById('tipo').addEventListener('change', function() {
+    
+    document.getElementById('tipo')?.addEventListener('change', function() {
         actualizarCaracteristicas(document.getElementById('arma').value, this.value);
     });
-
-    ['afiliacion', 'estado', 'arma', 'tipo', 'caracteristica', 'magnitud', 'puestoComando', 'fuerzaTarea', 'reforzado', 'disminuido', 'designacion', 'dependencia'].forEach(function(id) {
-        document.getElementById(id).addEventListener('change', actualizarPreviewSimbolo);
+    
+    // Configurar botones de guardar
+    document.getElementById('guardarCambiosUnidad')?.addEventListener('click', guardarCambiosUnidadGB);
+    document.getElementById('guardarCambiosEquipo')?.addEventListener('click', guardarCambiosEquipoGB);
+    document.getElementById('guardarCambiosLinea')?.addEventListener('click', guardarCambiosLinea);
+    
+    // Configurar eventos para actualizar previews
+    ['afiliacion', 'estado', 'arma', 'tipo', 'caracteristica', 'magnitud', 'puestoComando', 'fuerzaTarea', 'designacion', 'dependencia'].forEach(function(id) {
+        document.getElementById(id)?.addEventListener('change', actualizarPreviewSimbolo);
+        document.getElementById(id)?.addEventListener('input', actualizarPreviewSimbolo);
     });
-
-    document.getElementById('guardarCambiosUnidad').addEventListener('click', guardarCambiosUnidad);
-    document.getElementById('guardarCambiosEquipo').addEventListener('click', guardarCambiosEquipo);
-    document.getElementById('guardarCambiosLinea').addEventListener('click', guardarCambiosLinea);
-
-    // Añadir listeners para los botones de cerrar paneles
-    ['panelEdicionUnidad', 'panelEdicionEquipo', 'panelEdicionLinea', 'panelEdicionMCC'].forEach(function(panelId) {
-        var cerrarBtn = document.getElementById('cerrar' + panelId.charAt(0).toUpperCase() + panelId.slice(1));
-        if (cerrarBtn) {
-            cerrarBtn.addEventListener('click', function() {
-                cerrarPanelEdicion(panelId);
-            });
-        }
-    });
+    
+    // Configurar evento para Lista de Elementos
+    configurarEventoListaElementos();
+    
+    console.log("✅ Eventos de edicionGB inicializados con integración a BD");
 });
 
 function editarelementoSeleccionadoGB() {
@@ -2566,7 +1992,933 @@ function verificarElementosAntesDeEnviarListo() {
     return elementos.length > 0;
 }
 
-// Usar esta función justo antes de enviar el estado "listo" al servidor
+
+
+// Modificar la función guardarCambiosEquipoGB
+function guardarCambiosEquipoGB() {
+    if (!elementoSeleccionadoGB) {
+        console.warn('No hay elemento seleccionado para guardar cambios');
+        return false;
+    }
+
+    try {
+        const nuevoSidc = obtenerSIDCActualEquipo();
+        const designacion = document.getElementById('designacionEquipo').value;
+        const dependencia = document.getElementById('asignacionEquipo').value;
+        const posicionActual = elementoSeleccionadoGB.getLatLng();
+        
+        // Validar datos
+        if (!designacion && !dependencia) {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion(
+                    'Designación o asignación son obligatorios',
+                    'error'
+                );
+            }
+            return false;
+        }
+
+        // Preservar identificadores originales
+        const elementoId = elementoSeleccionadoGB.options.id;
+        const jugadorId = elementoSeleccionadoGB.options.jugador || elementoSeleccionadoGB.options.jugadorId || window.usuarioInfo?.id;
+        const usuarioNombre = elementoSeleccionadoGB.options.usuario || window.usuarioInfo?.usuario || 'Usuario';
+        
+        // Datos completos del elemento
+        const datosActualizados = {
+            id: elementoId,
+            sidc: nuevoSidc,
+            tipo: obtenerTipoDeElemento(nuevoSidc),
+            designacion: designacion,
+            dependencia: dependencia,
+            posicion: {
+                lat: posicionActual.lat,
+                lng: posicionActual.lng,
+                precision: 10
+            },
+            elemento: {
+                sidc: nuevoSidc,
+                designacion: designacion,
+                dependencia: dependencia
+            },
+            usuario: usuarioNombre,
+            usuarioId: jugadorId,
+            jugador: jugadorId,
+            jugadorId: jugadorId,
+            operacion: window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual || 'general',
+            timestamp: new Date().toISOString(),
+            conectado: true
+        };
+
+        // Actualizar visualmente
+        const sym = new ms.Symbol(nuevoSidc, {
+            size: 35,
+            uniqueDesignation: designacion
+        });
+
+        const icon = L.divIcon({
+            className: 'simbolo-militar',
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        });
+
+        // Actualizar propiedades del marcador
+        elementoSeleccionadoGB.setIcon(icon);
+        elementoSeleccionadoGB.options.sidc = nuevoSidc;
+        elementoSeleccionadoGB.options.designacion = designacion;
+        elementoSeleccionadoGB.options.dependencia = dependencia;
+
+        // Actualizar etiqueta
+        if (typeof actualizarEtiquetaEquipo === 'function') {
+            actualizarEtiquetaEquipo(elementoSeleccionadoGB);
+        }
+
+        // Actualizar elementosConectados
+        if (window.elementosConectados && elementosConectados[elementoId]) {
+            elementosConectados[elementoId].datos = {
+                ...elementosConectados[elementoId].datos,
+                ...datosActualizados
+            };
+        }
+
+        // MODIFICACIÓN PRINCIPAL: Guardar en la BD usando Socket.IO
+        const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+        if (socket && socket.connected) {
+            // Enviar actualización al servidor
+            socket.emit('guardarElementoDB', datosActualizados);
+            
+            // Notificar a todos los clientes
+            socket.emit('elementoActualizado', datosActualizados);
+            
+            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
+                MAIRA.Utils.mostrarNotificacion("Equipo guardado en base de datos", "success");
+            }
+        } else {
+            console.warn("No hay conexión con el servidor. Guardando solo localmente.");
+            
+            // Guardar en localStorage como fallback
+            if (typeof window.guardarElementosEnDB === 'function') {
+                window.guardarElementosEnDB();
+            } else if (typeof window.guardarElementosEnLocalStorage === 'function') {
+                window.guardarElementosEnLocalStorage();
+            }
+            
+            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
+                MAIRA.Utils.mostrarNotificacion("Equipo guardado localmente (sin conexión)", "warning");
+            }
+        }
+
+        // Cerrar panel
+        cerrarPanelEdicion('panelEdicionEquipo');
+
+        return true;
+    } catch (error) {
+        console.error('Error al guardar cambios de equipo:', error);
+        
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error al guardar equipo: " + error.message, "error");
+        }
+        
+        return false;
+    }
+}
+
+// Modificar la función guardarCambiosLinea
+function guardarCambiosLinea() {
+    if (!elementoSeleccionadoGB) {
+        console.warn('No hay elemento seleccionado para guardar cambios');
+        return false;
+    }
+    
+    try {
+        // Obtener los nuevos valores
+        const nuevoNombre = document.getElementById('nombreLinea').value;
+        const nuevoColor = document.getElementById('colorLinea').value;
+        const nuevoAncho = parseInt(document.getElementById('anchoLinea').value);
+        const nuevoDashArray = document.getElementById('tipoLinea').value === 'dashed' ? '5, 5' : null;
+        
+        console.log("Guardando cambios de línea, nuevo nombre:", nuevoNombre);
+        
+        // Identificadores originales
+        const elementoId = elementoSeleccionadoGB.options?.id || elementoSeleccionadoGB._leaflet_id;
+        const creadorId = elementoSeleccionadoGB.options?.creador || elementoSeleccionadoGB.options?.jugador || window.usuarioInfo?.id;
+        const usuarioNombre = elementoSeleccionadoGB.options?.usuario || window.usuarioInfo?.usuario || 'Usuario';
+        
+        // Actualizar propiedades del elemento
+        elementoSeleccionadoGB.options = elementoSeleccionadoGB.options || {};
+        elementoSeleccionadoGB.options.nombre = nuevoNombre;
+        elementoSeleccionadoGB.options.color = nuevoColor;
+        elementoSeleccionadoGB.options.weight = nuevoAncho;
+        elementoSeleccionadoGB.options.dashArray = nuevoDashArray;
+        
+        // También actualizar propiedades directas
+        elementoSeleccionadoGB.nombre = nuevoNombre;
+        elementoSeleccionadoGB.color = nuevoColor;
+        elementoSeleccionadoGB.ancho = nuevoAncho;
+        elementoSeleccionadoGB.tipo = document.getElementById('tipoLinea').value;
+        
+        // Aplicar estilo visual
+        elementoSeleccionadoGB.setStyle({
+            color: nuevoColor,
+            weight: nuevoAncho,
+            dashArray: nuevoDashArray
+        });
+        
+        // Actualizar SOLO el textoMarcador existente
+        if (elementoSeleccionadoGB.textoMarcador && elementoSeleccionadoGB.textoMarcador._icon) {
+            const divTexto = elementoSeleccionadoGB.textoMarcador._icon.querySelector('div');
+            if (divTexto) {
+                console.log("Actualizando texto directamente:", nuevoNombre);
+                divTexto.textContent = nuevoNombre;
+            }
+        }
+        
+        // Eliminar cualquier textoAsociado que pudiera existir
+        if (elementoSeleccionadoGB.textoAsociado) {
+            console.log("Eliminando textoAsociado duplicado");
+            try {
+                calcoActivo.removeLayer(elementoSeleccionadoGB.textoAsociado);
+                elementoSeleccionadoGB.textoAsociado = null;
+            } catch (e) {
+                console.error("Error al eliminar textoAsociado:", e);
+            }
+        }
+        
+        // MODIFICACIÓN PRINCIPAL: Guardar en base de datos
+        // Preparar datos para guardar
+        const latlngs = elementoSeleccionadoGB.getLatLngs();
+        const puntos = Array.isArray(latlngs[0]) 
+            ? latlngs.map(arr => arr.map(p => [p.lat, p.lng])) 
+            : latlngs.map(p => [p.lat, p.lng]);
+        
+        const datosLinea = {
+            id: elementoId,
+            tipo: 'linea',
+            nombre: nuevoNombre,
+            color: nuevoColor,
+            ancho: nuevoAncho,
+            estilo: document.getElementById('tipoLinea').value,
+            puntos: puntos,
+            creador: creadorId,
+            usuario: usuarioNombre,
+            usuarioId: creadorId,
+            operacion: window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual || 'general',
+            timestamp: new Date().toISOString()
+        };
+        
+        const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+        if (socket && socket.connected) {
+            // Guardar la línea usando un evento específico o genérico
+            socket.emit('guardarLinea', datosLinea);
+            
+            // O usar el evento más genérico
+            socket.emit('guardarElementoDB', {
+                ...datosLinea,
+                tipo_elemento: 'linea'
+            });
+            
+            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
+                MAIRA.Utils.mostrarNotificacion("Línea guardada en base de datos", "success");
+            }
+        } else {
+            console.warn("No hay conexión con el servidor. Guardando solo localmente.");
+            
+            // Guardar en localStorage como fallback - adaptar para líneas
+            try {
+                const elementosGuardados = JSON.parse(localStorage.getItem('lineas_guardadas') || '{}');
+                elementosGuardados[elementoId] = datosLinea;
+                localStorage.setItem('lineas_guardadas', JSON.stringify(elementosGuardados));
+                
+                if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
+                    MAIRA.Utils.mostrarNotificacion("Línea guardada localmente (sin conexión)", "warning");
+                }
+            } catch (e) {
+                console.error("Error al guardar línea en localStorage:", e);
+            }
+        }
+        
+        cerrarPanelEdicion('panelEdicionLinea');
+        return true;
+    } catch (error) {
+        console.error("Error al guardar cambios de línea:", error);
+        
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error al guardar línea: " + error.message, "error");
+        }
+        
+        return false;
+    }
+}
+
+// Modificar la función guardarCambiosMCC para guardar en BD
+function guardarCambiosMCC(elemento, tipo) {
+    try {
+        let nuevoTexto = document.getElementById('textoMCC').value;
+        let nuevoColor = document.getElementById('colorMCC').value;
+        let nuevoAncho = parseInt(document.getElementById('anchoMCC').value);
+        let nuevoTipoLinea = document.getElementById('tipoLineaMCC').value;
+
+        // Actualizar propiedades del elemento
+        elemento.setStyle({
+            color: nuevoColor,
+            weight: nuevoAncho,
+            dashArray: nuevoTipoLinea === 'dashed' ? '5,5' : null
+        });
+
+        if (tipo === 'poligono') {
+            let nuevoRelleno = document.getElementById('tipoRellenoMCC').value;
+            let nuevoColorRelleno = document.getElementById('colorRellenoMCC').value;
+            aplicarRelleno(elemento, nuevoRelleno, nuevoColorRelleno);
+        }
+
+        // Actualizar directamente el textoMarcador si existe
+        if (elemento.textoMarcador && elemento.textoMarcador._icon) {
+            const divTexto = elemento.textoMarcador._icon.querySelector('div');
+            if (divTexto) {
+                divTexto.textContent = nuevoTexto;
+                // Actualizar también las propiedades
+                elemento.options.nombre = nuevoTexto;
+                elemento.nombre = nuevoTexto;
+            }
+        } 
+        // Si no existe textoMarcador pero sí textoAsociado, eliminarlo y crear textoMarcador
+        else if (elemento.textoAsociado) {
+            calcoActivo.removeLayer(elemento.textoAsociado);
+            elemento.textoAsociado = null;
+            
+            // Crear nuevo textoMarcador con las propiedades correctas
+            let posicion;
+            if (tipo === 'poligono') {
+                posicion = elemento.getBounds().getCenter();
+            } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
+                const latlngs = elemento.getLatLngs();
+                posicion = latlngs[Math.floor(latlngs.length / 2)];
+            } else {
+                posicion = elemento.getLatLng();
+            }
+            
+            elemento.textoMarcador = L.marker(posicion, {
+                icon: L.divIcon({
+                    className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
+                    html: `<div style="color: black;">${nuevoTexto}</div>`,
+                    iconSize: [100, 20]
+                }),
+                draggable: true,
+                interactive: true
+            }).addTo(calcoActivo);
+            
+            // Actualizar propiedades
+            elemento.options.nombre = nuevoTexto;
+            elemento.nombre = nuevoTexto;
+        }
+        // Si no existe ninguno, crear textoMarcador
+        else if (nuevoTexto.trim() !== '') {
+            let posicion;
+            if (tipo === 'poligono') {
+                posicion = elemento.getBounds().getCenter();
+            } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
+                const latlngs = elemento.getLatLngs();
+                posicion = latlngs[Math.floor(latlngs.length / 2)];
+            } else {
+                posicion = elemento.getLatLng();
+            }
+            
+            elemento.textoMarcador = L.marker(posicion, {
+                icon: L.divIcon({
+                    className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
+                    html: `<div style="color: black;">${nuevoTexto}</div>`,
+                    iconSize: [100, 20]
+                }),
+                draggable: true,
+                interactive: true
+            }).addTo(calcoActivo);
+            
+            // Actualizar propiedades
+            elemento.options.nombre = nuevoTexto;
+            elemento.nombre = nuevoTexto;
+        }
+
+        // MODIFICACIÓN PRINCIPAL: Guardar en base de datos
+        const elementoId = elemento.options?.id || elemento._leaflet_id;
+        const creadorId = elemento.options?.creador || elemento.options?.jugador || window.usuarioInfo?.id;
+        const usuarioNombre = elemento.options?.usuario || window.usuarioInfo?.usuario || 'Usuario';
+        
+        // Preparar datos para guardar según tipo
+        let datosMCC = {
+            id: elementoId,
+            tipo_elemento: tipo,
+            nombre: nuevoTexto,
+            color: nuevoColor,
+            ancho: nuevoAncho,
+            estilo: nuevoTipoLinea,
+            creador: creadorId,
+            usuario: usuarioNombre,
+            usuarioId: creadorId,
+            operacion: window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual || 'general',
+            timestamp: new Date().toISOString()
+        };
+        
+        // Añadir datos específicos según tipo
+        if (tipo === 'poligono') {
+            const coords = elemento.getLatLngs();
+            datosMCC.puntos = Array.isArray(coords[0]) 
+                ? coords.map(ring => ring.map(p => [p.lat, p.lng]))
+                : coords.map(p => [p.lat, p.lng]);
+            
+            datosMCC.tipoRelleno = document.getElementById('tipoRellenoMCC').value;
+            datosMCC.colorRelleno = document.getElementById('colorRellenoMCC').value;
+        } else {
+            const coords = elemento.getLatLngs();
+            datosMCC.puntos = Array.isArray(coords[0]) 
+                ? coords.map(arr => arr.map(p => [p.lat, p.lng])) 
+                : coords.map(p => [p.lat, p.lng]);
+        }
+        
+        const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+        if (socket && socket.connected) {
+            // Guardar usando un evento específico o genérico
+            socket.emit('guardarMCC', datosMCC);
+            
+            // O usar el evento más genérico
+            socket.emit('guardarElementoDB', {
+                ...datosMCC,
+                tipo: datosMCC.tipo_elemento  // Asegurar compatibilidad con evento general
+            });
+            
+            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
+                MAIRA.Utils.mostrarNotificacion(`${tipo} guardado en base de datos`, "success");
+            }
+        } else {
+            console.warn("No hay conexión con el servidor. Guardando solo localmente.");
+            
+            // Guardar en localStorage como fallback
+            try {
+                const elementosGuardados = JSON.parse(localStorage.getItem('mcc_guardados') || '{}');
+                elementosGuardados[elementoId] = datosMCC;
+                localStorage.setItem('mcc_guardados', JSON.stringify(elementosGuardados));
+                
+                if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
+                    MAIRA.Utils.mostrarNotificacion(`${tipo} guardado localmente (sin conexión)`, "warning");
+                }
+            } catch (e) {
+                console.error(`Error al guardar ${tipo} en localStorage:`, e);
+            }
+        }
+
+        cerrarPanelEdicion('panelEdicionMCC');
+        console.log('Cambios MCC guardados');
+        return true;
+    } catch (error) {
+        console.error("Error al guardar cambios MCC:", error);
+        
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error al guardar elemento MCC: " + error.message, "error");
+        }
+        
+        return false;
+    }
+}
+
+// Modificar window.enviarElementoAlServidor para mayor robustez en caso de
+window.enviarElementoAlServidor = function(elemento) {
+    console.log("🔄 Enviando elemento al servidor con integración a BD:", elemento);
+    
+    // Verificar conexión al servidor
+    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+    if (!socket || !socket.connected) {
+        console.error("❌ No hay conexión de socket disponible");
+        
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error: No hay conexión con el servidor", "error");
+        }
+        
+        // Guardar en localStorage como fallback
+        if (typeof window.guardarElementosEnLocalStorage === 'function') {
+            window.guardarElementosEnLocalStorage();
+        }
+        
+        return false;
+    }
+    
+    try {
+        // IMPORTANTE: Asegurar que todos los ID y referencias sean consistentes
+        const idUsuarioActual = 
+            elemento.options?.usuarioId || 
+            elemento.options?.jugadorId || 
+            window.usuarioInfo?.id || 
+            (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
+        
+        const nombreUsuarioActual = 
+            elemento.options?.usuario || 
+            window.usuarioInfo?.usuario || 
+            'Usuario';
+        
+        const operacionActual = 
+            window.operacionActual || 
+            window.MAIRA?.GestionBatalla?.operacionActual || 
+            'general';
+        
+        // Preparar datos completos del elemento
+        const datosElemento = {
+            id: elemento.options.id || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            sidc: elemento.options.sidc || 'SFGPUCI-----',
+            designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
+            dependencia: elemento.options.dependencia || '',
+            magnitud: elemento.options.magnitud || '-',
+            tipo: elemento.options.tipo || obtenerTipoDeElemento(elemento.options.sidc) || 'unidad',
+            usuario: nombreUsuarioActual,
+            usuarioId: idUsuarioActual,
+            jugadorId: idUsuarioActual,  // Mantener para compatibilidad
+            jugador: idUsuarioActual,    // Mantener para compatibilidad
+            creador: idUsuarioActual,    // Mantener para compatibilidad
+            operacion: operacionActual,
+            timestamp: new Date().toISOString(),
+            conectado: true,
+            elemento: {
+                sidc: elemento.options.sidc || 'SFGPUCI-----',
+                designacion: elemento.options.designacion || elemento.options.nombre || '',
+                dependencia: elemento.options.dependencia || '',
+                magnitud: elemento.options.magnitud || '-'
+            }
+        };
+        
+        // Añadir posición si existe
+        if (typeof elemento.getLatLng === 'function') {
+            const pos = elemento.getLatLng();
+            datosElemento.posicion = {
+                lat: pos.lat,
+                lng: pos.lng,
+                precision: 10,
+                rumbo: elemento.options.rumbo || 0,
+                velocidad: 0
+            };
+        }
+        
+        // MODIFICACIÓN PRINCIPAL: Enviar utilizando guardarElementoDB para DB
+        console.log("📤 Enviando elemento a la base de datos:", datosElemento);
+        socket.emit('guardarElementoDB', datosElemento);
+        
+        // También enviar con eventos adicionales para compatibilidad
+        socket.emit('nuevoElemento', datosElemento);
+        socket.emit('anunciarElemento', datosElemento);
+        
+        // Si tiene posición, enviar actualización de posición también
+        if (datosElemento.posicion) {
+            socket.emit('actualizarPosicionGB', datosElemento);
+        }
+        
+        // Actualizar estructura local - elementosConectados
+        if (window.elementosConectados) {
+            if (!window.elementosConectados[datosElemento.id]) {
+                window.elementosConectados[datosElemento.id] = {
+                    datos: datosElemento,
+                    marcador: elemento
+                };
+            } else {
+                // Preservar datos existentes y sobrescribir con nuevos
+                window.elementosConectados[datosElemento.id].datos = {
+                    ...window.elementosConectados[datosElemento.id].datos,
+                    ...datosElemento,
+                    // Asegurar que estos campos se mantengan consistentes
+                    id: datosElemento.id,
+                    usuario: datosElemento.usuario,
+                    usuarioId: datosElemento.usuarioId,
+                    jugadorId: datosElemento.jugadorId
+                };
+                window.elementosConectados[datosElemento.id].marcador = elemento;
+            }
+        }
+        
+        // Sincronizar con MAIRA si está disponible
+        if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
+            window.MAIRA.GestionBatalla.elementosConectados[datosElemento.id] = 
+                window.elementosConectados[datosElemento.id];
+        }
+        
+        // Si es el elemento del usuario actual, actualizar elementoTrabajo
+        if (idUsuarioActual === window.usuarioInfo?.id) {
+            window.elementoTrabajo = {
+                ...window.elementoTrabajo,
+                sidc: datosElemento.sidc,
+                designacion: datosElemento.designacion,
+                dependencia: datosElemento.dependencia,
+                magnitud: datosElemento.magnitud
+            };
+            
+            // Actualizar también en MAIRA central
+            if (window.MAIRA && window.MAIRA.GestionBatalla) {
+                window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
+            }
+        }
+        
+        // Notificar éxito al usuario
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Elemento guardado en base de datos", "success");
+        }
+        
+        return true;
+    } catch (error) {
+        console.error("❌ Error al enviar elemento:", error);
+        
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion("Error al guardar el elemento: " + error.message, "error");
+        }
+        
+        return false;
+    }
+};
+
+/**
+ * Función mejorada para cargar elementos desde DB
+ */
+window.cargarElementosDesdeDB = function() {
+    console.log("🔄 Solicitando elementos desde base de datos");
+    
+    const operacionActual = 
+        window.operacionActual || 
+        window.MAIRA?.GestionBatalla?.operacionActual || 
+        'general';
+    
+    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+    
+    if (!socket || !socket.connected) {
+        console.warn("⚠️ No hay conexión al servidor. Intentando cargar desde localStorage");
+        return cargarElementosDesdeLocalStorage();
+    }
+    
+    // Solicitar elementos al servidor
+    socket.emit('obtenerElementosDB', {
+        operacion: operacionActual
+    });
+    
+    // La respuesta se procesará en el evento 'listaElementos'
+    // Configurar un timeout para fallback si no hay respuesta
+    setTimeout(() => {
+        // Si después de 5 segundos no llegan datos, intentar localStorage
+        if (!window.elementosDBCargados) {
+            console.warn("⏱️ Timeout esperando datos del servidor. Intentando localStorage");
+            cargarElementosDesdeLocalStorage();
+        }
+    }, 5000);
+    
+    return true;
+};
+
+/**
+ * Función de respaldo para cargar desde localStorage
+ */
+function cargarElementosDesdeLocalStorage() {
+    console.log("📂 Cargando elementos desde localStorage como fallback");
+    
+    try {
+        const operacionActual = 
+            window.operacionActual || 
+            window.MAIRA?.GestionBatalla?.operacionActual || 
+            'general';
+        
+        const elementosGuardados = localStorage.getItem(`elementos_conectados_${operacionActual}`);
+        if (!elementosGuardados) {
+            console.log("📭 No hay elementos guardados en localStorage para esta operación");
+            return 0;
+        }
+        
+        const elementosParsed = JSON.parse(elementosGuardados);
+        console.log(`📥 Encontrados ${Object.keys(elementosParsed).length} elementos en localStorage`);
+        
+        // Convertir a formato esperado por procesarElementosRecibidos
+        const elementosArray = Object.values(elementosParsed).map(elem => elem.datos);
+        
+        // Actualizar elementos usando el sistema existente
+        if (typeof window.procesarElementosRecibidos === 'function') {
+            window.procesarElementosRecibidos(elementosArray);
+        } else {
+            console.warn("⚠️ Función procesarElementosRecibidos no disponible");
+            
+            // Fallback: actualizar manualmente
+            elementosArray.forEach(elemento => {
+                if (!window.elementosConectados) window.elementosConectados = {};
+                
+                window.elementosConectados[elemento.id] = {
+                    datos: elemento,
+                    marcador: null
+                };
+                
+                // Crear marcador si hay función disponible
+                if (typeof window.crearMarcadorElemento === 'function' && elemento.posicion) {
+                    window.elementosConectados[elemento.id].marcador = 
+                        window.crearMarcadorElemento(elemento);
+                }
+            });
+        }
+        
+        return elementosArray.length;
+    } catch (e) {
+        console.error("❌ Error al cargar elementos desde localStorage:", e);
+        return 0;
+    }
+}
+
+/**
+ * Evento para escuchar respuestas del servidor con elementos
+ */
+function configurarEventoListaElementos() {
+    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+    
+    if (!socket) {
+        console.warn("⚠️ No se puede configurar evento listaElementos: socket no disponible");
+        return false;
+    }
+    
+    socket.off('listaElementos'); // Evitar duplicados
+    
+    socket.on('listaElementos', function(elementos) {
+        console.log(`📥 Recibidos ${elementos?.length || 0} elementos del servidor`);
+        
+        if (!elementos || !Array.isArray(elementos) || elementos.length === 0) {
+            console.log("📭 No se recibieron elementos válidos del servidor");
+            return;
+        }
+        
+        // Marcar que se recibieron datos
+        window.elementosDBCargados = true;
+        
+        // Procesar elementos usando la función existente
+        if (typeof window.procesarElementosRecibidos === 'function') {
+            window.procesarElementosRecibidos(elementos);
+        } else {
+            console.warn("⚠️ Función procesarElementosRecibidos no disponible");
+            
+            // Fallback: crear estructuras básicas
+            elementos.forEach(elemento => {
+                if (!window.elementosConectados) window.elementosConectados = {};
+                
+                window.elementosConectados[elemento.id] = {
+                    datos: elemento,
+                    marcador: null
+                };
+                
+                // Crear marcador si hay función disponible
+                if (typeof window.crearMarcadorElemento === 'function' && elemento.posicion) {
+                    window.elementosConectados[elemento.id].marcador = 
+                        window.crearMarcadorElemento(elemento);
+                }
+            });
+        }
+        
+        console.log("✅ Elementos cargados desde la base de datos");
+    });
+    
+    return true;
+}
+
+/**
+ * Función auxiliar para limpiar elementos duplicados
+ */
+function limpiarElementosDuplicados() {
+    if (!window.elementosConectados) return;
+    
+    const elementosUnicos = {};
+    const elementosEliminados = [];
+    
+    // Identificar elementos más recientes por ID
+    Object.entries(window.elementosConectados).forEach(([id, elem]) => {
+        if (!elem || !elem.datos) return;
+        
+        // Normalizar ID (algunos pueden tener formatos ligeramente diferentes)
+        const idNormalizado = elem.datos.id || id;
+        
+        // Si es la primera vez que vemos este ID o es más reciente que el anterior
+        if (!elementosUnicos[idNormalizado] || 
+            (elem.datos.timestamp && elementosUnicos[idNormalizado].datos.timestamp &&
+             new Date(elem.datos.timestamp) > new Date(elementosUnicos[idNormalizado].datos.timestamp))) {
+            elementosUnicos[idNormalizado] = elem;
+        } else {
+            elementosEliminados.push(id);
+        }
+    });
+    
+    // Eliminar duplicados
+    elementosEliminados.forEach(id => {
+        if (window.elementosConectados[id]?.marcador) {
+            try {
+                if (window.calcoActivo && window.calcoActivo.hasLayer(window.elementosConectados[id].marcador)) {
+                    window.calcoActivo.removeLayer(window.elementosConectados[id].marcador);
+                } else if (window.mapa && window.mapa.hasLayer(window.elementosConectados[id].marcador)) {
+                    window.mapa.removeLayer(window.elementosConectados[id].marcador);
+                }
+            } catch (e) {
+                console.error(`Error al eliminar marcador ${id}:`, e);
+            }
+        }
+        delete window.elementosConectados[id];
+    });
+    
+    if (elementosEliminados.length > 0) {
+        console.log(`🧹 Se eliminaron ${elementosEliminados.length} elementos duplicados`);
+    }
+    
+    return elementosEliminados.length;
+}
+
+// Auxiliar para integrar con sistemas existentes
+window.forzarSincronizacionElementosConDB = function() {
+    console.log("🔄 Forzando sincronización de elementos con la BD");
+    
+    // 1. Solicitar elementos actuales del servidor
+    window.cargarElementosDesdeDB();
+    
+    // 2. Enviar nuestros elementos al servidor
+    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+    
+    if (!socket || !socket.connected) {
+        console.warn("⚠️ No se puede sincronizar sin conexión al servidor");
+        return false;
+    }
+    
+    // Limpiar duplicados antes de enviar
+    limpiarElementosDuplicados();
+    
+    // Enviar cada elemento al servidor
+    if (window.elementosConectados) {
+        let contador = 0;
+        Object.entries(window.elementosConectados).forEach(([id, elem]) => {
+            if (elem && elem.datos) {
+                socket.emit('guardarElementoDB', elem.datos);
+                contador++;
+            }
+        });
+        
+        console.log(`📤 Enviados ${contador} elementos al servidor para sincronización`);
+        
+        // Notificar al usuario
+        if (window.MAIRA?.Utils?.mostrarNotificacion) {
+            window.MAIRA.Utils.mostrarNotificacion(
+                `Sincronizados ${contador} elementos con la base de datos`, 
+                "success"
+            );
+        }
+    }
+    
+    return true;
+};
+
+// Función para sincronizar tracking con la BD
+window.guardarTrackingEnDB = function(elementoId, puntos) {
+    console.log(`🔄 Guardando tracking para elemento ${elementoId}`);
+    
+    if (!puntos || !Array.isArray(puntos) || puntos.length === 0) {
+        console.warn("⚠️ No hay puntos para guardar");
+        return false;
+    }
+    
+    const operacionActual = 
+        window.operacionActual || 
+        window.MAIRA?.GestionBatalla?.operacionActual || 
+        'general';
+    
+    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+    
+    if (!socket || !socket.connected) {
+        console.warn("⚠️ No hay conexión al servidor para guardar tracking");
+        
+        // Guardar en localStorage como fallback
+        try {
+            const trackingGuardado = JSON.parse(localStorage.getItem(`tracking_${operacionActual}`) || '{}');
+            trackingGuardado[elementoId] = puntos;
+            localStorage.setItem(`tracking_${operacionActual}`, JSON.stringify(trackingGuardado));
+            console.log(`✅ Tracking guardado en localStorage para ${elementoId}`);
+        } catch (e) {
+            console.error("❌ Error al guardar tracking en localStorage:", e);
+        }
+        
+        return false;
+    }
+    
+    // Enviar al servidor
+    socket.emit('guardarTracking', {
+        elementoId: elementoId,
+        operacion: operacionActual,
+        puntos: puntos
+    }, function(respuesta) {
+        if (respuesta && respuesta.success) {
+            console.log(`✅ Tracking guardado en la base de datos para ${elementoId}`);
+        } else if (respuesta && respuesta.error) {
+            console.error(`❌ Error al guardar tracking: ${respuesta.error}`);
+        }
+    });
+    
+    return true;
+};
+
+// Función para cargar tracking desde BD
+window.cargarTrackingDesdeBD = function(elementoId, callback) {
+    console.log(`🔄 Cargando tracking para elemento ${elementoId}`);
+    
+    const operacionActual = 
+        window.operacionActual || 
+        window.MAIRA?.GestionBatalla?.operacionActual || 
+        'general';
+    
+    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
+    
+    if (!socket || !socket.connected) {
+        console.warn("⚠️ No hay conexión al servidor para cargar tracking");
+        
+        // Intentar cargar desde localStorage
+        try {
+            const trackingGuardado = JSON.parse(localStorage.getItem(`tracking_${operacionActual}`) || '{}');
+            const puntos = trackingGuardado[elementoId] || [];
+            console.log(`📂 Tracking cargado desde localStorage para ${elementoId}: ${puntos.length} puntos`);
+            
+            if (typeof callback === 'function') {
+                callback(puntos);
+            }
+            
+            return puntos;
+        } catch (e) {
+            console.error("❌ Error al cargar tracking desde localStorage:", e);
+            
+            if (typeof callback === 'function') {
+                callback([]);
+            }
+            
+            return [];
+        }
+    }
+    
+    // Solicitar al servidor
+    socket.emit('cargarTracking', {
+        elementoId: elementoId,
+        operacion: operacionActual
+    }, function(respuesta) {
+        if (respuesta && respuesta.success) {
+            const puntos = respuesta.puntos || [];
+            console.log(`📂 Tracking cargado desde la base de datos para ${elementoId}: ${puntos.length} puntos`);
+            
+            if (typeof callback === 'function') {
+                callback(puntos);
+            }
+        } else {
+            console.warn(`⚠️ No se pudo cargar el tracking: ${respuesta?.error || 'Error desconocido'}`);
+            
+            if (typeof callback === 'function') {
+                callback([]);
+            }
+        }
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2581,7 +2933,6 @@ window.mostrarPanelEdicionLinea = mostrarPanelEdicionLinea;
 window.guardarCambiosLinea = guardarCambiosLinea;
 window.actualizarEstiloElemento = actualizarEstiloElemento;
 window.mostrarPanelEdicionMCC = mostrarPanelEdicionMCC;
-window.guardarCambiosMCC = guardarCambiosMCC;
 window.editarelementoSeleccionadoGB = editarelementoSeleccionadoGB;
 window.actualizarCampoSIDC = actualizarCampoSIDC;
 window.esEquipo = esEquipo;
@@ -2594,3 +2945,13 @@ window.obtenerPatronRelleno = obtenerPatronRelleno;
 window.aplicarRelleno = aplicarRelleno;
 window.crearTextoMarcador = crearTextoMarcador;
 window.actualizarTextoElemento = actualizarTextoElemento;
+window.guardarCambiosUnidadGB= guardarCambiosUnidadGB;
+window.guardarCambiosEquipoGB = guardarCambiosEquipoGB;
+window.guardarCambiosLinea = guardarCambiosLinea;
+window.guardarCambiosMCC = guardarCambiosMCC;
+window.cargarElementosDesdeDB = cargarElementosDesdeDB;
+window.forzarSincronizacionElementosConDB = forzarSincronizacionElementosConDB;
+window.guardarTrackingEnDB = guardarTrackingEnDB;
+window.cargarTrackingDesdeBD = cargarTrackingDesdeBD;
+window.limpiarElementosDuplicados = limpiarElementosDuplicados;
+window.configurarEventoListaElementos = configurarEventoListaElementos;

@@ -6,6 +6,33 @@ let operacionesActivas = [];
 let operacionSeleccionada = null;
 let usuariosConectados = [];
 
+
+// Inicialización de namespace global
+window.MAIRA = window.MAIRA || {};
+
+// Si se espera que UserIdentity exista
+window.MAIRA.UserIdentity = window.MAIRA.UserIdentity || {
+    // Implementación básica de fallback
+    loadFromStorage: function() { 
+        console.warn("MAIRA.UserIdentity real no está disponible");
+        return null; 
+    },
+    initialize: function(userId, username, elementoTrabajo) {
+        console.warn("MAIRA.UserIdentity real no está disponible");
+        // Almacenar en localStorage como alternativa
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('username', username);
+        if (elementoTrabajo) {
+            localStorage.setItem('elemento_trabajo', JSON.stringify(elementoTrabajo));
+        }
+    },
+    getUserId: function() {
+        return localStorage.getItem('userId');
+    },
+    getUsername: function() {
+        return localStorage.getItem('username') || "Usuario";
+    }
+};
 // Inicialización cuando el DOM está cargado
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Inicializando sala de espera para Gestión de Batalla');
@@ -111,20 +138,20 @@ function configurarEventos() {
  * Carga datos iniciales de localStorage
  */
 function cargarDatosIniciales() {
-    // Intentar recuperar información de usuario
-    const usuarioGuardado = localStorage.getItem('gb_usuario_info');
-    if (usuarioGuardado) {
+    // Intentar recuperar información de usuario desde UserIdentity
+    const usuarioInfo = MAIRA.UserIdentity.loadFromStorage();
+
+    if (usuarioInfo) {
         try {
-            usuarioInfo = JSON.parse(usuarioGuardado);
-            document.getElementById('idUsuarioActual').textContent = usuarioInfo.id;
+            document.getElementById('idUsuarioActual').textContent = usuarioInfo.id || '';
             document.getElementById('nombreUsuario').value = usuarioInfo.usuario || '';
         } catch (error) {
-            console.error('Error al cargar información del usuario:', error);
+            console.error('Error al cargar información del usuario desde UserIdentity:', error);
         }
+    } else {
+        console.warn("No se encontró información de usuario en MAIRA.UserIdentity");
     }
 }
-
-
 
 
 /**
@@ -190,44 +217,6 @@ function verificarYLimpiarDatosAnteriores() {
     }
 }
 
-// Función para limpiar todos los datos huérfanos relacionados con GB
-function limpiarDatosHuerfanos() {
-    // Lista de prefijos de claves que deben limpiarse
-    const prefijosGB = [
-        'elementos_conectados_',
-        'tracking_',
-        'gb_'
-    ];
-    
-    // Recorrer todas las claves de localStorage
-    for (let i = 0; i < localStorage.length; i++) {
-        const clave = localStorage.key(i);
-        
-        // Verificar si la clave comienza con alguno de los prefijos
-        if (prefijosGB.some(prefijo => clave.startsWith(prefijo))) {
-            localStorage.removeItem(clave);
-            console.log(`🗑️ Eliminada clave huérfana: ${clave}`);
-        }
-    }
-    
-    // También eliminar otras claves específicas
-    const clavesEspecificas = [
-        'ultima_posicion',
-        'seguimiento_activo',
-        'tracking_activado',
-        'elemento_trabajo',
-        'en_operacion_gb'
-    ];
-    
-    clavesEspecificas.forEach(clave => {
-        if (localStorage.getItem(clave)) {
-            localStorage.removeItem(clave);
-            console.log(`🗑️ Eliminada clave específica: ${clave}`);
-        }
-    });
-    
-    console.log("✅ Limpieza de datos huérfanos completada");
-}
 
 /**
  * Actualiza la lista de operaciones en la interfaz
@@ -364,82 +353,7 @@ function mostrarDetallesOperacion(operacion) {
     }
 }
 
-/**
- * Crea una nueva operación
- */
-function crearNuevaOperacion() {
-    const nombre = document.getElementById('nombreOperacion').value;
-    const descripcion = document.getElementById('descripcionOperacion').value;
-    
-    if (!nombre) {
-        mostrarError('El nombre de la operación es obligatorio');
-        return;
-    }
-    
-    // Mostrar indicador de carga
-    const botonSubmit = document.querySelector('#nuevaOperacionForm button[type="submit"]');
-    if (botonSubmit) {
-        const textoOriginal = botonSubmit.innerHTML;
-        botonSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando...';
-        botonSubmit.disabled = true;
-        
-        // Restaurar después de 10 segundos como máximo
-        setTimeout(() => {
-            botonSubmit.innerHTML = textoOriginal;
-            botonSubmit.disabled = false;
-        }, 10000);
-    }
-    
-    // Crear objeto de operación
-    const nuevaOperacion = {
-        nombre: nombre,
-        descripcion: descripcion,
-        creador: usuarioInfo ? usuarioInfo.usuario : 'Usuario',
-        fechaCreacion: new Date().toISOString()
-    };
-    
-    console.log("Enviando solicitud de creación:", nuevaOperacion);
-    
-    // Enviar al servidor
-    socket.emit('crearOperacionGB', nuevaOperacion, function(respuesta) {
-        console.log("Respuesta recibida:", respuesta);
-        
-        // Restaurar estado del botón
-        if (botonSubmit) {
-            botonSubmit.innerHTML = 'Crear Operación';
-            botonSubmit.disabled = false;
-        }
-        
-        if (respuesta && respuesta.error) {
-            mostrarError(respuesta.error);
-            return;
-        }
-        
-        mostrarMensajeSistema(`Operación "${nombre}" creada correctamente`);
-        
-        // Extraer la operación de la respuesta
-        let operacionCreada = null;
-        if (respuesta && respuesta.operacion) {
-            operacionCreada = respuesta.operacion;
-        } else {
-            // Estructura alternativa de respuesta
-            operacionCreada = {
-                id: Date.now().toString(),
-                nombre: nombre,
-                descripcion: descripcion,
-                creador: usuarioInfo ? usuarioInfo.usuario : 'Usuario'
-            };
-        }
-        
-        // Actualizar variable global
-        operacionSeleccionada = operacionCreada;
-        
-        // Mostrar panel de configuración de elemento
-        document.getElementById('formCrearOperacion').style.display = 'none';
-        document.getElementById('nombreOperacionSeleccionada').querySelector('span').textContent = nombre;
-        document.getElementById('configuracionElemento').style.display = 'block';
-    });
-}
+
 
 // Simplificar inicializarPreviewSIDC para un elemento básico predeterminado
 // Función actualizada para inicializar el preview con la designación/dependencia a la derecha
@@ -956,6 +870,10 @@ function actualizarEstadoConexion(conectado) {
     window.conectadoAlServidor = conectado;
 }
 
+
+/**
+ * Unirse a una operación existente
+ */
 function unirseOperacionExistente() {
     if (!operacionSeleccionada) {
         mostrarError('No hay operación seleccionada');
@@ -994,10 +912,22 @@ function unirseOperacionExistente() {
         }, 10000);
     }
     
-    // Crear ID único para usuario y elemento
-    const usuarioId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Obtener o generar ID de usuario de forma robusta
+    let usuarioId = null;
     
+    // 1. Intentar obtener de UserIdentity
+    if (window.MAIRA && window.MAIRA.UserIdentity) {
+        usuarioId = window.MAIRA.UserIdentity.getUserId();
+    }
+    
+    // 2. Si no, intentar obtener de localStorage
+    if (!usuarioId) {
+        usuarioId = localStorage.getItem('userId');
+    }
+    
+    
+    // Crear ID único para el elemento
+    const elementoId = usuarioId
     // Crear info de usuario
     usuarioInfo = {
         id: usuarioId,
@@ -1015,10 +945,31 @@ function unirseOperacionExistente() {
         estado: "operativo"
     };
     
-    // Guardar en localStorage
-    localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
-    localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
-    localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionSeleccionada));
+    // Guardar en localStorage usando el módulo UserIdentity
+    if (MAIRA.UserIdentity) {
+        // Inicializar identidad de usuario
+        MAIRA.UserIdentity.initialize(usuarioId, usuario, elementoTrabajo);
+        
+        // Guardar datos adicionales específicos para GB
+        if (typeof MAIRA.UserIdentity.setUsuario === 'function') {
+            MAIRA.UserIdentity.setUsuario(usuarioInfo);
+        } else {
+            // Fallback si la función no existe
+            localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
+        }
+        
+        if (typeof MAIRA.UserIdentity.setOperacion === 'function') {
+            MAIRA.UserIdentity.setOperacion(operacionSeleccionada);
+        } else {
+            // Fallback si la función no existe
+            localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionSeleccionada));
+        }
+    } else {
+        // Guardar de forma estándar usando localStorage directo
+        localStorage.setItem('gb_usuario_info', JSON.stringify(usuarioInfo));
+        localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
+        localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionSeleccionada));
+    }
     
     console.log("Datos a enviar para unirse:", {
         operacion: operacionSeleccionada,
@@ -1047,8 +998,10 @@ function unirseOperacionExistente() {
         
         mostrarMensajeSistema(`Unido correctamente a la operación "${operacionSeleccionada.nombre}"`);
         
+        // Configurar estado de operación activa
+        localStorage.setItem('en_operacion_gb', 'true');
+        
         // Redirigir a página de batalla
-        // IMPORTANTE: Verificar la ruta correcta en tu entorno
         window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
     });
     
@@ -1060,6 +1013,219 @@ function unirseOperacionExistente() {
             window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
         }
     }, 5000);
+}
+
+/**
+ * Carga información desde localStorage
+ * @returns {boolean} - true si se cargó correctamente
+ */
+function cargarInfoDesdeLocalStorage() {
+    try {
+        console.log("Cargando información desde localStorage");
+        
+        // Primero intentar cargar usando UserIdentity
+        if (MAIRA.UserIdentity) {
+            const usuarioObj = MAIRA.UserIdentity.loadFromStorage();
+            
+            if (usuarioObj) {
+                usuarioInfo = {
+                    id: usuarioObj.id,
+                    usuario: usuarioObj.username,
+                    operacion: usuarioObj.operacion
+                };
+                
+                elementoTrabajo = usuarioObj.elementoTrabajo || null;
+                
+                console.log("Información cargada desde UserIdentity:", {
+                    usuario: usuarioInfo,
+                    elemento: elementoTrabajo
+                });
+                
+                // Intentar cargar operación seleccionada
+                const operacionData = localStorage.getItem('gb_operacion_seleccionada');
+                if (operacionData) {
+                    try {
+                        operacionSeleccionada = JSON.parse(operacionData);
+                    } catch (e) {
+                        console.error("Error al parsear operación seleccionada:", e);
+                    }
+                }
+                
+                return true;
+            }
+        }
+        
+        // Si no se pudo cargar desde UserIdentity, usar el método antiguo
+        const usuarioData = localStorage.getItem('gb_usuario_info');
+        const elementoData = localStorage.getItem('gb_elemento_info');
+        const operacionData = localStorage.getItem('gb_operacion_seleccionada');
+
+        // Verificar si hay datos mínimos necesarios
+        if (!usuarioData && !elementoData) {
+            console.log("No hay información guardada en localStorage");
+            return true; // Permitir continuar sin datos previos
+        }
+
+        try {
+            if (usuarioData) {
+                usuarioInfo = JSON.parse(usuarioData);
+            }
+            
+            if (elementoData) {
+                elementoTrabajo = JSON.parse(elementoData);
+            }
+            
+            if (operacionData) {
+                operacionSeleccionada = JSON.parse(operacionData);
+            }
+
+            console.log("Información cargada desde localStorage:", {
+                usuario: usuarioInfo,
+                elemento: elementoTrabajo,
+                operacion: operacionSeleccionada
+            });
+
+            return true;
+        } catch (parseError) {
+            console.error("Error parseando datos:", parseError);
+            return true; // Permitir continuar sin datos previos
+        }
+    } catch (error) {
+        console.error("Error cargando información:", error);
+        return true; // Permitir continuar sin datos previos
+    }
+}
+
+/**
+ * Crea una nueva operación
+ */
+/**
+ * Crea una nueva operación
+ */
+function crearNuevaOperacion() {
+    const nombre = document.getElementById('nombreOperacion').value;
+    const descripcion = document.getElementById('descripcionOperacion').value;
+    
+    if (!nombre) {
+        mostrarError('El nombre de la operación es obligatorio');
+        return;
+    }
+    
+    // Mostrar indicador de carga
+    const botonSubmit = document.querySelector('#nuevaOperacionForm button[type="submit"]');
+    if (botonSubmit) {
+        const textoOriginal = botonSubmit.innerHTML;
+        botonSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creando...';
+        botonSubmit.disabled = true;
+        
+        // Restaurar después de 10 segundos como máximo
+        setTimeout(() => {
+            if (botonSubmit.disabled) {
+                botonSubmit.innerHTML = textoOriginal;
+                botonSubmit.disabled = false;
+            }
+        }, 10000);
+    }
+    
+    // Obtener información del usuario actual de manera robusta
+    let usuarioActual = "Usuario";
+    let usuarioId = null;
+    
+    // 1. Intentar obtener de UserIdentity
+    if (window.MAIRA && window.MAIRA.UserIdentity) {
+        const userData = window.MAIRA.UserIdentity.loadFromStorage();
+        if (userData) {
+            usuarioActual = userData.username;
+            usuarioId = userData.id;
+            console.log('Usuario cargado desde UserIdentity:', usuarioActual, usuarioId);
+        }
+    }
+    
+    // 2. Si no funciona, intentar obtener de localStorage directamente
+    if (!usuarioId) {
+        usuarioId = localStorage.getItem('userId');
+        const usernameFromStorage = localStorage.getItem('username');
+        if (usernameFromStorage) {
+            usuarioActual = usernameFromStorage;
+            console.log('Usuario cargado desde localStorage:', usuarioActual, usuarioId);
+        }
+    }
+    
+    // 3. Si aún no hay usuario, verificar variables globales
+    if (!usuarioId && window.usuarioInfo) {
+        usuarioId = window.usuarioInfo.id;
+        usuarioActual = window.usuarioInfo.usuario || window.usuarioInfo.username;
+        console.log('Usuario cargado desde variables globales:', usuarioActual, usuarioId);
+    }
+    
+    // Crear objeto de operación con toda la información necesaria
+    const nuevaOperacion = {
+        nombre: nombre,
+        descripcion: descripcion,
+        creador: usuarioActual,
+        creadorId: usuarioId,
+        fechaCreacion: new Date().toISOString(),
+        elementos: [], // Array vacío inicial
+        participantes: 0 // Contador inicial
+    };
+    
+    console.log("Enviando solicitud de creación:", nuevaOperacion);
+    
+    // Enviar al servidor
+    socket.emit('crearOperacionGB', nuevaOperacion, function(respuesta) {
+        console.log("Respuesta recibida:", respuesta);
+        
+        // Restaurar estado del botón
+        if (botonSubmit) {
+            botonSubmit.innerHTML = 'Crear Operación';
+            botonSubmit.disabled = false;
+        }
+        
+        if (respuesta && respuesta.error) {
+            mostrarError(respuesta.error);
+            return;
+        }
+        
+        mostrarMensajeSistema(`Operación "${nombre}" creada correctamente`);
+        
+        // Extraer la operación de la respuesta
+        let operacionCreada = null;
+        if (respuesta && respuesta.operacion) {
+            operacionCreada = respuesta.operacion;
+        } else if (respuesta && respuesta.success) {
+            // Si la respuesta es exitosa pero no tiene la operación completa
+            operacionCreada = nuevaOperacion;
+            // Añadir ID si vino en la respuesta
+            if (respuesta.operacionId) {
+                operacionCreada.id = respuesta.operacionId;
+            } else {
+                // Generar un ID único si no hay uno del servidor
+                operacionCreada.id = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            }
+        } else {
+            // Si no hay nada válido, usar la operación original con un ID generado
+            operacionCreada = {
+                ...nuevaOperacion,
+                id: `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+            };
+        }
+        
+        // Actualizar variable global
+        operacionSeleccionada = operacionCreada;
+        
+        // Guardar información en localStorage para GB.js
+        localStorage.setItem('gb_operacion_seleccionada', JSON.stringify(operacionCreada));
+        
+        // Actualizar UserIdentity si está disponible
+        if (window.MAIRA && window.MAIRA.UserIdentity && window.MAIRA.UserIdentity.setOperacion) {
+            window.MAIRA.UserIdentity.setOperacion(operacionCreada);
+        }
+        
+        // Mostrar panel de configuración de elemento
+        document.getElementById('formCrearOperacion').style.display = 'none';
+        document.getElementById('nombreOperacionSeleccionada').querySelector('span').textContent = nombre;
+        document.getElementById('configuracionElemento').style.display = 'block';
+    });
 }
 
 // Añadir a inicioGBhandler.js
