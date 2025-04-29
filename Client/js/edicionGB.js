@@ -1,1950 +1,236 @@
-let panelEdicionActual = null;
-
 /**
- * Estructura SIDC completa (15 posiciones):
- * Pos 1: Esquema de codificación (S)
- * Pos 2: Identidad (F,H,U,N,etc)
- * Pos 3: Dimensión batalla (P,A,G,S,U)
- * Pos 4: Estado (P,A)
- * Pos 5: Función ID 1 (U=Unidad)
- * Pos 6: Función ID 2 (C=Combate)
- * Pos 7: Función ID 3 (I,R,F=Inf,Cab,Art)
- * Pos 8: -
- * Pos 9-10: Modificadores (VA,HE,etc)
- * Pos 11-15: ---
+ * elementosGB.js
+ * Módulo de gestión de elementos en el mapa para Gestión de Batalla en MAIRA
+ * @version 1.0.0
  */
-const unidadesMilitares = {
-    "Armas": {
-        "Infantería": {
-            codigo: "UCI",
-            tipos: {
-                "a Pie": {
-                    codigo: "",
-                    caracteristicas: {
-                        "--": "",                    // S-G-UCI---
-                        "Paracaidista": "A",     // S-G-UCIA--
-                        "De Montaña": "O",          // S-G-UCIO--
-                        "De Asalto Aéreo": "S",     // S-G-UCIS--
-                        "Naval": "N",        // S-G-UCIN--  
-                    }
-                },
-                "Motorizada": {
-                    codigo: "M",
-                    caracteristicas: {
-                        "--": ""                     // S-G-UCIM--
-                    }
-                },
-                "Mecanizada": {
-                    codigo: "Z",
-                    caracteristicas: {
-                        "--":""
-                    }
-                }
-            }
-        },
-        "Caballería": {
-            codigo: "UCR",
-            tipos: {
-                "Exploración": {
-                    codigo: "",
-                    caracteristicas: {
-                        "--": "",                    // S-G-UCR---
-                        "Paracaidista": "A",     // S-G-UCRA--
-                        "De Montaña": "O"           // S-G-UCRO--
-                    }
-                },
-                "Blindada": {
-                    codigo: "VA",                    // S-G-UCRVA-
-                    caracteristicas: {
-                        "--": ""
-                    }
-                }
-            }
-        },
-        "Artillería": {
-            codigo: "UCF",
-            tipos: {
-                "Campaña": {
-                    codigo: "",
-                    caracteristicas: {
-                        "--": "",                    // S-G-UCF---
-                        "De Montaña": "O",          // S-G-UCFO--
-                        "Autopropulsada": "HE",     // S-G-UCFHE-
-                        "Cohetes": "R"              // S-G-UCFR--
-                    }
-                },
-                "Antiaérea": {
-                    codigo: "AD",
-                    caracteristicas: {
-                        "--": "",                    // S-G-UCDM--
-                        "Misiles": "M",             // S-G-UCDML-
-                        "Autopropulsada": "HE"      // S-G-UCDH--
-                    }
-                }
-            }
-        },
-        "Ingenieros": {
-            codigo: "UCE",
-            tipos: {
-                "Combate": {
-                    codigo: "C",
-                    caracteristicas: {
-                        "--": "",                    // S-G-UCE---
-                        "De Montaña": "O",          // S-G-UCEO--
-                        "Paracaidista": "A",   
-                        "Mecanizado": "Z",          // S-G-UCEZ--
-                        "Asalto Aéreo": "S"         // S-G-UCES--
-                    }
-                },
-                "Construcción": {
-                    codigo: "N",                    // Construction
-                    caracteristicas: {
-                        "--": ""                    // S-G-UCEN--
-                    }
-                }
-            }
-        },
-        "Comunicaciones": {
-                    codigo: "UUS",
-                    tipos: {
-                        "General": {
-                            codigo: "",
-                            caracteristicas: {
-                                "--": "",                    // S-G-UUS---
-                                "Área": "A",               // S-G-UUSA--
-                                "Radio": "R",              // S-G-UUSR--
-                                "Centro": "C",             // S-G-UUSC--
-                                "Satélite": "RS",           // S-G-UUSRS-
-                                "Soporte": "S"              // S-G-UUSS--
-                            }
-                        }
-                    }
-                },
-        "Defensa Antiaérea": {
-            codigo: "UCD",
-            tipos: {
-                "Misiles": {
-                    codigo: "M",
-                    caracteristicas: {
-                        "--": "",                    // S-G-UCDM--
-                        "Ligero": "L",              // S-G-UCDML-
-                        "Pesado": "H"               // S-G-UCDMH-
-                    }
-                },
-                "Cañones": {
-                    codigo: "G",
-                    caracteristicas: {
-                        "--": ""                     // S-G-UCDG--
-                    }
-                }
-            }
+
+// Namespace principal
+window.MAIRA = window.MAIRA || {};
+
+// Módulo de elementos
+MAIRA.Elementos = (function() {
+    // Variables privadas
+    let socket = null;
+    let usuarioInfo = null;
+    let operacionActual = "";
+    let elemento
+    let elementoTrabajo = null;
+    let elementosConectados = {};
+    let elementoSeleccionado = null;
+    let marcadorUsuario = null;
+    let ultimaPosicion = null;
+    let siguiendoElemento = null;
+    let seguimientoActivo = false;
+    let intervaloSeguimientoElemento = null;
+    // Sistema de tracking para elementos
+    let trackingActivado = false;
+    let trackingIntervalos = {};
+    let trackHistorial = {}; // Almacena historial de posiciones
+
+    /**
+     * Inicializa el módulo de elementos
+     * @param {Object} config - Configuración del módulo
+     */
+    // Añadir esto al inicio del módulo MAIRA.Elementos, dentro de la función inicializar
+    function inicializar(config) {
+        console.log("Inicializando módulo de elementos");
+        
+        // Validar configuración requerida
+        if (!config) {
+            console.error("No se proporcionó configuración para inicializar el módulo");
+            return false;
         }
-    },
-            "Servicios": {
-            "Sanidad": {  // S-G-USM---
-                codigo: "USM",
-                tipos: {
-                    "General": {
-                        codigo: "",
-                        caracteristicas: {
-                            "--": "",                    // S-G-USM---
-                            "Veterinaria": "V",         // S-G-USMV--
-                            "Dental": "D",              // S-G-USMD--
-                            "Psicológico": "P"          // S-G-USMP--
-                        }
-                    },
-                }
-            },
-            
-            "Abastecimiento": {  // S-G-USS---
-                codigo: "USS",
-                tipos: {
-                    "General": {
-                        codigo: "",
-                        caracteristicas: {
-                            "--": "",                    // S-G-USS---
-                            "Clase I": "1",             // S-G-USS1--
-                            "Clase II": "2",            // S-G-USS2--
-                            "Clase III": "3",           // S-G-USS3--
-                            "Clase V": "5"              // S-G-USS5--
-                        }
-                    },
-                    
-                }
-            },
-            "Transporte": {  // S-G-UST---
-                codigo: "UST", 
-                tipos: {
-                    "General": {
-                        codigo: "",
-                        caracteristicas: {
-                            "--": "",                    // S-G-UST---
-                            "Motorizado": "M",          // S-G-USTMO-
-                            "Ferroviario": "R",         // S-G-USTR--
-                            "Naval": "S",               // S-G-USTS--
-                            "Aéreo": "A"                // S-G-USTA--
-                        }
-                    }
-                }
-            },
-            "Personal": {  // S-G-USA---
-                codigo: "USA",
-                tipos: {
-                    "General": {
-                        codigo: "",
-                        caracteristicas: {
-                            "--": "",                    // S-G-USA---
-                            "Teatro": "T",               // S-G-USAT--
-                            "Postal": "O",              // S-G-USAO--
-                            "Mortuorio": "M",           // S-G-USAM--
-                            "Religioso": "R"            // S-G-USAR--
-                        }
-                    }
-                }
-            },
-            "Inteligencia": {
-                codigo: "UUM",
-                tipos: {
-                        "General": {
-                            codigo: "",
-                            caracteristicas: {
-                                "--": "",                    // S-G-UUM---
-                                "Señales": "S",             // S-G-UUMS--
-                                "Guerra Electrónica": "SE",  // S-G-UUMSE-
-                                "Contrainteligencia": "C",   // S-G-UUMC--
-                                "Radar": "RG",              // S-G-UUMRG-
-                                "Meteorológica": "MO"       // S-G-UUMMO-
-                            }
-                        }
-                    }
-                },    
-                "QBN": {  // Nuclear, Biológico, Químico
-                    codigo: "UUA",
-                    tipos: {
-                        "General": {
-                            codigo: "",
-                            caracteristicas: {
-                                "--": "",                    // S-G-UUA---
-                                "Químico": "C",             // S-G-UUAC--
-                                "Nuclear": "N",             // S-G-UUAN--
-                                "Biológico": "B",           // S-G-UUAB--
-                                "Descontaminación": "D"     // S-G-UUAD--
-                            }
-                        }
-                    }
-                },    
-                "Policía Militar": {
-                    codigo: "UUL",
-                    tipos: {
-                        "General": {
-                            codigo: "",
-                            caracteristicas: {
-                                "--": "",                    // S-G-UUL---
-                                "Criminal": "C",            // S-G-UULC--
-                                "Seguridad": "S"            // S-G-UULS--
-                            }
-                        }
-                    }
-                },
-                
-                    "Topográfico": {
-                        codigo: "UUT",
-                        tipos: {
-                            "General": {
-                                codigo: "",
-                                caracteristicas: {
-                                    "--": "",                    // S-G-UUT---
-                                    "Teatro": "T",               // S-G-UUTT--
-                                    "Cuerpo": "C"               // S-G-UUTC--
-                                }
-                            }
-                        }
-                    }
-                
-            }
-        
-    };
-
-
-function actualizarTipos(categoriaArma) {
-    const [categoria, arma] = categoriaArma.split('|');
-    const tipoSelect = document.getElementById('tipo');
-    tipoSelect.innerHTML = '';
-    const tipos = unidadesMilitares[categoria][arma].tipos;
-    Object.keys(tipos).forEach(tipo => {
-        let option = document.createElement('option');
-        option.value = tipo;
-        option.textContent = tipo;
-        tipoSelect.appendChild(option);
-    });
-    actualizarCaracteristicas(categoriaArma, Object.keys(tipos)[0]);
-}
-
-function actualizarCaracteristicas(categoriaArma, tipo) {
-    const [categoria, arma] = categoriaArma.split('|');
-    const caracteristicaSelect = document.getElementById('caracteristica');
-    caracteristicaSelect.innerHTML = '';
-    const caracteristicas = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas;
-    Object.keys(caracteristicas).forEach(caract => {
-        let option = document.createElement('option');
-        option.value = caract;
-        option.textContent = caract;
-        caracteristicaSelect.appendChild(option);
-    });
-}
-
-function mostrarPanelEdicion(panelId) {
-    console.log(`Intentando mostrar panel: ${panelId}`);
-    cerrarTodosPaneles();
-    const panel = document.getElementById(panelId);
-    if (panel) {
-        panel.style.display = 'block';
-        panel.classList.add('show');
-        console.log(`Panel ${panelId} mostrado`);
-        
-        // Log de estilos específicos
-        const styles = window.getComputedStyle(panel);
-        console.log(`Estilos de ${panelId}:`, {
-            display: styles.display,
-            position: styles.position,
-            top: styles.top,
-            right: styles.right,
-            zIndex: styles.zIndex,
-            backgroundColor: styles.backgroundColor,
-            visibility: styles.visibility,
-            opacity: styles.opacity
-        });
-    } else {
-        console.error(`Panel ${panelId} no encontrado`);
-    }
-}
-
-function mostrarPanelEdicionUnidad(elemento) {
-    console.log("Mostrando panel de edición de unidad");
-    mostrarPanelEdicion('panelEdicionUnidad');
     
-    if (elemento?.options?.sidc) {
-        const sidc = elemento.options.sidc;
-        const tipoUnidad = determinarTipoUnidad(sidc);
-        
-        document.getElementById('afiliacion').value = sidc.charAt(1);
-        document.getElementById('estado').value = sidc.charAt(3);
-        
-        if (tipoUnidad.categoria && tipoUnidad.arma) {
-            document.getElementById('arma').value = `${tipoUnidad.categoria}|${tipoUnidad.arma}`;
-            actualizarTipos(`${tipoUnidad.categoria}|${tipoUnidad.arma}`);
-            document.getElementById('tipo').value = tipoUnidad.tipo;
-            actualizarCaracteristicas(`${tipoUnidad.categoria}|${tipoUnidad.arma}`, tipoUnidad.tipo);
-            document.getElementById('caracteristica').value = tipoUnidad.caracteristica;
-        }
-        
-        document.getElementById('magnitud').value = sidc.charAt(11) || '-';
-        document.getElementById('puestoComando').checked = ['A', 'D'].includes(sidc.charAt(10));
-        document.getElementById('fuerzaTarea').checked = ['E', 'D'].includes(sidc.charAt(10));
-        document.getElementById('designacion').value = elemento.options.designacion || '';
-        document.getElementById('dependencia').value = elemento.options.dependencia || '';
-    }
-    
-    actualizarPreviewSimbolo();
-}
-
-function mostrarPanelEdicionEquipo(elemento) {
-    console.log("Mostrando panel de edición de equipo");
-    mostrarPanelEdicion('panelEdicionEquipo');
-    
-    if (elemento?.options?.sidc) {
-        document.getElementById('afiliacionEquipo').value = elemento.options.sidc.charAt(1);
-        document.getElementById('designacionEquipo').value = elemento.options.designacion || '';
-        document.getElementById('asignacionEquipo').value = elemento.options.dependencia || '';
-    }
-    
-    actualizarPreviewSimboloEquipo();
-}
-
-
-function actualizarCampoSIDC(id, valor) {
-    const campo = document.getElementById(id);
-    if (campo) campo.value = valor || '';
-}
-
-function determinarTipoUnidad(sidc) {
-    const codigoUnidad = sidc.substr(4, 6);
-    for (const [categoria, armas] of Object.entries(unidadesMilitares)) {
-        for (const [arma, detalles] of Object.entries(armas)) {
-            if (codigoUnidad.startsWith(detalles.codigo)) {
-                const restoCodigo = codigoUnidad.substr(detalles.codigo.length);
-                for (const [tipo, tipoDetalles] of Object.entries(detalles.tipos)) {
-                    if (restoCodigo.startsWith(tipoDetalles.codigo)) {
-                        const caracteristica = restoCodigo.substr(tipoDetalles.codigo.length, 1);
-                        for (const [caract, caractCodigo] of Object.entries(tipoDetalles.caracteristicas)) {
-                            if (caractCodigo === caracteristica) {
-                                return { categoria, arma, tipo, caracteristica: caract };
-                            }
-                        }
-                        return { categoria, arma, tipo, caracteristica: "Normal" };
-                    }
-                }
-                return { categoria, arma, tipo: "Básica", caracteristica: "Normal" };
-            }
-        }
-    }
-    return { categoria: "Desconocido", arma: "Desconocido", tipo: "Desconocido", caracteristica: "Desconocido" };
-}
-
-function obtenerSIDCActual() {
-    if (!elementoSeleccionadoGB?.options?.sidc) return '';
-
-    let sidc = elementoSeleccionadoGB.options.sidc;
-    const afiliacion = document.getElementById('afiliacion')?.value || 'F';
-    const estado = document.getElementById('estado')?.value || 'P';
-    
-    // Safely get and validate category and arm
-    const armaSelect = document.getElementById('arma');
-    if (!armaSelect || !armaSelect.value || !armaSelect.value.includes('|')) {
-        console.warn("Invalid 'arma' value or element not found:", armaSelect?.value);
-        return sidc; // Return original SIDC to avoid errors
-    }
-    
-    const [categoria, arma] = armaSelect.value.split('|');
-    
-    // Validate that category and arm exist in unidadesMilitares
-    if (!unidadesMilitares[categoria] || !unidadesMilitares[categoria][arma]) {
-        console.error(`Category '${categoria}' or arm '${arma}' not found in unidadesMilitares`);
-        return sidc; // Return original SIDC to avoid errors
-    }
-    
-    const tipo = document.getElementById('tipo')?.value || '';
-    const caracteristica = document.getElementById('caracteristica')?.value || '';
-    const magnitud = document.getElementById('magnitud')?.value || '-';
-
-    console.log("Construyendo SIDC:", {
-        sidc_original: sidc,
-        afiliacion,
-        estado,
-        categoria,
-        arma,
-        tipo,
-        caracteristica,
-        magnitud
-    });
-
-    // Get codes with safety checks
-    const codigoArma = unidadesMilitares[categoria][arma]?.codigo || '';
-    
-    // Also safely check tipo and caracteristica
-    if (!unidadesMilitares[categoria][arma].tipos[tipo]) {
-        console.warn(`Type '${tipo}' not found for arm '${arma}'`);
-        return sidc;
-    }
-    
-    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo]?.codigo || '';
-    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas[caracteristica] || '';
-
-    let centroParte = (codigoArma + codigoTipo + codigoCaracteristica).padEnd(6, '-');
-    sidc = sidc.substr(0, 1) + afiliacion + sidc.substr(2, 1) + estado + centroParte;
-
-    let modificador = '-';
-    if (document.getElementById('puestoComando')?.checked && document.getElementById('fuerzaTarea')?.checked) {
-        modificador = 'B';
-    } else if (document.getElementById('puestoComando')?.checked) {
-        modificador = 'A';
-    } else if (document.getElementById('fuerzaTarea')?.checked) {
-        modificador = 'E';
-    }
-    
-    console.log("SIDC intermedio:", sidc, "Modificador:", modificador, "Magnitud:", magnitud);
-    
-    // Place modifier and magnitude in correct positions
-    sidc = sidc.substr(0, 10) + modificador + magnitud + sidc.substr(12);
-    
-    console.log("SIDC final:", sidc);
-
-    return sidc.padEnd(15, '-').substr(0, 15);
-}
-
-function actualizarPreviewSimbolo() {
-    const sidc = obtenerSIDCActual();
-    const sym = new ms.Symbol(sidc, {size: 30});
-    const sidcDisplay = document.getElementById('sidcDisplay');
-    if (sidcDisplay) {
-        sidcDisplay.innerHTML = sym.asSVG();
-        sidcDisplay.innerHTML += '<br>SIDC: ' + sidc;
-
-        const designacion = document.getElementById('designacion').value;
-        const dependencia = document.getElementById('dependencia').value;
-
-        if (designacion || dependencia) {
-            const texto = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            texto.setAttribute("x", "35");
-            texto.setAttribute("y", "35");
-            texto.setAttribute("fill", "black");
-            texto.textContent = designacion + (dependencia ? '/' + dependencia : '');
-            sidcDisplay.appendChild(texto);
-        }
-    }
-}
-
-
-function cerrarPanelEdicion(panelId) {
-    const panel = document.getElementById(panelId);
-    if (panel) {
-        panel.style.display = 'none';
-        panel.classList.remove('show');
-        console.log(`Panel ${panelId} cerrado`);
-    } else {
-        console.error(`Panel ${panelId} no encontrado al intentar cerrar`);
-    }
-}
-
-function inicializarSelectores() {
-    const armaSelect = document.getElementById('arma');
-    if (armaSelect) {
-        armaSelect.innerHTML = '';
-        Object.entries(unidadesMilitares).forEach(([categoria, armas]) => {
-            Object.keys(armas).forEach(arma => {
-                let option = document.createElement('option');
-                option.value = `${categoria}|${arma}`;
-                option.textContent = arma;
-                armaSelect.appendChild(option);
-            });
-        });
-    }
-}
-
-/**
- * Función mejorada para guardar los cambios en una unidad con DB
- * @param {Element} elemento - Elemento al que aplicar los cambios
- * @returns {boolean} - Éxito de la operación
- */
-function guardarCambiosUnidad() {
-    console.log("Intentando guardar cambios de unidad");
-    return guardarCambiosUnidadGB();  // Delegate to the GB version
-}
-
-function guardarCambiosUnidadGB() {
-    console.log("Guardando cambios de unidad en modo GB");
-    
-    if (!window.elementoSeleccionadoGB && !window.elementoSeleccionado) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return false;
-    }
-
-    // Use whichever reference is available
-    const elemento = window.elementoSeleccionadoGB || window.elementoSeleccionado;
-
-    try {
-        // Get the updated SIDC with all changes
-        const nuevoSidc = obtenerSIDCActual();
-        console.log("SIDC generado:", nuevoSidc);
-        
-        // Get values from form fields
-        const designacion = document.getElementById('designacion').value;
-        const dependencia = document.getElementById('dependencia').value;
-        const tipo = obtenerTipoDeElemento(nuevoSidc);
-        const magnitud = document.getElementById('magnitud').value;
-        const esEquipoActual = typeof window.esEquipo === 'function' ? 
-                              window.esEquipo(nuevoSidc) : 
-                              nuevoSidc.charAt(4) === 'E';
-        
-        // Preserve important original IDs
-        const elementoOriginalId = elemento.options.id;
-        const jugadorOriginal = elemento.options.jugador || elemento.options.jugadorId || window.usuarioInfo?.id;
-        const usuarioOriginal = elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario';
-        
-        // Save current position and other important data
-        const posicionActual = elemento.getLatLng();
-        const equipoElemento = elemento.options.equipo || window.equipoJugador;
-        
-        // Remove current marker from calco
-        if (window.calcoActivo && window.calcoActivo.hasLayer(elemento)) {
-            window.calcoActivo.removeLayer(elemento);
-        }
-        
-        // Create new symbol with updated SIDC
-        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
-        
-        // Create new icon
-        const icon = L.divIcon({
-            className: `custom-div-icon equipo-${equipoElemento}`,
-            html: sym.asSVG(),
-            iconSize: [70, 50],
-            iconAnchor: [35, 25]
-        });
-        
-        // Create new marker with all updated properties
-        // CRITICAL: Maintain ALL original identifiers
-        const nuevoMarcador = L.marker(posicionActual, {
-            icon: icon,
-            draggable: false,
-            id: elementoOriginalId,  // Keep original ID
-            sidc: nuevoSidc,
-            tipo: tipo,
-            designacion: designacion,
-            dependencia: dependencia,
-            magnitud: !esEquipoActual ? magnitud : undefined,
-            equipo: equipoElemento,
-            jugador: jugadorOriginal,         // Preserve original player
-            jugadorId: jugadorOriginal,       // Preserve original playerId
-            usuarioId: jugadorOriginal,       // Preserve original userId
-            usuario: usuarioOriginal,         // Preserve original username
-            creador: jugadorOriginal,         // Preserve original creator
-            isElementoMilitar: true
-        });
-        
-        // Add new marker to calco
-        nuevoMarcador.addTo(window.calcoActivo);
-        
-        // Configure events
-        nuevoMarcador.on('click', function(e) {
-            L.DomEvent.stopPropagation(e);
-            if (typeof window.seleccionarElementoGB === 'function') {
-                window.seleccionarElementoGB(this);
-            }
-        });
-        
-        nuevoMarcador.on('contextmenu', function(e) {
-            L.DomEvent.stopPropagation(e);
-            window.elementoSeleccionadoGB = this;
-            window.elementoSeleccionado = this;
-            if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
-                window.MiRadial.mostrarMenu(
-                    e.originalEvent.pageX,
-                    e.originalEvent.pageY,
-                    'elemento',
-                    this
-                );
-            }
-        });
-        
-        // Update label
-        if (typeof actualizarEtiquetaUnidad === 'function') {
-            actualizarEtiquetaUnidad(nuevoMarcador);
-        }
-        
-        // Update selected element reference
-        window.elementoSeleccionadoGB = nuevoMarcador;
-        window.elementoSeleccionado = nuevoMarcador;
-        
-        // Create clean data structure to update elementosConectados
-        // CRITICAL: Keep all identifiers consistent
-        const datosElemento = {
-            id: elementoOriginalId,
-            sidc: nuevoSidc,
-            designacion: designacion,
-            dependencia: dependencia,
-            magnitud: !esEquipoActual ? magnitud : undefined,
-            elemento: {
-                sidc: nuevoSidc,
-                designacion: designacion,
-                dependencia: dependencia,
-                magnitud: !esEquipoActual ? magnitud : undefined,
-            },
-            posicion: {
-                lat: posicionActual.lat,
-                lng: posicionActual.lng,
-                precision: 10,
-                rumbo: 0,
-                velocidad: 0
-            },
-            tipo: tipo,
-            // Keep ALL identity data
-            usuario: usuarioOriginal,
-            usuarioId: jugadorOriginal,
-            jugador: jugadorOriginal,
-            jugadorId: jugadorOriginal,
-            creador: jugadorOriginal,
-            operacion: window.operacionActual || (window.MAIRA?.GestionBatalla?.operacionActual) || 'general',
-            timestamp: new Date().toISOString(),
-            conectado: true
-        };
-        
-        // Update in elementosConectados
-        if (window.elementosConectados && elementoOriginalId) {
-            // If doesn't exist, create it
-            if (!window.elementosConectados[elementoOriginalId]) {
-                window.elementosConectados[elementoOriginalId] = {
-                    datos: datosElemento,
-                    marcador: nuevoMarcador
-                };
-            } else {
-                // IMPORTANT: Preserve identity data when updating
-                window.elementosConectados[elementoOriginalId].datos = {
-                    ...window.elementosConectados[elementoOriginalId].datos,
-                    ...datosElemento,
-                    // Explicitly maintain these critical fields
-                    id: elementoOriginalId,
-                    usuario: usuarioOriginal,
-                    usuarioId: jugadorOriginal,
-                    jugadorId: jugadorOriginal,
-                    jugador: jugadorOriginal,
-                    creador: jugadorOriginal
-                };
-                window.elementosConectados[elementoOriginalId].marcador = nuevoMarcador;
-            }
-            
-            // Sync with MAIRA central
-            if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
-                window.MAIRA.GestionBatalla.elementosConectados[elementoOriginalId] = window.elementosConectados[elementoOriginalId];
-            }
-            
-            // If it's the user's own element, update global elementoTrabajo
-            if (jugadorOriginal === window.usuarioInfo?.id) {
-                // Update elementoTrabajo
-                window.elementoTrabajo = {
-                    ...window.elementoTrabajo,
-                    sidc: nuevoSidc,
-                    designacion: designacion,
-                    dependencia: dependencia,
-                    magnitud: !esEquipoActual ? magnitud : undefined
-                };
-                
-                // Save to localStorage safely
-                try {
-                    localStorage.setItem('elemento_trabajo', JSON.stringify(window.elementoTrabajo));
-                    
-                    // Update reference in MAIRA
-                    if (window.MAIRA && window.MAIRA.GestionBatalla) {
-                        window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
-                    }
-                } catch (error) {
-                    console.error("Error saving elementoTrabajo:", error);
-                }
-            }
-            
-            // Save all elements to localStorage for persistence
-            if (typeof window.guardarElementosEnLocalStorage === 'function') {
-                window.guardarElementosEnLocalStorage();
-            }
-        }
-        
-        // Close panel
-        if (typeof window.cerrarPanelEdicion === 'function') {
-            window.cerrarPanelEdicion('panelEdicionUnidad');
-        }
-        
-        // Send to server using global function
-        console.log("Sending updated element to server (with preserved identity data)");
-        let enviado = false;
-        
-        if (typeof window.enviarElementoAlServidor === 'function') {
-            enviado = window.enviarElementoAlServidor(nuevoMarcador);
-        }
-        
-        // Update element in visual list
-        if (typeof window.actualizarIconoEnLista === 'function') {
-            window.actualizarIconoEnLista(elementoOriginalId, nuevoSidc);
-        }
-        
-        return true;
-    } catch (error) {
-        console.error('Error saving changes:', error);
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar cambios: " + error.message, "error");
-        }
-        
-        return false;
-    }
-}
-
-function obtenerCamposFormularioUnidad() {
-    return {
-        sidc: obtenerSIDCActual(),
-        designacion: document.getElementById('designacion').value,
-        dependencia: document.getElementById('dependencia').value,
-        magnitud: document.getElementById('magnitud').value
-    };
-}
-
-function actualizarEtiquetaUnidad(elemento) {
-    if (!elemento?.options) return;
-
-    // Remover etiqueta existente
-    if (elemento.etiquetaPersonalizada) {
-        calcoActivo.removeLayer(elemento.etiquetaPersonalizada);
-        elemento.etiquetaPersonalizada = null;
-    }
-
-    // Construir etiqueta con formato correcto
-    const designacion = elemento.options.designacion || '';
-    const dependencia = elemento.options.dependencia || '';
-    let etiqueta = '';
-    
-    if (designacion && dependencia) {
-        etiqueta = `${designacion}/${dependencia}`;
-    } else if (designacion) {
-        etiqueta = designacion;
-    } else if (dependencia) {
-        etiqueta = dependencia;
-    }
-
-    // No crear etiqueta si no hay texto
-    if (!etiqueta.trim()) return;
-
-    // Añadir estado reforzado/disminuido
-    if (elemento.options.estado) {
-        if (elemento.options.estado === 'reforzado') etiqueta += ' (+)';
-        if (elemento.options.estado === 'disminuido') etiqueta += ' (-)';
-    }
-
-    // En lugar de crear un marcador separado, añadimos la etiqueta directamente al div icon
-    // Para futuras manipulaciones, guardaremos referencia al texto original
-    elemento.etiquetaTexto = etiqueta;
-    
-    // Función que actualiza la posición de la etiqueta basada en el zoom actual
-    const actualizarPosicionEtiqueta = function() {
-        if (!elemento || !elemento._icon) return;
-        
-        // Crear o actualizar el div de etiqueta
-        let etiquetaDiv = elemento._icon.querySelector('.etiqueta-unidad');
-        if (!etiquetaDiv) {
-            etiquetaDiv = document.createElement('div');
-            etiquetaDiv.className = 'etiqueta-unidad';
-            etiquetaDiv.style = `
-                position: absolute;
-                bottom: -10px;
-                right: -5px;
-                color: black;
-                font-weight: bold;
-                white-space: nowrap;
-                text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
-                pointer-events: none;
-                z-index: 1000;
-            `;
-            elemento._icon.appendChild(etiquetaDiv);
-        }
-        
-        etiquetaDiv.textContent = elemento.etiquetaTexto;
-    };
-    
-    // Aplicar inicialmente
-    actualizarPosicionEtiqueta();
-    
-    // Actualizar cuando cambie el zoom
-    elemento.off('add'); // Remover eventos previos
-    elemento.on('add', actualizarPosicionEtiqueta);
-    
-    window.mapa.off('zoomend', actualizarPosicionEtiqueta);
-    window.mapa.on('zoomend', actualizarPosicionEtiqueta);
-}
-
-function actualizarEtiquetaEquipo(elemento) {
-    // Reutilizar la misma lógica para unidades y equipos
-    actualizarEtiquetaUnidad(elemento);
-}
-
-function validarDatosElemento(designacion, dependencia) {
-    return designacion?.trim() && dependencia?.trim();
-}
-
-function obtenerTipoDeElemento(sidc) {
-    // Asegurarse de que el SIDC tiene al menos 15 caracteres
-    if (!sidc || sidc.length < 15) {
-        console.warn(`SIDC inválido o demasiado corto: ${sidc}`);
-        return "desconocido";
-    }
-
-    try {
-        // Extraer código (ejemplo: UCI, UCR, etc)
-        // Asumimos que el código comienza en la posición 4 y tiene 3 caracteres
-        const codigo = sidc.substring(4, 7);
-        
-        // Para equipos, la lógica puede ser diferente
-        if (sidc.charAt(4) === 'E') {
-            // Manejar equipos especialmente
-            const codigoEquipo = sidc.substring(5, 7);
-            
-            // Mapeo de códigos de equipo a tipos
-            const tiposEquipo = {
-                'VA': 'vehiculo_armado',
-                'VC': 'vehiculo_combate',
-                'VU': 'vehiculo_utilitario',
-                'AI': 'aeronave',
-                'AH': 'helicoptero',
-                // Añadir más mapeos según sea necesario
-            };
-            
-            return tiposEquipo[codigoEquipo] || 'equipo_general';
-        }
-        
-        // Buscar en unidadesMilitares
-        for (const categoria in unidadesMilitares) {
-            for (const arma in unidadesMilitares[categoria]) {
-                if (unidadesMilitares[categoria][arma].codigo === codigo) {
-                    return arma.toLowerCase();
-                }
-            }
-        }
-        
-        // Si llegamos aquí y no encontramos un tipo, verificar códigos específicos
-        switch(codigo) {
-            case 'UCI':
-                return 'infanteria';
-            case 'UCR':
-                return 'caballeria';
-            case 'UCF':
-                return 'artilleria';
-            case 'UCE':
-                return 'ingenieros';
-            case 'UCD':
-                return 'defensa_antiaerea';
-            case 'UUS':
-                return 'comunicaciones';
-            case 'USM':
-                return 'sanidad';
-            case 'USS':
-                return 'abastecimiento';
-            case 'UST':
-                return 'transporte';
-            case 'USA':
-                return 'personal';
-            case 'UUM':
-                return 'inteligencia';
-            case 'UUA':
-                return 'qbn';
-            case 'UUL':
-                return 'policia_militar';
-            case 'UUT':
-                return 'topografico';
-            default:
-                console.warn(`Código de unidad no reconocido: ${codigo} en SIDC: ${sidc}`);
-                return "unidad_general";
-        }
-    } catch (error) {
-        console.error(`Error al obtener tipo de elemento con SIDC: ${sidc}`, error);
-        return "unidad_general";
-    }
-}
-
-function actualizarPreviewSimboloEquipo() {
-    const sidc = obtenerSIDCActualEquipo();
-    const sym = new ms.Symbol(sidc, {size: 30});
-    const sidcDisplay = document.getElementById('sidcDisplayEquipo');
-    if (sidcDisplay) {
-        sidcDisplay.innerHTML = sym.asSVG();
-    }
-}
-
-function obtenerSIDCActualEquipo() {
-    if (!elementoSeleccionadoGB?.options?.sidc) return '';
-    let sidc = elementoSeleccionadoGB.options.sidc;
-    sidc = sidc.substr(0, 1) + document.getElementById('afiliacionEquipo').value + sidc.substr(2);
-    return sidc;
-}
-
-
-function actualizarEstiloElemento() {
-    if (!elementoSeleccionadoGB) return;
-
-    var color = document.getElementById('colorLinea').value;
-    var ancho = parseInt(document.getElementById('anchoLinea').value);
-    var tipo = document.getElementById('tipoLinea').value;
-
-    if (elementoSeleccionadoGB instanceof L.Path) {
-        elementoSeleccionadoGB.setStyle({
-            color: color,
-            weight: ancho,
-            dashArray: tipo === 'dashed' ? '5, 5' : null
-        });
-    } else if (elementoSeleccionadoGB.polyline) {
-        elementoSeleccionadoGB.polyline.setStyle({
-            color: color,
-            weight: ancho,
-            dashArray: tipo === 'dashed' ? '5, 5' : null
-        });
-    }
-
-    elementoSeleccionadoGB.color = color;
-    elementoSeleccionadoGB.ancho = ancho;
-    elementoSeleccionadoGB.tipo = tipo;
-
-    if (elementoSeleccionadoGB.id) {
-        actualizarLinea(elementoSeleccionadoGB.id);
-    }
-}
-
-
-function actualizarIconoUnidad(elemento) {
-    if (!elemento || !elemento.options) {
-        console.warn('Elemento no válido para actualizar ícono');
-        return;
-    }
-
-    const sym = new ms.Symbol(elemento.options.sidc, {
-        size: 35,
-        uniqueDesignation: elemento.options.designacion || ''
-    });
-
-    const icon = L.divIcon({
-        className: `custom-div-icon equipo-${elemento.options.equipo}`,
-        html: sym.asSVG(),
-        iconSize: [70, 50],
-        iconAnchor: [35, 25]
-    });
-
-    elemento.setIcon(icon);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-function configurarEventoReconexion() {
-    if (socket) {
-        socket.on('connect', function() {
-            console.log("📡 Reconectado al servidor, sincronizando elementos");
-            
-            // Primero cargar y crear marcadores desde localStorage
-            cargarElementosDesdeDB();
-            
-            // Esperar un momento para que la conexión se estabilice
-            setTimeout(() => {
-                // Limpiar duplicados
-                limpiarElementosDuplicados();
-                
-                // Forzar sincronización completa
-                if (typeof forzarSincronizacionElementos === 'function') {
-                    forzarSincronizacionElementos();
-                }
-            }, 1000);
-        });
-    }
-}
-
-
-
-/**
- * Updates the icon in the elements list for an element with the specified ID and SIDC
- * @param {string} elementoId - ID of the element to update
- * @param {string} sidc - New SIDC (Symbol Identification Code) for the element
- */
-function actualizarIconoEnLista(elementoId, sidc) {
-    console.log(`Actualizando icono en lista para elemento ${elementoId} con SIDC ${sidc}`);
-    
-    // If element doesn't exist in the list, it might need to be created first
-    let elementoItem = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
-    
-    // If element not found in the list but exists in elementosConectados, create it
-    if (!elementoItem && window.elementosConectados && window.elementosConectados[elementoId]) {
-        console.log(`Elemento no encontrado en la lista visual. Creando elemento para ${elementoId}`);
-        
-        // Get the container for the elements list
-        const listaElementos = document.getElementById('lista-elementos');
-        if (!listaElementos) {
-            console.error("Container 'lista-elementos' not found");
-            return;
-        }
-        
-        // Create a new element item
-        const elementoData = window.elementosConectados[elementoId].datos;
-        elementoItem = document.createElement('div');
-        elementoItem.className = 'elemento-item';
-        elementoItem.setAttribute('data-id', elementoId);
-        
-        // Determine connected status
-        const estadoConexion = elementoData.conectado === false ? 'desconectado' : 'conectado';
-        
-        // Get element information
-        const nombreUsuario = elementoData.usuario || 'Usuario';
-        const designacion = elementoData.designacion || elementoData.elemento?.designacion || 'Elemento';
-        const dependencia = elementoData.dependencia || elementoData.elemento?.dependencia || '';
-        
-        // Generate simple empty placeholder for now, we'll update the icon right after
-        elementoItem.innerHTML = `
-            <div class="elemento-icon">
-                <div class="sidc-preview"></div>
-            </div>
-            <div class="elemento-info">
-                <div class="elemento-nombre">${designacion}${dependencia ? '/' + dependencia : ''}</div>
-                <div class="elemento-usuario">${nombreUsuario}</div>
-            </div>
-            <div class="elemento-estado">
-                <span class="estado-conexion ${estadoConexion}" title="${estadoConexion}">
-                    ${estadoConexion === 'conectado' ? '●' : '○'}
-                </span>
-            </div>
-        `;
-        
-        // Add click event to select the element
-        elementoItem.addEventListener('click', function() {
-            if (typeof window.seleccionarElementoEnLista === 'function') {
-                window.seleccionarElementoEnLista(elementoId);
-            } else if (typeof window.MAIRA?.Elementos?.seleccionarElementoEnLista === 'function') {
-                window.MAIRA.Elementos.seleccionarElementoEnLista(elementoId);
-            }
-        });
-        
-        // Add to the list
-        listaElementos.appendChild(elementoItem);
-        console.log(`Elemento visual creado para ${elementoId}`);
-    }
-    
-    // Try again to find the element after possibly creating it
-    if (!elementoItem) {
-        elementoItem = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
-    }
-    
-    // If still not found, abort
-    if (!elementoItem) {
-        console.warn(`No se pudo encontrar ni crear elemento visual para ID ${elementoId}`);
-        return;
-    }
-    
-    // Find the icon container
-    const iconContainer = elementoItem.querySelector('.sidc-preview');
-    if (!iconContainer) {
-        console.warn("No se encontró contenedor para el icono '.sidc-preview'");
-        return;
-    }
-    
-    try {
-        // Generate new icon using milsymbol library
-        if (typeof ms !== 'undefined' && typeof ms.Symbol === 'function') {
-            const sym = new ms.Symbol(sidc, {size: 20});
-            iconContainer.innerHTML = sym.asSVG();
-            console.log(`✅ Icono actualizado en la lista para SIDC ${sidc}`);
-        } else {
-            console.warn("Biblioteca milsymbol no disponible");
-            // Fallback - use a simple colored box
-            iconContainer.innerHTML = `<div style="width:20px;height:20px;background-color:#3388ff;border-radius:3px;"></div>`;
-        }
-        
-        // Also update other data if needed
-        const nombreElement = elementoItem.querySelector('.elemento-nombre');
-        if (nombreElement && window.elementosConectados && window.elementosConectados[elementoId]) {
-            const elementoData = window.elementosConectados[elementoId].datos;
-            if (elementoData) {
-                // Format name correctly
-                const designacion = elementoData.designacion || elementoData.elemento?.designacion || '';
-                const dependencia = elementoData.dependencia || elementoData.elemento?.dependencia || '';
-                nombreElement.textContent = designacion + (dependencia ? '/' + dependencia : '');
-            }
-        }
-    } catch (e) {
-        console.error("Error al actualizar icono en lista:", e);
-    }
-    
-    // Make sure the element is visible
-    elementoItem.style.display = '';
-}
-
-// Make it available globally
-window.actualizarIconoEnLista = actualizarIconoEnLista;
-
-
-
-// Función auxiliar para actualizar el icono
-function actualizarIconoGB(elemento, datos) {
-    const sym = new ms.Symbol(datos.sidc, {
-        size: 35,
-        uniqueDesignation: datos.designacion
-    });
-
-    const icon = L.divIcon({
-        className: 'simbolo-militar',
-        html: sym.asSVG(),
-        iconSize: [70, 50],
-        iconAnchor: [35, 25]
-    });
-
-    // Actualizar propiedades
-    elemento.setIcon(icon);
-    elemento.options = {
-        ...elemento.options,
-        ...datos
-    };
-
-    // Actualizar etiqueta
-    actualizarEtiquetaGB(elemento);
-}
-
-
-
-// Función auxiliar para preparar datos de elemento
-function prepararDatosElemento(elemento) {
-    const idUsuarioActual = 
-        elemento.options?.usuarioId || 
-        elemento.options?.jugadorId || 
-        window.usuarioInfo?.id || 
-        (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
-    
-    const operacionActual = 
-        window.operacionActual || 
-        window.MAIRA?.GestionBatalla?.operacionActual || 
-        'general';
-    
-    return {
-        id: elemento.options.id || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        sidc: elemento.options.sidc || 'SFGPUCI-----',
-        designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
-        dependencia: elemento.options.dependencia || '',
-        magnitud: elemento.options.magnitud || '-',
-        coordenadas: elemento.getLatLng(),
-        tipo: elemento.options.tipo || 'unidad',
-        usuario: elemento.options.usuario || window.usuarioInfo?.usuario || 'Usuario',
-        usuarioId: idUsuarioActual,
-        jugadorId: idUsuarioActual,
-        operacion: operacionActual,
-        timestamp: new Date().toISOString(),
-        posicion: {
-            lat: elemento.getLatLng().lat,
-            lng: elemento.getLatLng().lng,
-            precision: 10,
-            rumbo: elemento.options.rumbo || 0,
-            velocidad: 0
-        },
-        elemento: {
-            sidc: elemento.options.sidc || 'SFGPUCI-----',
-            designacion: elemento.options.designacion || elemento.options.nombre || '',
-            dependencia: elemento.options.dependencia || '',
-            magnitud: elemento.options.magnitud || '-'
-        },
-        conectado: true
-    };
-}
-
-// Función para guardar elemento en localStorage
-function guardarElementoLocalStorage(datosElemento) {
-    try {
-        // Cargar elementos actuales
-        let elementosGuardados = {};
-        const datosAlmacenados = localStorage.getItem('elementos_conectados');
-        if (datosAlmacenados) {
-            elementosGuardados = JSON.parse(datosAlmacenados);
-        }
-        
-        // Actualizar elemento específico
-        elementosGuardados[datosElemento.id] = {
-            datos: datosElemento
-        };
-        
-        // Guardar de vuelta en localStorage
-        localStorage.setItem('elementos_conectados', JSON.stringify(elementosGuardados));
-        console.log(`✅ Elemento ${datosElemento.id} guardado en localStorage correctamente`);
-        
-        return true;
-    } catch (e) {
-        console.error(`❌ Error al guardar elemento ${datosElemento.id} en localStorage:`, e);
-        return false;
-    }
-}
-
-// Función auxiliar mejorada para actualizar elementos localmente
-function actualizarElementoConectadoLocal(datosElemento, marcador) {
-    console.log("🔄 Actualizando elemento local:", datosElemento.id);
-    
-    // Si no existe el objeto elementosConectados, crearlo
-    if (!window.elementosConectados) {
-        window.elementosConectados = {};
-    }
-    
-    // Guardar una referencia previa si existe
-    const elementoExistentePrevio = window.elementosConectados[datosElemento.id] 
-                                  ? JSON.parse(JSON.stringify(window.elementosConectados[datosElemento.id].datos)) 
-                                  : null;
-    
-    // Si el elemento no existe, añadirlo
-    if (!window.elementosConectados[datosElemento.id]) {
-        window.elementosConectados[datosElemento.id] = {
-            datos: datosElemento,
-            marcador: marcador
-        };
-        console.log(`✅ Nuevo elemento añadido a elementosConectados: ${datosElemento.id}`);
-    } else {
-        // Si existe, mantener los datos SIDC, designación, etc. (no sobreescribir)
-        if (elementoExistentePrevio && elementoExistentePrevio.sidc) {
-            // Conservar los datos importantes anteriores que podrían perderse
-            datosElemento.sidc = datosElemento.sidc || elementoExistentePrevio.sidc;
-            datosElemento.designacion = datosElemento.designacion || elementoExistentePrevio.designacion;
-            datosElemento.dependencia = datosElemento.dependencia || elementoExistentePrevio.dependencia;
-            datosElemento.magnitud = datosElemento.magnitud || elementoExistentePrevio.magnitud;
-            
-            // También asegurar que elemento.sidc se mantiene
-            if (datosElemento.elemento) {
-                datosElemento.elemento.sidc = datosElemento.sidc;
-                datosElemento.elemento.designacion = datosElemento.designacion;
-                datosElemento.elemento.dependencia = datosElemento.dependencia;
-                datosElemento.elemento.magnitud = datosElemento.magnitud;
-            }
-        }
-        
-        // Actualizar datos
-        window.elementosConectados[datosElemento.id].datos = datosElemento;
-        
-        // Si el marcador es diferente, reemplazarlo
-        if (window.elementosConectados[datosElemento.id].marcador !== marcador && marcador) {
-            // Eliminar marcador anterior del mapa
-            const marcadorAnterior = window.elementosConectados[datosElemento.id].marcador;
-            if (marcadorAnterior && window.mapa) {
-                if (window.mapa.hasLayer(marcadorAnterior)) {
-                    window.mapa.removeLayer(marcadorAnterior);
-                    console.log(`🔄 Marcador anterior eliminado del mapa`);
-                }
-            }
-            
-            window.elementosConectados[datosElemento.id].marcador = marcador;
-            console.log(`✅ Marcador actualizado para elemento: ${datosElemento.id}`);
-        }
-    }
-    
-    // NUEVO: Guardar cambios en localStorage para mayor persistencia
-    try {
-        const elementosParaGuardar = {};
-        
-        // Solo guardar los datos, no los marcadores (no son serializables)
-        Object.entries(window.elementosConectados).forEach(([id, elem]) => {
-            elementosParaGuardar[id] = { datos: elem.datos };
-        });
-        
-        localStorage.setItem('elementos_conectados', JSON.stringify(elementosParaGuardar));
-        console.log("✅ Elementos conectados guardados en localStorage");
-    } catch (e) {
-        console.error("❌ Error al guardar elementos en localStorage:", e);
-    }
-    
-    // Sincronizar con MAIRA.GestionBatalla
-    if (window.MAIRA && window.MAIRA.GestionBatalla) {
-        window.MAIRA.GestionBatalla.elementosConectados = window.elementosConectados;
-    }
-    
-    // Si existe la función para actualizar la lista visual, usarla
-    if (typeof window.MAIRA?.Elementos?.actualizarElementoVisual === 'function') {
         try {
-            window.MAIRA.Elementos.actualizarElementoVisual(datosElemento.id);
-            console.log(`✅ Interfaz visual actualizada para elemento: ${datosElemento.id}`);
-        } catch (e) {
-            console.error(`❌ Error al actualizar interfaz visual:`, e);
-        }
-    }
-}
-
-// Hacerla disponible globalmente
-window.actualizarElementoConectadoLocal = actualizarElementoConectadoLocal;
-
-
-function mostrarPanelEdicionMCC(elemento, tipo) {
-    console.log("Mostrando panel de edición MCC para tipo:", tipo);
-    mostrarPanelEdicion('panelEdicionMCC');
+            // Guardar referencias con validación
+            socket = config.socket;
+            if (!socket) console.warn("Socket no proporcionado en la configuración");
     
-    let panel = document.getElementById('panelEdicionMCC');
-    if (!panel) {
-        console.error('Panel de edición MCC no encontrado');
-        return;
-    }
-
-    // Eliminar cualquier textoAsociado existente y quedarse solo con textoMarcador
-    if (elemento.textoAsociado && elemento.textoMarcador) {
-        console.log("Eliminando textoAsociado duplicado antes de editar");
-        calcoActivo.removeLayer(elemento.textoAsociado);
-        elemento.textoAsociado = null;
-    }
-
-    // Obtener el texto actual del elemento
-    let textoMCC = '';
-    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
-        const divTexto = elemento.textoMarcador._icon.querySelector('div');
-        if (divTexto) {
-            textoMCC = divTexto.textContent;
-        }
-    } else if (elemento.textoAsociado && elemento.textoAsociado._icon) {
-        const divTexto = elemento.textoAsociado._icon.querySelector('div');
-        if (divTexto) {
-            textoMCC = divTexto.textContent;
-        }
-    } else {
-        textoMCC = elemento.options.nombre || elemento.nombre || '';
-    }
+            usuarioInfo = config.usuarioInfo;
+            if (!usuarioInfo) console.warn("Información de usuario no proporcionada");
     
-    document.getElementById('textoMCC').value = textoMCC;
-
-    // Cargar propiedades actuales
-    document.getElementById('colorMCC').value = elemento.options.color || '#000000';
-    document.getElementById('anchoMCC').value = elemento.options.weight || 3;
-    document.getElementById('tipoLineaMCC').value = elemento.options.dashArray ? 'dashed' : 'solid';
-
-    // Mostrar/ocultar opciones de relleno según el tipo
-    if (tipo === 'poligono') {
-        document.getElementById('rellenoMCC').style.display = 'block';
-        let tipoRelleno = determinarTipoRelleno(elemento);
-        document.getElementById('tipoRellenoMCC').value = tipoRelleno;
-        document.getElementById('colorRellenoMCC').value = elemento.options.fillColor || '#ffffff';
-    } else {
-        document.getElementById('rellenoMCC').style.display = 'none';
-    }
-
-    document.getElementById('guardarCambiosMCC').onclick = function() {
-        guardarCambiosMCC(elemento, tipo);
-    };
-}
-
-/**
- * Muestra el panel de edición de línea
- * @param {Object} elemento - El elemento de línea a editar
- */
-function mostrarPanelEdicionLinea(elemento) {
-    mostrarPanelEdicion('panelEdicionLinea');
-    console.log("Mostrando panel de edición de línea para:", elemento);
-    var panel = document.getElementById('panelEdicionLinea');
-    if (!panel) {
-        console.error('Panel de edición de línea no encontrado');
-        return;
-    }
-
-    panel.style.display = 'block';
-    elementoSeleccionadoGB = elemento;
+            operacionActual = config.operacionActual;
+            if (!operacionActual) console.warn("Operación actual no proporcionada");
     
-    // Detectar nombre actual examinando todas las posibles fuentes
-    let nombreActual = '';
-    
-    // Prioridad 1: Verificar textoMarcador
-    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
-        const divTexto = elemento.textoMarcador._icon.querySelector('div');
-        if (divTexto) {
-            nombreActual = divTexto.textContent;
-            console.log("Nombre obtenido de textoMarcador:", nombreActual);
-        }
-    }
-    
-    // Prioridad 2: Verificar textoAsociado
-    if (!nombreActual && elemento.textoAsociado) {
-        if (elemento.textoAsociado._icon) {
-            const divTexto = elemento.textoAsociado._icon.querySelector('div');
-            if (divTexto) {
-                nombreActual = divTexto.textContent;
-                console.log("Nombre obtenido de textoAsociado:", nombreActual);
-            }
-        }
-    }
-    
-    // Prioridad 3: Verificar propiedades del elemento
-    if (!nombreActual) {
-        nombreActual = elemento.options?.nombre || elemento.nombre || '';
-        console.log("Nombre obtenido de propiedades:", nombreActual);
-    }
-
-    document.getElementById('nombreLinea').value = nombreActual;
-    document.getElementById('colorLinea').value = elemento.options?.color || elemento.color || '#3388ff';
-    document.getElementById('anchoLinea').value = elemento.options?.weight || elemento.ancho || 3;
-    document.getElementById('tipoLinea').value = (elemento.options?.dashArray || elemento.tipo === 'dashed') ? 'dashed' : 'solid';
-}
-
-
-
-function crearNuevoTextoMarcador(elemento, texto) {
-    // Calcular posición adecuada
-    let posicion;
-    if (elemento instanceof L.Polygon) {
-        posicion = elemento.getBounds().getCenter();
-    } else if (elemento instanceof L.Polyline) {
-        const latlngs = elemento.getLatLngs();
-        posicion = latlngs[Math.floor(latlngs.length / 2)];
-    } else {
-        posicion = elemento.getLatLng();
-    }
-    
-    // Crear el marcador con la clase correcta
-    elemento.textoMarcador = L.marker(posicion, {
-        icon: L.divIcon({
-            className: elemento instanceof L.Polygon ? 'texto-poligono' : 'texto-linea',
-            html: `<div style="color: black;">${texto}</div>`,
-            iconSize: [100, 20]
-        }),
-        draggable: true,
-        interactive: true
-    }).addTo(window.calcoActivo);
-    
-    console.log("Nuevo textoMarcador creado:", elemento.textoMarcador);
-    
-    // Configurar eventos para mantener sincronización
-    if (elemento instanceof L.Polyline || elemento instanceof L.Polygon) {
-        elemento.on('edit', function() {
-            if (this.textoMarcador) {
-                let nuevaPos;
-                if (this instanceof L.Polygon) {
-                    nuevaPos = this.getBounds().getCenter();
-                } else {
-                    const pts = this.getLatLngs();
-                    nuevaPos = pts[Math.floor(pts.length / 2)];
-                }
-                this.textoMarcador.setLatLng(nuevaPos);
-            }
-        });
-    }
-    
-    return elemento.textoMarcador;
-}
-
-function actualizarTextoElemento(elemento, nuevoTexto, tipo) {
-    console.log(`Actualizando texto de ${tipo} a "${nuevoTexto}"`);
-    
-    // 1. Eliminar textoAsociado si existe (para evitar duplicados)
-    if (elemento.textoAsociado) {
-        console.log("Eliminando textoAsociado existente");
-        calcoActivo.removeLayer(elemento.textoAsociado);
-        elemento.textoAsociado = null;
-    }
-    
-    // 2. Verificar si existe un textoMarcador y actualizarlo
-    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
-        console.log("Actualizando textoMarcador existente");
-        const divTexto = elemento.textoMarcador._icon.querySelector('div');
-        if (divTexto) {
-            divTexto.textContent = nuevoTexto;
-            elemento.options.nombre = nuevoTexto;
-            elemento.nombre = nuevoTexto;
-            return; // Terminamos aquí
-        }
-    }
-    
-    // 3. Si no existe textoMarcador, creamos uno nuevo
-    if (nuevoTexto.trim() !== '') {
-        console.log("Creando nuevo textoMarcador");
-        let posicion;
-        
-        if (tipo === 'poligono') {
-            posicion = elemento.getBounds().getCenter();
-        } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
-            const latlngs = elemento.getLatLngs();
-            posicion = latlngs[Math.floor(latlngs.length / 2)];
-        } else {
-            posicion = elemento.getLatLng();
-        }
-        
-        // Crear textoMarcador en lugar de textoAsociado
-        elemento.textoMarcador = L.marker(posicion, {
-            icon: L.divIcon({
-                className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
-                html: `<div style="color: black;">${nuevoTexto}</div>`,
-                iconSize: [100, 20]
-            }),
-            draggable: true,
-            interactive: true
-        }).addTo(calcoActivo);
-        
-        // Configurar eventos para mantener el texto en la línea/polígono
-        if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha' || tipo === 'poligono') {
-            elemento.on('edit', function() {
-                if (this.textoMarcador) {
-                    let nuevaPosicion;
-                    if (this instanceof L.Polygon) {
-                        nuevaPosicion = this.getBounds().getCenter();
-                    } else if (this instanceof L.Polyline) {
-                        const latlngs = this.getLatLngs();
-                        nuevaPosicion = latlngs[Math.floor(latlngs.length / 2)];
+            // NUEVO: Primero intentar cargar elementoTrabajo desde localStorage si existe
+            try {
+                const elementoTrabajoGuardado = localStorage.getItem('elemento_trabajo');
+                if (elementoTrabajoGuardado) {
+                    const elementoTrabajoObj = JSON.parse(elementoTrabajoGuardado);
+                    console.log("Cargando elementoTrabajo desde localStorage:", elementoTrabajoObj);
+                    
+                    // Priorizar datos guardados sobre los de configuración
+                    elementoTrabajo = {
+                        ...(config.elementoTrabajo || {}),
+                        ...elementoTrabajoObj
+                    };
+                    
+                    // Actualizar también en la configuración y en MAIRA.GestionBatalla
+                    config.elementoTrabajo = elementoTrabajo;
+                    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+                        window.MAIRA.GestionBatalla.elementoTrabajo = elementoTrabajo;
                     }
-                    this.textoMarcador.setLatLng(nuevaPosicion);
+                } else {
+                    elementoTrabajo = config.elementoTrabajo;
                 }
-            });
-        }
-    }
-    
-    // Actualizar el nombre del elemento
-    elemento.options.nombre = nuevoTexto;
-    elemento.nombre = nuevoTexto;
-}
-
-/**
- * Crea un textoMarcador para el elemento
- * @param {Object} elemento - El elemento al que se asociará el textoMarcador
- * @param {string} texto - El texto a mostrar
- */
-function crearTextoMarcador(elemento, texto) {
-    // Determinar la posición según el tipo de elemento
-    let posicion;
-    if (elemento instanceof L.Polygon) {
-        posicion = elemento.getBounds().getCenter();
-    } else if (elemento instanceof L.Polyline || elemento._latlngs) {
-        const latlngs = elemento.getLatLngs();
-        posicion = latlngs[Math.floor(latlngs.length / 2)];
-    } else {
-        posicion = window.mapa.getCenter();
-    }
-    
-    // Determinar la clase CSS correcta
-    let claseCss = 'texto-linea';
-    if (elemento instanceof L.Polygon) {
-        claseCss = 'texto-poligono';
-    }
-    
-    // Crear el marcador con las propiedades correctas
-    const textoMarcador = L.marker(posicion, {
-        icon: L.divIcon({
-            className: claseCss,
-            html: `<div style="color: black;">${texto}</div>`,
-            iconSize: [100, 20]
-        }),
-        draggable: true,
-        interactive: true
-    }).addTo(calcoActivo || window.mapa);
-    
-    // Asignar al elemento
-    elemento.textoMarcador = textoMarcador;
-    
-    console.log(`Creado nuevo textoMarcador con clase ${claseCss} y texto "${texto}"`);
-    return textoMarcador;
-}
-
-/**
- * Versión modificada de actualizarTextoElemento que respeta textoMarcador
- * @param {Object} elemento - El elemento cuyo texto se actualizará
- * @param {string} nuevoTexto - El nuevo texto
- * @param {string} tipo - El tipo de elemento ('linea', 'poligono', etc.)
- */
-function actualizarTextoElemento(elemento, nuevoTexto, tipo) {
-    // Verificar si ya existe un textoMarcador y actualizarlo
-    if (elemento.textoMarcador && elemento.textoMarcador._icon) {
-        const divTexto = elemento.textoMarcador._icon.querySelector('div');
-        if (divTexto) {
-            divTexto.textContent = nuevoTexto;
-            // Actualizar el nombre del elemento
-            elemento.options.nombre = nuevoTexto;
-            elemento.nombre = nuevoTexto;
-            return; // Terminamos aquí si actualizamos el textoMarcador
-        }
-    }
-    
-    // Si no hay textoMarcador, continuar con la lógica original
-    // Eliminar el texto asociado existente si lo hay
-    if (elemento.textoAsociado) {
-        calcoActivo.removeLayer(elemento.textoAsociado);
-    }
-
-    if (nuevoTexto.trim() !== '') {
-        let posicion, draggable, dragConstraint;
-
-        if (tipo === 'poligono' || tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
-            let latlngs = elemento.getLatLngs();
-            posicion = tipo === 'poligono' ? elemento.getBounds().getCenter() : latlngs[Math.floor(latlngs.length / 2)];
-            draggable = true;
-            dragConstraint = function(latlng) {
-                return elemento.closestLayerPoint(latlng);
-            };
-        } else {
-            posicion = elemento.getLatLng();
-            draggable = false;
-        }
-
-        elemento.textoAsociado = L.marker(posicion, {
-            icon: L.divIcon({
-                className: 'texto-elemento',
-                html: `<div style="color: black; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;">${nuevoTexto}</div>`,
-                iconSize: [100, 40],
-                iconAnchor: [50, 20]
-            }),
-            draggable: draggable
-        }).addTo(calcoActivo);
-
-        if (draggable) {
-            elemento.textoAsociado.on('drag', function(e) {
-                if (dragConstraint) {
-                    let closestPoint = dragConstraint(e.latlng);
-                    e.target.setLatLng(mapa.layerPointToLatLng(closestPoint));
+            } catch (e) {
+                console.warn("Error al cargar elementoTrabajo desde localStorage:", e);
+                elementoTrabajo = config.elementoTrabajo;
+            }
+            
+            ultimaPosicion = config.ultimaPosicion;
+            
+            // NUEVO: Intentar cargar elementosConectados desde localStorage
+            try {
+                const elementosGuardados = localStorage.getItem('elementos_conectados');
+                if (elementosGuardados) {
+                    const elementosParsed = JSON.parse(elementosGuardados);
+                    console.log("Cargando elementos desde localStorage:", Object.keys(elementosParsed).length);
+                    
+                    // Inicializar estructura
+                    elementosConectados = {};
+                    
+                    // Solo cargar los datos, los marcadores se crearán después
+                    Object.entries(elementosParsed).forEach(([id, elem]) => {
+                        elementosConectados[id] = { 
+                            datos: elem.datos,
+                            marcador: null 
+                        };
+                    });
+                } else {
+                    // Si no hay datos guardados, usar los proporcionados
+                    elementosConectados = config.elementosConectados || {};
                 }
-            });
-        }
-
-        // Para todos los tipos, actualizar la posición del texto cuando el elemento se mueve
-        elemento.on('move', function() {
-            actualizarPosicionTexto(elemento);
-        });
-
-        // Para polilíneas y polígonos, actualizar cuando se editan
-        if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha' || tipo === 'poligono') {
-            elemento.on('edit', function() {
-                actualizarPosicionTexto(elemento);
-            });
-        }
-    }
-
-    // Actualizar el nombre del elemento
-    elemento.options.nombre = nuevoTexto;
-    elemento.nombre = nuevoTexto;
-}
-
-function actualizarPosicionTexto(elemento) {
-    if (elemento.textoAsociado) {
-        let nuevaPosicion;
-        if (elemento instanceof L.Polyline || elemento instanceof L.Polygon) {
-            let latlngs = elemento.getLatLngs();
-            nuevaPosicion = elemento instanceof L.Polygon ? 
-                elemento.getBounds().getCenter() : 
-                latlngs[Math.floor(latlngs.length / 2)];
-        } else {
-            nuevaPosicion = elemento.getLatLng();
-        }
-        elemento.textoAsociado.setLatLng(nuevaPosicion);
-    }
-}
-
-function determinarTipoRelleno(elemento) {
-    if (elemento.options.fillPattern) {
-        if (elemento.options.fillPattern instanceof L.StripePattern) return 'diagonal';
-        // Añadir más condiciones para otros tipos de patrones
-    }
-    return elemento.options.fillOpacity > 0 ? 'solid' : 'none';
-}
-
-function obtenerPatronRelleno(tipoRelleno, color) {
-    switch(tipoRelleno) {
-        case 'diagonal':
-            // Patrón de líneas diagonales
-            return new L.StripePattern({
-                color: color,
-                weight: 2,
-                spaceWeight: 4,
-                angle: 45
-            });
-            
-        case 'rombos':
-            // Patrón de rombos (dos patrones diagonales superpuestos)
-            return {
-                tipo: 'compuesto',
-                patrones: [
-                    new L.StripePattern({
-                        color: color,
-                        weight: 2,
-                        spaceWeight: 6,
-                        angle: 45
-                    }),
-                    new L.StripePattern({
-                        color: color,
-                        weight: 2,
-                        spaceWeight: 6,
-                        angle: -45
-                    })
-                ]
-            };
-            
-        case 'cuadros':
-            // Patrón de cuadrícula (dos patrones rectos superpuestos)
-            return {
-                tipo: 'compuesto',
-                patrones: [
-                    new L.StripePattern({
-                        color: color,
-                        weight: 2,
-                        spaceWeight: 6,
-                        angle: 0  // Horizontal
-                    }),
-                    new L.StripePattern({
-                        color: color,
-                        weight: 2,
-                        spaceWeight: 6,
-                        angle: 90  // Vertical
-                    })
-                ]
-            };
-            
-        case 'puntos':
-            // Creamos un patrón de puntos real utilizando un patrón SVG
-            const dotPattern = new L.PatternCircle({
-                x: 5,
-                y: 5,
-                radius: 2,
-                fill: true,
-                color: color,
-                fillColor: color,
-                fillOpacity: 1.0,
-                weight: 0
-            });
-            
-            // Creamos un contenedor para los puntos
-            const pattern = new L.Pattern({
-                width: 10,
-                height: 10
-            });
-            
-            // Agregamos el círculo al patrón
-            pattern.addShape(dotPattern);
-            
-            return pattern;
-            
-        default:
-            return null;
-    }
-}
-
-function aplicarRelleno(elemento, tipoRelleno, color) {
-    // Limpiar patrones anteriores
-    if (elemento._capasSecundarias) {
-        elemento._capasSecundarias.forEach(capa => {
-            if (window.calcoActivo && window.calcoActivo.hasLayer(capa)) {
-                window.calcoActivo.removeLayer(capa);
-            } else if (window.mapa && window.mapa.hasLayer(capa)) {
-                window.mapa.removeLayer(capa);
+            } catch (e) {
+                console.warn("Error al cargar elementos desde localStorage:", e);
+                elementosConectados = config.elementosConectados || {};
             }
-        });
-        elemento._capasSecundarias = null;
-    }
     
-    // Si hay algún patrón aplicado al elemento, eliminarlo
-    if (elemento.options.fillPattern && elemento.options.fillPattern._removeShapes) {
-        window.mapa.removePattern(elemento.options.fillPattern);
-    }
-    
-    switch(tipoRelleno) {
-        case 'none':
-            elemento.setStyle({fillOpacity: 0, fillPattern: null});
-            break;
-            
-        case 'solid':
-            elemento.setStyle({
-                fillOpacity: 0.2, 
-                fillColor: color, 
-                fillPattern: null
-            });
-            break;
-            
-        case 'rombos':
-        case 'cuadros':
-            const patronCompuesto = obtenerPatronRelleno(tipoRelleno, color);
-            if (patronCompuesto && patronCompuesto.tipo === 'compuesto') {
-                // Añadir patrones al mapa
-                patronCompuesto.patrones.forEach(patron => {
-                    patron.addTo(window.mapa);
-                });
-                
-                // Aplicar el primer patrón al elemento principal
-                elemento.setStyle({
-                    fillPattern: patronCompuesto.patrones[0],
-                    fillOpacity: 0.7
-                });
-                
-                // Crear un duplicado del polígono para el segundo patrón
-                const coords = elemento.getLatLngs();
-                const segundaLayer = L.polygon(coords, {
-                    fillPattern: patronCompuesto.patrones[1],
-                    fillOpacity: 0.7,
-                    color: 'transparent', // Sin borde
-                    weight: 0
-                }).addTo(window.calcoActivo || window.mapa);
-                
-                // Guardar referencia para poder eliminarlo después
-                elemento._capasSecundarias = [segundaLayer];
+            // Restaurar estado previo de tracking si existe
+            const trackingActivo = localStorage.getItem('tracking_activado') === 'true';
+            if (trackingActivo) {
+                console.log("Restaurando estado de tracking anterior");
+                iniciarTrackingElementos();
             }
-            break;
+    
+            // Inicializar componentes en orden
+            inicializarInterfazElementos();
             
-        case 'puntos':
-            const patronPuntos = obtenerPatronRelleno(tipoRelleno, color);
-            if (patronPuntos) {
-                // Añadir el patrón al mapa
-                patronPuntos.addTo(window.mapa);
-                
-                // Aplicar el patrón directamente al elemento
-                elemento.setStyle({
-                    fillPattern: patronPuntos,
-                    fillOpacity: 1
-                });
-            }
-            break;
-            
-        default:
-            // Para diagonal y otros patrones simples
-            let patron = obtenerPatronRelleno(tipoRelleno, color);
-            if (patron && patron.addTo) {
-                patron.addTo(window.mapa);
-                elemento.setStyle({
-                    fillPattern: patron,
-                    fillOpacity: 1
-                });
-            }
-            break;
-    }
-}
-
-function initializeTabs() {
-    var tabs = document.querySelectorAll('.tablinks');
-    tabs.forEach(function(tab) {
-        tab.addEventListener('click', function(event) {
-            openTab(event, this.getAttribute('data-tab'));
-        });
-    });
-    // Abrir la primera pestaña por defecto
-    if (tabs.length > 0) {
-        openTab({ currentTarget: tabs[0] }, tabs[0].getAttribute('data-tab'));
-    }
-}
-
-function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
-}
-
-
-// Inicialización cuando el DOM está completamente cargado
-document.addEventListener('DOMContentLoaded', function() {
-    // Configurar eventos base
-    inicializarSelectores();
-    
-    // Configurar eventos de elementos de formulario
-    document.getElementById('arma')?.addEventListener('change', function() {
-        actualizarTipos(this.value);
-    });
-    
-    document.getElementById('tipo')?.addEventListener('change', function() {
-        actualizarCaracteristicas(document.getElementById('arma').value, this.value);
-    });
-    
-    // Configurar botones de guardar
-    document.getElementById('guardarCambiosUnidad')?.addEventListener('click', guardarCambiosUnidadGB);
-    document.getElementById('guardarCambiosEquipo')?.addEventListener('click', guardarCambiosEquipoGB);
-    document.getElementById('guardarCambiosLinea')?.addEventListener('click', guardarCambiosLinea);
-    
-    // Configurar eventos para actualizar previews
-    ['afiliacion', 'estado', 'arma', 'tipo', 'caracteristica', 'magnitud', 'puestoComando', 'fuerzaTarea', 'designacion', 'dependencia'].forEach(function(id) {
-        document.getElementById(id)?.addEventListener('change', actualizarPreviewSimbolo);
-        document.getElementById(id)?.addEventListener('input', actualizarPreviewSimbolo);
-    });
-    
-    // Configurar evento para Lista de Elementos
-    configurarEventoListaElementos();
-    
-    console.log("✅ Eventos de edicionGB inicializados con integración a BD");
-});
-
-function editarelementoSeleccionadoGB() {
-    if (!elementoSeleccionadoGB) return;
-
-    if (elementoSeleccionadoGB instanceof L.Marker) {
-        if (elementoSeleccionadoGB.options.sidc) {
-            if (esEquipo(elementoSeleccionadoGB.options.sidc)) {
-                mostrarPanelEdicionEquipo(elementoSeleccionadoGB);
-            } else if (esUnidad(elementoSeleccionadoGB.options.sidc)) {
-                mostrarPanelEdicionUnidad(elementoSeleccionadoGB);
+            // Solicitar lista solo si hay conexión
+            if (socket?.connected) {
+                solicitarListaElementos();
             } else {
-                mostrarPanelEdicionElementoEspecial(elementoSeleccionadoGB);
+                console.warn("No hay conexión para solicitar lista de elementos");
             }
-        } else {
-            console.log("Elemento sin SIDC identificado");
+            
+            // Configurar eventos
+            configurarEventosElementos();
+            
+            console.log("Módulo de elementos inicializado exitosamente");
+            return true;
+    
+        } catch (error) {
+            console.error("Error al inicializar módulo de elementos:", error);
+            return false;
         }
-    } else if (elementoSeleccionadoGB instanceof L.Polyline || elementoSeleccionadoGB instanceof L.Polygon) {
-        mostrarPanelEdicionMCC(elementoSeleccionadoGB, determinarTipoMCC(elementoSeleccionadoGB));
+    }
+
+    
+// Añadir a elementosGB.js - Función modificada para cargar elementos por operación
+function cargarElementosDesdeLocalStorage() {
+    try {
+        // Obtener operación actual
+        const operacionActual = window.MAIRA?.GestionBatalla?.operacionActual || window.operacionActual || 'general';
+        
+        // Cargar sólo los elementos de esta operación
+        const elementosGuardados = localStorage.getItem(`elementos_conectados_${operacionActual}`);
+        if (!elementosGuardados) {
+            console.log(`📭 No hay elementos guardados para operación ${operacionActual}`);
+            return {};
+        }
+        
+        const elementosParsed = JSON.parse(elementosGuardados);
+        console.log(`📥 Encontrados ${Object.keys(elementosParsed).length} elementos en localStorage para operación ${operacionActual}`);
+        
+        // Verificación de operación
+        const elementosFiltrados = {};
+        Object.entries(elementosParsed).forEach(([id, elem]) => {
+            // Solo incluir elementos de esta operación
+            if (elem?.datos?.operacion === operacionActual || !elem?.datos?.operacion) {
+                elementosFiltrados[id] = elem;
+            }
+        });
+        
+        console.log(`📥 Filtrados ${Object.keys(elementosFiltrados).length} elementos para operación ${operacionActual}`);
+        
+        return elementosFiltrados;
+    } catch (e) {
+        console.error("❌ Error al cargar elementos desde localStorage:", e);
+        return {};
     }
 }
 
-function determinarTipoMCC(elemento) {
-    if (elemento instanceof L.Polygon) return 'poligono';
-    if (elemento.options.tipoElemento === 'flechaAncha') return 'flechaAncha';
-    if (elemento.options.tipoElemento === 'flecha') return 'flecha';
-    return 'linea';
+    // Añadir en la sección de obtención de opciones de menú
+function obtenerOpcionesMenuRadial(elemento) {
+    const opciones = [
+        {
+            title: 'Editar',
+            action: 'edit',
+            icon: 'fas fa-edit',
+            tooltip: 'Editar elemento',
+            callback: () => editarElementoGB(elemento)
+        },
+        {
+            title: 'Seguir',
+            action: 'follow',
+            icon: 'fas fa-crosshairs',
+            tooltip: 'Seguir elemento',
+            callback: () => iniciarSeguimientoElemento(elemento.options.id)
+        },
+        {
+            title: 'Chat',
+            action: 'chat',
+            icon: 'fas fa-comment',
+            tooltip: 'Chat privado',
+            callback: () => iniciarChatPrivado(elemento.options.id)
+        },
+        {
+            title: 'Detalles',
+            action: 'details',
+            icon: 'fas fa-info-circle',
+            tooltip: 'Ver detalles',
+            callback: () => mostrarDetallesElemento(elemento.options.id)
+        }
+    ];
+
+    return opciones;
 }
+
+// Añadir esta función para editar elementos desde el menú radial
+function editarElementoGB(elemento) {
+    console.log("Editando elemento:", elemento);
+    
+    if (!elemento) {
+        console.warn("No hay elemento para editar");
+        return;
+    }
+    
+    // Asegurarnos que el elemento seleccionado esté actualizado
+    window.elementoSeleccionadoGB = elemento;
+    window.elementoSeleccionado = elemento;
+    
+    // Usar la función correcta según el tipo de elemento
+    if (window.editarelementoSeleccionadoGB) {
+        window.editarelementoSeleccionadoGB();
+    } else if (window.guardarCambiosUnidadGB) {
+        if (elemento.options?.sidc) {
+            window.mostrarPanelEdicionUnidad(elemento);
+        }
+    } else {
+        console.warn("No se encontró función de edición adecuada");
+    }
+}
+
 
 function esEquipo(sidc) {
     return sidc.charAt(4) === 'E';
@@ -1954,1004 +240,3687 @@ function esUnidad(sidc) {
     return sidc.charAt(4) === 'U';
 }
 
-function verificarElementosAntesDeEnviarListo() {
-    const jugadorId = window.userId;
-    if (!jugadorId) {
-        console.error('No hay ID de jugador disponible');
-        return false;
+window.editarelementoSeleccionadoGB = function() {
+    console.log("Editando elemento seleccionado:", window.elementoSeleccionadoGB || window.elementoSeleccionado);
+    
+    // Asegurar que tenemos una referencia al elemento
+    const elemento = window.elementoSeleccionadoGB || window.elementoSeleccionado;
+    if (!elemento) {
+        console.error("No hay elemento seleccionado para editar");
+        return;
     }
     
-    // Obtener y mostrar todos los elementos
-    const elementos = [];
-    if (window.calcoActivo) {
-        window.calcoActivo.eachLayer(layer => {
-            if (layer.options && 
-                (layer.options.jugadorId === jugadorId || layer.options.jugador === jugadorId)) {
-                elementos.push(layer);
-            }
-        });
-    }
-    
-    console.group(`[Diagnóstico] Elementos para jugador ${jugadorId} antes de marcar como listo`);
-    console.log(`Total elementos: ${elementos.length}`);
-    
-    elementos.forEach((elem, i) => {
-        const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
-        console.log(`Elemento #${i+1}:`, {
-            id: elem.options?.id,
-            tipo: elem.options?.tipo,
-            designacion: elem.options?.designacion,
-            dependencia: elem.options?.dependencia,
-            magnitud: elem.options?.magnitud,
-            sidc: elem.options?.sidc,
-            esEquipo
-        });
-    });
-    
-    console.groupEnd();
-    return elementos.length > 0;
-}
-
-
-
-// Modificar la función guardarCambiosEquipoGB
-function guardarCambiosEquipoGB() {
-    if (!elementoSeleccionadoGB) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return false;
-    }
-
-    try {
-        const nuevoSidc = obtenerSIDCActualEquipo();
-        const designacion = document.getElementById('designacionEquipo').value;
-        const dependencia = document.getElementById('asignacionEquipo').value;
-        const posicionActual = elementoSeleccionadoGB.getLatLng();
-        
-        // Validar datos
-        if (!designacion && !dependencia) {
-            if (window.MAIRA?.Utils?.mostrarNotificacion) {
-                window.MAIRA.Utils.mostrarNotificacion(
-                    'Designación o asignación son obligatorios',
-                    'error'
-                );
-            }
-            return false;
-        }
-
-        // Preservar identificadores originales
-        const elementoId = elementoSeleccionadoGB.options.id;
-        const jugadorId = elementoSeleccionadoGB.options.jugador || elementoSeleccionadoGB.options.jugadorId || window.usuarioInfo?.id;
-        const usuarioNombre = elementoSeleccionadoGB.options.usuario || window.usuarioInfo?.usuario || 'Usuario';
-        
-        // Datos completos del elemento
-        const datosActualizados = {
-            id: elementoId,
-            sidc: nuevoSidc,
-            tipo: obtenerTipoDeElemento(nuevoSidc),
-            designacion: designacion,
-            dependencia: dependencia,
-            posicion: {
-                lat: posicionActual.lat,
-                lng: posicionActual.lng,
-                precision: 10
-            },
-            elemento: {
-                sidc: nuevoSidc,
-                designacion: designacion,
-                dependencia: dependencia
-            },
-            usuario: usuarioNombre,
-            usuarioId: jugadorId,
-            jugador: jugadorId,
-            jugadorId: jugadorId,
-            operacion: window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual || 'general',
-            timestamp: new Date().toISOString(),
-            conectado: true
-        };
-
-        // Actualizar visualmente
-        const sym = new ms.Symbol(nuevoSidc, {
-            size: 35,
-            uniqueDesignation: designacion
-        });
-
-        const icon = L.divIcon({
-            className: 'simbolo-militar',
-            html: sym.asSVG(),
-            iconSize: [70, 50],
-            iconAnchor: [35, 25]
-        });
-
-        // Actualizar propiedades del marcador
-        elementoSeleccionadoGB.setIcon(icon);
-        elementoSeleccionadoGB.options.sidc = nuevoSidc;
-        elementoSeleccionadoGB.options.designacion = designacion;
-        elementoSeleccionadoGB.options.dependencia = dependencia;
-
-        // Actualizar etiqueta
-        if (typeof actualizarEtiquetaEquipo === 'function') {
-            actualizarEtiquetaEquipo(elementoSeleccionadoGB);
-        }
-
-        // Actualizar elementosConectados
-        if (window.elementosConectados && elementosConectados[elementoId]) {
-            elementosConectados[elementoId].datos = {
-                ...elementosConectados[elementoId].datos,
-                ...datosActualizados
-            };
-        }
-
-        // MODIFICACIÓN PRINCIPAL: Guardar en la BD usando Socket.IO
-        const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-        if (socket && socket.connected) {
-            // Enviar actualización al servidor
-            socket.emit('guardarElementoDB', datosActualizados);
-            
-            // Notificar a todos los clientes
-            socket.emit('elementoActualizado', datosActualizados);
-            
-            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
-                MAIRA.Utils.mostrarNotificacion("Equipo guardado en base de datos", "success");
-            }
-        } else {
-            console.warn("No hay conexión con el servidor. Guardando solo localmente.");
-            
-            // Guardar en localStorage como fallback
-            if (typeof window.guardarElementosEnDB === 'function') {
-                window.guardarElementosEnDB();
-            } else if (typeof window.guardarElementosEnLocalStorage === 'function') {
-                window.guardarElementosEnLocalStorage();
-            }
-            
-            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
-                MAIRA.Utils.mostrarNotificacion("Equipo guardado localmente (sin conexión)", "warning");
-            }
-        }
-
-        // Cerrar panel
-        cerrarPanelEdicion('panelEdicionEquipo');
-
-        return true;
-    } catch (error) {
-        console.error('Error al guardar cambios de equipo:', error);
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar equipo: " + error.message, "error");
-        }
-        
-        return false;
-    }
-}
-
-// Modificar la función guardarCambiosLinea
-function guardarCambiosLinea() {
-    if (!elementoSeleccionadoGB) {
-        console.warn('No hay elemento seleccionado para guardar cambios');
-        return false;
-    }
-    
-    try {
-        // Obtener los nuevos valores
-        const nuevoNombre = document.getElementById('nombreLinea').value;
-        const nuevoColor = document.getElementById('colorLinea').value;
-        const nuevoAncho = parseInt(document.getElementById('anchoLinea').value);
-        const nuevoDashArray = document.getElementById('tipoLinea').value === 'dashed' ? '5, 5' : null;
-        
-        console.log("Guardando cambios de línea, nuevo nombre:", nuevoNombre);
-        
-        // Identificadores originales
-        const elementoId = elementoSeleccionadoGB.options?.id || elementoSeleccionadoGB._leaflet_id;
-        const creadorId = elementoSeleccionadoGB.options?.creador || elementoSeleccionadoGB.options?.jugador || window.usuarioInfo?.id;
-        const usuarioNombre = elementoSeleccionadoGB.options?.usuario || window.usuarioInfo?.usuario || 'Usuario';
-        
-        // Actualizar propiedades del elemento
-        elementoSeleccionadoGB.options = elementoSeleccionadoGB.options || {};
-        elementoSeleccionadoGB.options.nombre = nuevoNombre;
-        elementoSeleccionadoGB.options.color = nuevoColor;
-        elementoSeleccionadoGB.options.weight = nuevoAncho;
-        elementoSeleccionadoGB.options.dashArray = nuevoDashArray;
-        
-        // También actualizar propiedades directas
-        elementoSeleccionadoGB.nombre = nuevoNombre;
-        elementoSeleccionadoGB.color = nuevoColor;
-        elementoSeleccionadoGB.ancho = nuevoAncho;
-        elementoSeleccionadoGB.tipo = document.getElementById('tipoLinea').value;
-        
-        // Aplicar estilo visual
-        elementoSeleccionadoGB.setStyle({
-            color: nuevoColor,
-            weight: nuevoAncho,
-            dashArray: nuevoDashArray
-        });
-        
-        // Actualizar SOLO el textoMarcador existente
-        if (elementoSeleccionadoGB.textoMarcador && elementoSeleccionadoGB.textoMarcador._icon) {
-            const divTexto = elementoSeleccionadoGB.textoMarcador._icon.querySelector('div');
-            if (divTexto) {
-                console.log("Actualizando texto directamente:", nuevoNombre);
-                divTexto.textContent = nuevoNombre;
-            }
-        }
-        
-        // Eliminar cualquier textoAsociado que pudiera existir
-        if (elementoSeleccionadoGB.textoAsociado) {
-            console.log("Eliminando textoAsociado duplicado");
-            try {
-                calcoActivo.removeLayer(elementoSeleccionadoGB.textoAsociado);
-                elementoSeleccionadoGB.textoAsociado = null;
-            } catch (e) {
-                console.error("Error al eliminar textoAsociado:", e);
-            }
-        }
-        
-        // MODIFICACIÓN PRINCIPAL: Guardar en base de datos
-        // Preparar datos para guardar
-        const latlngs = elementoSeleccionadoGB.getLatLngs();
-        const puntos = Array.isArray(latlngs[0]) 
-            ? latlngs.map(arr => arr.map(p => [p.lat, p.lng])) 
-            : latlngs.map(p => [p.lat, p.lng]);
-        
-        const datosLinea = {
-            id: elementoId,
-            tipo: 'linea',
-            nombre: nuevoNombre,
-            color: nuevoColor,
-            ancho: nuevoAncho,
-            estilo: document.getElementById('tipoLinea').value,
-            puntos: puntos,
-            creador: creadorId,
-            usuario: usuarioNombre,
-            usuarioId: creadorId,
-            operacion: window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual || 'general',
-            timestamp: new Date().toISOString()
-        };
-        
-        const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-        if (socket && socket.connected) {
-            // Guardar la línea usando un evento específico o genérico
-            socket.emit('guardarLinea', datosLinea);
-            
-            // O usar el evento más genérico
-            socket.emit('guardarElementoDB', {
-                ...datosLinea,
-                tipo_elemento: 'linea'
-            });
-            
-            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
-                MAIRA.Utils.mostrarNotificacion("Línea guardada en base de datos", "success");
-            }
-        } else {
-            console.warn("No hay conexión con el servidor. Guardando solo localmente.");
-            
-            // Guardar en localStorage como fallback - adaptar para líneas
-            try {
-                const elementosGuardados = JSON.parse(localStorage.getItem('lineas_guardadas') || '{}');
-                elementosGuardados[elementoId] = datosLinea;
-                localStorage.setItem('lineas_guardadas', JSON.stringify(elementosGuardados));
-                
-                if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
-                    MAIRA.Utils.mostrarNotificacion("Línea guardada localmente (sin conexión)", "warning");
+    // Determinar qué tipo de elemento es y qué panel mostrar
+    if (elemento instanceof L.Marker) {
+        console.log("Editando marcador:", elemento);
+        if (elemento.options && elemento.options.sidc) {
+            if (window.esUnidad && window.esUnidad(elemento.options.sidc)) {
+                console.log("Mostrando panel de edición de unidad");
+                window.mostrarPanelEdicionUnidad(elemento);
+            } else if (window.esEquipo && window.esEquipo(elemento.options.sidc)) {
+                console.log("Mostrando panel de edición de equipo");
+                window.mostrarPanelEdicionEquipo(elemento);
+            } else {
+                console.log("Mostrando panel de edición MCC para elemento");
+                if (window.mostrarPanelEdicionMCC) {
+                    window.mostrarPanelEdicionMCC(elemento, 'elemento');
                 }
-            } catch (e) {
-                console.error("Error al guardar línea en localStorage:", e);
-            }
-        }
-        
-        cerrarPanelEdicion('panelEdicionLinea');
-        return true;
-    } catch (error) {
-        console.error("Error al guardar cambios de línea:", error);
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar línea: " + error.message, "error");
-        }
-        
-        return false;
-    }
-}
-
-// Modificar la función guardarCambiosMCC para guardar en BD
-function guardarCambiosMCC(elemento, tipo) {
-    try {
-        let nuevoTexto = document.getElementById('textoMCC').value;
-        let nuevoColor = document.getElementById('colorMCC').value;
-        let nuevoAncho = parseInt(document.getElementById('anchoMCC').value);
-        let nuevoTipoLinea = document.getElementById('tipoLineaMCC').value;
-
-        // Actualizar propiedades del elemento
-        elemento.setStyle({
-            color: nuevoColor,
-            weight: nuevoAncho,
-            dashArray: nuevoTipoLinea === 'dashed' ? '5,5' : null
-        });
-
-        if (tipo === 'poligono') {
-            let nuevoRelleno = document.getElementById('tipoRellenoMCC').value;
-            let nuevoColorRelleno = document.getElementById('colorRellenoMCC').value;
-            aplicarRelleno(elemento, nuevoRelleno, nuevoColorRelleno);
-        }
-
-        // Actualizar directamente el textoMarcador si existe
-        if (elemento.textoMarcador && elemento.textoMarcador._icon) {
-            const divTexto = elemento.textoMarcador._icon.querySelector('div');
-            if (divTexto) {
-                divTexto.textContent = nuevoTexto;
-                // Actualizar también las propiedades
-                elemento.options.nombre = nuevoTexto;
-                elemento.nombre = nuevoTexto;
-            }
-        } 
-        // Si no existe textoMarcador pero sí textoAsociado, eliminarlo y crear textoMarcador
-        else if (elemento.textoAsociado) {
-            calcoActivo.removeLayer(elemento.textoAsociado);
-            elemento.textoAsociado = null;
-            
-            // Crear nuevo textoMarcador con las propiedades correctas
-            let posicion;
-            if (tipo === 'poligono') {
-                posicion = elemento.getBounds().getCenter();
-            } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
-                const latlngs = elemento.getLatLngs();
-                posicion = latlngs[Math.floor(latlngs.length / 2)];
-            } else {
-                posicion = elemento.getLatLng();
-            }
-            
-            elemento.textoMarcador = L.marker(posicion, {
-                icon: L.divIcon({
-                    className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
-                    html: `<div style="color: black;">${nuevoTexto}</div>`,
-                    iconSize: [100, 20]
-                }),
-                draggable: true,
-                interactive: true
-            }).addTo(calcoActivo);
-            
-            // Actualizar propiedades
-            elemento.options.nombre = nuevoTexto;
-            elemento.nombre = nuevoTexto;
-        }
-        // Si no existe ninguno, crear textoMarcador
-        else if (nuevoTexto.trim() !== '') {
-            let posicion;
-            if (tipo === 'poligono') {
-                posicion = elemento.getBounds().getCenter();
-            } else if (tipo === 'linea' || tipo === 'flecha' || tipo === 'flechaAncha') {
-                const latlngs = elemento.getLatLngs();
-                posicion = latlngs[Math.floor(latlngs.length / 2)];
-            } else {
-                posicion = elemento.getLatLng();
-            }
-            
-            elemento.textoMarcador = L.marker(posicion, {
-                icon: L.divIcon({
-                    className: tipo === 'poligono' ? 'texto-poligono' : 'texto-linea',
-                    html: `<div style="color: black;">${nuevoTexto}</div>`,
-                    iconSize: [100, 20]
-                }),
-                draggable: true,
-                interactive: true
-            }).addTo(calcoActivo);
-            
-            // Actualizar propiedades
-            elemento.options.nombre = nuevoTexto;
-            elemento.nombre = nuevoTexto;
-        }
-
-        // MODIFICACIÓN PRINCIPAL: Guardar en base de datos
-        const elementoId = elemento.options?.id || elemento._leaflet_id;
-        const creadorId = elemento.options?.creador || elemento.options?.jugador || window.usuarioInfo?.id;
-        const usuarioNombre = elemento.options?.usuario || window.usuarioInfo?.usuario || 'Usuario';
-        
-        // Preparar datos para guardar según tipo
-        let datosMCC = {
-            id: elementoId,
-            tipo_elemento: tipo,
-            nombre: nuevoTexto,
-            color: nuevoColor,
-            ancho: nuevoAncho,
-            estilo: nuevoTipoLinea,
-            creador: creadorId,
-            usuario: usuarioNombre,
-            usuarioId: creadorId,
-            operacion: window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual || 'general',
-            timestamp: new Date().toISOString()
-        };
-        
-        // Añadir datos específicos según tipo
-        if (tipo === 'poligono') {
-            const coords = elemento.getLatLngs();
-            datosMCC.puntos = Array.isArray(coords[0]) 
-                ? coords.map(ring => ring.map(p => [p.lat, p.lng]))
-                : coords.map(p => [p.lat, p.lng]);
-            
-            datosMCC.tipoRelleno = document.getElementById('tipoRellenoMCC').value;
-            datosMCC.colorRelleno = document.getElementById('colorRellenoMCC').value;
-        } else {
-            const coords = elemento.getLatLngs();
-            datosMCC.puntos = Array.isArray(coords[0]) 
-                ? coords.map(arr => arr.map(p => [p.lat, p.lng])) 
-                : coords.map(p => [p.lat, p.lng]);
-        }
-        
-        const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-        if (socket && socket.connected) {
-            // Guardar usando un evento específico o genérico
-            socket.emit('guardarMCC', datosMCC);
-            
-            // O usar el evento más genérico
-            socket.emit('guardarElementoDB', {
-                ...datosMCC,
-                tipo: datosMCC.tipo_elemento  // Asegurar compatibilidad con evento general
-            });
-            
-            if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
-                MAIRA.Utils.mostrarNotificacion(`${tipo} guardado en base de datos`, "success");
             }
         } else {
-            console.warn("No hay conexión con el servidor. Guardando solo localmente.");
-            
-            // Guardar en localStorage como fallback
-            try {
-                const elementosGuardados = JSON.parse(localStorage.getItem('mcc_guardados') || '{}');
-                elementosGuardados[elementoId] = datosMCC;
-                localStorage.setItem('mcc_guardados', JSON.stringify(elementosGuardados));
-                
-                if (typeof MAIRA?.Utils?.mostrarNotificacion === 'function') {
-                    MAIRA.Utils.mostrarNotificacion(`${tipo} guardado localmente (sin conexión)`, "warning");
-                }
-            } catch (e) {
-                console.error(`Error al guardar ${tipo} en localStorage:`, e);
+            console.log("Marcador sin SIDC, mostrando panel genérico");
+            if (window.mostrarPanelEdicionMCC) {
+                window.mostrarPanelEdicionMCC(elemento, 'elemento');
             }
         }
-
-        cerrarPanelEdicion('panelEdicionMCC');
-        console.log('Cambios MCC guardados');
-        return true;
-    } catch (error) {
-        console.error("Error al guardar cambios MCC:", error);
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar elemento MCC: " + error.message, "error");
+    } else if (elemento instanceof L.Polyline || elemento instanceof L.Polygon) {
+        console.log("Editando línea/polígono");
+        if (window.mostrarPanelEdicionMCC && window.determinarTipoMCC) {
+            window.mostrarPanelEdicionMCC(elemento, window.determinarTipoMCC(elemento));
         }
-        
-        return false;
-    }
-}
-
-// Modificar window.enviarElementoAlServidor para mayor robustez en caso de
-window.enviarElementoAlServidor = function(elemento) {
-    console.log("🔄 Enviando elemento al servidor con integración a BD:", elemento);
-    
-    // Verificar conexión al servidor
-    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-    if (!socket || !socket.connected) {
-        console.error("❌ No hay conexión de socket disponible");
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error: No hay conexión con el servidor", "error");
+    } else if (elemento instanceof L.Path) {
+        console.log("Editando path");
+        if (window.mostrarPanelEdicionLinea) {
+            window.mostrarPanelEdicionLinea(elemento);
         }
-        
-        // Guardar en localStorage como fallback
-        if (typeof window.guardarElementosEnLocalStorage === 'function') {
-            window.guardarElementosEnLocalStorage();
-        }
-        
-        return false;
-    }
-    
-    try {
-        // IMPORTANTE: Asegurar que todos los ID y referencias sean consistentes
-        const idUsuarioActual = 
-            elemento.options?.usuarioId || 
-            elemento.options?.jugadorId || 
-            window.usuarioInfo?.id || 
-            (window.MAIRA?.GestionBatalla?.usuarioInfo?.id);
-        
-        const nombreUsuarioActual = 
-            elemento.options?.usuario || 
-            window.usuarioInfo?.usuario || 
-            'Usuario';
-        
-        const operacionActual = 
-            window.operacionActual || 
-            window.MAIRA?.GestionBatalla?.operacionActual || 
-            'general';
-        
-        // Preparar datos completos del elemento
-        const datosElemento = {
-            id: elemento.options.id || `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            sidc: elemento.options.sidc || 'SFGPUCI-----',
-            designacion: elemento.options.designacion || elemento.options.nombre || 'Elemento sin nombre',
-            dependencia: elemento.options.dependencia || '',
-            magnitud: elemento.options.magnitud || '-',
-            tipo: elemento.options.tipo || obtenerTipoDeElemento(elemento.options.sidc) || 'unidad',
-            usuario: nombreUsuarioActual,
-            usuarioId: idUsuarioActual,
-            jugadorId: idUsuarioActual,  // Mantener para compatibilidad
-            jugador: idUsuarioActual,    // Mantener para compatibilidad
-            creador: idUsuarioActual,    // Mantener para compatibilidad
-            operacion: operacionActual,
-            timestamp: new Date().toISOString(),
-            conectado: true,
-            elemento: {
-                sidc: elemento.options.sidc || 'SFGPUCI-----',
-                designacion: elemento.options.designacion || elemento.options.nombre || '',
-                dependencia: elemento.options.dependencia || '',
-                magnitud: elemento.options.magnitud || '-'
-            }
-        };
-        
-        // Añadir posición si existe
-        if (typeof elemento.getLatLng === 'function') {
-            const pos = elemento.getLatLng();
-            datosElemento.posicion = {
-                lat: pos.lat,
-                lng: pos.lng,
-                precision: 10,
-                rumbo: elemento.options.rumbo || 0,
-                velocidad: 0
-            };
-        }
-        
-        // MODIFICACIÓN PRINCIPAL: Enviar utilizando guardarElementoDB para DB
-        console.log("📤 Enviando elemento a la base de datos:", datosElemento);
-        socket.emit('guardarElementoDB', datosElemento);
-        
-        // También enviar con eventos adicionales para compatibilidad
-        socket.emit('nuevoElemento', datosElemento);
-        socket.emit('anunciarElemento', datosElemento);
-        
-        // Si tiene posición, enviar actualización de posición también
-        if (datosElemento.posicion) {
-            socket.emit('actualizarPosicionGB', datosElemento);
-        }
-        
-        // Actualizar estructura local - elementosConectados
-        if (window.elementosConectados) {
-            if (!window.elementosConectados[datosElemento.id]) {
-                window.elementosConectados[datosElemento.id] = {
-                    datos: datosElemento,
-                    marcador: elemento
-                };
-            } else {
-                // Preservar datos existentes y sobrescribir con nuevos
-                window.elementosConectados[datosElemento.id].datos = {
-                    ...window.elementosConectados[datosElemento.id].datos,
-                    ...datosElemento,
-                    // Asegurar que estos campos se mantengan consistentes
-                    id: datosElemento.id,
-                    usuario: datosElemento.usuario,
-                    usuarioId: datosElemento.usuarioId,
-                    jugadorId: datosElemento.jugadorId
-                };
-                window.elementosConectados[datosElemento.id].marcador = elemento;
-            }
-        }
-        
-        // Sincronizar con MAIRA si está disponible
-        if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
-            window.MAIRA.GestionBatalla.elementosConectados[datosElemento.id] = 
-                window.elementosConectados[datosElemento.id];
-        }
-        
-        // Si es el elemento del usuario actual, actualizar elementoTrabajo
-        if (idUsuarioActual === window.usuarioInfo?.id) {
-            window.elementoTrabajo = {
-                ...window.elementoTrabajo,
-                sidc: datosElemento.sidc,
-                designacion: datosElemento.designacion,
-                dependencia: datosElemento.dependencia,
-                magnitud: datosElemento.magnitud
-            };
-            
-            // Actualizar también en MAIRA central
-            if (window.MAIRA && window.MAIRA.GestionBatalla) {
-                window.MAIRA.GestionBatalla.elementoTrabajo = window.elementoTrabajo;
-            }
-        }
-        
-        // Notificar éxito al usuario
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Elemento guardado en base de datos", "success");
-        }
-        
-        return true;
-    } catch (error) {
-        console.error("❌ Error al enviar elemento:", error);
-        
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion("Error al guardar el elemento: " + error.message, "error");
-        }
-        
-        return false;
+    } else {
+        console.error("Tipo de elemento no reconocido:", elemento);
     }
 };
 
-/**
- * Función mejorada para cargar elementos desde DB
- */
-window.cargarElementosDesdeDB = function() {
-    console.log("🔄 Solicitando elementos desde base de datos");
+function buscarElementoEnPosicion(latlng) {
+    console.log("Buscando elemento en posición:", latlng);
     
-    const operacionActual = 
-        window.operacionActual || 
-        window.MAIRA?.GestionBatalla?.operacionActual || 
-        'general';
-    
-    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-    
-    if (!socket || !socket.connected) {
-        console.warn("⚠️ No hay conexión al servidor. Intentando cargar desde localStorage");
-        return cargarElementosDesdeLocalStorage();
+    if (!window.mapa) {
+        console.error("Mapa no disponible para buscar elementos");
+        return null;
     }
     
-    // Solicitar elementos al servidor
-    socket.emit('obtenerElementosDB', {
-        operacion: operacionActual
+    let elementoEncontrado = null;
+    let distanciaMinima = Infinity;
+    const puntoClick = window.mapa.latLngToContainerPoint(latlng);
+    const radioDeteccion = 60; // Aumentado a 60 píxeles para ser más permisivo
+    
+    // Imprimir todos los elementos conectados para diagnóstico
+    console.log(`Elementos conectados disponibles: ${Object.keys(elementosConectados).length}`);
+    Object.entries(elementosConectados).forEach(([id, elem]) => {
+        if (elem.marcador) {
+            const pos = elem.marcador.getLatLng();
+            console.log(`- Elemento ID: ${id}, posición: ${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}`);
+        }
     });
     
-    // La respuesta se procesará en el evento 'listaElementos'
-    // Configurar un timeout para fallback si no hay respuesta
-    setTimeout(() => {
-        // Si después de 5 segundos no llegan datos, intentar localStorage
-        if (!window.elementosDBCargados) {
-            console.warn("⏱️ Timeout esperando datos del servidor. Intentando localStorage");
-            cargarElementosDesdeLocalStorage();
-        }
-    }, 5000);
-    
-    return true;
-};
-
-/**
- * Función de respaldo para cargar desde localStorage
- */
-function cargarElementosDesdeLocalStorage() {
-    console.log("📂 Cargando elementos desde localStorage como fallback");
-    
-    try {
-        const operacionActual = 
-            window.operacionActual || 
-            window.MAIRA?.GestionBatalla?.operacionActual || 
-            'general';
-        
-        const elementosGuardados = localStorage.getItem(`elementos_conectados_${operacionActual}`);
-        if (!elementosGuardados) {
-            console.log("📭 No hay elementos guardados en localStorage para esta operación");
-            return 0;
-        }
-        
-        const elementosParsed = JSON.parse(elementosGuardados);
-        console.log(`📥 Encontrados ${Object.keys(elementosParsed).length} elementos en localStorage`);
-        
-        // Convertir a formato esperado por procesarElementosRecibidos
-        const elementosArray = Object.values(elementosParsed).map(elem => elem.datos);
-        
-        // Actualizar elementos usando el sistema existente
-        if (typeof window.procesarElementosRecibidos === 'function') {
-            window.procesarElementosRecibidos(elementosArray);
-        } else {
-            console.warn("⚠️ Función procesarElementosRecibidos no disponible");
-            
-            // Fallback: actualizar manualmente
-            elementosArray.forEach(elemento => {
-                if (!window.elementosConectados) window.elementosConectados = {};
+    // Primero buscar en elementos conectados (que es lo más probable)
+    Object.values(elementosConectados).forEach(elemento => {
+        if (elemento.marcador) {
+            try {
+                const pos = elemento.marcador.getLatLng();
+                const puntoMarcador = window.mapa.latLngToContainerPoint(pos);
+                const distancia = puntoClick.distanceTo(puntoMarcador);
                 
-                window.elementosConectados[elemento.id] = {
-                    datos: elemento,
-                    marcador: null
-                };
+                console.log(`Elemento ${elemento.datos?.id}, distancia: ${distancia}px`);
                 
-                // Crear marcador si hay función disponible
-                if (typeof window.crearMarcadorElemento === 'function' && elemento.posicion) {
-                    window.elementosConectados[elemento.id].marcador = 
-                        window.crearMarcadorElemento(elemento);
+                if (distancia < radioDeteccion && distancia < distanciaMinima) {
+                    elementoEncontrado = elemento.marcador;
+                    distanciaMinima = distancia;
+                }
+            } catch (e) {
+                console.error("Error al calcular distancia para elemento:", e);
+            }
+        }
+    });
+    
+    // Si no se encontró nada, buscar en todas las capas
+    if (!elementoEncontrado) {
+        console.log("Buscando en calcoActivo...");
+        if (window.calcoActivo) {
+            window.calcoActivo.eachLayer(function(layer) {
+                if (layer instanceof L.Marker) {
+                    try {
+                        const puntoMarcador = window.mapa.latLngToContainerPoint(layer.getLatLng());
+                        const distancia = puntoClick.distanceTo(puntoMarcador);
+                        
+                        if (distancia < radioDeteccion && distancia < distanciaMinima) {
+                            elementoEncontrado = layer;
+                            distanciaMinima = distancia;
+                        }
+                    } catch (e) {
+                        console.error("Error al procesar capa en calcoActivo:", e);
+                    }
                 }
             });
         }
-        
-        return elementosArray.length;
-    } catch (e) {
-        console.error("❌ Error al cargar elementos desde localStorage:", e);
-        return 0;
     }
+    
+    console.log(`[Elementos] Elemento encontrado en (${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}):`, 
+                elementoEncontrado, "distancia:", distanciaMinima.toFixed(2) + "px");
+    
+    return elementoEncontrado;
 }
-
-/**
- * Evento para escuchar respuestas del servidor con elementos
- */
-function configurarEventoListaElementos() {
-    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
     
-    if (!socket) {
-        console.warn("⚠️ No se puede configurar evento listaElementos: socket no disponible");
-        return false;
+    /**
+     * Inicializa la interfaz de elementos
+     */
+    function inicializarInterfazElementos() {
+        console.log("Inicializando interfaz de elementos");
+        
+        // Mejorar la lista de elementos
+        mejorarListaElementos();
+        
+        // Inicializar estilos para elementos
+        inicializarEstilosElementos();
+        
+        console.log("Interfaz de elementos inicializada");
     }
     
-    socket.off('listaElementos'); // Evitar duplicados
-    
-    socket.on('listaElementos', function(elementos) {
-        console.log(`📥 Recibidos ${elementos?.length || 0} elementos del servidor`);
-        
-        if (!elementos || !Array.isArray(elementos) || elementos.length === 0) {
-            console.log("📭 No se recibieron elementos válidos del servidor");
+    /**
+     * Inicializa los estilos para elementos
+     */
+    function inicializarEstilosElementos() {
+        // Verificar si ya existe la hoja de estilos
+        if (document.getElementById('estilos-elementos')) {
             return;
         }
         
-        // Marcar que se recibieron datos
-        window.elementosDBCargados = true;
-        
-        // Procesar elementos usando la función existente
-        if (typeof window.procesarElementosRecibidos === 'function') {
-            window.procesarElementosRecibidos(elementos);
-        } else {
-            console.warn("⚠️ Función procesarElementosRecibidos no disponible");
+        // Crear hoja de estilos
+        const style = document.createElement('style');
+        style.id = 'estilos-elementos';
+        style.textContent = `
+            /* Estilos para lista de elementos */
+            .elemento-item {
+                transition: background-color 0.2s;
+                border-bottom: 1px solid #eee;
+                margin-bottom: 8px;
+                padding: 10px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
             
-            // Fallback: crear estructuras básicas
+            .elemento-item:hover {
+                background-color: #f5f5f5;
+            }
+            
+            .elemento-item.seleccionado {
+                background-color: #e3f2fd;
+                border-left: 3px solid #2196F3;
+            }
+            
+            .elemento-item.usuario-actual {
+                background-color: #e8f5e9;
+                border-left: 3px solid #4CAF50;
+            }
+            
+            .elemento-item .elemento-acciones button {
+                background: none;
+                border: none;
+                color: #0281a8;
+                padding: 5px;
+                margin: 0 3px;
+                cursor: pointer;
+                border-radius: 50%;
+                transition: background-color 0.2s;
+            }
+            
+            .elemento-item .elemento-acciones button:hover {
+                background-color: rgba(2, 129, 168, 0.1);
+            }
+            
+            .elemento-icon {
+                position: relative;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .elemento-status {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                border: 1px solid white;
+            }
+            
+            .elemento-status.online {
+                background-color: #4CAF50;
+            }
+            
+            .elemento-status.offline {
+                background-color: #9E9E9E;
+            }
+            
+            /* Estilos para marcadores */
+            .temp-marker-pin {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: #2196F3;
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            }
+            
+            /* Estilos para menú contextual */
+            .menu-contextual-elemento {
+                position: absolute;
+                background-color: white;
+                border-radius: 4px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                padding: 5px 0;
+                z-index: 1000;
+                min-width: 180px;
+            }
+            
+            .menu-contextual-elemento .menu-item {
+                padding: 8px 15px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                display: flex;
+                align-items: center;
+            }
+            
+            .menu-contextual-elemento .menu-item:hover {
+                background-color: #f5f5f5;
+            }
+            
+            .menu-contextual-elemento .menu-item i {
+                margin-right: 8px;
+                width: 16px;
+                text-align: center;
+                color: #555;
+            }
+            
+            /* Estilos para seguimiento activo */
+            .siguiendo-elemento {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background-color: rgba(33, 150, 243, 0.9);
+                color: white;
+                padding: 10px 15px;
+                border-radius: 50px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                font-size: 14px;
+            }
+            
+            .siguiendo-elemento i {
+                margin-right: 8px;
+            }
+            
+            .siguiendo-elemento button {
+                margin-left: 10px;
+                background-color: transparent;
+                border: none;
+                color: white;
+                cursor: pointer;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background-color 0.2s;
+            }
+            
+            .siguiendo-elemento button:hover {
+                background-color: rgba(255,255,255,0.2);
+            }
+             // Añadir al bloque de estilos existente en inicializarEstilosElementos()
+
+                .elemento-posicion {
+                    font-size: 0.8em;
+                    color: #666;
+                    margin-top: 2px;
+                }
+
+                .elemento-item .elemento-info {
+                    flex-grow: 1;
+                    padding: 0 10px;
+                    overflow: hidden;
+                }
+
+                .elemento-item .elemento-tiempo {
+                    font-size: 0.8em;
+                    color: #999;
+                }   
+        `;
+        
+        document.head.appendChild(style);
+    }
+    
+    /**
+     * Configura los eventos para el módulo de elementos
+     */
+        function configurarEventosElementos() {
+        console.log("Configurando eventos del módulo de elementos");
+        
+        // 1. Configurar botones de la interfaz
+        configurarBotonesInterfaz();
+        
+        // 2. Configurar eventos de elementos en el mapa
+        configurarEventosElementosMapa();
+        
+        // 3. Inicializar menú contextual
+        inicializarMenuContextual();
+        
+        // 4. Configurar eventos táctiles para móviles
+        configurarEventosTactiles();
+        
+        console.log("Eventos del módulo de elementos configurados");
+    }
+    
+    function configurarBotonesInterfaz() {
+        // Botones de acción para elementos
+        const botones = {
+            'btn-seguimiento': toggleSeguimiento,
+            'btn-centrar': centrarEnPosicion,
+            'btn-ver-todos': mostrarTodosElementos,
+            'btnBuscarElemento': mostrarModalBusqueda
+        };
+    
+        Object.entries(botones).forEach(([id, handler]) => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.addEventListener('click', handler);
+                console.log(`Botón ${id} configurado`);
+            }
+        });
+    
+        // Campo de búsqueda de elementos
+        const busquedaElemento = document.getElementById('busqueda-elemento');
+        if (busquedaElemento) {
+            busquedaElemento.addEventListener('input', (e) => buscarElementos(e.target.value));
+        }
+    }
+    
+    function configurarEventosElementosMapa() {
+        // Eventos para elementos en el mapa
+        window.mapa.on('click', function(e) {
+            // Ocultar menú contextual si está visible
+            const menuContextual = document.getElementById('menu-contextual-elemento');
+            if (menuContextual) {
+                menuContextual.style.display = 'none';
+            }
+        });
+    
+        // Configurar eventos para elementos existentes
+        Object.values(elementosConectados).forEach(elemento => {
+            if (elemento.marcador) {
+                configurarEventosMarcador(elemento.marcador);
+            }
+        });
+    }
+    
+    function configurarEventosMarcador(marcador) {
+        // Click simple para seleccionar
+        marcador.on('click', function(e) {
+            L.DomEvent.stopPropagation(e);
+            seleccionarElementoGB(this);
+        });
+    
+        // Click derecho para menú radial
+        marcador.on('contextmenu', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            
+            window.elementoSeleccionadoGB = this;
+            
+            if (window.MiRadial) {
+                window.MiRadial.mostrarMenu(
+                    e.originalEvent.pageX,
+                    e.originalEvent.pageY,
+                    'elemento'
+                );
+            }
+        });
+    }
+
+function obtenerOpcionesMenuElemento(elemento) {
+    const opciones = [
+        {
+            title: 'Editar',
+            action: 'edit',
+            icon: 'fas fa-edit',
+            tooltip: 'Editar elemento',
+            callback: () => editarElementoGB(elemento)
+        },
+        {
+            title: 'Seguir',
+            action: 'follow',
+            icon: 'fas fa-crosshairs',
+            tooltip: 'Seguir elemento',
+            callback: () => iniciarSeguimientoElemento(elemento.options.id)
+        },
+        {
+            title: 'Chat',
+            action: 'chat',
+            icon: 'fas fa-comment',
+            tooltip: 'Chat privado',
+            callback: () => iniciarChatPrivado(elemento.options.id)
+        },
+        {
+            title: 'Detalles',
+            action: 'details',
+            icon: 'fas fa-info-circle',
+            tooltip: 'Ver detalles',
+            callback: () => mostrarDetallesElemento(elemento.options.id)
+        }
+    ];
+
+    return opciones;
+}
+
+function editarElemento(elementoId) {
+    const elemento = elementosConectados[elementoId];
+    if (!elemento) return;
+
+    if (MAIRA.EdicionGB && typeof MAIRA.EdicionGB.mostrarModalEdicion === 'function') {
+        MAIRA.EdicionGB.mostrarModalEdicion(elemento);
+    } else {
+        console.error('Módulo de edición no disponible');
+    }
+}
+
+
+
+function mostrarMenuRadial(e, elemento) {
+    // Asegurarse que el módulo MenuRadial está disponible
+    if (!window.MAIRA.MenuRadial) {
+        console.error("Módulo MenuRadial no encontrado");
+        return;
+    }
+
+    const opciones = [
+        {
+            titulo: 'Seguir',
+            icono: 'fa-crosshairs',
+            accion: () => iniciarSeguimientoElemento(elemento.options.id)
+        },
+        {
+            titulo: 'Detalles',
+            icono: 'fa-info-circle',
+            accion: () => mostrarPanelDetalles(elemento)
+        },
+        {
+            titulo: 'Mensaje',
+            icono: 'fa-comment',
+            accion: () => iniciarChatPrivado(elemento.options.id)
+        },
+        {
+            titulo: 'Centrar',
+            icono: 'fa-map-marker-alt',
+            accion: () => centrarEnElemento(elemento.options.id)
+        }
+    ];
+
+    window.MAIRA.MenuRadial.mostrar(e, opciones);
+}
+
+function mostrarPanelDetalles(elemento) {
+    // Verificar si existe el panel de detalles
+    const panelDetalles = document.getElementById('panel-detalles-elemento');
+    if (!panelDetalles) return;
+
+    const datos = elementosConectados[elemento.options.id]?.datos;
+    if (!datos) return;
+
+    // Actualizar contenido del panel
+    panelDetalles.innerHTML = `
+        <div class="detalles-cabecera">
+            <div class="sidc-preview"></div>
+            <h4>${datos.elemento?.designacion || 'Sin designación'}</h4>
+        </div>
+        <div class="detalles-info">
+            <p><strong>Usuario:</strong> ${datos.usuario}</p>
+            <p><strong>Dependencia:</strong> ${datos.elemento?.dependencia || 'N/A'}</p>
+            <p><strong>Velocidad:</strong> ${datos.posicion?.velocidad?.toFixed(1) || 0} m/s</p>
+            <p><strong>Rumbo:</strong> ${datos.posicion?.rumbo?.toFixed(1) || 0}°</p>
+            <p><strong>Última actualización:</strong> ${MAIRA.Utils.formatearFecha(datos.timestamp)}</p>
+        </div>
+        <div class="detalles-acciones">
+            <button onclick="MAIRA.Elementos.iniciarSeguimientoElemento('${elemento.options.id}')">
+                <i class="fas fa-crosshairs"></i> Seguir
+            </button>
+            <button onclick="MAIRA.Elementos.iniciarChatPrivado('${elemento.options.id}')">
+                <i class="fas fa-comment"></i> Mensaje
+            </button>
+        </div>
+    `;
+
+    // Mostrar panel
+    panelDetalles.style.display = 'block';
+}
+    
+    function configurarEventosTactiles() {
+        // Para dispositivos móviles
+        if ('ontouchstart' in window) {
+            Object.values(elementosConectados).forEach(elemento => {
+                if (elemento.marcador) {
+                    let touchTimeout;
+                    let touchStartTime;
+                    let hasMoved = false;
+    
+                    elemento.marcador.on('touchstart', function(e) {
+                        touchStartTime = Date.now();
+                        hasMoved = false;
+                        touchTimeout = setTimeout(() => {
+                            if (!hasMoved) {
+                                mostrarMenuContextualMarcador(e, this);
+                            }
+                        }, 500);
+                    });
+    
+                    elemento.marcador.on('touchmove', function() {
+                        hasMoved = true;
+                        if (touchTimeout) {
+                            clearTimeout(touchTimeout);
+                        }
+                    });
+    
+                    elemento.marcador.on('touchend', function(e) {
+                        if (touchTimeout) {
+                            clearTimeout(touchTimeout);
+                        }
+                        
+                        const touchDuration = Date.now() - touchStartTime;
+                        if (!hasMoved && touchDuration < 500) {
+                            seleccionarElementoGB(this);
+                        }
+                    });
+                }
+            });
+        }
+    }
+    
+    function mostrarModalBusqueda() {
+        const modal = document.getElementById('modalBuscarElemento');
+        if (!modal) return;
+    
+        if (typeof $('#modalBuscarElemento').modal === 'function') {
+            $('#modalBuscarElemento').modal('show');
+        } else {
+            modal.style.display = 'block';
+            
+            // Añadir botón de cierre si no existe
+            if (!modal.querySelector('.close-btn')) {
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'close-btn';
+                closeBtn.innerHTML = '&times;';
+                closeBtn.onclick = () => modal.style.display = 'none';
+                modal.insertBefore(closeBtn, modal.firstChild);
+            }
+        }
+    }
+    
+    /**
+     * Configura los eventos de Socket.io para el módulo de elementos
+     * @param {Object} socket - Objeto socket.io
+     */
+
+
+    function configurarEventosSocket(socket) {
+        if (!socket) {
+            console.warn("Socket no disponible para configurar eventos");
+            return false;
+        }
+        
+        console.log("Configurando eventos de socket para elementos");
+        
+        // Limpiar eventos previos para evitar duplicados
+        socket.off('listaElementos');
+        socket.off('nuevoElemento');
+        socket.off('anunciarElemento');
+        socket.off('actualizacionPosicion');
+        socket.off('actualizarPosicion');
+        socket.off('heartbeat');
+        
+        // Evento para recibir lista completa de elementos
+        socket.on('listaElementos', function(elementos) {
+            console.log(`Recibidos ${elementos?.length || 0} elementos del servidor:`, elementos);
+            
+            if (!elementos || !Array.isArray(elementos)) {
+                console.warn("Lista de elementos inválida recibida:", elementos);
+                return;
+            }
+            
+            // Inicializar lista con los elementos recibidos
+            inicializarListaElementos(elementos);
+            
+            // Solicitar explícitamente posiciones de todos los usuarios
+            socket.emit('solicitarPosiciones', { operacion: operacionActual });
+            
+            // Actualizar listas de destinatarios
+            if (window.MAIRA && window.MAIRA.Chat && typeof window.MAIRA.Chat.actualizarListaDestinatarios === 'function') {
+                window.MAIRA.Chat.actualizarListaDestinatarios();
+            }
+            
+            // Verificar si todos los elementos se procesaron correctamente
+            console.log(`Elementos conectados después de procesar lista: ${Object.keys(elementosConectados).length}`);
+        });
+        
+        // Eventos para elementos individuales
+        socket.on('nuevoElemento', function(elemento) {
+            console.log("Nuevo elemento recibido:", elemento);
+            
+            // Asegurar que el elemento tiene un ID
+            if (!elemento || !elemento.id) {
+                console.warn("Elemento sin ID recibido:", elemento);
+                return;
+            }
+            
+            // Procesar sin filtrar si es o no nuestro propio elemento
+            procesarElementosRecibidos(elemento);
+        });
+        
+        socket.on('anunciarElemento', function(elemento) {
+            console.log("Elemento anunciado recibido:", elemento);
+            
+            // Asegurar que el elemento tiene un ID
+            if (!elemento || !elemento.id) {
+                console.warn("Elemento sin ID recibido:", elemento);
+                return;
+            }
+            
+            // Procesar sin filtrar si es o no nuestro propio elemento
+            procesarElementosRecibidos(elemento);
+        });
+        
+        // Iniciar envío periódico de heartbeat para mantener elementos activos
+        iniciarHeartbeat();
+        
+        console.log("Eventos de socket para elementos configurados");
+        return true;
+    }
+
+    function solicitarListaElementos() {
+        // Obtener referencias necesarias
+        const socket = window.socket;
+        const operacionActual = window.MAIRA?.GestionBatalla?.operacionActual;
+        const usuarioInfo = window.MAIRA?.GestionBatalla?.usuarioInfo;
+        const elementoTrabajo = window.MAIRA?.GestionBatalla?.elementoTrabajo;
+        const ultimaPosicion = window.MAIRA?.GestionBatalla?.ultimaPosicion;
+    
+        if (!socket?.connected || !operacionActual) {
+            console.warn("[Elementos] No se puede solicitar lista de elementos: sin conexión o sin operación actual");
+            return false;
+        }
+        
+        console.log("[Elementos] Solicitando lista de elementos para la operación:", operacionActual);
+        
+        // Múltiples eventos para máxima compatibilidad
+        socket.emit('solicitarElementos', { 
+            operacion: operacionActual,
+            solicitante: usuarioInfo?.id
+        });
+        
+        socket.emit('listaElementos', { 
+            operacion: operacionActual 
+        });
+        
+        // También forzar anuncio propio
+        if (usuarioInfo && elementoTrabajo) {
+            const datosPropios = {
+                id: usuarioInfo.id,
+                usuario: usuarioInfo.usuario,
+                elemento: elementoTrabajo,
+                posicion: ultimaPosicion,
+                operacion: operacionActual,
+                timestamp: new Date().toISOString(),
+                conectado: true
+            };
+            
+            socket.emit('anunciarElemento', datosPropios);
+            socket.emit('nuevoElemento', datosPropios);
+            
+            // Procesar localmente
+            if (typeof MAIRA.Elementos.procesarElementosRecibidos === 'function') {
+                MAIRA.Elementos.procesarElementosRecibidos(datosPropios);
+            }
+        }
+        
+        console.log("[Elementos] Solicitud de lista de elementos enviada");
+        return true;
+    }
+    
+    // Hacer disponible globalmente
+    window.solicitarListaElementos = solicitarListaElementos;
+    
+/**
+ * Inicia envío periódico de heartbeat para mantener visibilidad
+ */
+function iniciarHeartbeat() {
+    // Limpiar intervalo existente si hay
+    if (window.heartbeatInterval) {
+        clearInterval(window.heartbeatInterval);
+    }
+    
+    window.heartbeatInterval = setInterval(() => {
+        if (socket && socket.connected && usuarioInfo) {
+            const datos = {
+                id: usuarioInfo.id,
+                usuario: usuarioInfo.usuario,
+                elemento: elementoTrabajo,
+                posicion: ultimaPosicion,
+                operacion: operacionActual,
+                timestamp: new Date().toISOString(),
+                conectado: true
+            };
+            
+            socket.emit('heartbeat', datos);
+            
+            // También forzar solicitud de lista completa periódicamente
+            if (Math.random() < 0.3) { // 30% de probabilidad para reducir tráfico
+                socket.emit('solicitarElementos', { 
+                    operacion: operacionActual,
+                    solicitante: usuarioInfo.id
+                });
+            }
+        }
+    }, 5000); // cada 5 segundos
+}
+
+
+
+/**
+ * Sincroniza elementos con todos los módulos
+ */
+function sincronizarElementos() {
+    console.log(`Sincronizando elementos con otros módulos: ${Object.keys(elementosConectados).length} elementos`);
+    
+    // Asegurar que la referencia global esté actualizada
+    window.elementosConectados = elementosConectados;
+    
+    // Actualizar con GestionBatalla si está disponible
+    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+        window.MAIRA.GestionBatalla.elementosConectados = elementosConectados;
+    }
+    
+    // Notificar al módulo de chat
+    if (window.MAIRA && window.MAIRA.Chat && typeof window.MAIRA.Chat.sincronizarElementosChat === 'function') {
+        window.MAIRA.Chat.sincronizarElementosChat(elementosConectados);
+    }
+    
+    // Actualizar contador de elementos
+    actualizarContadorElementos();
+}
+
+/**
+ * Función para forzar la sincronización de elementos
+ */
+function forzarSincronizacionElementos() {
+    console.log("Forzando sincronización completa de elementos");
+    
+    if (!socket || !socket.connected) {
+        console.warn("No se puede forzar sincronización sin conexión al servidor");
+        return false;
+    }
+    
+    // NUEVO: Limpiar elementos duplicados o inválidos antes de sincronizar
+    limpiarElementosDuplicados();
+    
+    // Solicitar lista completa de elementos
+    socket.emit('solicitarElementos', {
+        operacion: operacionActual,
+        solicitante: usuarioInfo?.id,
+        forzar: true
+    });
+    
+    // Anunciar nuestra presencia para que otros nos vean
+    const datos = {
+        id: usuarioInfo.id,
+        usuario: usuarioInfo.usuario,
+        elemento: elementoTrabajo,
+        posicion: ultimaPosicion,
+        operacion: operacionActual,
+        timestamp: new Date().toISOString(),
+        conectado: true
+    };
+    
+    // Enviar por múltiples canales para asegurar recepción
+    socket.emit('anunciarElemento', datos);
+    socket.emit('nuevoElemento', datos);
+    socket.emit('heartbeat', datos);
+    
+    // IMPORTANTE: Enviar explícitamente TODOS los elementos guardados localmente
+    // para propagar ediciones a todos los usuarios
+    try {
+        const elementosGuardados = localStorage.getItem('elementos_conectados');
+        if (elementosGuardados) {
+            const elementosParsed = JSON.parse(elementosGuardados);
+            console.log(`Enviando ${Object.keys(elementosParsed).length} elementos guardados en sincronización forzada`);
+            
+            Object.values(elementosParsed).forEach(elem => {
+                if (elem.datos) {
+                    // Enviar por todos los canales disponibles
+                    socket.emit('actualizarElemento', elem.datos);
+                    socket.emit('nuevoElemento', elem.datos);
+                    socket.emit('anunciarElemento', elem.datos);
+                    
+                    // Si tiene posición, enviar también por canal de posición
+                    if (elem.datos.posicion) {
+                        socket.emit('actualizarPosicionGB', elem.datos);
+                    }
+                    
+                    console.log(`Enviando elemento ${elem.datos.id} en sincronización forzada`);
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Error al procesar elementos guardados durante sincronización:", e);
+    }
+    
+    // Enviar mensaje de chat para forzar visibilidad
+    const mensaje = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        usuario: 'Sistema',
+        mensaje: `${usuarioInfo.usuario} ha forzado sincronización de elementos`,
+        tipo: 'sistema',
+        sala: operacionActual,
+        timestamp: new Date().toISOString(),
+        emisor: {
+            id: usuarioInfo.id,
+            nombre: usuarioInfo.usuario,
+            elemento: elementoTrabajo
+        }
+    };
+    
+    socket.emit('mensajeChat', mensaje);
+    
+    // También solicitar posiciones
+    socket.emit('solicitarPosiciones', { operacion: operacionActual });
+    
+    return true;
+}
+
+
+
+// Exponer la función forzar sincronización globalmente para llamarla desde consola
+window.forzarSincronizacionElementos = forzarSincronizacionElementos;
+
+
+function procesarElementosRecibidos(elemento) {
+    console.log("Procesando elemento recibido:", elemento);
+    
+    // Si es un array, procesar cada elemento
+    if (Array.isArray(elemento)) {
+        elemento.forEach(elem => procesarElementosRecibidos(elem));
+        return;
+    }
+    
+    // Si no tiene ID, no podemos procesarlo
+    if (!elemento || !elemento.id) {
+        console.warn("Elemento sin ID válido ignorado");
+        return null;
+    }
+    
+    // NUEVO: Verificar si hay datos guardados localmente
+    let elementoGuardadoLocal = null;
+    try {
+        const elementosGuardados = localStorage.getItem('elementos_conectados');
+        if (elementosGuardados) {
+            const elementosParsed = JSON.parse(elementosGuardados);
+            if (elementosParsed[elemento.id] && elementosParsed[elemento.id].datos) {
+                elementoGuardadoLocal = elementosParsed[elemento.id].datos;
+                console.log(`Encontrado elemento guardado localmente para: ${elemento.id}`);
+            }
+        }
+    } catch (e) {
+        console.warn(`Error al buscar datos locales del elemento ${elemento.id}:`, e);
+    }
+    
+    // Verificar si ya existe
+    const elementoExistente = elementosConectados[elemento.id];
+    
+    if (elementoExistente) {
+        // NUEVO: Preservar datos importantes del elemento guardado localmente
+        if (elementoGuardadoLocal) {
+            // Si hay cambios locales, mantenerlos
+            elemento.sidc = elementoGuardadoLocal.sidc || elemento.sidc;
+            elemento.designacion = elementoGuardadoLocal.designacion || elemento.designacion;
+            elemento.dependencia = elementoGuardadoLocal.dependencia || elemento.dependencia;
+            elemento.magnitud = elementoGuardadoLocal.magnitud || elemento.magnitud;
+            
+            // También actualizar elemento.elemento
+            if (elemento.elemento) {
+                elemento.elemento.sidc = elemento.sidc;
+                elemento.elemento.designacion = elemento.designacion;
+                elemento.elemento.dependencia = elemento.dependencia;
+                elemento.elemento.magnitud = elemento.magnitud;
+            }
+            
+            console.log(`Preservados datos locales para elemento ${elemento.id}`);
+        }
+        
+        // Actualizar datos
+        elementosConectados[elemento.id].datos = {
+            ...elementoExistente.datos,
+            ...elemento,
+            posicion: elemento.posicion || elementoExistente.datos.posicion
+        };
+        
+        // Actualizar marcador si existe
+        if (elementoExistente.marcador && elemento.posicion) {
+            try {
+                elementoExistente.marcador.setLatLng([elemento.posicion.lat, elemento.posicion.lng]);
+                console.log(`Posición de marcador actualizada: ${elemento.posicion.lat}, ${elemento.posicion.lng}`);
+                
+                // Si hay cambio de SIDC, actualizar icono
+                if (elemento.sidc && elemento.sidc !== elementoExistente.marcador.options.sidc) {
+                    actualizarIconoMarcador(elementoExistente.marcador, elemento);
+                }
+            } catch (e) {
+                console.error(`Error al actualizar posición de marcador ${elemento.id}:`, e);
+            }
+        }
+        // Crear marcador si no existe pero tenemos posición
+        else if (!elementoExistente.marcador && elemento.posicion && elemento.posicion.lat && elemento.posicion.lng) {
+            elementosConectados[elemento.id].marcador = crearMarcadorElemento(elemento);
+        }
+        
+        // Actualizar en lista visual
+        actualizarElementoEnLista(elemento);
+    } 
+    // Elemento nuevo
+    else {
+        // Si hay datos guardados localmente, mezclarlos con los recibidos
+        if (elementoGuardadoLocal) {
+            // Mantener los datos guardados para los campos importantes
+            elemento.sidc = elementoGuardadoLocal.sidc || elemento.sidc;
+            elemento.designacion = elementoGuardadoLocal.designacion || elemento.designacion;
+            elemento.dependencia = elementoGuardadoLocal.dependencia || elemento.dependencia;
+            elemento.magnitud = elementoGuardadoLocal.magnitud || elemento.magnitud;
+            
+            // Actualizar también elemento.elemento
+            if (elemento.elemento) {
+                elemento.elemento.sidc = elemento.sidc;
+                elemento.elemento.designacion = elemento.designacion;
+                elemento.elemento.dependencia = elemento.dependencia;
+                elemento.elemento.magnitud = elemento.magnitud;
+            }
+            
+            console.log(`Aplicados datos locales al nuevo elemento ${elemento.id}`);
+        }
+        
+        // Guardar en estructura
+        elementosConectados[elemento.id] = {
+            datos: elemento,
+            marcador: null
+        };
+        
+        // Crear marcador si tiene posición
+        if (elemento.posicion && elemento.posicion.lat && elemento.posicion.lng) {
+            elementosConectados[elemento.id].marcador = crearMarcadorElemento(elemento);
+        }
+        
+        // Agregar a lista visual
+        agregarElementoALista(elemento);
+    }
+    
+    // NUEVO: Guardar en localStorage para persistencia
+    guardarElementosEnLocalStorage();
+    
+    // Sincronizar con referencias globales
+    window.elementosConectados = elementosConectados;
+    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+        window.MAIRA.GestionBatalla.elementosConectados = elementosConectados;
+    }
+    
+    // Sincronizar con otros módulos
+    sincronizarElementos();
+    
+    // Actualizar destinatarios de chat si está disponible
+    if (MAIRA.Chat && typeof MAIRA.Chat.actualizarListaDestinatarios === 'function') {
+        MAIRA.Chat.actualizarListaDestinatarios();
+    }
+    
+    return elementosConectados[elemento.id];
+}
+
+// Añadir función para actualizar ícono de marcador
+function actualizarIconoMarcador(marcador, datos) {
+    if (!marcador || !datos) return;
+    
+    try {
+        // Obtener el SIDC correcto
+        const sidc = datos.sidc || (datos.elemento && datos.elemento.sidc) || 'SFGPUCI-----';
+        
+        // Crear símbolo militar
+        const sym = new ms.Symbol(sidc, {
+            size: 35,
+            direction: datos.posicion?.rumbo || 0,
+            uniqueDesignation: datos.designacion || datos.nombre || ''
+        });
+        
+        // Actualizar icono
+        marcador.setIcon(L.divIcon({
+            className: 'elemento-militar',
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        }));
+        
+        // Actualizar opciones
+        marcador.options.sidc = sidc;
+        
+        // Forzar no arrastrable
+        if (marcador.dragging) {
+            marcador.dragging.disable();
+        }
+        marcador.options.draggable = false;
+        
+        return true;
+    } catch (error) {
+        console.error("Error al actualizar ícono del marcador:", error);
+        return false;
+    }
+}
+
+function actualizarElementoEnLista(elemento) {
+    if (!elemento || !elemento.id) return;
+    
+    console.log(`Actualizando elemento en lista visual: ${elemento.id}`);
+    
+    const elementoItem = document.querySelector(`.elemento-item[data-id="${elemento.id}"]`);
+    if (!elementoItem) {
+        console.log(`Elemento con ID ${elemento.id} no encontrado en lista, creándolo...`);
+        agregarElementoALista(elemento);
+        return;
+    }
+    
+    // Obtener referencias a los elementos a actualizar
+    const nombreElement = elementoItem.querySelector('.elemento-nombre');
+    const usuarioElement = elementoItem.querySelector('.elemento-usuario');
+    const iconElement = elementoItem.querySelector('.sidc-preview');
+    const statusElement = elementoItem.querySelector('.elemento-status');
+    const tiempoElement = elementoItem.querySelector('.elemento-tiempo');
+    
+    // Actualizar nombre/designación
+    if (nombreElement) {
+        const designacion = (elemento.elemento && elemento.elemento.designacion) || 
+                         elemento.designacion || 
+                         '';
+        const dependencia = (elemento.elemento && elemento.elemento.dependencia) || 
+                         elemento.dependencia || 
+                         '';
+        
+        nombreElement.textContent = designacion || (dependencia ? `/${dependencia}` : '') || 'Sin nombre';
+    }
+    
+    // Actualizar usuario
+    if (usuarioElement) {
+        usuarioElement.textContent = elemento.usuario || 'Usuario';
+    }
+    
+    // Actualizar tiempo
+    if (tiempoElement) {
+        tiempoElement.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+    
+    // Actualizar estado (conectado/desconectado)
+    if (statusElement) {
+        statusElement.className = `elemento-status ${elemento.conectado ? 'online' : 'offline'}`;
+    }
+    
+    // Actualizar icono/sidc - Parte más importante
+    if (iconElement && typeof ms !== 'undefined') {
+        const sidc = (elemento.elemento && elemento.elemento.sidc) || 
+                  elemento.sidc || 
+                  'SFGPUCI-----';
+        try {
+            const sym = new ms.Symbol(sidc, {size: 20});
+            iconElement.innerHTML = sym.asSVG();
+            console.log(`✅ Icono actualizado para elemento ${elemento.id} con SIDC ${sidc}`);
+        } catch (e) {
+            console.warn(`Error al generar símbolo para elemento ${elemento.id}:`, e);
+        }
+    }
+    
+    console.log(`Elemento ${elemento.id} actualizado en la lista visual`);
+}
+
+// Corrección en iniciarSeguimiento para evitar errores en dispositivos móviles
+function iniciarSeguimiento() {
+    console.log("Iniciando seguimiento de posición");
+    
+    // Comprobar si ya hay un seguimiento activo
+    if (seguimientoActivo) {
+        console.log("El seguimiento ya está activo");
+        return;
+    }
+    
+    // Comprobar soporte de geolocalización
+    if (!navigator.geolocation) {
+        if (typeof MAIRA.Utils.mostrarNotificacion === 'function') {
+            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta geolocalización", "error");
+        } else {
+            alert("Tu navegador no soporta geolocalización");
+        }
+        return;
+    }
+    
+    // Configurar botón de seguimiento como activo
+    const btnSeguimiento = document.getElementById('btn-seguimiento');
+    if (btnSeguimiento) {
+        btnSeguimiento.classList.add('active');
+        btnSeguimiento.innerHTML = '<i class="fas fa-location-arrow text-primary"></i> Seguimiento activo';
+    }
+    
+    // Opciones de seguimiento optimizadas
+    const opcionesSeguimiento = {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000
+    };
+    
+    try {
+        // Iniciar seguimiento continuo
+        watchId = navigator.geolocation.watchPosition(
+            posicionActualizada,
+            errorPosicion,
+            opcionesSeguimiento
+        );
+        
+        // Activar la variable de seguimiento
+        seguimientoActivo = true;
+        
+        // Agregar intervalo adicional para envío periódico si no existe
+        if (!window.intervaloPosicion) {
+            window.intervaloPosicion = setInterval(function() {
+                if (socket && socket.connected && ultimaPosicion) {
+                    // Usar la función más segura
+                    enviarPosicionActual();
+                }
+            }, 20000); // Cada 20 segundos
+        }
+        
+        // Guardar estado en localStorage
+        localStorage.setItem('seguimiento_activo', 'true');
+        
+        console.log("Seguimiento iniciado con éxito");
+    } catch (e) {
+        console.error("Error al iniciar seguimiento:", e);
+        if (typeof MAIRA.Utils.mostrarNotificacion === 'function') {
+            MAIRA.Utils.mostrarNotificacion("Error al iniciar seguimiento de posición", "error");
+        }
+        
+        // Revertir estado del botón
+        if (btnSeguimiento) {
+            btnSeguimiento.classList.remove('active');
+            btnSeguimiento.innerHTML = '<i class="fas fa-location-arrow"></i> Seguimiento';
+        }
+    }
+}
+
+// Función segura para enviar posición actual
+function enviarPosicionActual() {
+    if (!socket?.connected || !usuarioInfo) return;
+    
+    // Obtener el elemento propio desde elementosConectados para tener datos actualizados
+    const elementoPropio = elementosConectados[usuarioInfo.id];
+    const elementoActualizado = elementoPropio?.datos || elementoTrabajo;
+    
+    const datos = {
+        id: usuarioInfo.id,
+        usuario: usuarioInfo.usuario,
+        elemento: elementoActualizado, // Usar datos posiblemente actualizados
+        posicion: ultimaPosicion,
+        sidc: elementoActualizado.sidc, // Incluir SIDC explícitamente
+        operacion: operacionActual,
+        timestamp: new Date().toISOString(),
+        conectado: true
+    };
+    
+    socket.emit('actualizarPosicionGB', datos);
+    socket.emit('nuevoElemento', datos);
+    socket.emit('anunciarElemento', datos);
+}
+
+
+
+
+
+
+// Función auxiliar para actualizar elemento visual
+// Agregar o mejorar en elementosGB.js
+function actualizarElementoVisual(elementoId, nuevosDatos) {
+    console.log(`Actualizando elemento visual: ${elementoId}`);
+    
+    if (!elementoId) return false;
+    
+    // Obtener elemento de la estructura de datos
+    const elementoData = window.elementosConectados[elementoId];
+    if (!elementoData) {
+        console.warn(`Elemento ${elementoId} no encontrado en la lista`);
+        return false;
+    }
+    
+    // Si se proporcionan nuevos datos, actualizarlos
+    if (nuevosDatos) {
+        elementoData.datos = {...elementoData.datos, ...nuevosDatos};
+    }
+    
+    // Actualizar marcador en el mapa
+    if (elementoData.marcador) {
+        // Si cambió el SIDC, actualizar el icono
+        if (nuevosDatos && nuevosDatos.sidc && nuevosDatos.sidc !== elementoData.marcador.options.sidc) {
+            try {
+                const sym = new ms.Symbol(nuevosDatos.sidc, {
+                    size: 35,
+                    uniqueDesignation: nuevosDatos.designacion || elementoData.datos.designacion
+                });
+                
+                const icon = L.divIcon({
+                    className: 'elemento-militar',
+                    html: sym.asSVG(),
+                    iconSize: [70, 50],
+                    iconAnchor: [35, 25]
+                });
+                
+                elementoData.marcador.setIcon(icon);
+                elementoData.marcador.options.sidc = nuevosDatos.sidc;
+            } catch (e) {
+                console.error(`Error al actualizar icono para ${elementoId}:`, e);
+            }
+        }
+        
+        // Si cambió la posición, actualizar en el mapa
+        if (nuevosDatos && nuevosDatos.posicion) {
+            elementoData.marcador.setLatLng([
+                nuevosDatos.posicion.lat, 
+                nuevosDatos.posicion.lng
+            ]);
+        }
+    }
+    
+    // Actualizar en la lista visual
+    const elementoItem = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
+    if (elementoItem) {
+        // Actualizar nombre
+        const nombreElemento = elementoItem.querySelector('.nombre-elemento');
+        if (nombreElemento) {
+            const designacion = elementoData.datos.designacion || '';
+            const dependencia = elementoData.datos.dependencia || '';
+            const texto = (designacion && dependencia) ? 
+                          `${designacion}/${dependencia}` : 
+                          (designacion || dependencia);
+            
+            nombreElemento.textContent = texto || elementoData.datos.usuario;
+        }
+        
+        // Actualizar icono si hay un cambio de SIDC
+        if (nuevosDatos && nuevosDatos.sidc) {
+            const iconoLista = elementoItem.querySelector('.icono-elemento');
+            if (iconoLista) {
+                try {
+                    const sym = new ms.Symbol(nuevosDatos.sidc, {
+                        size: 20,
+                        uniqueDesignation: ''
+                    });
+                    
+                    iconoLista.innerHTML = sym.asSVG();
+                } catch (e) {
+                    console.error(`Error al actualizar icono de lista para ${elementoId}:`, e);
+                }
+            }
+        }
+    }
+    
+    return true;
+}
+
+// Asegurarnos de que está en el objeto MAIRA.Elementos
+if (window.MAIRA && window.MAIRA.Elementos) {
+    window.MAIRA.Elementos.actualizarElementoVisual = actualizarElementoVisual;
+}
+
+
+    /**
+     * Mejora en la inicialización de la lista de elementos
+     * @param {Array} elementos - Lista de elementos conectados
+     */
+    function inicializarListaElementos(elementos) {
+        console.log("Inicializando lista de elementos:", elementos?.length || 0);
+        
+        // Cargar datos guardados en localStorage para preservarlos
+        let datosGuardadosLocalmente = {};
+        try {
+            const elementosGuardados = localStorage.getItem('elementos_conectados');
+            if (elementosGuardados) {
+                const elementosParsed = JSON.parse(elementosGuardados);
+                datosGuardadosLocalmente = elementosParsed;
+            }
+        } catch (e) {
+            console.warn("Error al cargar elementos guardados:", e);
+        }
+        
+        // Limpiar lista visual actual
+        const listaElementosDiv = document.getElementById('lista-elementos');
+        if (listaElementosDiv) {
+            listaElementosDiv.innerHTML = '';
+        }
+        
+        // Mantener elementos actuales que no estén en la nueva lista para preservar cambios locales
+        const elementosActuales = {...elementosConectados};
+        
+        // Añadir cada elemento
+        if (elementos && Array.isArray(elementos) && elementos.length > 0) {
             elementos.forEach(elemento => {
-                if (!window.elementosConectados) window.elementosConectados = {};
+                if (!elemento || !elemento.id) return;
                 
-                window.elementosConectados[elemento.id] = {
-                    datos: elemento,
-                    marcador: null
-                };
+                // Verificar si hay datos guardados localmente para este elemento
+                const datosLocales = datosGuardadosLocalmente[elemento.id]?.datos;
                 
-                // Crear marcador si hay función disponible
-                if (typeof window.crearMarcadorElemento === 'function' && elemento.posicion) {
-                    window.elementosConectados[elemento.id].marcador = 
-                        window.crearMarcadorElemento(elemento);
+                // Mezclar datos recibidos con datos locales si existen
+                if (datosLocales) {
+                    // Preservar datos importantes
+                    elemento.sidc = datosLocales.sidc || elemento.sidc;
+                    elemento.designacion = datosLocales.designacion || elemento.designacion;
+                    elemento.dependencia = datosLocales.dependencia || elemento.dependencia;
+                    elemento.magnitud = datosLocales.magnitud || elemento.magnitud;
+                    
+                    // Actualizar también elemento.elemento
+                    if (elemento.elemento) {
+                        elemento.elemento.sidc = elemento.sidc;
+                        elemento.elemento.designacion = elemento.designacion;
+                        elemento.elemento.dependencia = elemento.dependencia;
+                        elemento.elemento.magnitud = elemento.magnitud;
+                    }
+                }
+                
+                // Evitar duplicados y reemplazar datos existentes
+                if (elementosConectados[elemento.id]) {
+                    // Preservar marcador
+                    const marcadorExistente = elementosConectados[elemento.id].marcador;
+                    
+                    // Preservar datos locales importantes
+                    const datosExistentes = elementosConectados[elemento.id].datos;
+                    if (datosExistentes) {
+                        // No sobrescribir datos editados localmente
+                        elemento.sidc = datosExistentes.sidc || elemento.sidc;
+                        elemento.designacion = datosExistentes.designacion || elemento.designacion;
+                        elemento.dependencia = datosExistentes.dependencia || elemento.dependencia;
+                        elemento.magnitud = datosExistentes.magnitud || elemento.magnitud;
+                        
+                        // Actualizar también elemento.elemento
+                        if (elemento.elemento) {
+                            elemento.elemento.sidc = elemento.sidc;
+                            elemento.elemento.designacion = elemento.designacion;
+                            elemento.elemento.dependencia = elemento.dependencia;
+                            elemento.elemento.magnitud = elemento.magnitud;
+                        }
+                    }
+                    
+                    // Actualizar datos
+                    elementosConectados[elemento.id] = {
+                        datos: elemento,
+                        marcador: marcadorExistente
+                    };
+                    
+                    // Actualizar marcador si tiene posición pero no marcador
+                    if (!marcadorExistente && elemento.posicion && elemento.posicion.lat && elemento.posicion.lng) {
+                        crearMarcadorElemento(elemento);
+                    }
+                } else {
+                    // Añadir nuevo elemento
+                    elementosConectados[elemento.id] = {
+                        datos: elemento,
+                        marcador: null
+                    };
+                    
+                    // Crear marcador si tiene posición
+                    if (elemento.posicion && elemento.posicion.lat && elemento.posicion.lng) {
+                        crearMarcadorElemento(elemento);
+                    }
+                }
+                
+                // Añadir a la interfaz visual
+                agregarElementoALista(elemento);
+            });
+        }
+        
+        // NUEVO: Preservar elementos que solo existen localmente
+        Object.entries(elementosActuales).forEach(([id, elemento]) => {
+            if (!elementosConectados[id]) {
+                console.log(`Preservando elemento local: ${id}`);
+                elementosConectados[id] = elemento;
+                if (elemento.datos) {
+                    agregarElementoALista(elemento.datos);
+                }
+            }
+        });
+        
+        // NUEVO: Guardar en localStorage para persistencia
+        try {
+            const elementosParaGuardar = {};
+            Object.entries(elementosConectados).forEach(([id, elem]) => {
+                elementosParaGuardar[id] = { datos: elem.datos };
+            });
+            localStorage.setItem('elementos_conectados', JSON.stringify(elementosParaGuardar));
+        } catch (e) {
+            console.error("Error al guardar elementos en localStorage:", e);
+        }
+        
+        // Actualizar contador
+        actualizarContadorElementos();
+        
+        // Sincronizar con otros módulos
+        sincronizarElementos();
+        
+        console.log(`Lista de elementos inicializada con ${Object.keys(elementosConectados).length} elementos`);
+    }
+    
+    function actualizarPosicionElemento(datos) {
+        if (!datos || !datos.id || !datos.posicion) {
+            console.warn("⚠️ Datos de posición incompletos:", datos);
+            return;
+        }
+        
+        console.log(`🔄 ACTUALIZANDO POSICIÓN: ${datos.id} → [${datos.posicion.lat}, ${datos.posicion.lng}]`);
+        
+        // Verificar que el elemento existe en nuestra estructura
+        if (!elementosConectados[datos.id]) {
+            console.warn(`⚠️ Elemento ${datos.id} no encontrado en elementosConectados`);
+            return;
+        }
+        
+        // Guardar posición anterior para verificar
+        const posAnterior = elementosConectados[datos.id].datos.posicion;
+        console.log(`ℹ️ Posición anterior: ${posAnterior?.lat || 'N/A'}, ${posAnterior?.lng || 'N/A'}`);
+        
+        // Actualizar la posición en la estructura de datos
+        elementosConectados[datos.id].datos.posicion = datos.posicion;
+        
+        // Actualizar el marcador en el mapa si existe
+        if (elementosConectados[datos.id].marcador) {
+            const marcador = elementosConectados[datos.id].marcador;
+            
+            try {
+                // Verificar si el marcador está en el mapa
+                const estaEnMapa = window.mapa.hasLayer(marcador);
+                console.log(`ℹ️ Marcador ${datos.id} está en el mapa: ${estaEnMapa ? 'Sí' : 'No'}`);
+                
+                if (!estaEnMapa) {
+                    console.log(`🔄 Añadiendo marcador ${datos.id} al mapa`);
+                    window.mapa.addLayer(marcador);
+                }
+                
+                // Actualizar la posición del marcador
+                const nuevaPos = [datos.posicion.lat, datos.posicion.lng];
+                console.log(`🔄 Estableciendo posición de marcador ${datos.id} a:`, nuevaPos);
+                marcador.setLatLng(nuevaPos);
+                
+                // Verificar posición después de la actualización
+                const posActual = marcador.getLatLng();
+                console.log(`✅ Posición actual del marcador: ${posActual.lat}, ${posActual.lng}`);
+                
+                // Si tiene info de rumbo, actualizar la rotación
+                if (datos.posicion.rumbo !== undefined) {
+                    console.log(`🔄 Actualizando rumbo a: ${datos.posicion.rumbo}°`);
+                    actualizarRotacionMarcador(marcador, datos.posicion.rumbo);
+                }
+            } catch (e) {
+                console.error(`❌ ERROR al actualizar marcador ${datos.id}:`, e);
+                
+                // Intentar recrear el marcador en caso de error
+                console.log(`🔄 Intentando recrear marcador para ${datos.id}`);
+                try {
+                    if (window.mapa.hasLayer(marcador)) {
+                        window.mapa.removeLayer(marcador);
+                    }
+                    elementosConectados[datos.id].marcador = crearMarcadorElemento(elementosConectados[datos.id].datos);
+                    console.log(`✅ Marcador recreado exitosamente`);
+                } catch (err) {
+                    console.error(`❌ Error al recrear marcador:`, err);
+                }
+            }
+        } else {
+            console.log(`ℹ️ Elemento ${datos.id} no tiene marcador, creando uno nuevo`);
+            try {
+                elementosConectados[datos.id].marcador = crearMarcadorElemento(elementosConectados[datos.id].datos);
+                if (elementosConectados[datos.id].marcador) {
+                    console.log(`✅ Marcador creado exitosamente para ${datos.id}`);
+                } else {
+                    console.warn(`⚠️ No se pudo crear el marcador para ${datos.id}`);
+                }
+            } catch (e) {
+                console.error(`❌ Error al crear marcador:`, e);
+            }
+        }
+        
+        // Actualizar información en la lista visual
+        try {
+            actualizarInfoPosicionEnLista(datos.id, datos.posicion);
+            console.log(`✅ Información visual actualizada para ${datos.id}`);
+        } catch (e) {
+            console.error(`❌ Error al actualizar información visual:`, e);
+        }
+        
+        // NUEVO: Guardar en localStorage también
+        guardarElementosEnLocalStorage();
+        
+        // NUEVO: Propagar el elemento completo a todos los usuarios
+        // Este es el cambio clave para que los usuarios que se conectan tarde reciban los elementos
+        try {
+            if (socket && socket.connected) {
+                // Obtener los datos completos del elemento
+                const elementoCompleto = elementosConectados[datos.id].datos;
+                
+                // Enviar elemento completo, no solo la posición
+                socket.emit('actualizarElemento', elementoCompleto);
+                socket.emit('nuevoElemento', elementoCompleto);
+                socket.emit('anunciarElemento', elementoCompleto);
+                
+                console.log(`✅ Elemento completo propagado al actualizar posición: ${datos.id}`);
+            }
+        } catch (e) {
+            console.error(`❌ Error al propagar elemento completo:`, e);
+        }
+        
+        // Sincronizar referencias
+        window.elementosConectados = elementosConectados;
+    }
+    
+    function actualizarRotacionMarcador(marcador, rumbo) {
+        if (!marcador || !rumbo) return;
+        try {
+            // Actualizar la rotación del marcador
+            const icono = marcador.getIcon();
+            if (icono && icono.options) {
+                icono.options.rotationAngle = rumbo;
+                icono.options.className = `elemento-militar rotated-${rumbo}`;
+                marcador.setIcon(icono);
+                console.log(`✅ Rotación del marcador actualizada a: ${rumbo}°`);
+            }
+        } catch (e) {
+            console.error(`❌ Error al actualizar rotación del marcador:`, e);
+        }
+    }
+    window.actualizarRotacionMarcador = actualizarRotacionMarcador;
+
+    function limpiarElementosDuplicados() {
+        console.log("🧹 Limpiando elementos duplicados o inválidos");
+        
+        // Paso 1: Mapear usuarios únicos
+        const usuariosUnicos = {};
+        const elementosAEliminar = [];
+        
+        // Primera pasada: identificar usuarios únicos y su mejor ID
+        Object.entries(elementosConectados).forEach(([id, elem]) => {
+            if (!elem.datos || !elem.datos.usuario) return;
+            
+            const usuario = elem.datos.usuario;
+            
+            // Si no tenemos este usuario registrado, o este ID es mejor
+            if (!usuariosUnicos[usuario] || 
+                (id.startsWith('user_') && !usuariosUnicos[usuario].startsWith('user_'))) {
+                usuariosUnicos[usuario] = id;
+            }
+        });
+        
+        console.log(`🔍 Identificados ${Object.keys(usuariosUnicos).length} usuarios únicos`);
+        
+        // Segunda pasada: marcar para eliminación todos excepto el mejor
+        Object.entries(elementosConectados).forEach(([id, elem]) => {
+            if (!elem.datos || !elem.datos.usuario) {
+                elementosAEliminar.push(id); // Eliminar elementos sin datos
+                return;
+            }
+            
+            const usuario = elem.datos.usuario;
+            if (usuariosUnicos[usuario] && id !== usuariosUnicos[usuario]) {
+                elementosAEliminar.push(id);
+            }
+        });
+        
+        // Tercera pasada: eliminar efectivamente
+        elementosAEliminar.forEach(id => {
+            console.log(`🗑️ Eliminando elemento duplicado/inválido: ${id}`);
+            
+            // Eliminar del mapa si tiene marcador
+            if (elementosConectados[id]?.marcador && window.mapa) {
+                try {
+                    window.mapa.removeLayer(elementosConectados[id].marcador);
+                } catch (e) {
+                    console.warn(`Error al eliminar marcador de ${id}:`, e);
+                }
+            }
+            
+            // Eliminar de la estructura
+            delete elementosConectados[id];
+            
+            // Eliminar de la lista visual
+            const elementoItem = document.querySelector(`.elemento-item[data-id="${id}"]`);
+            if (elementoItem) {
+                elementoItem.remove();
+            }
+        });
+        
+        // Actualizar localStorage con la lista limpia
+        guardarElementosEnLocalStorage();
+        
+        console.log(`✅ Limpieza completada: eliminados ${elementosAEliminar.length} elementos`);
+        
+        return elementosAEliminar.length;
+    }
+
+    window.limpiarElementosDuplicados = limpiarElementosDuplicados;
+    
+
+    /**
+     * Esta función mejora la lista de elementos conectados para mostrar más información
+     * y permitir interacción directa con cada elemento.
+     */
+    function mejorarListaElementos() {
+        const listaElementos = document.getElementById('lista-elementos');
+        if (!listaElementos) return;
+        
+        // Si no hay elementos, mostrar mensaje
+        if (listaElementos.children.length === 0) {
+            listaElementos.innerHTML = `
+                <div class="no-elementos text-center p-3">
+                    <i class="fas fa-users" style="font-size: 32px; color: #ccc;"></i>
+                    <p class="mt-2">No hay participantes conectados en esta operación</p>
+                    <button id="btn-actualizar-elementos" class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </div>
+            `;
+            
+            // Configurar botón para actualizar
+            const btnActualizar = document.getElementById('btn-actualizar-elementos');
+            if (btnActualizar) {
+                btnActualizar.addEventListener('click', function() {
+                    solicitarListaElementos();
+                    MAIRA.Utils.mostrarNotificacion("Solicitando lista de participantes...", "info");
+                });
+            }
+        } else {
+            // Agregar botón de actualizar en la parte superior
+            if (!document.getElementById('header-lista-elementos')) {
+                // Crear cabecera con título y botón de actualizar
+                const headerLista = document.createElement('div');
+                headerLista.id = 'header-lista-elementos';
+                headerLista.className = 'd-flex justify-content-between align-items-center p-2 bg-light';
+                headerLista.innerHTML = `
+                    <h6 class="m-0">Participantes (${listaElementos.children.length})</h6>
+                    <button id="btn-actualizar-lista" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                `;
+                
+                // Insertar al inicio de la lista
+                listaElementos.parentNode.insertBefore(headerLista, listaElementos);
+                
+                // Configurar evento
+                document.getElementById('btn-actualizar-lista').addEventListener('click', function() {
+                    solicitarListaElementos();
+                    MAIRA.Utils.mostrarNotificacion("Actualizando lista de participantes...", "info");
+                });
+            } else {
+                // Actualizar contador si ya existe el header
+                const contadorElementos = document.querySelector('#header-lista-elementos h6');
+                if (contadorElementos) {
+                    contadorElementos.textContent = `Participantes (${listaElementos.children.length})`;
+                }
+            }
+        }
+        
+        // Mejorar cada elemento de la lista si no están mejorados
+        document.querySelectorAll('.elemento-item').forEach(elemento => {
+            // Verificar si ya tiene la clase mejorado
+            if (!elemento.classList.contains('mejorado')) {
+                // Agregar clase para no repetir
+                elemento.classList.add('mejorado');
+                
+                // Obtener ID del elemento
+                const elementoId = elemento.getAttribute('data-id');
+                
+                // Agregar botón para chat directo si existe módulo de chat
+                const accionesDiv = elemento.querySelector('.elemento-acciones');
+                if (accionesDiv && window.MAIRA.Chat && !accionesDiv.querySelector('.btn-chat-directo')) {
+                    const btnChat = document.createElement('button');
+                    btnChat.title = "Chat directo";
+                    btnChat.innerHTML = '<i class="fas fa-comment"></i>';
+                    btnChat.className = 'btn-chat-directo';
+                    
+                    // Evento para abrir chat privado con este elemento
+                    btnChat.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        iniciarChatPrivado(elementoId);
+                    });
+                    
+                    // Añadir antes del primer botón existente
+                    accionesDiv.insertBefore(btnChat, accionesDiv.firstChild);
+                }
+                
+                // Mejorar comportamiento del elemento (clic para ver detalle)
+                elemento.addEventListener('click', function() {
+                    mostrarDetallesElemento(elementoId);
+                });
+                
+                // Añadir estilo de cursor para indicar que es clickeable
+                elemento.style.cursor = 'pointer';
+                
+                // Añadir menú contextual
+                elemento.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    mostrarMenuContextualElemento(e, elementoId);
+                });
+            }
+        });
+    }
+    
+    /**
+     * Inicia un chat privado con un elemento específico
+     * @param {string} elementoId - ID del elemento destinatario
+     */
+    function iniciarChatPrivado(elementoId) {
+        if (!window.MAIRA.Chat) {
+            console.warn("Módulo de chat no está disponible");
+            return;
+        }
+        
+        // Cambiar a la pestaña de chat
+        const btnTabChat = document.querySelector('.tab-btn[data-tab="tab-chat"]');
+        if (btnTabChat) {
+            btnTabChat.click();
+        }
+        
+        // Verificar si el elemento existe
+        if (!elementosConectados[elementoId]) {
+            MAIRA.Utils.mostrarNotificacion("No se encontró el destinatario seleccionado", "error");
+            return;
+        }
+        
+        // Iniciar chat privado
+        if (typeof window.MAIRA.Chat.iniciarChatPrivado === 'function') {
+            window.MAIRA.Chat.iniciarChatPrivado(elementoId);
+        } else {
+            // Implementación alternativa
+            // Cambiar a modo chat privado
+            const btnChatPrivado = document.getElementById('btn-chat-privado');
+            if (btnChatPrivado) {
+                btnChatPrivado.click();
+            }
+            
+            // Seleccionar destinatario
+            const selectDestinatario = document.getElementById('select-destinatario');
+            if (selectDestinatario) {
+                selectDestinatario.value = elementoId;
+                
+                // Si no existe la opción, actualizar la lista de destinatarios
+                if (!selectDestinatario.value) {
+                    if (typeof window.MAIRA.Chat.actualizarListaDestinatarios === 'function') {
+                        window.MAIRA.Chat.actualizarListaDestinatarios();
+                    }
+                    setTimeout(() => {
+                        selectDestinatario.value = elementoId;
+                    }, 500);
+                }
+            }
+            
+            // Enfocar el campo de mensaje
+            const mensajeInput = document.getElementById('mensaje-chat');
+            if (mensajeInput) {
+                mensajeInput.focus();
+            }
+        }
+    }
+    
+    /**
+     * Agrega un elemento a la lista del panel
+     * @param {Object} elemento - Datos del elemento
+     */
+    function agregarElementoALista(elemento) {
+        if (!elemento || !elemento.id) {
+            console.error('No se puede agregar elemento sin ID a la lista');
+            return;
+        }
+        
+        console.log(`Añadiendo elemento a lista visual: ${elemento.id} - ${elemento.usuario || 'Sin nombre'}`);
+        
+        const listaContenedor = document.getElementById('lista-elementos');
+        if (!listaContenedor) {
+            console.error('No se encontró el contenedor de la lista de elementos (#lista-elementos)');
+            return;
+        }
+        
+        // Evitar duplicados
+        const elementoExistente = document.querySelector(`.elemento-item[data-id="${elemento.id}"]`);
+        if (elementoExistente) {
+            console.log(`Elemento con ID ${elemento.id} ya existe en la lista visual, actualizando...`);
+            actualizarElementoEnLista(elemento);
+            return;
+        }
+        
+        // Determinar si es el usuario actual
+        const idUsuarioActual = 
+            (window.usuarioInfo && window.usuarioInfo.id) || 
+            (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.usuarioInfo && window.MAIRA.GestionBatalla.usuarioInfo.id);
+        
+        const esUsuarioActual = elemento.id === idUsuarioActual;
+        
+        // Generar HTML del elemento
+        const sidc = (elemento.elemento && elemento.elemento.sidc) || elemento.sidc || 'SFGPUCI-----';
+        let symbolHtml = '';
+        
+        try {
+            if (typeof ms !== 'undefined') {
+                const sym = new ms.Symbol(sidc, {size: 20});
+                symbolHtml = sym.asSVG();
+            }
+        } catch (e) {
+            console.warn(`Error al generar símbolo para elemento ${elemento.id}:`, e);
+            symbolHtml = '<div style="width:20px;height:20px;background:#ccc;border-radius:50%;"></div>';
+        }
+        
+        const elementoHTML = `
+            <div class="elemento-item ${esUsuarioActual ? 'usuario-actual' : ''}" data-id="${elemento.id}">
+                <div class="elemento-icon">
+                    <div class="sidc-preview">${symbolHtml}</div>
+                    <span class="elemento-status ${elemento.conectado ? 'online' : 'offline'}"></span>
+                </div>
+                <div class="elemento-info">
+                    <div class="elemento-nombre">${(elemento.elemento && elemento.elemento.designacion) || elemento.designacion || elemento.nombre || 'Sin nombre'}</div>
+                    <div class="elemento-usuario">${elemento.usuario || 'Usuario'}</div>
+                    <div class="elemento-tiempo">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>
+                <div class="elemento-acciones">
+                    <button title="Ver detalles" class="btn-detalles">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                    <button title="Centrar en mapa" class="btn-centrar">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                    <button title="Mostrar recorrido" class="btn-tracking">
+                        <i class="fas fa-route"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Agregar a la lista
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = elementoHTML.trim();
+        const elementoItem = tempDiv.firstChild;
+        listaContenedor.appendChild(elementoItem);
+        
+        // Configurar eventos de botones
+        const btnDetalles = elementoItem.querySelector('.btn-detalles');
+        if (btnDetalles) {
+            btnDetalles.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (typeof mostrarDetallesElemento === 'function') {
+                    mostrarDetallesElemento(elemento.id);
                 }
             });
         }
         
-        console.log("✅ Elementos cargados desde la base de datos");
-    });
-    
-    return true;
-}
-
-/**
- * Función auxiliar para limpiar elementos duplicados
- */
-function limpiarElementosDuplicados() {
-    if (!window.elementosConectados) return;
-    
-    const elementosUnicos = {};
-    const elementosEliminados = [];
-    
-    // Identificar elementos más recientes por ID
-    Object.entries(window.elementosConectados).forEach(([id, elem]) => {
-        if (!elem || !elem.datos) return;
-        
-        // Normalizar ID (algunos pueden tener formatos ligeramente diferentes)
-        const idNormalizado = elem.datos.id || id;
-        
-        // Si es la primera vez que vemos este ID o es más reciente que el anterior
-        if (!elementosUnicos[idNormalizado] || 
-            (elem.datos.timestamp && elementosUnicos[idNormalizado].datos.timestamp &&
-             new Date(elem.datos.timestamp) > new Date(elementosUnicos[idNormalizado].datos.timestamp))) {
-            elementosUnicos[idNormalizado] = elem;
-        } else {
-            elementosEliminados.push(id);
-        }
-    });
-    
-    // Eliminar duplicados
-    elementosEliminados.forEach(id => {
-        if (window.elementosConectados[id]?.marcador) {
-            try {
-                if (window.calcoActivo && window.calcoActivo.hasLayer(window.elementosConectados[id].marcador)) {
-                    window.calcoActivo.removeLayer(window.elementosConectados[id].marcador);
-                } else if (window.mapa && window.mapa.hasLayer(window.elementosConectados[id].marcador)) {
-                    window.mapa.removeLayer(window.elementosConectados[id].marcador);
+        const btnCentrar = elementoItem.querySelector('.btn-centrar');
+        if (btnCentrar) {
+            btnCentrar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (typeof centrarEnElemento === 'function') {
+                    centrarEnElemento(elemento.id);
                 }
-            } catch (e) {
-                console.error(`Error al eliminar marcador ${id}:`, e);
-            }
+            });
         }
-        delete window.elementosConectados[id];
-    });
-    
-    if (elementosEliminados.length > 0) {
-        console.log(`🧹 Se eliminaron ${elementosEliminados.length} elementos duplicados`);
-    }
-    
-    return elementosEliminados.length;
-}
-
-// Auxiliar para integrar con sistemas existentes
-window.forzarSincronizacionElementosConDB = function() {
-    console.log("🔄 Forzando sincronización de elementos con la BD");
-    
-    // 1. Solicitar elementos actuales del servidor
-    window.cargarElementosDesdeDB();
-    
-    // 2. Enviar nuestros elementos al servidor
-    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-    
-    if (!socket || !socket.connected) {
-        console.warn("⚠️ No se puede sincronizar sin conexión al servidor");
-        return false;
-    }
-    
-    // Limpiar duplicados antes de enviar
-    limpiarElementosDuplicados();
-    
-    // Enviar cada elemento al servidor
-    if (window.elementosConectados) {
-        let contador = 0;
-        Object.entries(window.elementosConectados).forEach(([id, elem]) => {
-            if (elem && elem.datos) {
-                socket.emit('guardarElementoDB', elem.datos);
-                contador++;
+        
+        const btnTracking = elementoItem.querySelector('.btn-tracking');
+        if (btnTracking) {
+            btnTracking.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (typeof iniciarTrackingElemento === 'function') {
+                    iniciarTrackingElemento(elemento.id);
+                }
+            });
+        }
+        
+        // Hacer clic en el elemento para seleccionarlo
+        elementoItem.addEventListener('click', function() {
+            if (typeof seleccionarElementoGB === 'function') {
+                seleccionarElementoGB(elementosConectados[elemento.id]?.marcador);
             }
         });
         
-        console.log(`📤 Enviados ${contador} elementos al servidor para sincronización`);
+        console.log(`Elemento con ID ${elemento.id} agregado a la lista visual`);
         
-        // Notificar al usuario
-        if (window.MAIRA?.Utils?.mostrarNotificacion) {
-            window.MAIRA.Utils.mostrarNotificacion(
-                `Sincronizados ${contador} elementos con la base de datos`, 
-                "success"
-            );
-        }
+        // Actualizar contador
+        actualizarContadorElementos();
     }
     
-    return true;
-};
-
-// Función para sincronizar tracking con la BD
-window.guardarTrackingEnDB = function(elementoId, puntos) {
-    console.log(`🔄 Guardando tracking para elemento ${elementoId}`);
-    
-    if (!puntos || !Array.isArray(puntos) || puntos.length === 0) {
-        console.warn("⚠️ No hay puntos para guardar");
-        return false;
+    /**
+     * Actualiza la lista de elementos
+     * @param {Object} elemento - Datos del nuevo elemento
+     */
+    function actualizarListaElementos(elemento) {
+        if (!elemento || !elemento.id) return;
+        
+        // Añadir a nuestra estructura de datos
+        elementosConectados[elemento.id] = {
+            datos: elemento,
+            marcador: null
+        };
+        
+        // Añadir a la lista visual
+        agregarElementoALista(elemento);
+        
+        // Crear marcador en el mapa
+        crearMarcadorElemento(elemento);
+        
+        // Mejorar la lista de elementos
+        mejorarListaElementos();
+        
+        // Actualizar contador en la cabecera
+        actualizarContadorElementos();
     }
     
-    const operacionActual = 
-        window.operacionActual || 
-        window.MAIRA?.GestionBatalla?.operacionActual || 
-        'general';
-    
-    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-    
-    if (!socket || !socket.connected) {
-        console.warn("⚠️ No hay conexión al servidor para guardar tracking");
+    /**
+     * Elimina un elemento de la lista y del mapa
+     * @param {string} id - ID del elemento a eliminar
+     */
+    function eliminarElementoLista(id) {
+        if (!id) return;
         
-        // Guardar en localStorage como fallback
-        try {
-            const trackingGuardado = JSON.parse(localStorage.getItem(`tracking_${operacionActual}`) || '{}');
-            trackingGuardado[elementoId] = puntos;
-            localStorage.setItem(`tracking_${operacionActual}`, JSON.stringify(trackingGuardado));
-            console.log(`✅ Tracking guardado en localStorage para ${elementoId}`);
-        } catch (e) {
-            console.error("❌ Error al guardar tracking en localStorage:", e);
-        }
-        
-        return false;
-    }
-    
-    // Enviar al servidor
-    socket.emit('guardarTracking', {
-        elementoId: elementoId,
-        operacion: operacionActual,
-        puntos: puntos
-    }, function(respuesta) {
-        if (respuesta && respuesta.success) {
-            console.log(`✅ Tracking guardado en la base de datos para ${elementoId}`);
-        } else if (respuesta && respuesta.error) {
-            console.error(`❌ Error al guardar tracking: ${respuesta.error}`);
-        }
-    });
-    
-    return true;
-};
-
-// Función para cargar tracking desde BD
-window.cargarTrackingDesdeBD = function(elementoId, callback) {
-    console.log(`🔄 Cargando tracking para elemento ${elementoId}`);
-    
-    const operacionActual = 
-        window.operacionActual || 
-        window.MAIRA?.GestionBatalla?.operacionActual || 
-        'general';
-    
-    const socket = window.socket || window.MAIRA?.GestionBatalla?.socket;
-    
-    if (!socket || !socket.connected) {
-        console.warn("⚠️ No hay conexión al servidor para cargar tracking");
-        
-        // Intentar cargar desde localStorage
-        try {
-            const trackingGuardado = JSON.parse(localStorage.getItem(`tracking_${operacionActual}`) || '{}');
-            const puntos = trackingGuardado[elementoId] || [];
-            console.log(`📂 Tracking cargado desde localStorage para ${elementoId}: ${puntos.length} puntos`);
-            
-            if (typeof callback === 'function') {
-                callback(puntos);
+        // Eliminar marcador del mapa
+        if (elementosConectados[id]?.marcador && window.mapa) {
+            try {
+                window.mapa.removeLayer(elementosConectados[id].marcador);
+            } catch (e) {
+                console.warn("Error al eliminar marcador del mapa:", e);
             }
-            
-            return puntos;
-        } catch (e) {
-            console.error("❌ Error al cargar tracking desde localStorage:", e);
-            
-            if (typeof callback === 'function') {
-                callback([]);
-            }
-            
-            return [];
+        }
+        
+        // Eliminar elemento de la lista
+        const elementoItem = document.querySelector(`.elemento-item[data-id="${id}"]`);
+        if (elementoItem) {
+            elementoItem.remove();
+        }
+        
+        // Eliminar de nuestro registro
+        delete elementosConectados[id];
+        
+        // Actualizar contador en la cabecera
+        actualizarContadorElementos();
+        
+        // Si estaba siguiendo este elemento, detener seguimiento
+        if (siguiendoElemento === id) {
+            detenerSeguimientoElemento();
         }
     }
     
-    // Solicitar al servidor
-    socket.emit('cargarTracking', {
-        elementoId: elementoId,
-        operacion: operacionActual
-    }, function(respuesta) {
-        if (respuesta && respuesta.success) {
-            const puntos = respuesta.puntos || [];
-            console.log(`📂 Tracking cargado desde la base de datos para ${elementoId}: ${puntos.length} puntos`);
+    /**
+     * Actualiza el contador de elementos en la cabecera
+     */
+    function actualizarContadorElementos() {
+        // Buscar elementos donde mostrar el contador
+        const contadorElementos = document.querySelector('#header-lista-elementos h6');
+        const listaElementos = document.getElementById('lista-elementos');
+        
+        if (!listaElementos) {
+            console.error("No se encontró el contenedor de lista de elementos");
+            return;
+        }
+        
+        // Contar elementos en la lista
+        const elementosEnLista = listaElementos.querySelectorAll('.elemento-item').length;
+        
+        // Si no hay cabecera, crearla
+        if (!contadorElementos) {
+            // Crear cabecera si no existe
+            const headerLista = document.createElement('div');
+            headerLista.id = 'header-lista-elementos';
+            headerLista.className = 'd-flex justify-content-between align-items-center p-2 bg-light';
+            headerLista.innerHTML = `
+                <h6 class="m-0">Participantes (${elementosEnLista})</h6>
+                <button id="btn-actualizar-lista" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-sync"></i>
+                </button>
+            `;
             
-            if (typeof callback === 'function') {
-                callback(puntos);
+            // Insertar al inicio del contenedor padre
+            if (listaElementos.parentNode) {
+                listaElementos.parentNode.insertBefore(headerLista, listaElementos);
+                
+                // Configurar evento del botón de actualizar
+                const btnActualizar = headerLista.querySelector('#btn-actualizar-lista');
+                if (btnActualizar) {
+                    btnActualizar.addEventListener('click', function() {
+                        if (typeof solicitarListaElementos === 'function') {
+                            solicitarListaElementos();
+                        }
+                        
+                        if (typeof MAIRA.Utils.mostrarNotificacion === 'function') {
+                            MAIRA.Utils.mostrarNotificacion("Actualizando lista de participantes...", "info");
+                        }
+                    });
+                }
             }
         } else {
-            console.warn(`⚠️ No se pudo cargar el tracking: ${respuesta?.error || 'Error desconocido'}`);
+            // Actualizar texto del contador existente
+            contadorElementos.textContent = `Participantes (${elementosEnLista})`;
+        }
+        
+        console.log(`Contador actualizado: ${elementosEnLista} participantes en la lista`);
+        
+        // Si la lista está vacía y no hay mensaje, mostrar uno
+        if (elementosEnLista === 0 && !listaElementos.querySelector('.no-elementos')) {
+            listaElementos.innerHTML = `
+                <div class="no-elementos text-center p-3">
+                    <i class="fas fa-users" style="font-size: 32px; color: #ccc;"></i>
+                    <p class="mt-2">No hay participantes conectados en esta operación</p>
+                    <button id="btn-actualizar-elementos" class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="fas fa-sync"></i> Actualizar
+                    </button>
+                </div>
+            `;
             
-            if (typeof callback === 'function') {
-                callback([]);
+            // Configurar botón para actualizar
+            const btnActualizar = listaElementos.querySelector('#btn-actualizar-elementos');
+            if (btnActualizar) {
+                btnActualizar.addEventListener('click', function() {
+                    if (typeof solicitarListaElementos === 'function') {
+                        solicitarListaElementos();
+                    }
+                    
+                    if (typeof MAIRA.Utils.mostrarNotificacion === 'function') {
+                        MAIRA.Utils.mostrarNotificacion("Solicitando lista de participantes...", "info");
+                    }
+                });
             }
         }
+    }
+    
+    /**
+     * Actualiza la posición de un elemento en el mapa
+     * @param {Object} data - Datos de posición
+     */
+    
+
+    // Exponer las funciones necesarias en el API público
+    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+        window.MAIRA.Elementos.actualizarElementoConectado = actualizarElementoConectado;
+    } else {
+        console.warn("MAIRA.GestionBatalla no disponible para asignar actualizarElementoConectado");
+        // Make sure this function is available globally as a fallback
+        window.actualizarElementoConectado = actualizarElementoConectado;
+    }
+
+    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+        window.MAIRA.GestionBatalla.elementosConectados = elementosConectados;
+    } else {
+        // Como fallback, hacerlo disponible globalmente
+        window.elementosConectados = elementosConectados;
+        console.warn("MAIRA.GestionBatalla no disponible para asignar elementosConectados");
+    }
+   
+    /**
+     * Crea un marcador para un elemento existente (usado principalmente al recibir datos del servidor)
+     * @param {Object} elemento - Datos del elemento
+     * @returns {L.Marker|null} - El marcador creado o null si falla
+     */
+
+
+    /**
+ * Actualiza el estado de un elemento cuando se conecta
+ * @param {Object} elemento - Datos del elemento conectado
+ */
+function actualizarElementoConectado(elemento) {
+    if (!elemento || !elemento.id) {
+        console.warn("Elemento inválido para actualizar estado conectado");
+        return false;
+    }
+    
+    // Si ya existe en elementosConectados, actualizar
+    if (elementosConectados[elemento.id]) {
+        // Preservar marcador actual
+        const marcadorExistente = elementosConectados[elemento.id].marcador;
+        
+        // Actualizar datos
+        elementosConectados[elemento.id].datos = {
+            ...elementosConectados[elemento.id].datos,
+            ...elemento,
+            conectado: true
+        };
+        
+        // Mantener marcador
+        elementosConectados[elemento.id].marcador = marcadorExistente;
+        
+        // Actualizar visualización del marcador si existe
+        if (marcadorExistente) {
+            actualizarVisualizacionMarcador(marcadorExistente, elemento);
+            
+            // Actualizar opacidad (conectado = opacidad completa)
+            marcadorExistente.setOpacity(1.0);
+        }
+    } else {
+        // Crear nueva entrada
+        elementosConectados[elemento.id] = {
+            datos: {
+                ...elemento,
+                conectado: true
+            },
+            marcador: null // Se creará después si es necesario
+        };
+    }
+    
+    // Actualizar en la lista visual
+    const elementoItem = document.querySelector(`.elemento-item[data-id="${elemento.id}"]`);
+    if (elementoItem) {
+        // Actualizar con nuevos datos
+        actualizarElementoEnLista(elemento);
+        
+        // Quitar clase de desconectado
+        elementoItem.classList.remove('desconectado');
+        
+        // Actualizar indicador de estado
+        const estadoConexion = elementoItem.querySelector('.estado-conexion');
+        if (estadoConexion) {
+            estadoConexion.className = 'estado-conexion conectado';
+            estadoConexion.title = 'conectado';
+            estadoConexion.textContent = '●';
+        }
+    } else {
+        // Añadir a la lista si no existe
+        agregarElementoALista(elemento);
+    }
+    
+    return true;
+}
+function actualizarElementoConectado(id, datos, posicion) {
+    if (!id) {
+        console.error("No se puede actualizar elemento sin ID");
+        return null;
+    }
+    
+    // Asegurar que existe elementosConectados
+    if (!window.elementosConectados) {
+        window.elementosConectados = {};
+    }
+    
+    if (!window.elementosConectados[id]) {
+        window.elementosConectados[id] = {
+            datos: datos || {},
+            marcador: null
+        };
+    } else {
+        // Actualizar solo las propiedades proporcionadas
+        window.elementosConectados[id].datos = {
+            ...window.elementosConectados[id].datos,
+            ...(datos || {}),
+            posicion: posicion || window.elementosConectados[id].datos.posicion
+        };
+    }
+    
+    // Asegurar sincronización con MAIRA
+    if (window.MAIRA && window.MAIRA.GestionBatalla) {
+        if (!window.MAIRA.GestionBatalla.elementosConectados) {
+            window.MAIRA.GestionBatalla.elementosConectados = {};
+        }
+        window.MAIRA.GestionBatalla.elementosConectados[id] = window.elementosConectados[id];
+    }
+    
+    return window.elementosConectados[id];
+}
+
+    /**
+     * Detiene el seguimiento de posición del usuario
+     */
+    function detenerSeguimiento() {
+        console.log("Deteniendo seguimiento de posición");
+        
+        if (watchId !== null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+        }
+        
+        seguimientoActivo = false;
+        const btnSeguimiento = document.getElementById('btn-seguimiento');
+        if (btnSeguimiento) {
+            btnSeguimiento.classList.remove('active');
+            btnSeguimiento.innerHTML = '<i class="fas fa-location-arrow"></i> Seguimiento';
+        }
+        
+        MAIRA.Utils.agregarMensajeChat("Sistema", "Seguimiento de posición desactivado", "sistema");
+        
+        // Actualizar localStorage
+        localStorage.setItem('seguimiento_activo', 'false');
+    }
+    
+    /**
+     * Alterna el estado del seguimiento de posición del usuario
+     */
+    function toggleSeguimiento() {
+        if (seguimientoActivo) {
+            detenerSeguimiento();
+        } else {
+            iniciarSeguimiento();
+        }
+    }
+    
+    /**
+     * Maneja la actualización de posición del usuario
+     * @param {GeolocationPosition} posicion - Objeto de posición del navegador
+     */
+    function posicionActualizada(posicion) {
+        console.log("Posición actualizada:", posicion.coords);
+        
+        const { latitude, longitude, accuracy, heading, speed } = posicion.coords;
+        
+        // Guardar información de la última posición
+        ultimaPosicion = {
+            lat: latitude,
+            lng: longitude,
+            precision: accuracy,
+            rumbo: heading || 0,
+            velocidad: speed || 0,
+            timestamp: new Date()
+        };
+        
+        // Guardar en localStorage
+        localStorage.setItem('ultima_posicion', JSON.stringify(ultimaPosicion));
+        
+        // Actualizar posición en el mapa
+        actualizarMarcadorUsuario(latitude, longitude, heading);
+        
+        // Enviar posición al servidor si estamos conectados
+        if (socket && socket.connected && usuarioInfo) {
+            socket.emit('actualizarPosicion', {
+                id: usuarioInfo.id,
+                usuario: usuarioInfo.usuario,
+                elemento: elementoTrabajo,
+                posicion: {
+                    lat: latitude,
+                    lng: longitude,
+                    precision: accuracy,
+                    rumbo: heading || 0,
+                    velocidad: speed || 0
+                },
+                timestamp: new Date().toISOString()
+            });
+        } else if (usuarioInfo) {
+            // Almacenar posición para enviar cuando se conecte
+            if (window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.colaPendiente) {
+                window.MAIRA.GestionBatalla.colaPendiente.posiciones.push({
+                    id: usuarioInfo.id,
+                    usuario: usuarioInfo.usuario,
+                    elemento: elementoTrabajo,
+                    posicion: {
+                        lat: latitude,
+                        lng: longitude,
+                        precision: accuracy,
+                        rumbo: heading || 0,
+                        velocidad: speed || 0
+                    },
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+    }
+    
+    /**
+     * Maneja errores de geolocalización
+     * @param {GeolocationPositionError} error - Error de geolocalización
+     */
+    function errorPosicion(error) {
+        console.error("Error de geolocalización:", error);
+        
+        let mensaje = "Error al obtener posición";
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                mensaje = "Permiso de geolocalización denegado";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                mensaje = "Información de posición no disponible";
+                break;
+            case error.TIMEOUT:
+                mensaje = "Tiempo de espera agotado para obtener posición";
+                break;
+        }
+        
+        MAIRA.Utils.agregarMensajeChat("Sistema", mensaje, "sistema");
+        MAIRA.Utils.mostrarNotificacion(mensaje, "error");
+        detenerSeguimiento();
+    }
+    
+    /**
+     * Centra el mapa en la posición actual del usuario
+     */
+    function centrarEnPosicion() {
+        console.log("Centrando mapa en posición actual");
+        
+        if (marcadorUsuario && window.mapa && window.mapa.hasLayer(marcadorUsuario)) {
+            window.mapa.setView(marcadorUsuario.getLatLng(), 15);
+            MAIRA.Utils.mostrarNotificacion("Mapa centrado en tu posición", "info", 2000);
+        } else {
+            // Si no hay marcador, intentar obtener posición actual
+            try {
+                if (ultimaPosicion) {
+                    if (window.mapa) {
+                        window.mapa.setView([ultimaPosicion.lat, ultimaPosicion.lng], 15);
+                        MAIRA.Utils.mostrarNotificacion("Mapa centrado en tu última posición", "info", 2000);
+                    }
+                } else {
+                    // Intentar obtener posición actual
+                    if (navigator.geolocation) {
+                        MAIRA.Utils.mostrarNotificacion("Obteniendo tu ubicación...", "info");
+                        navigator.geolocation.getCurrentPosition(
+                            function(posicion) {
+                                window.mapa.setView([posicion.coords.latitude, posicion.coords.longitude], 15);
+                                MAIRA.Utils.mostrarNotificacion("Mapa centrado en tu posición", "success", 2000);
+                            },
+                            function(error) {
+                                console.error("Error al obtener posición:", error);
+                                MAIRA.Utils.mostrarNotificacion("No se pudo obtener tu posición", "error");
+                            },
+                            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                        );
+                    } else {
+                        MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta geolocalización", "error");
+                    }
+                }
+            } catch (error) {
+                console.error("Error al centrar en posición:", error);
+                MAIRA.Utils.agregarMensajeChat("Sistema", "No se pudo obtener tu posición actual", "sistema");
+                MAIRA.Utils.mostrarNotificacion("No se pudo centrar en tu posición", "error");
+            }
+        }
+    }
+    
+    /**
+     * Centra el mapa en un elemento específico
+     * @param {string} elementoId - ID del elemento a centrar
+     */
+    function centrarEnElemento(elementoId) {
+        if (!elementosConectados[elementoId] || !elementosConectados[elementoId].marcador) {
+            MAIRA.Utils.mostrarNotificacion("Elemento no encontrado", "error");
+            return;
+        }
+        
+        const posicion = elementosConectados[elementoId].marcador.getLatLng();
+        if (window.mapa) {
+            window.mapa.setView(posicion, 15);
+            elementosConectados[elementoId].marcador.openPopup();
+            MAIRA.Utils.mostrarNotificacion("Mapa centrado en el elemento seleccionado", "info", 2000);
+        }
+    }
+    
+    /**
+     * Inicia el seguimiento de un elemento en el mapa
+     * @param {string} elementoId - ID del elemento a seguir
+     */
+function iniciarSeguimientoElemento(elementoId) {
+    console.log(`Iniciando seguimiento del elemento: ${elementoId}`);
+    
+    if (!elementosConectados[elementoId]) {
+        MAIRA.Utils.mostrarNotificacion("Elemento no encontrado", "error");
+        return;
+    }
+    
+    // Si ya estamos siguiendo este elemento, no hacer nada
+    if (siguiendoElemento === elementoId) {
+        console.log("Ya estamos siguiendo este elemento");
+        return;
+    }
+    
+    // Si estábamos siguiendo otro elemento, detener ese seguimiento
+    if (siguiendoElemento) {
+        detenerSeguimientoElemento();
+    }
+    
+    // Guardar elemento a seguir
+    siguiendoElemento = elementoId;
+    
+    // Centrar inmediatamente si hay marcador
+    if (elementosConectados[elementoId].marcador) {
+        const posicion = elementosConectados[elementoId].marcador.getLatLng();
+        window.mapa.setView(posicion, 15);
+        
+        // Opcional: abrir popup con información
+        const marcador = elementosConectados[elementoId].marcador;
+        if (marcador.getPopup()) {
+            marcador.openPopup();
+        } else {
+            const datos = elementosConectados[elementoId].datos;
+            const popup = L.popup()
+                .setContent(`
+                    <div class="popup-seguimiento">
+                        <strong>${datos.usuario || 'Elemento'}</strong>
+                        <div>${datos.elemento?.designacion || ''}</div>
+                    </div>
+                `);
+            marcador.bindPopup(popup).openPopup();
+        }
+    }
+    
+    // Mostrar indicador visual de seguimiento
+    mostrarIndicadorSeguimiento(elementoId);
+    
+    // Notificar
+    const nombreElemento = elementosConectados[elementoId].datos.usuario || 
+                          elementosConectados[elementoId].datos.elemento?.designacion || 
+                          'Elemento';
+    MAIRA.Utils.mostrarNotificacion(`Siguiendo a ${nombreElemento}`, "info");
+    
+    // Iniciar intervalo para comprobar actualizaciones
+    if (intervaloSeguimientoElemento) {
+        clearInterval(intervaloSeguimientoElemento);
+    }
+    
+    intervaloSeguimientoElemento = setInterval(function() {
+        if (!siguiendoElemento) {
+            clearInterval(intervaloSeguimientoElemento);
+            intervaloSeguimientoElemento = null;
+            return;
+        }
+        
+        const elemento = elementosConectados[siguiendoElemento];
+        if (elemento && elemento.marcador) {
+            const posicion = elemento.marcador.getLatLng();
+            window.mapa.setView(posicion, window.mapa.getZoom());
+        }
+    }, 2000); // Comprobar cada 2 segundos
+}
+
+// Función auxiliar para mostrar indicador visual
+function mostrarIndicadorSeguimiento(elementoId) {
+    // Eliminar indicador previo si existe
+    ocultarIndicadorSeguimiento();
+    
+    // Obtener datos del elemento
+    const elemento = elementosConectados[elementoId]?.datos;
+    if (!elemento) return;
+    
+    // Crear indicador
+    const indicador = document.createElement('div');
+    indicador.id = 'indicador-seguimiento';
+    indicador.className = 'siguiendo-elemento';
+    
+    const nombreElemento = elemento.usuario || elemento.elemento?.designacion || 'Elemento';
+    
+    indicador.innerHTML = `
+        <i class="fas fa-crosshairs"></i>
+        <span>Siguiendo a ${nombreElemento}</span>
+        <button id="btn-detener-seguimiento" title="Detener seguimiento">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    // Estilos básicos
+    indicador.style.position = 'fixed';
+    indicador.style.bottom = '20px';
+    indicador.style.left = '20px';
+    indicador.style.backgroundColor = 'rgba(33, 150, 243, 0.9)';
+    indicador.style.color = 'white';
+    indicador.style.padding = '10px 15px';
+    indicador.style.borderRadius = '50px';
+    indicador.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    indicador.style.zIndex = '1000';
+    indicador.style.display = 'flex';
+    indicador.style.alignItems = 'center';
+    indicador.style.fontSize = '14px';
+    
+    // Añadir al DOM
+    document.body.appendChild(indicador);
+    
+    // Configurar evento para detener seguimiento
+    document.getElementById('btn-detener-seguimiento').addEventListener('click', detenerSeguimientoElemento);
+}
+
+// Función para detener el seguimiento de un elemento
+function detenerSeguimientoElemento() {
+    if (!siguiendoElemento) return;
+    
+    console.log("Deteniendo seguimiento de elemento");
+    
+    // Limpiar intervalo
+    if (intervaloSeguimientoElemento) {
+        clearInterval(intervaloSeguimientoElemento);
+        intervaloSeguimientoElemento = null;
+    }
+    
+    // Limpiar variable
+    siguiendoElemento = null;
+    
+    // Ocultar indicador
+    ocultarIndicadorSeguimiento();
+    
+    // Notificar
+    MAIRA.Utils.mostrarNotificacion("Seguimiento finalizado", "info");
+}
+
+// Función para ocultar el indicador
+function ocultarIndicadorSeguimiento() {
+    const indicador = document.getElementById('indicador-seguimiento');
+    if (indicador) {
+        document.body.removeChild(indicador);
+    }
+}
+    
+   
+    
+    /**
+     * Muestra un indicador visual del elemento que se está siguiendo
+     * @param {string} elementoId - ID del elemento que se está siguiendo
+     */
+    function mostrarIndicadorSeguimiento(elementoId) {
+        // Ocultar indicador existente si lo hay
+        ocultarIndicadorSeguimiento();
+        
+        // Obtener datos del elemento
+        const elemento = elementosConectados[elementoId]?.datos;
+        if (!elemento) return;
+        
+        // Crear indicador
+        const indicador = document.createElement('div');
+        indicador.id = 'indicador-seguimiento';
+        indicador.className = 'siguiendo-elemento';
+        indicador.innerHTML = `
+            <i class="fas fa-crosshairs"></i>
+            <span>Siguiendo a ${elemento.usuario} (${elemento.elemento?.designacion || 'Sin designación'})</span>
+            <button id="btn-detener-seguimiento" title="Detener seguimiento">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        // Añadir al DOM
+        document.body.appendChild(indicador);
+        
+        // Configurar evento para detener seguimiento
+        document.getElementById('btn-detener-seguimiento').addEventListener('click', detenerSeguimientoElemento);
+    }
+    
+    
+    
+    /**
+     * Muestra todos los elementos en el mapa
+     */
+    function mostrarTodosElementos() {
+        console.log("Mostrando todos los elementos en el mapa");
+        
+        if (!window.mapa) {
+            console.error("Mapa no disponible");
+            return;
+        }
+        
+        // Crear un grupo con todos los marcadores
+        const grupo = new L.featureGroup();
+        
+        // Añadir marcador del usuario
+        if (marcadorUsuario && window.mapa.hasLayer(marcadorUsuario)) {
+            grupo.addLayer(marcadorUsuario);
+            console.log("Marcador del usuario añadido al grupo");
+        } else if (ultimaPosicion) {
+            console.log("Creando marcador de usuario a partir de última posición conocida");
+            actualizarMarcadorUsuario(ultimaPosicion.lat, ultimaPosicion.lng, ultimaPosicion.rumbo);
+            if (marcadorUsuario) {
+                grupo.addLayer(marcadorUsuario);
+            }
+        }
+        
+        // Añadir marcadores de otros elementos
+        let elementosAñadidos = 0;
+        
+        if (elementosConectados && Object.keys(elementosConectados).length > 0) {
+            Object.values(elementosConectados).forEach(elem => {
+                if (elem.marcador) {
+                    grupo.addLayer(elem.marcador);
+                    elementosAñadidos++;
+                    console.log(`Elemento añadido al grupo: ${elem.datos?.elemento?.designacion || 'Sin designación'}`);
+                } else if (elem.datos && elem.datos.posicion) {
+                    console.log("Elemento sin marcador pero con posición, creando marcador:", elem.datos);
+                    crearMarcadorElemento(elem.datos);
+                    if (elem.marcador) {
+                        grupo.addLayer(elem.marcador);
+                        elementosAñadidos++;
+                    }
+                }
+            });
+        } else {
+            console.log("No hay elementos conectados para mostrar");
+        }
+        
+        console.log(`Total de elementos añadidos al grupo: ${elementosAñadidos}`);
+        
+        // Si hay elementos, ajustar el mapa para mostrarlos todos
+        if (grupo.getLayers().length > 0) {
+            try {
+                const bounds = grupo.getBounds();
+                console.log("Ajustando vista a los límites:", bounds);
+                window.mapa.fitBounds(bounds, { 
+                    padding: [50, 50],
+                    maxZoom: 15
+                });
+                MAIRA.Utils.mostrarNotificacion(`Mostrando ${grupo.getLayers().length} elementos en el mapa`, "success", 3000);
+            } catch (error) {
+                console.error("Error al ajustar vista:", error);
+                
+                // Si hay un error con los límites, intentar centrar en el primer elemento
+                if (marcadorUsuario) {
+                    window.mapa.setView(marcadorUsuario.getLatLng(), 13);
+                } else if (Object.values(elementosConectados).length > 0) {
+                    const primerElemento = Object.values(elementosConectados)[0];
+                    if (primerElemento.marcador) {
+                        window.mapa.setView(primerElemento.marcador.getLatLng(), 13);
+                    } else if (primerElemento.datos && primerElemento.datos.posicion) {
+                        window.mapa.setView([
+                            primerElemento.datos.posicion.lat,
+                            primerElemento.datos.posicion.lng
+                        ], 13);
+                    }
+                }
+            }
+        } else {
+            console.log("No hay elementos para mostrar en el mapa");
+            MAIRA.Utils.agregarMensajeChat("Sistema", "No hay elementos para mostrar en el mapa", "sistema");
+            MAIRA.Utils.mostrarNotificacion("No hay elementos para mostrar", "info");
+        }
+    }
+    
+    /**
+     * Busca elementos según el texto ingresado
+     * @param {string} texto - Texto para buscar
+     */
+    function buscarElementos(texto) {
+        const resultadosDiv = document.getElementById('resultados-busqueda-elementos');
+        if (!resultadosDiv) return;
+        
+        // Limpiar resultados anteriores
+        resultadosDiv.innerHTML = '';
+        
+        if (!texto.trim()) return;
+        
+        const textoBusqueda = texto.toLowerCase();
+        const resultados = [];
+        
+        // Buscar en elementos conectados
+        Object.entries(elementosConectados).forEach(([id, datos]) => {
+            if (!datos.datos || !datos.datos.elemento) return;
+            
+            const elemento = datos.datos.elemento;
+            const usuario = datos.datos.usuario;
+            
+            if ((elemento.designacion && elemento.designacion.toLowerCase().includes(textoBusqueda)) || 
+                (elemento.dependencia && elemento.dependencia.toLowerCase().includes(textoBusqueda)) || 
+                (usuario && usuario.toLowerCase().includes(textoBusqueda))) {
+                
+                resultados.push({
+                    id: id,
+                    datos: datos.datos
+                });
+            }
+        });
+        
+        // Si hay marcador propio y coincide con la búsqueda, agregarlo
+        if (marcadorUsuario && usuarioInfo) {
+            const designacion = elementoTrabajo.designacion || '';
+            const dependencia = elementoTrabajo.dependencia || '';
+            
+            if (designacion.toLowerCase().includes(textoBusqueda) || 
+                dependencia.toLowerCase().includes(textoBusqueda) || 
+                usuarioInfo.usuario.toLowerCase().includes(textoBusqueda)) {
+                
+                resultados.unshift({
+                    id: 'usuario-actual',
+                    datos: {
+                        elemento: {
+                            designacion: designacion,
+                            dependencia: dependencia
+                        },
+                        usuario: usuarioInfo.usuario,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+            }
+        }
+        
+        // Mostrar resultados
+        if (resultados.length > 0) {
+            resultados.forEach(resultado => {
+                const elementoItem = document.createElement('a');
+                elementoItem.href = '#';
+                elementoItem.className = 'list-group-item list-group-item-action';
+                elementoItem.setAttribute('data-id', resultado.id);
+                
+                elementoItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">${resultado.datos.elemento.designacion || 'Sin designación'}</h6>
+                            <p class="mb-1">${resultado.datos.usuario}</p>
+                        </div>
+                        <small>${MAIRA.Utils.formatearFecha(resultado.datos.timestamp)}</small>
+                    </div>
+                `;
+                
+                elementoItem.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const elementoId = this.getAttribute('data-id');
+                    
+                    if (elementoId === 'usuario-actual') {
+                        centrarEnPosicion();
+                    } else {
+                        centrarEnElemento(elementoId);
+                    }
+                    
+                    // Cerrar modal
+                    if (typeof $('#modalBuscarElemento').modal === 'function') {
+                        $('#modalBuscarElemento').modal('hide');
+                    } else {
+                        document.getElementById('modalBuscarElemento').style.display = 'none';
+                    }
+                });
+                
+                resultadosDiv.appendChild(elementoItem);
+            });
+        } else {
+            const noResultados = document.createElement('div');
+            noResultados.className = 'list-group-item';
+            noResultados.textContent = 'No se encontraron elementos';
+            resultadosDiv.appendChild(noResultados);
+        }
+    }
+    
+    /**
+     * Muestra los detalles de un elemento
+     * @param {string} id - ID del elemento
+     */
+    function mostrarDetallesElemento(id) {
+        const elemento = elementosConectados[id]?.datos;
+        if (!elemento) {
+            console.error("No se encontró elemento con ID:", id);
+            return;
+        }
+        
+        // Si estamos usando Bootstrap, mostrar en un modal
+        const modalContenido = document.getElementById('detalles-elemento-contenido');
+        if (modalContenido) {
+            // Formatear fecha de última actualización
+            const ultimaActualizacion = elemento.timestamp ? 
+                new Date(elemento.timestamp).toLocaleString() : 'No disponible';
+            
+            // Crear HTML con los detalles
+            let detallesHTML = `
+                <div class="detalles-elemento">
+                    <div class="sidc-preview-grande"></div>
+                    <table class="tabla-detalles">
+                        <tr>
+                            <th>Usuario:</th>
+                            <td>${elemento.usuario || 'No disponible'}</td>
+                        </tr>
+                        <tr>
+                            <th>Designación:</th>
+                            <td>${(elemento.elemento?.designacion || elemento.designacion) || 'No disponible'}</td>
+                        </tr>
+                        <tr>
+                            <th>Dependencia:</th>
+                            <td>${(elemento.elemento?.dependencia || elemento.dependencia) || 'No disponible'}</td>
+                        </tr>
+                        <tr>
+                            <th>Estado:</th>
+                            <td>${elemento.conectado ? 'Conectado' : 'Desconectado'}</td>
+                        </tr>
+                        <tr>
+                            <th>Última actualización:</th>
+                            <td>${ultimaActualizacion}</td>
+                        </tr>
+            `;
+            
+            // Añadir datos de posición si están disponibles
+            if (elemento.posicion) {
+                try {
+                    detallesHTML += `
+                        <tr>
+                            <th>Posición:</th>
+                            <td>Lat: ${(elemento.posicion.lat || 0).toFixed(6)}, Lng: ${(elemento.posicion.lng || 0).toFixed(6)}</td>
+                        </tr>`;
+                        
+                    if (elemento.posicion.precision !== undefined) {
+                        detallesHTML += `
+                            <tr>
+                                <th>Precisión:</th>
+                                <td>${(elemento.posicion.precision || 0).toFixed(1)} metros</td>
+                            </tr>`;
+                    }
+                    
+                    if (elemento.posicion.rumbo !== undefined) {
+                        detallesHTML += `
+                            <tr>
+                                <th>Rumbo:</th>
+                                <td>${(elemento.posicion.rumbo || 0).toFixed(1)}°</td>
+                            </tr>`;
+                    }
+                    
+                    if (elemento.posicion.velocidad !== undefined) {
+                        detallesHTML += `
+                            <tr>
+                                <th>Velocidad:</th>
+                                <td>${(elemento.posicion.velocidad || 0).toFixed(1)} m/s</td>
+                            </tr>`;
+                    }
+                } catch (e) {
+                    console.error("Error al mostrar detalles de posición:", e);
+                    detallesHTML += `
+                        <tr>
+                            <th>Posición:</th>
+                            <td>Error al mostrar datos de posición</td>
+                        </tr>`;
+                }
+            }
+            
+            detallesHTML += `
+                    </table>
+                </div>
+            `;
+            
+            modalContenido.innerHTML = detallesHTML;
+            
+            // Mostrar el símbolo SIDC
+            const contenedorSIDC = modalContenido.querySelector('.sidc-preview-grande');
+            const sidc = elemento.elemento?.sidc || elemento.sidc || 'SFGPUCI-----';
+            
+            if (contenedorSIDC && typeof ms !== 'undefined') {
+                try {
+                    const sym = new ms.Symbol(sidc, {size: 70});
+                    contenedorSIDC.innerHTML = sym.asSVG();
+                } catch (e) {
+                    console.warn("Error al generar símbolo para detalles:", e);
+                    contenedorSIDC.innerHTML = '<div style="width:70px;height:70px;background:#888;border-radius:50%;"></div>';
+                }
+            }
+            
+            // Configurar el botón para centrar en el mapa
+            const btnCentrar = document.getElementById('btn-centrar-elemento');
+            if (btnCentrar) {
+                btnCentrar.onclick = function() {
+                    centrarEnElemento(id);
+                    $('#modalDetallesElemento').modal('hide');
+                };
+            }
+            
+            // Agregar botón de seguimiento
+            const botonesModal = modalContenido.parentNode.querySelector('.modal-footer');
+            if (botonesModal) {
+                // Verificar si ya existe el botón
+                let btnSeguir = botonesModal.querySelector('#btn-seguir-elemento');
+                if (!btnSeguir) {
+                    btnSeguir = document.createElement('button');
+                    btnSeguir.id = 'btn-seguir-elemento';
+                    btnSeguir.className = 'btn btn-info';
+                    btnSeguir.innerHTML = '<i class="fas fa-crosshairs"></i> Seguir este elemento';
+                    botonesModal.insertBefore(btnSeguir, botonesModal.firstChild);
+                }
+                
+                btnSeguir.onclick = function() {
+                    iniciarSeguimientoElemento(id);
+                    $('#modalDetallesElemento').modal('hide');
+                };
+            }
+            
+            // Agregar botón de tracking si existe esa funcionalidad
+            if (botonesModal && typeof iniciarTrackingElemento === 'function') {
+                // Verificar si ya existe el botón
+                let btnTrack = botonesModal.querySelector('#btn-track-elemento');
+                if (!btnTrack) {
+                    btnTrack = document.createElement('button');
+                    btnTrack.id = 'btn-track-elemento';
+                    btnTrack.className = 'btn btn-warning';
+                    btnTrack.innerHTML = '<i class="fas fa-route"></i> Mostrar recorrido';
+                    botonesModal.insertBefore(btnTrack, botonesModal.firstChild);
+                }
+                
+                btnTrack.onclick = function() {
+                    iniciarTrackingElemento(id);
+                    $('#modalDetallesElemento').modal('hide');
+                };
+            }
+            
+            // Agregar botón de chat si el módulo está disponible
+            if (window.MAIRA && window.MAIRA.Chat) {
+                const botonesModal = modalContenido.parentNode.querySelector('.modal-footer');
+                if (botonesModal) {
+                    // Verificar si ya existe el botón
+                    let btnChat = botonesModal.querySelector('#btn-chat-elemento');
+                    if (!btnChat) {
+                        btnChat = document.createElement('button');
+                        btnChat.id = 'btn-chat-elemento';
+                        btnChat.className = 'btn btn-primary';
+                        btnChat.innerHTML = '<i class="fas fa-comment"></i> Chat privado';
+                        botonesModal.insertBefore(btnChat, botonesModal.firstChild);
+                    }
+                    
+                    btnChat.onclick = function() {
+                        iniciarChatPrivado(id);
+                        $('#modalDetallesElemento').modal('hide');
+                    };
+                }
+            }
+            
+            // Mostrar modal
+            $('#modalDetallesElemento').modal('show');
+        } else {
+            // Implementación alternativa si no está disponible Bootstrap
+            MAIRA.Utils.mostrarNotificacion(`Elemento: ${(elemento.elemento?.designacion || elemento.designacion) || 'Sin designación'} (${elemento.usuario})`, "info");
+            centrarEnElemento(id);
+        }
+    }
+    
+
+    /**
+     * Configura los eventos para el mapa
+     */
+        function configurarEventosMapa() {
+        window.mapa.on('contextmenu', function(e) {
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+    
+            const opciones = [
+                {
+                    title: 'Agregar Elemento',
+                    action: 'add',
+                    icon: 'fas fa-plus',
+                    tooltip: 'Agregar nuevo elemento',
+                    callback: () => agregarElementoGB(e.latlng)
+                },
+                {
+                    title: 'Centrar Mapa',
+                    action: 'center',
+                    icon: 'fas fa-crosshairs',
+                    tooltip: 'Centrar en esta posición',
+                    callback: () => centrarEnPosicion(e.latlng)
+                }
+            ];
+    
+            if (window.MiRadial) {
+                window.MiRadial.mostrarMenu(
+                    e.originalEvent.pageX,
+                    e.originalEvent.pageY,
+                    'mapa',
+                    opciones
+                );
+            }
+        });
+    }
+    
+    /**
+     * Inicializa el menú contextual para elementos y marcadores
+     */
+    function inicializarMenuContextual() {
+        // Verificar si ya existe
+        if (document.getElementById('menu-contextual-elemento')) return;
+        
+        // Crear elemento para el menú contextual
+        const menu = document.createElement('div');
+        menu.id = 'menu-contextual-elemento';
+        menu.className = 'menu-contextual-elemento';
+        menu.style.display = 'none';
+        
+        // Añadir al DOM
+        document.body.appendChild(menu);
+        
+        // Cerrar menú al hacer clic fuera de él
+        document.addEventListener('click', function() {
+            menu.style.display = 'none';
+        });
+        
+        // Cerrar menú al hacer scroll
+        window.addEventListener('scroll', function() {
+            menu.style.display = 'none';
+        });
+    }
+    
+    /**
+     * Muestra el menú contextual para un elemento de la lista
+     * @param {Event} e - Evento de clic derecho
+     * @param {string} elementoId - ID del elemento
+     */
+    function mostrarMenuContextualElemento(e, elementoId) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Obtener el menú
+        const menu = document.getElementById('menu-contextual-elemento');
+        if (!menu) return;
+        
+        // Obtener datos del elemento
+        const elemento = elementosConectados[elementoId]?.datos;
+        if (!elemento) return;
+        
+        // Configurar opciones del menú
+        menu.innerHTML = `
+            <div class="menu-item" data-action="centrar" data-id="${elementoId}">
+                <i class="fas fa-crosshairs"></i> Centrar en mapa
+            </div>
+            <div class="menu-item" data-action="seguir" data-id="${elementoId}">
+                <i class="fas fa-location-arrow"></i> Seguir este elemento
+            </div>
+            <div class="menu-item" data-action="detalles" data-id="${elementoId}">
+                <i class="fas fa-info-circle"></i> Ver detalles
+            </div>
+            ${window.MAIRA.Chat ? `
+            <div class="menu-item" data-action="chat" data-id="${elementoId}">
+                <i class="fas fa-comment"></i> Chat privado
+            </div>
+            ` : ''}
+        `;
+        
+        // Posicionar menú
+        menu.style.left = `${e.pageX}px`;
+        menu.style.top = `${e.pageY}px`;
+        menu.style.display = 'block';
+        
+        // Configurar eventos de las opciones
+        menu.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const accion = this.getAttribute('data-action');
+                const id = this.getAttribute('data-id');
+                
+                menu.style.display = 'none';
+                
+                switch (accion) {
+                    case 'centrar':
+                        centrarEnElemento(id);
+                        break;
+                    case 'seguir':
+                        iniciarSeguimientoElemento(id);
+                        break;
+                    case 'detalles':
+                        mostrarDetallesElemento(id);
+                        break;
+                    case 'chat':
+                        if (window.MAIRA.Chat) {
+                            iniciarChatPrivado(id);
+                        }
+                        break;
+                }
+            });
+        });
+    }
+    
+    /**
+     * Muestra el menú contextual para un marcador en el mapa
+     * @param {Event} e - Evento de clic derecho
+     * @param {string} elementoId - ID del elemento o 'usuario' para el marcador del usuario
+     */
+    function mostrarMenuContextualMarcador(e, elementoId) {
+        L.DomEvent.stopPropagation(e);
+        L.DomEvent.preventDefault(e);
+        
+        // Obtener el menú
+        const menu = document.getElementById('menu-contextual-elemento');
+        if (!menu) return;
+        
+        // Determinar opciones según si es marcador de usuario u otro elemento
+        if (elementoId === 'usuario') {
+            menu.innerHTML = `
+                <div class="menu-item" data-action="centrar-usuario">
+                    <i class="fas fa-crosshairs"></i> Centrar en mi posición
+                </div>
+                <div class="menu-item" data-action="seguimiento">
+                    <i class="fas fa-location-arrow"></i> ${seguimientoActivo ? 'Detener seguimiento' : 'Iniciar seguimiento'}
+                </div>
+            `;
+        } else {
+            const elemento = elementosConectados[elementoId]?.datos;
+            if (!elemento) return;
+            
+            menu.innerHTML = `
+                <div class="menu-item" data-action="centrar" data-id="${elementoId}">
+                    <i class="fas fa-crosshairs"></i> Centrar en mapa
+                </div>
+                <div class="menu-item" data-action="seguir" data-id="${elementoId}">
+                    <i class="fas fa-location-arrow"></i> Seguir este elemento
+                </div>
+                <div class="menu-item" data-action="detalles" data-id="${elementoId}">
+                    <i class="fas fa-info-circle"></i> Ver detalles
+                </div>
+                ${window.MAIRA.Chat ? `
+                <div class="menu-item" data-action="chat" data-id="${elementoId}">
+                    <i class="fas fa-comment"></i> Chat privado
+                </div>
+                ` : ''}
+            `;
+        }
+        
+        // Posicionar menú
+        const containerPoint = e.containerPoint;
+        const containerPos = e.target._container.getBoundingClientRect();
+        
+        menu.style.left = `${containerPos.left + containerPoint.x}px`;
+        menu.style.top = `${containerPos.top + containerPoint.y}px`;
+        menu.style.display = 'block';
+        
+        // Configurar eventos de las opciones
+        menu.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const accion = this.getAttribute('data-action');
+                const id = this.getAttribute('data-id');
+                
+                menu.style.display = 'none';
+                
+                switch (accion) {
+                    case 'centrar-usuario':
+                        centrarEnPosicion();
+                        break;
+                    case 'seguimiento':
+                        toggleSeguimiento();
+                        break;
+                    case 'centrar':
+                        centrarEnElemento(id);
+                        break;
+                    case 'seguir':
+                        iniciarSeguimientoElemento(id);
+                        break;
+                    case 'detalles':
+                        mostrarDetallesElemento(id);
+                        break;
+                    case 'chat':
+                        if (window.MAIRA.Chat) {
+                            iniciarChatPrivado(id);
+                        }
+                        break;
+                }
+            });
+        });
+    }
+    
+    /**
+     * Muestra el menú contextual para el mapa
+     * @param {Event} e - Evento de clic derecho
+     */
+    function mostrarMenuContextualMapa(e) {
+        // Obtener el menú
+        const menu = document.getElementById('menu-contextual-elemento');
+        if (!menu) return;
+        
+        // Configurar opciones del menú
+        menu.innerHTML = `
+            <div class="menu-item" data-action="centrar-usuario">
+                <i class="fas fa-crosshairs"></i> Centrar en mi posición
+            </div>
+            <div class="menu-item" data-action="seguimiento">
+                <i class="fas fa-location-arrow"></i> ${seguimientoActivo ? 'Detener seguimiento' : 'Iniciar seguimiento'}
+            </div>
+            <div class="menu-item" data-action="mostrar-todos">
+                <i class="fas fa-users"></i> Mostrar todos los elementos
+            </div>
+            ${window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.agregarMarcadorGB ? `
+            <div class="menu-item" data-action="agregar-marcador">
+                <i class="fas fa-map-marker-alt"></i> Agregar marcador
+            </div>
+            ` : ''}
+        `;
+        
+        // Obtener coordenadas del clic
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        
+        // Guardar coordenadas en atributos de datos
+        menu.setAttribute('data-lat', lat);
+        menu.setAttribute('data-lng', lng);
+        
+        // Posicionar menú
+        menu.style.left = `${e.originalEvent.pageX}px`;
+        menu.style.top = `${e.originalEvent.pageY}px`;
+        menu.style.display = 'block';
+        
+        // Configurar eventos de las opciones
+        menu.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const accion = this.getAttribute('data-action');
+                
+                menu.style.display = 'none';
+                
+                switch (accion) {
+                    case 'centrar-usuario':
+                        centrarEnPosicion();
+                        break;
+                    case 'seguimiento':
+                        toggleSeguimiento();
+                        break;
+                    case 'mostrar-todos':
+                        mostrarTodosElementos();
+                        break;
+                    case 'agregar-marcador':
+                        if (window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.agregarMarcadorGB) {
+                            // Obtener coordenadas del clic
+                            const lat = parseFloat(menu.getAttribute('data-lat'));
+                            const lng = parseFloat(menu.getAttribute('data-lng'));
+                            
+                            // Abrir selector de marcador en esa posición
+                            MAIRA.Utils.mostrarNotificacion("Seleccione el tipo de marcador a agregar", "info");
+                            
+                            // Simulación de clic en esa posición
+                            const evento = {
+                                latlng: L.latLng(lat, lng)
+                            };
+                            
+                            // Ejecutar función de agregar marcador
+                            window.mapa.fire('click', evento);
+                        }
+                        break;
+                }
+            });
+        });
+    }
+    
+
+    
+    /**
+     * Obtiene todos los elementos conectados
+     * @returns {Object} - Objeto con todos los elementos conectados
+     */
+    function obtenerElementosConectados() {
+        console.log("obtenerElementosConectados llamado, devolviendo:", elementosConectados);
+        return elementosConectados;
+    }
+    
+    
+    /**
+     * Obtiene un elemento por su ID
+     * @param {string} elementoId - ID del elemento
+     * @returns {Object|null} - Datos del elemento o null si no existe
+     */
+    function obtenerElementoPorId(elementoId) {
+        return elementosConectados[elementoId]?.datos || null;
+    }
+
+// Función de diagnóstico para listar todos los elementos conectados
+function mostrarDiagnosticoElementos() {
+    console.group("===== DIAGNÓSTICO DE ELEMENTOS CONECTADOS =====");
+    console.log(`Total de elementos registrados: ${Object.keys(elementosConectados).length}`);
+    
+    Object.entries(elementosConectados).forEach(([id, elem]) => {
+        console.group(`Elemento ID: ${id}`);
+        console.log("Datos:", elem.datos);
+        console.log("Marcador presente:", !!elem.marcador);
+        console.log("Usuario:", elem.datos?.usuario || 'N/A');
+        console.log("Designación:", elem.datos?.elemento?.designacion || 'N/A');
+        console.log("Posición:", elem.datos?.posicion ? `Lat: ${elem.datos.posicion.lat}, Lng: ${elem.datos.posicion.lng}` : 'Sin posición');
+        console.log("Elemento visual en DOM:", !!document.querySelector(`.elemento-item[data-id="${id}"]`));
+        console.groupEnd();
     });
+    
+    console.log("===== ELEMENTOS VISUALES EN DOM =====");
+    const elementosVisuales = document.querySelectorAll('.elemento-item');
+    console.log(`Total elementos en DOM: ${elementosVisuales.length}`);
+    
+    elementosVisuales.forEach(elemento => {
+        const elementoId = elemento.getAttribute('data-id');
+        console.log(`Elemento visual ID: ${elementoId}, Existe en datos: ${!!elementosConectados[elementoId]}`);
+    });
+    
+    console.groupEnd();
+    
+    // También verificar destinatarios del chat
+    if (document.getElementById('select-destinatario')) {
+        console.group("===== DESTINATARIOS DE CHAT =====");
+        const options = document.getElementById('select-destinatario').options;
+        console.log(`Total opciones en select: ${options.length}`);
+        
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].disabled) continue;
+            console.log(`Opción ${i}: Valor=${options[i].value}, Texto=${options[i].textContent}`);
+        }
+        console.groupEnd();
+    }
+    
+    return "Diagnóstico completado - Ver consola para detalles";
+}
+
+
+
+
+// Variables globales para tracking
+const trackingConfig = {
+    activado: false,
+    historial: {}, // {elementoId: {puntos: [], linea: L.polyline}}
+    intervalos: {}, // {elementoId: intervalId}
+    seguidos: {},  // {elementoId: boolean}
+    colores: [
+        '#FF5733', '#33FF57', '#3357FF', '#F033FF', 
+        '#FF33F0', '#33FFF0', '#F0FF33', '#9533FF'
+    ]
+};
+
+function iniciarTrackingElemento(elementoId) {
+    if (!elementosConectados[elementoId]) {
+        console.warn(`No se puede iniciar tracking: elemento ${elementoId} no encontrado`);
+        return;
+    }
+
+    console.log(`Iniciando tracking para elemento ${elementoId}`);
+
+    const elemento = elementosConectados[elementoId];
+    if (!elemento.datos.posicion) {
+        console.warn(`Elemento ${elementoId} sin posición inicial`);
+        return;
+    }
+
+    // Inicializar tracking para este elemento
+    const colorIndex = Math.abs(elementoId.split('').reduce((acc, char) => {
+        return char.charCodeAt(0) + ((acc << 5) - acc);
+    }, 0)) % trackingConfig.colores.length;
+
+    trackingConfig.historial[elementoId] = {
+        puntos: [[elemento.datos.posicion.lat, elemento.datos.posicion.lng]],
+        linea: L.polyline([[elemento.datos.posicion.lat, elemento.datos.posicion.lng]], {
+            color: trackingConfig.colores[colorIndex],
+            weight: 3,
+            opacity: 0.7,
+            dashArray: '5, 10'
+        }).addTo(window.mapa)
+    };
+
+    // Marcar como seguido
+    trackingConfig.seguidos[elementoId] = true;
+
+    // Actualizar UI
+    actualizarUITracking(elementoId, true);
+
+    // Notificar
+    MAIRA.Utils.mostrarNotificacion(`Tracking iniciado para ${elemento.datos.usuario}`, "info");
+}
+
+function actualizarTrackingElemento(elementoId, nuevaPosicion) {
+    if (!trackingConfig.historial[elementoId]) return;
+
+    const tracking = trackingConfig.historial[elementoId];
+    tracking.puntos.push([nuevaPosicion.lat, nuevaPosicion.lng]);
+    tracking.linea.setLatLngs(tracking.puntos);
+
+    // Si está siendo seguido, centrar mapa
+    if (trackingConfig.seguidos[elementoId]) {
+        window.mapa.setView([nuevaPosicion.lat, nuevaPosicion.lng]);
+    }
+}
+
+function detenerTrackingElemento(elementoId) {
+    if (!trackingConfig.historial[elementoId]) return;
+
+    // Limpiar línea del mapa
+    if (trackingConfig.historial[elementoId].linea) {
+        window.mapa.removeLayer(trackingConfig.historial[elementoId].linea);
+    }
+
+    // Limpiar datos
+    delete trackingConfig.historial[elementoId];
+    delete trackingConfig.seguidos[elementoId];
+
+    // Actualizar UI
+    actualizarUITracking(elementoId, false);
+
+    // Notificar
+    const elemento = elementosConectados[elementoId];
+    if (elemento) {
+        MAIRA.Utils.mostrarNotificacion(`Tracking detenido para ${elemento.datos.usuario}`, "info");
+    }
+}
+
+function actualizarUITracking(elementoId, activo) {
+    const btnTracking = document.querySelector(`.elemento-item[data-id="${elementoId}"] .btn-tracking`);
+    if (btnTracking) {
+        if (activo) {
+            btnTracking.classList.add('active');
+            btnTracking.title = 'Detener tracking';
+        } else {
+            btnTracking.classList.remove('active');
+            btnTracking.title = 'Iniciar tracking';
+        }
+    }
+}
+
+// Función para limpiar todo el sistema de tracking
+function limpiarSistemaTracking() {
+    Object.keys(trackingConfig.historial).forEach(elementoId => {
+        detenerTrackingElemento(elementoId);
+    });
+    
+    trackingConfig.activado = false;
+    trackingConfig.historial = {};
+    trackingConfig.seguidos = {};
+    
+    // Limpiar intervalos
+    Object.values(trackingConfig.intervalos).forEach(intervalo => {
+        clearInterval(intervalo);
+    });
+    trackingConfig.intervalos = {};
+}
+
+
+window.seleccionarElementoGB = function(elemento) {
+    if (window.MAIRA?.Elementos?.seleccionarElementoGB) {
+        return window.MAIRA.Elementos.seleccionarElementoGB(elemento);
+    } else {
+        console.log("[Elementos] Seleccionando elemento:", elemento.options?.id || elemento.id);
+        
+        // Eliminar selección previa si existe
+        if (window.elementoSeleccionadoGB) {
+            const prevElemIcon = window.elementoSeleccionadoGB._icon;
+            if (prevElemIcon) {
+                prevElemIcon.classList.remove('seleccionado');
+            }
+        }
+        
+        // Establecer nuevo elemento seleccionado y marcar visualmente
+        window.elementoSeleccionadoGB = elemento;
+        window.elementoSeleccionado = elemento;
+        
+        if (elemento && elemento._icon) {
+            elemento._icon.classList.add('seleccionado');
+        }
+        
+        return elemento;
+    }
 };
 
 
 
+function iniciarTrackingElementos() {
+    if (trackingActivado) return;
+    
+    trackingActivado = true;
+    
+    // Iniciar tracking para cada elemento conectado
+    Object.keys(elementosConectados).forEach(id => {
+        iniciarTrackingElemento(id);
+    });
+    
+    // Mostrar notificación
+    MAIRA.Utils.mostrarNotificacion("Tracking de elementos activado", "info");
+    
+    // Guardar preferencia
+    localStorage.setItem('tracking_activado', 'true');
+    
+    console.log("Sistema de tracking de elementos iniciado");
+}
+
+function detenerTrackingElementos() {
+    if (!trackingActivado) return;
+    
+    trackingActivado = false;
+    
+    // Detener intervalos
+    Object.keys(trackingIntervalos).forEach(id => {
+        clearInterval(trackingIntervalos[id]);
+        delete trackingIntervalos[id];
+    });
+    
+    // Limpiar líneas de tracking (opcional)
+    Object.keys(trackHistorial).forEach(id => {
+        if (trackHistorial[id].linea && window.mapa.hasLayer(trackHistorial[id].linea)) {
+            window.mapa.removeLayer(trackHistorial[id].linea);
+        }
+    });
+    
+    // Mostrar notificación
+    MAIRA.Utils.mostrarNotificacion("Tracking de elementos desactivado", "info");
+    
+    // Guardar preferencia
+    localStorage.setItem('tracking_activado', 'false');
+    
+    console.log("Sistema de tracking de elementos detenido");
+}
+
+
+
+/**
+ * Actualiza la información de posición en la lista visual
+ * @param {string} elementoId - ID del elemento
+ * @param {Object} posicion - Datos de posición {lat, lng, rumbo, velocidad}
+ */
+function actualizarInfoPosicionEnLista(elementoId, posicion) {
+    if (!elementoId || !posicion) return;
+
+    const elementoItem = document.querySelector(`.elemento-item[data-id="${elementoId}"]`);
+    if (!elementoItem) return;
+
+    // Buscar o crear contenedor de info de posición
+    let infoPos = elementoItem.querySelector('.elemento-posicion');
+    if (!infoPos) {
+        infoPos = document.createElement('div');
+        infoPos.className = 'elemento-posicion small text-muted';
+        elementoItem.querySelector('.elemento-info')?.appendChild(infoPos);
+    }
+
+    // Formatear información de posición
+    let infoTexto = `${posicion.lat.toFixed(6)}, ${posicion.lng.toFixed(6)}`;
+    
+    if (posicion.rumbo !== undefined) {
+        infoTexto += ` | ${posicion.rumbo.toFixed(1)}°`;
+    }
+    
+    if (posicion.velocidad !== undefined) {
+        infoTexto += ` | ${(posicion.velocidad * 3.6).toFixed(1)} km/h`;
+    }
+
+    infoPos.textContent = infoTexto;
+
+    // Actualizar tiempo de última actualización
+    const tiempoElement = elementoItem.querySelector('.elemento-tiempo');
+    if (tiempoElement) {
+        tiempoElement.textContent = new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Si el elemento está siendo seguido, actualizar su tracking
+    if (trackingConfig?.historial[elementoId]) {
+        actualizarTrackingElemento(elementoId, posicion);
+    }
+}
 
 
 
 
+// Exponer para uso desde consola
+window.forzarSincronizacionElementos = forzarSincronizacionElementos;
+window.buscarElementoEnPosicion = buscarElementoEnPosicion;
+    
+// Exponer la función para uso en la consola
+window.diagnosticoElementos = mostrarDiagnosticoElementos;
+// Exponer funciones globalmente
+window.agregarElementoALista = agregarElementoALista;
+
+return {
+
+    actualizarInfoPosicionEnLista,
+
+    // Funciones principales
+    inicializar,
+    configurarEventosSocket,
+    configurarEventosMapa,
+    solicitarListaElementos,
+    esUnidad,
+    esEquipo,
+    
+    // Gestión de elementos
+    agregarElementoALista,
+    actualizarListaElementos,
+    actualizarPosicionElemento,
+    actualizarElementoConectado,
+    actualizarElementoEnLista,
+    procesarElementosRecibidos,
+    inicializarListaElementos,
+    editarElemento,
+    configurarEventosMarcador,
+
+    // Navegación
+    centrarEnPosicion,
+    centrarEnElemento,
+    mostrarTodosElementos,
+    solicitarListaElementos,
+
+    // Seguimiento
+    iniciarSeguimiento,
+    detenerSeguimiento,
+    toggleSeguimiento,
+    
+    // Tracking
+    iniciarTrackingElemento,
+    detenerTrackingElemento,
+    actualizarTrackingElemento,
+    limpiarSistemaTracking,
+
+    // Acceso a datos
+    obtenerElementosConectados: function() { return elementosConectados; },
+    obtenerElementoPorId,
+    
+    // Diagnóstico
+    diagnosticoElementos: mostrarDiagnosticoElementos,
+    forzarSincronizacion: forzarSincronizacionElementos
+
+};
+})();
+
+// Registrar como módulo global
+window.MAIRA.Elementos = window.MAIRA.Elementos || MAIRA.Elementos;
 
 
 
+function actualizarElementoModificado(datosElemento) {
+    console.log("Actualizando elemento modificado recibido del servidor:", datosElemento);
+    
+    if (!datosElemento || !datosElemento.id) {
+        console.error("Datos de elemento inválidos o sin ID");
+        return false;
+    }
+    
+    // Verificar si el elemento existe en la estructura
+    if (elementosConectados[datosElemento.id]) {
+        const elementoExistente = elementosConectados[datosElemento.id];
+        
+        // 1. Eliminar marcador anterior del mapa si existe
+        if (elementoExistente.marcador) {
+            console.log(`Eliminando marcador anterior para ${datosElemento.id}`);
+            if (window.calcoActivo && window.calcoActivo.hasLayer(elementoExistente.marcador)) {
+                window.calcoActivo.removeLayer(elementoExistente.marcador);
+            } else if (window.mapa && window.mapa.hasLayer(elementoExistente.marcador)) {
+                window.mapa.removeLayer(elementoExistente.marcador);
+            }
+        }
+        
+        // 2. Actualizar datos del elemento
+        elementoExistente.datos = datosElemento;
+        
+        // 3. Crear nuevo marcador con los datos actualizados
+        elementoExistente.marcador = crearMarcadorElemento(datosElemento);
+        
+        // 4. Actualizar elemento en la lista visual
+        actualizarElementoEnLista(datosElemento);
+        
+        console.log(`Elemento ${datosElemento.id} actualizado correctamente`);
+        return true;
+    } else {
+        // Si el elemento no existe, agregarlo normalmente
+        console.log(`Elemento ${datosElemento.id} no encontrado, agregando como nuevo`);
+        procesarElementosRecibidos(datosElemento);
+        return true;
+    }
+}
+
+window.MAIRA.Elementos.actualizarElementoModificado = actualizarElementoModificado;
 
 
+// Al final del módulo, añadir esta función
+function testEnviarActualizacionPosicion() {
+    if (!socket || !socket.connected || !usuarioInfo || !ultimaPosicion) {
+        console.warn("❌ No se puede enviar prueba de posición - datos incompletos");
+        return false;
+    }
+    
+    const datosPrueba = {
+        id: usuarioInfo.id,
+        usuario: usuarioInfo.usuario,
+        elemento: elementoTrabajo,
+        posicion: {
+            lat: ultimaPosicion.lat + (Math.random() * 0.001 - 0.0005), // pequeña variación
+            lng: ultimaPosicion.lng + (Math.random() * 0.001 - 0.0005), // pequeña variación
+            precision: ultimaPosicion.precision,
+            rumbo: ultimaPosicion.rumbo,
+            velocidad: ultimaPosicion.velocidad
+        },
+        operacion: operacionActual,
+        timestamp: new Date().toISOString(),
+        conectado: true,
+        prueba: true
+    };
+    
+    console.log("🧪 Enviando prueba de actualización de posición:", datosPrueba);
+    socket.emit('actualizarPosicionGB', datosPrueba);
+    socket.emit('anunciarElemento', datosPrueba);
+    
+    // Registrar evento en caso de confirmación
+    socket.once('elementoRecibido', (confirmacion) => {
+        console.log("✅ Prueba de posición confirmada por el servidor:", confirmacion);
+    });
+    
+    return true;
+}
 
-
-
-// Exportación de funciones para uso en otros archivos
-window.mostrarPanelEdicionUnidad = mostrarPanelEdicionUnidad;
-window.guardarCambiosUnidadGB = guardarCambiosUnidadGB;
-window.cerrarPanelEdicion = cerrarPanelEdicion;
-window.actualizarPreviewSimbolo = actualizarPreviewSimbolo;
-window.mostrarPanelEdicionEquipo = mostrarPanelEdicionEquipo;
-window.guardarCambiosEquipoGB = guardarCambiosEquipoGB;
-window.mostrarPanelEdicionLinea = mostrarPanelEdicionLinea;
-window.guardarCambiosLinea = guardarCambiosLinea;
-window.actualizarEstiloElemento = actualizarEstiloElemento;
-window.mostrarPanelEdicionMCC = mostrarPanelEdicionMCC;
-window.editarelementoSeleccionadoGB = editarelementoSeleccionadoGB;
-window.actualizarCampoSIDC = actualizarCampoSIDC;
-window.esEquipo = esEquipo;
-window.esUnidad = esUnidad;
-window.actualizarIconoEnLista = actualizarIconoEnLista;
-window.configurarEventoReconexion = configurarEventoReconexion;
-window.actualizarElementoConectadoLocal = actualizarElementoConectadoLocal;
-window.determinarTipoRelleno = determinarTipoRelleno;
-window.obtenerPatronRelleno = obtenerPatronRelleno;
-window.aplicarRelleno = aplicarRelleno;
-window.crearTextoMarcador = crearTextoMarcador;
-window.actualizarTextoElemento = actualizarTextoElemento;
-window.guardarCambiosUnidadGB= guardarCambiosUnidadGB;
-window.guardarCambiosEquipoGB = guardarCambiosEquipoGB;
-window.guardarCambiosLinea = guardarCambiosLinea;
-window.guardarCambiosMCC = guardarCambiosMCC;
-window.cargarElementosDesdeDB = cargarElementosDesdeDB;
-window.forzarSincronizacionElementosConDB = forzarSincronizacionElementosConDB;
-window.guardarTrackingEnDB = guardarTrackingEnDB;
-window.cargarTrackingDesdeBD = cargarTrackingDesdeBD;
-window.limpiarElementosDuplicados = limpiarElementosDuplicados;
-window.configurarEventoListaElementos = configurarEventoListaElementos;
+// Exponer función para pruebas
+window.testPosicion = testEnviarActualizacionPosicion;

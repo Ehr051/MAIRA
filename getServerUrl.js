@@ -1,4 +1,4 @@
-// networkConfig.js
+
 // Versión simplificada compatible con el código existente
 
 // Detectar automáticamente protocolo y host

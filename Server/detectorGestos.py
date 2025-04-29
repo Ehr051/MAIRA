@@ -194,7 +194,7 @@ class ControladorGestos:
                       (texto_x, texto_y), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
     
     def detectar_gestos_una_mano(self, puntos, frame, ancho, altura):
-        """Detecta gestos realizados con una sola mano - optimizado para mayor distancia"""
+        """Detecta gestos realizados con una sola mano con calibración automática de distancia"""
         # Dedos clave
         indice_punta = puntos[8]
         indice_base = puntos[5]
@@ -204,41 +204,32 @@ class ControladorGestos:
         medio_base = puntos[9]
         palma = puntos[0]
         
-        # NUEVA SECCIÓN: Calcular el tamaño de la mano para ajuste de distancia
-        # Encontrar el punto más alejado de la muñeca para estimar el tamaño de la mano
-        distancias_a_muneca = [self._calcular_distancia(palma, p) for p in puntos]
-        tamano_mano = max(distancias_a_muneca)
+        # NUEVO: Detectar distancia y calibrar umbrales automáticamente
+        calibracion = self.detectar_distancia_y_calibrar(puntos)
+        umbral_pinza = calibracion['umbral_pinza']
+        factor_distancia = calibracion['factor_distancia']
+        categoria_distancia = calibracion['categoria_distancia']
         
-        # Calcular factor de escala basado en tamaño de mano (normalización)
-        # Este factor será clave para adaptar los umbrales a la distancia
-        tamano_mano_referencia = 250  # valor calibrado para una mano a distancia normal
-        factor_escala = tamano_mano_referencia / max(tamano_mano, 1)  # evitar división por cero
-        
-        # Verificar si dedos están extendidos
-        indice_extendido = indice_punta[1] < indice_base[1] - 10*factor_escala
-        medio_extendido = medio_punta[1] < medio_base[1] - 10*factor_escala
+        # Verificar si dedos están extendidos (con adaptación a distancia)
+        # A mayor distancia, ser menos estricto con lo que significa "extendido"
+        umbral_extension = 5 * factor_distancia  # Adaptativo a la distancia
+        indice_extendido = indice_punta[1] < indice_base[1] - umbral_extension
+        medio_extendido = medio_punta[1] < medio_base[1] - umbral_extension
         pulgar_extendido = self._calcular_distancia(pulgar_punta, palma) > self._calcular_distancia(pulgar_base, palma) * 1.2
-        
-        # Calcular longitud del dedo índice como referencia para escala
-        longitud_indice = self._calcular_distancia(indice_punta, indice_base)
-        
-        # MEJORADO: Umbral dinámico para pinza basado en tamaño de mano y longitud de dedo
-        umbral_pinza_base = longitud_indice * 0.65  # Base: 65% de la longitud del dedo índice
-        umbral_pinza = umbral_pinza_base * (1 + (factor_escala - 1) * 0.5)  # Ajuste por distancia
         
         # Distancias entre dedos
         distancia_pulgar_indice = self._calcular_distancia(pulgar_punta, indice_punta)
         distancia_pulgar_medio = self._calcular_distancia(pulgar_punta, medio_punta)
         
         # Mostrar información de depuración
-        if self.modo == "mesa":
+        if True:  # Siempre mostrar para facilitar el diagnóstico
             # Información de depuración útil
-            cv2.putText(frame, f"Tam. mano: {tamano_mano:.1f}, Factor: {factor_escala:.2f}", 
+            cv2.putText(frame, f"Dist: {categoria_distancia} ({factor_distancia:.2f})", 
+                    (10, altura - 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            cv2.putText(frame, f"P-I: {distancia_pulgar_indice:.1f}, Umbral: {umbral_pinza:.1f}", 
                     (10, altura - 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-            cv2.putText(frame, f"Dist. P-I: {distancia_pulgar_indice:.1f}, Umbral: {umbral_pinza:.1f}", 
+            cv2.putText(frame, f"Índ: {indice_extendido}, Pulg: {pulgar_extendido}", 
                     (10, altura - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-            cv2.putText(frame, f"Índice ext: {indice_extendido}, Pulgar ext: {pulgar_extendido}", 
-                    (10, altura - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         
         # Posición para el cursor
         if self.modo == "pantalla":
@@ -275,7 +266,7 @@ class ControladorGestos:
         info_gesto = {
             'gesto': 'ninguno',
             'posicion': posicion_cursor,
-            'datos_adicionales': {'puntos_mano': puntos}
+            'datos_adicionales': {'puntos_mano': puntos, 'calibracion': calibracion}
         }
         
         # NUEVO: Sistema anti-temblor para gestos
@@ -288,10 +279,40 @@ class ControladorGestos:
         # Mostrar círculo como cursor visual en el dedo índice
         cv2.circle(frame, indice_punta, 8, (0, 255, 0), -1)
         
-        # Detección de click: pinza entre índice y pulgar con umbral adaptativo
+        # Detección de gestos
         gesto_actual = 'ninguno'
         
-        # Click izquierdo: pinza entre índice y pulgar
+        # MEJORADO: Sistema de visualización de proximidad al umbral de pinza
+        # Esto ayuda al usuario a ver cuán cerca está de activar un gesto
+        if distancia_pulgar_indice < umbral_pinza * 2:  # Mostrar cuando se acerca al umbral
+            # Calcular porcentaje de proximidad al umbral (0% = en umbral, 100% = a doble distancia)
+            proximidad = max(0, min(100, (distancia_pulgar_indice / umbral_pinza - 1) * 100))
+            
+            # Color que cambia de rojo (lejos) a verde (cerca del umbral)
+            # RGB -> BGR para OpenCV
+            if proximidad < 50:
+                # De verde a amarillo (de cerca a media distancia)
+                g = 255
+                r = int((proximidad / 50) * 255)
+                color_proximidad = (0, g, r)
+            else:
+                # De amarillo a rojo (de media distancia a lejos)
+                r = 255
+                g = int(255 - ((proximidad - 50) / 50) * 255)
+                color_proximidad = (0, g, r)
+            
+            # Dibujar línea entre pulgar e índice con el color de proximidad
+            cv2.line(frame, pulgar_punta, indice_punta, color_proximidad, 2)
+            
+            # Opcional: mostrar círculo en punto medio con tamaño proporcional a la proximidad
+            punto_medio = ((pulgar_punta[0] + indice_punta[0]) // 2, 
+                        (pulgar_punta[1] + indice_punta[1]) // 2)
+            
+            # Tamaño del círculo inversamente proporcional a la proximidad
+            radio = int(10 + (100 - proximidad) / 10)
+            cv2.circle(frame, punto_medio, radio, color_proximidad, 2)
+        
+        # Click izquierdo: pinza entre índice y pulgar con umbral adaptativo
         if distancia_pulgar_indice < umbral_pinza:
             # MEJORADO: Verificación adicional para evitar falsos positivos
             # Asegurar que es una pinza intencional, no solo dedos juntos por casualidad
@@ -310,8 +331,16 @@ class ControladorGestos:
                     self.contador_gesto = 1
                     self.tiempo_ultimo_cambio = time.time()
                 
+                # Número mínimo de frames para confirmar, adaptado a la distancia
+                # Más exigente de cerca, más permisivo a distancia
+                frames_confirmacion = 5
+                if categoria_distancia == "muy_cerca":
+                    frames_confirmacion = 8  # Más exigente cuando está muy cerca
+                elif categoria_distancia == "distancia_lejana":
+                    frames_confirmacion = 3  # Más permisivo a distancia
+                
                 # Detectar arrastre si se mantiene la pinza y se mueve
-                if self.contador_gesto > 5:  # Necesitamos al menos 5 frames de click para confirmar
+                if self.contador_gesto > frames_confirmacion:
                     if self.dragging or self.clicking:
                         gesto_actual = 'arrastrar'
                         if self.punto_inicial_arrastre:
@@ -350,11 +379,18 @@ class ControladorGestos:
                     self.contador_gesto = 1
                     self.tiempo_ultimo_cambio = time.time()
                 
-                if self.contador_gesto > 5:  # Confirmar con 5 frames consecutivos
+                # Adaptar frames de confirmación según distancia
+                frames_confirmacion = 5
+                if categoria_distancia == "muy_cerca":
+                    frames_confirmacion = 8
+                elif categoria_distancia == "distancia_lejana":
+                    frames_confirmacion = 3
+                
+                if self.contador_gesto > frames_confirmacion:
                     info_gesto['gesto'] = gesto_actual
         
-        # Puño cerrado (para click o para zoom) - ahora con mejor detección a distancia
-        if self._es_puño_cerrado(puntos, factor_escala):
+        # Puño cerrado adaptado a la distancia
+        if self._es_puño_cerrado(puntos, factor_distancia):
             # Si solo hay una mano y no estamos en modo zoom, considerar como click
             if not self.zoom_mode:
                 gesto_actual = 'click'
@@ -369,14 +405,20 @@ class ControladorGestos:
                     self.contador_gesto = 1
                     self.tiempo_ultimo_cambio = time.time()
                 
-                if self.contador_gesto > 5:  # Confirmar con 5 frames consecutivos
+                # Adaptar frames de confirmación según distancia
+                frames_confirmacion = 5
+                if categoria_distancia == "muy_cerca":
+                    frames_confirmacion = 8
+                elif categoria_distancia == "distancia_lejana":
+                    frames_confirmacion = 3
+                
+                if self.contador_gesto > frames_confirmacion:
                     info_gesto['gesto'] = gesto_actual
         
         # Actualizar el último gesto detectado
         self.ultimo_gesto = gesto_actual
         
         return info_gesto
-    
 
     def detectar_gestos_dos_manos(self, results, frame, ancho, altura, info_gesto):
         """Detecta gestos realizados con dos manos, principalmente para zoom"""
@@ -450,6 +492,7 @@ class ControladorGestos:
     def procesar_calibracion(self, frame):
         """
         Procesa el modo de calibración para mapear la cámara a la mesa/pizarra
+        Con ajuste automático según la distancia
         
         Args:
             frame: Imagen capturada de la cámara
@@ -498,23 +541,45 @@ class ControladorGestos:
                 self.mp_drawing.draw_landmarks(
                     frame_visual, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
                 
+                # Extraer puntos clave
+                puntos = []
+                for landmark in hand_landmarks.landmark:
+                    x, y = int(landmark.x * ancho), int(landmark.y * altura)
+                    puntos.append((x, y))
+                
+                # NUEVO: Detectar distancia y calibrar umbrales
+                calibracion = self.detectar_distancia_y_calibrar(puntos)
+                umbral_pinza = calibracion['umbral_pinza']
+                categoria_distancia = calibracion['categoria_distancia']
+                
+                # Mostrar información de distancia detectada
+                cv2.putText(frame_visual, f"Distancia: {categoria_distancia}", 
+                        (ancho - 250, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+                
                 # Usando la punta del dedo índice como punto de calibración
-                indice_x = int(hand_landmarks.landmark[8].x * ancho)
-                indice_y = int(hand_landmarks.landmark[8].y * altura)
+                indice_punta = puntos[8]
+                indice_x, indice_y = indice_punta
                 
                 # Posición del pulgar (para detectar pinza)
-                pulgar_x = int(hand_landmarks.landmark[4].x * ancho)
-                pulgar_y = int(hand_landmarks.landmark[4].y * altura)
+                pulgar_punta = puntos[4]
+                pulgar_x, pulgar_y = pulgar_punta
                 
                 # Calcular distancia entre pulgar e índice
-                distancia_pulgar_indice = self._calcular_distancia((pulgar_x, pulgar_y), (indice_x, indice_y))
+                distancia_pulgar_indice = self._calcular_distancia(pulgar_punta, indice_punta)
                 
                 # Verificar si la posición se ha mantenido estable
                 if self.ultima_posicion:
                     distancia_movimiento = self._calcular_distancia((indice_x, indice_y), self.ultima_posicion)
                     
+                    # Umbral de movimiento adaptativo según la distancia
+                    umbral_movimiento = 15
+                    if categoria_distancia == "distancia_lejana":
+                        umbral_movimiento = 25  # Más permisivo a distancia
+                    elif categoria_distancia == "muy_cerca":
+                        umbral_movimiento = 10  # Más estricto de cerca
+                    
                     # Si el movimiento es mínimo, incrementar contador de estabilidad
-                    if distancia_movimiento < 15:  # Umbral de movimiento (en píxeles)
+                    if distancia_movimiento < umbral_movimiento:
                         self.contador_estabilidad += 1
                     else:
                         # Resetear contador si hay movimiento significativo
@@ -534,9 +599,41 @@ class ControladorGestos:
                 cv2.putText(frame_visual, "3. Haz una pinza (junta índice y pulgar) para marcar el punto", 
                         (20, altura - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
                 
+                # MEJORADO: Sistema de visualización de proximidad al umbral de pinza
+                if distancia_pulgar_indice < umbral_pinza * 2:  # Mostrar cuando se acerca al umbral
+                    # Calcular porcentaje de proximidad al umbral
+                    proximidad = max(0, min(100, (distancia_pulgar_indice / umbral_pinza - 1) * 100))
+                    
+                    # Color que cambia de rojo (lejos) a verde (cerca del umbral)
+                    if proximidad < 50:
+                        # De verde a amarillo (de cerca a media distancia)
+                        g = 255
+                        r = int((proximidad / 50) * 255)
+                        color_proximidad = (0, g, r)
+                    else:
+                        # De amarillo a rojo (de media distancia a lejos)
+                        r = 255
+                        g = int(255 - ((proximidad - 50) / 50) * 255)
+                        color_proximidad = (0, g, r)
+                    
+                    # Dibujar línea entre pulgar e índice con el color de proximidad
+                    cv2.line(frame_visual, pulgar_punta, indice_punta, color_proximidad, 2)
+                    
+                    # Círculo en punto medio con tamaño proporcional a la proximidad
+                    punto_medio = ((pulgar_x + indice_x) // 2, (pulgar_y + indice_y) // 2)
+                    radio = int(10 + (100 - proximidad) / 10)
+                    cv2.circle(frame_visual, punto_medio, radio, color_proximidad, 2)
+                
                 # Mostrar indicador de estabilidad
                 if self.contador_estabilidad > 0:
-                    estabilidad_porcentaje = min(100, int(self.contador_estabilidad / 30 * 100))
+                    # Adaptar el tiempo de estabilidad requerido según la distancia
+                    estabilidad_requerida = 30  # Valor base (aproximadamente 1 segundo a 30 fps)
+                    if categoria_distancia == "distancia_lejana":
+                        estabilidad_requerida = 20  # Más fácil a distancia
+                    elif categoria_distancia == "muy_cerca":
+                        estabilidad_requerida = 40  # Más exigente de cerca
+                    
+                    estabilidad_porcentaje = min(100, int(self.contador_estabilidad / estabilidad_requerida * 100))
                     cv2.putText(frame_visual, f"Estabilidad: {estabilidad_porcentaje}%", 
                             (ancho - 250, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
                     
@@ -548,7 +645,7 @@ class ControladorGestos:
                                 (255, 255, 255), 1)
                 
                 # Verificar si la mano está estable y se ha formado una pinza
-                if self.contador_estabilidad > 30 and distancia_pulgar_indice < 40:
+                if self.contador_estabilidad > estabilidad_requerida and distancia_pulgar_indice < umbral_pinza:
                     # Dibujar círculo para indicar detección de pinza
                     cv2.circle(frame_visual, (indice_x, indice_y), 15, (0, 255, 0), -1)
                     cv2.putText(frame_visual, "¡Punto seleccionado!", (ancho//2 - 150, altura//2), 
@@ -567,40 +664,41 @@ class ControladorGestos:
                     cv2.waitKey(1000)  # Pausa de 1 segundo para ver el mensaje
                     
                     # Si hemos capturado todos los puntos, calcular la homografía
-                    if len(self.puntos_calibracion_camara) == 4:
-                        # Definir los puntos de destino como las esquinas de la pantalla
-                        puntos_proyeccion = [
-                            (0, 0),                                  # Esquina superior izquierda
-                            (self.screen_width, 0),                  # Esquina superior derecha
-                            (self.screen_width, self.screen_height), # Esquina inferior derecha
-                            (0, self.screen_height)                  # Esquina inferior izquierda
-                        ]
-                        
-                        self.calibrar_mesa(self.puntos_calibracion_camara, puntos_proyeccion)
-                        
-                        # Mostrar mensaje de calibración completa
-                        temp_frame = frame_visual.copy()
-                        cv2.putText(temp_frame, "¡CALIBRACIÓN COMPLETADA!", 
-                                (ancho//2 - 250, altura//2), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
-                        cv2.putText(temp_frame, "Ya puedes usar tu mesa en modo proyección", 
-                                (ancho//2 - 300, altura//2 + 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                        cv2.imshow('Control por Gestos - Calibración', temp_frame)
-                        cv2.waitKey(3000)  # Mostrar mensaje por 3 segundos
-                        
-                        # Limpieza de variables temporales
-                        if hasattr(self, 'tiempo_gesto_activo'):
-                            delattr(self, 'tiempo_gesto_activo')
-                        if hasattr(self, 'posicion_actual'):
-                            delattr(self, 'posicion_actual')
-                        if hasattr(self, 'gesto_activo'):
-                            delattr(self, 'gesto_activo')
-                        if hasattr(self, 'contador_estabilidad'):
-                            delattr(self, 'contador_estabilidad')
-                        if hasattr(self, 'ultima_posicion'):
-                            delattr(self, 'ultima_posicion')
-                        
-                        return frame_visual, True  # Calibración completada
-        
+                    # Si hemos capturado todos los puntos, calcular la homografía
+                if len(self.puntos_calibracion_camara) == 4:
+                    # Definir los puntos de destino como las esquinas de la pantalla
+                    puntos_proyeccion = [
+                        (0, 0),                                  # Esquina superior izquierda
+                        (self.screen_width, 0),                  # Esquina superior derecha
+                        (self.screen_width, self.screen_height), # Esquina inferior derecha
+                        (0, self.screen_height)                  # Esquina inferior izquierda
+                    ]
+                    
+                    self.calibrar_mesa(self.puntos_calibracion_camara, puntos_proyeccion)
+                    
+                    # Mostrar mensaje de calibración completa
+                    temp_frame = frame_visual.copy()
+                    cv2.putText(temp_frame, "¡CALIBRACIÓN COMPLETADA!", 
+                              (ancho//2 - 250, altura//2), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+                    cv2.putText(temp_frame, "Ya puedes usar tu mesa en modo proyección", 
+                              (ancho//2 - 300, altura//2 + 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    cv2.imshow('Control por Gestos - Calibración', temp_frame)
+                    cv2.waitKey(3000)  # Mostrar mensaje por 3 segundos
+                    
+                    # Limpieza de variables temporales
+                    if hasattr(self, 'tiempo_gesto_activo'):
+                        delattr(self, 'tiempo_gesto_activo')
+                    if hasattr(self, 'posicion_actual'):
+                        delattr(self, 'posicion_actual')
+                    if hasattr(self, 'gesto_activo'):
+                        delattr(self, 'gesto_activo')
+                    if hasattr(self, 'contador_estabilidad'):
+                        delattr(self, 'contador_estabilidad')
+                    if hasattr(self, 'ultima_posicion'):
+                        delattr(self, 'ultima_posicion')
+                    
+                    return frame_visual, True  # Calibración completada
+    
         # Mostrar progreso de la calibración
         if punto_actual > 0:
             cv2.putText(frame_visual, f"Puntos capturados: {punto_actual}/4", 
@@ -611,7 +709,8 @@ class ControladorGestos:
                 (20, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
         
         return frame_visual, False  # Calibración en progreso
-    
+
+
     def realizar_accion_mouse(self, info_gesto):
             """Ejecuta las acciones del mouse según el gesto detectado"""
             # Si no hay posición, no hacemos nada
@@ -703,6 +802,8 @@ class ControladorGestos:
         # Guardar la matriz en un archivo para futuro uso
         np.save(f"calibracion_matriz_camara_{self.camera_id}.npy", self.matriz_transformacion)
         print(f"Matriz de calibración guardada en 'calibracion_matriz_camara_{self.camera_id}.npy'")
+    
+
     
     def _transformar_coordenadas(self, punto):
         """Transforma coordenadas de la cámara al espacio de proyección/pantalla"""
@@ -1014,6 +1115,85 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
+    def detectar_distancia_y_calibrar(self, puntos):
+        """
+        Detecta la distancia aproximada entre la persona y la cámara
+        y calibra los umbrales de gestos adecuadamente.
+        
+        Args:
+            puntos: Lista de puntos de la mano detectados por MediaPipe
+            
+        Returns:
+            dict: Diccionario con información de distancia y umbrales calibrados
+        """
+        # Puntos clave para referencias
+        palma = puntos[0]  # Base de la palma/muñeca
+        indice_punta = puntos[8]  # Punta del índice
+        indice_base = puntos[5]  # Base del índice
+        dedo_medio_base = puntos[9]  # Base del dedo medio
+        meñique_base = puntos[17]  # Base del meñique
+        
+        # 1. Calcular tamaño de la mano usando múltiples métricas
+        
+        # Distancia diagonal de la palma (desde muñeca hasta base del dedo medio)
+        diagonal_palma = self._calcular_distancia(palma, dedo_medio_base)
+        
+        # Anchura de la palma (distancia entre bases del índice y meñique)
+        anchura_palma = self._calcular_distancia(indice_base, meñique_base)
+        
+        # Longitud del dedo índice
+        longitud_indice = self._calcular_distancia(indice_punta, indice_base)
+        
+        # 2. Determinar el factor de distancia
+        # Estos valores son aproximados basados en una mano a distancia normal
+        diagonal_referencia = 130  # Valor típico a unos 40-50cm de la cámara
+        anchura_referencia = 100
+        indice_referencia = 80
+        
+        # Calcular factores por cada métrica (mayor valor = mayor distancia)
+        factor_diagonal = diagonal_referencia / max(diagonal_palma, 1)  # Evitar división por cero
+        factor_anchura = anchura_referencia / max(anchura_palma, 1)
+        factor_indice = indice_referencia / max(longitud_indice, 1)
+        
+        # Combinar los factores dando más peso a las medidas más estables
+        factor_distancia = (factor_diagonal * 0.5 + factor_anchura * 0.3 + factor_indice * 0.2)
+        
+        # 3. Categorizar la distancia aproximada
+        if factor_distancia < 0.8:
+            categoria_distancia = "muy_cerca"
+        elif factor_distancia < 1.2:
+            categoria_distancia = "distancia_normal"
+        elif factor_distancia < 2:
+            categoria_distancia = "distancia_media"
+        else:
+            categoria_distancia = "distancia_lejana"
+        
+        # 4. Calibrar umbrales según la distancia
+        
+        # Umbral para detectar pinza entre dedos (pulgar-índice, pulgar-medio)
+        if categoria_distancia == "muy_cerca":
+            umbral_pinza = longitud_indice * 0.25  # Muy estricto cuando está muy cerca
+        elif categoria_distancia == "distancia_normal":
+            umbral_pinza = longitud_indice * 0.35  # Valor estándar
+        elif categoria_distancia == "distancia_media":
+            umbral_pinza = longitud_indice * 0.45  # Más permisivo
+        else:  # distancia_lejana
+            umbral_pinza = longitud_indice * 0.55  # Mucho más permisivo a distancia
+        
+        # Umbral mínimo y máximo para evitar valores extremos
+        umbral_pinza = max(20, min(umbral_pinza, 100))
+        
+        # 5. Crear diccionario con todos los datos calibrados
+        calibracion = {
+            'factor_distancia': factor_distancia,
+            'categoria_distancia': categoria_distancia,
+            'umbral_pinza': umbral_pinza,
+            'diagonal_palma': diagonal_palma,
+            'anchura_palma': anchura_palma,
+            'longitud_indice': longitud_indice
+        }
+        
+        return calibracion
 
 if __name__ == "__main__":
     main()

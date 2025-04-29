@@ -13,7 +13,6 @@ MAIRA.Elementos = (function() {
     let socket = null;
     let usuarioInfo = null;
     let operacionActual = "";
-    let elemento
     let elementoTrabajo = null;
     let elementosConectados = {};
     let elementoSeleccionado = null;
@@ -766,7 +765,43 @@ function mostrarPanelDetalles(elemento) {
      */
 
 
-    function configurarEventosSocket(socket) {
+    function configurarEventosSocket(socketParam) {
+        // Si se proporciona ComunicacionGB, usarlo 
+        if (window.MAIRA.ComunicacionGB) {
+            console.log("Configurando eventos para elementos mediante ComunicacionGB");
+            
+            socket = window.MAIRA.ComunicacionGB.obtenerSocket();
+            
+            // Registrar módulo para recibir eventos de comunicación
+            window.MAIRA.ComunicacionGB.registrarModulo('Elementos', {
+                eventos: {
+                    'listaElementos': procesarElementosRecibidos,
+                    'listaElementosDB': procesarElementosDB,
+                    'nuevoElemento': procesarElementosRecibidos,
+                    'anunciarElemento': procesarElementosRecibidos,
+                    'actualizarPosicionGB': actualizarPosicionElemento,
+                    'actualizacionPosicion': actualizarPosicionElemento,
+                    'actualizarElementoDB': actualizarElementoModificado,
+                    'elementoConectado': function(elemento) {
+                        actualizarElementoConectado(elemento.id, elemento);
+                    }
+                },
+                onConnect: function() {
+                    console.log("Conexión establecida, solicitando lista de elementos");
+                    solicitarListaElementos();
+                }
+            });
+            
+            return true;
+        }
+        
+        // Si no está disponible, usar el método original
+        if (!socketParam) {
+            console.error("Socket no disponible para configurar eventos");
+            return false;
+        }
+        
+        
         if (!socket) {
             console.warn("Socket no disponible para configurar eventos");
             return false;
@@ -841,53 +876,32 @@ function mostrarPanelDetalles(elemento) {
     }
 
     function solicitarListaElementos() {
-        // Obtener referencias necesarias
-        const socket = window.socket;
-        const operacionActual = window.MAIRA?.GestionBatalla?.operacionActual;
-        const usuarioInfo = window.MAIRA?.GestionBatalla?.usuarioInfo;
-        const elementoTrabajo = window.MAIRA?.GestionBatalla?.elementoTrabajo;
-        const ultimaPosicion = window.MAIRA?.GestionBatalla?.ultimaPosicion;
-    
-        if (!socket?.connected || !operacionActual) {
-            console.warn("[Elementos] No se puede solicitar lista de elementos: sin conexión o sin operación actual");
-            return false;
-        }
+        const operacionActual = window.MAIRA?.GestionBatalla?.operacionActual || window.operacionActual;
         
-        console.log("[Elementos] Solicitando lista de elementos para la operación:", operacionActual);
-        
-        // Múltiples eventos para máxima compatibilidad
-        socket.emit('solicitarElementos', { 
-            operacion: operacionActual,
-            solicitante: usuarioInfo?.id
-        });
-        
-        socket.emit('listaElementos', { 
-            operacion: operacionActual 
-        });
-        
-        // También forzar anuncio propio
-        if (usuarioInfo && elementoTrabajo) {
-            const datosPropios = {
-                id: usuarioInfo.id,
-                usuario: usuarioInfo.usuario,
-                elemento: elementoTrabajo,
-                posicion: ultimaPosicion,
+        if (window.MAIRA.ComunicacionGB) {
+            return window.MAIRA.ComunicacionGB.solicitarElementos();
+        } else if (socket && socket.connected && operacionActual) {
+            console.log("Solicitando lista de elementos para operación:", operacionActual);
+            
+            // Enviar múltiples eventos para compatibilidad
+            socket.emit('solicitarElementos', { 
                 operacion: operacionActual,
-                timestamp: new Date().toISOString(),
-                conectado: true
-            };
+                solicitante: usuarioInfo?.id
+            });
             
-            socket.emit('anunciarElemento', datosPropios);
-            socket.emit('nuevoElemento', datosPropios);
+            socket.emit('listaElementos', { 
+                operacion: operacionActual 
+            });
             
-            // Procesar localmente
-            if (typeof MAIRA.Elementos.procesarElementosRecibidos === 'function') {
-                MAIRA.Elementos.procesarElementosRecibidos(datosPropios);
-            }
+            socket.emit('solicitarElementosDB', {
+                operacion: operacionActual
+            });
+            
+            return true;
         }
         
-        console.log("[Elementos] Solicitud de lista de elementos enviada");
-        return true;
+        console.warn("No se puede solicitar lista de elementos: sin conexión o sin operación");
+        return false;
     }
     
     // Hacer disponible globalmente
@@ -2247,7 +2261,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
 
     // Exponer las funciones necesarias en el API público
     if (window.MAIRA && window.MAIRA.GestionBatalla) {
-        window.MAIRA.Elementos.actualizarElementoConectado = actualizarElementoConectado;
+        window.MAIRA.GestionBatalla.actualizarElementoConectado = actualizarElementoConectado;
     } else {
         console.warn("MAIRA.GestionBatalla no disponible para asignar actualizarElementoConectado");
         // Make sure this function is available globally as a fallback
@@ -2267,109 +2281,6 @@ if (window.MAIRA && window.MAIRA.Elementos) {
      * @param {Object} elemento - Datos del elemento
      * @returns {L.Marker|null} - El marcador creado o null si falla
      */
-
-
-    /**
- * Actualiza el estado de un elemento cuando se conecta
- * @param {Object} elemento - Datos del elemento conectado
- */
-function actualizarElementoConectado(elemento) {
-    if (!elemento || !elemento.id) {
-        console.warn("Elemento inválido para actualizar estado conectado");
-        return false;
-    }
-    
-    // Si ya existe en elementosConectados, actualizar
-    if (elementosConectados[elemento.id]) {
-        // Preservar marcador actual
-        const marcadorExistente = elementosConectados[elemento.id].marcador;
-        
-        // Actualizar datos
-        elementosConectados[elemento.id].datos = {
-            ...elementosConectados[elemento.id].datos,
-            ...elemento,
-            conectado: true
-        };
-        
-        // Mantener marcador
-        elementosConectados[elemento.id].marcador = marcadorExistente;
-        
-        // Actualizar visualización del marcador si existe
-        if (marcadorExistente) {
-            actualizarVisualizacionMarcador(marcadorExistente, elemento);
-            
-            // Actualizar opacidad (conectado = opacidad completa)
-            marcadorExistente.setOpacity(1.0);
-        }
-    } else {
-        // Crear nueva entrada
-        elementosConectados[elemento.id] = {
-            datos: {
-                ...elemento,
-                conectado: true
-            },
-            marcador: null // Se creará después si es necesario
-        };
-    }
-    
-    // Actualizar en la lista visual
-    const elementoItem = document.querySelector(`.elemento-item[data-id="${elemento.id}"]`);
-    if (elementoItem) {
-        // Actualizar con nuevos datos
-        actualizarElementoEnLista(elemento);
-        
-        // Quitar clase de desconectado
-        elementoItem.classList.remove('desconectado');
-        
-        // Actualizar indicador de estado
-        const estadoConexion = elementoItem.querySelector('.estado-conexion');
-        if (estadoConexion) {
-            estadoConexion.className = 'estado-conexion conectado';
-            estadoConexion.title = 'conectado';
-            estadoConexion.textContent = '●';
-        }
-    } else {
-        // Añadir a la lista si no existe
-        agregarElementoALista(elemento);
-    }
-    
-    return true;
-}
-function actualizarElementoConectado(id, datos, posicion) {
-    if (!id) {
-        console.error("No se puede actualizar elemento sin ID");
-        return null;
-    }
-    
-    // Asegurar que existe elementosConectados
-    if (!window.elementosConectados) {
-        window.elementosConectados = {};
-    }
-    
-    if (!window.elementosConectados[id]) {
-        window.elementosConectados[id] = {
-            datos: datos || {},
-            marcador: null
-        };
-    } else {
-        // Actualizar solo las propiedades proporcionadas
-        window.elementosConectados[id].datos = {
-            ...window.elementosConectados[id].datos,
-            ...(datos || {}),
-            posicion: posicion || window.elementosConectados[id].datos.posicion
-        };
-    }
-    
-    // Asegurar sincronización con MAIRA
-    if (window.MAIRA && window.MAIRA.GestionBatalla) {
-        if (!window.MAIRA.GestionBatalla.elementosConectados) {
-            window.MAIRA.GestionBatalla.elementosConectados = {};
-        }
-        window.MAIRA.GestionBatalla.elementosConectados[id] = window.elementosConectados[id];
-    }
-    
-    return window.elementosConectados[id];
-}
     function crearMarcadorElemento(elemento) {
         if (!elemento) {
             console.error("No se proporcionaron datos para crear marcador");

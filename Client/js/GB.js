@@ -42,104 +42,105 @@ window.MAIRA.GestionBatalla = window.MAIRA.GestionBatalla || {};
 
     
 
-function inicializar() {
-    console.log("Inicializando modo Gestión de Batalla v2.0.0");
-    
-    // 1. Verificar modo correcto
-    const esModoGestionBatalla = window.location.pathname.includes('gestionbatalla.html');
-    if (!esModoGestionBatalla) {
-        console.warn("No estamos en modo Gestión de Batalla");
-        return;
-    }
-    
-    // 2. Inicialización básica
-    window.MAIRA = window.MAIRA || {};
-    window.MAIRA.modoGB = true;
-    window.MAIRA.GestionBatalla = window.MAIRA.GestionBatalla || {};
+    function inicializar() {
+        console.log("Inicializando modo Gestión de Batalla v2.0.0");
         
-    // 3. Cargar operación DESDE URL (prioritario)
-    if (!cargarOperacionDesdeURL()) {
-        console.warn("No se pudo cargar información de la operación");
-        redirigirASalaEspera();
-        return;
-    }
-    
-    // 4. Mostrar carga mientras se inicializa
-    mostrarCargando(true, 10, "Cargando información...");
-
-    // 5. Cargar datos del usuario y elemento
-    if (!cargarInfoDesdeLocalStorage()) {
-        console.warn("No se pudo cargar información del usuario o elemento");
-        redirigirASalaEspera();
-        return;
-    }
-    
-    try {
-        // CORRECCIÓN: Asegurar que posicionActual existe antes de usarlo
-        
-            posicionActual = {
-                lat: -34.6037, // Buenos Aires como ejemplo
-                lng: -58.3816,
-                precision: 1000,
-                rumbo: 0,
-                timestamp: new Date()
-            };
-            window.posicionActual = posicionActual;
-            console.log("Inicializada posición predeterminada");
-        
-        
-        // 6. Inicializar estructura central de elementos
-        inicializarEstructuraElementos();
-        
-        // 7. Inicializar componentes de interfaz
-        inicializarInterfaz();
-        inicializarPestañas();
-        // 8. Establecer conexión con servidor y DB
-        mostrarCargando(true, 50, "Conectando al servidor...");
-        conectarAlServidor();
-        
-        // 9. Inicializar mapa cuando la conexión esté establecida
-        mostrarCargando(true, 70, "Cargando mapa...");
-        if (!window.mapa) {
-            window.inicializarMapa();
+        // 1. Verificar modo correcto
+        const esModoGestionBatalla = window.location.pathname.includes('gestionbatalla.html');
+        if (!esModoGestionBatalla) {
+            console.warn("No estamos en modo Gestión de Batalla");
+            return;
         }
         
-        // 10. Configurar eventos
-        configurarEventosSocket();
-        
-        // 11. Obtener posición inicial
-        mostrarCargando(true, 90, "Obteniendo posición...");
-        obtenerPosicionInicial();
-        
-        // 12. Finalizar carga
-        mostrarCargando(false);
-        document.getElementById('main-content').style.display = 'block';
-        
-        // 13. Iniciar sistemas de tracking y comunicación
-        // CORRECCIÓN: Verificar que la función existe antes de llamarla
-        if (typeof inicializarSistemaTracking === 'function') {
-            inicializarSistemaTracking();
-        } else {
-            console.warn("Función inicializarSistemaTracking no disponible, se inicializa localmente");
-            inicializarSistemaTracking(); // Usa nuestra implementación local
+        // 2. Inicialización básica
+        window.MAIRA = window.MAIRA || {};
+        window.MAIRA.modoGB = true;
+        window.MAIRA.GestionBatalla = window.MAIRA.GestionBatalla || {};
+            
+        // 3. Cargar operación DESDE URL (prioritario)
+        if (!cargarOperacionDesdeURL()) {
+            console.warn("No se pudo cargar información de la operación");
+            redirigirASalaEspera();
+            return;
         }
         
-        iniciarEnvioPeriodico();
-        inicializarPanelLateral();
-        configurarEventosMiRadialGB();
-        
-        crearMarcadorElementoPropio();
-        enviarBroadcastPeriodico();
-        actualizarListaElementos();
-        console.log("Inicialización de Gestión de Batalla completada");
-    } catch (error) {
-        console.error("Error durante la inicialización:", error);
-        mostrarCargando(false);
-        document.getElementById('main-content').style.display = 'block';
-    }
+        // 4. Mostrar carga mientras se inicializa
+        mostrarCargando(true, 10, "Cargando información...");
     
-    return true;
-}
+        // 5. Cargar datos del usuario y elemento
+        if (!cargarInfoDesdeLocalStorage()) {
+            console.warn("No se pudo cargar información del usuario o elemento");
+            redirigirASalaEspera();
+            return;
+        }
+        
+        try {
+            // 6. Inicializar estructura central de elementos
+            inicializarEstructuraElementos();
+            
+            // 7. Inicializar componentes de interfaz
+            inicializarInterfaz();
+            inicializarPestañas();
+            
+            // IMPORTANTE: crear estructura DOM antes de la conexión
+            crearEstructuraDOMNecesaria();
+            
+            // 8. Establecer conexión con servidor y DB
+            mostrarCargando(true, 50, "Conectando al servidor...");
+            conectarAlServidor().catch(error => {
+                console.error("Error conectando al servidor:", error);
+                // Continuar a pesar del error
+            });
+            
+            // 9. Inicializar mapa cuando la conexión esté establecida
+            mostrarCargando(true, 70, "Cargando mapa...");
+            if (!window.mapa) {
+                window.inicializarMapa();
+            }
+            
+            // 10. Configurar eventos (aún sin conexión funcionará)
+            configurarEventosSocket();
+            
+            // 11. Obtener posición inicial
+            mostrarCargando(true, 90, "Obteniendo posición...");
+            obtenerPosicionInicial();
+            
+            // 12. Finalizar carga
+            mostrarCargando(false);
+            document.getElementById('main-content').style.display = 'block';
+            
+            console.log("Inicializando módulos de Chat e Informes...");
+            
+            // Retrasar inicialización de módulos para asegurar DOM completo
+            setTimeout(() => {
+                inicializarModulosComunicacion();
+            }, 1000);
+            
+            // 13. Iniciar sistemas de tracking y comunicación
+            if (typeof inicializarSistemaTracking === 'function') {
+                inicializarSistemaTracking();
+            }
+            
+            iniciarEnvioPeriodico();
+            inicializarPanelLateral();
+            
+            // Retrasar estas operaciones
+            setTimeout(() => {
+                configurarEventosMiRadialGB();
+                crearMarcadorElementoPropio();
+                enviarBroadcastPeriodico();
+                actualizarListaElementos();
+            }, 2000);
+            
+            console.log("Inicialización de Gestión de Batalla completada");
+        } catch (error) {
+            console.error("Error durante la inicialización:", error);
+            mostrarCargando(false);
+            document.getElementById('main-content').style.display = 'block';
+        }
+        
+        return true;
+    }
 
 
 /**
@@ -282,6 +283,491 @@ function manejarReconexion(datosElemento) {
         agregarNuevoElemento(datosElemento);
     }
 }
+
+// Añadir al final de la función inicializar() en GB.js, justo antes de la línea "return true;"
+
+// 14. Inicializar módulos de Chat e Informes
+console.log("Inicializando módulos de Chat e Informes...");
+inicializarModulosComunicacion();
+
+// Agregar esta función después de la función inicializar()
+
+/**
+ * Inicializa los módulos de Chat e Informes
+ * Versión mejorada con verificación DOM y estructura
+ */
+function inicializarModulosComunicacion() {
+    console.log("Inicializando módulos de Chat e Informes con verificación DOM...");
+    
+    // 0. Asegurar que MAIRA existe
+    window.MAIRA = window.MAIRA || {};
+    
+    // 1. Centralizar elementosConectados para compartir entre módulos
+    centralizarElementosConectados();
+    
+    // 2. Verificar y crear estructura DOM necesaria si no existe
+    try {
+        crearEstructuraDOMNecesaria();
+    } catch (error) {
+        console.error("Error al crear estructura DOM:", error);
+        return false;
+    }
+    
+    // Verificar que existan elementos clave necesarios para continuar
+    const chatMessages = document.getElementById('chat-messages');
+    const selectDestinatario = document.getElementById('select-destinatario');
+    
+    if (!chatMessages) {
+        console.warn("Elemento 'chat-messages' no disponible, no se puede inicializar Chat");
+    }
+    
+    if (!selectDestinatario) {
+        console.warn("Elemento 'select-destinatario' no disponible, se creará si es posible");
+    }
+    
+    // 3. Inicializar Chat
+    if (window.MAIRA.Chat && typeof window.MAIRA.Chat.inicializar === 'function') {
+        console.log("Inicializando módulo de Chat...");
+        
+        try {
+            // Configuración para el módulo de Chat
+            const configChat = {
+                socket: socket,
+                usuarioInfo: usuarioInfo,
+                operacionActual: operacionActual,
+                elementoTrabajo: elementoTrabajo,
+                elementosConectados: elementosConectados,
+                posicionActual: posicionActual
+            };
+            
+            // Inicializar Chat
+            window.MAIRA.Chat.inicializar(configChat);
+            
+            // Verificar si se inicializó correctamente y hay socket disponible
+            if (socket && socket.connected) {
+                window.MAIRA.Chat.configurarEventosSocket(socket);
+            } else {
+                console.log("Socket no disponible para configurar eventos de Chat");
+                // Reintentamos en un momento posterior
+                setTimeout(() => {
+                    if (socket && socket.connected) {
+                        console.log("Reintentando configuración de Chat con socket...");
+                        window.MAIRA.Chat.configurarEventosSocket(socket);
+                    }
+                }, 2000);
+            }
+            
+            console.log("Módulo de Chat inicializado correctamente");
+        } catch (error) {
+            console.error("Error al inicializar módulo de Chat:", error);
+        }
+    } else {
+        console.warn("Módulo de Chat no disponible");
+    }
+    
+    // 4. Inicializar Informes
+    if (window.MAIRA.Informes && typeof window.MAIRA.Informes.inicializar === 'function') {
+        console.log("Inicializando módulo de Informes...");
+        
+        try {
+            // Configuración para el módulo de Informes
+            const configInformes = {
+                socket: socket,
+                usuarioInfo: usuarioInfo,
+                operacionActual: operacionActual,
+                elementoTrabajo: elementoTrabajo,
+                posicionActual: posicionActual
+            };
+            
+            // Inicializar Informes
+            window.MAIRA.Informes.inicializar(configInformes);
+            
+            // Verificar si se inicializó correctamente y hay socket disponible
+            if (socket && socket.connected) {
+                window.MAIRA.Informes.configurarEventosSocket(socket);
+            } else {
+                console.log("Socket no disponible para configurar eventos de Informes");
+                // Reintentamos en un momento posterior
+                setTimeout(() => {
+                    if (socket && socket.connected) {
+                        console.log("Reintentando configuración de Informes con socket...");
+                        window.MAIRA.Informes.configurarEventosSocket(socket);
+                    }
+                }, 2000);
+            }
+            
+            console.log("Módulo de Informes inicializado correctamente");
+        } catch (error) {
+            console.error("Error al inicializar módulo de Informes:", error);
+        }
+    } else {
+        console.warn("Módulo de Informes no disponible");
+    }
+    
+    // 5. Configurar sincronización continua para mantener los módulos actualizados
+    try {
+        configurarSincronizacionModulos();
+    } catch (error) {
+        console.error("Error al configurar sincronización de módulos:", error);
+    }
+    
+    // 6. Configurar manejo de reconexión para actualizaciones
+    if (socket) {
+        socket.on('reconnect', function() {
+            console.log("Socket reconectado, sincronizando módulos...");
+            
+            // Esperar un momento para que se establezca todo correctamente
+            setTimeout(function() {
+                // Sincronizar módulos
+                sincronizarModulos();
+                
+                // Configurar eventos de socket para chat e informes
+                if (window.MAIRA.Chat && typeof window.MAIRA.Chat.configurarEventosSocket === 'function') {
+                    window.MAIRA.Chat.configurarEventosSocket(socket);
+                    
+                    // Manejar reconexión específica del chat
+                    if (typeof window.MAIRA.Chat.manejarReconexionChat === 'function') {
+                        window.MAIRA.Chat.manejarReconexionChat();
+                    }
+                }
+                
+                if (window.MAIRA.Informes && typeof window.MAIRA.Informes.configurarEventosSocket === 'function') {
+                    window.MAIRA.Informes.configurarEventosSocket(socket);
+                    
+                    // Enviar informes pendientes si hay
+                    if (typeof window.MAIRA.Informes.enviarInformesPendientes === 'function') {
+                        window.MAIRA.Informes.enviarInformesPendientes();
+                    }
+                }
+                
+                // Difundir mensaje en el chat
+                if (window.MAIRA.Chat && typeof window.MAIRA.Chat.agregarMensajeChat === 'function') {
+                    window.MAIRA.Chat.agregarMensajeChat("Sistema", "Conexión restablecida. Sincronizando datos...", "sistema");
+                }
+            }, 1000);
+        });
+    }
+    
+    // 7. Programar sincronización periódica para asegurar consistencia entre módulos
+    setInterval(() => {
+        try {
+            sincronizarModulos();
+        } catch (error) {
+            console.warn("Error durante sincronización periódica:", error);
+        }
+    }, 30000); // Cada 30 segundos
+    
+    console.log("Inicialización de módulos de comunicación completada");
+    return true;
+}
+
+/**
+ * Crea la estructura DOM necesaria para los módulos si no existe
+ */
+/**
+ * Crea la estructura DOM necesaria para los módulos si no existe
+ */
+function crearEstructuraDOMNecesaria() {
+    console.log("Verificando estructura DOM para módulos de comunicación...");
+    
+    // Obtener el contenedor principal de pestañas
+    const tabContainer = document.querySelector('.tabs-container');
+    
+    if (!tabContainer) {
+        console.warn("Contenedor de pestañas no encontrado, creando uno nuevo");
+        
+        // Crear contenedor de pestañas si no existe
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            const nuevoTabContainer = document.createElement('div');
+            nuevoTabContainer.className = 'tabs-container';
+            mainContent.appendChild(nuevoTabContainer);
+        } else {
+            console.error("No se encontró el contenedor principal para crear pestañas");
+            return false;
+        }
+    }
+    
+    // Asegurarnos de tener la referencia correcta del contenedor
+    const tabContainerActual = document.querySelector('.tabs-container');
+    if (!tabContainerActual) {
+        console.error("No se pudo encontrar o crear el contenedor de pestañas");
+        return false;
+    }
+    
+    // 1. Verificar/crear contenedor para pestañas
+    let tabBtnsContainer = document.querySelector('.tab-btns');
+    if (!tabBtnsContainer) {
+        console.log("Creando contenedor para botones de pestañas");
+        tabBtnsContainer = document.createElement('div');
+        tabBtnsContainer.className = 'tab-btns';
+        tabContainerActual.prepend(tabBtnsContainer);
+    }
+    
+    // 2. Verificar/crear tab de Chat
+    let tabChat = document.getElementById('tab-chat');
+    if (!tabChat) {
+        console.log("Creando estructura para tab de Chat");
+        
+        // Crear botón de pestaña si no existe
+        let btnChat = document.querySelector('.tab-btn[data-tab="tab-chat"]');
+        if (!btnChat) {
+            btnChat = document.createElement('button');
+            btnChat.className = 'tab-btn';
+            btnChat.setAttribute('data-tab', 'tab-chat');
+            btnChat.innerHTML = '<i class="fas fa-comments"></i> Chat';
+            tabBtnsContainer.appendChild(btnChat);
+            
+            // Añadir evento
+            btnChat.addEventListener('click', function() {
+                cambiarTab('tab-chat');
+            });
+        }
+        
+        // Crear contenido de pestaña
+        tabChat = document.createElement('div');
+        tabChat.id = 'tab-chat';
+        tabChat.className = 'tab-content';
+        tabChat.innerHTML = `
+            <div class="tipo-chat-botones">
+                <button id="btn-chat-general" class="active">Chat General</button>
+                <button id="btn-chat-privado">Chat Privado</button>
+            </div>
+            <div id="chat-destinatario" class="d-none">
+                <select id="select-destinatario" class="form-control">
+                    <option value="todos">Todos los participantes</option>
+                    <option value="comando">Comando/Central</option>
+                    <option disabled>───────────────</option>
+                </select>
+            </div>
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="mensaje-chat" placeholder="Escribe un mensaje...">
+                <button id="enviar-mensaje"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        `;
+        
+        tabContainerActual.appendChild(tabChat);
+    }
+    
+    // 3. Verificar/crear tab de Documentos
+    let tabDocumentos = document.getElementById('tab-Documentos');
+    if (!tabDocumentos) {
+        console.log("Creando estructura para tab de Documentos");
+        
+        // Crear botón de pestaña si no existe
+        let btnDocumentos = document.querySelector('.tab-btn[data-tab="tab-Documentos"]');
+        if (!btnDocumentos) {
+            btnDocumentos = document.createElement('button');
+            btnDocumentos.className = 'tab-btn';
+            btnDocumentos.setAttribute('data-tab', 'tab-Documentos');
+            btnDocumentos.innerHTML = '<i class="fas fa-file-alt"></i> Documentos';
+            tabBtnsContainer.appendChild(btnDocumentos);
+            
+            // Añadir evento
+            btnDocumentos.addEventListener('click', function() {
+                cambiarTab('tab-Documentos');
+            });
+        }
+        
+        // Crear contenido de pestaña (estructura básica que será completada por el módulo)
+        tabDocumentos = document.createElement('div');
+        tabDocumentos.id = 'tab-Documentos';
+        tabDocumentos.className = 'tab-content';
+        tabDocumentos.innerHTML = `
+            <div class="documentos-container">
+                <div class="documentos-header">
+                    <h3>Documentos</h3>
+                    <button id="btn-nuevo-documento" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                </div>
+                <div class="documentos-list" id="lista-documentos">
+                    <div class="no-documentos">
+                        <p>No hay documentos disponibles</p>
+                    </div>
+                </div>
+                <div id="crear-documento-container" class="d-none">
+                    <!-- Contenido generado por el módulo de informes -->
+                </div>
+            </div>
+        `;
+        
+        tabContainerActual.appendChild(tabDocumentos);
+    }
+    
+    // 4. Añadir estilos necesarios si no existen
+    let stylesElement = document.getElementById('modulos-comunicacion-styles');
+    if (!stylesElement) {
+        console.log("Añadiendo estilos para módulos de comunicación");
+        stylesElement = document.createElement('style');
+        stylesElement.id = 'modulos-comunicacion-styles';
+        stylesElement.textContent = `
+            /* Estilos para chat */
+            .tipo-chat-botones {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .tipo-chat-botones button {
+                padding: 8px 15px;
+                border: 1px solid #ddd;
+                background-color: #f8f9fa;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            
+            .tipo-chat-botones button.active {
+                background-color: #e3f2fd;
+                border-color: #90caf9;
+                font-weight: bold;
+            }
+            
+            #chat-destinatario {
+                margin-bottom: 10px;
+            }
+            
+            .chat-messages {
+                height: calc(100% - 100px);
+                overflow-y: auto;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                margin-bottom: 10px;
+                background-color: #f8f9fa;
+            }
+            
+            .chat-input {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .chat-input input {
+                flex-grow: 1;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            
+            .chat-input button {
+                padding: 8px 15px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            
+            .message {
+                margin-bottom: 10px;
+                padding: 8px 12px;
+                border-radius: 4px;
+            }
+            
+            .message-usuario {
+                background-color: #e3f2fd;
+                border-left: 4px solid #2196f3;
+                margin-left: 20px;
+            }
+            
+            .message-recibido {
+                background-color: #f1f1f1;
+                border-left: 4px solid #9e9e9e;
+                margin-right: 20px;
+            }
+            
+            .message-sistema {
+                background-color: #fff3e0;
+                border-left: 4px solid #ff9800;
+                font-style: italic;
+                color: #795548;
+            }
+            
+            /* Estilos para documentos */
+            .documentos-container {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .documentos-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
+                margin-bottom: 15px;
+            }
+            
+            .documentos-list {
+                flex-grow: 1;
+                overflow-y: auto;
+                padding: 10px;
+            }
+            
+            .no-documentos {
+                text-align: center;
+                color: #999;
+                padding: 20px 0;
+            }
+            
+            .d-none {
+                display: none;
+            }
+        `;
+        
+        document.head.appendChild(stylesElement);
+    }
+    
+    console.log("Estructura DOM verificada/creada para módulos de comunicación");
+    return true;
+}
+/**
+ * Configura la sincronización periódica de los módulos
+ */
+function configurarSincronizacionModulos() {
+    // Sincronizar inmediatamente
+    sincronizarModulos();
+    
+    // Configurar sincronización periódica cada 30 segundos
+    setInterval(sincronizarModulos, 30000);
+}
+
+/**
+ * Sincroniza elementos entre módulos
+ */
+function sincronizarModulos() {
+    // 1. Sincronizar Chat con los elementos conectados actualizados
+    if (window.MAIRA.Chat && typeof window.MAIRA.Chat.sincronizarElementosChat === 'function') {
+        window.MAIRA.Chat.sincronizarElementosChat(elementosConectados);
+    }
+    
+    // 2. Actualizar listas de destinatarios
+    if (window.MAIRA.Chat && typeof window.MAIRA.Chat.actualizarListaDestinatarios === 'function') {
+        window.MAIRA.Chat.actualizarListaDestinatarios();
+    }
+    
+    // 3. Sincronizar referencias de socket
+    if (socket && socket.connected) {
+        // Actualizar socket en el módulo de Chat
+        if (window.MAIRA.Chat) {
+            window.MAIRA.Chat.socket = socket;
+        }
+        
+        // Actualizar socket en el módulo de Informes
+        if (window.MAIRA.Informes) {
+            window.MAIRA.Informes.socket = socket;
+        }
+    }
+    
+    // 4. Sincronizar posición actual
+    if (posicionActual) {
+        window.posicionActual = posicionActual;
+    }
+}
+
+
 
 /**
  * Maneja la desconexión de un elemento
@@ -537,35 +1023,47 @@ function centralizarElementosConectados() {
     }
     
     
-    function cambiarTab(tabId) {
-        console.log(`Cambiando a pestaña: ${tabId}`);
-        
-        // Hide all tabs
-        const tabs = document.querySelectorAll('.tab-content');
-        tabs.forEach(tab => tab.classList.remove('active'));
-        
-        // Deactivate all buttons
-        const botones = document.querySelectorAll('.tab-btn');
-        botones.forEach(btn => btn.classList.remove('active'));
-        
-        // Activate the requested tab
-        const tabSeleccionado = document.getElementById(tabId);
-        const btnSeleccionado = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-        
-        if (tabSeleccionado) {
-            tabSeleccionado.classList.add('active');
-            console.log(`Tab content activated: ${tabId}`);
-        } else {
-            console.error(`Tab with ID: ${tabId} not found`);
-        }
-        
-        if (btnSeleccionado) {
-            btnSeleccionado.classList.add('active');
-            console.log(`Tab button activated: ${tabId}`);
-        } else {
-            console.error(`Button for tab: ${tabId} not found`);
-        }
+    /**
+ * Cambia la pestaña activa
+ * @param {string} tabId - ID de la pestaña a activar
+ */
+function cambiarTab(tabId) {
+    console.log(`Cambiando a pestaña: ${tabId}`);
+    
+    // Ocultar todas las pestañas
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Desactivar todos los botones
+    const botones = document.querySelectorAll('.tab-btn');
+    botones.forEach(btn => btn.classList.remove('active'));
+    
+    // Activar la pestaña solicitada
+    const tabSeleccionado = document.getElementById(tabId);
+    const btnSeleccionado = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    
+    if (tabSeleccionado) {
+        tabSeleccionado.classList.add('active');
+        console.log(`Tab content activated: ${tabId}`);
+    } else {
+        console.error(`Tab with ID: ${tabId} not found`);
     }
+    
+    if (btnSeleccionado) {
+        btnSeleccionado.classList.add('active');
+        console.log(`Tab button activated: ${tabId}`);
+    } else {
+        console.error(`Button for tab: ${tabId} not found`);
+    }
+    
+    // Guardar estado
+    estadosUI.tabActiva = tabId;
+    try {
+        localStorage.setItem('gb_tab_activa', tabId);
+    } catch (e) {
+        console.warn("No se pudo guardar la pestaña activa:", e);
+    }
+}
     /**
      * Inicializa el sistema de notificaciones
      */
@@ -1346,14 +1844,54 @@ function actualizarIconoMarcador(marcador, datos) {
  * @returns {Promise} - Promesa que se resuelve cuando la conexión sea exitosa
  */
 function conectarAlServidor() {
-    return new Promise((resolve, reject) => {
-        try {
-            if (!operacionActual) {
-                console.error('No hay operación disponible para conectarse');
-                reject(new Error('No hay operación disponible'));
-                return;
-            }
+    if (!operacionActual) {
+        console.error('No hay operación disponible para conectarse');
+        return Promise.reject(new Error('No hay operación disponible'));
+    }
 
+    console.log(`Inicializando comunicación para operación: ${operacionActual}`);
+
+    // Si está disponible el módulo centralizado, usarlo
+    if (window.MAIRA.ComunicacionGB) {
+        return new Promise((resolve, reject) => {
+            // Inicializar módulo centralizado
+            const inicioOK = window.MAIRA.ComunicacionGB.inicializar({
+                usuarioInfo: usuarioInfo,
+                operacionActual: operacionActual,
+                elementoTrabajo: elementoTrabajo,
+                posicionActual: posicionActual
+            });
+            
+            if (inicioOK) {
+                // Obtener socket para consistencia
+                socket = window.MAIRA.ComunicacionGB.obtenerSocket();
+                window.socket = socket;
+                
+                // Iniciar heartbeat periódico
+                window.MAIRA.ComunicacionGB.iniciarHeartbeatPeriodico(30000);
+                
+                // Sincronizar módulos
+                window.MAIRA.ComunicacionGB.registrarModulo('GestionBatalla', {
+                    onConnect: function() {
+                        actualizarEstadoConexion(true);
+                        resolve(socket);
+                    },
+                    onDisconnect: function(reason) {
+                        actualizarEstadoConexion(false);
+                        marcarElementosDesconectados();
+                    },
+                    onReconnect: function() {
+                        actualizarEstadoConexion(true);
+                        socket.emit('solicitarElementos', { operacion: operacionActual });
+                    }
+                });
+            } else {
+                reject(new Error('No se pudo inicializar el módulo de comunicación'));
+            }
+        });
+    } else {
+        try {
+            // Obtener URL del servidor
             console.log(`Conectando al servidor: ${SERVER_URL}`);
             console.log('Estado actual:', {
                 usuarioId: usuarioInfo ? usuarioInfo.id : 'sin ID',
@@ -1456,6 +1994,41 @@ function conectarAlServidor() {
                     });
                 }
             });
+            if (socket) {
+                socket.on('reconnect', function() {
+                    console.log("Socket reconectado, sincronizando módulos...");
+                    
+                    // Esperar un momento para que se establezca todo correctamente
+                    setTimeout(function() {
+                        // Sincronizar módulos
+                        sincronizarModulos();
+                        
+                        // Configurar eventos de socket para chat e informes
+                        if (window.MAIRA.Chat && typeof window.MAIRA.Chat.configurarEventosSocket === 'function') {
+                            window.MAIRA.Chat.configurarEventosSocket(socket);
+                            
+                            // Manejar reconexión específica del chat
+                            if (typeof window.MAIRA.Chat.manejarReconexionChat === 'function') {
+                                window.MAIRA.Chat.manejarReconexionChat();
+                            }
+                        }
+                        
+                        if (window.MAIRA.Informes && typeof window.MAIRA.Informes.configurarEventosSocket === 'function') {
+                            window.MAIRA.Informes.configurarEventosSocket(socket);
+                            
+                            // Enviar informes pendientes si hay
+                            if (typeof window.MAIRA.Informes.enviarInformesPendientes === 'function') {
+                                window.MAIRA.Informes.enviarInformesPendientes();
+                            }
+                        }
+                        
+                        // Difundir mensaje en el chat
+                        if (window.MAIRA.Chat && typeof window.MAIRA.Chat.agregarMensajeChat === 'function') {
+                            window.MAIRA.Chat.agregarMensajeChat("Sistema", "Conexión restablecida. Sincronizando datos...", "sistema");
+                        }
+                    }, 1000);
+                });
+            }
 
             // Configurar los demás eventos después de la conexión
             configurarEventosSocket();
@@ -1465,7 +2038,7 @@ function conectarAlServidor() {
             actualizarEstadoConexion(false);
             reject(error);
         }
-    });
+    };
 }
 
 // AGREGAR/REEMPLAZAR EN GB.js - Función actualizarEstadoConexion
@@ -3300,32 +3873,31 @@ window.inicializarSistemaTracking = inicializarSistemaTracking;
  * Envía la posición actual al servidor (versión DB)
  */
 function enviarPosicionActual() {
-    if (!socket?.connected || !usuarioInfo || !posicionActual) {
+    if (!posicionActual || !usuarioInfo) {
         return false;
     }
     
-    try {
-        const datosPosicion = {
-            id: usuarioInfo.id,
-            usuario: usuarioInfo.usuario,
-            elemento: elementoTrabajo,
-            posicion: posicionActual,
-            operacion: operacionActual,
-            timestamp: new Date().toISOString(),
-            conectado: true
-        };
-        
-        // Usar evento específico para DB
-        socket.emit('actualizarPosicionDB', datosPosicion);
-        
-        // Para compatibilidad, también usar eventos tradicionales
-        socket.emit('actualizarPosicionGB', datosPosicion);
-        socket.emit('actualizacionPosicion', datosPosicion);
-        
-        console.log("Posición enviada a la base de datos:", posicionActual.lat, posicionActual.lng);
+    const datos = {
+        id: usuarioInfo.id,
+        usuario: usuarioInfo.usuario,
+        elemento: elementoTrabajo,
+        posicion: posicionActual,
+        operacion: operacionActual,
+        timestamp: new Date().toISOString(),
+        conectado: true
+    };
+    
+    if (window.MAIRA.ComunicacionGB) {
+        return window.MAIRA.ComunicacionGB.enviarPosicion(datos);
+    } else if (socket && socket.connected) {
+        socket.emit('actualizarPosicionGB', datos);
+        socket.emit('actualizacionPosicion', datos);
         return true;
-    } catch (e) {
-        console.error("Error al enviar posición:", e);
+    } else {
+        // Si no hay conexión, guardar para envío posterior
+        if (!window.colaPendiente) window.colaPendiente = { posiciones: [] };
+        window.colaPendiente.posiciones.push(datos);
+        console.log("Posición guardada para envío posterior");
         return false;
     }
 }
@@ -3334,13 +3906,27 @@ function enviarPosicionActual() {
  * Guarda un elemento modificado en la DB
  */
 function guardarElementoDB(elemento) {
-    if (!socket || !socket.connected) {
-        console.warn("No se puede guardar elemento en DB: sin conexión");
+    if (!elemento || !elemento.id) {
+        console.warn("Elemento inválido para guardar en DB");
         return false;
     }
     
-    if (!elemento || !elemento.id) {
-        console.warn("Elemento inválido para guardar en DB");
+    // Si no hay conexión, registrar para envío posterior
+    if (!socket || !socket.connected) {
+        console.log(`Elemento ${elemento.id} guardado para envío posterior`);
+        
+        // Guardar en localStorage para persistencia
+        try {
+            const elementosPendientes = JSON.parse(localStorage.getItem('elementos_pendientes_db') || '[]');
+            elementosPendientes.push({
+                ...elemento,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('elementos_pendientes_db', JSON.stringify(elementosPendientes));
+        } catch (e) {
+            console.error("Error al guardar elementos pendientes:", e);
+        }
+        
         return false;
     }
     
@@ -3352,7 +3938,7 @@ function guardarElementoDB(elemento) {
             timestamp: new Date().toISOString()
         };
         
-        // Enviar al servidor específicamente para la DB
+        // Enviar evento al servidor
         socket.emit('guardarElementoDB', elementoCompleto);
         
         console.log(`Elemento ${elemento.id} enviado para guardar en DB`);

@@ -21,18 +21,35 @@ MAIRA.Informes = (function() {
 
 
 /**
+ * Funciones corregidas para informesGB.js
+ * Incluye solo las funciones necesarias para corregir la integración con GB
+ */
+
+/**
  * Inicializa el módulo de informes
  * @param {Object} config - Configuración del módulo
  */
 function inicializar(config) {
     console.log("Inicializando módulo de documentos");
     
-    // Guardar referencias
-    socket = config.socket;
-    usuarioInfo = config.usuarioInfo;
-    operacionActual = config.operacionActual;
-    elementoTrabajo = config.elementoTrabajo;
-    ultimaPosicion = config.ultimaPosicion;
+    // Asegurarse que se tiene una configuración válida
+    config = config || {};
+    
+    // Guardar referencias (buscando también en el sistema global)
+    socket = config.socket || window.socket || window.MAIRA?.GestionBatalla?.socket;
+    usuarioInfo = config.usuarioInfo || window.usuarioInfo || window.MAIRA?.GestionBatalla?.usuarioInfo;
+    operacionActual = config.operacionActual || window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual;
+    elementoTrabajo = config.elementoTrabajo || window.elementoTrabajo || window.MAIRA?.GestionBatalla?.elementoTrabajo;
+    ultimaPosicion = config.ultimaPosicion || window.posicionActual;
+    
+    // Verificar que tenemos las referencias mínimas necesarias
+    if (!socket) {
+        console.warn("Informes inicializado sin socket, algunas funciones no estarán disponibles");
+    }
+    
+    if (!usuarioInfo) {
+        console.warn("Informes inicializado sin información de usuario");
+    }
     
     // Crear la estructura completa de la pestaña Documentos
     crearEstructuraTabDocumentos();
@@ -40,8 +57,13 @@ function inicializar(config) {
     // Inicializar componentes UI
     inicializarInterfazDocumentos();
     
-    // Configurar eventos
-    verificarEventosInformes(); // Cambiar de configurarEventosDocumentos a verificarEventosInformes
+    // Configurar eventos Socket.IO
+    if (socket) {
+        configurarEventosSocket(socket);
+    }
+    
+    // Configurar eventos DOM
+    verificarEventosInformes();
     
     // Cargar documentos guardados en localStorage
     cargarInformesGuardados();
@@ -49,20 +71,20 @@ function inicializar(config) {
     // Mensaje de inicialización
     console.log("Módulo de documentos inicializado");
 }
-    
+
 /**
  * Configura los eventos de socket relacionados con informes
- * @param {object} socket - Objeto de conexión socket.io
+ * @param {object} socketParam - Objeto de conexión socket.io
  */
-/**
- * Configura los eventos de socket relacionados con informes
- * @param {object} socket - Objeto de conexión socket.io
- */
-function configurarEventosSocket(socket) {
-    if (!socket) {
-        console.error("Socket no disponible para configurar eventos de informes");
-        return;
+function configurarEventosSocket(socketParam) {
+    const socketActual = socketParam || socket || window.socket || window.MAIRA?.GestionBatalla?.socket;
+    if (!socketActual) {
+        console.error("No hay socket disponible para configurar eventos de informes");
+        return false;
     }
+    
+    // Actualizar referencia
+    socket = socketActual;
     
     console.log("Configurando eventos de socket para informes");
     
@@ -89,306 +111,161 @@ function configurarEventosSocket(socket) {
     });
     
     console.log("Eventos de socket para informes configurados");
+    return true;
 }
 
-
-    // Verificar los eventos de click en los botones de informes
-    function verificarEventosInformes() {
-        const btnVerInformes = document.getElementById('btn-ver-informes');
-        const btnCrearInforme = document.getElementById('btn-crear-informe');
-        
-        if (btnVerInformes) {
-            console.log("Configurando evento para btn-ver-informes");
-            // Eliminar eventos anteriores para evitar duplicados
-            btnVerInformes.replaceWith(btnVerInformes.cloneNode(true));
-            const newBtnVerInformes = document.getElementById('btn-ver-informes');
-            
-            // Actualizar texto para consistencia
-            newBtnVerInformes.textContent = 'Ver Documentos';
-            
-            newBtnVerInformes.addEventListener('click', function() {
-                console.log("Botón Ver Documentos clickeado");
-                
-                // Desactivar ambos botones
-                document.querySelectorAll('.informes-botones button').forEach(b => b.classList.remove('active'));
-                
-                // Activar este botón
-                this.classList.add('active');
-                
-                // Mostrar la lista y ocultar el formulario
-                const verInformes = document.getElementById('ver-informes');
-                const crearInforme = document.getElementById('crear-informe');
-                
-                if (verInformes) verInformes.classList.remove('d-none');
-                if (crearInforme) crearInforme.classList.add('d-none');
-                
-                // Actualizar la lista de informes
-                actualizarListaInformes();
-            });
-        }
-        
-        if (btnCrearInforme) {
-            console.log("Configurando evento para btn-crear-informe");
-            // Eliminar eventos anteriores para evitar duplicados
-            btnCrearInforme.replaceWith(btnCrearInforme.cloneNode(true));
-            const newBtnCrearInforme = document.getElementById('btn-crear-informe');
-            
-            // Cambiar texto si es necesario
-            newBtnCrearInforme.textContent = 'Crear Documento';
-            
-            newBtnCrearInforme.addEventListener('click', function() {
-                console.log("Botón Crear Documento clickeado");
-                
-                // Desactivar ambos botones
-                document.querySelectorAll('.informes-botones button').forEach(b => b.classList.remove('active'));
-                
-                // Activar este botón
-                this.classList.add('active');
-                
-                // Ocultar la lista y mostrar el formulario
-                const verInformes = document.getElementById('ver-informes');
-                const crearInforme = document.getElementById('crear-informe');
-                
-                if (verInformes) verInformes.classList.add('d-none');
-                if (crearInforme) crearInforme.classList.remove('d-none');
-                
-                // Asegurarse de que el formulario esté correctamente configurado
-                actualizarHTMLCreacionDocumentos();
-                configurarEventosCambioTipoDocumento();
-            });
-        }
-        
-        // Configurar eventos para los formularios
-        const formularios = document.querySelectorAll('#form-informe, #formulario-informe form, #formulario-orden form');
-        formularios.forEach(form => {
-            if (form) {
-                // Limpiar eventos anteriores
-                const nuevoForm = form.cloneNode(true);
-                form.parentNode.replaceChild(nuevoForm, form);
-                
-                // Añadir evento submit
-                nuevoForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    enviarDocumento();
-                });
-                
-                // Configurar botón cancelar
-                const btnCancelar = nuevoForm.querySelector('button[type="button"], #cancelar-informe');
-                if (btnCancelar) {
-                    btnCancelar.addEventListener('click', function() {
-                        // Volver a la lista
-                        const btnVerInformes = document.getElementById('btn-ver-informes');
-                        if (btnVerInformes) {
-                            btnVerInformes.click();
-                        }
-                        
-                        // Limpiar formulario
-                        nuevoForm.reset();
-                    });
-                }
-            }
-        });
-        
-        // Configurar eventos de tipos de documento
-        configurarEventosCambioTipoDocumento();
-    }
-
-
-
 /**
- * Actualiza la lista de informes en la interfaz
+ * Verifica y configura los eventos de los botones de informes
  */
-function actualizarListaInformes() {
-    console.log("Actualizando lista de informes");
+function verificarEventosInformes() {
+    console.log("Verificando eventos para los controles de informes");
     
-    const listaInformes = document.getElementById('lista-informes');
-    if (!listaInformes) {
-        console.error("Lista de informes no encontrada");
-        return;
+    const btnVerInformes = document.getElementById('btn-ver-informes');
+    const btnCrearInforme = document.getElementById('btn-crear-informe');
+    
+    if (btnVerInformes) {
+        console.log("Configurando evento para btn-ver-informes");
+        // Eliminar eventos anteriores para evitar duplicados
+        const nuevoBtnVerInformes = btnVerInformes.cloneNode(true);
+        if (btnVerInformes.parentNode) {
+            btnVerInformes.parentNode.replaceChild(nuevoBtnVerInformes, btnVerInformes);
+        }
+        
+        // Actualizar texto para consistencia
+        nuevoBtnVerInformes.textContent = 'Ver Documentos';
+        
+        nuevoBtnVerInformes.addEventListener('click', function() {
+            console.log("Botón Ver Documentos clickeado");
+            
+            // Desactivar ambos botones
+            document.querySelectorAll('.informes-botones button').forEach(b => b.classList.remove('active'));
+            
+            // Activar este botón
+            this.classList.add('active');
+            
+            // Mostrar la lista y ocultar el formulario
+            const verInformes = document.getElementById('ver-informes');
+            const crearInforme = document.getElementById('crear-informe');
+            
+            if (verInformes) verInformes.classList.remove('d-none');
+            if (crearInforme) crearInforme.classList.add('d-none');
+            
+            // Actualizar la lista de informes
+            actualizarListaInformes();
+        });
     }
     
-    // Limpiar lista actual
-    listaInformes.innerHTML = '';
-    
-    // Obtener todos los informes
-    const todosInformes = obtenerInformes(filtroActual);
-    
-    if (todosInformes.length === 0) {
-        // Mostrar mensaje si no hay informes
-        listaInformes.innerHTML = `
-            <div class="no-informes p-3 text-center">
-                <i class="fas fa-inbox fa-2x mb-2 text-muted"></i>
-                <p>No hay documentos para mostrar</p>
-            </div>
-        `;
-        return;
+    if (btnCrearInforme) {
+        console.log("Configurando evento para btn-crear-informe");
+        // Eliminar eventos anteriores para evitar duplicados
+        const nuevoBtnCrearInforme = btnCrearInforme.cloneNode(true);
+        if (btnCrearInforme.parentNode) {
+            btnCrearInforme.parentNode.replaceChild(nuevoBtnCrearInforme, btnCrearInforme);
+        }
+        
+        // Cambiar texto si es necesario
+        nuevoBtnCrearInforme.textContent = 'Crear Documento';
+        
+        nuevoBtnCrearInforme.addEventListener('click', function() {
+            console.log("Botón Crear Documento clickeado");
+            
+            // Desactivar ambos botones
+            document.querySelectorAll('.informes-botones button').forEach(b => b.classList.remove('active'));
+            
+            // Activar este botón
+            this.classList.add('active');
+            
+            // Ocultar la lista y mostrar el formulario
+            const verInformes = document.getElementById('ver-informes');
+            const crearInforme = document.getElementById('crear-informe');
+            
+            if (verInformes) verInformes.classList.add('d-none');
+            if (crearInforme) crearInforme.classList.remove('d-none');
+            
+            // Asegurarse de que el formulario esté correctamente configurado
+            actualizarHTMLCreacionDocumentos();
+            configurarEventosCambioTipoDocumento();
+        });
     }
     
-    // Agregar cada informe a la lista
-    todosInformes.forEach(informe => {
-        agregarInforme(informe);
+    // Configurar eventos para los formularios
+    const formularios = document.querySelectorAll('#form-informe, #formulario-informe form, #formulario-orden form, #formulario-documento');
+    formularios.forEach(form => {
+        if (form) {
+            // Limpiar eventos anteriores
+            const nuevoForm = form.cloneNode(true);
+            if (form.parentNode) {
+                form.parentNode.replaceChild(nuevoForm, form);
+            }
+            
+            // Añadir evento submit
+            nuevoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                enviarDocumento();
+            });
+            
+            // Configurar botón cancelar
+            const btnCancelar = nuevoForm.querySelector('button[type="button"], #cancelar-informe');
+            if (btnCancelar) {
+                btnCancelar.addEventListener('click', function() {
+                    // Volver a la lista
+                    const btnVerInformes = document.getElementById('btn-ver-informes');
+                    if (btnVerInformes) {
+                        btnVerInformes.click();
+                    }
+                    
+                    // Limpiar formulario
+                    nuevoForm.reset();
+                });
+            }
+        }
     });
     
-    console.log(`Actualizados ${todosInformes.length} informes en la interfaz`);
+    // Configurar eventos de tipos de documento si se necesita
+    configurarEventosCambioTipoDocumento();
+    
+    // Configurar los filtros
+    configurarFiltrosInformes();
 }
-
 
 /**
- * Carga informes guardados del localStorage
+ * Configura los filtros para informes
  */
-function cargarInformesGuardados() {
-    console.log("Cargando informes guardados del localStorage");
+function configurarFiltrosInformes() {
+    const filtrosContainer = document.querySelector('.filtro-informes');
+    if (!filtrosContainer) return;
     
-    // Cargar informes enviados
-    try {
-        const informesEnviadosGuardados = localStorage.getItem('gb_informes_enviados');
-        if (informesEnviadosGuardados) {
-            const listaEnviados = JSON.parse(informesEnviadosGuardados);
-            
-            // Convertir a formato objeto con ID como clave
-            listaEnviados.forEach(informe => {
-                if (informe && informe.id) {
-                    informesEnviados[informe.id] = informe;
-                    
-                    // Agregar a la interfaz
-                    agregarInforme(informe);
-                }
-            });
-            
-            console.log(`Cargados ${listaEnviados.length} informes enviados`);
+    // Eliminar eventos anteriores
+    const botones = filtrosContainer.querySelectorAll('button');
+    botones.forEach(btn => {
+        const nuevoBtn = btn.cloneNode(true);
+        if (btn.parentNode) {
+            btn.parentNode.replaceChild(nuevoBtn, btn);
         }
-    } catch (error) {
-        console.error("Error al cargar informes enviados:", error);
-    }
-    
-    // Cargar informes recibidos
-    try {
-        const informesRecibidosGuardados = localStorage.getItem('gb_informes_recibidos');
-        if (informesRecibidosGuardados) {
-            const listaRecibidos = JSON.parse(informesRecibidosGuardados);
-            
-            // Convertir a formato objeto con ID como clave
-            listaRecibidos.forEach(informe => {
-                if (informe && informe.id) {
-                    informesRecibidos[informe.id] = informe;
-                    
-                    // Agregar a la interfaz
-                    agregarInforme(informe);
-                }
-            });
-            
-            console.log(`Cargados ${listaRecibidos.length} informes recibidos`);
-        }
-    } catch (error) {
-        console.error("Error al cargar informes recibidos:", error);
-    }
-}
-
-function crearEstructuraTabDocumentos() {
-    console.log("Creando estructura para el tab de Documentos");
-    
-    // Obtener el contenedor
-    const tabDocumentos = document.getElementById('tab-Documentos');
-    if (!tabDocumentos) {
-        console.error("Tab Documentos no encontrado");
-        return;
-    }
-    
-    // Crear estructura básica
-    tabDocumentos.innerHTML = `
-        <div class="informes-botones">
-            <button id="btn-ver-informes" class="active">Ver Documentos</button>
-            <button id="btn-crear-informe">Crear Documento</button>
-        </div>
         
-        <!-- Ver Documentos -->
-        <div id="ver-informes">
-            <div class="filtro-informes">
-                <button id="btn-filtro-todos" class="active">Todos</button>
-                <button id="btn-filtro-informes">Informes</button>
-                <button id="btn-filtro-ordenes">Órdenes</button>
-            </div>
-            <div id="lista-informes" class="informes-lista">
-                <!-- Los documentos se cargarán dinámicamente -->
-            </div>
-        </div>
-        
-        <!-- Crear Documento -->
-        <div id="crear-informe" class="d-none">
-            <form id="form-informe">
-                <div class="form-group">
-                    <label for="tipo-informe">Tipo:</label>
-                    <select id="tipo-informe" required>
-                        <option value="normal">Normal</option>
-                        <option value="urgente">Urgente</option>
-                        <option value="orden">Orden</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="destinatario-informe">Destinatario:</label>
-                    <select id="destinatario-informe" required>
-                        <option value="comando">Comando</option>
-                        <option value="todos">Todos</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="asunto-informe">Asunto:</label>
-                    <input type="text" id="asunto-informe" required>
-                </div>
-                <div class="form-group">
-                    <label for="contenido-informe">Contenido:</label>
-                    <textarea id="contenido-informe" rows="4" required></textarea>
-                </div>
-                <div class="form-buttons">
-                    <button type="submit" id="enviar-informe">Enviar</button>
-                    <button type="button" id="cancelar-informe">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    `;
-    
-    console.log("Estructura básica del tab Documentos creada");
+        nuevoBtn.addEventListener('click', function() {
+            // Quitar clase activa
+            filtrosContainer.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            
+            // Agregar clase activa a este botón
+            this.classList.add('active');
+            
+            // Determinar filtro
+            let filtro = 'todos';
+            if (this.id === 'btn-filtro-informes') filtro = 'informes';
+            else if (this.id === 'btn-filtro-ordenes') filtro = 'ordenes';
+            else if (this.id === 'btn-filtro-importantes') filtro = 'importantes';
+            else if (this.id === 'btn-filtro-archivados') filtro = 'archivados';
+            
+            // Aplicar filtro
+            filtrarInformes(filtro);
+        });
+    });
 }
 
-
-function actualizarSelectorTipoDocumento() {
-    // Ocultar los selectores originales ya que usaremos los botones
-    const selectorTipoInforme = document.querySelector('#formulario-informe #tipo-informe');
-    if (selectorTipoInforme) {
-        selectorTipoInforme.style.display = 'none'; // Ocultar visualmente
-        // Pero mantener las opciones para los valores internos
-        selectorTipoInforme.innerHTML = `
-            <option value="exploracion">Informe de Exploración</option>
-            <option value="reconocimiento">Informe de Reconocimiento</option>
-            <option value="situacion">Informe de Situación</option>
-            <option value="otro">Otro tipo de Informe</option>
-        `;
-    }
-    
-    const selectorTipoOrden = document.querySelector('#formulario-orden #tipo-informe');
-    if (selectorTipoOrden) {
-        selectorTipoOrden.style.display = 'none'; // Ocultar visualmente
-        // Pero mantener las opciones para los valores internos
-        selectorTipoOrden.innerHTML = `
-            <option value="operaciones">Orden de Operaciones (Completa)</option>
-            <option value="parcial">Orden Parcial</option>
-            <option value="mision">Orden Tipo Misión</option>
-            <option value="otra">Otro tipo de Orden</option>
-        `;
-    }
-    
-    // Ocultar también las etiquetas
-    const labelTipoInforme = document.querySelector('#formulario-informe label[for="tipo-informe"]');
-    if (labelTipoInforme) {
-        labelTipoInforme.style.display = 'none';
-    }
-    
-    const labelTipoOrden = document.querySelector('#formulario-orden label[for="tipo-informe"]');
-    if (labelTipoOrden) {
-        labelTipoOrden.style.display = 'none';
-    }
-}
-
+/**
+ * Actualiza el HTML del panel de creación de documentos para mejorar la usabilidad
+ */
 function actualizarHTMLCreacionDocumentos() {
     const contenedorCrearInforme = document.getElementById('crear-informe');
     if (!contenedorCrearInforme) {
@@ -501,50 +378,6 @@ function actualizarHTMLCreacionDocumentos() {
         </form>
     `;
     
-    // Agregar estilos para la lista de destinatarios
-    const style = document.createElement('style');
-    style.textContent = `
-        .lista-destinatarios {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 8px;
-            min-height: 40px;
-        }
-        
-        .destinatario-item {
-            background-color: #e9ecef;
-            border-radius: 16px;
-            padding: 4px 12px;
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-        }
-        
-        .destinatario-item .remover-destinatario {
-            margin-left: 8px;
-            cursor: pointer;
-            color: #dc3545;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: rgba(220, 53, 69, 0.1);
-            font-size: 10px;
-            transition: all 0.2s;
-        }
-        
-        .destinatario-item .remover-destinatario:hover {
-            background: rgba(220, 53, 69, 0.2);
-        }
-    `;
-    document.head.appendChild(style);
-    
     // Configurar eventos
     const formulario = document.getElementById('formulario-documento');
     if (formulario) {
@@ -629,12 +462,16 @@ function actualizarListaDestinatariosDocumento() {
         listaDestinatarios.removeChild(listaDestinatarios.firstChild);
     }
     
-    // Obtener elementos conectados
+    // Obtener elementos conectados de todas las fuentes posibles
     const elementosConectados = {};
-    if (window.MAIRA.Elementos && window.MAIRA.Elementos.obtenerElementosConectados) {
-        Object.assign(elementosConectados, window.MAIRA.Elementos.obtenerElementosConectados());
-    } else if (window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
+    
+    // Buscar elementos en MAIRA.GestionBatalla
+    if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
         Object.assign(elementosConectados, window.MAIRA.GestionBatalla.elementosConectados);
+    }
+    // Buscar elementos en variable global
+    else if (window.elementosConectados) {
+        Object.assign(elementosConectados, window.elementosConectados);
     }
     
     // Verificar que haya elementos
@@ -647,12 +484,23 @@ function actualizarListaDestinatariosDocumento() {
         return;
     }
     
+    // Obtener ID de usuario actual
+    const idUsuarioActual = (usuarioInfo && usuarioInfo.id) || 
+                            (window.usuarioInfo && window.usuarioInfo.id) ||
+                            (window.MAIRA && window.MAIRA.GestionBatalla && 
+                             window.MAIRA.GestionBatalla.usuarioInfo && 
+                             window.MAIRA.GestionBatalla.usuarioInfo.id);
+    
     // Crear lista de destinatarios
     Object.entries(elementosConectados).forEach(([id, datos]) => {
         // No incluir al usuario actual
-        if (id === usuarioInfo?.id) return;
+        if (id === idUsuarioActual) return;
         
-        const usuario = datos.usuario || (datos.datos?.usuario);
+        // Obtener datos del elemento según estructura
+        const datosElemento = datos.datos || datos;
+        if (!datosElemento) return;
+        
+        const usuario = datosElemento.usuario || (datosElemento.emisor && datosElemento.emisor.nombre);
         if (!usuario) return;
         
         // Crear elemento para el destinatario
@@ -662,7 +510,7 @@ function actualizarListaDestinatariosDocumento() {
         
         // Obtener información adicional del elemento (designación/dependencia)
         let infoElemento = '';
-        const elemento = datos.elemento || datos.datos?.elemento;
+        const elemento = datosElemento.elemento;
         if (elemento) {
             if (elemento.designacion) {
                 infoElemento = elemento.designacion;
@@ -734,6 +582,3150 @@ function actualizarDestinatariosSeleccionados() {
     campoDestinatarios.value = destinatarios.join(',');
 }
 
+/**
+ * Muestra u oculta el indicador de carga para el envío de documentos
+ * @param {boolean} mostrar - Si se debe mostrar el indicador
+ */
+function mostrarCargandoEnvio(mostrar) {
+    // Botones de enviar en todos los formularios posibles
+    const botones = document.querySelectorAll('#formulario-documento button[type="submit"], #form-informe button[type="submit"]');
+
+    botones.forEach(boton => {
+        if (mostrar) {
+            // Guardar texto original y mostrar spinner
+            boton.setAttribute('data-original-text', boton.innerHTML);
+            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            boton.disabled = true;
+        } else {
+            // Restaurar texto original
+            const textoOriginal = boton.getAttribute('data-original-text') || 'Enviar';
+            boton.innerHTML = textoOriginal;
+            boton.disabled = false;
+        }
+    });
+}
+
+/**
+ * Envía un documento a un destinatario específico
+ * @param {string} destinatario - ID del destinatario o 'todos'/'comando'
+ * @param {string} tipo - Tipo de documento
+ * @param {string} categoriaDocumento - Categoría ('informe' u 'orden')
+ * @param {string} prioridad - Prioridad ('normal' o 'urgente')
+ * @param {string} asunto - Asunto del documento
+ * @param {string} contenido - Contenido del documento
+ * @param {HTMLInputElement|null} archivoAdjunto - Elemento de input para el archivo adjunto
+ * @param {Function|null} callback - Función de callback con el resultado (true/false)
+ */
+function enviarDocumentoUnico(destinatario, tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto, callback) {
+    // Obtener ID único
+    const documentoId = typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.generarId ? 
+        MAIRA.Utils.generarId() : 
+        'doc_' + new Date().getTime() + '_' + Math.floor(Math.random() * 10000);
+    
+    // Obtener referencias de usuario actualizadas
+    const infoUsuario = usuarioInfo || window.usuarioInfo || window.MAIRA?.GestionBatalla?.usuarioInfo;
+    const elementoUsuario = elementoTrabajo || window.elementoTrabajo || window.MAIRA?.GestionBatalla?.elementoTrabajo;
+    const posicionActualizada = ultimaPosicion || window.posicionActual || null;
+    const operacion = operacionActual || window.operacionActual || window.MAIRA?.GestionBatalla?.operacionActual;
+    
+    if (!infoUsuario || !elementoUsuario) {
+        console.error("Información de usuario o elemento no disponible");
+        if (callback) callback(false);
+        return;
+    }
+    
+    // Crear objeto del documento
+    const documento = {
+        id: documentoId,
+        emisor: {
+            id: infoUsuario.id,
+            nombre: infoUsuario.usuario,
+            elemento: elementoUsuario
+        },
+        destinatario: destinatario,
+        tipo: tipo,
+        categoriaDocumento: categoriaDocumento,
+        prioridad: prioridad,
+        asunto: asunto,
+        contenido: contenido,
+        leido: false,
+        posicion: posicionActualizada ? { 
+            lat: posicionActualizada.lat, 
+            lng: posicionActualizada.lng,
+            precision: posicionActualizada.precision,
+            rumbo: posicionActualizada.rumbo || 0
+        } : null,
+        timestamp: new Date().toISOString(),
+        operacion: operacion,
+        tieneAdjunto: false,
+        adjunto: null
+    };
+
+    // Procesar archivo adjunto si existe
+    if (archivoAdjunto && archivoAdjunto.files && archivoAdjunto.files.length > 0) {
+        const archivo = archivoAdjunto.files[0];
+        
+        // Verificar tamaño máximo
+        if (archivo.size > 5 * 1024 * 1024) {
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("El archivo adjunto excede el tamaño máximo permitido (5MB)", "error");
+            } else {
+                alert("El archivo adjunto excede el tamaño máximo permitido (5MB)");
+            }
+            if (callback) callback(false);
+            return;
+        }
+        
+        // Procesar archivo
+        procesarArchivoAdjunto(documento, archivo)
+            .then(documentoConAdjunto => {
+                finalizarEnvioDocumento(documentoConAdjunto, callback);
+            })
+            .catch(error => {
+                console.error("Error al procesar archivo adjunto:", error);
+                if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                    MAIRA.Utils.mostrarNotificacion("Error al procesar archivo adjunto: " + error.message, "error");
+                } else {
+                    alert("Error al procesar archivo adjunto: " + error.message);
+                }
+                if (callback) callback(false);
+            });
+    } else {
+        // No hay archivo adjunto, continuar directamente
+        finalizarEnvioDocumento(documento, callback);
+    }
+}
+
+/**
+ * Finaliza el envío de un documento
+ * @param {Object} documento - Documento a enviar
+ * @param {Function|null} callback - Función de callback con el resultado (true/false)
+ */
+function finalizarEnvioDocumento(documento, callback) {
+    // Asegurar que tenemos un socket válido
+    const socketActual = socket || window.socket || window.MAIRA?.GestionBatalla?.socket;
+    
+    // Enviar al servidor si estamos conectados
+    if (socketActual && socketActual.connected) {
+        // Emitir evento con timeout para manejar errores de envío
+        let timeoutId = setTimeout(() => {
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Tiempo de espera agotado al enviar el documento. Guardado localmente.", "warning");
+            } else {
+                alert("Tiempo de espera agotado al enviar el documento. Guardado localmente.");
+            }
+            
+            // Guardar en memoria
+            informesEnviados[documento.id] = documento;
+            
+            // Marcar como pendiente
+            documento.pendiente = true;
+            
+            // Guardar en localStorage
+            guardarInformesLocalmente();
+            
+            // Agregar a la interfaz
+            agregarInforme(documento);
+            
+            if (callback) callback(false);
+        }, 10000); // 10 segundos de timeout
+        
+        socketActual.emit('nuevoInforme', documento, function(respuesta) {
+            // Limpiar timeout ya que recibimos respuesta
+            clearTimeout(timeoutId);
+            
+            console.log("Respuesta del servidor al enviar documento:", respuesta);
+            
+            if (respuesta && respuesta.error) {
+                if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                    MAIRA.Utils.mostrarNotificacion("Error al enviar documento: " + respuesta.error, "error");
+                } else {
+                    alert("Error al enviar documento: " + respuesta.error);
+                }
+                
+                // Guardar en memoria
+                informesEnviados[documento.id] = documento;
+                documento.pendiente = true;
+                
+                // Guardar en localStorage
+                guardarInformesLocalmente();
+                
+                // Agregar a la interfaz
+                agregarInforme(documento);
+                
+                if (callback) callback(false);
+                return;
+            }
+            
+            // Guardar en memoria
+            informesEnviados[documento.id] = documento;
+            
+            // Guardar en localStorage
+            guardarInformesLocalmente();
+            
+            // Añadir a la interfaz
+            agregarInforme(documento);
+            
+            // Notificar envío exitoso
+            const tipoTexto = documento.categoriaDocumento === 'orden' ? "Orden" : "Informe";
+            const prioridadTexto = documento.prioridad === 'urgente' ? "URGENTE" : "";
+            const mensajeExito = `${tipoTexto} ${prioridadTexto} "${documento.asunto}" enviado correctamente`;
+            
+            if (window.MAIRA && window.MAIRA.Chat && typeof window.MAIRA.Chat.agregarMensajeChat === 'function') {
+                window.MAIRA.Chat.agregarMensajeChat("Sistema", mensajeExito, "sistema");
+            }
+            
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion(mensajeExito, "success");
+            } else {
+                alert(mensajeExito);
+            }
+            
+            if (callback) callback(true);
+        });
+    } else {
+        // No hay conexión, guardar localmente
+        
+        // Marcar como pendiente
+        documento.pendiente = true;
+        
+        // Guardar en memoria
+        informesEnviados[documento.id] = documento;
+        
+        // Guardar en localStorage
+        guardarInformesLocalmente();
+        
+        // Añadir a la interfaz local
+        agregarInforme(documento);
+        
+        // Notificar guardado para envío posterior
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion(`Documento guardado para envío posterior`, "info");
+        } else {
+            alert("Documento guardado para envío posterior");
+        }
+        
+        if (callback) callback(false);
+    }
+}
+
+/**
+ * Envía un documento, analizando primero si es a múltiples destinatarios
+ */
+function enviarDocumento() {
+    console.log("Preparando envío de documento");
+    
+    // Obtener el formulario
+    const formulario = document.getElementById('formulario-documento');
+    if (!formulario) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Formulario no encontrado", "error");
+        } else {
+            alert("Formulario no encontrado");
+        }
+        return;
+    }
+    
+    // Obtener datos del formulario
+    const tipoDocumentoSelect = document.getElementById('tipo-documento');
+    const prioridadSelect = document.getElementById('prioridad-documento');
+    const destinatariosField = document.getElementById('destinatarios-seleccionados');
+    const asuntoInput = document.getElementById('asunto-informe');
+    const contenidoInput = document.getElementById('contenido-informe');
+    const archivoAdjunto = document.getElementById('adjunto-informe');
+    
+    if (!tipoDocumentoSelect || !prioridadSelect || !destinatariosField || !asuntoInput || !contenidoInput) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Error: elementos del formulario no encontrados", "error");
+        } else {
+            alert("Error: elementos del formulario no encontrados");
+        }
+        return;
+    }
+    
+    const tipo = tipoDocumentoSelect.value;
+    const prioridad = prioridadSelect.value;
+    const destinatariosStr = destinatariosField.value;
+    const asunto = asuntoInput.value.trim();
+    const contenido = contenidoInput.value.trim();
+    
+    // Verificaciones básicas
+    if (!tipo) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Debes seleccionar un tipo de documento", "error");
+        } else {
+            alert("Debes seleccionar un tipo de documento");
+        }
+        return;
+    }
+    
+    if (!asunto || !contenido) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Debes completar asunto y contenido del documento", "error");
+        } else {
+            alert("Debes completar asunto y contenido del documento");
+        }
+        return;
+    }
+    
+    // Comprobar si se ha seleccionado algún destinatario
+    if (!destinatariosStr) {
+        // Verificar si los checkboxes individualmente están marcados
+        const destinoTodos = document.getElementById('destino-todos');
+        const destinoComando = document.getElementById('destino-comando');
+        const checkboxesUsuarios = document.querySelectorAll('.destinatario-checkbox input[type="checkbox"]:checked');
+        
+        if ((!destinoTodos || !destinoTodos.checked) && 
+            (!destinoComando || !destinoComando.checked) && 
+            checkboxesUsuarios.length === 0) {
+            
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Debes seleccionar al menos un destinatario", "error");
+            } else {
+                alert("Debes seleccionar al menos un destinatario");
+            }
+            return;
+        }
+        
+        // Actualizar el campo de destinatarios si está vacío pero hay selecciones
+        actualizarDestinatariosSeleccionados();
+    }
+    
+    // Verificar si tenemos la información del usuario
+    const infoUsuario = usuarioInfo || window.usuarioInfo || window.MAIRA?.GestionBatalla?.usuarioInfo;
+    const elementoUsuario = elementoTrabajo || window.elementoTrabajo || window.MAIRA?.GestionBatalla?.elementoTrabajo;
+    
+    if (!infoUsuario || !elementoUsuario) {
+        if (window.MAIRA && window.MAIRA.Chat && typeof window.MAIRA.Chat.agregarMensajeChat === 'function') {
+            window.MAIRA.Chat.agregarMensajeChat("Sistema", "No se ha iniciado sesión correctamente", "sistema");
+        }
+        
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("No se ha iniciado sesión correctamente", "error");
+        } else {
+            alert("No se ha iniciado sesión correctamente");
+        }
+        return;
+    }
+    
+    // Determinar categoría (informe u orden)
+    let categoriaDocumento = 'informe';
+    if (tipo === 'operaciones' || tipo === 'parcial' || tipo === 'mision' || tipo === 'otra') {
+        categoriaDocumento = 'orden';
+    }
+    
+    // Obtener destinatarios
+    const destinatarios = destinatariosStr.split(',').filter(Boolean);
+    
+    // Mostrar indicador de carga
+    mostrarCargandoEnvio(true);
+    
+    // Procesar el envío del documento para cada destinatario o para todos/comando
+    if (destinatarios.includes('todos')) {
+        // Enviar a todos los participantes
+        enviarDocumentoUnico('todos', tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto, function(exito) {
+            mostrarCargandoEnvio(false);
+            if (exito) limpiarFormularioDocumento();
+        });
+    } else if (destinatarios.includes('comando')) {
+        // Enviar al comando
+        enviarDocumentoUnico('comando', tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto, function(exito) {
+            mostrarCargandoEnvio(false);
+            if (exito) limpiarFormularioDocumento();
+        });
+    } else if (destinatarios.length > 0) {
+        // Si hay múltiples destinatarios específicos, enviar un documento para cada uno
+        let documentosEnviados = 0;
+        let documentosFallidos = 0;
+        
+        // Si son muchos destinatarios, mostrar un mensaje
+        if (destinatarios.length > 3) {
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion(`Enviando documento a ${destinatarios.length} destinatarios...`, "info");
+            }
+        }
+        
+        // Función para procesar el siguiente destinatario
+        const procesarSiguienteDestinatario = (index) => {
+            if (index >= destinatarios.length) {
+                // Todos los documentos han sido procesados
+                if (documentosFallidos > 0) {
+                    if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                        MAIRA.Utils.mostrarNotificacion(`Enviados ${documentosEnviados} documentos con ${documentosFallidos} fallos`, "warning");
+                    }
+                } else {
+                    if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                        MAIRA.Utils.mostrarNotificacion(`Documento enviado a ${documentosEnviados} destinatarios`, "success");
+                    }
+                }
+                
+                // Limpiar formulario
+                limpiarFormularioDocumento();
+                mostrarCargandoEnvio(false);
+                return;
+            }
+            
+            const destinatario = destinatarios[index];
+            enviarDocumentoUnico(
+                destinatario, 
+                tipo, 
+                categoriaDocumento, 
+                prioridad, 
+                asunto, 
+                contenido, 
+                (index === 0 ? archivoAdjunto : null), // Solo adjuntar el archivo al primer destinatario para evitar duplicados
+                (exito) => {
+                    // Callback para el resultado
+                    if (exito) {
+                        documentosEnviados++;
+                    } else {
+                        documentosFallidos++;
+                    }
+                    
+                    // Procesar el siguiente
+                    procesarSiguienteDestinatario(index + 1);
+                }
+            );
+        };
+        
+        // Iniciar el procesamiento
+        procesarSiguienteDestinatario(0);
+    } else {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Debes seleccionar al menos un destinatario", "error");
+        } else {
+            alert("Debes seleccionar al menos un destinatario");
+        }
+        mostrarCargandoEnvio(false);
+    }
+}
+
+/**
+ * Procesa un archivo adjunto para un documento
+ * @param {Object} informe - Informe al que se adjuntará el archivo
+ * @param {File} archivo - Archivo a adjuntar
+ * @returns {Promise<Object>} Promesa que resuelve al informe con el archivo adjunto
+ */
+function procesarArchivoAdjunto(informe, archivo) {
+    return new Promise((resolve, reject) => {
+        try {
+            // Crear un FileReader para leer el archivo como Data URL
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    // Datos del archivo en formato Data URL
+                    const datosArchivo = e.target.result;
+                    
+                    // Crear objeto adjunto con información del archivo
+                    const adjunto = {
+                        nombre: archivo.name,
+                        tipo: archivo.type,
+                        tamaño: archivo.size,
+                        datos: datosArchivo,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Actualizar informe con información del adjunto
+                    informe.tieneAdjunto = true;
+                    informe.adjunto = adjunto;
+                    
+                    // Resolver con el informe actualizado
+                    resolve(informe);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            
+            reader.onerror = function() {
+                reject(new Error("Error al leer el archivo"));
+            };
+            
+            // Leer el archivo como Data URL
+            reader.readAsDataURL(archivo);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * Limpia el formulario de documentos
+ */
+function limpiarFormularioDocumento() {
+    // Limpiar formulario
+    const formulario = document.getElementById('formulario-documento');
+    if (formulario) {
+        formulario.reset();
+        
+        // Limpiar selecciones específicas
+        document.querySelectorAll('.destinatario-checkbox input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        // Limpiar campo oculto de destinatarios
+        const campoDestinatarios = document.getElementById('destinatarios-seleccionados');
+        if (campoDestinatarios) {
+            campoDestinatarios.value = '';
+        }
+    }
+    
+    // Si hay previsualizaciones de adjuntos, limpiarlas
+    const previewAdjunto = document.getElementById('preview-adjunto');
+    if (previewAdjunto) {
+        previewAdjunto.innerHTML = '';
+        previewAdjunto.style.display = 'none';
+    }
+    
+    // Volver a la vista de lista de documentos
+    const btnVerInformes = document.getElementById('btn-ver-informes');
+    if (btnVerInformes) {
+        btnVerInformes.click();
+    }
+}
+
+/**
+ * Recibe un informe y lo procesa
+ * @param {Object} informe - Informe recibido
+ */
+function recibirInforme(informe) {
+    if (!informe) {
+        console.warn("Informe vacío recibido");
+        return;
+    }
+    
+    console.log("Procesando informe recibido:", informe);
+    
+    // Verificar si ya tenemos este informe
+    if (informesRecibidos[informe.id]) {
+        console.log("Informe ya recibido anteriormente:", informe.id);
+        return;
+    }
+    
+    // Guardar en memoria
+    informesRecibidos[informe.id] = informe;
+    
+    // Guardar en localStorage
+    guardarInformesLocalmente();
+    
+    // Añadir a la interfaz
+    agregarInforme(informe);
+    
+    // Notificar llegada de informe
+    let tipoTexto = "";
+    let tipoNotificacion = "info";
+    
+    switch (informe.tipo) {
+        case "urgente":
+            tipoTexto = "INFORME URGENTE";
+            tipoNotificacion = "error";
+            break;
+        case "orden":
+            tipoTexto = "ORDEN";
+            tipoNotificacion = "warning";
+            break;
+        default:
+            tipoTexto = "Informe";
+            tipoNotificacion = "info";
+    }
+    
+    // Reproducir sonido según el tipo de informe
+    try {
+        let rutaSonido = '/Client/audio/notification.mp3'; // Sonido por defecto
+        
+        if (informe.tipo === "urgente") {
+            rutaSonido = '/Client/audio/alert_urgente.mp3';
+        } else if (informe.tipo === "orden") {
+            rutaSonido = '/Client/audio/alert_orden.mp3';
+        }
+        
+        const audio = new Audio(rutaSonido);
+        audio.play().catch(err => {
+            console.log("Error al reproducir sonido, intentando con sonido genérico", err);
+            // Sonido genérico como fallback
+            const audioGenerico = new Audio('/Client/audio/notification.mp3');
+            audioGenerico.play().catch(e => console.log("No se pudo reproducir ningún sonido", e));
+        });
+    } catch (e) {
+        console.warn("Error al reproducir sonido:", e);
+    }
+    
+    // Mostrar notificación
+    if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+        MAIRA.Utils.mostrarNotificacion(
+            `${tipoTexto} de ${informe.emisor.nombre}: ${informe.asunto}`, 
+            tipoNotificacion,
+            10000 // Duración más larga para informes importantes
+        );
+    }
+    
+    // Añadir mensaje al chat
+    if (window.MAIRA && window.MAIRA.Chat && typeof window.MAIRA.Chat.agregarMensajeChat === 'function') {
+        window.MAIRA.Chat.agregarMensajeChat(
+            "Sistema", 
+            `Nuevo ${tipoTexto.toLowerCase()} recibido de ${informe.emisor.nombre}: "${informe.asunto}"`, 
+            "sistema"
+        );
+    }
+    
+    // Si es urgente o una orden, mostrar notificación especial
+    if (informe.tipo === "urgente" || informe.tipo === "orden") {
+        // Verificar si estamos en la pestaña de informes
+        const tabInformes = document.getElementById('tab-Documentos') || document.getElementById('tab-documentos');
+        if (tabInformes && !tabInformes.classList.contains('active')) {
+            mostrarNotificacionInformeImportante(informe);
+        }
+    }
+    
+    // Marcar como leído si estamos en la pestaña de informes
+    const tabInformes = document.getElementById('tab-Documentos') || document.getElementById('tab-documentos');
+    if (tabInformes && tabInformes.classList.contains('active') && socket && socket.connected) {
+        setTimeout(() => {
+            socket.emit('informeLeido', { informeId: informe.id });
+        }, 3000);
+    }
+}
+
+/**
+ * Muestra una notificación especial para informes importantes
+ * @param {Object} informe - Informe recibido
+ */
+function mostrarNotificacionInformeImportante(informe) {
+    // Crear notificación flotante
+    const notificacion = document.createElement('div');
+    notificacion.className = 'notificacion-informe-importante';
+    notificacion.style.position = 'fixed';
+    notificacion.style.bottom = '20px';
+    notificacion.style.right = '20px';
+    notificacion.style.backgroundColor = informe.tipo === 'urgente' ? '#f44336' : '#ff9800';
+    notificacion.style.color = 'white';
+    notificacion.style.padding = '15px';
+    notificacion.style.borderRadius = '8px';
+    notificacion.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    notificacion.style.zIndex = '10000';
+    
+    // Icono según tipo
+    const icono = informe.tipo === 'urgente' ? 'fa-exclamation-triangle' : 'fa-clipboard-list';
+    
+    notificacion.innerHTML = `
+        <div style="font-size: 18px; margin-bottom: 8px;">
+            <i class="fas ${icono}"></i> 
+            ${informe.tipo === 'urgente' ? 'INFORME URGENTE' : 'ORDEN'} recibido
+        </div>
+        <div style="margin-bottom: 10px;">
+            De: ${informe.emisor.nombre} - "${informe.asunto}"
+        </div>
+        <button id="btn-ir-informes" style="background-color: white; color: #333; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            Ver informes
+        </button>
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    document.getElementById('btn-ir-informes').addEventListener('click', function() {
+        // Cambiar a pestaña de informes
+        const btnTabInformes = document.querySelector('.tab-btn[data-tab="tab-Documentos"], .tab-btn[data-tab="tab-documentos"]');
+        if (btnTabInformes) {
+            btnTabInformes.click();
+        }
+        
+        // Marcar como leído
+        if (socket && socket.connected) {
+            socket.emit('informeLeido', { informeId: informe.id });
+        }
+        
+        // Eliminar notificación
+        if (document.body.contains(notificacion)) {
+            document.body.removeChild(notificacion);
+        }
+    });
+    
+    // Auto ocultar después de 15 segundos para informes urgentes
+    const tiempoOcultar = informe.tipo === 'urgente' ? 15000 : 10000;
+    setTimeout(() => {
+        if (document.body.contains(notificacion)) {
+            document.body.removeChild(notificacion);
+        }
+    }, tiempoOcultar);
+}
+
+/**
+ * Actualiza la lista de informes en la interfaz
+ */
+function actualizarListaInformes() {
+    console.log("Actualizando lista de informes");
+    
+    const listaInformes = document.getElementById('lista-informes');
+    if (!listaInformes) {
+        console.error("Lista de informes no encontrada");
+        return;
+    }
+    
+    // Limpiar lista actual
+    listaInformes.innerHTML = '';
+    
+    // Obtener todos los informes
+    const todosInformes = obtenerInformes(filtroActual);
+    
+    if (todosInformes.length === 0) {
+        // Mostrar mensaje si no hay informes
+        listaInformes.innerHTML = `
+            <div class="no-informes p-3 text-center">
+                <i class="fas fa-inbox fa-2x mb-2 text-muted"></i>
+                <p>No hay documentos para mostrar</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Agregar cada informe a la lista
+    todosInformes.forEach(informe => {
+        agregarInforme(informe);
+    });
+    
+    console.log(`Actualizados ${todosInformes.length} informes en la interfaz`);
+}
+
+/**
+ * Marca un informe como leído
+ * @param {string} informeId - ID del informe a marcar
+ */
+function marcarInformeLeido(informeId) {
+    const informeElement = document.querySelector(`.informe[data-id="${informeId}"]`);
+    if (informeElement) {
+        informeElement.classList.add('leido');
+        
+        // Ocultar botón de marcar como leído si existe
+        const btnMarcarLeido = informeElement.querySelector('.btn-marcar-leido');
+        if (btnMarcarLeido) {
+            btnMarcarLeido.style.display = 'none';
+        }
+    }
+    
+    // Actualizar en memoria si tenemos el informe
+    if (informesRecibidos[informeId]) {
+        informesRecibidos[informeId].leido = true;
+        
+        // Guardar en localStorage
+        guardarInformesLocalmente();
+    }
+}
+
+/**
+ * Filtra los informes según el tipo seleccionado
+ * @param {string} filtro - Filtro a aplicar ('todos', 'informes', 'ordenes', etc.)
+ */
+function filtrarInformes(filtro) {
+    // Asignar filtro actual
+    filtroActual = filtro;
+    
+    // Obtener documentos
+    const documentos = document.querySelectorAll('.informe');
+    
+    documentos.forEach(documento => {
+        const categoria = documento.getAttribute('data-categoria');
+        const esImportante = documento.classList.contains('importante');
+        const esArchivado = documento.classList.contains('archivado');
+        
+        let mostrar = false;
+        
+        switch(filtro) {
+            case 'informes':
+                // Mostrar solo informes no archivados
+                mostrar = (categoria === 'informe') && !esArchivado;
+                break;
+            case 'ordenes':
+                // Mostrar solo órdenes no archivadas
+                mostrar = (categoria === 'orden') && !esArchivado;
+                break;
+            case 'importantes':
+                // Mostrar solo importantes no archivados
+                mostrar = esImportante && !esArchivado;
+                break;
+            case 'archivados':
+                // Mostrar solo archivados
+                mostrar = esArchivado;
+                break;
+            default:
+                // Mostrar todos menos archivados
+                mostrar = !esArchivado;
+        }
+        
+        documento.style.display = mostrar ? 'block' : 'none';
+    });
+}
+
+/**
+ * Guarda los informes en localStorage
+ */
+function guardarInformesLocalmente() {
+    // Guardar informes enviados
+    try {
+        localStorage.setItem('gb_informes_enviados', JSON.stringify(Object.values(informesEnviados)));
+        console.log(`Guardados ${Object.keys(informesEnviados).length} informes enviados en localStorage`);
+    } catch (error) {
+        console.error("Error al guardar informes enviados en localStorage:", error);
+    }
+    
+    // Guardar informes recibidos
+    try {
+        localStorage.setItem('gb_informes_recibidos', JSON.stringify(Object.values(informesRecibidos)));
+        console.log(`Guardados ${Object.keys(informesRecibidos).length} informes recibidos en localStorage`);
+    } catch (error) {
+        console.error("Error al guardar informes recibidos en localStorage:", error);
+    }
+}
+
+/**
+ * Carga informes guardados del localStorage
+ */
+function cargarInformesGuardados() {
+    console.log("Cargando informes guardados del localStorage");
+    
+    // Cargar informes enviados
+    try {
+        const informesEnviadosGuardados = localStorage.getItem('gb_informes_enviados');
+        if (informesEnviadosGuardados) {
+            const listaEnviados = JSON.parse(informesEnviadosGuardados);
+            
+            // Convertir a formato objeto con ID como clave
+            listaEnviados.forEach(informe => {
+                if (informe && informe.id) {
+                    informesEnviados[informe.id] = informe;
+                }
+            });
+            
+            console.log(`Cargados ${listaEnviados.length} informes enviados`);
+        }
+    } catch (error) {
+        console.error("Error al cargar informes enviados:", error);
+    }
+    
+    // Cargar informes recibidos
+    try {
+        const informesRecibidosGuardados = localStorage.getItem('gb_informes_recibidos');
+        if (informesRecibidosGuardados) {
+            const listaRecibidos = JSON.parse(informesRecibidosGuardados);
+            
+            // Convertir a formato objeto con ID como clave
+            listaRecibidos.forEach(informe => {
+                if (informe && informe.id) {
+                    informesRecibidos[informe.id] = informe;
+                }
+            });
+            
+            console.log(`Cargados ${listaRecibidos.length} informes recibidos`);
+        }
+    } catch (error) {
+        console.error("Error al cargar informes recibidos:", error);
+    }
+    
+    // Actualizar la interfaz si está disponible
+    const listaInformes = document.getElementById('lista-informes');
+    if (listaInformes) {
+        actualizarListaInformes();
+    }
+}
+
+/**
+ * Crea la estructura básica para la pestaña de documentos
+ */
+function crearEstructuraTabDocumentos() {
+    console.log("Creando estructura para el tab de Documentos");
+    
+    // Obtener el contenedor
+    const tabDocumentos = document.getElementById('tab-Documentos') || document.getElementById('tab-documentos');
+    if (!tabDocumentos) {
+        console.error("Tab Documentos no encontrado");
+        return;
+    }
+    
+    // Crear estructura básica
+    tabDocumentos.innerHTML = `
+        <div class="informes-botones">
+            <button id="btn-ver-informes" class="active">Ver Documentos</button>
+            <button id="btn-crear-informe">Crear Documento</button>
+        </div>
+        
+        <!-- Ver Documentos -->
+        <div id="ver-informes">
+            <div class="filtro-informes">
+                <button id="btn-filtro-todos" class="active">Todos</button>
+                <button id="btn-filtro-informes">Informes</button>
+                <button id="btn-filtro-ordenes">Órdenes</button>
+                <button id="btn-filtro-importantes">Importantes</button>
+                <button id="btn-filtro-archivados">Archivados</button>
+            </div>
+            <div id="lista-informes" class="informes-lista">
+                <!-- Los documentos se cargarán dinámicamente -->
+            </div>
+        </div>
+        
+        <!-- Crear Documento -->
+        <div id="crear-informe" class="d-none">
+            <form id="form-informe">
+                <div class="form-group">
+                    <label for="tipo-informe">Tipo:</label>
+                    <select id="tipo-informe" required>
+                        <option value="normal">Normal</option>
+                        <option value="urgente">Urgente</option>
+                        <option value="orden">Orden</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="destinatario-informe">Destinatario:</label>
+                    <select id="destinatario-informe" required>
+                        <option value="comando">Comando</option>
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="asunto-informe">Asunto:</label>
+                    <input type="text" id="asunto-informe" required>
+                </div>
+                <div class="form-group">
+                    <label for="contenido-informe">Contenido:</label>
+                    <textarea id="contenido-informe" rows="4" required></textarea>
+                </div>
+                <div class="form-group" id="adjunto-container">
+                    <label for="adjunto-informe">Adjuntar archivo:</label>
+                    <div class="d-flex justify-content-between">
+                        <input type="file" id="adjunto-informe" class="form-control" style="width: 75%;">
+                        <div class="d-flex">
+                            <button type="button" id="btn-foto-informe" class="btn-foto-informe" title="Tomar foto">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <button type="button" id="btn-audio-informe" class="btn-audio-informe" title="Grabar audio">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button type="button" id="btn-video-informe" class="btn-video-informe" title="Grabar video">
+                                <i class="fas fa-video"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="preview-adjunto" style="margin-top: 10px; display: none;"></div>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" id="enviar-informe">Enviar</button>
+                    <button type="button" id="cancelar-informe">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    console.log("Estructura básica del tab Documentos creada");
+}
+
+/**
+ * Inicializa los estilos para informes
+ */
+function inicializarEstilosInformes() {
+    // Verificar si ya existe la hoja de estilos
+    if (document.getElementById('estilos-informes')) {
+        return;
+    }
+    
+    // Crear hoja de estilos
+    const style = document.createElement('style');
+    style.id = 'estilos-informes';
+    style.textContent = `
+        /* Estilos para informes */
+        .informes-botones {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .informes-botones button {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .informes-botones button.active {
+            background-color: #e3f2fd;
+            border-color: #90caf9;
+            font-weight: bold;
+        }
+        
+        .filtro-informes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .filtro-informes button {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .filtro-informes button.active {
+            background-color: #e3f2fd;
+            border-color: #90caf9;
+            font-weight: bold;
+        }
+        
+        .informe {
+            border-left: 4px solid #6c757d;
+            background-color: #f8f9fa;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .informe.informe-urgente,
+        .informe[data-prioridad="urgente"] {
+            border-left-color: #f44336;
+            background-color: #fff8f8;
+        }
+        
+        .informe.orden,
+        .informe[data-categoria="orden"] {
+            border-left-color: #ff9800;
+            background-color: #fffaf4;
+        }
+        
+        .informe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .informe-acciones {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .informe-acciones button {
+            background: none;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            color: #555;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Botones multimedia */
+        .btn-foto-informe,
+        .btn-audio-informe,
+        .btn-video-informe {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: none;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        
+        /* Lista de destinatarios */
+        .lista-destinatarios {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            min-height: 40px;
+        }
+        
+        .destinatario-item {
+            background-color: #e9ecef;
+            border-radius: 16px;
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+/**
+ * Inicializa la interfaz de documentos
+ */
+function inicializarInterfazDocumentos() {
+    console.log("Inicializando interfaz de documentos");
+    
+    // Inicializar estilos para documentos, incluyendo documentos urgentes
+    inicializarEstilosInformes();
+    
+    // Obtener referencia a los elementos
+    const listaInformes = document.getElementById('lista-informes');
+    const btnVerInformes = document.getElementById('btn-ver-informes');
+    const btnCrearInforme = document.getElementById('btn-crear-informe');
+    
+    // Limpiar lista de documentos si existe
+    if (listaInformes) {
+        listaInformes.innerHTML = '';
+    }
+    
+    // Actualizar HTML para la estructura mejorada de creación de documentos
+    actualizarHTMLCreacionDocumentos();
+    
+    // Verificar eventos de botones
+    verificarEventosInformes();
+    
+    console.log("Interfaz de documentos inicializada");
+}
+
+/**
+ * Agrega un documento a la lista
+ * @param {Object} documento - Documento a agregar
+ */
+function agregarInforme(documento) {
+    const listaInformes = document.getElementById('lista-informes');
+    if (!listaInformes) {
+        console.error("Lista de documentos no encontrada");
+        return;
+    }
+
+    // Verificar si ya existe el documento en la lista
+    const documentoExistente = document.querySelector(`.informe[data-id="${documento.id}"]`);
+    if (documentoExistente) {
+        console.log(`El documento ya existe en la lista, no se duplica: ${documento.id}`);
+        return;
+    }
+    
+    // Determinar si es un documento propio
+    const idUsuarioActual = (usuarioInfo && usuarioInfo.id) || 
+                           (window.usuarioInfo && window.usuarioInfo.id) ||
+                           (window.MAIRA && window.MAIRA.GestionBatalla && 
+                            window.MAIRA.GestionBatalla.usuarioInfo && 
+                            window.MAIRA.GestionBatalla.usuarioInfo.id);
+    
+    const esPropio = documento.emisor.id === idUsuarioActual;
+
+    // Determinar clase CSS según el tipo y prioridad
+    let claseCSS = "";
+    let iconoTipo = '<i class="fas fa-file-alt"></i>';
+
+    if (documento.prioridad === "urgente") {
+        claseCSS += " informe-urgente";
+    }
+
+    if (documento.categoriaDocumento === "orden") {
+        claseCSS += " orden";
+        iconoTipo = '<i class="fas fa-tasks"></i>';
+    }
+
+    // Agregar clase para informes propios
+    if (esPropio) {
+        claseCSS += " propio";
+    }
+
+    // Agregar clases para importante/archivado si las tiene
+    if (documento.importante) {
+        claseCSS += " importante";
+    }
+
+    if (documento.archivado) {
+        claseCSS += " archivado";
+    }
+
+    // Formato de fecha más legible
+    const fecha = formatearFecha(documento.timestamp);
+
+    // Preparar información sobre destinatario/remitente
+    let infoRemitente = "";
+    if (esPropio) {
+        // Si es propio, mostrar a quién se envió
+        let destinatarioNombre = "Desconocido";
+        
+        if (documento.destinatario === "todos") {
+            destinatarioNombre = "Todos";
+        } else if (documento.destinatario === "comando") {
+            destinatarioNombre = "Comando/Central";
+        } else if (documento.destinatario && typeof documento.destinatario === 'string') {
+            // Buscar nombre de usuario en elementos conectados
+            const elementos = window.MAIRA?.GestionBatalla?.elementosConectados || window.elementosConectados || {};
+            const elemento = elementos[documento.destinatario];
+            if (elemento && elemento.datos) {
+                destinatarioNombre = elemento.datos.usuario || "Desconocido";
+            } else if (elemento) {
+                destinatarioNombre = elemento.usuario || "Desconocido";
+            }
+        }
+        
+        infoRemitente = `Enviado a: ${destinatarioNombre}`;
+    } else {
+        // Si no es propio, mostrar quién lo envió
+        let elementoInfo = "";
+        if (documento.emisor.elemento) {
+            if (documento.emisor.elemento.designacion) {
+                elementoInfo = documento.emisor.elemento.designacion;
+                if (documento.emisor.elemento.dependencia) {
+                    elementoInfo += "/" + documento.emisor.elemento.dependencia;
+                }
+            }
+        }
+        
+        infoRemitente = `De: ${documento.emisor.nombre}${elementoInfo ? ` (${elementoInfo})` : ''}`;
+    }
+
+    // Información sobre adjunto
+    let adjuntoHTML = '';
+    if (documento.tieneAdjunto && documento.adjunto) {
+        const tipoArchivo = documento.adjunto.tipo || 'application/octet-stream';
+        let iconoAdjunto = 'fa-file';
+        
+        // Determinar icono según tipo de archivo
+        if (tipoArchivo.startsWith('image/')) {
+            iconoAdjunto = 'fa-file-image';
+        } else if (tipoArchivo.startsWith('audio/')) {
+            iconoAdjunto = 'fa-file-audio';
+        } else if (tipoArchivo.startsWith('video/')) {
+            iconoAdjunto = 'fa-file-video';
+        } else if (tipoArchivo.includes('pdf')) {
+            iconoAdjunto = 'fa-file-pdf';
+        } else if (tipoArchivo.includes('word') || tipoArchivo.includes('document')) {
+            iconoAdjunto = 'fa-file-word';
+        } else if (tipoArchivo.includes('excel') || tipoArchivo.includes('sheet')) {
+            iconoAdjunto = 'fa-file-excel';
+        } else if (tipoArchivo.includes('zip') || tipoArchivo.includes('compressed')) {
+            iconoAdjunto = 'fa-file-archive';
+        }
+        
+        adjuntoHTML = `
+            <div class="informe-adjunto">
+                <i class="fas ${iconoAdjunto}"></i> 
+                <a href="#" class="ver-adjunto" data-id="${documento.id}">
+                    ${documento.adjunto.nombre} (${formatearTamaño(documento.adjunto.tamaño)})
+                </a>
+            </div>
+        `;
+    }
+
+    // Action buttons 
+    const accionesHTML = `
+        <div class="informe-acciones">
+            <button class="btn-responder" data-id="${documento.id}" title="Responder">
+                <i class="fas fa-reply"></i>
+            </button>
+            ${!esPropio ? `
+            <button class="btn-marcar-leido" data-id="${documento.id}" title="Marcar como leído">
+                <i class="fas fa-check"></i>
+            </button>` : ''}
+            <button class="btn-archivar" data-id="${documento.id}" title="Archivar">
+                <i class="fas fa-archive"></i>
+            </button>
+            <button class="btn-importante" data-id="${documento.id}" title="${documento.importante ? 'Desmarcar importante' : 'Marcar importante'}">
+                <i class="fas fa-star" ${documento.importante ? 'style="color:gold"' : ''}></i>
+            </button>
+        </div>
+    `;
+
+    // Priority indicator
+    const prioridadHTML = documento.prioridad === 'urgente' ? 
+        `<span class="documento-prioridad urgente">URGENTE</span>` : '';
+
+    // Create document HTML element
+    const documentoHTML = `
+        <div class="informe ${claseCSS}" data-id="${documento.id}" data-tipo="${documento.tipo}" data-categoria="${documento.categoriaDocumento}" data-prioridad="${documento.prioridad}" style="${documento.archivado && filtroActual !== 'archivados' ? 'display:none;' : ''}">
+            <div class="informe-header">
+                <div class="informe-tipo">${iconoTipo}</div>
+                <div class="informe-titulo">
+                    <strong>${documento.asunto}</strong> ${prioridadHTML}
+                    <small>${fecha}</small>
+                </div>
+                ${accionesHTML}
+            </div>
+            
+            <div class="informe-remitente">${infoRemitente}</div>
+            
+            <div class="informe-contenido mt-2">${documento.contenido}</div>
+            
+            ${adjuntoHTML}
+            
+            ${documento.posicion ? `
+            <div class="informe-acciones mt-2">
+                <button class="btn-ubicacion" data-lat="${documento.posicion.lat}" data-lng="${documento.posicion.lng}">
+                    <i class="fas fa-map-marker-alt"></i> Ver ubicación
+                </button>
+            </div>` : ''}
+        </div>
+    `;
+
+    // Add to the beginning of the list
+    listaInformes.insertAdjacentHTML('afterbegin', documentoHTML);
+
+    // Configure events for the new document
+    configurarEventosDocumento(documento.id);
+    
+    // Apply special styling for urgent documents
+    if (documento.prioridad === 'urgente') {
+        const elementoDocumento = document.querySelector(`.informe[data-id="${documento.id}"]`);
+        if (elementoDocumento) {
+            // Add class for blinking animation
+            elementoDocumento.classList.add('urgente-parpadeo');
+            
+            // Apply red background and white text styling
+            elementoDocumento.style.backgroundColor = '#ffebee';
+            elementoDocumento.style.borderLeftColor = '#f44336';
+            elementoDocumento.style.borderLeftWidth = '4px';
+        }
+    }
+}
+
+/**
+ * Configura eventos para un documento recién agregado
+ * @param {string} documentoId - ID del documento
+ */
+function configurarEventosDocumento(documentoId) {
+    // Botón de ver ubicación
+    const btnUbicacion = document.querySelector(`.informe[data-id="${documentoId}"] .btn-ubicacion`);
+    if (btnUbicacion) {
+        btnUbicacion.addEventListener('click', function() {
+            const lat = parseFloat(this.getAttribute('data-lat'));
+            const lng = parseFloat(this.getAttribute('data-lng'));
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                    MAIRA.Utils.mostrarNotificacion("Coordenadas inválidas", "error");
+                } else {
+                    alert("Coordenadas inválidas");
+                }
+                return;
+            }
+            
+            if (window.mapa) {
+                window.mapa.setView([lat, lng], 15);
+                
+                // Crear un marcador temporal
+                const tempMarker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon temp-marker',
+                        html: '<div class="temp-marker-pin"></div>',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    })
+                }).addTo(window.mapa);
+                
+                // Añadir popup con información
+                tempMarker.bindPopup(`<strong>Ubicación del documento</strong><br>${document.querySelector(`.informe[data-id="${documentoId}"] .informe-titulo strong`).textContent}`).openPopup();
+                
+                // Eliminar el marcador después de 30 segundos
+                setTimeout(() => {
+                    if (window.mapa && window.mapa.hasLayer(tempMarker)) {
+                        window.mapa.removeLayer(tempMarker);
+                    }
+                }, 30000);
+            }
+        });
+    }
+    
+    // Botón para marcar como leído
+    const btnMarcarLeido = document.querySelector(`.informe[data-id="${documentoId}"] .btn-marcar-leido`);
+    if (btnMarcarLeido) {
+        btnMarcarLeido.addEventListener('click', function() {
+            const socketActual = socket || window.socket || window.MAIRA?.GestionBatalla?.socket;
+            if (socketActual && socketActual.connected) {
+                socketActual.emit('informeLeido', { informeId: documentoId });
+                
+                // Marcar visualmente como leído
+                document.querySelector(`.informe[data-id="${documentoId}"]`).classList.add('leido');
+                this.style.display = 'none'; // Ocultar botón
+            }
+        });
+    }
+    
+    // Botón para responder
+    const btnResponder = document.querySelector(`.informe[data-id="${documentoId}"] .btn-responder`);
+    if (btnResponder) {
+        btnResponder.addEventListener('click', function() {
+            prepararRespuestaDocumento(documentoId);
+        });
+    }
+    
+    // Botón para archivar
+    const btnArchivar = document.querySelector(`.informe[data-id="${documentoId}"] .btn-archivar`);
+    if (btnArchivar) {
+        btnArchivar.addEventListener('click', function() {
+            archivarDocumento(documentoId);
+        });
+    }
+    
+    // Botón para marcar como importante
+    const btnImportante = document.querySelector(`.informe[data-id="${documentoId}"] .btn-importante`);
+    if (btnImportante) {
+        btnImportante.addEventListener('click', function() {
+            toggleImportanteDocumento(documentoId);
+        });
+    }
+    
+    // Enlace para ver adjunto
+    const verAdjunto = document.querySelector(`.informe[data-id="${documentoId}"] .ver-adjunto`);
+    if (verAdjunto) {
+        verAdjunto.addEventListener('click', function(e) {
+            e.preventDefault();
+            mostrarAdjuntoDocumento(documentoId);
+        });
+    }
+    
+    // Hacer que el documento completo sea interactivo
+    const documento = document.querySelector(`.informe[data-id="${documentoId}"]`);
+    if (documento) {
+        documento.addEventListener('click', function(e) {
+            // Solo abrir el documento si el clic no fue en un botón o enlace
+            if (!e.target.closest('button') && !e.target.closest('a')) {
+                mostrarDetallesDocumento(documentoId);
+            }
+        });
+    }
+}
+
+/**
+ * Prepara el formulario para responder a un documento
+ * @param {string} documentoId - ID del documento a responder
+ */
+function prepararRespuestaDocumento(documentoId) {
+    // Obtener documento original
+    const documentoElement = document.querySelector(`.informe[data-id="${documentoId}"]`);
+    if (!documentoElement) return;
+    
+    // Obtener datos básicos
+    const asuntoOriginal = documentoElement.querySelector('.informe-titulo strong').textContent;
+    const remitente = documentoElement.querySelector('.informe-remitente').textContent.replace('De:', '').trim();
+    const categoriaOriginal = documentoElement.getAttribute('data-categoria');
+    
+    // Cambiar a la pestaña de crear documento
+    const btnCrearInforme = document.getElementById('btn-crear-informe');
+    if (btnCrearInforme) {
+        btnCrearInforme.click();
+    }
+    
+    // Preparar formulario para respuesta
+    let formulario;
+    
+    // Buscar en diferentes formatos de formulario según estructura
+    if (document.getElementById('formulario-documento')) {
+        formulario = document.getElementById('formulario-documento');
+        
+        // Seleccionar tipo de documento adecuado en el selector mejorado
+        const tipoDocumento = document.getElementById('tipo-documento');
+        if (tipoDocumento) {
+            // Determinar el valor adecuado según la categoría original
+            if (categoriaOriginal === 'orden') {
+                // Seleccionar una opción de tipo orden
+                tipoDocumento.value = 'operaciones'; // Valor por defecto para responder a una orden
+            } else {
+                // Seleccionar una opción de tipo informe
+                tipoDocumento.value = 'situacion'; // Valor por defecto para responder a un informe
+            }
+        }
+        
+    } else {
+        // Formulario clásico (sin mejorar)
+        formulario = document.getElementById('form-informe');
+    }
+    
+    if (formulario) {
+        const asuntoInforme = formulario.querySelector('#asunto-informe');
+        const contenidoInforme = formulario.querySelector('#contenido-informe');
+        
+        if (asuntoInforme && contenidoInforme) {
+            // Verificar si el documento original es de otro usuario para responder
+            const esPropio = documentoElement.classList.contains('propio');
+            
+            if (!esPropio) {
+                // Si no es propio, responder al emisor original
+                
+                // Buscar el documento en memoria para obtener el ID del emisor
+                const documento = buscarInformePorId(documentoId);
+                if (documento && documento.emisor && documento.emisor.id) {
+                    // En formulario moderno, seleccionar el destinatario específico
+                    if (document.getElementById('destino-todos')) {
+                        // Desmarcar opciones globales
+                        if (document.getElementById('destino-todos')) {
+                            document.getElementById('destino-todos').checked = false;
+                        }
+                        if (document.getElementById('destino-comando')) {
+                            document.getElementById('destino-comando').checked = false;
+                        }
+                        
+                        // Buscar y marcar el destinatario específico
+                        const destinatarioCheckbox = document.querySelector(`.destinatario-checkbox[data-id="${documento.emisor.id}"] input[type="checkbox"]`);
+                        if (destinatarioCheckbox) {
+                            destinatarioCheckbox.checked = true;
+                            // Actualizar campo oculto
+                            actualizarDestinatariosSeleccionados();
+                        }
+                    } 
+                    // En formulario clásico, seleccionar en el dropdown
+                    else if (document.getElementById('destinatario-informe')) {
+                        // Buscar opción con el ID adecuado
+                        const option = document.querySelector(`#destinatario-informe option[value="${documento.emisor.id}"]`);
+                        if (option) {
+                            document.getElementById('destinatario-informe').value = documento.emisor.id;
+                        } else {
+                            // Si no existe la opción, intentar crearla
+                            const select = document.getElementById('destinatario-informe');
+                            const newOption = document.createElement('option');
+                            newOption.value = documento.emisor.id;
+                            newOption.textContent = documento.emisor.nombre;
+                            select.appendChild(newOption);
+                            select.value = documento.emisor.id;
+                        }
+                    }
+                }
+            }
+            
+            // Preparar asunto como respuesta
+            if (!asuntoOriginal.startsWith('Re:')) {
+                asuntoInforme.value = 'Re: ' + asuntoOriginal;
+            } else {
+                asuntoInforme.value = asuntoOriginal;
+            }
+            
+            // Añadir cita del mensaje original
+            const contenidoOriginal = documentoElement.querySelector('.informe-contenido').innerHTML;
+            contenidoInforme.value = '\n\n-------- Documento Original --------\n' + 
+                contenidoOriginal.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
+            
+            // Enfocar al inicio para que el usuario escriba su respuesta
+            contenidoInforme.setSelectionRange(0, 0);
+            contenidoInforme.focus();
+        }
+    }
+}
+
+/**
+ * Muestra los detalles de un documento en un modal
+ * @param {string} documentoId - ID del documento
+ */
+function mostrarDetallesDocumento(documentoId) {
+    // Buscar datos del documento
+    const documento = buscarInformePorId(documentoId);
+    if (!documento) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("No se pudo encontrar el documento", "error");
+        } else {
+            alert("No se pudo encontrar el documento");
+        }
+        return;
+    }
+    
+    // Crear modal para ver los detalles
+    const modal = document.createElement('div');
+    modal.className = 'modal-detalles-documento';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modal.style.zIndex = '10000';
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    
+    // Contenido del modal
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    modalContent.style.backgroundColor = 'white';
+    modalContent.style.borderRadius = '8px';
+    modalContent.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+    modalContent.style.padding = '20px';
+    modalContent.style.maxWidth = '800px';
+    modalContent.style.width = '90%';
+    modalContent.style.maxHeight = '80vh';
+    modalContent.style.overflow = 'auto';
+    
+    // Determinar el título según el tipo
+    let tipoTexto = "Informe";
+    let claseHeader = "";
+    
+    if (documento.prioridad === "urgente") {
+        claseHeader = "text-danger";
+    }
+    
+    if (documento.categoriaDocumento === "orden") {
+        tipoTexto = "Orden";
+        if (documento.prioridad !== "urgente") {
+            claseHeader = "text-warning";
+        }
+    }
+    
+    // Formatear fecha
+    const fecha = formatearFecha(documento.timestamp);
+    
+    // Información del emisor
+    let infoEmisor = "";
+    if (documento.emisor.elemento) {
+        if (documento.emisor.elemento.designacion) {
+            infoEmisor = documento.emisor.elemento.designacion;
+            if (documento.emisor.elemento.dependencia) {
+                infoEmisor += "/" + documento.emisor.elemento.dependencia;
+            }
+        }
+    }
+    
+    // Información del destinatario
+    let infoDestinatario = "";
+    if (documento.destinatario === "todos") {
+        infoDestinatario = "Todos los participantes";
+    } else if (documento.destinatario === "comando") {
+        infoDestinatario = "Comando/Central";
+    } else if (typeof documento.destinatario === 'string') {
+        // Buscar nombre del destinatario
+        const elementos = window.MAIRA?.GestionBatalla?.elementosConectados || window.elementosConectados || {};
+        const elemento = elementos[documento.destinatario];
+        if (elemento && elemento.datos) {
+            infoDestinatario = elemento.datos.usuario || "Desconocido";
+            
+            // Agregar info del elemento si disponible
+            if (elemento.datos.elemento && elemento.datos.elemento.designacion) {
+                infoDestinatario += ` (${elemento.datos.elemento.designacion}`;
+                if (elemento.datos.elemento.dependencia) {
+                    infoDestinatario += `/${elemento.datos.elemento.dependencia}`;
+                }
+                infoDestinatario += ")";
+            }
+        } else if (elemento) {
+            infoDestinatario = elemento.usuario || "Desconocido";
+        } else {
+            infoDestinatario = "Usuario específico";
+        }
+    }
+    
+    // Información de adjunto
+    let adjuntoHTML = '';
+    if (documento.tieneAdjunto && documento.adjunto) {
+        const tipoArchivo = documento.adjunto.tipo || 'application/octet-stream';
+        let iconoAdjunto = 'fa-file';
+        
+        // Determinar icono según tipo de archivo
+        if (tipoArchivo.startsWith('image/')) {
+            iconoAdjunto = 'fa-file-image';
+        } else if (tipoArchivo.startsWith('audio/')) {
+            iconoAdjunto = 'fa-file-audio';
+        } else if (tipoArchivo.startsWith('video/')) {
+            iconoAdjunto = 'fa-file-video';
+        } else if (tipoArchivo.includes('pdf')) {
+            iconoAdjunto = 'fa-file-pdf';
+        } else if (tipoArchivo.includes('word') || tipoArchivo.includes('document')) {
+            iconoAdjunto = 'fa-file-word';
+        } else if (tipoArchivo.includes('excel') || tipoArchivo.includes('sheet')) {
+            iconoAdjunto = 'fa-file-excel';
+        } else if (tipoArchivo.includes('zip') || tipoArchivo.includes('compressed')) {
+            iconoAdjunto = 'fa-file-archive';
+        }
+        
+        adjuntoHTML = `
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Archivo Adjunto</h5>
+                </div>
+                <div class="card-body d-flex align-items-center">
+                    <i class="fas ${iconoAdjunto} fa-2x mr-3"></i>
+                    <div>
+                        <div>${documento.adjunto.nombre}</div>
+                        <div class="text-muted">${formatearTamaño(documento.adjunto.tamaño)}</div>
+                    </div>
+                    <button class="btn btn-primary ml-auto" onclick="MAIRA.Informes.mostrarAdjuntoDocumento('${documento.id}')">
+                        Ver Adjunto
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Información de posición
+    let posicionHTML = '';
+    if (documento.posicion && documento.posicion.lat && documento.posicion.lng) {
+        posicionHTML = `
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Ubicación</h5>
+                </div>
+                <div class="card-body">
+                    <p>El documento incluye una ubicación geográfica.</p>
+                    <button class="btn btn-info" onclick="MAIRA.Informes.centrarEnPosicionDocumento('${documento.id}')">
+                        <i class="fas fa-map-marker-alt"></i> Ver en el mapa
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    // HTML del modal
+    modalContent.innerHTML = `
+        <div class="modal-header ${claseHeader}">
+            <h4>${documento.prioridad === 'urgente' ? 'URGENTE: ' : ''}${tipoTexto}: ${documento.asunto}</h4>
+            <button type="button" class="close" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>De:</strong> ${documento.emisor.nombre} ${infoEmisor ? `(${infoEmisor})` : ''}
+                </div>
+                <div class="col-md-6">
+                    <strong>Para:</strong> ${infoDestinatario}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>Fecha:</strong> ${fecha}
+                </div>
+                <div class="col-md-6">
+                    <strong>Estado:</strong> 
+                    <span class="badge ${documento.leido ? 'badge-success' : 'badge-warning'}">
+                        ${documento.leido ? 'Leído' : 'No leído'}
+                    </span>
+                    ${documento.importante ? '<span class="badge badge-warning ml-2">Importante</span>' : ''}
+                    ${documento.archivado ? '<span class="badge badge-secondary ml-2">Archivado</span>' : ''}
+                </div>
+            </div>
+            <div class="contenido-documento p-3 border rounded bg-light">
+                ${documento.contenido.replace(/\n/g, '<br>')}
+            </div>
+            ${adjuntoHTML}
+            ${posicionHTML}
+        </div>
+        <div class="modal-footer">
+            <div class="btn-group mr-auto">
+                <button class="btn btn-outline-secondary btn-sm" onclick="MAIRA.Informes.prepararRespuestaDocumento('${documento.id}')">
+                    <i class="fas fa-reply"></i> Responder
+                </button>
+                ${!documento.archivado ? `
+                <button class="btn btn-outline-secondary btn-sm" onclick="MAIRA.Informes.archivarDocumento('${documento.id}'); document.querySelector('.modal-detalles-documento .close').click()">
+                    <i class="fas fa-archive"></i> Archivar
+                </button>` : ''}
+                <button class="btn btn-outline-${documento.importante ? 'warning' : 'secondary'} btn-sm" onclick="MAIRA.Informes.toggleImportanteDocumento('${documento.id}')">
+                    <i class="fas fa-star"></i> ${documento.importante ? 'Quitar importancia' : 'Marcar importante'}
+                </button>
+            </div>
+            <button class="btn btn-primary" onclick="document.querySelector('.modal-detalles-documento .close').click()">
+                Cerrar
+            </button>
+        </div>
+    `;
+    
+    // Agregar modal al DOM
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+    
+    // Configurar evento para cerrar
+    const btnCerrar = modal.querySelector('.close');
+    if (btnCerrar) {
+        btnCerrar.addEventListener('click', function() {
+            document.body.removeChild(modal);
+        });
+    }
+    
+    // Permitir cerrar con Escape
+    document.addEventListener('keydown', function cerrarConEscape(e) {
+        if (e.key === 'Escape') {
+            if (document.body.contains(modal)) {
+                document.body.removeChild(modal);
+            }
+            document.removeEventListener('keydown', cerrarConEscape);
+        }
+    });
+    
+    // Si el documento no está leído, marcarlo ahora
+    if (!documento.leido && socket && socket.connected && documento.emisor.id !== usuarioInfo?.id) {
+        socket.emit('informeLeido', { informeId: documento.id });
+        
+        // Actualizar visualmente
+        const documentoElement = document.querySelector(`.informe[data-id="${documento.id}"]`);
+        if (documentoElement) {
+            documentoElement.classList.add('leido');
+        }
+        
+        // Actualizar en memoria
+        documento.leido = true;
+        guardarInformesLocalmente();
+    }
+}
+
+/**
+ * Muestra el archivo adjunto de un documento
+ * @param {string} documentoId - ID del documento
+ */
+function mostrarAdjuntoDocumento(documentoId) {
+    // Buscar el documento en registros existentes
+    let documentoData = buscarInformePorId(documentoId);
+    
+    // Si no se encontró o no tiene adjunto
+    if (!documentoData || !documentoData.adjunto) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("No se pudo acceder al archivo adjunto", "error");
+        } else {
+            alert("No se pudo acceder al archivo adjunto");
+        }
+        return;
+    }
+    
+    // Mostrar el visor de adjuntos
+    mostrarVisorAdjunto(documentoData);
+}
+
+/**
+ * Muestra un visor para el archivo adjunto
+ * @param {Object} documento - Documento con el adjunto
+ */
+function mostrarVisorAdjunto(documento) {
+    if (!documento || !documento.adjunto) return;
+    
+    const adjunto = documento.adjunto;
+    const tipoArchivo = adjunto.tipo || 'application/octet-stream';
+    const tipoBase = tipoArchivo.split('/')[0];  // image, video, audio, etc.
+    
+    // Crear modal para visualizar el adjunto
+    const modalVisor = document.createElement('div');
+    modalVisor.className = 'modal-visor-adjunto';
+    modalVisor.style.position = 'fixed';
+    modalVisor.style.top = '0';
+    modalVisor.style.left = '0';
+    modalVisor.style.width = '100%';
+    modalVisor.style.height = '100%';
+    modalVisor.style.backgroundColor = 'rgba(0,0,0,0.85)';
+    modalVisor.style.zIndex = '10000';
+    modalVisor.style.display = 'flex';
+    modalVisor.style.flexDirection = 'column';
+    
+    // Cabecera con información y botones
+    const header = document.createElement('div');
+    header.style.width = '100%';
+    header.style.padding = '15px';
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    header.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    header.style.color = 'white';
+    
+    // Nombre del archivo e información
+    const infoContainer = document.createElement('div');
+    infoContainer.style.display = 'flex';
+    infoContainer.style.flexDirection = 'column';
+    
+    const nombreArchivo = document.createElement('h3');
+    nombreArchivo.textContent = adjunto.nombre;
+    nombreArchivo.style.margin = '0';
+    nombreArchivo.style.padding = '0';
+    nombreArchivo.style.fontSize = '18px';
+    
+    const infoArchivo = document.createElement('span');
+    infoArchivo.textContent = `${tipoArchivo} · ${formatearTamaño(adjunto.tamaño || 0)}`;
+    infoArchivo.style.fontSize = '12px';
+    infoArchivo.style.opacity = '0.8';
+    
+    infoContainer.appendChild(nombreArchivo);
+    infoContainer.appendChild(infoArchivo);
+    
+    // Botones de acción
+    const botones = document.createElement('div');
+    
+    // Botón para descargar
+    const btnDescargar = document.createElement('button');
+    btnDescargar.innerHTML = '<i class="fas fa-download"></i> Descargar';
+    btnDescargar.style.marginRight = '10px';
+    btnDescargar.style.padding = '8px 15px';
+    btnDescargar.style.backgroundColor = '#4caf50';
+    btnDescargar.style.color = 'white';
+    btnDescargar.style.border = 'none';
+    btnDescargar.style.borderRadius = '4px';
+    btnDescargar.style.cursor = 'pointer';
+    
+    // Botón para cerrar
+    const btnCerrar = document.createElement('button');
+    btnCerrar.innerHTML = '<i class="fas fa-times"></i>';
+    btnCerrar.style.padding = '8px 15px';
+    btnCerrar.style.backgroundColor = '#f44336';
+    btnCerrar.style.color = 'white';
+    btnCerrar.style.border = 'none';
+    btnCerrar.style.borderRadius = '4px';
+    btnCerrar.style.cursor = 'pointer';
+    
+    botones.appendChild(btnDescargar);
+    botones.appendChild(btnCerrar);
+    
+    header.appendChild(infoContainer);
+    header.appendChild(botones);
+    
+    // Contenedor principal para el contenido
+    const contenedorPrincipal = document.createElement('div');
+    contenedorPrincipal.style.flex = '1';
+    contenedorPrincipal.style.display = 'flex';
+    contenedorPrincipal.style.alignItems = 'center';
+    contenedorPrincipal.style.justifyContent = 'center';
+    contenedorPrincipal.style.overflow = 'auto';
+    contenedorPrincipal.style.padding = '20px';
+    
+    // Contenido según tipo de archivo
+    const contenido = document.createElement('div');
+    contenido.style.maxWidth = '90%';
+    contenido.style.maxHeight = 'calc(100% - 40px)';
+    contenido.style.display = 'flex';
+    contenido.style.flexDirection = 'column';
+    contenido.style.alignItems = 'center';
+    contenido.style.justifyContent = 'center';
+    
+    // Preparar contenido en base al tipo
+    if (tipoBase === 'image') {
+        // Es una imagen
+        const imagen = document.createElement('img');
+        imagen.src = adjunto.datos;
+        imagen.style.maxWidth = '100%';
+        imagen.style.maxHeight = 'calc(100vh - 120px)';
+        imagen.style.objectFit = 'contain';
+        imagen.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+        
+        // Añadir controles de zoom
+        const controles = document.createElement('div');
+        controles.style.marginTop = '10px';
+        controles.style.display = 'flex';
+        controles.style.gap = '10px';
+        
+        const btnZoomIn = document.createElement('button');
+        btnZoomIn.innerHTML = '<i class="fas fa-search-plus"></i>';
+        btnZoomIn.style.padding = '5px 10px';
+        btnZoomIn.style.backgroundColor = '#555';
+        btnZoomIn.style.color = 'white';
+        btnZoomIn.style.border = 'none';
+        btnZoomIn.style.borderRadius = '4px';
+        
+        const btnZoomOut = document.createElement('button');
+        btnZoomOut.innerHTML = '<i class="fas fa-search-minus"></i>';
+        btnZoomOut.style.padding = '5px 10px';
+        btnZoomOut.style.backgroundColor = '#555';
+        btnZoomOut.style.color = 'white';
+        btnZoomOut.style.border = 'none';
+        btnZoomOut.style.borderRadius = '4px';
+        
+        const btnRotate = document.createElement('button');
+        btnRotate.innerHTML = '<i class="fas fa-redo"></i>';
+        btnRotate.style.padding = '5px 10px';
+        btnRotate.style.backgroundColor = '#555';
+        btnRotate.style.color = 'white';
+        btnRotate.style.border = 'none';
+        btnRotate.style.borderRadius = '4px';
+        
+        controles.appendChild(btnZoomIn);
+        controles.appendChild(btnZoomOut);
+        controles.appendChild(btnRotate);
+        
+        // Variables para zoom y rotación
+        let zoomLevel = 1;
+        let rotation = 0;
+        
+        btnZoomIn.addEventListener('click', () => {
+            zoomLevel = Math.min(zoomLevel + 0.25, 3);
+            imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+        });
+        
+        btnZoomOut.addEventListener('click', () => {
+            zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+            imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+        });
+        
+        btnRotate.addEventListener('click', () => {
+            rotation = (rotation + 90) % 360;
+            imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
+        });
+        
+        contenido.appendChild(imagen);
+        contenido.appendChild(controles);
+    } else if (tipoBase === 'audio') {
+        // Es audio
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = adjunto.datos;
+        audio.style.width = '100%';
+        audio.style.minWidth = '300px';
+        
+        // Añadir elemento de visualización de onda de audio
+        const waveformContainer = document.createElement('div');
+        waveformContainer.style.width = '100%';
+        waveformContainer.style.height = '60px';
+        waveformContainer.style.backgroundColor = '#f0f0f0';
+        waveformContainer.style.borderRadius = '4px';
+        waveformContainer.style.marginTop = '10px';
+        
+        contenido.appendChild(audio);
+        contenido.appendChild(waveformContainer);
+    } else if (tipoBase === 'video') {
+        // Es video
+        const video = document.createElement('video');
+        video.controls = true;
+        video.src = adjunto.datos;
+        video.style.maxWidth = '100%';
+        video.style.maxHeight = 'calc(100vh - 150px)';
+        video.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+        
+        // Añadir controles personalizados si lo deseas
+        const videoControles = document.createElement('div');
+        videoControles.style.marginTop = '10px';
+        videoControles.style.width = '100%';
+        videoControles.style.display = 'flex';
+        videoControles.style.justifyContent = 'center';
+        videoControles.style.gap = '10px';
+        
+        contenido.appendChild(video);
+        contenido.appendChild(videoControles);
+        
+        // Reproducir automáticamente
+        setTimeout(() => {
+            video.play().catch(err => {
+                console.log("Reproducción automática bloqueada por el navegador:", err);
+            });
+        }, 100);
+    } else {
+        // Tipo no soportado para visualización directa
+        const mensaje = document.createElement('div');
+        mensaje.style.padding = '30px';
+        mensaje.style.backgroundColor = 'white';
+        mensaje.style.borderRadius = '8px';
+        mensaje.style.textAlign = 'center';
+        
+        mensaje.innerHTML = `
+            <i class="fas fa-file" style="font-size: 48px; color: #607d8b; margin-bottom: 20px;"></i>
+            <h3>Tipo de archivo no soportado para visualización</h3>
+            <p>Utilice el botón de descarga para guardar el archivo.</p>
+            <p>Tipo: ${tipoArchivo}</p>
+            <p>Tamaño: ${formatearTamaño(adjunto.tamaño || 0)}</p>
+        `;
+        
+        contenido.appendChild(mensaje);
+    }
+    
+    contenedorPrincipal.appendChild(contenido);
+    
+    // Añadir elementos al modal
+    modalVisor.appendChild(header);
+    modalVisor.appendChild(contenedorPrincipal);
+    
+    // Añadir modal al body
+    document.body.appendChild(modalVisor);
+    
+    // Configurar eventos
+    btnCerrar.addEventListener('click', function() {
+        if (document.body.contains(modalVisor)) {
+            document.body.removeChild(modalVisor);
+        }
+    });
+    
+    btnDescargar.addEventListener('click', function() {
+        descargarAdjunto(adjunto);
+    });
+    
+    // Permitir cerrar con Escape
+    document.addEventListener('keydown', function cerrarConEscape(e) {
+        if (e.key === 'Escape') {
+            if (document.body.contains(modalVisor)) {
+                document.body.removeChild(modalVisor);
+            }
+            document.removeEventListener('keydown', cerrarConEscape);
+        }
+    });
+}
+
+/**
+ * Descarga un archivo adjunto
+ * @param {Object} adjunto - Información del adjunto
+ */
+function descargarAdjunto(adjunto) {
+    if (!adjunto || !adjunto.datos) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("No se puede descargar el archivo", "error");
+        } else {
+            alert("No se puede descargar el archivo");
+        }
+        return;
+    }
+    
+    // Crear elemento de enlace temporal
+    const enlace = document.createElement('a');
+    enlace.href = adjunto.datos;
+    enlace.download = adjunto.nombre || 'archivo_adjunto';
+    
+    // Añadir al DOM, simular clic y eliminar
+    document.body.appendChild(enlace);
+    enlace.click();
+    document.body.removeChild(enlace);
+    
+    if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+        MAIRA.Utils.mostrarNotificacion("Descarga iniciada", "success");
+    }
+}
+
+/**
+ * Centra el mapa en la posición de un documento
+ * @param {string} documentoId - ID del documento
+ */
+function centrarEnPosicionDocumento(documentoId) {
+    // Buscar el documento
+    const documento = buscarInformePorId(documentoId);
+    if (!documento || !documento.posicion || !documento.posicion.lat || !documento.posicion.lng) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("El documento no tiene coordenadas válidas", "error");
+        } else {
+            alert("El documento no tiene coordenadas válidas");
+        }
+        return;
+    }
+    
+    // Verificar que existe el mapa
+    if (!window.mapa) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("El mapa no está disponible", "error");
+        } else {
+            alert("El mapa no está disponible");
+        }
+        return;
+    }
+    
+    // Centrar mapa en la posición
+    window.mapa.setView([documento.posicion.lat, documento.posicion.lng], 15);
+    
+    // Crear un marcador temporal
+    const tempMarker = L.marker([documento.posicion.lat, documento.posicion.lng], {
+        icon: L.divIcon({
+            className: 'custom-div-icon documento-marker',
+            html: '<div class="documento-marker-pin"></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        })
+    }).addTo(window.mapa);
+    
+    // Añadir popup con información
+    tempMarker.bindPopup(`
+        <strong>${documento.categoriaDocumento === 'orden' ? 'Orden' : 'Informe'}: ${documento.asunto}</strong>
+        <br>
+        <small>De: ${documento.emisor.nombre}</small>
+        <br>
+        <small>Fecha: ${formatearFecha(documento.timestamp)}</small>
+    `).openPopup();
+    
+    // Eliminar el marcador después de 60 segundos
+    setTimeout(() => {
+        if (window.mapa && window.mapa.hasLayer(tempMarker)) {
+            window.mapa.removeLayer(tempMarker);
+        }
+    }, 60000);
+    
+    // Si hay un modal abierto, cerrarlo
+    const modal = document.querySelector('.modal-detalles-documento');
+    if (modal) {
+        document.body.removeChild(modal);
+    }
+}
+
+/**
+ * Archiva un documento
+ * @param {string} documentoId - ID del documento a archivar
+ */
+function archivarDocumento(documentoId) {
+    const documentoElement = document.querySelector(`.informe[data-id="${documentoId}"]`);
+    if (!documentoElement) return;
+
+    // Marcar como archivado visualmente
+    documentoElement.classList.add('archivado');
+
+    // Si el filtro actual no es 'archivados', ocultarlo
+    if (filtroActual !== 'archivados') {
+        documentoElement.style.display = 'none';
+    }
+
+    // Actualizar en memoria
+    if (informesRecibidos[documentoId]) {
+        informesRecibidos[documentoId].archivado = true;
+    } else if (informesEnviados[documentoId]) {
+        informesEnviados[documentoId].archivado = true;
+    }
+
+    // Guardar cambios en localStorage
+    guardarInformesLocalmente();
+
+    // Notificar al usuario
+    if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+        MAIRA.Utils.mostrarNotificacion("Documento archivado correctamente", "success");
+    }
+}
+
+/**
+ * Toggle importante para un documento
+ * @param {string} documentoId - ID del documento
+ */
+function toggleImportanteDocumento(documentoId) {
+    const documentoElement = document.querySelector(`.informe[data-id="${documentoId}"]`);
+    if (!documentoElement) return;
+
+    // Determinar si está marcado como importante
+    const esImportante = documentoElement.classList.contains('importante');
+
+    // Cambiar estado
+    if (esImportante) {
+        documentoElement.classList.remove('importante');
+        
+        // Cambiar icono de estrella
+        const iconoEstrella = documentoElement.querySelector('.btn-importante i');
+        if (iconoEstrella) {
+            iconoEstrella.style.color = '';
+        }
+        
+        // Notificar
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Documento desmarcado como importante", "info");
+        }
+    } else {
+        documentoElement.classList.add('importante');
+        
+        // Cambiar icono de estrella
+        const iconoEstrella = documentoElement.querySelector('.btn-importante i');
+        if (iconoEstrella) {
+            iconoEstrella.style.color = 'gold';
+        }
+        
+        // Notificar
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Documento marcado como importante", "success");
+        }
+    }
+
+    // Actualizar en memoria
+    if (informesRecibidos[documentoId]) {
+        informesRecibidos[documentoId].importante = !esImportante;
+    } else if (informesEnviados[documentoId]) {
+        informesEnviados[documentoId].importante = !esImportante;
+    }
+
+    // Guardar cambios en localStorage
+    guardarInformesLocalmente();
+}
+
+
+
+/**
+ * Captura una foto usando la cámara
+ */
+function capturarFoto() {
+    // Verificar soporte de getUserMedia
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta acceso a la cámara", "error");
+        } else {
+            alert("Tu navegador no soporta acceso a la cámara");
+        }
+        return;
+    }
+    
+    // Crear elementos para la captura
+    const modalCaptura = document.createElement('div');
+    modalCaptura.className = 'modal-captura-multimedia';
+    modalCaptura.style.position = 'fixed';
+    modalCaptura.style.top = '0';
+    modalCaptura.style.left = '0';
+    modalCaptura.style.width = '100%';
+    modalCaptura.style.height = '100%';
+    modalCaptura.style.backgroundColor = 'rgba(0,0,0,0.9)';
+    modalCaptura.style.zIndex = '10000';
+    modalCaptura.style.display = 'flex';
+    modalCaptura.style.flexDirection = 'column';
+    modalCaptura.style.alignItems = 'center';
+    modalCaptura.style.justifyContent = 'center';
+    
+    modalCaptura.innerHTML = `
+        <div style="text-align: center; color: white; margin-bottom: 15px;">
+            <h3>Capturar foto</h3>
+        </div>
+        <video id="camera-preview" style="max-width: 90%; max-height: 60vh; background: #000; border: 3px solid #fff;" autoplay></video>
+        <canvas id="photo-canvas" style="display: none;"></canvas>
+        <div style="margin-top: 20px;">
+            <button id="btn-capturar" class="btn btn-primary mx-2">
+                <i class="fas fa-camera"></i> Capturar
+            </button>
+            <button id="btn-cambiar-camara" class="btn btn-info mx-2">
+                <i class="fas fa-sync"></i> Cambiar cámara
+            </button>
+            <button id="btn-cancelar-captura" class="btn btn-danger mx-2">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(modalCaptura);
+    
+    // Variables para la captura
+    let stream = null;
+    let facingMode = 'environment'; // Comenzar con cámara trasera en móviles
+    
+    // Función para iniciar la cámara
+    function iniciarCamara() {
+        const constraints = {
+            video: {
+                facingMode: facingMode
+            }
+        };
+        
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(videoStream) {
+                stream = videoStream;
+                const video = document.getElementById('camera-preview');
+                video.srcObject = stream;
+            })
+            .catch(function(error) {
+                console.error("Error accediendo a la cámara:", error);
+                if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                    MAIRA.Utils.mostrarNotificacion("Error al acceder a la cámara: " + error.message, "error");
+                } else {
+                    alert("Error al acceder a la cámara: " + error.message);
+                }
+                cerrarModalCaptura();
+            });
+    }
+    
+    // Función para cambiar de cámara
+    function cambiarCamara() {
+        if (stream) {
+            // Detener stream actual
+            stream.getTracks().forEach(track => track.stop());
+            
+            // Cambiar modo
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
+            
+            // Reiniciar cámara
+            iniciarCamara();
+        }
+    }
+    
+    // Función para capturar foto
+    function capturar() {
+        const video = document.getElementById('camera-preview');
+        const canvas = document.getElementById('photo-canvas');
+        
+        // Configurar canvas con dimensiones del video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Dibujar frame actual del video en el canvas
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convertir a data URL (formato JPEG)
+        const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Detener stream
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        
+        // Cerrar modal
+        cerrarModalCaptura();
+        
+        // Crear archivo desde dataURL
+        fetch(dataURL)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], `foto_${new Date().toISOString().replace(/:/g, '-')}.jpg`, { type: 'image/jpeg' });
+                
+                // Asignar al input de archivo y disparar evento change
+                const fileInput = document.getElementById('adjunto-informe');
+                
+                // Crear un DataTransfer para simular la selección de archivo
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                
+                // Disparar evento change para actualizar la previsualización
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+            }).catch(error => {
+                console.error("Error procesando la imagen:", error);
+                if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                    MAIRA.Utils.mostrarNotificacion("Error al procesar la imagen", "error");
+                } else {
+                    alert("Error al procesar la imagen");
+                }
+            });
+    }
+    
+    // Función para cerrar el modal
+    function cerrarModalCaptura() {
+        // Detener stream si existe
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        
+        // Eliminar modal
+        if (document.body.contains(modalCaptura)) {
+            document.body.removeChild(modalCaptura);
+        }
+    }
+    
+    // Configurar eventos
+    iniciarCamara();
+    
+    document.getElementById('btn-capturar').addEventListener('click', capturar);
+    document.getElementById('btn-cambiar-camara').addEventListener('click', cambiarCamara);
+    document.getElementById('btn-cancelar-captura').addEventListener('click', cerrarModalCaptura);
+    
+    // Permitir cerrar con Escape
+    document.addEventListener('keydown', function cerrarConEscape(e) {
+        if (e.key === 'Escape') {
+            cerrarModalCaptura();
+            document.removeEventListener('keydown', cerrarConEscape);
+        }
+    });
+}
+
+/**
+ * Graba audio usando el micrófono
+ */
+function grabarAudio() {
+    // Verificar soporte de getUserMedia y MediaRecorder
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta grabación de audio", "error");
+        } else {
+            alert("Tu navegador no soporta grabación de audio");
+        }
+        return;
+    }
+    
+    // Crear elementos para la grabación
+    const modalGrabacion = document.createElement('div');
+    modalGrabacion.className = 'modal-grabacion-audio';
+    modalGrabacion.style.position = 'fixed';
+    modalGrabacion.style.top = '0';
+    modalGrabacion.style.left = '0';
+    modalGrabacion.style.width = '100%';
+    modalGrabacion.style.height = '100%';
+    modalGrabacion.style.backgroundColor = 'rgba(0,0,0,0.9)';
+    modalGrabacion.style.zIndex = '10000';
+    modalGrabacion.style.display = 'flex';
+    modalGrabacion.style.flexDirection = 'column';
+    modalGrabacion.style.alignItems = 'center';
+    modalGrabacion.style.justifyContent = 'center';
+    
+    modalGrabacion.innerHTML = `
+        <div style="text-align: center; color: white; margin-bottom: 15px;">
+            <h3>Grabar audio</h3>
+        </div>
+        <div id="visualizador-audio" style="width: 300px; height: 60px; background: #333; border-radius: 8px; margin-bottom: 15px;"></div>
+        <div id="tiempo-grabacion" style="font-size: 24px; color: white; margin-bottom: 20px;">00:00</div>
+        <div>
+            <button id="btn-iniciar-grabacion" class="btn btn-primary mx-2">
+                <i class="fas fa-microphone"></i> Iniciar grabación
+            </button>
+            <button id="btn-detener-grabacion" class="btn btn-warning mx-2" disabled>
+                <i class="fas fa-stop"></i> Detener
+            </button>
+            <button id="btn-cancelar-grabacion" class="btn btn-danger mx-2">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+        </div>
+        <div id="reproductor-audio" style="margin-top: 20px; display: none;">
+            <audio id="audio-preview" controls style="width: 300px;"></audio>
+            <div style="margin-top: 10px;">
+                <button id="btn-guardar-audio" class="btn btn-success mx-2">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <button id="btn-descartar-audio" class="btn btn-secondary mx-2">
+                    <i class="fas fa-trash"></i> Descartar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modalGrabacion);
+    
+    // Variables para la grabación
+    let stream = null;
+    let mediaRecorder = null;
+    let chunks = [];
+    let tiempoInicio = null;
+    let timerInterval = null;
+    let audioURL = null;
+    let audioBlob = null;
+    let visualizerInterval = null;
+    
+    // Función para actualizar el tiempo de grabación
+    function actualizarTiempo() {
+        if (!tiempoInicio) return;
+        
+        const tiempoActual = Date.now();
+        const duracion = Math.floor((tiempoActual - tiempoInicio) / 1000);
+        const minutos = Math.floor(duracion / 60).toString().padStart(2, '0');
+        const segundos = (duracion % 60).toString().padStart(2, '0');
+        
+        document.getElementById('tiempo-grabacion').textContent = `${minutos}:${segundos}`;
+        
+        // Limitar grabación a 60 segundos
+        if (duracion >= 60) {
+            detenerGrabacion();
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Límite de 1 minuto alcanzado", "info");
+            }
+        }
+    }
+    
+    // Función para iniciar grabación
+    function iniciarGrabacion() {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(audioStream) {
+                stream = audioStream;
+                
+                // Crear MediaRecorder con mejor tipo de MIME
+                const tiposMIME = [
+                    'audio/webm',
+                    'audio/ogg',
+                    'audio/mp4'
+                ];
+                
+                let tipoSeleccionado = '';
+                for (const tipo of tiposMIME) {
+                    if (MediaRecorder.isTypeSupported(tipo)) {
+                        tipoSeleccionado = tipo;
+                        break;
+                    }
+                }
+                
+                if (!tipoSeleccionado) {
+                    if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                        MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta ningún formato de audio compatible", "error");
+                    } else {
+                        alert("Tu navegador no soporta ningún formato de audio compatible");
+                    }
+                    cerrarModalGrabacion();
+                    return;
+                }
+                
+                mediaRecorder = new MediaRecorder(stream, { mimeType: tipoSeleccionado });
+                
+                // Evento para capturar datos
+                mediaRecorder.ondataavailable = function(e) {
+                    chunks.push(e.data);
+                };
+                
+                // Evento para cuando se completa la grabación
+                mediaRecorder.onstop = function() {
+                    audioBlob = new Blob(chunks, { type: tipoSeleccionado });
+                    audioURL = URL.createObjectURL(audioBlob);
+                    
+                    const audioPreview = document.getElementById('audio-preview');
+                    audioPreview.src = audioURL;
+                    audioPreview.style.display = 'block';
+                    
+                    document.getElementById('reproductor-audio').style.display = 'block';
+                    document.getElementById('visualizador-audio').style.display = 'none';
+                    
+                    // Detener temporizador
+                    clearInterval(timerInterval);
+                };
+                
+                // Iniciar grabación
+                mediaRecorder.start(100); // Guardar en fragmentos de 100ms
+                tiempoInicio = Date.now();
+                
+                // Iniciar temporizador
+                timerInterval = setInterval(actualizarTiempo, 1000);
+                
+                // Iniciar visualizador
+                configurarVisualizador();
+                
+                // Actualizar botones
+                document.getElementById('btn-iniciar-grabacion').disabled = true;
+                document.getElementById('btn-detener-grabacion').disabled = false;
+            })
+            .catch(function(error) {
+                console.error("Error accediendo al micrófono:", error);
+                if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                    MAIRA.Utils.mostrarNotificacion("Error al acceder al micrófono: " + error.message, "error");
+                } else {
+                    alert("Error al acceder al micrófono: " + error.message);
+                }
+                cerrarModalGrabacion();
+            });
+    }
+    
+    // Configurar visualizador de audio
+    function configurarVisualizador() {
+        try {
+            // Crear un analizador para visualizar el audio
+            const visualizador = document.getElementById('visualizador-audio');
+            if (!visualizador) return;
+            
+            // Limpiar contenido previo
+            visualizador.innerHTML = `<div style="display: flex; align-items: flex-end; justify-content: center; height: 100%; gap: 2px;"></div>`;
+            const contenedor = visualizador.querySelector('div');
+            
+            // Crear barras para el visualizador
+            for (let i = 0; i < 32; i++) {
+                const barra = document.createElement('div');
+                barra.style.width = '4px';
+                barra.style.height = '2px';
+                barra.style.backgroundColor = '#4CAF50';
+                barra.style.transition = 'height 0.1s ease';
+                contenedor.appendChild(barra);
+            }
+            
+            // Función para actualizar visualizador
+            let audioContext = null;
+            let analyser = null;
+            
+            // Crear contexto de audio
+            if (typeof AudioContext !== 'undefined') {
+                audioContext = new AudioContext();
+            } else if (typeof webkitAudioContext !== 'undefined') {
+                audioContext = new webkitAudioContext();
+            }
+            
+            if (audioContext && stream) {
+                const source = audioContext.createMediaStreamSource(stream);
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 64;
+                source.connect(analyser);
+                
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                // Actualizar visualizador periódicamente
+                visualizerInterval = setInterval(() => {
+                    if (!mediaRecorder || mediaRecorder.state !== 'recording') {
+                        clearInterval(visualizerInterval);
+                        return;
+                    }
+                    
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    // Actualizar barras
+                    const barras = contenedor.querySelectorAll('div');
+                    for (let i = 0; i < barras.length; i++) {
+                        const valor = dataArray[i] || 0;
+                        const altura = (valor / 255) * 60; // Altura máxima: 60px
+                        barras[i].style.height = `${Math.max(2, altura)}px`;
+                    }
+                }, 100);
+            }
+        } catch (e) {
+            console.error("Error al configurar visualizador de audio:", e);
+        }
+    }
+    
+    // Función para detener grabación
+    function detenerGrabacion() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            
+            // Actualizar botones
+            document.getElementById('btn-iniciar-grabacion').disabled = false;
+            document.getElementById('btn-detener-grabacion').disabled = true;
+        }
+    }
+    
+    // Función para cerrar el modal de grabación
+    function cerrarModalGrabacion() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        
+        if (visualizerInterval) {
+            clearInterval(visualizerInterval);
+        }
+        
+        if (audioURL) {
+            URL.revokeObjectURL(audioURL);
+        }
+        
+        if (document.body.contains(modalGrabacion)) {
+            document.body.removeChild(modalGrabacion);
+        }
+    }
+    
+    // Función para guardar el audio
+    function guardarAudio() {
+        // Convertir Blob a File
+        const file = new File([audioBlob], `audio_${new Date().toISOString().replace(/:/g, '-')}.webm`, { type: audioBlob.type });
+        
+        // Asignar al input de archivo
+        const fileInput = document.getElementById('adjunto-informe');
+        if (!fileInput) {
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("No se pudo encontrar el campo de adjunto", "error");
+            } else {
+                alert("No se pudo encontrar el campo de adjunto");
+            }
+            return;
+        }
+        
+        try {
+            // Crear un DataTransfer para simular la selección de archivo
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            
+            // Disparar evento change para actualizar la previsualización
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+            
+            // Cerrar modal
+            cerrarModalGrabacion();
+            
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Audio grabado correctamente", "success");
+            }
+        } catch (error) {
+            console.error("Error al guardar audio:", error);
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Error al guardar el audio: " + error.message, "error");
+            } else {
+                alert("Error al guardar el audio: " + error.message);
+            }
+        }
+    }
+    
+    // Configurar eventos
+    document.getElementById('btn-iniciar-grabacion').addEventListener('click', iniciarGrabacion);
+    document.getElementById('btn-detener-grabacion').addEventListener('click', detenerGrabacion);
+    document.getElementById('btn-cancelar-grabacion').addEventListener('click', cerrarModalGrabacion);
+    document.getElementById('btn-guardar-audio').addEventListener('click', guardarAudio);
+    document.getElementById('btn-descartar-audio').addEventListener('click', cerrarModalGrabacion);
+}
+
+/**
+ * Graba video usando la cámara
+ */
+function grabarVideo() {
+    // Verificar soporte de getUserMedia y MediaRecorder
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta grabación de video", "error");
+        } else {
+            alert("Tu navegador no soporta grabación de video");
+        }
+        return;
+    }
+    
+    // Crear elementos para la grabación
+    const modalGrabacion = document.createElement('div');
+    modalGrabacion.className = 'modal-grabacion-video';
+    modalGrabacion.style.position = 'fixed';
+    modalGrabacion.style.top = '0';
+    modalGrabacion.style.left = '0';
+    modalGrabacion.style.width = '100%';
+    modalGrabacion.style.height = '100%';
+    modalGrabacion.style.backgroundColor = 'rgba(0,0,0,0.9)';
+    modalGrabacion.style.zIndex = '10000';
+    modalGrabacion.style.display = 'flex';
+    modalGrabacion.style.flexDirection = 'column';
+    modalGrabacion.style.alignItems = 'center';
+    modalGrabacion.style.justifyContent = 'center';
+    
+    modalGrabacion.innerHTML = `
+        <div style="text-align: center; color: white; margin-bottom: 15px;">
+            <h3>Grabar video</h3>
+        </div>
+        <video id="video-preview" style="max-width: 90%; max-height: 60vh; background: #000; border: 3px solid #fff;" autoplay muted></video>
+        <div id="tiempo-grabacion-video" style="font-size: 24px; color: white; margin: 10px 0;">00:00</div>
+        <div>
+            <button id="btn-iniciar-grabacion-video" class="btn btn-primary mx-2">
+                <i class="fas fa-video"></i> Iniciar grabación
+            </button>
+            <button id="btn-detener-grabacion-video" class="btn btn-warning mx-2" disabled>
+                <i class="fas fa-stop"></i> Detener
+            </button>
+            <button id="btn-cancelar-grabacion-video" class="btn btn-danger mx-2">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+        </div>
+        <div id="reproductor-video" style="margin-top: 20px; display: none;">
+            <video id="video-grabado" controls style="max-width: 300px; max-height: 200px;"></video>
+            <div style="margin-top: 10px;">
+                <button id="btn-guardar-video" class="btn btn-success mx-2">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <button id="btn-descartar-video" class="btn btn-secondary mx-2">
+                    <i class="fas fa-trash"></i> Descartar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modalGrabacion);
+    
+    // Variables para la grabación
+    let stream = null;
+    let mediaRecorder = null;
+    let chunks = [];
+    let tiempoInicio = null;
+    let timerInterval = null;
+    let videoURL = null;
+    let videoBlob = null;
+    
+    // Función para actualizar el tiempo de grabación
+    function actualizarTiempoVideo() {
+        if (!tiempoInicio) return;
+        
+        const tiempoActual = Date.now();
+        const duracion = Math.floor((tiempoActual - tiempoInicio) / 1000);
+        const minutos = Math.floor(duracion / 60).toString().padStart(2, '0');
+        const segundos = (duracion % 60).toString().padStart(2, '0');
+        
+        document.getElementById('tiempo-grabacion-video').textContent = `${minutos}:${segundos}`;
+        
+        // Limitar grabación a 30 segundos para evitar archivos demasiado grandes
+        if (duracion >= 30) {
+            detenerGrabacionVideo();
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Límite de 30 segundos alcanzado", "info");
+            }
+        }
+    }
+    
+    // Función para iniciar grabación
+    function iniciarGrabacionVideo() {
+        const constraints = {
+            audio: true,
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        };
+        
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(videoStream) {
+                stream = videoStream;
+                
+                // Mostrar preview
+                const video = document.getElementById('video-preview');
+                video.srcObject = stream;
+                
+                // Crear MediaRecorder con mejor tipo de MIME
+                const tiposMIME = [
+                    'video/webm;codecs=vp9,opus',
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm',
+                    'video/mp4'
+                ];
+                
+                let tipoSeleccionado = '';
+                for (const tipo of tiposMIME) {
+                    if (MediaRecorder.isTypeSupported(tipo)) {
+                        tipoSeleccionado = tipo;
+                        break;
+                    }
+                }
+                
+                if (!tipoSeleccionado) {
+                    if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                        MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta ningún formato de video compatible", "error");
+                    } else {
+                        alert("Tu navegador no soporta ningún formato de video compatible");
+                    }
+                    cerrarModalGrabacionVideo();
+                    return;
+                }
+                
+                mediaRecorder = new MediaRecorder(stream, { mimeType: tipoSeleccionado });
+                
+                // Evento para capturar datos
+                mediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) {
+                        chunks.push(e.data);
+                    }
+                };
+                
+                // Evento para cuando se completa la grabación
+                mediaRecorder.onstop = function() {
+                    videoBlob = new Blob(chunks, { type: tipoSeleccionado });
+                    videoURL = URL.createObjectURL(videoBlob);
+                    
+                    const videoGrabado = document.getElementById('video-grabado');
+                    videoGrabado.src = videoURL;
+                    videoGrabado.style.display = 'block';
+                    
+                    document.getElementById('reproductor-video').style.display = 'block';
+                    document.getElementById('video-preview').style.display = 'none';
+                    
+                    // Detener temporizador
+                    clearInterval(timerInterval);
+                };
+                
+                // Iniciar grabación
+                mediaRecorder.start(1000); // Guardar en fragmentos de 1 segundo
+                tiempoInicio = Date.now();
+                
+                // Iniciar temporizador
+                timerInterval = setInterval(actualizarTiempoVideo, 1000);
+                
+                // Actualizar botones
+                document.getElementById('btn-iniciar-grabacion-video').disabled = true;
+                document.getElementById('btn-detener-grabacion-video').disabled = false;
+            })
+            .catch(function(error) {
+                console.error("Error accediendo a la cámara o micrófono:", error);
+                if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                    MAIRA.Utils.mostrarNotificacion("Error al acceder a la cámara o micrófono: " + error.message, "error");
+                } else {
+                    alert("Error al acceder a la cámara o micrófono: " + error.message);
+                }
+                cerrarModalGrabacionVideo();
+            });
+    }
+    
+    // Función para detener grabación
+    function detenerGrabacionVideo() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            
+            // Detener preview
+            const video = document.getElementById('video-preview');
+            video.pause();
+            video.style.display = 'none';
+            
+            // Actualizar botones
+            document.getElementById('btn-iniciar-grabacion-video').disabled = false;
+            document.getElementById('btn-detener-grabacion-video').disabled = true;
+        }
+    }
+    
+    // Función para cerrar el modal de grabación
+    function cerrarModalGrabacionVideo() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        
+        if (videoURL) {
+            URL.revokeObjectURL(videoURL);
+        }
+        
+        if (document.body.contains(modalGrabacion)) {
+            document.body.removeChild(modalGrabacion);
+        }
+    }
+    
+    // Función para guardar el video
+    function guardarVideo() {
+        // Verificar tamaño máximo (5MB)
+        if (videoBlob.size > 5 * 1024 * 1024) {
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("El video excede el tamaño máximo permitido de 5MB. Intente con una grabación más corta.", "warning");
+            } else {
+                alert("El video excede el tamaño máximo permitido de 5MB. Intente con una grabación más corta.");
+            }
+            return;
+        }
+        
+        // Convertir Blob a File
+        const file = new File([videoBlob], `video_${new Date().toISOString().replace(/:/g, '-')}.webm`, { type: videoBlob.type });
+        
+        // Asignar al input de archivo
+        const fileInput = document.getElementById('adjunto-informe');
+        if (!fileInput) {
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("No se pudo encontrar el campo de adjunto", "error");
+            } else {
+                alert("No se pudo encontrar el campo de adjunto");
+            }
+            return;
+        }
+        
+        try {
+            // Crear un DataTransfer para simular la selección de archivo
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            
+            // Disparar evento change para actualizar la previsualización
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+            
+            // Cerrar modal
+            cerrarModalGrabacionVideo();
+            
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Video grabado correctamente", "success");
+            }
+        } catch (error) {
+            console.error("Error al guardar video:", error);
+            if (typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.mostrarNotificacion) {
+                MAIRA.Utils.mostrarNotificacion("Error al guardar el video: " + error.message, "error");
+            } else {
+                alert("Error al guardar el video: " + error.message);
+            }
+        }
+    }
+    
+    // Configurar eventos
+    document.getElementById('btn-iniciar-grabacion-video').addEventListener('click', iniciarGrabacionVideo);
+    document.getElementById('btn-detener-grabacion-video').addEventListener('click', detenerGrabacionVideo);
+    document.getElementById('btn-cancelar-grabacion-video').addEventListener('click', cerrarModalGrabacionVideo);
+    document.getElementById('btn-guardar-video').addEventListener('click', guardarVideo);
+    document.getElementById('btn-descartar-video').addEventListener('click', cerrarModalGrabacionVideo);
+}
+
+/**
+ * Busca un informe por su ID
+ * @param {string} informeId - ID del informe a buscar
+ * @returns {Object|null} - Informe encontrado o null
+ */
+function buscarInformePorId(informeId) {
+    // Buscar en informes recibidos
+    if (informesRecibidos[informeId]) {
+        return informesRecibidos[informeId];
+    }
+    
+    // Buscar en informes enviados
+    if (informesEnviados[informeId]) {
+        return informesEnviados[informeId];
+    }
+    
+    return null;
+}
+
+/**
+ * Obtiene todos los informes
+ * @param {string} filtro - Filtro a aplicar ('todos', 'informes', 'ordenes')
+ * @returns {Array} - Array de informes
+ */
+function obtenerInformes(filtro = 'todos') {
+    let resultado = [];
+    
+    // Recolectar informes enviados y recibidos
+    const enviados = Object.values(informesEnviados);
+    const recibidos = Object.values(informesRecibidos);
+    
+    // Unir en un solo array
+    resultado = [...enviados, ...recibidos];
+    
+    // Aplicar filtro
+    if (filtro !== 'todos') {
+        if (filtro === 'informes') {
+            resultado = resultado.filter(doc => doc.categoriaDocumento !== 'orden');
+        } else if (filtro === 'ordenes') {
+            resultado = resultado.filter(doc => doc.categoriaDocumento === 'orden');
+        } else if (filtro === 'importantes') {
+            resultado = resultado.filter(doc => doc.importante === true);
+        } else if (filtro === 'archivados') {
+            resultado = resultado.filter(doc => doc.archivado === true);
+        }
+    } else {
+        // Si el filtro es 'todos', excluir archivados
+        resultado = resultado.filter(doc => !doc.archivado);
+    }
+    
+    // Ordenar por fecha, más recientes primero
+    resultado.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    return resultado;
+}
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+function actualizarSelectorTipoDocumento() {
+    // Ocultar los selectores originales ya que usaremos los botones
+    const selectorTipoInforme = document.querySelector('#formulario-informe #tipo-informe');
+    if (selectorTipoInforme) {
+        selectorTipoInforme.style.display = 'none'; // Ocultar visualmente
+        // Pero mantener las opciones para los valores internos
+        selectorTipoInforme.innerHTML = `
+            <option value="exploracion">Informe de Exploración</option>
+            <option value="reconocimiento">Informe de Reconocimiento</option>
+            <option value="situacion">Informe de Situación</option>
+            <option value="otro">Otro tipo de Informe</option>
+        `;
+    }
+    
+    const selectorTipoOrden = document.querySelector('#formulario-orden #tipo-informe');
+    if (selectorTipoOrden) {
+        selectorTipoOrden.style.display = 'none'; // Ocultar visualmente
+        // Pero mantener las opciones para los valores internos
+        selectorTipoOrden.innerHTML = `
+            <option value="operaciones">Orden de Operaciones (Completa)</option>
+            <option value="parcial">Orden Parcial</option>
+            <option value="mision">Orden Tipo Misión</option>
+            <option value="otra">Otro tipo de Orden</option>
+        `;
+    }
+    
+    // Ocultar también las etiquetas
+    const labelTipoInforme = document.querySelector('#formulario-informe label[for="tipo-informe"]');
+    if (labelTipoInforme) {
+        labelTipoInforme.style.display = 'none';
+    }
+    
+    const labelTipoOrden = document.querySelector('#formulario-orden label[for="tipo-informe"]');
+    if (labelTipoOrden) {
+        labelTipoOrden.style.display = 'none';
+    }
+}
+
+
+
+
+
+
+
 function configurarEventosCambioTipoDocumento() {
     // Evento para cambio entre Informe y Orden
     const tipoDocumentoRadios = document.querySelectorAll('input[name="tipo-documento"]');
@@ -794,1079 +3786,23 @@ function configurarEventosCambioTipoDocumento() {
     });
 }
 
-function enviarDocumento() {
-    console.log("Preparando envío de documento");
-    
-    // Obtener el formulario
-    const formulario = document.getElementById('formulario-documento');
-    if (!formulario) {
-        MAIRA.Utils.mostrarNotificacion("Formulario no encontrado", "error");
-        return;
-    }
-    
-    // Obtener datos del formulario
-    const tipoDocumentoSelect = document.getElementById('tipo-documento');
-    const prioridadSelect = document.getElementById('prioridad-documento');
-    const destinatariosField = document.getElementById('destinatarios-seleccionados');
-    const asuntoInput = document.getElementById('asunto-informe');
-    const contenidoInput = document.getElementById('contenido-informe');
-    const archivoAdjunto = document.getElementById('adjunto-informe');
-    
-    if (!tipoDocumentoSelect || !prioridadSelect || !destinatariosField || !asuntoInput || !contenidoInput) {
-        MAIRA.Utils.mostrarNotificacion("Error: elementos del formulario no encontrados", "error");
-        return;
-    }
-    
-    const tipo = tipoDocumentoSelect.value;
-    const prioridad = prioridadSelect.value;
-    const destinatariosStr = destinatariosField.value;
-    const asunto = asuntoInput.value.trim();
-    const contenido = contenidoInput.value.trim();
-    
-    // Verificaciones básicas
-    if (!tipo) {
-        MAIRA.Utils.mostrarNotificacion("Debes seleccionar un tipo de documento", "error");
-        return;
-    }
-    
-    if (!asunto || !contenido) {
-        MAIRA.Utils.mostrarNotificacion("Debes completar asunto y contenido del documento", "error");
-        return;
-    }
-    
-    // Comprobar si se ha seleccionado algún destinatario
-    if (!destinatariosStr) {
-        // Verificar si los checkboxes individualmente están marcados
-        const destinoTodos = document.getElementById('destino-todos');
-        const destinoComando = document.getElementById('destino-comando');
-        const checkboxesUsuarios = document.querySelectorAll('.destinatario-checkbox input[type="checkbox"]:checked');
-        
-        if ((!destinoTodos || !destinoTodos.checked) && 
-            (!destinoComando || !destinoComando.checked) && 
-            checkboxesUsuarios.length === 0) {
-            
-            MAIRA.Utils.mostrarNotificacion("Debes seleccionar al menos un destinatario", "error");
-            return;
-        }
-        
-        // Actualizar el campo de destinatarios si está vacío pero hay selecciones
-        actualizarDestinatariosSeleccionados();
-    }
-    
-    // Verificar si tenemos la información del usuario
-    if (!usuarioInfo || !elementoTrabajo) {
-        if (typeof MAIRA.Chat !== 'undefined' && MAIRA.Chat.agregarMensajeChat) {
-            MAIRA.Chat.agregarMensajeChat("Sistema", "No se ha iniciado sesión correctamente", "sistema");
-        }
-        MAIRA.Utils.mostrarNotificacion("No se ha iniciado sesión correctamente", "error");
-        return;
-    }
-    
-    // Determinar categoría (informe u orden)
-    let categoriaDocumento = 'informe';
-    if (tipo === 'operaciones' || tipo === 'parcial' || tipo === 'mision' || tipo === 'otra') {
-        categoriaDocumento = 'orden';
-    }
-    
-    // Obtener destinatarios
-    const destinatarios = destinatariosStr.split(',').filter(Boolean);
-    
-    // Mostrar indicador de carga
-    mostrarCargandoEnvio(true);
-    
-    // Procesar el envío del documento para cada destinatario o para todos/comando
-    if (destinatarios.includes('todos')) {
-        // Enviar a todos los participantes
-        enviarDocumentoUnico('todos', tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto);
-    } else if (destinatarios.includes('comando')) {
-        // Enviar al comando
-        enviarDocumentoUnico('comando', tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto);
-    } else if (destinatarios.length > 0) {
-        // Si hay múltiples destinatarios específicos, enviar un documento para cada uno
-        let documentosEnviados = 0;
-        let documentosFallidos = 0;
-        
-        // Si son muchos destinatarios, mostrar un mensaje
-        if (destinatarios.length > 3) {
-            MAIRA.Utils.mostrarNotificacion(`Enviando documento a ${destinatarios.length} destinatarios...`, "info");
-        }
-        
-        // Función para procesar el siguiente destinatario
-        const procesarSiguienteDestinatario = (index) => {
-            if (index >= destinatarios.length) {
-                // Todos los documentos han sido procesados
-                if (documentosFallidos > 0) {
-                    MAIRA.Utils.mostrarNotificacion(`Enviados ${documentosEnviados} documentos con ${documentosFallidos} fallos`, "warning");
-                } else {
-                    MAIRA.Utils.mostrarNotificacion(`Documento enviado a ${documentosEnviados} destinatarios`, "success");
-                }
-                
-                // Limpiar formulario
-                limpiarFormularioDocumento();
-                mostrarCargandoEnvio(false);
-                return;
-            }
-            
-            const destinatario = destinatarios[index];
-            enviarDocumentoUnico(
-                destinatario, 
-                tipo, 
-                categoriaDocumento, 
-                prioridad, 
-                asunto, 
-                contenido, 
-                (index === 0 ? archivoAdjunto : null), // Solo adjuntar el archivo al primer destinatario para evitar duplicados
-                (exito) => {
-                    // Callback para el resultado
-                    if (exito) {
-                        documentosEnviados++;
-                    } else {
-                        documentosFallidos++;
-                    }
-                    
-                    // Procesar el siguiente
-                    procesarSiguienteDestinatario(index + 1);
-                }
-            );
-        };
-        
-        // Iniciar el procesamiento
-        procesarSiguienteDestinatario(0);
-    } else {
-        MAIRA.Utils.mostrarNotificacion("Debes seleccionar al menos un destinatario", "error");
-        mostrarCargandoEnvio(false);
-    }
-}
-
-/**
- * Muestra u oculta el indicador de carga para el envío de documentos
- * @param {boolean} mostrar - Si se debe mostrar el indicador
- */
-function mostrarCargandoEnvio(mostrar) {
-    // Botones de enviar en todos los formularios posibles
-    const botones = document.querySelectorAll('#formulario-documento button[type="submit"]');
-
-    botones.forEach(boton => {
-        if (mostrar) {
-            // Guardar texto original y mostrar spinner
-            boton.setAttribute('data-original-text', boton.innerHTML);
-            boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-            boton.disabled = true;
-        } else {
-            // Restaurar texto original
-            const textoOriginal = boton.getAttribute('data-original-text') || 'Enviar';
-            boton.innerHTML = textoOriginal;
-            boton.disabled = false;
-        }
-    });
-}
-
-/**
- * Envía un documento a un destinatario específico
- * @param {string} destinatario - ID del destinatario o 'todos'/'comando'
- * @param {string} tipo - Tipo de documento
- * @param {string} categoriaDocumento - Categoría ('informe' u 'orden')
- * @param {string} prioridad - Prioridad ('normal' o 'urgente')
- * @param {string} asunto - Asunto del documento
- * @param {string} contenido - Contenido del documento
- * @param {HTMLInputElement|null} archivoAdjunto - Elemento de input para el archivo adjunto
- * @param {Function|null} callback - Función de callback con el resultado (true/false)
- */
-function enviarDocumentoUnico(destinatario, tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto, callback) {
-    // Crear ID único
-    const documentoId = typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.generarId ? 
-        MAIRA.Utils.generarId() : 
-        'doc_' + new Date().getTime() + '_' + Math.floor(Math.random() * 10000);
-    
-    // Crear objeto del documento
-    const documento = {
-        id: documentoId,
-        emisor: {
-            id: usuarioInfo.id,
-            nombre: usuarioInfo.usuario,
-            elemento: elementoTrabajo
-        },
-        destinatario: destinatario,
-        tipo: tipo,
-        categoriaDocumento: categoriaDocumento,
-        prioridad: prioridad,
-        asunto: asunto,
-        contenido: contenido,
-        leido: false,
-        posicion: ultimaPosicion ? { 
-            lat: ultimaPosicion.lat, 
-            lng: ultimaPosicion.lng,
-            precision: ultimaPosicion.precision,
-            rumbo: ultimaPosicion.rumbo || 0
-        } : null,
-        timestamp: new Date().toISOString(),
-        operacion: operacionActual,
-        tieneAdjunto: false,
-        adjunto: null
-    };
-
-    // Procesar archivo adjunto si existe
-    if (archivoAdjunto && archivoAdjunto.files && archivoAdjunto.files.length > 0) {
-        const archivo = archivoAdjunto.files[0];
-        
-        // Verificar tamaño máximo
-        if (archivo.size > 5 * 1024 * 1024) {
-            MAIRA.Utils.mostrarNotificacion("El archivo adjunto excede el tamaño máximo permitido (5MB)", "error");
-            if (callback) callback(false);
-            return;
-        }
-        
-        // Procesar archivo
-        procesarArchivoAdjunto(documento, archivo)
-            .then(documentoConAdjunto => {
-                finalizarEnvioDocumento(documentoConAdjunto, callback);
-            })
-            .catch(error => {
-                console.error("Error al procesar archivo adjunto:", error);
-                MAIRA.Utils.mostrarNotificacion("Error al procesar archivo adjunto: " + error.message, "error");
-                if (callback) callback(false);
-            });
-    } else {
-        // No hay archivo adjunto, continuar directamente
-        finalizarEnvioDocumento(documento, callback);
-    }
-}
-
-/**
- * Finaliza el envío de un documento
- * @param {Object} documento - Documento a enviar
- * @param {Function|null} callback - Función de callback con el resultado (true/false)
- */
-function finalizarEnvioDocumento(documento, callback) {
-    console.log("Finalizando envío de documento:", documento);
-
-    // Enviar al servidor si estamos conectados
-    if (socket && socket.connected) {
-        // Emitir evento con timeout para manejar errores de envío
-        let timeoutId = setTimeout(() => {
-            MAIRA.Utils.mostrarNotificacion("Tiempo de espera agotado al enviar el documento. Guardado localmente.", "warning");
-            
-            // Guardar en memoria
-            informesEnviados[documento.id] = documento;
-            
-            // Guardar en localStorage
-            guardarInformesLocalmente();
-            
-            // Agregar a la interfaz
-            agregarInforme(documento);
-            
-            if (callback) callback(false);
-        }, 10000); // 10 segundos de timeout
-        
-        socket.emit('nuevoInforme', documento, function(respuesta) {
-            // Limpiar timeout ya que recibimos respuesta
-            clearTimeout(timeoutId);
-            
-            console.log("Respuesta del servidor al enviar documento:", respuesta);
-            
-            if (respuesta && respuesta.error) {
-                MAIRA.Utils.mostrarNotificacion("Error al enviar documento: " + respuesta.error, "error");
-                
-                // Guardar en memoria
-                informesEnviados[documento.id] = documento;
-                
-                // Guardar en localStorage
-                guardarInformesLocalmente();
-                
-                // Agregar a la interfaz
-                agregarInforme(documento);
-                
-                if (callback) callback(false);
-                return;
-            }
-            
-            // Guardar en memoria
-            informesEnviados[documento.id] = documento;
-            
-            // Guardar en localStorage
-            guardarInformesLocalmente();
-            
-            // Añadir a la interfaz
-            agregarInforme(documento);
-            
-            // Notificar envío exitoso
-            const tipoTexto = documento.categoriaDocumento === 'orden' ? "Orden" : "Informe";
-            const prioridadTexto = documento.prioridad === 'urgente' ? "URGENTE" : "";
-            const mensajeExito = `${tipoTexto} ${prioridadTexto} "${documento.asunto}" enviado correctamente`;
-            
-            if (MAIRA.Chat && typeof MAIRA.Chat.agregarMensajeChat === 'function') {
-                MAIRA.Chat.agregarMensajeChat("Sistema", mensajeExito, "sistema");
-            }
-            
-            MAIRA.Utils.mostrarNotificacion(mensajeExito, "success");
-            
-            if (callback) callback(true);
-        });
-    } else {
-        // No hay conexión, guardar localmente
-        
-        // Marcar como pendiente
-        documento.pendiente = true;
-        
-        // Guardar en memoria
-        informesEnviados[documento.id] = documento;
-        
-        // Guardar en localStorage
-        guardarInformesLocalmente();
-        
-        // Añadir a la interfaz local
-        agregarInforme(documento);
-        
-        // Notificar guardado para envío posterior
-        MAIRA.Utils.mostrarNotificacion(`Documento guardado para envío posterior`, "info");
-        
-        if (callback) callback(false);
-    }
-}
-
-function enviarDocumento() {
-    console.log("Preparando envío de documento");
-    
-    // Obtener el formulario
-    const formulario = document.getElementById('formulario-documento');
-    if (!formulario) {
-        MAIRA.Utils.mostrarNotificacion("Formulario no encontrado", "error");
-        return;
-    }
-    
-    // Obtener datos del formulario
-    const tipoDocumentoSelect = document.getElementById('tipo-documento');
-    const prioridadSelect = document.getElementById('prioridad-documento');
-    const destinatariosField = document.getElementById('destinatarios-seleccionados');
-    const asuntoInput = document.getElementById('asunto-informe');
-    const contenidoInput = document.getElementById('contenido-informe');
-    const archivoAdjunto = document.getElementById('adjunto-informe');
-    
-    if (!tipoDocumentoSelect || !prioridadSelect || !destinatariosField || !asuntoInput || !contenidoInput) {
-        MAIRA.Utils.mostrarNotificacion("Error: elementos del formulario no encontrados", "error");
-        return;
-    }
-    
-    const tipo = tipoDocumentoSelect.value;
-    const prioridad = prioridadSelect.value;
-    const destinatariosStr = destinatariosField.value;
-    const asunto = asuntoInput.value.trim();
-    const contenido = contenidoInput.value.trim();
-    
-    // Verificaciones básicas
-    if (!tipo) {
-        MAIRA.Utils.mostrarNotificacion("Debes seleccionar un tipo de documento", "error");
-        return;
-    }
-    
-    if (!asunto || !contenido) {
-        MAIRA.Utils.mostrarNotificacion("Debes completar asunto y contenido del documento", "error");
-        return;
-    }
-    
-    // Comprobar si se ha seleccionado algún destinatario
-    if (!destinatariosStr) {
-        // Verificar si los checkboxes individualmente están marcados
-        const destinoTodos = document.getElementById('destino-todos');
-        const destinoComando = document.getElementById('destino-comando');
-        const checkboxesUsuarios = document.querySelectorAll('.destinatario-checkbox input[type="checkbox"]:checked');
-        
-        if ((!destinoTodos || !destinoTodos.checked) && 
-            (!destinoComando || !destinoComando.checked) && 
-            checkboxesUsuarios.length === 0) {
-            
-            MAIRA.Utils.mostrarNotificacion("Debes seleccionar al menos un destinatario", "error");
-            return;
-        }
-        
-        // Actualizar el campo de destinatarios si está vacío pero hay selecciones
-        actualizarDestinatariosSeleccionados();
-    }
-    
-    // Verificar si tenemos la información del usuario
-    if (!usuarioInfo || !elementoTrabajo) {
-        if (typeof MAIRA.Chat !== 'undefined' && MAIRA.Chat.agregarMensajeChat) {
-            MAIRA.Chat.agregarMensajeChat("Sistema", "No se ha iniciado sesión correctamente", "sistema");
-        }
-        MAIRA.Utils.mostrarNotificacion("No se ha iniciado sesión correctamente", "error");
-        return;
-    }
-    
-    // Determinar categoría (informe u orden)
-    let categoriaDocumento = 'informe';
-    if (tipo === 'operaciones' || tipo === 'parcial' || tipo === 'mision' || tipo === 'otra') {
-        categoriaDocumento = 'orden';
-    }
-    
-    // Obtener destinatarios
-    const destinatarios = destinatariosStr.split(',').filter(Boolean);
-    
-    // Mostrar indicador de carga
-    mostrarCargandoEnvio(true);
-    
-    // Procesar el envío del documento para cada destinatario o para todos/comando
-    if (destinatarios.includes('todos')) {
-        // Enviar a todos los participantes
-        enviarDocumentoUnico('todos', tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto);
-    } else if (destinatarios.includes('comando')) {
-        // Enviar al comando
-        enviarDocumentoUnico('comando', tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto);
-    } else if (destinatarios.length > 0) {
-        // Si hay múltiples destinatarios específicos, enviar un documento para cada uno
-        let documentosEnviados = 0;
-        let documentosFallidos = 0;
-        
-        // Si son muchos destinatarios, mostrar un mensaje
-        if (destinatarios.length > 3) {
-            MAIRA.Utils.mostrarNotificacion(`Enviando documento a ${destinatarios.length} destinatarios...`, "info");
-        }
-        
-        // Función para procesar el siguiente destinatario
-        const procesarSiguienteDestinatario = (index) => {
-            if (index >= destinatarios.length) {
-                // Todos los documentos han sido procesados
-                if (documentosFallidos > 0) {
-                    MAIRA.Utils.mostrarNotificacion(`Enviados ${documentosEnviados} documentos con ${documentosFallidos} fallos`, "warning");
-                } else {
-                    MAIRA.Utils.mostrarNotificacion(`Documento enviado a ${documentosEnviados} destinatarios`, "success");
-                }
-                
-                // Limpiar formulario
-                limpiarFormularioDocumento();
-                mostrarCargandoEnvio(false);
-                return;
-            }
-            
-            const destinatario = destinatarios[index];
-            enviarDocumentoUnico(
-                destinatario, 
-                tipo, 
-                categoriaDocumento, 
-                prioridad, 
-                asunto, 
-                contenido, 
-                (index === 0 ? archivoAdjunto : null), // Solo adjuntar el archivo al primer destinatario para evitar duplicados
-                (exito) => {
-                    // Callback para el resultado
-                    if (exito) {
-                        documentosEnviados++;
-                    } else {
-                        documentosFallidos++;
-                    }
-                    
-                    // Procesar el siguiente
-                    procesarSiguienteDestinatario(index + 1);
-                }
-            );
-        };
-        
-        // Iniciar el procesamiento
-        procesarSiguienteDestinatario(0);
-    } else {
-        MAIRA.Utils.mostrarNotificacion("Debes seleccionar al menos un destinatario", "error");
-        mostrarCargandoEnvio(false);
-    }
-}
-
-/**
- * Envía un documento a un destinatario específico
- * @param {string} destinatario - ID del destinatario o 'todos'/'comando'
- * @param {string} tipo - Tipo de documento
- * @param {string} categoriaDocumento - Categoría ('informe' u 'orden')
- * @param {string} prioridad - Prioridad ('normal' o 'urgente')
- * @param {string} asunto - Asunto del documento
- * @param {string} contenido - Contenido del documento
- * @param {HTMLInputElement|null} archivoAdjunto - Elemento de input para el archivo adjunto
- * @param {Function|null} callback - Función de callback con el resultado (true/false)
- */
-function enviarDocumentoUnico(destinatario, tipo, categoriaDocumento, prioridad, asunto, contenido, archivoAdjunto, callback) {
-    // Crear ID único
-    const documentoId = typeof MAIRA.Utils !== 'undefined' && MAIRA.Utils.generarId ? 
-        MAIRA.Utils.generarId() : 
-        'doc_' + new Date().getTime() + '_' + Math.floor(Math.random() * 10000);
-    
-    // Crear objeto del documento
-    const documento = {
-        id: documentoId,
-        emisor: {
-            id: usuarioInfo.id,
-            nombre: usuarioInfo.usuario,
-            elemento: elementoTrabajo
-        },
-        destinatario: destinatario,
-        tipo: tipo,
-        categoriaDocumento: categoriaDocumento,
-        prioridad: prioridad,
-        asunto: asunto,
-        contenido: contenido,
-        leido: false,
-        posicion: ultimaPosicion ? { 
-            lat: ultimaPosicion.lat, 
-            lng: ultimaPosicion.lng,
-            precision: ultimaPosicion.precision,
-            rumbo: ultimaPosicion.rumbo || 0
-        } : null,
-        timestamp: new Date().toISOString(),
-        operacion: operacionActual,
-        tieneAdjunto: false,
-        adjunto: null
-    };
-
-    // Procesar archivo adjunto si existe
-    if (archivoAdjunto && archivoAdjunto.files && archivoAdjunto.files.length > 0) {
-        const archivo = archivoAdjunto.files[0];
-        
-        // Verificar tamaño máximo
-        if (archivo.size > 5 * 1024 * 1024) {
-            MAIRA.Utils.mostrarNotificacion("El archivo adjunto excede el tamaño máximo permitido (5MB)", "error");
-            if (callback) callback(false);
-            return;
-        }
-        
-        // Procesar archivo
-        procesarArchivoAdjunto(documento, archivo)
-            .then(documentoConAdjunto => {
-                finalizarEnvioDocumento(documentoConAdjunto, callback);
-            })
-            .catch(error => {
-                console.error("Error al procesar archivo adjunto:", error);
-                MAIRA.Utils.mostrarNotificacion("Error al procesar archivo adjunto: " + error.message, "error");
-                if (callback) callback(false);
-            });
-    } else {
-        // No hay archivo adjunto, continuar directamente
-        finalizarEnvioDocumento(documento, callback);
-    }
-}
-
-/**
- * Finaliza el envío de un documento
- * @param {Object} documento - Documento a enviar
- * @param {Function|null} callback - Función de callback con el resultado (true/false)
- */
-function finalizarEnvioDocumento(documento, callback) {
-    console.log("Finalizando envío de documento:", documento);
-
-    // Enviar al servidor si estamos conectados
-    if (socket && socket.connected) {
-        // Emitir evento con timeout para manejar errores de envío
-        let timeoutId = setTimeout(() => {
-            MAIRA.Utils.mostrarNotificacion("Tiempo de espera agotado al enviar el documento. Guardado localmente.", "warning");
-            
-            // Guardar en memoria
-            informesEnviados[documento.id] = documento;
-            
-            // Guardar en localStorage
-            guardarInformesLocalmente();
-            
-            // Agregar a la interfaz
-            agregarInforme(documento);
-            
-            if (callback) callback(false);
-        }, 10000); // 10 segundos de timeout
-        
-        socket.emit('nuevoInforme', documento, function(respuesta) {
-            // Limpiar timeout ya que recibimos respuesta
-            clearTimeout(timeoutId);
-            
-            console.log("Respuesta del servidor al enviar documento:", respuesta);
-            
-            if (respuesta && respuesta.error) {
-                MAIRA.Utils.mostrarNotificacion("Error al enviar documento: " + respuesta.error, "error");
-                
-                // Guardar en memoria
-                informesEnviados[documento.id] = documento;
-                
-                // Guardar en localStorage
-                guardarInformesLocalmente();
-                
-                // Agregar a la interfaz
-                agregarInforme(documento);
-                
-                if (callback) callback(false);
-                return;
-            }
-            
-            // Guardar en memoria
-            informesEnviados[documento.id] = documento;
-            
-            // Guardar en localStorage
-            guardarInformesLocalmente();
-            
-            // Añadir a la interfaz
-            agregarInforme(documento);
-            
-            // Notificar envío exitoso
-            const tipoTexto = documento.categoriaDocumento === 'orden' ? "Orden" : "Informe";
-            const prioridadTexto = documento.prioridad === 'urgente' ? "URGENTE" : "";
-            const mensajeExito = `${tipoTexto} ${prioridadTexto} "${documento.asunto}" enviado correctamente`;
-            
-            if (MAIRA.Chat && typeof MAIRA.Chat.agregarMensajeChat === 'function') {
-                MAIRA.Chat.agregarMensajeChat("Sistema", mensajeExito, "sistema");
-            }
-            
-            MAIRA.Utils.mostrarNotificacion(mensajeExito, "success");
-            
-            if (callback) callback(true);
-        });
-    } else {
-        // No hay conexión, guardar localmente
-        
-        // Marcar como pendiente
-        documento.pendiente = true;
-        
-        // Guardar en memoria
-        informesEnviados[documento.id] = documento;
-        
-        // Guardar en localStorage
-        guardarInformesLocalmente();
-        
-        // Añadir a la interfaz local
-        agregarInforme(documento);
-        
-        // Notificar guardado para envío posterior
-        MAIRA.Utils.mostrarNotificacion(`Documento guardado para envío posterior`, "info");
-        
-        if (callback) callback(false);
-    }
-}
-
-/**
- * Limpia el formulario de documentos
- */
-function limpiarFormularioDocumento() {
-    // Limpiar formulario
-    const formulario = document.getElementById('formulario-documento');
-    if (formulario) {
-        formulario.reset();
-        
-        // Limpiar selecciones específicas
-        document.querySelectorAll('.destinatario-checkbox input[type="checkbox"]').forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        
-        // Limpiar campo oculto de destinatarios
-        const campoDestinatarios = document.getElementById('destinatarios-seleccionados');
-        if (campoDestinatarios) {
-            campoDestinatarios.value = '';
-        }
-    }
-    
-    // Si hay previsualizaciones de adjuntos, limpiarlas
-    const previewAdjunto = document.getElementById('preview-adjunto');
-    if (previewAdjunto) {
-        previewAdjunto.innerHTML = '';
-        previewAdjunto.style.display = 'none';
-    }
-    
-    // Volver a la vista de lista de documentos
-    const btnVerInformes = document.getElementById('btn-ver-informes');
-    if (btnVerInformes) {
-        btnVerInformes.click();
-    }
-}
-
-/**
- * Filtra los documentos según el tipo seleccionado
- * @param {string} filtro - Filtro a aplicar ('todos', 'informes', 'ordenes', etc.)
- */
-function filtrarInformes(filtro) {
-    const documentos = document.querySelectorAll('.informe');
-    
-    // Guardar filtro actual
-    filtroActual = filtro;
-    
-    documentos.forEach(documento => {
-        const categoria = documento.getAttribute('data-categoria');
-        const esImportante = documento.classList.contains('importante');
-        const esArchivado = documento.classList.contains('archivado');
-        
-        let mostrar = false;
-        
-        switch(filtro) {
-            case 'informes':
-                // Mostrar solo informes no archivados
-                mostrar = (categoria === 'informe') && !esArchivado;
-                break;
-            case 'ordenes':
-                // Mostrar solo órdenes no archivadas
-                mostrar = (categoria === 'orden') && !esArchivado;
-                break;
-            case 'importantes':
-                // Mostrar solo importantes no archivados
-                mostrar = esImportante && !esArchivado;
-                break;
-            case 'archivados':
-                // Mostrar solo archivados
-                mostrar = esArchivado;
-                break;
-            default:
-                // Mostrar todos menos archivados
-                mostrar = !esArchivado;
-        }
-        
-        documento.style.display = mostrar ? 'block' : 'none';
-    });
-}
-
-function agregarInforme(documento) {
-    const listaInformes = document.getElementById('lista-informes');
-    if (!listaInformes) {
-        console.error("Lista de documentos no encontrada");
-        return;
-    }
-
-    // Verificar si ya existe el documento en la lista
-    const documentoExistente = document.querySelector(`.informe[data-id="${documento.id}"]`);
-    if (documentoExistente) {
-        console.log(`El documento ya existe en la lista, no se duplica: ${documento.id}`);
-        return;
-    }
-
-    const esPropio = documento.emisor.id === (usuarioInfo ? usuarioInfo.id : null);
-
-    // Determinar clase CSS según el tipo y prioridad
-    let claseCSS = "";
-    let iconoTipo = '<i class="fas fa-file-alt"></i>';
-
-    if (documento.prioridad === "urgente") {
-        claseCSS += " informe-urgente";
-    }
-
-    if (documento.categoriaDocumento === "orden") {
-        claseCSS += " orden";
-        iconoTipo = '<i class="fas fa-tasks"></i>';
-    }
-
-    // Agregar clase para informes propios
-    if (esPropio) {
-        claseCSS += " propio";
-    }
-
-    // Agregar clases para importante/archivado si las tiene
-    if (documento.importante) {
-        claseCSS += " importante";
-    }
-
-    if (documento.archivado) {
-        claseCSS += " archivado";
-    }
-
-    // Formato de fecha más legible
-    const fecha = MAIRA.Utils.formatearFecha(documento.timestamp);
-
-    // Preparar información sobre destinatario/remitente
-    let infoRemitente = "";
-    if (esPropio) {
-        // Si es propio, mostrar a quién se envió
-        let destinatarioNombre = "Desconocido";
-        
-        if (documento.destinatario === "todos") {
-            destinatarioNombre = "Todos";
-        } else if (documento.destinatario === "comando") {
-            destinatarioNombre = "Comando/Central";
-        } else if (documento.destinatario && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados && window.MAIRA.GestionBatalla.elementosConectados[documento.destinatario]?.datos?.usuario) {
-            destinatarioNombre = window.MAIRA.GestionBatalla.elementosConectados[documento.destinatario].datos.usuario;
-        }
-        
-        infoRemitente = `Enviado a: ${destinatarioNombre}`;
-    } else {
-        // Si no es propio, mostrar quién lo envió
-        let elementoInfo = "";
-        if (documento.emisor.elemento) {
-            if (documento.emisor.elemento.designacion) {
-                elementoInfo = documento.emisor.elemento.designacion;
-                if (documento.emisor.elemento.dependencia) {
-                    elementoInfo += "/" + documento.emisor.elemento.dependencia;
-                }
-            }
-        }
-        
-        infoRemitente = `De: ${documento.emisor.nombre}${elementoInfo ? ` (${elementoInfo})` : ''}`;
-    }
-
-    // Información sobre adjunto
-    let adjuntoHTML = '';
-    if (documento.tieneAdjunto && documento.adjunto) {
-        const tipoArchivo = documento.adjunto.tipo || 'application/octet-stream';
-        let iconoAdjunto = 'fa-file';
-        
-        // Determinar icono según tipo de archivo
-        if (tipoArchivo.startsWith('image/')) {
-            iconoAdjunto = 'fa-file-image';
-        } else if (tipoArchivo.startsWith('audio/')) {
-            iconoAdjunto = 'fa-file-audio';
-        } else if (tipoArchivo.startsWith('video/')) {
-            iconoAdjunto = 'fa-file-video';
-        } else if (tipoArchivo.includes('pdf')) {
-            iconoAdjunto = 'fa-file-pdf';
-        } else if (tipoArchivo.includes('word') || tipoArchivo.includes('document')) {
-            iconoAdjunto = 'fa-file-word';
-        } else if (tipoArchivo.includes('excel') || tipoArchivo.includes('sheet')) {
-            iconoAdjunto = 'fa-file-excel';
-        } else if (tipoArchivo.includes('zip') || tipoArchivo.includes('compressed')) {
-            iconoAdjunto = 'fa-file-archive';
-        }
-        
-        adjuntoHTML = `
-            <div class="informe-adjunto">
-                <i class="fas ${iconoAdjunto}"></i> 
-                <a href="#" class="ver-adjunto" data-id="${documento.id}">
-                    ${documento.adjunto.nombre} (${MAIRA.Utils.formatearTamaño(documento.adjunto.tamaño)})
-                </a>
-            </div>
-        `;
-    }
-
-    // Checkbox for selection (Gmail style)
-    const checkboxHTML = `
-        <div class="informe-checkbox-container">
-            <input type="checkbox" class="informe-checkbox" title="Seleccionar">
-        </div>
-    `;
-
-    // Action buttons 
-    const accionesHTML = `
-        <div class="informe-acciones">
-            <button class="btn-responder" data-id="${documento.id}" title="Responder">
-                <i class="fas fa-reply"></i>
-            </button>
-            ${!esPropio ? `
-            <button class="btn-marcar-leido" data-id="${documento.id}" title="Marcar como leído">
-                <i class="fas fa-check"></i>
-            </button>` : ''}
-            <button class="btn-archivar" data-id="${documento.id}" title="Archivar">
-                <i class="fas fa-archive"></i>
-            </button>
-            <button class="btn-importante" data-id="${documento.id}" title="${documento.importante ? 'Desmarcar importante' : 'Marcar importante'}">
-                <i class="fas fa-star" ${documento.importante ? 'style="color:gold"' : ''}></i>
-            </button>
-        </div>
-    `;
-
-    // Priority indicator
-    const prioridadHTML = documento.prioridad === 'urgente' ? 
-        `<span class="documento-prioridad urgente">URGENTE</span>` : '';
-
-    // Create document HTML element
-    const documentoHTML = `
-        <div class="informe ${claseCSS}" data-id="${documento.id}" data-tipo="${documento.tipo}" data-categoria="${documento.categoriaDocumento}" data-prioridad="${documento.prioridad}" style="${documento.archivado && filtroActual !== 'archivados' ? 'display:none;' : ''}">
-            ${checkboxHTML}
-            <div class="informe-header">
-                <div class="informe-tipo">${iconoTipo}</div>
-                <div class="informe-titulo">
-                    <strong>${documento.asunto}</strong> ${prioridadHTML}
-                    <small>${fecha}</small>
-                </div>
-                ${accionesHTML}
-            </div>
-            
-            <div class="informe-remitente">${infoRemitente}</div>
-            
-            <div class="informe-contenido mt-2">${documento.contenido}</div>
-            
-            ${adjuntoHTML}
-            
-            ${documento.posicion ? `
-            <div class="informe-acciones mt-2">
-                <button class="btn-ubicacion" data-lat="${documento.posicion.lat}" data-lng="${documento.posicion.lng}">
-                    <i class="fas fa-map-marker-alt"></i> Ver ubicación
-                </button>
-            </div>` : ''}
-        </div>
-    `;
-
-    // Add to the beginning of the list
-    listaInformes.insertAdjacentHTML('afterbegin', documentoHTML);
-
-    // Configure events for the new document
-    configurarEventosDocumento(documento.id);
-    
-    // Apply special styling for urgent documents
-    if (documento.prioridad === 'urgente') {
-        const elementoDocumento = document.querySelector(`.informe[data-id="${documento.id}"]`);
-        if (elementoDocumento) {
-            // Add class for blinking animation
-            elementoDocumento.classList.add('urgente-parpadeo');
-            
-            // Apply red background and white text styling
-            elementoDocumento.style.backgroundColor = '#ffebee';
-            elementoDocumento.style.borderLeftColor = '#f44336';
-            elementoDocumento.style.borderLeftWidth = '4px';
-        }
-    }
-}
 
 
 
 
-function prepararRespuestaDocumento(documentoId) {
-// Obtener documento original
-const documentoElement = document.querySelector(`.informe[data-id="${documentoId}"]`);
-if (!documentoElement) return;
 
-// Obtener datos básicos
-const asuntoOriginal = documentoElement.querySelector('.informe-titulo strong').textContent;
-const remitente = documentoElement.querySelector('.informe-remitente').textContent.replace('De:', '').trim();
-const categoriaOriginal = documentoElement.getAttribute('data-categoria');
 
-// Cambiar a la pestaña de crear documento
-const btnCrearInforme = document.getElementById('btn-crear-informe');
-if (btnCrearInforme) {
-    btnCrearInforme.click();
-}
 
-// Seleccionar el tipo de documento correcto (informe u orden)
-const radioCategoriaInforme = document.querySelector(`input[name="tipo-documento"][value="${categoriaOriginal || 'informe'}"]`);
-if (radioCategoriaInforme) {
-    radioCategoriaInforme.checked = true;
-    
-    // Disparar evento change manualmente
-    const event = new Event('change');
-    radioCategoriaInforme.dispatchEvent(event);
-}
 
-// Preparar formulario de respuesta
-let formulario;
-if (categoriaOriginal === 'orden') {
-    formulario = document.querySelector('#formulario-orden form');
-} else {
-    formulario = document.querySelector('#formulario-informe form');
-}
 
-if (!formulario) {
-    formulario = document.getElementById('form-informe');
-}
 
-if (formulario) {
-    const tipoInforme = formulario.querySelector('#tipo-informe');
-    const asuntoInforme = formulario.querySelector('#asunto-informe');
-    const contenidoInforme = formulario.querySelector('#contenido-informe');
-    const destinatarioInforme = formulario.querySelector('#destinatario-informe');
-    
-    if (tipoInforme && asuntoInforme && contenidoInforme && destinatarioInforme) {
-        // Verificar si el documento original es de otro usuario para responder
-        const esPropio = documentoElement.classList.contains('propio');
-        
-        if (!esPropio) {
-            // Si no es propio, responder al emisor original
-            // Buscar el ID del emisor
-            let emisorId = null;
-            
-            // Buscar en los informes recibidos
-            if (informesRecibidos[documentoId]) {
-                emisorId = informesRecibidos[documentoId].emisor.id;
-            } else {
-                // Buscar en los elementos conectados
-                if (window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
-                    Object.entries(window.MAIRA.GestionBatalla.elementosConectados).forEach(([id, datos]) => {
-                        if (datos.datos && datos.datos.usuario && datos.datos.usuario === remitente) {
-                            emisorId = id;
-                        }
-                    });
-                }
-            }
-            
-            if (emisorId) {
-                destinatarioInforme.value = emisorId;
-            }
-        }
-        
-        // Preparar asunto como respuesta
-        if (!asuntoOriginal.startsWith('Re:')) {
-            asuntoInforme.value = 'Re: ' + asuntoOriginal;
-        } else {
-            asuntoInforme.value = asuntoOriginal;
-        }
-        
-        // Añadir cita del mensaje original
-        const contenidoOriginal = documentoElement.querySelector('.informe-contenido').innerHTML;
-        contenidoInforme.value = '\n\n-------- Documento Original --------\n' + 
-            contenidoOriginal.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
-        
-        // Enfocar al inicio para que el usuario escriba su respuesta
-        contenidoInforme.setSelectionRange(0, 0);
-        contenidoInforme.focus();
-    }
-}
-}
 
-/**
- * Archiva un documento
- * @param {string} documentoId - ID del documento a archivar
- */
-function archivarDocumento(documentoId) {
-    const documentoElement = document.querySelector(`.informe[data-id="${documentoId}"]`);
-    if (!documentoElement) return;
 
-    // Marcar como archivado visualmente
-    documentoElement.classList.add('archivado');
 
-    // Si el filtro actual no es 'archivados', ocultarlo
-    if (filtroActual !== 'archivados') {
-        documentoElement.style.display = 'none';
-    }
 
-    // Actualizar en memoria
-    if (informesRecibidos[documentoId]) {
-        informesRecibidos[documentoId].archivado = true;
-    } else if (informesEnviados[documentoId]) {
-        informesEnviados[documentoId].archivado = true;
-    }
 
-    // Guardar cambios en localStorage
-    guardarInformesLocalmente();
 
-    // Notificar al usuario
-    MAIRA.Utils.mostrarNotificacion("Documento archivado correctamente", "success");
-}
 
-/**
- * Toggle importante para un documento
- * @param {string} documentoId - ID del documento
- */
-function toggleImportanteDocumento(documentoId) {
-    const documentoElement = document.querySelector(`.informe[data-id="${documentoId}"]`);
-    if (!documentoElement) return;
-
-    // Determinar si está marcado como importante
-    const esImportante = documentoElement.classList.contains('importante');
-
-    // Cambiar estado
-    if (esImportante) {
-        documentoElement.classList.remove('importante');
-        
-        // Cambiar icono de estrella
-        const iconoEstrella = documentoElement.querySelector('.btn-importante i');
-        if (iconoEstrella) {
-            iconoEstrella.style.color = '';
-        }
-        
-        // Notificar
-        MAIRA.Utils.mostrarNotificacion("Documento desmarcado como importante", "info");
-    } else {
-        documentoElement.classList.add('importante');
-        
-        // Cambiar icono de estrella
-        const iconoEstrella = documentoElement.querySelector('.btn-importante i');
-        if (iconoEstrella) {
-            iconoEstrella.style.color = 'gold';
-        }
-        
-        // Notificar
-        MAIRA.Utils.mostrarNotificacion("Documento marcado como importante", "success");
-    }
-
-    // Actualizar en memoria
-    if (informesRecibidos[documentoId]) {
-        informesRecibidos[documentoId].importante = !esImportante;
-    } else if (informesEnviados[documentoId]) {
-        informesEnviados[documentoId].importante = !esImportante;
-    }
-
-    // Guardar cambios en localStorage
-    guardarInformesLocalmente();
-}
 
 // Estilos CSS para los documentos urgentes (parpadeo)
 function inicializarEstilosDocumentos() {
@@ -2080,37 +4016,6 @@ function agregarFiltrosMejorados() {
    }
 }
 
-function inicializarInterfazDocumentos() {
-    console.log("Inicializando interfaz de documentos");
-    
-    // Inicializar estilos para documentos, incluyendo documentos urgentes
-    inicializarEstilosInformes();
-    inicializarEstilosDocumentos();
-    
-    // Obtener referencia a los elementos
-    const listaInformes = document.getElementById('lista-informes');
-    const btnVerInformes = document.getElementById('btn-ver-informes');
-    const btnCrearInforme = document.getElementById('btn-crear-informe');
-    
-    // Limpiar lista de documentos si existe
-    if (listaInformes) {
-        listaInformes.innerHTML = '';
-    }
-    
-    // Actualizar HTML para la estructura mejorada de creación de documentos
-    actualizarHTMLCreacionDocumentos();
-    
-    // Agregar filtros mejorados
-    agregarFiltrosMejorados();
-    
-    // Verificar eventos de botones
-    verificarEventosInformes();
-    
-    console.log("Interfaz de documentos inicializada");
-    
-    // Cargar documentos guardados con retraso para asegurar que todo esté inicializado
-    setTimeout(cargarInformesGuardados, 500);
-}
 
 
 
@@ -2410,1075 +4315,15 @@ function inicializarInterfazDocumentos() {
         quitarResaltadoEnElemento(informe.querySelector('.informe-remitente'));
     }
     
-   /**
- * Inicializa los estilos para informes
- */
-function inicializarEstilosInformes() {
-    // Verificar si ya existe la hoja de estilos
-    if (document.getElementById('estilos-informes')) {
-        return;
-    }
-    
-    // Crear hoja de estilos
-    const style = document.createElement('style');
-    style.id = 'estilos-informes';
-    style.textContent = `
-        /* Estilos para informes */
-        .informe {
-            transition: transform 0.2s;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            padding: 12px 12px 12px 40px; /* Espacio para checkbox */
-            background-color: #f8f9fa;
-            border-left: 4px solid #6c757d;
-            position: relative;
-        }
-        
-        .informe:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .informe .informe-acciones button {
-            background: none;
-            border: none;
-            padding: 5px 8px;
-            margin: 0 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .informe .informe-acciones button:hover {
-            background-color: rgba(0,0,0,0.05);
-        }
-        
-        .informe.informe-urgente {
-            border-left: 4px solid #f44336;
-            background-color: #fff8f8;
-        }
-        
-        .informe.orden {
-            border-left: 4px solid #ff9800;
-            background-color: #fffaf4;
-        }
-        
-        .informe.leido {
-            opacity: 0.8;
-        }
-        
-        .informe.propio {
-            background-color: #f5f9ff;
-            border-left: 4px solid #0288d1;
-        }
-        
-        /* Estilos para informes importantes */
-        .informe.importante {
-            box-shadow: 0 0 0 1px rgba(255, 193, 7, 0.5);
-        }
-        
-        .informe.importante .btn-importante .fa-star {
-            color: gold !important;
-        }
-        
-        /* Estilos para informes archivados */
-        .informe.archivado {
-            opacity: 0.7;
-            background-color: #f0f0f0;
-        }
-        
-        /* Estilos para adjuntos en informes */
-        .informe-adjunto {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background-color: #f0f2f5;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .informe-adjunto i {
-            font-size: 18px;
-            color: #555;
-        }
-        
-        .ver-adjunto {
-            color: #0281a8;
-            text-decoration: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-            display: inline-block;
-        }
-        
-        .ver-adjunto:hover {
-            text-decoration: underline;
-        }
-        
-        /* Estilo para el checkbox de selección */
-        .informe-checkbox-container {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .informe-checkbox {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        
-        /* Botones multimedia */
-        .btn-foto-informe,
-        .btn-audio-informe,
-        .btn-video-informe {
-            background: none;
-            border: 1px solid #ddd;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-foto-informe:hover,
-        .btn-audio-informe:hover,
-        .btn-video-informe:hover {
-            transform: scale(1.1);
-            background-color: #f5f5f5;
-        }
-        
-        /* Buscador de informes */
-        .buscador-informes {
-            margin-bottom: 10px;
-        }
-        
-        /* Filtros */
-        .filtros-informes {
-            display: flex;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        
-        .filtros-informes button {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .filtros-informes button.active {
-            background-color: #e3f2fd;
-            border-color: #90caf9;
-            font-weight: bold;
-        }
-        
-        .filtros-informes button:hover {
-            background-color: #e9ecef;
-        }
-        
-        /* Acciones globales para informes */
-        .informes-acciones-globales {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 8px 12px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .informes-acciones-globales .btn-group {
-            display: flex;
-            gap: 5px;
-        }
-        
-        /* Selector de todos los informes */
-        #seleccionar-todos-informes {
-            margin-right: 5px;
-        }
-    `;
-    
-    document.head.appendChild(style);
-}
+
     
 
-/**
- * Configura eventos para un documento recién agregado
- * @param {string} documentoId - ID del documento
- */
-function configurarEventosDocumento(documentoId) {
-    // Botón de ver ubicación
-    const btnUbicacion = document.querySelector(`.informe[data-id="${documentoId}"] .btn-ubicacion`);
-    if (btnUbicacion) {
-        btnUbicacion.addEventListener('click', function() {
-            const lat = parseFloat(this.getAttribute('data-lat'));
-            const lng = parseFloat(this.getAttribute('data-lng'));
-            
-            if (isNaN(lat) || isNaN(lng)) {
-                MAIRA.Utils.mostrarNotificacion("Coordenadas inválidas", "error");
-                return;
-            }
-            
-            if (window.mapa) {
-                window.mapa.setView([lat, lng], 15);
-                
-                // Crear un marcador temporal
-                const tempMarker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        className: 'custom-div-icon temp-marker',
-                        html: '<div class="temp-marker-pin"></div>',
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
-                    })
-                }).addTo(window.mapa);
-                
-                // Añadir popup con información
-                tempMarker.bindPopup(`<strong>Ubicación del documento</strong><br>${document.querySelector(`.informe[data-id="${documentoId}"] .informe-titulo strong`).textContent}`).openPopup();
-                
-                // Eliminar el marcador después de 30 segundos
-                setTimeout(() => {
-                    if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-                        window.mapa.removeLayer(tempMarker);
-                    }
-                }, 30000);
-            }
-        });
-    }
-    
-    // Botón para marcar como leído
-    const btnMarcarLeido = document.querySelector(`.informe[data-id="${documentoId}"] .btn-marcar-leido`);
-    if (btnMarcarLeido) {
-        btnMarcarLeido.addEventListener('click', function() {
-            if (socket && socket.connected) {
-                socket.emit('informeLeido', { informeId: documentoId });
-                
-                // Marcar visualmente como leído
-                document.querySelector(`.informe[data-id="${documentoId}"]`).classList.add('leido');
-                this.style.display = 'none'; // Ocultar botón
-            }
-        });
-    }
-    
-    // Botón para responder
-    const btnResponder = document.querySelector(`.informe[data-id="${documentoId}"] .btn-responder`);
-    if (btnResponder) {
-        btnResponder.addEventListener('click', function() {
-            prepararRespuestaDocumento(documentoId);
-        });
-    }
-    
-    // Botón para archivar
-    const btnArchivar = document.querySelector(`.informe[data-id="${documentoId}"] .btn-archivar`);
-    if (btnArchivar) {
-        btnArchivar.addEventListener('click', function() {
-            archivarDocumento(documentoId);
-        });
-    }
-    
-    // Botón para marcar como importante
-    const btnImportante = document.querySelector(`.informe[data-id="${documentoId}"] .btn-importante`);
-    if (btnImportante) {
-        btnImportante.addEventListener('click', function() {
-            toggleImportanteDocumento(documentoId);
-        });
-    }
-    
-    // Checkbox para selección
-    const checkbox = document.querySelector(`.informe[data-id="${documentoId}"] .informe-checkbox`);
-    if (checkbox) {
-        checkbox.addEventListener('click', function(e) {
-            e.stopPropagation(); // Evitar que el clic se propague al documento
-        });
-    }
-    
-    // Enlace para ver adjunto
-    const verAdjunto = document.querySelector(`.informe[data-id="${documentoId}"] .ver-adjunto`);
-    if (verAdjunto) {
-        verAdjunto.addEventListener('click', function(e) {
-            e.preventDefault();
-            mostrarAdjuntoDocumento(documentoId);
-        });
-    }
-    
-    // Hacer que el documento completo sea interactivo
-    const documento = document.querySelector(`.informe[data-id="${documentoId}"]`);
-    if (documento) {
-        documento.addEventListener('click', function(e) {
-            // Solo abrir el documento si el clic no fue en un botón o checkbox
-            if (!e.target.closest('button') && !e.target.closest('input[type="checkbox"]') && !e.target.closest('a')) {
-                mostrarDetallesDocumento(documentoId);
-            }
-        });
-    }
-}
 
-/**
- * Muestra los detalles de un documento en un modal
- * @param {string} documentoId - ID del documento
- */
-function mostrarDetallesDocumento(documentoId) {
-    // Buscar datos del documento
-    const documento = buscarInformePorId(documentoId);
-    if (!documento) {
-        MAIRA.Utils.mostrarNotificacion("No se pudo encontrar el documento", "error");
-        return;
-    }
-    
-    // Crear modal para ver los detalles
-    const modal = document.createElement('div');
-    modal.className = 'modal-detalles-documento';
-    modal.style.position = 'fixed';
-    modal.style.top = '0';
-    modal.style.left = '0';
-    modal.style.width = '100%';
-    modal.style.height = '100%';
-    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    modal.style.zIndex = '10000';
-    modal.style.display = 'flex';
-    modal.style.justifyContent = 'center';
-    modal.style.alignItems = 'center';
-    
-    // Contenido del modal
-    const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content';
-    modalContent.style.backgroundColor = 'white';
-    modalContent.style.borderRadius = '8px';
-    modalContent.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
-    modalContent.style.padding = '20px';
-    modalContent.style.maxWidth = '800px';
-    modalContent.style.width = '90%';
-    modalContent.style.maxHeight = '80vh';
-    modalContent.style.overflow = 'auto';
-    
-    // Determinar el título según el tipo
-    let tipoTexto = "Informe";
-    let claseHeader = "";
-    
-    if (documento.prioridad === "urgente") {
-        claseHeader = "text-danger";
-    }
-    
-    if (documento.categoriaDocumento === "orden") {
-        tipoTexto = "Orden";
-        if (documento.prioridad !== "urgente") {
-            claseHeader = "text-warning";
-        }
-    }
-    
-    // Formatear fecha
-    const fecha = MAIRA.Utils.formatearFecha ? 
-        MAIRA.Utils.formatearFecha(documento.timestamp) : 
-        new Date(documento.timestamp).toLocaleString();
-    
-    // Información del emisor
-    let infoEmisor = "";
-    if (documento.emisor.elemento) {
-        if (documento.emisor.elemento.designacion) {
-            infoEmisor = documento.emisor.elemento.designacion;
-            if (documento.emisor.elemento.dependencia) {
-                infoEmisor += "/" + documento.emisor.elemento.dependencia;
-            }
-        }
-    }
-    
-    // Información del destinatario
-    let infoDestinatario = "";
-    if (documento.destinatario === "todos") {
-        infoDestinatario = "Todos los participantes";
-    } else if (documento.destinatario === "comando") {
-        infoDestinatario = "Comando/Central";
-    } else if (typeof documento.destinatario === 'string') {
-        // Buscar nombre del destinatario
-        if (window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
-            const elemento = window.MAIRA.GestionBatalla.elementosConectados[documento.destinatario];
-            if (elemento && elemento.datos) {
-                infoDestinatario = elemento.datos.usuario || "Desconocido";
-                
-                // Agregar info del elemento si disponible
-                if (elemento.datos.elemento && elemento.datos.elemento.designacion) {
-                    infoDestinatario += ` (${elemento.datos.elemento.designacion}`;
-                    if (elemento.datos.elemento.dependencia) {
-                        infoDestinatario += `/${elemento.datos.elemento.dependencia}`;
-                    }
-                    infoDestinatario += ")";
-                }
-            } else {
-                infoDestinatario = "Usuario desconocido";
-            }
-        } else {
-            infoDestinatario = "Destinatario específico";
-        }
-    }
-    
-    // Información de adjunto
-    let adjuntoHTML = '';
-    if (documento.tieneAdjunto && documento.adjunto) {
-        const tipoArchivo = documento.adjunto.tipo || 'application/octet-stream';
-        let iconoAdjunto = 'fa-file';
-        
-        // Determinar icono según tipo de archivo
-        if (tipoArchivo.startsWith('image/')) {
-            iconoAdjunto = 'fa-file-image';
-        } else if (tipoArchivo.startsWith('audio/')) {
-            iconoAdjunto = 'fa-file-audio';
-        } else if (tipoArchivo.startsWith('video/')) {
-            iconoAdjunto = 'fa-file-video';
-        } else if (tipoArchivo.includes('pdf')) {
-            iconoAdjunto = 'fa-file-pdf';
-        } else if (tipoArchivo.includes('word') || tipoArchivo.includes('document')) {
-            iconoAdjunto = 'fa-file-word';
-        } else if (tipoArchivo.includes('excel') || tipoArchivo.includes('sheet')) {
-            iconoAdjunto = 'fa-file-excel';
-        } else if (tipoArchivo.includes('zip') || tipoArchivo.includes('compressed')) {
-            iconoAdjunto = 'fa-file-archive';
-        }
-        
-        adjuntoHTML = `
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Archivo Adjunto</h5>
-                </div>
-                <div class="card-body d-flex align-items-center">
-                    <i class="fas ${iconoAdjunto} fa-2x mr-3"></i>
-                    <div>
-                        <div>${documento.adjunto.nombre}</div>
-                        <div class="text-muted">${MAIRA.Utils.formatearTamaño ? MAIRA.Utils.formatearTamaño(documento.adjunto.tamaño) : (Math.round(documento.adjunto.tamaño / 1024) + ' KB')}</div>
-                    </div>
-                    <button class="btn btn-primary ml-auto" onclick="MAIRA.Informes.mostrarAdjuntoDocumento('${documento.id}')">
-                        Ver Adjunto
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Información de posición
-    let posicionHTML = '';
-    if (documento.posicion && documento.posicion.lat && documento.posicion.lng) {
-        posicionHTML = `
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Ubicación</h5>
-                </div>
-                <div class="card-body">
-                    <p>El documento incluye una ubicación geográfica.</p>
-                    <button class="btn btn-info" onclick="MAIRA.Informes.centrarEnPosicionDocumento('${documento.id}')">
-                        <i class="fas fa-map-marker-alt"></i> Ver en el mapa
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-    
-    // HTML del modal
-    modalContent.innerHTML = `
-        <div class="modal-header ${claseHeader}">
-            <h4>${documento.prioridad === 'urgente' ? 'URGENTE: ' : ''}${tipoTexto}: ${documento.asunto}</h4>
-            <button type="button" class="close" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>De:</strong> ${documento.emisor.nombre} ${infoEmisor ? `(${infoEmisor})` : ''}
-                </div>
-                <div class="col-md-6">
-                    <strong>Para:</strong> ${infoDestinatario}
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>Fecha:</strong> ${fecha}
-                </div>
-                <div class="col-md-6">
-                    <strong>Estado:</strong> 
-                    <span class="badge ${documento.leido ? 'badge-success' : 'badge-warning'}">
-                        ${documento.leido ? 'Leído' : 'No leído'}
-                    </span>
-                    ${documento.importante ? '<span class="badge badge-warning ml-2">Importante</span>' : ''}
-                    ${documento.archivado ? '<span class="badge badge-secondary ml-2">Archivado</span>' : ''}
-                </div>
-            </div>
-            <div class="contenido-documento p-3 border rounded bg-light">
-                ${documento.contenido.replace(/\n/g, '<br>')}
-            </div>
-            ${adjuntoHTML}
-            ${posicionHTML}
-        </div>
-        <div class="modal-footer">
-            <div class="btn-group mr-auto">
-                <button class="btn btn-outline-secondary btn-sm" onclick="MAIRA.Informes.prepararRespuestaDocumento('${documento.id}')">
-                    <i class="fas fa-reply"></i> Responder
-                </button>
-                ${!documento.archivado ? `
-                <button class="btn btn-outline-secondary btn-sm" onclick="MAIRA.Informes.archivarDocumento('${documento.id}'); document.querySelector('.modal-detalles-documento .close').click()">
-                    <i class="fas fa-archive"></i> Archivar
-                </button>` : ''}
-                <button class="btn btn-outline-${documento.importante ? 'warning' : 'secondary'} btn-sm" onclick="MAIRA.Informes.toggleImportanteDocumento('${documento.id}')">
-                    <i class="fas fa-star"></i> ${documento.importante ? 'Quitar importancia' : 'Marcar importante'}
-                </button>
-            </div>
-            <button class="btn btn-primary" onclick="document.querySelector('.modal-detalles-documento .close').click()">
-                Cerrar
-            </button>
-        </div>
-    `;
-    
-    // Agregar modal al DOM
-    modal.appendChild(modalContent);
-    document.body.appendChild(modal);
-    
-    // Configurar evento para cerrar
-    const btnCerrar = modal.querySelector('.close');
-    if (btnCerrar) {
-        btnCerrar.addEventListener('click', function() {
-            document.body.removeChild(modal);
-        });
-    }
-    
-    // Permitir cerrar con Escape
-    document.addEventListener('keydown', function cerrarConEscape(e) {
-        if (e.key === 'Escape') {
-            if (document.body.contains(modal)) {
-                document.body.removeChild(modal);
-            }
-            document.removeEventListener('keydown', cerrarConEscape);
-        }
-    });
-    
-    // Si el documento no está leído, marcarlo ahora
-    if (!documento.leido && socket && socket.connected && documento.emisor.id !== usuarioInfo?.id) {
-        socket.emit('informeLeido', { informeId: documento.id });
-        
-        // Actualizar visualmente
-        const documentoElement = document.querySelector(`.informe[data-id="${documento.id}"]`);
-        if (documentoElement) {
-            documentoElement.classList.add('leido');
-        }
-        
-        // Actualizar en memoria
-        documento.leido = true;
-        guardarInformesLocalmente();
-    }
-}
 
-/**
- * Muestra el archivo adjunto de un documento
- * @param {string} documentoId - ID del documento
- */
-function mostrarAdjuntoDocumento(documentoId) {
-    // Buscar el documento en registros existentes
-    let documentoData = buscarInformePorId(documentoId);
-    
-    // Si no se encontró o no tiene adjunto
-    if (!documentoData || !documentoData.adjunto) {
-        MAIRA.Utils.mostrarNotificacion("No se pudo acceder al archivo adjunto", "error");
-        return;
-    }
-    
-    // Mostrar el visor de adjuntos
-    mostrarVisorAdjunto(documentoData);
-}
 
-/**
- * Muestra un visor para el archivo adjunto
- * @param {Object} documento - Documento con el adjunto
- */
-function mostrarVisorAdjunto(documento) {
-    if (!documento || !documento.adjunto) return;
-    
-    const adjunto = documento.adjunto;
-    const tipoArchivo = adjunto.tipo || 'application/octet-stream';
-    const tipoBase = tipoArchivo.split('/')[0];  // image, video, audio, etc.
-    
-    // Crear modal para visualizar el adjunto
-    const modalVisor = document.createElement('div');
-    modalVisor.className = 'modal-visor-adjunto';
-    modalVisor.style.position = 'fixed';
-    modalVisor.style.top = '0';
-    modalVisor.style.left = '0';
-    modalVisor.style.width = '100%';
-    modalVisor.style.height = '100%';
-    modalVisor.style.backgroundColor = 'rgba(0,0,0,0.85)';
-    modalVisor.style.zIndex = '10000';
-    modalVisor.style.display = 'flex';
-    modalVisor.style.flexDirection = 'column';
-    
-    // Cabecera con información y botones
-    const header = document.createElement('div');
-    header.style.width = '100%';
-    header.style.padding = '15px';
-    header.style.display = 'flex';
-    header.style.justifyContent = 'space-between';
-    header.style.alignItems = 'center';
-    header.style.backgroundColor = 'rgba(0,0,0,0.7)';
-    header.style.color = 'white';
-    
-    // Nombre del archivo e información
-    const infoContainer = document.createElement('div');
-    infoContainer.style.display = 'flex';
-    infoContainer.style.flexDirection = 'column';
-    
-    const nombreArchivo = document.createElement('h3');
-    nombreArchivo.textContent = adjunto.nombre;
-    nombreArchivo.style.margin = '0';
-    nombreArchivo.style.padding = '0';
-    nombreArchivo.style.fontSize = '18px';
-    
-    const infoArchivo = document.createElement('span');
-    infoArchivo.textContent = `${tipoArchivo} · ${MAIRA.Utils.formatearTamaño ? MAIRA.Utils.formatearTamaño(adjunto.tamaño || 0) : (Math.round(adjunto.tamaño / 1024) + ' KB')}`;
-    infoArchivo.style.fontSize = '12px';
-    infoArchivo.style.opacity = '0.8';
 
-    infoContainer.appendChild(nombreArchivo);
-    infoContainer.appendChild(infoArchivo);
 
-    // Botones de acción
-    const botones = document.createElement('div');
 
-    // Botón para descargar
-    const btnDescargar = document.createElement('button');
-    btnDescargar.innerHTML = '<i class="fas fa-download"></i> Descargar';
-    btnDescargar.style.marginRight = '10px';
-    btnDescargar.style.padding = '8px 15px';
-    btnDescargar.style.backgroundColor = '#4caf50';
-    btnDescargar.style.color = 'white';
-    btnDescargar.style.border = 'none';
-    btnDescargar.style.borderRadius = '4px';
-    btnDescargar.style.cursor = 'pointer';
-
-    // Botón para cerrar
-    const btnCerrar = document.createElement('button');
-    btnCerrar.innerHTML = '<i class="fas fa-times"></i>';
-    btnCerrar.style.padding = '8px 15px';
-    btnCerrar.style.backgroundColor = '#f44336';
-    btnCerrar.style.color = 'white';
-    btnCerrar.style.border = 'none';
-    btnCerrar.style.borderRadius = '4px';
-    btnCerrar.style.cursor = 'pointer';
-
-    botones.appendChild(btnDescargar);
-    botones.appendChild(btnCerrar);
-
-    header.appendChild(infoContainer);
-    header.appendChild(botones);
-
-    // Contenedor principal para el contenido
-    const contenedorPrincipal = document.createElement('div');
-    contenedorPrincipal.style.flex = '1';
-    contenedorPrincipal.style.display = 'flex';
-    contenedorPrincipal.style.alignItems = 'center';
-    contenedorPrincipal.style.justifyContent = 'center';
-    contenedorPrincipal.style.overflow = 'auto';
-    contenedorPrincipal.style.padding = '20px';
-
-    // Contenido según tipo de archivo
-    const contenido = document.createElement('div');
-    contenido.style.maxWidth = '90%';
-    contenido.style.maxHeight = 'calc(100% - 40px)';
-    contenido.style.display = 'flex';
-    contenido.style.flexDirection = 'column';
-    contenido.style.alignItems = 'center';
-    contenido.style.justifyContent = 'center';
-
-    // Preparar contenido en base al tipo
-    if (tipoBase === 'image') {
-        // Es una imagen
-        const imagen = document.createElement('img');
-        imagen.src = adjunto.datos;
-        imagen.style.maxWidth = '100%';
-        imagen.style.maxHeight = 'calc(100vh - 120px)';
-        imagen.style.objectFit = 'contain';
-        imagen.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-        
-        // Añadir controles de zoom
-        const controles = document.createElement('div');
-        controles.style.marginTop = '10px';
-        controles.style.display = 'flex';
-        controles.style.gap = '10px';
-        
-        const btnZoomIn = document.createElement('button');
-        btnZoomIn.innerHTML = '<i class="fas fa-search-plus"></i>';
-        btnZoomIn.style.padding = '5px 10px';
-        btnZoomIn.style.backgroundColor = '#555';
-        btnZoomIn.style.color = 'white';
-        btnZoomIn.style.border = 'none';
-        btnZoomIn.style.borderRadius = '4px';
-        
-        const btnZoomOut = document.createElement('button');
-        btnZoomOut.innerHTML = '<i class="fas fa-search-minus"></i>';
-        btnZoomOut.style.padding = '5px 10px';
-        btnZoomOut.style.backgroundColor = '#555';
-        btnZoomOut.style.color = 'white';
-        btnZoomOut.style.border = 'none';
-        btnZoomOut.style.borderRadius = '4px';
-        
-        const btnRotate = document.createElement('button');
-        btnRotate.innerHTML = '<i class="fas fa-redo"></i>';
-        btnRotate.style.padding = '5px 10px';
-        btnRotate.style.backgroundColor = '#555';
-        btnRotate.style.color = 'white';
-        btnRotate.style.border = 'none';
-        btnRotate.style.borderRadius = '4px';
-        
-        controles.appendChild(btnZoomIn);
-        controles.appendChild(btnZoomOut);
-        controles.appendChild(btnRotate);
-        
-        // Variables para zoom y rotación
-        let zoomLevel = 1;
-        let rotation = 0;
-        
-        btnZoomIn.addEventListener('click', () => {
-            zoomLevel = Math.min(zoomLevel + 0.25, 3);
-            imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
-        });
-        
-        btnZoomOut.addEventListener('click', () => {
-            zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
-            imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
-        });
-        
-        btnRotate.addEventListener('click', () => {
-            rotation = (rotation + 90) % 360;
-            imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
-        });
-        
-        contenido.appendChild(imagen);
-        contenido.appendChild(controles);
-    } else if (tipoBase === 'audio') {
-        // Es audio
-        const audio = document.createElement('audio');
-        audio.controls = true;
-        audio.src = adjunto.datos;
-        audio.style.width = '100%';
-        audio.style.minWidth = '300px';
-        
-        // Añadir elemento de visualización de onda de audio
-        const waveformContainer = document.createElement('div');
-        waveformContainer.style.width = '100%';
-        waveformContainer.style.height = '60px';
-        waveformContainer.style.backgroundColor = '#f0f0f0';
-        waveformContainer.style.borderRadius = '4px';
-        waveformContainer.style.marginTop = '10px';
-        
-        contenido.appendChild(audio);
-        contenido.appendChild(waveformContainer);
-    } else if (tipoBase === 'video') {
-        // Es video
-        const video = document.createElement('video');
-        video.controls = true;
-        video.src = adjunto.datos;
-        video.style.maxWidth = '100%';
-        video.style.maxHeight = 'calc(100vh - 150px)';
-        video.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-        
-        // Añadir controles personalizados si lo deseas
-        const videoControles = document.createElement('div');
-        videoControles.style.marginTop = '10px';
-        videoControles.style.width = '100%';
-        videoControles.style.display = 'flex';
-        videoControles.style.justifyContent = 'center';
-        videoControles.style.gap = '10px';
-        
-        contenido.appendChild(video);
-        contenido.appendChild(videoControles);
-        
-        // Reproducir automáticamente
-        setTimeout(() => {
-            video.play().catch(err => {
-                console.log("Reproducción automática bloqueada por el navegador:", err);
-            });
-        }, 100);
-    } else {
-        // Tipo no soportado para visualización directa
-        const mensaje = document.createElement('div');
-        mensaje.style.padding = '30px';
-        mensaje.style.backgroundColor = 'white';
-        mensaje.style.borderRadius = '8px';
-        mensaje.style.textAlign = 'center';
-        
-        mensaje.innerHTML = `
-            <i class="fas fa-file" style="font-size: 48px; color: #607d8b; margin-bottom: 20px;"></i>
-            <h3>Tipo de archivo no soportado para visualización</h3>
-            <p>Utilice el botón de descarga para guardar el archivo.</p>
-            <p>Tipo: ${tipoArchivo}</p>
-            <p>Tamaño: ${MAIRA.Utils.formatearTamaño ? MAIRA.Utils.formatearTamaño(adjunto.tamaño || 0) : (Math.round(adjunto.tamaño / 1024) + ' KB')}</p>
-        `;
-        
-        contenido.appendChild(mensaje);
-    }
-
-    contenedorPrincipal.appendChild(contenido);
-
-    // Añadir elementos al modal
-    modalVisor.appendChild(header);
-    modalVisor.appendChild(contenedorPrincipal);
-
-    // Añadir modal al body
-    document.body.appendChild(modalVisor);
-
-    // Configurar eventos
-    btnCerrar.addEventListener('click', function() {
-        if (document.body.contains(modalVisor)) {
-            document.body.removeChild(modalVisor);
-        }
-    });
-
-    btnDescargar.addEventListener('click', function() {
-        descargarAdjunto(adjunto);
-    });
-
-    // Permitir cerrar con Escape
-    document.addEventListener('keydown', function cerrarConEscape(e) {
-        if (e.key === 'Escape') {
-            if (document.body.contains(modalVisor)) {
-                document.body.removeChild(modalVisor);
-            }
-            document.removeEventListener('keydown', cerrarConEscape);
-        }
-    });
-    }
-
-/**
- * Descarga un archivo adjunto
- * @param {Object} adjunto - Información del adjunto
- */
-function descargarAdjunto(adjunto) {
-    if (!adjunto || !adjunto.datos) {
-        MAIRA.Utils.mostrarNotificacion("No se puede descargar el archivo", "error");
-        return;
-    }
-    
-    // Crear elemento de enlace temporal
-    const enlace = document.createElement('a');
-    enlace.href = adjunto.datos;
-    enlace.download = adjunto.nombre || 'archivo_adjunto';
-    
-    // Añadir al DOM, simular clic y eliminar
-    document.body.appendChild(enlace);
-    enlace.click();
-    document.body.removeChild(enlace);
-    
-    MAIRA.Utils.mostrarNotificacion("Descarga iniciada", "success");
-}
-
-/**
- * Centra el mapa en la posición de un documento
- * @param {string} documentoId - ID del documento
- */
-function centrarEnPosicionDocumento(documentoId) {
-    // Buscar el documento
-    const documento = buscarInformePorId(documentoId);
-    if (!documento || !documento.posicion || !documento.posicion.lat || !documento.posicion.lng) {
-        MAIRA.Utils.mostrarNotificacion("El documento no tiene coordenadas válidas", "error");
-        return;
-    }
-    
-    // Verificar que existe el mapa
-    if (!window.mapa) {
-        MAIRA.Utils.mostrarNotificacion("El mapa no está disponible", "error");
-        return;
-    }
-    
-    // Centrar mapa en la posición
-    window.mapa.setView([documento.posicion.lat, documento.posicion.lng], 15);
-    
-    // Crear un marcador temporal
-    const tempMarker = L.marker([documento.posicion.lat, documento.posicion.lng], {
-        icon: L.divIcon({
-            className: 'custom-div-icon documento-marker',
-            html: '<div class="documento-marker-pin"></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        })
-    }).addTo(window.mapa);
-    
-    // Añadir popup con información
-    tempMarker.bindPopup(`
-        <strong>${documento.categoriaDocumento === 'orden' ? 'Orden' : 'Informe'}: ${documento.asunto}</strong>
-        <br>
-        <small>De: ${documento.emisor.nombre}</small>
-        <br>
-        <small>Fecha: ${MAIRA.Utils.formatearFecha ? MAIRA.Utils.formatearFecha(documento.timestamp) : new Date(documento.timestamp).toLocaleString()}</small>
-    `).openPopup();
-    
-    // Eliminar el marcador después de 60 segundos
-    setTimeout(() => {
-        if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-            window.mapa.removeLayer(tempMarker);
-        }
-    }, 60000);
-    
-    // Si hay un modal abierto, cerrarlo
-    const modal = document.querySelector('.modal-detalles-documento');
-    if (modal) {
-        document.body.removeChild(modal);
-    }
-}   
-    
-    /**
-     * Configura eventos para un informe recién agregado
-     * @param {string} informeId - ID del informe
-     */
-    function configurarEventosInforme(informeId) {
-        // Botón de ver ubicación
-        const btnUbicacion = document.querySelector(`.informe[data-id="${informeId}"] .btn-ubicacion`);
-        if (btnUbicacion) {
-            btnUbicacion.addEventListener('click', function() {
-                const lat = parseFloat(this.getAttribute('data-lat'));
-                const lng = parseFloat(this.getAttribute('data-lng'));
-                
-                if (isNaN(lat) || isNaN(lng)) {
-                    MAIRA.Utils.mostrarNotificacion("Coordenadas inválidas", "error");
-                    return;
-                }
-                
-                if (window.mapa) {
-                    window.mapa.setView([lat, lng], 15);
-                    
-                    // Crear un marcador temporal
-                    const tempMarker = L.marker([lat, lng], {
-                        icon: L.divIcon({
-                            className: 'custom-div-icon temp-marker',
-                            html: '<div class="temp-marker-pin"></div>',
-                            iconSize: [24, 24],
-                            iconAnchor: [12, 12]
-                        })
-                    }).addTo(window.mapa);
-                    
-                    // Añadir popup con información
-                    tempMarker.bindPopup(`<strong>Ubicación del informe</strong><br>${document.querySelector(`.informe[data-id="${informeId}"] .informe-titulo strong`).textContent}`).openPopup();
-                    
-                    // Eliminar el marcador después de 30 segundos
-                    setTimeout(() => {
-                        if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-                            window.mapa.removeLayer(tempMarker);
-                        }
-                    }, 30000);
-                }
-            });
-        }
-        
-        // Botón para marcar como leído
-        const btnMarcarLeido = document.querySelector(`.informe[data-id="${informeId}"] .btn-marcar-leido`);
-        if (btnMarcarLeido) {
-            btnMarcarLeido.addEventListener('click', function() {
-                if (socket && socket.connected) {
-                    socket.emit('informeLeido', { informeId: informeId });
-                    
-                    // Marcar visualmente como leído
-                    document.querySelector(`.informe[data-id="${informeId}"]`).classList.add('leido');
-                    this.style.display = 'none'; // Ocultar botón
-                }
-            });
-        }
-        
-        // Botón para responder
-        const btnResponder = document.querySelector(`.informe[data-id="${informeId}"] .btn-responder`);
-        if (btnResponder) {
-            btnResponder.addEventListener('click', function() {
-                prepararRespuestaInforme(informeId);
-            });
-        }
-        
-        // Enlace para ver adjunto
-        const verAdjunto = document.querySelector(`.informe[data-id="${informeId}"] .ver-adjunto`);
-        if (verAdjunto) {
-            verAdjunto.addEventListener('click', function(e) {
-                e.preventDefault();
-                mostrarAdjuntoInforme(informeId);
-            });
-        }
-    }
-    
-    /**
-     * Prepara el formulario para responder a un informe
-     * @param {string} informeId - ID del informe a responder
-     */
-    function prepararRespuestaInforme(informeId) {
-        // Obtener informe original
-        const informeElement = document.querySelector(`.informe[data-id="${informeId}"]`);
-        if (!informeElement) return;
-        
-        // Obtener datos básicos
-        const asuntoOriginal = informeElement.querySelector('.informe-titulo strong').textContent;
-        const remitente = informeElement.querySelector('.informe-remitente').textContent.replace('De:', '').trim();
-        
-        // Cambiar a la pestaña de crear informe
-        const btnCrearInforme = document.getElementById('btn-crear-informe');
-        if (btnCrearInforme) {
-            btnCrearInforme.click();
-        }
-        
-        // Preparar formulario de respuesta
-        const tipoInforme = document.getElementById('tipo-informe');
-        const asuntoInforme = document.getElementById('asunto-informe');
-        const contenidoInforme = document.getElementById('contenido-informe');
-        const destinatarioInforme = document.getElementById('destinatario-informe');
-        
-        if (tipoInforme && asuntoInforme && contenidoInforme && destinatarioInforme) {
-            // Verificar si el informe original es de otro usuario para responder
-            const esPropio = informeElement.classList.contains('propio');
-            
-            if (!esPropio) {
-                // Si no es propio, responder al emisor original
-                // Buscar el ID del emisor
-                let emisorId = null;
-                
-                // Buscar en los informes recibidos
-                if (informesRecibidos[informeId]) {
-                    emisorId = informesRecibidos[informeId].emisor.id;
-                } else {
-                    // Buscar en los elementos conectados
-                    if (window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.elementosConectados) {
-                        Object.entries(window.MAIRA.GestionBatalla.elementosConectados).forEach(([id, datos]) => {
-                            if (datos.datos && datos.datos.usuario && datos.datos.usuario === remitente) {
-                                emisorId = id;
-                            }
-                        });
-                    }
-                }
-                
-                if (emisorId) {
-                    destinatarioInforme.value = emisorId;
-                }
-            }
-            
-            // Preparar asunto como respuesta
-            if (!asuntoOriginal.startsWith('Re:')) {
-                asuntoInforme.value = 'Re: ' + asuntoOriginal;
-            } else {
-                asuntoInforme.value = asuntoOriginal;
-            }
-            
-            // Añadir cita del mensaje original
-            const contenidoOriginal = informeElement.querySelector('.informe-contenido').innerHTML;
-            contenidoInforme.value = '\n\n-------- Mensaje Original --------\n' + 
-                contenidoOriginal.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
-            
-            // Enfocar al inicio para que el usuario escriba su respuesta
-            contenidoInforme.setSelectionRange(0, 0);
-            contenidoInforme.focus();
-        }
-    }
-    
-
-    /**
- * Muestra los detalles de un informe en un modal
- * @param {string} informeId - ID del informe
- */
 function mostrarDetallesInforme(informeId) {
     // Buscar datos del informe
     const informe = buscarInformePorId(informeId);
@@ -3830,265 +4675,7 @@ function centrarEnPosicionInforme(informeId) {
         mostrarVisorAdjunto(informeData);
     }
     
-    /**
-     * Muestra un visor para el archivo adjunto
-     * @param {Object} informe - Informe con el adjunto
-     */
-    function mostrarVisorAdjunto(informe) {
-        if (!informe || !informe.adjunto) return;
-        
-        const adjunto = informe.adjunto;
-        const tipoArchivo = adjunto.tipo || 'application/octet-stream';
-        const tipoBase = tipoArchivo.split('/')[0];  // image, video, audio, etc.
-        
-        // Crear modal para visualizar el adjunto
-        const modalVisor = document.createElement('div');
-        modalVisor.className = 'modal-visor-adjunto';
-        modalVisor.style.position = 'fixed';
-        modalVisor.style.top = '0';
-        modalVisor.style.left = '0';
-        modalVisor.style.width = '100%';
-        modalVisor.style.height = '100%';
-        modalVisor.style.backgroundColor = 'rgba(0,0,0,0.85)';
-        modalVisor.style.zIndex = '10000';
-        modalVisor.style.display = 'flex';
-        modalVisor.style.flexDirection = 'column';
-        
-        // Cabecera con información y botones
-        const header = document.createElement('div');
-        header.style.width = '100%';
-        header.style.padding = '15px';
-        header.style.display = 'flex';
-        header.style.justifyContent = 'space-between';
-        header.style.alignItems = 'center';
-        header.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        header.style.color = 'white';
-        
-        // Nombre del archivo e información
-        const infoContainer = document.createElement('div');
-        infoContainer.style.display = 'flex';
-        infoContainer.style.flexDirection = 'column';
-        
-        const nombreArchivo = document.createElement('h3');
-        nombreArchivo.textContent = adjunto.nombre;
-        nombreArchivo.style.margin = '0';
-        nombreArchivo.style.padding = '0';
-        nombreArchivo.style.fontSize = '18px';
-        
-        const infoArchivo = document.createElement('span');
-        infoArchivo.textContent = `${tipoArchivo} · ${MAIRA.Utils.formatearTamaño(adjunto.tamaño || 0)}`;
-        infoArchivo.style.fontSize = '12px';
-        infoArchivo.style.opacity = '0.8';
-        
-        infoContainer.appendChild(nombreArchivo);
-        infoContainer.appendChild(infoArchivo);
-        
-        // Botones de acción
-        const botones = document.createElement('div');
-        
-        // Botón para descargar
-        const btnDescargar = document.createElement('button');
-        btnDescargar.innerHTML = '<i class="fas fa-download"></i> Descargar';
-        btnDescargar.style.marginRight = '10px';
-        btnDescargar.style.padding = '8px 15px';
-        btnDescargar.style.backgroundColor = '#4caf50';
-        btnDescargar.style.color = 'white';
-        btnDescargar.style.border = 'none';
-        btnDescargar.style.borderRadius = '4px';
-        btnDescargar.style.cursor = 'pointer';
-        
-        // Botón para cerrar
-        const btnCerrar = document.createElement('button');
-        btnCerrar.innerHTML = '<i class="fas fa-times"></i>';
-        btnCerrar.style.padding = '8px 15px';
-        btnCerrar.style.backgroundColor = '#f44336';
-        btnCerrar.style.color = 'white';
-        btnCerrar.style.border = 'none';
-        btnCerrar.style.borderRadius = '4px';
-        btnCerrar.style.cursor = 'pointer';
-        
-        botones.appendChild(btnDescargar);
-        botones.appendChild(btnCerrar);
-        
-        header.appendChild(infoContainer);
-        header.appendChild(botones);
-        
-        // Contenedor principal para el contenido
-        const contenedorPrincipal = document.createElement('div');
-        contenedorPrincipal.style.flex = '1';
-        contenedorPrincipal.style.display = 'flex';
-        contenedorPrincipal.style.alignItems = 'center';
-        contenedorPrincipal.style.justifyContent = 'center';
-        contenedorPrincipal.style.overflow = 'auto';
-        contenedorPrincipal.style.padding = '20px';
-        
-        // Contenido según tipo de archivo
-        const contenido = document.createElement('div');
-        contenido.style.maxWidth = '90%';
-        contenido.style.maxHeight = 'calc(100% - 40px)';
-        contenido.style.display = 'flex';
-        contenido.style.flexDirection = 'column';
-        contenido.style.alignItems = 'center';
-        contenido.style.justifyContent = 'center';
-        
-        // Preparar contenido en base al tipo
-        if (tipoBase === 'image') {
-            // Es una imagen
-            const imagen = document.createElement('img');
-            imagen.src = adjunto.datos;
-            imagen.style.maxWidth = '100%';
-            imagen.style.maxHeight = 'calc(100vh - 120px)';
-            imagen.style.objectFit = 'contain';
-            imagen.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-            
-            // Añadir controles de zoom
-            const controles = document.createElement('div');
-            controles.style.marginTop = '10px';
-            controles.style.display = 'flex';
-            controles.style.gap = '10px';
-            
-            const btnZoomIn = document.createElement('button');
-            btnZoomIn.innerHTML = '<i class="fas fa-search-plus"></i>';
-            btnZoomIn.style.padding = '5px 10px';
-            btnZoomIn.style.backgroundColor = '#555';
-            btnZoomIn.style.color = 'white';
-            btnZoomIn.style.border = 'none';
-            btnZoomIn.style.borderRadius = '4px';
-            
-            const btnZoomOut = document.createElement('button');
-            btnZoomOut.innerHTML = '<i class="fas fa-search-minus"></i>';
-            btnZoomOut.style.padding = '5px 10px';
-            btnZoomOut.style.backgroundColor = '#555';
-            btnZoomOut.style.color = 'white';
-            btnZoomOut.style.border = 'none';
-            btnZoomOut.style.borderRadius = '4px';
-            
-            const btnRotate = document.createElement('button');
-            btnRotate.innerHTML = '<i class="fas fa-redo"></i>';
-            btnRotate.style.padding = '5px 10px';
-            btnRotate.style.backgroundColor = '#555';
-            btnRotate.style.color = 'white';
-            btnRotate.style.border = 'none';
-            btnRotate.style.borderRadius = '4px';
-            
-            controles.appendChild(btnZoomIn);
-            controles.appendChild(btnZoomOut);
-            controles.appendChild(btnRotate);
-            
-            // Variables para zoom y rotación
-            let zoomLevel = 1;
-            let rotation = 0;
-            
-            btnZoomIn.addEventListener('click', () => {
-                zoomLevel = Math.min(zoomLevel + 0.25, 3);
-                imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
-            });
-            
-            btnZoomOut.addEventListener('click', () => {
-                zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
-                imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
-            });
-            
-            btnRotate.addEventListener('click', () => {
-                rotation = (rotation + 90) % 360;
-                imagen.style.transform = `scale(${zoomLevel}) rotate(${rotation}deg)`;
-            });
-            
-            contenido.appendChild(imagen);
-            contenido.appendChild(controles);
-        } else if (tipoBase === 'audio') {
-            // Es audio
-            const audio = document.createElement('audio');
-            audio.controls = true;
-            audio.src = adjunto.datos;
-            audio.style.width = '100%';
-            audio.style.minWidth = '300px';
-            
-            // Añadir elemento de visualización de onda de audio
-            const waveformContainer = document.createElement('div');
-            waveformContainer.style.width = '100%';
-            waveformContainer.style.height = '60px';
-            waveformContainer.style.backgroundColor = '#f0f0f0';
-            waveformContainer.style.borderRadius = '4px';
-            waveformContainer.style.marginTop = '10px';
-            
-            contenido.appendChild(audio);
-            contenido.appendChild(waveformContainer);
-        } else if (tipoBase === 'video') {
-            // Es video
-            const video = document.createElement('video');
-            video.controls = true;
-            video.src = adjunto.datos;
-            video.style.maxWidth = '100%';
-            video.style.maxHeight = 'calc(100vh - 150px)';
-            video.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-            
-            // Añadir controles personalizados si lo deseas
-            const videoControles = document.createElement('div');
-            videoControles.style.marginTop = '10px';
-            videoControles.style.width = '100%';
-            videoControles.style.display = 'flex';
-            videoControles.style.justifyContent = 'center';
-            videoControles.style.gap = '10px';
-            
-            contenido.appendChild(video);
-            contenido.appendChild(videoControles);
-            
-            // Reproducir automáticamente
-            setTimeout(() => {
-                video.play().catch(err => {
-                    console.log("Reproducción automática bloqueada por el navegador:", err);
-                });
-            }, 100);
-        } else {
-            // Tipo no soportado para visualización directa
-            const mensaje = document.createElement('div');
-            mensaje.style.padding = '30px';
-            mensaje.style.backgroundColor = 'white';
-            mensaje.style.borderRadius = '8px';
-            mensaje.style.textAlign = 'center';
-            
-            mensaje.innerHTML = `
-                <i class="fas fa-file" style="font-size: 48px; color: #607d8b; margin-bottom: 20px;"></i>
-                <h3>Tipo de archivo no soportado para visualización</h3>
-                <p>Utilice el botón de descarga para guardar el archivo.</p>
-                <p>Tipo: ${tipoArchivo}</p>
-                <p>Tamaño: ${MAIRA.Utils.formatearTamaño(adjunto.tamaño || 0)}</p>
-            `;
-            
-            contenido.appendChild(mensaje);
-        }
-        
-        contenedorPrincipal.appendChild(contenido);
-        
-        // Añadir elementos al modal
-        modalVisor.appendChild(header);
-        modalVisor.appendChild(contenedorPrincipal);
-        
-        // Añadir modal al body
-        document.body.appendChild(modalVisor);
-        
-        // Configurar eventos
-        btnCerrar.addEventListener('click', function() {
-            if (document.body.contains(modalVisor)) {
-                document.body.removeChild(modalVisor);
-            }
-        });
-        
-        btnDescargar.addEventListener('click', function() {
-            descargarAdjunto(adjunto);
-        });
-        
-        // Permitir cerrar con Escape
-        document.addEventListener('keydown', function cerrarConEscape(e) {
-            if (e.key === 'Escape') {
-                if (document.body.contains(modalVisor)) {
-                    document.body.removeChild(modalVisor);
-                }
-                document.removeEventListener('keydown', cerrarConEscape);
-            }
-        });
-    }
+
     
 
     /**
@@ -4213,708 +4800,11 @@ function centrarEnPosicionInforme(informeId) {
         }
     }
     
-    /**
-     * Captura una foto usando la cámara
-     */
-    function capturarFoto() {
-        // Verificar soporte de getUserMedia
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta acceso a la cámara", "error");
-            return;
-        }
-        
-        // Crear elementos para la captura
-        const modalCaptura = document.createElement('div');
-        modalCaptura.className = 'modal-captura-multimedia';
-        modalCaptura.style.position = 'fixed';
-        modalCaptura.style.top = '0';
-        modalCaptura.style.left = '0';
-        modalCaptura.style.width = '100%';
-        modalCaptura.style.height = '100%';
-        modalCaptura.style.backgroundColor = 'rgba(0,0,0,0.9)';
-        modalCaptura.style.zIndex = '10000';
-        modalCaptura.style.display = 'flex';
-        modalCaptura.style.flexDirection = 'column';
-        modalCaptura.style.alignItems = 'center';
-        modalCaptura.style.justifyContent = 'center';
-        
-        modalCaptura.innerHTML = `
-            <div style="text-align: center; color: white; margin-bottom: 15px;">
-                <h3>Capturar foto</h3>
-            </div>
-            <video id="camera-preview" style="max-width: 90%; max-height: 60vh; background: #000; border: 3px solid #fff;" autoplay></video>
-            <canvas id="photo-canvas" style="display: none;"></canvas>
-            <div style="margin-top: 20px;">
-                <button id="btn-capturar" class="btn btn-primary mx-2">
-                    <i class="fas fa-camera"></i> Capturar
-                </button>
-                <button id="btn-cambiar-camara" class="btn btn-info mx-2">
-                    <i class="fas fa-sync"></i> Cambiar cámara
-                </button>
-                <button id="btn-cancelar-captura" class="btn btn-danger mx-2">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
-            </div>
-        `;
-        
-        document.body.appendChild(modalCaptura);
-        
-        // Variables para la captura
-        let stream = null;
-        let facingMode = 'environment'; // Comenzar con cámara trasera en móviles
-        
-        // Función para iniciar la cámara
-        function iniciarCamara() {
-            const constraints = {
-                video: {
-                    facingMode: facingMode
-                }
-            };
-            
-            navigator.mediaDevices.getUserMedia(constraints)
-                .then(function(videoStream) {
-                    stream = videoStream;
-                    const video = document.getElementById('camera-preview');
-                    video.srcObject = stream;
-                })
-                .catch(function(error) {
-                    console.error("Error accediendo a la cámara:", error);
-                    MAIRA.Utils.mostrarNotificacion("Error al acceder a la cámara: " + error.message, "error");
-                    cerrarModalCaptura();
-                });
-        }
-        
-        // Función para cambiar de cámara
-        function cambiarCamara() {
-            if (stream) {
-                // Detener stream actual
-                stream.getTracks().forEach(track => track.stop());
-                
-                // Cambiar modo
-                facingMode = facingMode === 'user' ? 'environment' : 'user';
-                
-                // Reiniciar cámara
-                iniciarCamara();
-            }
-        }
-        
-        // Función para capturar foto
-        function capturar() {
-            const video = document.getElementById('camera-preview');
-            const canvas = document.getElementById('photo-canvas');
-            
-            // Configurar canvas con dimensiones del video
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            // Dibujar frame actual del video en el canvas
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Convertir a data URL (formato JPEG)
-            const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-            
-            // Detener stream
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            
-            // Cerrar modal
-            cerrarModalCaptura();
-            
-            // Crear archivo desde dataURL
-            fetch(dataURL)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], `foto_${new Date().toISOString().replace(/:/g, '-')}.jpg`, { type: 'image/jpeg' });
-                    
-                    // Asignar al input de archivo y disparar evento change
-                    const fileInput = document.getElementById('adjunto-informe');
-                    
-                    // Crear un DataTransfer para simular la selección de archivo
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    fileInput.files = dataTransfer.files;
-                    
-                    // Disparar evento change para actualizar la previsualización
-                    const event = new Event('change', { bubbles: true });
-                    fileInput.dispatchEvent(event);
-                })
-                .catch(error => {
-                    console.error("Error procesando la imagen:", error);
-                    MAIRA.Utils.mostrarNotificacion("Error al procesar la imagen", "error");
-                });
-        }
-        
-        // Función para cerrar el modal
-        function cerrarModalCaptura() {
-            // Detener stream si existe
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            
-            // Eliminar modal
-            if (document.body.contains(modalCaptura)) {
-                document.body.removeChild(modalCaptura);
-            }
-        }
-        
-        // Configurar eventos
-        iniciarCamara();
-        
-        document.getElementById('btn-capturar').addEventListener('click', capturar);
-        document.getElementById('btn-cambiar-camara').addEventListener('click', cambiarCamara);
-        document.getElementById('btn-cancelar-captura').addEventListener('click', cerrarModalCaptura);
-        
-        // Permitir cerrar con Escape
-        document.addEventListener('keydown', function cerrarConEscape(e) {
-            if (e.key === 'Escape') {
-                cerrarModalCaptura();
-                document.removeEventListener('keydown', cerrarConEscape);
-            }
-        });
-    }
     
-    /**
-     * Graba audio usando el micrófono
-     */
-    function grabarAudio() {
-        // Verificar soporte de getUserMedia y MediaRecorder
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
-            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta grabación de audio", "error");
-            return;
-        }
-        
-        // Crear elementos para la grabación
-        const modalGrabacion = document.createElement('div');
-        modalGrabacion.className = 'modal-grabacion-audio';
-        modalGrabacion.style.position = 'fixed';
-        modalGrabacion.style.top = '0';
-        modalGrabacion.style.left = '0';
-        modalGrabacion.style.width = '100%';
-        modalGrabacion.style.height = '100%';
-        modalGrabacion.style.backgroundColor = 'rgba(0,0,0,0.9)';
-        modalGrabacion.style.zIndex = '10000';
-        modalGrabacion.style.display = 'flex';
-        modalGrabacion.style.flexDirection = 'column';
-        modalGrabacion.style.alignItems = 'center';
-        modalGrabacion.style.justifyContent = 'center';
-        
-        modalGrabacion.innerHTML = `
-            <div style="text-align: center; color: white; margin-bottom: 15px;">
-                <h3>Grabar audio</h3>
-            </div>
-            <div id="visualizador-audio" style="width: 300px; height: 60px; background: #333; border-radius: 8px; margin-bottom: 15px;"></div>
-            <div id="tiempo-grabacion" style="font-size: 24px; color: white; margin-bottom: 20px;">00:00</div>
-            <div>
-                <button id="btn-iniciar-grabacion" class="btn btn-primary mx-2">
-                    <i class="fas fa-microphone"></i> Iniciar grabación
-                </button>
-                <button id="btn-detener-grabacion" class="btn btn-warning mx-2" disabled>
-                    <i class="fas fa-stop"></i> Detener
-                </button>
-                <button id="btn-cancelar-grabacion" class="btn btn-danger mx-2">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
-            </div>
-            <div id="reproductor-audio" style="margin-top: 20px; display: none;">
-                <audio id="audio-preview" controls style="width: 300px;"></audio>
-                <div style="margin-top: 10px;">
-                    <button id="btn-guardar-audio" class="btn btn-success mx-2">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
-                    <button id="btn-descartar-audio" class="btn btn-secondary mx-2">
-                        <i class="fas fa-trash"></i> Descartar
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modalGrabacion);
-        
-        // Variables para la grabación
-        let stream = null;
-        let mediaRecorder = null;
-        let chunks = [];
-        let tiempoInicio = null;
-        let timerInterval = null;
-        let audioURL = null;
-        let audioBlob = null;
-        let visualizerInterval = null;
-        
-        // Función para actualizar el visualizador de audio
-        function actualizarVisualizador() {
-            if (!stream) return;
-            
-            // Crear un analizador de audio
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const analyser = audioContext.createAnalyser();
-            const microphone = audioContext.createMediaStreamSource(stream);
-            microphone.connect(analyser);
-            analyser.fftSize = 256;
-            
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            
-            // Actualizar visualizador
-            visualizerInterval = setInterval(() => {
-                if (!mediaRecorder || mediaRecorder.state !== 'recording') {
-                    clearInterval(visualizerInterval);
-                    return;
-                }
-                
-                analyser.getByteFrequencyData(dataArray);
-                
-                // Calcular volumen promedio
-                let sum = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    sum += dataArray[i];
-                }
-                const average = sum / bufferLength;
-                
-                // Actualizar visualizador
-                const visualizer = document.getElementById('visualizador-audio');
-                if (visualizer) {
-                    // Crear representación visual de la onda de audio
-                    let barHTML = '';
-                    for (let i = 0; i < bufferLength; i++) {
-                        const barHeight = Math.max(2, dataArray[i] / 2); // Escalar para que se vea bien
-                        barHTML += `<div style="width: 2px; height: ${barHeight}px; background: #4CAF50; margin: 0 1px;"></div>`;
-                    }
-                    visualizer.innerHTML = `<div style="display: flex; align-items: flex-end; justify-content: center; height: 100%;">${barHTML}</div>`;
-                }
-            }, 100);
-        }
-        
-        // Función para iniciar grabación
-        function iniciarGrabacion() {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(function(audioStream) {
-                    stream = audioStream;
-                    
-                    // Crear MediaRecorder con mejor tipo de MIME
-                    const tiposMIME = [
-                        'audio/webm',
-                        'audio/ogg',
-                        'audio/mp4'
-                    ];
-                    
-                    let tipoSeleccionado = '';
-                    for (const tipo of tiposMIME) {
-                        if (MediaRecorder.isTypeSupported(tipo)) {
-                            tipoSeleccionado = tipo;
-                            break;
-                        }
-                    }
-                    
-                    if (!tipoSeleccionado) {
-                        MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta ningún formato de audio compatible", "error");
-                        cerrarModalGrabacion();
-                        return;
-                    }
-                    
-                    mediaRecorder = new MediaRecorder(stream, { mimeType: tipoSeleccionado });
-                    
-                    // Evento para capturar datos
-                    mediaRecorder.ondataavailable = function(e) {
-                        chunks.push(e.data);
-                    };
-                    
-                    // Evento para cuando se completa la grabación
-                    mediaRecorder.onstop = function() {
-                        audioBlob = new Blob(chunks, { type: tipoSeleccionado });
-                        audioURL = URL.createObjectURL(audioBlob);
-                        
-                        const audioPreview = document.getElementById('audio-preview');
-                        audioPreview.src = audioURL;
-                        audioPreview.style.display = 'block';
-                        
-                        document.getElementById('reproductor-audio').style.display = 'block';
-                        document.getElementById('visualizador-audio').style.display = 'none';
-                        
-                        // Detener temporizador
-                        clearInterval(timerInterval);
-                    };
-                    
-                    // Iniciar grabación
-                    mediaRecorder.start(100); // Guardar en fragmentos de 100ms
-                    tiempoInicio = Date.now();
-                    
-                    // Iniciar temporizador
-                    timerInterval = setInterval(actualizarTiempo, 1000);
-                    
-                    // Iniciar visualizador
-                    actualizarVisualizador();
-                    
-                    // Actualizar botones
-                    document.getElementById('btn-iniciar-grabacion').disabled = true;
-                    document.getElementById('btn-detener-grabacion').disabled = false;
-                })
-                .catch(function(error) {
-                    console.error("Error accediendo al micrófono:", error);
-                    MAIRA.Utils.mostrarNotificacion("Error al acceder al micrófono: " + error.message, "error");
-                    cerrarModalGrabacion();
-                });
-        }
-        
-        // Función para actualizar el tiempo de grabación
-        function actualizarTiempo() {
-            if (!tiempoInicio) return;
-            
-            const tiempoActual = Date.now();
-            const duracion = Math.floor((tiempoActual - tiempoInicio) / 1000);
-            const minutos = Math.floor(duracion / 60).toString().padStart(2, '0');
-            const segundos = (duracion % 60).toString().padStart(2, '0');
-            
-            document.getElementById('tiempo-grabacion').textContent = `${minutos}:${segundos}`;
-            
-            // Limitar grabación a 60 segundos
-            if (duracion >= 60) {
-                detenerGrabacion();
-                MAIRA.Utils.mostrarNotificacion("Límite de 1 minuto alcanzado", "info");
-            }
-        }
-        
-        // Función para detener grabación
-        function detenerGrabacion() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                
-                // Actualizar botones
-                document.getElementById('btn-iniciar-grabacion').disabled = false;
-                document.getElementById('btn-detener-grabacion').disabled = true;
-            }
-        }
-        
-        // Función para cerrar el modal de grabación
-        function cerrarModalGrabacion() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            
-            if (visualizerInterval) {
-                clearInterval(visualizerInterval);
-            }
-            
-            if (audioURL) {
-                URL.revokeObjectURL(audioURL);
-            }
-            
-            if (document.body.contains(modalGrabacion)) {
-                document.body.removeChild(modalGrabacion);
-            }
-        }
-        
-        // Función para guardar el audio
-        function guardarAudio() {
-            // Convertir Blob a File
-            const file = new File([audioBlob], `audio_${new Date().toISOString().replace(/:/g, '-')}.webm`, { type: audioBlob.type });
-            
-            // Asignar al input de archivo
-            const fileInput = document.getElementById('adjunto-informe');
-            if (!fileInput) {
-                MAIRA.Utils.mostrarNotificacion("No se pudo encontrar el campo de adjunto", "error");
-                return;
-            }
-            
-            try {
-                // Crear un DataTransfer para simular la selección de archivo
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                fileInput.files = dataTransfer.files;
-                
-                // Disparar evento change para actualizar la previsualización
-                const event = new Event('change', { bubbles: true });
-                fileInput.dispatchEvent(event);
-                
-                // Cerrar modal
-                cerrarModalGrabacion();
-                
-                MAIRA.Utils.mostrarNotificacion("Audio grabado correctamente", "success");
-            } catch (error) {
-                console.error("Error al guardar audio:", error);
-                MAIRA.Utils.mostrarNotificacion("Error al guardar el audio: " + error.message, "error");
-            }
-        }
-        
-        // Configurar eventos
-        document.getElementById('btn-iniciar-grabacion').addEventListener('click', iniciarGrabacion);
-        document.getElementById('btn-detener-grabacion').addEventListener('click', detenerGrabacion);
-        document.getElementById('btn-cancelar-grabacion').addEventListener('click', cerrarModalGrabacion);
-        document.getElementById('btn-guardar-audio').addEventListener('click', guardarAudio);
-        document.getElementById('btn-descartar-audio').addEventListener('click', cerrarModalGrabacion);
-    }
     
-    /**
-     * Graba video usando la cámara
-     */
-    function grabarVideo() {
-        // Verificar soporte de getUserMedia y MediaRecorder
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
-            MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta grabación de video", "error");
-            return;
-        }
-        
-        // Crear elementos para la grabación
-        const modalGrabacion = document.createElement('div');
-        modalGrabacion.className = 'modal-grabacion-video';
-        modalGrabacion.style.position = 'fixed';
-        modalGrabacion.style.top = '0';
-        modalGrabacion.style.left = '0';
-        modalGrabacion.style.width = '100%';
-        modalGrabacion.style.height = '100%';
-        modalGrabacion.style.backgroundColor = 'rgba(0,0,0,0.9)';
-        modalGrabacion.style.zIndex = '10000';
-        modalGrabacion.style.display = 'flex';
-        modalGrabacion.style.flexDirection = 'column';
-        modalGrabacion.style.alignItems = 'center';
-        modalGrabacion.style.justifyContent = 'center';
-        
-        modalGrabacion.innerHTML = `
-            <div style="text-align: center; color: white; margin-bottom: 15px;">
-                <h3>Grabar video</h3>
-            </div>
-            <video id="video-preview" style="max-width: 90%; max-height: 60vh; background: #000; border: 3px solid #fff;" autoplay muted></video>
-            <div id="tiempo-grabacion-video" style="font-size: 24px; color: white; margin: 10px 0;">00:00</div>
-            <div>
-                <button id="btn-iniciar-grabacion-video" class="btn btn-primary mx-2">
-                    <i class="fas fa-video"></i> Iniciar grabación
-                </button>
-                <button id="btn-detener-grabacion-video" class="btn btn-warning mx-2" disabled>
-                    <i class="fas fa-stop"></i> Detener
-                </button>
-                <button id="btn-cancelar-grabacion-video" class="btn btn-danger mx-2">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
-            </div>
-            <div id="reproductor-video" style="margin-top: 20px; display: none;">
-                <video id="video-grabado" controls style="max-width: 300px; max-height: 200px;"></video>
-                <div style="margin-top: 10px;">
-                    <button id="btn-guardar-video" class="btn btn-success mx-2">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
-                    <button id="btn-descartar-video" class="btn btn-secondary mx-2">
-                        <i class="fas fa-trash"></i> Descartar
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modalGrabacion);
-        
-        // Variables para la grabación
-        let stream = null;
-        let mediaRecorder = null;
-        let chunks = [];
-        let tiempoInicio = null;
-        let timerInterval = null;
-        let videoURL = null;
-        let videoBlob = null;
-        
-        // Función para iniciar grabación
-        function iniciarGrabacionVideo() {
-            const constraints = {
-                audio: true,
-                video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
-            };
-            
-            navigator.mediaDevices.getUserMedia(constraints)
-                .then(function(videoStream) {
-                    stream = videoStream;
-                    
-                    // Mostrar preview
-                    const video = document.getElementById('video-preview');
-                    video.srcObject = stream;
-                    
-                    // Crear MediaRecorder con mejor tipo de MIME
-                    const tiposMIME = [
-                        'video/webm;codecs=vp9,opus',
-                        'video/webm;codecs=vp8,opus',
-                        'video/webm',
-                        'video/mp4'
-                    ];
-                    
-                    let tipoSeleccionado = '';
-                    for (const tipo of tiposMIME) {
-                        if (MediaRecorder.isTypeSupported(tipo)) {
-                            tipoSeleccionado = tipo;
-                            break;
-                        }
-                    }
-                    
-                    if (!tipoSeleccionado) {
-                        MAIRA.Utils.mostrarNotificacion("Tu navegador no soporta ningún formato de video compatible", "error");
-                        cerrarModalGrabacionVideo();
-                        return;
-                    }
-                    
-                    mediaRecorder = new MediaRecorder(stream, { mimeType: tipoSeleccionado });
-                    
-                    // Evento para capturar datos
-                    mediaRecorder.ondataavailable = function(e) {
-                        if (e.data.size > 0) {
-                            chunks.push(e.data);
-                        }
-                    };
-                    
-                    // Evento para cuando se completa la grabación
-                    mediaRecorder.onstop = function() {
-                        videoBlob = new Blob(chunks, { type: tipoSeleccionado });
-                        videoURL = URL.createObjectURL(videoBlob);
-                        
-                        const videoGrabado = document.getElementById('video-grabado');
-                        videoGrabado.src = videoURL;
-                        videoGrabado.style.display = 'block';
-                        
-                        document.getElementById('reproductor-video').style.display = 'block';
-                        document.getElementById('video-preview').style.display = 'none';
-                        
-                        // Detener temporizador
-                        clearInterval(timerInterval);
-                    };
-                    
-                    // Iniciar grabación
-                    mediaRecorder.start(1000); // Guardar en fragmentos de 1 segundo
-                    tiempoInicio = Date.now();
-                    
-                    // Iniciar temporizador
-                    timerInterval = setInterval(actualizarTiempoVideo, 1000);
-                    
-                    // Actualizar botones
-                    document.getElementById('btn-iniciar-grabacion-video').disabled = true;
-                    document.getElementById('btn-detener-grabacion-video').disabled = false;
-                })
-                .catch(function(error) {
-                    console.error("Error accediendo a la cámara o micrófono:", error);
-                    MAIRA.Utils.mostrarNotificacion("Error al acceder a la cámara o micrófono: " + error.message, "error");
-                    cerrarModalGrabacionVideo();
-                });
-        }
-        
-        // Función para actualizar el tiempo de grabación
-        function actualizarTiempoVideo() {
-            if (!tiempoInicio) return;
-            
-            const tiempoActual = Date.now();
-            const duracion = Math.floor((tiempoActual - tiempoInicio) / 1000);
-            const minutos = Math.floor(duracion / 60).toString().padStart(2, '0');
-            const segundos = (duracion % 60).toString().padStart(2, '0');
-            
-            document.getElementById('tiempo-grabacion-video').textContent = `${minutos}:${segundos}`;
-            
-            // Limitar grabación a 30 segundos para evitar archivos demasiado grandes
-            if (duracion >= 30) {
-                detenerGrabacionVideo();
-                MAIRA.Utils.mostrarNotificacion("Límite de 30 segundos alcanzado", "info");
-            }
-        }
-        
-        // Función para detener grabación
-        function detenerGrabacionVideo() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                
-                // Detener preview
-                const video = document.getElementById('video-preview');
-                video.pause();
-                video.style.display = 'none';
-                
-                // Actualizar botones
-                document.getElementById('btn-iniciar-grabacion-video').disabled = false;
-                document.getElementById('btn-detener-grabacion-video').disabled = true;
-            }
-        }
-        
-        // Función para cerrar el modal de grabación
-        function cerrarModalGrabacionVideo() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            
-            if (videoURL) {
-                URL.revokeObjectURL(videoURL);
-            }
-            
-            if (document.body.contains(modalGrabacion)) {
-                document.body.removeChild(modalGrabacion);
-            }
-        }
-        
-        // Función para guardar el video
-        function guardarVideo() {
-            // Verificar tamaño máximo (5MB)
-            if (videoBlob.size > 5 * 1024 * 1024) {
-                MAIRA.Utils.mostrarNotificacion("El video excede el tamaño máximo permitido de 5MB. La calidad será reducida.", "warning");
-                
-                // Comprimir video
-                MAIRA.Utils.comprimirVideo(videoBlob).then(videoComprimido => {
-                    procesarEnvioVideo(videoComprimido);
-                }).catch(error => {
-                    console.error("Error al comprimir video:", error);
-                    MAIRA.Utils.mostrarNotificacion("Error al comprimir el video. Intente una grabación más corta.", "error");
-                });
-            } else {
-                procesarEnvioVideo(videoBlob);
-            }
-        }
-        
-        // Función auxiliar para procesar y guardar el video
-        function procesarEnvioVideo(blob) {
-            // Convertir Blob a File
-            const file = new File([blob], `video_${new Date().toISOString().replace(/:/g, '-')}.webm`, { type: blob.type });
-            
-            // Asignar al input de archivo
-            const fileInput = document.getElementById('adjunto-informe');
-            if (!fileInput) {
-                MAIRA.Utils.mostrarNotificacion("No se pudo encontrar el campo de adjunto", "error");
-                return;
-            }
-            
-            try {
-                // Crear un DataTransfer para simular la selección de archivo
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                fileInput.files = dataTransfer.files;
-                
-                // Disparar evento change para actualizar la previsualización
-                const event = new Event('change', { bubbles: true });
-                fileInput.dispatchEvent(event);
-                
-                // Cerrar modal
-                cerrarModalGrabacionVideo();
-                
-                MAIRA.Utils.mostrarNotificacion("Video grabado correctamente", "success");
-            } catch (error) {
-                console.error("Error al guardar video:", error);
-                MAIRA.Utils.mostrarNotificacion("Error al guardar el video: " + error.message, "error");
-            }
-        }
-        
-        // Configurar eventos
-        document.getElementById('btn-iniciar-grabacion-video').addEventListener('click', iniciarGrabacionVideo);
-        document.getElementById('btn-detener-grabacion-video').addEventListener('click', detenerGrabacionVideo);
-        document.getElementById('btn-cancelar-grabacion-video').addEventListener('click', cerrarModalGrabacionVideo);document.getElementById('btn-guardar-video').addEventListener('click', guardarVideo);
-        document.getElementById('btn-descartar-video').addEventListener('click', cerrarModalGrabacionVideo);
-    }
+    
+    
+   
     
     /**
      * Mejora en el envío de informes
@@ -5036,54 +4926,7 @@ function cerrarModalNuevoInforme() {
     }
 }
 
-    /**
-     * Procesa un archivo adjunto para un informe
-     * @param {Object} informe - Informe al que se adjuntará el archivo
-     * @param {File} archivo - Archivo a adjuntar
-     * @returns {Promise<Object>} Promesa que resuelve al informe con el archivo adjunto
-     */
-    function procesarArchivoAdjunto(informe, archivo) {
-        return new Promise((resolve, reject) => {
-            try {
-                // Crear un FileReader para leer el archivo como Data URL
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    try {
-                        // Datos del archivo en formato Data URL
-                        const datosArchivo = e.target.result;
-                        
-                        // Crear objeto adjunto con información del archivo
-                        const adjunto = {
-                            nombre: archivo.name,
-                            tipo: archivo.type,
-                            tamaño: archivo.size,
-                            datos: datosArchivo,
-                            timestamp: new Date().toISOString()
-                        };
-                        
-                        // Actualizar informe con información del adjunto
-                        informe.tieneAdjunto = true;
-                        informe.adjunto = adjunto;
-                        
-                        // Resolver con el informe actualizado
-                        resolve(informe);
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-                
-                reader.onerror = function() {
-                    reject(new Error("Error al leer el archivo"));
-                };
-                
-                // Leer el archivo como Data URL
-                reader.readAsDataURL(archivo);
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
+    
     
     /**
      * Finaliza el envío del informe
@@ -5178,26 +5021,7 @@ function cerrarModalNuevoInforme() {
         }
     }
     
-    /**
-     * Guarda los informes en localStorage
-     */
-    function guardarInformesLocalmente() {
-        // Guardar informes enviados
-        try {
-            localStorage.setItem('gb_informes_enviados', JSON.stringify(Object.values(informesEnviados)));
-            console.log(`Guardados ${Object.keys(informesEnviados).length} informes enviados en localStorage`);
-        } catch (error) {
-            console.error("Error al guardar informes enviados en localStorage:", error);
-        }
-        
-        // Guardar informes recibidos
-        try {
-            localStorage.setItem('gb_informes_recibidos', JSON.stringify(Object.values(informesRecibidos)));
-            console.log(`Guardados ${Object.keys(informesRecibidos).length} informes recibidos en localStorage`);
-        } catch (error) {
-            console.error("Error al guardar informes recibidos en localStorage:", error);
-        }
-    }
+    
     
     /**
      * Limpia el formulario de informes
@@ -5310,201 +5134,14 @@ function cerrarModalNuevoInforme() {
     }
     
 
-/**
- * Recibe un informe
- * @param {Object} informe - Informe recibido
- */
-function recibirInforme(informe) {
-    if (!informe) {
-        console.warn("Informe vacío recibido");
-        return;
-    }
+
     
-    console.log("Procesando informe recibido:", informe);
-    
-    // Verificar si ya tenemos este informe
-    if (informesRecibidos[informe.id]) {
-        console.log("Informe ya recibido anteriormente:", informe.id);
-        return;
-    }
-    
-    // Guardar en memoria
-    informesRecibidos[informe.id] = informe;
-    
-    // Guardar en localStorage
-    guardarInformesLocalmente();
-    
-    // Añadir a la interfaz
-    agregarInforme(informe);
-    
-    // Notificar llegada de informe
-    let tipoTexto = "";
-    let tipoNotificacion = "info";
-    
-    switch (informe.tipo) {
-        case "urgente":
-            tipoTexto = "INFORME URGENTE";
-            tipoNotificacion = "error";
-            break;
-        case "orden":
-            tipoTexto = "ORDEN";
-            tipoNotificacion = "warning";
-            break;
-        default:
-            tipoTexto = "Informe";
-            tipoNotificacion = "info";
-    }
-    
-    // Reproducir sonido según el tipo de informe
-    try {
-        let rutaSonido = '/Client/audio/notification.mp3'; // Sonido por defecto
-        
-        if (informe.tipo === "urgente") {
-            rutaSonido = '/Client/audio/alert_urgente.mp3';
-        } else if (informe.tipo === "orden") {
-            rutaSonido = '/Client/audio/alert_orden.mp3';
-        }
-        
-        const audio = new Audio(rutaSonido);
-        audio.play().catch(err => {
-            console.log("Error al reproducir sonido, intentando con sonido genérico", err);
-            // Sonido genérico como fallback
-            const audioGenerico = new Audio('/Client/audio/notification.mp3');
-            audioGenerico.play().catch(e => console.log("No se pudo reproducir ningún sonido", e));
-        });
-    } catch (e) {
-        console.warn("Error al reproducir sonido:", e);
-    }
-    
-    // Mostrar notificación
-    MAIRA.Utils.mostrarNotificacion(
-        `${tipoTexto} de ${informe.emisor.nombre}: ${informe.asunto}`, 
-        tipoNotificacion,
-        10000 // Duración más larga para informes importantes
-    );
-    
-    // Añadir mensaje al chat - CORREGIDO: Usar MAIRA.Chat en lugar de MAIRA.Utils
-    if (MAIRA.Chat && typeof MAIRA.Chat.agregarMensajeChat === 'function') {
-        MAIRA.Chat.agregarMensajeChat(
-            "Sistema", 
-            `Nuevo ${tipoTexto.toLowerCase()} recibido de ${informe.emisor.nombre}: "${informe.asunto}"`, 
-            "sistema"
-        );
-    } else {
-        console.warn("No se pudo agregar mensaje al chat - MAIRA.Chat.agregarMensajeChat no disponible");
-    }
-    
-    // Si es urgente o una orden, mostrar notificación especial
-    if (informe.tipo === "urgente" || informe.tipo === "orden") {
-        // Verificar si estamos en la pestaña de informes
-        const tabInformes = document.getElementById('tab-informes');
-        if (tabInformes && !tabInformes.classList.contains('active')) {
-            mostrarNotificacionInformeImportante(informe);
-        }
-    }
-    
-    // Marcar como leído si estamos en la pestaña de informes
-    const tabInformes = document.getElementById('tab-informes');
-    if (tabInformes && tabInformes.classList.contains('active') && socket && socket.connected) {
-        setTimeout(() => {
-            socket.emit('informeLeido', { informeId: informe.id });
-        }, 3000);
-    }
-}
-    
-    /**
-     * Muestra una notificación especial para informes importantes
-     * @param {Object} informe - Informe recibido
-     */
-function mostrarNotificacionInformeImportante(informe) {
-        // Crear notificación flotante
-        const notificacion = document.createElement('div');
-        notificacion.className = 'notificacion-informe-importante';
-        notificacion.style.position = 'fixed';
-        notificacion.style.bottom = '20px';
-        notificacion.style.right = '20px';
-        notificacion.style.backgroundColor = informe.tipo === 'urgente' ? '#f44336' : '#ff9800';
-        notificacion.style.color = 'white';
-        notificacion.style.padding = '15px';
-        notificacion.style.borderRadius = '8px';
-        notificacion.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-        notificacion.style.zIndex = '10000';
-        
-        // Icono según tipo
-        const icono = informe.tipo === 'urgente' ? 'fa-exclamation-triangle' : 'fa-clipboard-list';
-        
-        notificacion.innerHTML = `
-            <div style="font-size: 18px; margin-bottom: 8px;">
-                <i class="fas ${icono}"></i> 
-                ${informe.tipo === 'urgente' ? 'INFORME URGENTE' : 'ORDEN'} recibido
-            </div>
-            <div style="margin-bottom: 10px;">
-                De: ${informe.emisor.nombre} - "${informe.asunto}"
-            </div>
-            <button id="btn-ir-informes" style="background-color: white; color: #333; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                Ver informes
-            </button>
-        `;
-        
-        document.body.appendChild(notificacion);
-        
-        document.getElementById('btn-ir-informes').addEventListener('click', function() {
-            // Cambiar a pestaña de informes
-            const btnTabInformes = document.querySelector('.tab-btn[data-tab="tab-informes"]');
-            if (btnTabInformes) {
-                btnTabInformes.click();
-            }
-            
-            // Marcar como leído
-            if (socket && socket.connected) {
-                socket.emit('informeLeido', { informeId: informe.id });
-            }
-            
-            // Eliminar notificación
-            if (document.body.contains(notificacion)) {
-                document.body.removeChild(notificacion);
-            }
-        });
-        
-        // Auto ocultar después de 15 segundos para informes urgentes
-        const tiempoOcultar = informe.tipo === 'urgente' ? 15000 : 10000;
-        setTimeout(() => {
-            if (document.body.contains(notificacion)) {
-                document.body.removeChild(notificacion);
-            }
-        }, tiempoOcultar);
-    }
-    
-    /**
-     * Marca un informe como leído
-     * @param {string} informeId - ID del informe a marcar
-     */
-    function marcarInformeLeido(informeId) {
-        const informeElement = document.querySelector(`.informe[data-id="${informeId}"]`);
-        if (informeElement) {
-            informeElement.classList.add('leido');
-            
-            // Ocultar botón de marcar como leído si existe
-            const btnMarcarLeido = informeElement.querySelector('.btn-marcar-leido');
-            if (btnMarcarLeido) {
-                btnMarcarLeido.style.display = 'none';
-            }
-        }
-        
-        // Actualizar en memoria si tenemos el informe
-        if (informesRecibidos[informeId]) {
-            informesRecibidos[informeId].leido = true;
-            
-            // Guardar en localStorage
-            guardarInformesLocalmente();
-        }
-    }
-    
+
     /**
      * Exporta los informes a un archivo
      * @param {string} formato - Formato de exportación ('txt', 'json', 'html')
      */
-    function exportarInformes(formato = 'html') {
+function exportarInformes(formato = 'html') {
         const listaInformes = document.querySelectorAll('.informe');
         if (!listaInformes.length) {
             MAIRA.Utils.mostrarNotificacion("No hay informes para exportar", "warning");
@@ -5767,57 +5404,9 @@ function mostrarNotificacionInformeImportante(informe) {
         MAIRA.Utils.mostrarNotificacion(`Informes ${tipo} limpiados`, "success");
     }
     
-    /**
-     * Busca un informe por su ID
-     * @param {string} informeId - ID del informe a buscar
-     * @returns {Object|null} - Informe encontrado o null
-     */
-    function buscarInformePorId(informeId) {
-        // Buscar en informes recibidos
-        if (informesRecibidos[informeId]) {
-            return informesRecibidos[informeId];
-        }
-        
-        // Buscar en informes enviados
-        if (informesEnviados[informeId]) {
-            return informesEnviados[informeId];
-        }
-        
-        return null;
-    }
     
-    /**
-     * Obtiene todos los informes
-     * @param {string} tipo - Tipo de informes ('todos', 'recibidos', 'enviados')
-     * @param {string} filtroTipo - Filtro por tipo de informe ('todos', 'informes', 'ordenes')
-     * @returns {Array} - Array de informes
-     */
-    function obtenerInformes(tipo = 'todos', filtroTipo = 'todos') {
-        let resultado = [];
-        
-        // Recolectar según tipo
-        if (tipo === 'todos' || tipo === 'recibidos') {
-            resultado = resultado.concat(Object.values(informesRecibidos));
-        }
-        
-        if (tipo === 'todos' || tipo === 'enviados') {
-            resultado = resultado.concat(Object.values(informesEnviados));
-        }
-        
-        // Filtrar por tipo de informe
-        if (filtroTipo !== 'todos') {
-            if (filtroTipo === 'informes') {
-                resultado = resultado.filter(inf => inf.tipo !== 'orden');
-            } else if (filtroTipo === 'ordenes') {
-                resultado = resultado.filter(inf => inf.tipo === 'orden');
-            }
-        }
-        
-        // Ordenar por fecha (más recientes primero)
-        resultado.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        
-        return resultado;
-    }
+    
+
     
     /**
      * Obtiene estadísticas sobre los informes
