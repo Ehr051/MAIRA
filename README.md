@@ -407,6 +407,10 @@ If agents aren't working as expected:
 3. Use explicit invocation to test specific agents
 4. Provide more context about your project and goals
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Learn More
 
 - [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code)
