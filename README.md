@@ -134,7 +134,6 @@ All 46 subagents are configured with specific Claude models based on task comple
 - `context-manager` - Multi-agent coordination
 - `quant-analyst` - Financial modeling
 - `risk-manager` - Portfolio risk management
->>>>>>> d614f7c (Add model customization to all subagents (#7))
 
 ## Installation
 
