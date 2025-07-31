@@ -4,7 +4,7 @@ A comprehensive collection of specialized AI subagents for [Claude Code](https:/
 
 ## Overview
 
-This repository contains 44 specialized subagents that extend Claude Code's capabilities. Each subagent is an expert in a specific domain, automatically invoked based on context or explicitly called when needed.
+This repository contains 45 specialized subagents that extend Claude Code's capabilities. Each subagent is an expert in a specific domain, automatically invoked based on context or explicitly called when needed.
 
 ## Available Subagents
 
@@ -65,6 +65,7 @@ This repository contains 44 specialized subagents that extend Claude Code's capa
 - **[content-marketer](content-marketer.md)** - Write blog posts, social media content, and email newsletters
 - **[sales-automator](sales-automator.md)** - Draft cold emails, follow-ups, and proposal templates
 - **[customer-support](customer-support.md)** - Handle support tickets, FAQ responses, and customer emails
+- **[legal-advisor](legal-advisor.md)** - Draft privacy policies, terms of service, disclaimers, and legal notices
 
 ## Installation
 
@@ -262,6 +263,7 @@ payment-integration → security-auditor → Validated implementation
 - **content-marketer**: SEO content, blog posts, social media, email campaigns
 - **sales-automator**: Cold emails, follow-ups, proposals, lead nurturing
 - **customer-support**: Support tickets, FAQs, help documentation, troubleshooting
+- **legal-advisor** - Draft privacy policies, terms of service, disclaimers, and legal notices 
 
 ## Best Practices
 
