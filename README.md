@@ -4,13 +4,14 @@ A comprehensive collection of specialized AI subagents for [Claude Code](https:/
 
 ## Overview
 
-This repository contains 46 specialized subagents that extend Claude Code's capabilities. Each subagent is an expert in a specific domain, automatically invoked based on context or explicitly called when needed. All agents are configured with specific Claude models based on task complexity for optimal performance and cost-effectiveness.
+This repository contains 48 specialized subagents that extend Claude Code's capabilities. Each subagent is an expert in a specific domain, automatically invoked based on context or explicitly called when needed. All agents are configured with specific Claude models based on task complexity for optimal performance and cost-effectiveness.
 
 ## Available Subagents
 
 ### Development & Architecture
 - **[backend-architect](backend-architect.md)** - Design RESTful APIs, microservice boundaries, and database schemas
 - **[frontend-developer](frontend-developer.md)** - Build React components, implement responsive layouts, and handle client-side state management
+- **[ui-ux-designer](ui-ux-designer.md)** - Create interface designs, wireframes, and design systems
 - **[mobile-developer](mobile-developer.md)** - Develop React Native or Flutter apps with native integrations
 - **[graphql-architect](graphql-architect.md)** - Design GraphQL schemas, resolvers, and federation
 - **[architect-reviewer](architect-review.md)** - Reviews code changes for architectural consistency and patterns
@@ -23,6 +24,7 @@ This repository contains 46 specialized subagents that extend Claude Code's capa
 - **[cpp-pro](cpp-pro.md)** - Write idiomatic C++ code with modern features, RAII, smart pointers, and STL algorithms
 - **[javascript-pro](javascript-pro.md)** - Master modern JavaScript with ES6+, async patterns, and Node.js APIs
 - **[php-pro](php-pro.md)** - Write idiomatic PHP code with modern features and performance optimizations
+- **[ios-developer](ios-developer.md)** - Develop native iOS applications with Swift/SwiftUI
 - **[sql-pro](sql-pro.md)** - Write complex SQL queries, optimize execution plans, and design normalized schemas
 
 ### Infrastructure & Operations
@@ -70,7 +72,7 @@ This repository contains 46 specialized subagents that extend Claude Code's capa
 
 ## Model Assignments
 
-All 46 subagents are configured with specific Claude models based on task complexity:
+All 48 subagents are configured with specific Claude models based on task complexity:
 
 ### 🚀 Haiku (Fast & Cost-Effective) - 8 agents
 **Model:** `haiku`
@@ -83,7 +85,7 @@ All 46 subagents are configured with specific Claude models based on task comple
 - `search-specialist` - Web research and information gathering
 - `legal-advisor` - Privacy policies and compliance documents
 
-### ⚡ Sonnet (Balanced Performance) - 27 agents
+### ⚡ Sonnet (Balanced Performance) - 29 agents
 **Model:** `sonnet`
 
 **Development & Languages:**
@@ -94,7 +96,9 @@ All 46 subagents are configured with specific Claude models based on task comple
 - `c-pro` - C programming and embedded systems
 - `cpp-pro` - Modern C++ with STL and templates
 - `php-pro` - Modern PHP with advanced features
+- `ios-developer` - Native iOS development with Swift/SwiftUI
 - `frontend-developer` - React components and UI
+- `ui-ux-designer` - Interface design and wireframes
 - `backend-architect` - API design and microservices
 - `mobile-developer` - React Native/Flutter apps
 - `sql-pro` - Complex SQL optimization
@@ -307,6 +311,7 @@ payment-integration → security-auditor → Validated implementation
 ### 🏗️ Planning & Architecture
 - **backend-architect**: API design, database schemas, system architecture
 - **frontend-developer**: UI/UX planning, component architecture
+- **ui-ux-designer**: Interface design, wireframes, design systems, user research
 - **cloud-architect**: Infrastructure design, scalability planning
 
 ### 🔧 Implementation & Development  
@@ -315,6 +320,7 @@ payment-integration → security-auditor → Validated implementation
 - **rust-pro**: Rust-specific development, memory safety, systems programming
 - **c-pro**: C programming, embedded systems, performance-critical code
 - **javascript-pro**: Modern JavaScript, async patterns, Node.js/browser code
+- **ios-developer**: Native iOS development with Swift/SwiftUI
 - **sql-pro**: Database queries, schema design, query optimization
 - **mobile-developer**: React Native/Flutter development
 
