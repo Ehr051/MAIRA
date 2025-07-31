@@ -4,7 +4,7 @@ A comprehensive collection of specialized AI subagents for [Claude Code](https:/
 
 ## Overview
 
-This repository contains 45 specialized subagents that extend Claude Code's capabilities. Each subagent is an expert in a specific domain, automatically invoked based on context or explicitly called when needed.
+This repository contains 46 specialized subagents that extend Claude Code's capabilities. Each subagent is an expert in a specific domain, automatically invoked based on context or explicitly called when needed.
 
 ## Available Subagents
 
@@ -22,6 +22,7 @@ This repository contains 45 specialized subagents that extend Claude Code's capa
 - **[c-pro](c-pro.md)** - Write efficient C code with proper memory management and system calls
 - **[cpp-pro](cpp-pro.md)** - Write idiomatic C++ code with modern features, RAII, smart pointers, and STL algorithms
 - **[javascript-pro](javascript-pro.md)** - Master modern JavaScript with ES6+, async patterns, and Node.js APIs
+- **[php-pro](php-pro.md)** - Write idiomatic PHP code with modern features and performance optimizations
 - **[sql-pro](sql-pro.md)** - Write complex SQL queries, optimize execution plans, and design normalized schemas
 
 ### Infrastructure & Operations
