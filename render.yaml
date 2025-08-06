@@ -1,0 +1,48 @@
+services:
+  # Backend Python Flask + SocketIO
+  - type: web
+    name: maira-backend
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: CLIENT_URL
+        value: https://maira-frontend.onrender.com
+      - key: SERVER_URL
+        value: https://maira-backend.onrender.com
+      - key: SECRET_KEY
+        generateValue: true
+      # MySQL Database Configuration (External)
+      - key: MYSQL_HOST
+        value: # Configurar con tu host MySQL
+      - key: MYSQL_USER
+        value: # Configurar con tu usuario MySQL
+      - key: MYSQL_PASSWORD
+        value: # Configurar con tu password MySQL
+      - key: MYSQL_DATABASE
+        value: maira
+      - key: MYSQL_PORT
+        value: 3306
+    healthCheckPath: /health
+
+  # Frontend estático
+  - type: static
+    name: maira-frontend
+    staticPublishPath: ./Client
+    buildCommand: |
+      npm install
+      npm run build:production
+    envVars:
+      - key: REACT_APP_SERVER_URL
+        value: https://maira-backend.onrender.com
+
+# Nota: MySQL debe configurarse externamente
+# Opciones recomendadas:
+# - PlanetScale (gratis)
+# - Clever Cloud MySQL (gratis)
+# - Railway MySQL (gratis)
+# - FreeSQLDatabase (gratis)
