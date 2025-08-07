@@ -392,16 +392,10 @@ def crear_partida(data):
             }
 
             join_room(codigo_partida, sid=request.sid)
-            print(f"🏠 Usuario {creador_id} unido a sala: {codigo_partida}")
-            
-            print(f"📤 Emitiendo evento 'partidaCreada' con datos: {partida}")
             emit('partidaCreada', partida)
-            
-            print(f"📋 Actualizando lista de partidas globales...")
             actualizar_lista_partidas()
             
-            print(f"✅ Partida creada exitosamente: {codigo_partida}")
-            print(f"🎯 Usuario debería recibir evento 'partidaCreada' ahora")
+            print(f"Partida creada exitosamente: {codigo_partida}")
 
         except Exception as e:
             conn.rollback()

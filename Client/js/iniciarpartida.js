@@ -405,9 +405,7 @@ async function inicializarSocket() {
         socket.on('listaAmigos', actualizarListaAmigos);
         socket.on('invitacionRecibida', manejarInvitacionRecibida);
         
-        socket.on('partidaCreada', function(partida) {
-            mostrarSalaEspera(partida);
-        });
+        // ✅ REMOVIDO DUPLICADO: socket.on('partidaCreada') ya está manejado en partidas.js
         
         socket.on('partidaIniciada', function(datosPartida) {
         console.log('Recibidos datos de partida iniciada:', datosPartida);

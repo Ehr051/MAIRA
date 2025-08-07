@@ -484,9 +484,19 @@ function reconectarAPartida() {
 
 
 function manejarPartidaCreada(partida) {
-    console.log('Partida creada:', partida);
+    console.log('🎯 EVENTO: partidaCreada recibido:', partida);
+    console.log('📋 Datos de la partida:', JSON.stringify(partida, null, 2));
+    
+    if (!partida || !partida.codigo) {
+        console.error('❌ Datos de partida inválidos:', partida);
+        mostrarError('Error: Datos de partida inválidos');
+        return;
+    }
+    
+    console.log('✅ Asignando partidaActual y llamando a mostrarSalaEspera...');
     partidaActual = partida;
     mostrarSalaEspera(partida);
+    console.log('🏁 manejarPartidaCreada completado');
 }
 
 function manejarUnidoAPartida(partida) {
@@ -590,7 +600,9 @@ function mostrarBotonesCreador(esCreador) {
 
 // En partidas.js, mejorar mostrarSalaEspera
 function mostrarSalaEspera(partida) {
-    console.log('👥 Mostrando sala de espera para partida:', partida.codigo);
+    console.log('👥 INICIANDO mostrarSalaEspera para partida:', partida.codigo);
+    console.log('📄 Estado actual de la página:', window.location.href);
+    console.log('🔍 Buscando elementos DOM...');
     
     // ✅ CAMBIAR SALA DE CHAT:
     if (window.cambiarSalaChat) {
@@ -600,18 +612,63 @@ function mostrarSalaEspera(partida) {
         console.error('❌ Función cambiarSalaChat no disponible');
     }
     
-    // Resto de la función existente...
-    const modalPartida = document.getElementById('modalPartida');
-    if (modalPartida) {
-        document.getElementById('codigoPartidaModal').textContent = partida.codigo;
-        document.getElementById('nombrePartidaModal').textContent = partida.configuracion?.nombrePartida || 'Sin nombre';
+    // Buscar elementos de la sala de espera
+    const salaEspera = document.getElementById('salaEspera');
+    const nombrePartidaSala = document.getElementById('nombrePartidaSala');
+    const codigoPartidaSala = document.getElementById('codigoPartidaSala');
+    
+    console.log('🪟 Elementos encontrados:');
+    console.log('- salaEspera:', salaEspera ? 'SI' : 'NO');
+    console.log('- nombrePartidaSala:', nombrePartidaSala ? 'SI' : 'NO');
+    console.log('- codigoPartidaSala:', codigoPartidaSala ? 'SI' : 'NO');
+    
+    if (salaEspera && nombrePartidaSala && codigoPartidaSala) {
+        console.log('✅ Configurando sala de espera...');
+        
+        // Actualizar información de la partida
+        nombrePartidaSala.textContent = partida.configuracion?.nombrePartida || 'Partida Sin Nombre';
+        codigoPartidaSala.textContent = partida.codigo;
+        
+        // Ocultar otros elementos y mostrar sala de espera
+        ['modoLocal', 'modoOnline', 'formCrearPartida', 'formunirseAPartida'].forEach(id => {
+            const elemento = document.getElementById(id);
+            if (elemento) {
+                elemento.style.display = 'none';
+                console.log(`🙈 Ocultado: ${id}`);
+            }
+        });
+        
+        // Mostrar sala de espera
+        salaEspera.style.display = 'block';
+        console.log('👥 Sala de espera mostrada');
         
         // Actualizar lista de jugadores
-        actualizarListaJugadores(partida.jugadores);
+        console.log('👥 Actualizando lista de jugadores:', partida.jugadores);
+        actualizarListaJugadoresSala(partida.jugadores);
         
-        // Mostrar modal
-        $('#modalPartida').modal('show');
+        // Mostrar botones según si es creador
+        const userId = window.userId || localStorage.getItem('userId');
+        const esCreador = partida.jugadores.some(j => j.id == userId && j.esCreador);
+        
+        const btnIniciar = document.getElementById('btnIniciarPartida');
+        const btnCancelar = document.getElementById('btnCancelarPartida');
+        
+        if (btnIniciar) btnIniciar.style.display = esCreador ? 'block' : 'none';
+        if (btnCancelar) btnCancelar.style.display = esCreador ? 'block' : 'none';
+        
+        console.log('✅ Sala de espera configurada correctamente');
+    } else {
+        console.error('❌ No se encontraron elementos de sala de espera - revisando página actual...');
+        console.log('📍 URL actual:', window.location.href);
+        
+        // Intentar redirigir a iniciarpartida.html si no estamos ahí
+        if (!window.location.href.includes('iniciarpartida.html')) {
+            console.log('🔄 Redirigiendo a iniciarpartida.html...');
+            window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+        }
     }
+    
+    console.log('🏁 mostrarSalaEspera completado');
 }
 
 // Modificar la función existente actualizarListaPartidas para manejar posibles errores

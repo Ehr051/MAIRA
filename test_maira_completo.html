@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MAIRA - Funcionalidad Completa</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ddd; border-radius: 3px; }
+        .log { background: #f8f9fa; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>🎯 Test MAIRA - Funcionalidad Completa</h1>
+    
+    <div class="test-section">
+        <h3>1. Conexión al Servidor</h3>
+        <button onclick="conectarServidor()">Conectar</button>
+        <div id="conexionStatus" class="info">Desconectado</div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Login</h3>
+        <input type="text" id="username" placeholder="Usuario (ej: test1)" value="test1">
+        <input type="password" id="password" placeholder="Contraseña" value="1234">
+        <button onclick="loginHTTP()">Login HTTP</button>
+        <button onclick="loginSocketIO()">Login SocketIO</button>
+        <div id="loginStatus"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Gestión de Partidas</h3>
+        <button onclick="obtenerPartidas()">Obtener Partidas</button>
+        <button onclick="crearPartida()">Crear Partida</button>
+        <input type="text" id="codigoPartida" placeholder="Código de partida">
+        <button onclick="unirsePartida()">Unirse a Partida</button>
+        <div id="partidasStatus"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Chat</h3>
+        <input type="text" id="mensaje" placeholder="Mensaje">
+        <button onclick="enviarMensaje()">Enviar Mensaje</button>
+        <div id="chatStatus"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Log de Eventos</h3>
+        <div id="eventLog" class="log"></div>
+    </div>
+
+    <script>
+        let socket = null;
+        let userId = null;
+        let username = null;
+
+        function log(mensaje, tipo = 'info') {
+            const eventLog = document.getElementById('eventLog');
+            const timestamp = new Date().toLocaleTimeString();
+            eventLog.innerHTML += `<div class="${tipo}">[${timestamp}] ${mensaje}</div>`;
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        function conectarServidor() {
+            const serverUrl = 'https://maira.onrender.com';
+            log(`Conectando a ${serverUrl}...`);
+            
+            socket = io(serverUrl, {
+                transports: ['polling', 'websocket'],
+                timeout: 20000
+            });
+
+            socket.on('connect', () => {
+                log('✅ Conectado al servidor', 'success');
+                document.getElementById('conexionStatus').innerHTML = '<span class="success">Conectado</span>';
+            });
+
+            socket.on('disconnect', () => {
+                log('❌ Desconectado del servidor', 'error');
+                document.getElementById('conexionStatus').innerHTML = '<span class="error">Desconectado</span>';
+            });
+
+            socket.on('loginExitoso', (data) => {
+                log(`✅ Login SocketIO exitoso: ${JSON.stringify(data)}`, 'success');
+                userId = data.user_id;
+                username = data.username;
+                document.getElementById('loginStatus').innerHTML = `<span class="success">Login exitoso: ${username}</span>`;
+            });
+
+            socket.on('partidaCreada', (data) => {
+                log(`✅ Partida creada: ${JSON.stringify(data)}`, 'success');
+                document.getElementById('partidasStatus').innerHTML = `<span class="success">Partida creada: ${data.codigo}</span>`;
+                document.getElementById('codigoPartida').value = data.codigo;
+            });
+
+            socket.on('partidasDisponibles', (data) => {
+                log(`📋 Partidas disponibles: ${data.partidas.length} partidas`, 'info');
+                let html = `<div class="info">Partidas disponibles: ${data.partidas.length}</div>`;
+                data.partidas.forEach(p => {
+                    html += `<div>• ${p.codigo} - ${p.jugadores_count} jugadores - ${p.estado}</div>`;
+                });
+                document.getElementById('partidasStatus').innerHTML = html;
+            });
+
+            socket.on('unidoAPartida', (data) => {
+                log(`✅ Unido a partida: ${JSON.stringify(data)}`, 'success');
+                document.getElementById('partidasStatus').innerHTML = `<span class="success">Unido a partida: ${data.codigo}</span>`;
+            });
+
+            socket.on('nuevoMensajeChat', (data) => {
+                log(`💬 ${data.username}: ${data.mensaje}`, 'info');
+                document.getElementById('chatStatus').innerHTML = `<div class="info">Último mensaje: ${data.username}: ${data.mensaje}</div>`;
+            });
+
+            socket.on('errorCrearPartida', (data) => {
+                log(`❌ Error creando partida: ${data.mensaje}`, 'error');
+                document.getElementById('partidasStatus').innerHTML = `<span class="error">Error: ${data.mensaje}</span>`;
+            });
+
+            socket.on('errorUnirse', (data) => {
+                log(`❌ Error uniéndose: ${data.mensaje}`, 'error');
+                document.getElementById('partidasStatus').innerHTML = `<span class="error">Error: ${data.mensaje}</span>`;
+            });
+
+            // Capturar todos los eventos para debug
+            socket.onAny((eventName, ...args) => {
+                log(`🔔 Evento recibido: ${eventName} - ${JSON.stringify(args)}`, 'info');
+            });
+        }
+
+        async function loginHTTP() {
+            const usuario = document.getElementById('username').value;
+            const contraseña = document.getElementById('password').value;
+
+            try {
+                log(`Intentando login HTTP para ${usuario}...`);
+                const response = await fetch('https://maira.onrender.com/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: usuario,
+                        password: contraseña
+                    })
+                });
+
+                const data = await response.json();
+                log(`Respuesta login HTTP: ${JSON.stringify(data)}`);
+
+                if (data.success) {
+                    userId = data.user_id;
+                    username = data.username;
+                    document.getElementById('loginStatus').innerHTML = `<span class="success">Login HTTP exitoso: ${username}</span>`;
+                    log('✅ Login HTTP exitoso', 'success');
+                } else {
+                    document.getElementById('loginStatus').innerHTML = `<span class="error">Error: ${data.message}</span>`;
+                    log(`❌ Error login HTTP: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error de conexión: ${error.message}`, 'error');
+                document.getElementById('loginStatus').innerHTML = `<span class="error">Error de conexión</span>`;
+            }
+        }
+
+        function loginSocketIO() {
+            if (!socket || !userId) {
+                log('❌ Primero haz login HTTP para obtener credenciales', 'error');
+                return;
+            }
+
+            log('Enviando login por SocketIO...');
+            socket.emit('login', {
+                user_id: userId,
+                username: username
+            });
+        }
+
+        function obtenerPartidas() {
+            if (!socket) {
+                log('❌ Primero conecta al servidor', 'error');
+                return;
+            }
+
+            log('Solicitando lista de partidas...');
+            socket.emit('obtenerPartidasDisponibles');
+        }
+
+        function crearPartida() {
+            if (!socket || !userId) {
+                log('❌ Primero conecta y haz login', 'error');
+                return;
+            }
+
+            const configuracion = {
+                nombre: `Partida de ${username}`,
+                maxJugadores: 4,
+                tipo: 'prueba',
+                mapa: 'default'
+            };
+
+            log('Creando partida...');
+            socket.emit('crearPartida', {
+                configuracion: configuracion
+            });
+        }
+
+        function unirsePartida() {
+            if (!socket || !userId) {
+                log('❌ Primero conecta y haz login', 'error');
+                return;
+            }
+
+            const codigo = document.getElementById('codigoPartida').value;
+            if (!codigo) {
+                log('❌ Ingresa un código de partida', 'error');
+                return;
+            }
+
+            log(`Uniéndose a partida ${codigo}...`);
+            socket.emit('unirseAPartida', {
+                codigo: codigo
+            });
+        }
+
+        function enviarMensaje() {
+            if (!socket || !userId) {
+                log('❌ Primero conecta y haz login', 'error');
+                return;
+            }
+
+            const mensaje = document.getElementById('mensaje').value;
+            if (!mensaje) {
+                log('❌ Ingresa un mensaje', 'error');
+                return;
+            }
+
+            log(`Enviando mensaje: ${mensaje}`);
+            socket.emit('mensajeChat', {
+                mensaje: mensaje,
+                sala: 'general'
+            });
+
+            document.getElementById('mensaje').value = '';
+        }
+
+        // Conectar automáticamente al cargar
+        window.onload = () => {
+            log('🚀 Test MAIRA cargado. Haz clic en "Conectar" para empezar.');
+        };
+    </script>
+</body>
+</html>
