@@ -32,9 +32,9 @@ PORT = int(os.environ.get('PORT', 10000))
 
 # Configuración de URLs según ambiente
 if IS_PRODUCTION or IS_RENDER:
-    CLIENT_URL = os.environ.get('CLIENT_URL', 'https://maira-frontend.onrender.com')
-    SERVER_URL = os.environ.get('SERVER_URL', 'https://maira-backend.onrender.com')
-    CORS_ORIGINS = [CLIENT_URL, "https://*.onrender.com"]
+    CLIENT_URL = os.environ.get('CLIENT_URL', 'https://maira-3e76.onrender.com')
+    SERVER_URL = os.environ.get('SERVER_URL', 'https://maira-3e76.onrender.com')
+    CORS_ORIGINS = ["https://maira-3e76.onrender.com", "https://*.onrender.com", "*"]
 else:
     # Desarrollo local con XAMPP
     CLIENT_URL = os.environ.get('CLIENT_URL', 'http://localhost:8080')
