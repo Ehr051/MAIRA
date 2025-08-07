@@ -8,11 +8,11 @@ var currentProtocol = window.location.protocol;
 // Variables globales para ser usadas en toda la aplicación
 var SERVER_URL, CLIENT_URL;
 
-// Si estamos en un dominio ngrok, NO añadir puerto
-if (currentHost.includes('ngrok') || currentHost.includes('trycloudflare.com')) {
+// Si estamos en un dominio ngrok, tunnel o Render, NO añadir puerto
+if (currentHost.includes('ngrok') || currentHost.includes('trycloudflare.com') || currentHost.includes('onrender.com')) {
     SERVER_URL = `${currentProtocol}//${currentHost}`;
     CLIENT_URL = `${currentProtocol}//${currentHost}`;
-    console.log("Detectado tunnel service: usando configuración optimizada");
+    console.log("Detectado servicio en la nube: usando configuración optimizada");
 
 } else {
     // URLs locales con puertos específicos

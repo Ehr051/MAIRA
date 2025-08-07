@@ -1573,10 +1573,10 @@ function configurarEventosChat() {
         
         let serverURL;
         
-        // Detectar servicios de tunnel
-        if (hostname.includes('ngrok') || hostname.includes('trycloudflare.com')) {
+        // Detectar servicios de tunnel o servicios en la nube
+        if (hostname.includes('ngrok') || hostname.includes('trycloudflare.com') || hostname.includes('onrender.com')) {
             serverURL = `${protocol}//${hostname}`;
-            console.log('🌐 Detectado tunnel service');
+            console.log('🌐 Detectado servicio en la nube');
         } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
             // Desarrollo local
             serverURL = `${protocol}//${hostname}:5000`;

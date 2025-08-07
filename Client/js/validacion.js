@@ -1,6 +1,6 @@
 // Configuración de la URL base de la API
 const isLocalDevelopment = false; // Cambia esto a true para desarrollo local
-const API_BASE_URL = SERVER_URL || 'http://localhost:5000';
+const API_BASE_URL = window.getServerUrl ? window.getServerUrl() : (SERVER_URL || 'http://localhost:5000');
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
