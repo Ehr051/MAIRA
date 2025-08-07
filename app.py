@@ -9,6 +9,8 @@ import sys
 from flask import Flask, request, jsonify, make_response, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
+import psycopg2
+import psycopg2.extras
 import pymysql
 from pymysql.cursors import DictCursor
 import json
@@ -18,6 +20,7 @@ from werkzeug.utils import secure_filename
 import time
 import bcrypt
 import traceback
+from datetime import datetime
 import ssl
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
@@ -41,22 +44,33 @@ else:
     SERVER_URL = os.environ.get('SERVER_URL', f'http://localhost:{PORT}')
     CORS_ORIGINS = ["http://localhost:8080", "http://127.0.0.1:8080", "http://localhost:3000"]
 
-# Configuración MySQL (funciona tanto para XAMPP como producción)
-MYSQL_CONFIG = {
-    'host': os.environ.get('MYSQL_HOST', 'localhost'),
-    'user': os.environ.get('MYSQL_USER', 'root'),
-    'password': os.environ.get('MYSQL_PASSWORD', ''),
-    'database': os.environ.get('MYSQL_DATABASE', 'maira'),
-    'port': int(os.environ.get('MYSQL_PORT', 3306)),
-    'charset': 'utf8mb4',
-    'cursorclass': DictCursor
-}
+# Configuración de Base de Datos
+if IS_PRODUCTION or IS_RENDER:
+    # PostgreSQL en producción (Render)
+    DATABASE_URL = os.environ.get('DATABASE_URL', 
+        'postgresql://maira_database_user:8aIryeDf36l4JnCGrRzXLKzBMeMnOiZv@dpg-d2a02qidbo4c73aqtcdg-a.oregon-postgres.render.com/maira_database')
+    DATABASE_TYPE = 'postgresql'
+else:
+    # MySQL local (XAMPP)
+    MYSQL_CONFIG = {
+        'host': os.environ.get('MYSQL_HOST', 'localhost'),
+        'user': os.environ.get('MYSQL_USER', 'root'),
+        'password': os.environ.get('MYSQL_PASSWORD', ''),
+        'database': os.environ.get('MYSQL_DATABASE', 'maira'),
+        'port': int(os.environ.get('MYSQL_PORT', 3306)),
+        'charset': 'utf8mb4',
+        'cursorclass': DictCursor
+    }
+    DATABASE_TYPE = 'mysql'
 
 # Log de configuración
 print(f"🚀 Iniciando MAIRA")
 print(f"🌍 Ambiente: {'PRODUCCIÓN' if IS_PRODUCTION else 'DESARROLLO'}")
 print(f"📡 Puerto: {PORT}")
-print(f"🗄️ Base de datos: MySQL - {MYSQL_CONFIG['host']}:{MYSQL_CONFIG['port']}")
+if DATABASE_TYPE == 'postgresql':
+    print(f"🗄️ Base de datos: PostgreSQL (Render)")
+else:
+    print(f"🗄️ Base de datos: MySQL - {MYSQL_CONFIG['host']}:{MYSQL_CONFIG['port']}")
 print(f"🌐 Cliente URL: {CLIENT_URL}")
 print(f"🔧 CORS Origins: {CORS_ORIGINS}")
 
@@ -150,6 +164,95 @@ def api_info():
         'health': f'{SERVER_URL}/health',
         'info': f'{SERVER_URL}/api/info'
     })
+
+# Ruta de login
+@app.route('/api/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Usuario y contraseña son requeridos'}), 400
+        
+        # Conectar a PostgreSQL
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        
+        # Verificar usuario
+        cursor.execute("SELECT id, username, email, password FROM usuarios WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        
+        if user and user[3] == password:  # Verificación simple de contraseña
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': user[0],
+                    'username': user[1],
+                    'email': user[2]
+                }
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Credenciales inválidas'}), 401
+            
+    except Exception as e:
+        print(f"Error en login: {e}")
+        return jsonify({'success': False, 'message': 'Error interno del servidor'}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+# Ruta para crear usuario
+@app.route('/api/crear-usuario', methods=['POST'])
+def crear_usuario():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+        
+        if not username or not email or not password:
+            return jsonify({'success': False, 'message': 'Todos los campos son requeridos'}), 400
+        
+        # Conectar a PostgreSQL
+        conn = psycopg2.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        
+        # Verificar si el usuario ya existe
+        cursor.execute("SELECT username FROM usuarios WHERE username = %s OR email = %s", (username, email))
+        existing_user = cursor.fetchone()
+        
+        if existing_user:
+            return jsonify({'success': False, 'message': 'Usuario o email ya existe'}), 409
+        
+        # Crear nuevo usuario
+        cursor.execute(
+            "INSERT INTO usuarios (username, email, password, fecha_registro) VALUES (%s, %s, %s, %s) RETURNING id",
+            (username, email, password, datetime.now())
+        )
+        user_id = cursor.fetchone()[0]
+        conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'user': {
+                'id': user_id,
+                'username': username,
+                'email': email
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error creando usuario: {e}")
+        return jsonify({'success': False, 'message': 'Error interno del servidor'}), 500
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
 
 # Eventos de SocketIO básicos
 @socketio.on('connect')
