@@ -130,7 +130,7 @@ def health_check():
         'version': '1.4.1',
         'environment': 'production' if IS_PRODUCTION else 'development',
         'database': db_status,
-        'mysql_host': MYSQL_CONFIG['host'],
+        'database_type': DATABASE_TYPE,
         'timestamp': datetime.now().isoformat()
     })
 
@@ -184,8 +184,11 @@ def login():
         if not username or not password:
             return jsonify({'success': False, 'message': 'Usuario y contraseña son requeridos'}), 400
         
-        # Conectar a PostgreSQL
-        conn = psycopg2.connect(DATABASE_URL)
+        # Conectar a la base de datos
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Error de conexión a la base de datos'}), 500
+            
         cursor = conn.cursor()
         
         # Verificar usuario
@@ -225,8 +228,11 @@ def crear_usuario():
         if not username or not email or not password:
             return jsonify({'success': False, 'message': 'Todos los campos son requeridos'}), 400
         
-        # Conectar a PostgreSQL
-        conn = psycopg2.connect(DATABASE_URL)
+        # Conectar a la base de datos
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'success': False, 'message': 'Error de conexión a la base de datos'}), 500
+            
         cursor = conn.cursor()
         
         # Verificar si el usuario ya existe
