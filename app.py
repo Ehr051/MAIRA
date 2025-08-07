@@ -50,6 +50,9 @@ if IS_PRODUCTION or IS_RENDER:
     DATABASE_URL = os.environ.get('DATABASE_URL', 
         'postgresql://maira_database_user:8aIryeDf36l4JnCGrRzXLKzBMeMnOiZv@dpg-d2a02qidbo4c73aqtcdg-a.oregon-postgres.render.com/maira_database')
     DATABASE_TYPE = 'postgresql'
+    # Definir MYSQL_CONFIG vacío para evitar errores
+    MYSQL_CONFIG = {}
+    print("🔧 Configurando PostgreSQL para producción")
 else:
     # MySQL local (XAMPP)
     MYSQL_CONFIG = {
@@ -62,6 +65,7 @@ else:
         'cursorclass': DictCursor
     }
     DATABASE_TYPE = 'mysql'
+    print("🔧 Configurando MySQL para desarrollo local")
 
 # Log de configuración
 print(f"🚀 Iniciando MAIRA")
@@ -80,13 +84,17 @@ operaciones_batalla = {}
 informes_db = {}
 adjuntos_info = {}
 
-# Función para conectar a MySQL
+# Función para conectar a la base de datos (PostgreSQL o MySQL según ambiente)
 def get_db_connection():
     try:
-        connection = pymysql.connect(**MYSQL_CONFIG)
-        return connection
+        if DATABASE_TYPE == 'postgresql':
+            connection = psycopg2.connect(DATABASE_URL)
+            return connection
+        else:
+            connection = pymysql.connect(**MYSQL_CONFIG)
+            return connection
     except Exception as e:
-        print(f"❌ Error conectando a MySQL: {e}")
+        print(f"❌ Error conectando a la base de datos ({DATABASE_TYPE}): {e}")
         return None
 
 # Crear aplicación Flask
