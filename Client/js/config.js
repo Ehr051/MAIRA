@@ -3,7 +3,7 @@ window.MAIRA_CONFIG = {
     // URLs del servidor (se configuran automáticamente)
     SERVER_URL: window.location.hostname.includes('localhost') 
         ? 'http://localhost:10000'
-        : 'https://maira-backend.onrender.com',
+        : window.location.origin,
     
     // Configuración de Socket.IO
     SOCKET_CONFIG: {
