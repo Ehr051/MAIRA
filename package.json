@@ -18,9 +18,8 @@
     },
     "dependencies": {
         "@mapbox/corslite": "^0.0.7",
-        "@raruto/leaflet-elevation": "^2.5.1",
+        "@raruto/leaflet-elevation": "^2.5.1", 
         "@socket.io/component-emitter": "^3.1.2",
-        "@spaceymonk/react-radial-menu": "^2.0.6",
         "cors": "^2.8.5",
         "d3": "^7.8.4",
         "dotenv": "^16.4.5",

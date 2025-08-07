@@ -124,9 +124,26 @@ def server_info():
         'port': PORT
     })
 
-# Servir archivos estáticos del cliente (fallback)
+# Servir archivos estáticos del cliente
 @app.route('/')
 def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    try:
+        return send_from_directory('.', filename)
+    except:
+        # Si no encuentra, intentar desde Client/
+        try:
+            return send_from_directory('Client', filename)
+        except:
+            # Fallback al index.html
+            return send_from_directory('.', 'index.html')
+
+# API endpoints
+@app.route('/api/info')
+def api_info():
     return jsonify({
         'message': 'MAIRA Backend API',
         'frontend': CLIENT_URL,
