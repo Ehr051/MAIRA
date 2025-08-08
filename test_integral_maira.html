@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Integral MAIRA - Todos los Modos</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section { 
+            background: rgba(255,255,255,0.95);
+            margin: 10px 0; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .test-section:hover { transform: translateY(-2px); }
+        .test-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .success { background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; border-left: 4px solid #28a745; }
+        .error { background: linear-gradient(135deg, #f8d7da, #f5c6cb); color: #721c24; border-left: 4px solid #dc3545; }
+        .warning { background: linear-gradient(135deg, #fff3cd, #ffeaa7); color: #856404; border-left: 4px solid #ffc107; }
+        .info { background: linear-gradient(135deg, #d1ecf1, #bee5eb); color: #0c5460; border-left: 4px solid #17a2b8; }
+        
+        button { 
+            padding: 12px 20px; 
+            margin: 8px 5px; 
+            background: linear-gradient(135deg, #3498db, #2980b9); 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            transform: translateY(-1px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:disabled { 
+            background: #95a5a6; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+        
+        input, select { 
+            padding: 10px; 
+            margin: 5px; 
+            border: 2px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .log { 
+            background: #2c3e50; 
+            color: #ecf0f1; 
+            padding: 15px; 
+            border-radius: 6px; 
+            max-height: 250px; 
+            overflow-y: auto; 
+            font-family: 'Consolas', 'Monaco', monospace; 
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .online { background-color: #28a745; }
+        .offline { background-color: #dc3545; }
+        .testing { background-color: #ffc107; animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Test Integral MAIRA</h1>
+        <p><strong>Verificación completa de todos los modos y funcionalidades</strong></p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <p id="progressText">0% completado</p>
+    </div>
+
+    <div class="test-grid">
+        <!-- Sección 1: Conectividad -->
+        <div class="test-section">
+            <h3>🌐 1. Conectividad del Sistema</h3>
+            <div id="conectividadStatus" class="info">
+                <span class="status-indicator offline" id="serverStatus"></span>
+                <span id="serverStatusText">Desconectado</span>
+            </div>
+            <button onclick="testConectividad()" id="btnTestConectividad">Probar Conectividad</button>
+            <button onclick="testHealth()" id="btnTestHealth">Check Health API</button>
+            <div id="conectividadResult"></div>
+        </div>
+
+        <!-- Sección 2: Autenticación -->
+        <div class="test-section">
+            <h3>🔐 2. Sistema de Autenticación</h3>
+            <input type="text" id="testUsername" placeholder="Usuario (ej: test1)" value="test1">
+            <input type="password" id="testPassword" placeholder="Contraseña" value="1234">
+            <br>
+            <button onclick="testLoginHTTP()" id="btnTestLogin">Test Login HTTP</button>
+            <button onclick="testLoginSocketIO()" id="btnTestLoginSocket">Test Login SocketIO</button>
+            <button onclick="testCrearUsuario()" id="btnTestCrear">Test Crear Usuario</button>
+            <div id="authResult"></div>
+        </div>
+
+        <!-- Sección 3: Juego de Guerra -->
+        <div class="test-section">
+            <h3>⚔️ 3. Simulador de Combate</h3>
+            <input type="text" id="partidaTestCodigo" placeholder="Código de partida">
+            <br>
+            <button onclick="testCrearPartida()" id="btnTestCrearPartida">Crear Partida</button>
+            <button onclick="testObtenerPartidas()" id="btnTestObtenerPartidas">Listar Partidas</button>
+            <button onclick="testUnirsePartida()" id="btnTestUnirsePartida">Unirse a Partida</button>
+            <div id="juegoResult"></div>
+        </div>
+
+        <!-- Sección 4: Gestión de Batalla -->
+        <div class="test-section">
+            <h3>🎖️ 4. Gestión de Batalla</h3>
+            <input type="text" id="operacionTestNombre" placeholder="Nombre operación" value="Op Test">
+            <input type="text" id="operacionTestCodigo" placeholder="Código operación">
+            <br>
+            <button onclick="testCrearOperacionGB()" id="btnTestCrearOperacion">Crear Operación</button>
+            <button onclick="testObtenerOperacionesGB()" id="btnTestObtenerOperaciones">Listar Operaciones</button>
+            <button onclick="testUnirseOperacionGB()" id="btnTestUnirseOperacion">Unirse a Operación</button>
+            <div id="gbResult"></div>
+        </div>
+
+        <!-- Sección 5: Chat y Comunicaciones -->
+        <div class="test-section">
+            <h3>💬 5. Sistema de Chat</h3>
+            <input type="text" id="testMensaje" placeholder="Mensaje de prueba" value="Hola, esto es un test">
+            <select id="testSala">
+                <option value="general">General</option>
+                <option value="test">Test</option>
+            </select>
+            <br>
+            <button onclick="testEnviarMensaje()" id="btnTestMensaje">Enviar Mensaje</button>
+            <button onclick="testMensajeJuego()" id="btnTestMensajeJuego">Mensaje de Juego</button>
+            <div id="chatResult"></div>
+        </div>
+
+        <!-- Sección 6: Frontend Modes -->
+        <div class="test-section">
+            <h3>🗺️ 6. Modos Frontend</h3>
+            <button onclick="testPlaneamiento()" id="btnTestPlaneamiento">Test Planeamiento</button>
+            <button onclick="testCuadroOrg()" id="btnTestCO">Test Cuadro Org</button>
+            <button onclick="testNavegacion()" id="btnTestNavegacion">Test Navegación</button>
+            <div id="frontendResult"></div>
+        </div>
+    </div>
+
+    <!-- Log Global -->
+    <div class="test-section">
+        <h3>📋 Log de Eventos del Sistema</h3>
+        <button onclick="limpiarLog()">Limpiar Log</button>
+        <button onclick="exportarLog()">Exportar Resultados</button>
+        <div id="globalLog" class="log"></div>
+    </div>
+
+    <script>
+        let socket = null;
+        let userId = null;
+        let username = null;
+        let testResults = {};
+        let currentTest = 0;
+        let totalTests = 20;
+
+        const serverUrl = 'https://maira.onrender.com';
+
+        function log(mensaje, tipo = 'info') {
+            const globalLog = document.getElementById('globalLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = {
+                'success': '✅',
+                'error': '❌', 
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            }[tipo] || 'ℹ️';
+            
+            globalLog.innerHTML += `<span style="color: #95a5a6">[${timestamp}]</span> ${icon} ${mensaje}\n`;
+            globalLog.scrollTop = globalLog.scrollHeight;
+            
+            // Actualizar progreso
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const completedTests = Object.keys(testResults).length;
+            const progress = Math.round((completedTests / totalTests) * 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${progress}% completado (${completedTests}/${totalTests} tests)`;
+        }
+
+        function setTestResult(testName, success, message) {
+            testResults[testName] = { success, message, timestamp: new Date() };
+            updateProgress();
+        }
+
+        function updateStatus(elementId, message, className) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="test-result ${className}">${message}</div>`;
+            }
+        }
+
+        // 1. TESTS DE CONECTIVIDAD
+        async function testConectividad() {
+            log('🌐 Iniciando test de conectividad...');
+            try {
+                socket = io(serverUrl, {
+                    transports: ['polling', 'websocket'],
+                    timeout: 20000
+                });
+
+                socket.on('connect', () => {
+                    log('✅ Conectado al servidor SocketIO', 'success');
+                    document.getElementById('serverStatus').className = 'status-indicator online';
+                    document.getElementById('serverStatusText').textContent = 'Conectado';
+                    updateStatus('conectividadResult', 'Conexión SocketIO exitosa', 'success');
+                    setTestResult('conectividad_socket', true, 'SocketIO conectado');
+                    setupSocketListeners();
+                });
+
+                socket.on('disconnect', () => {
+                    log('❌ Desconectado del servidor', 'error');
+                    document.getElementById('serverStatus').className = 'status-indicator offline';
+                    document.getElementById('serverStatusText').textContent = 'Desconectado';
+                });
+
+                socket.on('connect_error', (error) => {
+                    log(`❌ Error de conexión: ${error.message}`, 'error');
+                    setTestResult('conectividad_socket', false, error.message);
+                });
+
+            } catch (error) {
+                log(`❌ Error iniciando SocketIO: ${error.message}`, 'error');
+                setTestResult('conectividad_socket', false, error.message);
+            }
+        }
+
+        async function testHealth() {
+            log('🔍 Verificando endpoint de salud...');
+            try {
+                const response = await fetch(`${serverUrl}/health`);
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'healthy') {
+                    log('✅ Health check exitoso', 'success');
+                    updateStatus('conectividadResult', `Health: ${data.status}, DB: ${data.database}`, 'success');
+                    setTestResult('health_check', true, 'API saludable');
+                } else {
+                    log('⚠️ Health check con advertencias', 'warning');
+                    setTestResult('health_check', false, `Status: ${data.status}`);
+                }
+            } catch (error) {
+                log(`❌ Error en health check: ${error.message}`, 'error');
+                setTestResult('health_check', false, error.message);
+            }
+        }
+
+        // 2. TESTS DE AUTENTICACIÓN
+        async function testLoginHTTP() {
+            const usuario = document.getElementById('testUsername').value;
+            const contraseña = document.getElementById('testPassword').value;
+
+            log(`🔐 Probando login HTTP para ${usuario}...`);
+            try {
+                const response = await fetch(`${serverUrl}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: usuario, password: contraseña })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    userId = data.user_id;
+                    username = data.username;
+                    log('✅ Login HTTP exitoso', 'success');
+                    updateStatus('authResult', `Login exitoso: ${username} (ID: ${userId})`, 'success');
+                    setTestResult('login_http', true, `Usuario: ${username}`);
+                } else {
+                    log(`❌ Login HTTP falló: ${data.message}`, 'error');
+                    setTestResult('login_http', false, data.message);
+                }
+            } catch (error) {
+                log(`❌ Error en login HTTP: ${error.message}`, 'error');
+                setTestResult('login_http', false, error.message);
+            }
+        }
+
+        function testLoginSocketIO() {
+            if (!socket || !userId) {
+                log('❌ Primero ejecuta login HTTP y conectividad', 'error');
+                return;
+            }
+
+            log('🔐 Probando login SocketIO...');
+            socket.emit('login', { user_id: userId, username: username });
+        }
+
+        async function testCrearUsuario() {
+            const randomNum = Math.floor(Math.random() * 1000);
+            const testUser = {
+                username: `test_user_${randomNum}`,
+                password: '1234',
+                email: `test${randomNum}@maira.test`,
+                unidad: 'Test Unit'
+            };
+
+            log(`👤 Creando usuario de prueba: ${testUser.username}...`);
+            try {
+                const response = await fetch(`${serverUrl}/api/crear-usuario`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testUser)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ Usuario creado exitosamente', 'success');
+                    setTestResult('crear_usuario', true, `Usuario: ${testUser.username}`);
+                } else {
+                    log(`❌ Error creando usuario: ${data.message}`, 'error');
+                    setTestResult('crear_usuario', false, data.message);
+                }
+            } catch (error) {
+                log(`❌ Error en creación de usuario: ${error.message}`, 'error');
+                setTestResult('crear_usuario', false, error.message);
+            }
+        }
+
+        // 3. TESTS DE JUEGO DE GUERRA
+        function testCrearPartida() {
+            if (!socket || !userId) {
+                log('❌ Primero ejecuta login', 'error');
+                return;
+            }
+
+            log('⚔️ Creando partida de prueba...');
+            const configuracion = {
+                nombrePartida: `Test Partida ${Date.now()}`,
+                maxJugadores: 4,
+                tipo: 'test',
+                mapa: 'default'
+            };
+
+            socket.emit('crearPartida', { configuracion });
+        }
+
+        function testObtenerPartidas() {
+            if (!socket) {
+                log('❌ Primero conecta al servidor', 'error');
+                return;
+            }
+
+            log('📋 Obteniendo lista de partidas...');
+            socket.emit('obtenerPartidasDisponibles');
+        }
+
+        function testUnirsePartida() {
+            const codigo = document.getElementById('partidaTestCodigo').value;
+            if (!codigo) {
+                log('❌ Ingresa un código de partida', 'error');
+                return;
+            }
+
+            log(`🎮 Uniéndose a partida: ${codigo}...`);
+            socket.emit('unirseAPartida', { codigo });
+        }
+
+        // 4. TESTS DE GESTIÓN DE BATALLA
+        function testCrearOperacionGB() {
+            if (!socket || !userId) {
+                log('❌ Primero ejecuta login', 'error');
+                return;
+            }
+
+            const nombre = document.getElementById('operacionTestNombre').value;
+            log(`🎖️ Creando operación GB: ${nombre}...`);
+            
+            const operacionData = {
+                nombre: nombre,
+                descripcion: 'Operación de prueba automatizada',
+                creador: username || 'Test User'
+            };
+
+            socket.emit('crearOperacionGB', operacionData);
+        }
+
+        function testObtenerOperacionesGB() {
+            if (!socket) {
+                log('❌ Primero conecta al servidor', 'error');
+                return;
+            }
+
+            log('📋 Obteniendo operaciones GB...');
+            socket.emit('obtenerOperacionesGB');
+        }
+
+        function testUnirseOperacionGB() {
+            const codigo = document.getElementById('operacionTestCodigo').value;
+            if (!codigo) {
+                log('❌ Ingresa un código de operación', 'error');
+                return;
+            }
+
+            log(`🎖️ Uniéndose a operación: ${codigo}...`);
+            socket.emit('unirseOperacionGB', { 
+                codigo,
+                elemento: {
+                    designacion: 'Test Element',
+                    usuario: username
+                }
+            });
+        }
+
+        // 5. TESTS DE CHAT
+        function testEnviarMensaje() {
+            const mensaje = document.getElementById('testMensaje').value;
+            const sala = document.getElementById('testSala').value;
+
+            if (!socket || !mensaje) {
+                log('❌ Conecta al servidor e ingresa un mensaje', 'error');
+                return;
+            }
+
+            log(`💬 Enviando mensaje a sala ${sala}...`);
+            socket.emit('mensajeChat', { mensaje, sala });
+        }
+
+        function testMensajeJuego() {
+            const mensaje = document.getElementById('testMensaje').value;
+            
+            if (!socket || !mensaje) {
+                log('❌ Conecta al servidor e ingresa un mensaje', 'error');
+                return;
+            }
+
+            log('🎮 Enviando mensaje de juego...');
+            socket.emit('mensajeJuego', { mensaje, sala: 'general' });
+        }
+
+        // 6. TESTS DE FRONTEND
+        async function testPlaneamiento() {
+            log('🗺️ Probando acceso a Modo Planeamiento...');
+            try {
+                const response = await fetch(`${serverUrl}/planeamiento.html`);
+                if (response.ok) {
+                    log('✅ Planeamiento.html accesible', 'success');
+                    setTestResult('planeamiento_acceso', true, 'Página accesible');
+                    updateStatus('frontendResult', 'Modo Planeamiento: Accesible', 'success');
+                } else {
+                    log('❌ Error accediendo a planeamiento.html', 'error');
+                    setTestResult('planeamiento_acceso', false, `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                setTestResult('planeamiento_acceso', false, error.message);
+            }
+        }
+
+        async function testCuadroOrg() {
+            log('🏢 Probando acceso a Cuadro de Organización...');
+            try {
+                const response = await fetch(`${serverUrl}/CO.html`);
+                if (response.ok) {
+                    log('✅ CO.html accesible', 'success');
+                    setTestResult('cuadro_org_acceso', true, 'Página accesible');
+                    updateStatus('frontendResult', 'Cuadro de Organización: Accesible', 'success');
+                } else {
+                    log('❌ Error accediendo a CO.html', 'error');
+                    setTestResult('cuadro_org_acceso', false, `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                setTestResult('cuadro_org_acceso', false, error.message);
+            }
+        }
+
+        async function testNavegacion() {
+            log('🧭 Probando navegación entre páginas...');
+            const paginas = ['iniciarpartida.html', 'inicioGB.html', 'juegodeguerra.html', 'gestionbatalla.html'];
+            let exitosas = 0;
+
+            for (const pagina of paginas) {
+                try {
+                    const response = await fetch(`${serverUrl}/${pagina}`);
+                    if (response.ok) {
+                        exitosas++;
+                        log(`✅ ${pagina} accesible`, 'success');
+                    } else {
+                        log(`❌ ${pagina} no accesible`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Error accediendo a ${pagina}`, 'error');
+                }
+            }
+
+            setTestResult('navegacion_general', exitosas === paginas.length, `${exitosas}/${paginas.length} páginas accesibles`);
+        }
+
+        // SETUP DE LISTENERS
+        function setupSocketListeners() {
+            // Eventos de respuesta
+            socket.on('loginExitoso', (data) => {
+                log('✅ Login SocketIO exitoso', 'success');
+                setTestResult('login_socket', true, `Usuario: ${data.username}`);
+                updateStatus('authResult', `Login SocketIO: ${data.username}`, 'success');
+            });
+
+            socket.on('partidaCreada', (data) => {
+                log(`✅ Partida creada: ${data.codigo}`, 'success');
+                document.getElementById('partidaTestCodigo').value = data.codigo;
+                setTestResult('crear_partida', true, `Código: ${data.codigo}`);
+                updateStatus('juegoResult', `Partida creada: ${data.codigo}`, 'success');
+            });
+
+            socket.on('partidasDisponibles', (data) => {
+                log(`📋 Partidas disponibles: ${data.partidas.length}`, 'info');
+                setTestResult('obtener_partidas', true, `${data.partidas.length} partidas`);
+                updateStatus('juegoResult', `${data.partidas.length} partidas disponibles`, 'info');
+            });
+
+            socket.on('unidoAPartida', (data) => {
+                log(`✅ Unido a partida: ${data.codigo}`, 'success');
+                setTestResult('unirse_partida', true, `Código: ${data.codigo}`);
+            });
+
+            socket.on('operacionGBCreada', (data) => {
+                log(`✅ Operación GB creada: ${data.operacion.codigo}`, 'success');
+                document.getElementById('operacionTestCodigo').value = data.operacion.codigo;
+                setTestResult('crear_operacion_gb', true, `Código: ${data.operacion.codigo}`);
+                updateStatus('gbResult', `Operación creada: ${data.operacion.codigo}`, 'success');
+            });
+
+            socket.on('operacionesGB', (data) => {
+                log(`📋 Operaciones GB: ${data.operaciones.length}`, 'info');
+                setTestResult('obtener_operaciones_gb', true, `${data.operaciones.length} operaciones`);
+                updateStatus('gbResult', `${data.operaciones.length} operaciones disponibles`, 'info');
+            });
+
+            socket.on('unidoOperacionGB', (data) => {
+                log(`✅ Unido a operación GB: ${data.codigo}`, 'success');
+                setTestResult('unirse_operacion_gb', true, `Código: ${data.codigo}`);
+            });
+
+            socket.on('nuevoMensajeChat', (data) => {
+                log(`💬 Mensaje recibido: ${data.username}: ${data.mensaje}`, 'info');
+                setTestResult('enviar_mensaje', true, 'Mensaje enviado y recibido');
+                updateStatus('chatResult', `Último mensaje: ${data.username}: ${data.mensaje}`, 'success');
+            });
+
+            // Eventos de error
+            socket.on('errorCrearPartida', (data) => {
+                log(`❌ Error creando partida: ${data.mensaje}`, 'error');
+                setTestResult('crear_partida', false, data.mensaje);
+            });
+
+            socket.on('error', (data) => {
+                log(`❌ Error del servidor: ${data.mensaje}`, 'error');
+            });
+
+            // Capturar todos los eventos para debug
+            socket.onAny((eventName, ...args) => {
+                log(`🔔 Evento: ${eventName} - ${JSON.stringify(args)}`, 'info');
+            });
+        }
+
+        // UTILIDADES
+        function limpiarLog() {
+            document.getElementById('globalLog').innerHTML = '';
+            testResults = {};
+            updateProgress();
+        }
+
+        function exportarLog() {
+            const timestamp = new Date().toISOString();
+            const resultados = {
+                timestamp,
+                serverUrl,
+                totalTests,
+                completedTests: Object.keys(testResults).length,
+                results: testResults,
+                logContent: document.getElementById('globalLog').textContent
+            };
+
+            const blob = new Blob([JSON.stringify(resultados, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `maira_test_results_${timestamp.replace(/[:.]/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            log('📄 Resultados exportados', 'success');
+        }
+
+        // AUTO-START
+        window.onload = () => {
+            log('🚀 Test Integral MAIRA iniciado');
+            log(`🎯 Servidor objetivo: ${serverUrl}`);
+            log('💡 Ejecuta los tests paso a paso o haz clic en "Probar Conectividad" para empezar');
+        };
+    </script>
+</body>
+</html>
