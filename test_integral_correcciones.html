@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Integral MAIRA - Todas las Correcciones</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0f23, #1a1a3a);
+            color: #ffffff;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 50px rgba(0,255,0,0.2);
+            border: 2px solid #00ff00;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #00ff00;
+            padding-bottom: 20px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .test-section {
+            background: rgba(0,40,0,0.9);
+            border: 2px solid #00ff00;
+            padding: 25px;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        .single-column {
+            grid-column: 1 / -1;
+        }
+        .status-ok { color: #00ff00; font-weight: bold; }
+        .status-error { color: #ff4444; font-weight: bold; }
+        .status-warning { color: #ffaa00; font-weight: bold; }
+        .status-pending { color: #00aaff; font-weight: bold; }
+        .btn {
+            background: linear-gradient(45deg, #00ff00, #00aa00);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: linear-gradient(45deg, #00aa00, #007700);
+            transform: scale(1.05);
+        }
+        .btn.danger {
+            background: linear-gradient(45deg, #ff4444, #aa0000);
+            color: #fff;
+        }
+        .progress-bar {
+            background: #333;
+            border-radius: 10px;
+            padding: 3px;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #00ff00, #00aa00);
+            height: 20px;
+            border-radius: 7px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .log {
+            background: #000;
+            border: 1px solid #333;
+            padding: 15px;
+            margin: 15px 0;
+            height: 250px;
+            overflow-y: auto;
+            font-size: 12px;
+            border-radius: 5px;
+            border-left: 4px solid #00ff00;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+        }
+        .metric:last-child {
+            border-bottom: none;
+        }
+        .link-test {
+            display: block;
+            color: #00aaff;
+            text-decoration: none;
+            padding: 5px 0;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .link-test:hover {
+            color: #00ff00;
+            border-left-color: #00ff00;
+            padding-left: 10px;
+        }
+        .emoji-large {
+            font-size: 2em;
+            display: inline-block;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Integral MAIRA</h1>
+            <p>Verificación completa con todas las correcciones aplicadas</p>
+            <div id="statusGeneral" class="status-pending">🔄 Iniciando pruebas...</div>
+        </div>
+
+        <div class="test-grid">
+            <!-- NetworkConfig Test -->
+            <div class="test-section">
+                <h3>🌐 NetworkConfig Test</h3>
+                <div id="networkStatus" class="status-pending">⏳ Verificando...</div>
+                <div class="progress-bar">
+                    <div id="networkProgress" class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div class="metric">
+                    <span>SERVER_URL:</span>
+                    <span id="serverUrl" class="status-pending">Verificando...</span>
+                </div>
+                <div class="metric">
+                    <span>CLIENT_URL:</span>
+                    <span id="clientUrl" class="status-pending">Verificando...</span>
+                </div>
+                <div class="metric">
+                    <span>Entorno:</span>
+                    <span id="entorno" class="status-pending">Detectando...</span>
+                </div>
+                <button class="btn" onclick="testNetworkConfig()">🔄 Re-test</button>
+            </div>
+
+            <!-- Bibliotecas CDN Test -->
+            <div class="test-section">
+                <h3>📚 Bibliotecas CDN</h3>
+                <div id="bibliotecasStatus" class="status-pending">⏳ Cargando...</div>
+                <div class="progress-bar">
+                    <div id="bibliotecasProgress" class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div class="metric">
+                    <span>Leaflet:</span>
+                    <span id="leafletStatus" class="status-pending">Cargando...</span>
+                </div>
+                <div class="metric">
+                    <span>MilSymbol:</span>
+                    <span id="milsymbolStatus" class="status-pending">Cargando...</span>
+                </div>
+                <div class="metric">
+                    <span>D3.js:</span>
+                    <span id="d3Status" class="status-pending">Cargando...</span>
+                </div>
+                <button class="btn" onclick="testBibliotecas()">🔄 Re-test</button>
+                <button class="btn" onclick="forzarCargaBibliotecas()">⚡ Forzar Carga</button>
+            </div>
+
+            <!-- Handlers JavaScript -->
+            <div class="test-section">
+                <h3>⚙️ Handlers JavaScript</h3>
+                <div id="handlersStatus" class="status-pending">⏳ Verificando...</div>
+                <div class="progress-bar">
+                    <div id="handlersProgress" class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div class="metric">
+                    <span>elevationHandler:</span>
+                    <span id="elevationStatus" class="status-pending">Verificando...</span>
+                </div>
+                <div class="metric">
+                    <span>vegetacionHandler:</span>
+                    <span id="vegetacionStatus" class="status-pending">Verificando...</span>
+                </div>
+                <div class="metric">
+                    <span>networkConfig:</span>
+                    <span id="networkConfigStatus" class="status-pending">Verificando...</span>
+                </div>
+                <button class="btn" onclick="testHandlers()">🔄 Re-test</button>
+            </div>
+
+            <!-- Índices JSON -->
+            <div class="test-section">
+                <h3>📊 Índices JSON</h3>
+                <div id="indicesStatus" class="status-pending">⏳ Verificando...</div>
+                <div class="progress-bar">
+                    <div id="indicesProgress" class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div class="metric">
+                    <span>Altimetría:</span>
+                    <span id="altimetriaStatus" class="status-pending">Verificando...</span>
+                </div>
+                <div class="metric">
+                    <span>Vegetación:</span>
+                    <span id="vegetacionIndexStatus" class="status-pending">Verificando...</span>
+                </div>
+                <div class="metric">
+                    <span>Fallbacks:</span>
+                    <span id="fallbacksStatus" class="status-pending">Verificando...</span>
+                </div>
+                <button class="btn" onclick="testIndices()">🔄 Re-test</button>
+                <button class="btn" onclick="activarFallbacks()">🔧 Activar Fallbacks</button>
+            </div>
+
+            <!-- Log de Correcciones -->
+            <div class="test-section single-column">
+                <h3>📋 Log de Correcciones Aplicadas</h3>
+                <div id="logCorrecciones" class="log"></div>
+                <button class="btn" onclick="limpiarLog()">🧹 Limpiar</button>
+                <button class="btn" onclick="ejecutarTodasLasCorrecciones()">🚀 Ejecutar Todas</button>
+                <button class="btn danger" onclick="reiniciarPagina()">🔄 Reiniciar</button>
+            </div>
+
+            <!-- Enlaces de Prueba -->
+            <div class="test-section single-column">
+                <h3>🔗 Enlaces de Prueba Funcional</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                    <div>
+                        <h4>🗺️ Módulos de Mapas</h4>
+                        <a href="planeamiento.html" target="_blank" class="link-test">📋 Planeamiento (Principal)</a>
+                        <a href="juegodeguerra.html" target="_blank" class="link-test">⚔️ Juego de Guerra</a>
+                        <a href="gestionbatalla.html" target="_blank" class="link-test">🎯 Gestión de Batalla</a>
+                    </div>
+                    <div>
+                        <h4>🛠️ Herramientas de Debug</h4>
+                        <a href="verificacion_post_deploy.html" target="_blank" class="link-test">✅ Verificación Post-Deploy</a>
+                        <a href="diagnostico_servidor.html" target="_blank" class="link-test">🩺 Diagnóstico Servidor</a>
+                        <a href="test_integral_maira.html" target="_blank" class="link-test">🧪 Test Integral</a>
+                    </div>
+                    <div>
+                        <h4>📁 Archivos de Sistema</h4>
+                        <a href="Client/js/networkConfig.js" target="_blank" class="link-test">🌐 NetworkConfig.js</a>
+                        <a href="Client/js/elevationHandler.js" target="_blank" class="link-test">⛰️ ElevationHandler.js</a>
+                        <a href="Client/js/vegetacionhandler.js" target="_blank" class="link-test">🌿 VegetacionHandler.js</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cargar las correcciones -->
+    <script src="correcciones_servidor_502.js"></script>
+    <script src="correcciones_post_verificacion.js"></script>
+    <script src="solucion_indices_json.js"></script>
+
+    <script>
+        // Variables globales para tracking
+        let logContainer;
+        let testResults = {
+            network: false,
+            bibliotecas: false,
+            handlers: false,
+            indices: false
+        };
+
+        // Función de logging
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            const logMessage = `[${timestamp}] ${emoji} ${message}`;
+            
+            console.log(logMessage);
+            
+            if (logContainer) {
+                logContainer.innerHTML += logMessage + '\n';
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        }
+
+        // Test NetworkConfig
+        function testNetworkConfig() {
+            log('Iniciando test de NetworkConfig...');
+            
+            const hasServerUrl = typeof window.SERVER_URL !== 'undefined' && window.SERVER_URL;
+            const hasClientUrl = typeof window.CLIENT_URL !== 'undefined' && window.CLIENT_URL;
+            
+            document.getElementById('serverUrl').textContent = window.SERVER_URL || 'NO DEFINIDO';
+            document.getElementById('serverUrl').className = hasServerUrl ? 'status-ok' : 'status-error';
+            
+            document.getElementById('clientUrl').textContent = window.CLIENT_URL || 'NO DEFINIDO';
+            document.getElementById('clientUrl').className = hasClientUrl ? 'status-ok' : 'status-error';
+            
+            // Detectar entorno
+            const host = window.location.hostname;
+            let entorno = 'Desconocido';
+            if (host.includes('onrender.com')) entorno = 'Render (Producción)';
+            else if (host === 'localhost' || host === '127.0.0.1') entorno = 'Localhost (Desarrollo)';
+            else entorno = `Custom (${host})`;
+            
+            document.getElementById('entorno').textContent = entorno;
+            document.getElementById('entorno').className = 'status-ok';
+            
+            const success = hasServerUrl && hasClientUrl;
+            testResults.network = success;
+            
+            document.getElementById('networkStatus').textContent = success ? '✅ NetworkConfig OK' : '❌ NetworkConfig ERROR';
+            document.getElementById('networkStatus').className = success ? 'status-ok' : 'status-error';
+            document.getElementById('networkProgress').style.width = success ? '100%' : '50%';
+            document.getElementById('networkProgress').textContent = success ? '100%' : '50%';
+            
+            log(success ? 'NetworkConfig configurado correctamente' : 'NetworkConfig con errores', success ? 'success' : 'error');
+            actualizarStatusGeneral();
+        }
+
+        // Test Bibliotecas
+        function testBibliotecas() {
+            log('Iniciando test de bibliotecas CDN...');
+            
+            const leaflet = typeof L !== 'undefined';
+            const milsymbol = typeof ms !== 'undefined';
+            const d3 = typeof d3 !== 'undefined';
+            
+            document.getElementById('leafletStatus').textContent = leaflet ? '✅ Cargado' : '❌ Faltante';
+            document.getElementById('leafletStatus').className = leaflet ? 'status-ok' : 'status-error';
+            
+            document.getElementById('milsymbolStatus').textContent = milsymbol ? '✅ Cargado' : '❌ Faltante';
+            document.getElementById('milsymbolStatus').className = milsymbol ? 'status-ok' : 'status-error';
+            
+            document.getElementById('d3Status').textContent = d3 ? '✅ Cargado' : '❌ Faltante';
+            document.getElementById('d3Status').className = d3 ? 'status-ok' : 'status-error';
+            
+            const total = 3;
+            const loaded = [leaflet, milsymbol, d3].filter(Boolean).length;
+            const percentage = Math.round((loaded / total) * 100);
+            
+            testResults.bibliotecas = loaded === total;
+            
+            document.getElementById('bibliotecasStatus').textContent = `${loaded}/${total} bibliotecas cargadas`;
+            document.getElementById('bibliotecasStatus').className = loaded === total ? 'status-ok' : loaded > 0 ? 'status-warning' : 'status-error';
+            document.getElementById('bibliotecasProgress').style.width = percentage + '%';
+            document.getElementById('bibliotecasProgress').textContent = percentage + '%';
+            
+            log(`Bibliotecas: ${loaded}/${total} cargadas (${percentage}%)`, loaded === total ? 'success' : 'warning');
+            actualizarStatusGeneral();
+        }
+
+        // Test Handlers
+        function testHandlers() {
+            log('Iniciando test de handlers JavaScript...');
+            
+            const elevation = typeof window.cargarDatosElevacion !== 'undefined';
+            const vegetacion = typeof window.vegetacionHandler !== 'undefined';
+            const networkConfig = typeof window.getServerUrl !== 'undefined';
+            
+            document.getElementById('elevationStatus').textContent = elevation ? '✅ Disponible' : '❌ Faltante';
+            document.getElementById('elevationStatus').className = elevation ? 'status-ok' : 'status-error';
+            
+            document.getElementById('vegetacionStatus').textContent = vegetacion ? '✅ Disponible' : '❌ Faltante';
+            document.getElementById('vegetacionStatus').className = vegetacion ? 'status-ok' : 'status-error';
+            
+            document.getElementById('networkConfigStatus').textContent = networkConfig ? '✅ Disponible' : '❌ Faltante';
+            document.getElementById('networkConfigStatus').className = networkConfig ? 'status-ok' : 'status-error';
+            
+            const total = 3;
+            const available = [elevation, vegetacion, networkConfig].filter(Boolean).length;
+            const percentage = Math.round((available / total) * 100);
+            
+            testResults.handlers = available === total;
+            
+            document.getElementById('handlersStatus').textContent = `${available}/${total} handlers disponibles`;
+            document.getElementById('handlersStatus').className = available === total ? 'status-ok' : available > 0 ? 'status-warning' : 'status-error';
+            document.getElementById('handlersProgress').style.width = percentage + '%';
+            document.getElementById('handlersProgress').textContent = percentage + '%';
+            
+            log(`Handlers: ${available}/${total} disponibles (${percentage}%)`, available === total ? 'success' : 'warning');
+            actualizarStatusGeneral();
+        }
+
+        // Test Índices
+        function testIndices() {
+            log('Iniciando test de índices JSON...');
+            
+            const altimetria = typeof window.obtenerIndiceAltimetria !== 'undefined';
+            const vegetacionIndex = typeof window.obtenerIndiceVegetacion !== 'undefined';
+            const fallbacks = typeof window.datosIndicesEmergencia !== 'undefined';
+            
+            document.getElementById('altimetriaStatus').textContent = altimetria ? '✅ Disponible' : '❌ Faltante';
+            document.getElementById('altimetriaStatus').className = altimetria ? 'status-ok' : 'status-error';
+            
+            document.getElementById('vegetacionIndexStatus').textContent = vegetacionIndex ? '✅ Disponible' : '❌ Faltante';
+            document.getElementById('vegetacionIndexStatus').className = vegetacionIndex ? 'status-ok' : 'status-error';
+            
+            document.getElementById('fallbacksStatus').textContent = fallbacks ? '✅ Activos' : '❌ Inactivos';
+            document.getElementById('fallbacksStatus').className = fallbacks ? 'status-ok' : 'status-error';
+            
+            const total = 3;
+            const available = [altimetria, vegetacionIndex, fallbacks].filter(Boolean).length;
+            const percentage = Math.round((available / total) * 100);
+            
+            testResults.indices = available >= 2; // Al menos fallbacks + uno más
+            
+            document.getElementById('indicesStatus').textContent = `${available}/${total} sistemas disponibles`;
+            document.getElementById('indicesStatus').className = available === total ? 'status-ok' : available >= 2 ? 'status-warning' : 'status-error';
+            document.getElementById('indicesProgress').style.width = percentage + '%';
+            document.getElementById('indicesProgress').textContent = percentage + '%';
+            
+            log(`Índices JSON: ${available}/${total} sistemas disponibles (${percentage}%)`, available >= 2 ? 'success' : 'warning');
+            actualizarStatusGeneral();
+        }
+
+        // Actualizar status general
+        function actualizarStatusGeneral() {
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(Boolean).length;
+            const percentage = Math.round((passedTests / totalTests) * 100);
+            
+            const statusElement = document.getElementById('statusGeneral');
+            
+            if (percentage === 100) {
+                statusElement.textContent = '✅ Todos los sistemas funcionando correctamente';
+                statusElement.className = 'status-ok';
+            } else if (percentage >= 75) {
+                statusElement.textContent = `⚠️ ${passedTests}/${totalTests} sistemas OK (${percentage}%)`;
+                statusElement.className = 'status-warning';
+            } else {
+                statusElement.textContent = `❌ ${passedTests}/${totalTests} sistemas OK (${percentage}%)`;
+                statusElement.className = 'status-error';
+            }
+            
+            log(`Status general: ${passedTests}/${totalTests} sistemas OK (${percentage}%)`);
+        }
+
+        // Funciones de acción
+        function forzarCargaBibliotecas() {
+            log('Forzando carga de bibliotecas CDN...', 'warning');
+            if (window.correccionesPostVerificacion) {
+                window.correccionesPostVerificacion.verificarBibliotecasCDN();
+                setTimeout(testBibliotecas, 3000);
+            }
+        }
+
+        function activarFallbacks() {
+            log('Activando fallbacks de índices JSON...', 'warning');
+            if (window.solucionIndicesJSON) {
+                window.solucionIndicesJSON.crearEndpointsAlternativos();
+                setTimeout(testIndices, 1000);
+            }
+        }
+
+        function ejecutarTodasLasCorrecciones() {
+            log('🚀 Ejecutando todas las correcciones...', 'warning');
+            
+            // Ejecutar correcciones post-verificación
+            if (window.correccionesPostVerificacion) {
+                window.correccionesPostVerificacion.reinicializar();
+            }
+            
+            // Ejecutar solución de índices
+            if (window.solucionIndicesJSON) {
+                window.solucionIndicesJSON.reinicializar();
+            }
+            
+            // Re-ejecutar todos los tests después de un delay
+            setTimeout(() => {
+                testNetworkConfig();
+                testBibliotecas();
+                testHandlers();
+                testIndices();
+            }, 5000);
+        }
+
+        function limpiarLog() {
+            if (logContainer) {
+                logContainer.innerHTML = '';
+            }
+        }
+
+        function reiniciarPagina() {
+            log('Reiniciando página...', 'warning');
+            setTimeout(() => location.reload(), 1000);
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            logContainer = document.getElementById('logCorrecciones');
+            log('🧪 Test Integral MAIRA iniciado');
+            
+            // Ejecutar tests iniciales con delays
+            setTimeout(testNetworkConfig, 1000);
+            setTimeout(testBibliotecas, 2000);
+            setTimeout(testHandlers, 3000);
+            setTimeout(testIndices, 4000);
+        });
+
+        // Escuchar eventos de correcciones
+        window.addEventListener('correcciones502Aplicadas', function(e) {
+            log('✅ Correcciones 502 aplicadas exitosamente', 'success');
+        });
+
+        window.addEventListener('correccionesPostVerificacionCompletadas', function(e) {
+            log('✅ Correcciones post-verificación completadas', 'success');
+        });
+
+        window.addEventListener('indicesJSONSolucionados', function(e) {
+            log('✅ Solución de índices JSON aplicada', 'success');
+        });
+    </script>
+</body>
+</html>
