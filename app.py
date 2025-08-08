@@ -194,6 +194,63 @@ def obtener_username(user_id):
             cursor.close()
             conn.close()
 
+def actualizar_lista_operaciones_gb():
+    """Actualiza la lista de operaciones GB disponibles para todos los usuarios"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return
+        
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT p.*, u.username as creador_username 
+            FROM partidas p 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios u ON up.usuario_id = u.id 
+            WHERE p.configuracion::text LIKE '%"tipo":"gestion_batalla"%' 
+            AND p.estado IN ('preparacion', 'en_curso')
+            ORDER BY p.fecha_creacion DESC
+        """)
+        
+        operaciones_db = cursor.fetchall()
+        operaciones_disponibles = []
+        
+        for operacion in operaciones_db:
+            # Obtener participantes de la operación
+            cursor.execute("""
+                SELECT u.id, u.username, up.equipo 
+                FROM usuarios_partida up 
+                JOIN usuarios u ON up.usuario_id = u.id 
+                WHERE up.partida_id = %s
+            """, (operacion['id'],))
+            
+            participantes = cursor.fetchall()
+            configuracion = json.loads(operacion['configuracion']) if operacion['configuracion'] else {}
+            
+            operacion_info = {
+                'id': operacion['id'],
+                'codigo': operacion['codigo'],
+                'nombre': configuracion.get('nombre', 'Operación Sin Nombre'),
+                'descripcion': configuracion.get('descripcion', ''),
+                'creador': configuracion.get('creador', 'Desconocido'),
+                'estado': operacion['estado'],
+                'fecha_creacion': operacion['fecha_creacion'].isoformat() if operacion['fecha_creacion'] else None,
+                'participantes': len(participantes),
+                'elementos': [{'usuario': p['username'], 'equipo': p['equipo']} for p in participantes]
+            }
+            operaciones_disponibles.append(operacion_info)
+        
+        # Emitir a todos los usuarios conectados
+        print(f"📡 Emitiendo lista de {len(operaciones_disponibles)} operaciones GB")
+        socketio.emit('operacionesGB', {'operaciones': operaciones_disponibles})
+        
+    except Exception as e:
+        print(f"❌ Error actualizando lista de operaciones GB: {e}")
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
 def actualizar_lista_partidas():
     """Actualiza la lista de partidas disponibles para todos los usuarios"""
     try:
@@ -789,12 +846,192 @@ def unidad_desplegada(data):
 
 @socketio.on('crearOperacionGB')
 def crear_operacion_gb(data):
-    sala = data.get('sala', 'general')
-    emit('operacionGBCreada', data, room=sala)
+    try:
+        print("🎖️ Iniciando creación de operación GB con datos:", data)
+        
+        nombre = data.get('nombre')
+        descripcion = data.get('descripcion', '')
+        creador = data.get('creador', 'Desconocido')
+        
+        if not nombre:
+            print("Error: Nombre de operación faltante")
+            emit('error', {'mensaje': 'Nombre de operación requerido'})
+            return
+
+        codigo_operacion = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        estado = 'preparacion'
+        fecha_creacion = datetime.now()
+
+        conn = get_db_connection()
+        if conn is None:
+            print("Error: No se pudo establecer conexión con la base de datos")
+            emit('error', {'mensaje': 'Error de conexión a la base de datos'})
+            return
+
+        try:
+            cursor = conn.cursor()
+            print("🗄️ Insertando operación GB en base de datos")
+            
+            # Usar la tabla partidas con un tipo específico para GB
+            configuracion_gb = {
+                'tipo': 'gestion_batalla',
+                'nombre': nombre,
+                'descripcion': descripcion,
+                'area': data.get('area', ''),
+                'creador': creador
+            }
+            
+            cursor.execute("""
+                INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
+                VALUES (%s, %s, %s, %s) RETURNING id
+            """, (codigo_operacion, json.dumps(configuracion_gb), estado, fecha_creacion))
+            
+            operacion_id = cursor.fetchone()['id']
+
+            creador_id = user_sid_map.get(request.sid)
+            if creador_id:
+                # Insertar al creador como director de operación
+                cursor.execute("""
+                    INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                    VALUES (%s, %s, 'director', false, true)
+                """, (operacion_id, creador_id))
+            
+            conn.commit()
+            print("✅ Operación GB creada exitosamente")
+
+            operacion = {
+                'id': operacion_id,
+                'codigo': codigo_operacion,
+                'nombre': nombre,
+                'descripcion': descripcion,
+                'creador': creador,
+                'estado': estado,
+                'fecha_creacion': fecha_creacion.isoformat(),
+                'participantes': 1,
+                'elementos': []
+            }
+
+            # Unir a sala específica de la operación
+            join_room(f"gb_{codigo_operacion}", sid=request.sid)
+            
+            print(f"📤 Emitiendo 'operacionGBCreada' con datos: {operacion}")
+            emit('operacionGBCreada', {'operacion': operacion})
+            
+            # Actualizar lista global de operaciones
+            actualizar_lista_operaciones_gb()
+            
+            print(f"🎖️ Operación GB creada exitosamente: {codigo_operacion}")
+
+        except Exception as e:
+            conn.rollback()
+            print(f"❌ Error en la base de datos al crear operación GB: {e}")
+            emit('error', {'mensaje': f'Error en la base de datos: {str(e)}'})
+        finally:
+            cursor.close()
+            conn.close()
+
+    except Exception as e:
+        print(f"❌ Error general al crear operación GB: {e}")
+        emit('error', {'mensaje': f'Error interno: {str(e)}'})
 
 @socketio.on('obtenerOperacionesGB')
-def obtener_operaciones_gb(data):
-    emit('operacionesGB', {'operaciones': list(operaciones_batalla.keys())})
+def obtener_operaciones_gb(data=None):
+    """Envía la lista de operaciones GB disponibles al cliente"""
+    try:
+        print("📋 Solicitando lista de operaciones GB")
+        actualizar_lista_operaciones_gb()
+    except Exception as e:
+        print(f"❌ Error obteniendo operaciones GB: {e}")
+        emit('error', {'mensaje': 'Error al obtener operaciones'})
+
+@socketio.on('unirseOperacionGB')
+def unirse_operacion_gb(data):
+    try:
+        codigo_operacion = data.get('codigo')
+        elemento_info = data.get('elemento', {})
+        
+        if not codigo_operacion:
+            emit('error', {'mensaje': 'Código de operación requerido'})
+            return
+        
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        conn = get_db_connection()
+        if conn is None:
+            emit('error', {'mensaje': 'Error de conexión a la base de datos'})
+            return
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Verificar que la operación existe
+            cursor.execute("""
+                SELECT * FROM partidas 
+                WHERE codigo = %s AND configuracion::text LIKE '%"tipo":"gestion_batalla"%'
+            """, (codigo_operacion,))
+            operacion = cursor.fetchone()
+            
+            if not operacion:
+                emit('error', {'mensaje': 'Operación no encontrada'})
+                return
+            
+            if operacion['estado'] not in ['preparacion', 'en_curso']:
+                emit('error', {'mensaje': 'La operación ya no está disponible'})
+                return
+            
+            # Verificar que el usuario no esté ya en la operación
+            cursor.execute("""
+                SELECT * FROM usuarios_partida 
+                WHERE partida_id = %s AND usuario_id = %s
+            """, (operacion['id'], user_id))
+            
+            if cursor.fetchone():
+                emit('error', {'mensaje': 'Ya estás en esta operación'})
+                return
+            
+            # Agregar usuario a la operación
+            equipo = elemento_info.get('designacion', 'elemento')
+            cursor.execute("""
+                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                VALUES (%s, %s, %s, false, false)
+            """, (operacion['id'], user_id, equipo))
+            
+            conn.commit()
+            
+            # Unir al usuario a la sala
+            join_room(f"gb_{codigo_operacion}", sid=request.sid)
+            
+            # Notificar éxito
+            emit('unidoOperacionGB', {
+                'codigo': codigo_operacion,
+                'operacion': operacion['id'],
+                'elemento': elemento_info
+            })
+            
+            # Notificar a todos en la operación
+            socketio.emit('nuevoElementoOperacion', {
+                'usuario': obtener_username(user_id),
+                'elemento': elemento_info,
+                'operacion': codigo_operacion
+            }, room=f"gb_{codigo_operacion}")
+            
+            # Actualizar lista global
+            actualizar_lista_operaciones_gb()
+            
+        except Exception as e:
+            conn.rollback()
+            print(f"❌ Error en base de datos al unirse a operación GB: {e}")
+            emit('error', {'mensaje': f'Error de base de datos: {str(e)}'})
+        finally:
+            cursor.close()
+            conn.close()
+            
+    except Exception as e:
+        print(f"❌ Error al unirse a operación GB: {e}")
+        emit('error', {'mensaje': f'Error interno: {str(e)}'})
 
 @socketio.on('registrarOperacion')
 def registrar_operacion(data):
