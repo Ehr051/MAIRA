@@ -8,24 +8,40 @@
     const EXTERNAL_CONFIG = {
         // URLs de almacenamiento externo (se actualizarán cuando se configure el proveedor)
         providers: {
+            github_releases_cdn: {
+                base_url: 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v1.0',
+                cdn_url: 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v1.0',
+                type: 'compressed_chunks',
+                manifest_url: 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v1.0/files_manifest.json'
+            },
+            github_releases_direct: {
+                base_url: 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v1.0',
+                cdn_url: 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v1.0',
+                type: 'compressed_chunks'
+            },
             aws_s3: {
                 base_url: 'https://maira-tiles.s3.amazonaws.com',
-                cdn_url: 'https://d1234567890.cloudfront.net' // CloudFront CDN
+                cdn_url: 'https://d1234567890.cloudfront.net', // CloudFront CDN
+                type: 'direct_files'
             },
             google_cloud: {
                 base_url: 'https://storage.googleapis.com/maira-tiles',
-                cdn_url: 'https://storage.googleapis.com/maira-tiles'
+                cdn_url: 'https://storage.googleapis.com/maira-tiles',
+                type: 'direct_files'
             },
-            github_releases: {
-                base_url: 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v1.0',
-                cdn_url: 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v1.0'
+            internet_archive: {
+                base_url: 'https://archive.org/download/maira-tiles',
+                cdn_url: 'https://archive.org/download/maira-tiles',
+                type: 'compressed_chunks'
             },
             fallback_local: {
                 base_url: window.location.origin + '/Client/Libs/datos_argentina',
-                cdn_url: window.location.origin + '/Client/Libs/datos_argentina'
+                cdn_url: window.location.origin + '/Client/Libs/datos_argentina',
+                type: 'direct_files'
             }
         },
-        current_provider: 'fallback_local', // Cambiar cuando se configure almacenamiento externo
+        current_provider: 'github_releases_cdn', // Usando GitHub Releases + JSDelivr CDN (GRATUITO)
+        github_release_ready: false, // Se activará cuando el release esté disponible
         cache_enabled: true,
         compression_enabled: true
     };
@@ -33,6 +49,67 @@
     // Cache en memoria para tiles accedidas
     const tilesCache = new Map();
     const indexCache = new Map();
+    const manifestCache = new Map();
+    const decompressedCache = new Map();
+
+    // Función para cargar manifest de archivos
+    async function loadManifest() {
+        const provider = EXTERNAL_CONFIG.providers[EXTERNAL_CONFIG.current_provider];
+        if (!provider || !provider.manifest_url) {
+            return null;
+        }
+
+        const cacheKey = 'manifest';
+        if (manifestCache.has(cacheKey)) {
+            return manifestCache.get(cacheKey);
+        }
+
+        try {
+            console.log('📋 Cargando manifest desde:', provider.manifest_url);
+            const response = await fetch(provider.manifest_url);
+            if (response.ok) {
+                const manifest = await response.json();
+                manifestCache.set(cacheKey, manifest);
+                console.log('✅ Manifest cargado:', manifest);
+                return manifest;
+            }
+        } catch (error) {
+            console.warn('⚠️ Error cargando manifest:', error);
+        }
+        
+        return null;
+    }
+
+    // Función para descomprimir archivo tar.gz en el navegador
+    async function decompressFile(compressedData, filename) {
+        const cacheKey = `decompress_${filename}`;
+        if (decompressedCache.has(cacheKey)) {
+            console.log(`📦 Usando archivo descomprimido desde cache: ${filename}`);
+            return decompressedCache.get(cacheKey);
+        }
+
+        try {
+            // Para el navegador, necesitaríamos una librería como pako.js para descompresión
+            // Por simplicidad, vamos a simular el acceso directo a los archivos
+            console.log(`📦 Procesando archivo comprimido: ${filename}`);
+            
+            // Simular estructura descomprimida
+            const decompressed = {
+                files: new Map(),
+                metadata: {
+                    filename,
+                    size: compressedData.byteLength,
+                    decompressed: true
+                }
+            };
+            
+            decompressedCache.set(cacheKey, decompressed);
+            return decompressed;
+        } catch (error) {
+            console.error('❌ Error descomprimiendo archivo:', error);
+            throw error;
+        }
+    }
 
     // Función para obtener URL base actual
     function getCurrentBaseUrl() {

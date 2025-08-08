@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "created": "2025-08-08T16:04:08Z",
+  "external_storage": {
+    "provider": "pending_selection",
+    "base_url": "https://placeholder.com/maira-tiles",
+    "endpoints": {
+      "altimetria": {
+        "index": "/indices/index_tiles_altimetria.json",
+        "tiles": "/altimetria/"
+      },
+      "vegetacion": {
+        "index": "/indices/vegetacion_tile_index.json", 
+        "tiles": "/vegetacion/"
+      }
+    }
+  },
+  "fallback": {
+    "use_local": false,
+    "cache_enabled": true
+  },
+  "statistics": {
+    "total_size_gb": 12.68,
+    "altimetria_files": 3249,
+    "vegetacion_files": 2266,
+    "total_files": 5516
+  }
+}
