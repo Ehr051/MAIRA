@@ -66,14 +66,19 @@ def get_db_connection():
 # Rutas básicas
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('static', 'index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
     try:
+        # Intentar servir desde static/ primero para archivos HTML
+        if path.endswith('.html'):
+            return send_from_directory('static', path)
+        # Para otros archivos, intentar desde la raíz
         return send_from_directory('.', path)
     except:
-        return send_from_directory('.', 'index.html')
+        # Si falla, servir index.html desde static/
+        return send_from_directory('static', 'index.html')
 
 @app.route('/health')
 def health_check():
