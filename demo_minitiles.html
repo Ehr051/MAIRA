@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA Mini-tiles v3.0 - Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .coordinates-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result-area {
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .log-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .log-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .log-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .log-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .coordinates-presets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .preset-btn {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ MAIRA Mini-tiles v3.0</h1>
+            <p>Sistema de tiles optimizado para GitHub - Demostración en vivo</p>
+        </div>
+
+        <div class="content">
+            <!-- Estado del Sistema -->
+            <div class="system-status">
+                <div class="status-indicator"></div>
+                <strong>Sistema Mini-tiles v3.0 Activo</strong>
+                <span>- GitHub Release tiles-v3.0 disponible</span>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>📦 Total Archivos TAR</h3>
+                    <div class="value" id="total-tar-files">97</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🗺️ Provincias</h3>
+                    <div class="value" id="total-provincias">5</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📊 Mini-tiles</h3>
+                    <div class="value" id="total-tiles">9,501</div>
+                </div>
+                <div class="stat-card">
+                    <h3>💾 Tamaño Total</h3>
+                    <div class="value">72MB</div>
+                </div>
+            </div>
+
+            <!-- Prueba de Coordenadas -->
+            <div class="test-section">
+                <h2>🎯 Prueba de Tiles por Coordenadas</h2>
+                
+                <div class="coordinates-presets">
+                    <div class="preset-btn" onclick="setCoordinates(-34.6118, -58.3960)">Buenos Aires</div>
+                    <div class="preset-btn" onclick="setCoordinates(-31.4135, -64.1811)">Córdoba</div>
+                    <div class="preset-btn" onclick="setCoordinates(-24.7821, -65.4232)">Salta</div>
+                    <div class="preset-btn" onclick="setCoordinates(-41.1335, -71.3103)">Bariloche</div>
+                    <div class="preset-btn" onclick="setCoordinates(-54.8019, -68.3030)">Ushuaia</div>
+                </div>
+
+                <div class="coordinates-input">
+                    <div class="input-group">
+                        <label for="lat">Latitud</label>
+                        <input type="number" id="lat" step="0.0001" value="-34.6118" placeholder="-34.6118">
+                    </div>
+                    <div class="input-group">
+                        <label for="lon">Longitud</label>
+                        <input type="number" id="lon" step="0.0001" value="-58.3960" placeholder="-58.3960">
+                    </div>
+                    <div class="input-group">
+                        <label>&nbsp;</label>
+                        <button class="btn" onclick="testTileLoad()">
+                            <span id="test-btn-text">🔍 Buscar Tile</span>
+                            <span id="test-loading" class="loading hidden"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="result-area" id="result-area">
+                    <div class="log-entry log-info">
+                        🚀 Sistema listo para pruebas. Ingresa coordenadas y presiona "Buscar Tile"
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Release -->
+            <div class="test-section">
+                <h2>📋 Información del Release</h2>
+                <p><strong>Release:</strong> tiles-v3.0</p>
+                <p><strong>URL:</strong> <a href="https://github.com/Ehr051/MAIRA/releases/tag/tiles-v3.0" target="_blank">https://github.com/Ehr051/MAIRA/releases/tag/tiles-v3.0</a></p>
+                <p><strong>CDN:</strong> https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v3.0/mini_tiles_github/</p>
+                <p><strong>Características:</strong></p>
+                <ul>
+                    <li>✅ Tiles de 25km × 25km</li>
+                    <li>✅ Archivos TAR <1.15MB (GitHub compatible)</li>
+                    <li>✅ División provincial de Argentina</li>
+                    <li>✅ Índices JSON con navegación completa</li>
+                    <li>✅ Fallback automático a CDN</li>
+                    <li>✅ Cache inteligente</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="mini_tiles_loader.js"></script>
+    <script>
+        let systemInitialized = false;
+
+        // Inicializar sistema
+        async function initializeSystem() {
+            try {
+                logMessage('🔧 Inicializando sistema mini-tiles v3.0...', 'info');
+                
+                await window.miniTilesLoader.initialize();
+                systemInitialized = true;
+                
+                // Actualizar estadísticas
+                const stats = window.miniTilesLoader.getStats();
+                updateStats(stats);
+                
+                logMessage('✅ Sistema inicializado exitosamente', 'success');
+                logMessage(`📊 ${stats.totalProvincias} provincias, ${stats.totalTarFiles} archivos TAR disponibles`, 'info');
+                
+            } catch (error) {
+                logMessage(`❌ Error inicializando sistema: ${error.message}`, 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Actualizar estadísticas en UI
+        function updateStats(stats) {
+            document.getElementById('total-tar-files').textContent = stats.totalTarFiles || '97';
+            document.getElementById('total-provincias').textContent = stats.totalProvincias || '5';
+        }
+
+        // Establecer coordenadas preset
+        function setCoordinates(lat, lon) {
+            document.getElementById('lat').value = lat;
+            document.getElementById('lon').value = lon;
+        }
+
+        // Probar carga de tile
+        async function testTileLoad() {
+            if (!systemInitialized) {
+                logMessage('⚠️ Sistema no inicializado. Inicializando...', 'warning');
+                await initializeSystem();
+            }
+
+            const lat = parseFloat(document.getElementById('lat').value);
+            const lon = parseFloat(document.getElementById('lon').value);
+
+            if (isNaN(lat) || isNaN(lon)) {
+                logMessage('❌ Coordenadas inválidas', 'error');
+                return;
+            }
+
+            // Mostrar loading
+            document.getElementById('test-btn-text').textContent = 'Buscando...';
+            document.getElementById('test-loading').classList.remove('hidden');
+            document.querySelector('.btn').disabled = true;
+
+            try {
+                logMessage(`🎯 Buscando tile para: ${lat}, ${lon}`, 'info');
+                
+                const startTime = Date.now();
+                const tile = await window.miniTilesLoader.getTile(lat, lon, 'altimetria');
+                const loadTime = Date.now() - startTime;
+
+                if (tile) {
+                    logMessage(`✅ Tile encontrado en ${loadTime}ms`, 'success');
+                    logMessage(`📍 ID: ${tile.id}`, 'info');
+                    logMessage(`🗺️ Provincia: ${tile.provincia}`, 'info');
+                    logMessage(`📄 Archivo: ${tile.filename}`, 'info');
+                    logMessage(`📦 TAR: ${tile.tarUrl ? 'Cargado' : 'Disponible'}`, 'info');
+                    logMessage(`🔗 Bounds: N:${tile.bounds.north.toFixed(4)} S:${tile.bounds.south.toFixed(4)} E:${tile.bounds.east.toFixed(4)} W:${tile.bounds.west.toFixed(4)}`, 'info');
+                } else {
+                    logMessage('⚠️ No se encontró tile para estas coordenadas', 'warning');
+                }
+
+            } catch (error) {
+                logMessage(`❌ Error: ${error.message}`, 'error');
+                console.error('Error completo:', error);
+            } finally {
+                // Ocultar loading
+                document.getElementById('test-btn-text').textContent = '🔍 Buscar Tile';
+                document.getElementById('test-loading').classList.add('hidden');
+                document.querySelector('.btn').disabled = false;
+            }
+        }
+
+        // Log de mensajes
+        function logMessage(message, type = 'info') {
+            const resultArea = document.getElementById('result-area');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            
+            resultArea.appendChild(entry);
+            resultArea.scrollTop = resultArea.scrollHeight;
+
+            // Limitar número de entradas
+            const entries = resultArea.children;
+            if (entries.length > 50) {
+                resultArea.removeChild(entries[0]);
+            }
+        }
+
+        // Enter key para buscar
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testTileLoad();
+            }
+        });
+
+        // Inicializar al cargar página
+        document.addEventListener('DOMContentLoaded', function() {
+            logMessage('🚀 MAIRA Mini-tiles v3.0 Demo cargado', 'success');
+            initializeSystem();
+        });
+    </script>
+</body>
+</html>
