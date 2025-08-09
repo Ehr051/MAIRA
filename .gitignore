@@ -1,3 +1,19 @@
 node_modules
 .venv/
 ./Libs/datos_argentina/
+
+# Archivos grandes y temporales
+free_storage_prep/
+**/altimetria_tiles.tar.gz
+**/vegetacion_part_*.tar.gz
+*.tar.gz.tmp
+temp_tif_extract/
+mini_tiles_temp/
+
+# Archivos TIF extraídos (muy grandes)
+**/*.tif
+**/extracted_tiles/
+
+# Logs y archivos temporales
+*.log
+.DS_Store
