@@ -1,19 +1,161 @@
-node_modules
-.venv/
-./Libs/datos_argentina/
+# MAIRA Project - Gitignore organizado
+# =====================================
 
-# Archivos grandes y temporales
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entornos virtuales
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+package-lock.json
+
+# Archivos temporales del sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Certificados SSL
+ssl/
+*.pem
+*.key
+*.crt
+
+# ====================================
+# ARCHIVOS GRANDES (evitar GitHub limits)
+# ====================================
 free_storage_prep/
 **/altimetria_tiles.tar.gz
 **/vegetacion_part_*.tar.gz
 *.tar.gz.tmp
 temp_tif_extract/
 mini_tiles_temp/
-
-# Archivos TIF extraídos (muy grandes)
 **/*.tif
 **/extracted_tiles/
+tiles_extraidos/
 
-# Logs y archivos temporales
-*.log
-.DS_Store
+# ====================================
+# ARCHIVOS DE DESARROLLO NO RELACIONADOS CON MAIRA
+# ====================================
+
+# Agentes de IA (herramientas de desarrollo, no parte del proyecto)
+*-engineer.md
+*-developer.md
+*-specialist.md
+*-architect.md
+*-admin.md
+*-analyst.md
+*-auditor.md
+*-automator.md
+*-detective.md
+*-manager.md
+*-optimizer.md
+*-pro.md
+*-reviewer.md
+*-troubleshooter.md
+agents-helper.sh
+AGENTS.md
+
+# Archivos de análisis y documentación temporal
+ANALISIS_*.md
+PLAN_*.md
+AWS_S3_SETUP_GUIDE.md
+GITHUB_RELEASES_SETUP.md
+ALMACENAMIENTO_GRATUITO.md
+
+# Scripts de testing temporal
+test_*.py
+test_*.js
+test_*.html
+test-*.html
+debug_*.html
+diagnostico_*.html
+verificacion_*.js
+verificacion_*.html
+demo_*.html
+
+# Scripts de deploy y migración temporal  
+prepare_*.py
+prepare_*.sh
+setup_*.sh
+*_adapter.js
+*_config.js
+convert_*.py
+clean_*.py
+auditoria_*.js
+correcciones_*.js
+dividir_*.py
+crear_provincias_*.py
+
+# Archivos de deployment temporal
+render*.yaml
+DEPLOYMENT*.md
+MIGRATION*.md
+ELEVATION_*.md
+
+# Archivos de documentación temporal
+documentacion.html
+estado_sistema_*.html
+
+# Uploads y archivos temporales
+uploads/
+temporary_*/
+external_storage/
+indices/
+
+# Archivos de backup y versiones antiguas
+*_backup.*
+*_old.*
+*_complete.*
+app_backup.py
+app_old.py
+app_complete.py
+
+# Archivos HTML temporales de testing
+gestionbatalla.html
+iniciarpartida.html
+inicioGB.html
+juegodeguerra.html
+planeamiento.html
+static-index.html

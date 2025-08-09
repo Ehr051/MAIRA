@@ -5,8 +5,12 @@
 
 class MiniTilesLoader {
     constructor() {
-        this.baseUrl = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/';
-        this.cdnUrl = 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v3.0/mini_tiles_github/';
+                // URLs de fallback para disponibilidad
+        this.baseUrls = [
+            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/',     // GitHub Release (archivos sueltos) - PRINCIPAL
+            './mini_tiles_github/',                                                // Local dev con estructura (para testing)
+            'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/mini_tiles_github/'   // CDN (backup, con estructura)
+        ];
         
         this.masterIndex = null;
         this.provinciaIndices = new Map();
@@ -36,17 +40,48 @@ class MiniTilesLoader {
     }
 
     /**
-     * Fetch con fallback a CDN
+     * Fetch con fallback a múltiples URLs
      */
     async fetchWithFallback(filename) {
-        try {
-            const response = await fetch(this.baseUrl + filename);
-            if (response.ok) return response;
-            throw new Error(`HTTP ${response.status}`);
-        } catch (error) {
-            console.warn(`⚠️ Fallback a CDN para ${filename}`);
-            return fetch(this.cdnUrl + filename);
+        let lastError;
+        
+        for (let i = 0; i < this.baseUrls.length; i++) {
+            const url = this.baseUrls[i] + filename;
+            
+            try {
+                console.log(`🔄 Intentando cargar: ${url}`);
+                const response = await fetch(url);
+                
+                if (response.ok) {
+                    console.log(`✅ Carga exitosa desde: ${this.baseUrls[i]}`);
+                    
+                    // Verificar que sea JSON válido
+                    const text = await response.text();
+                    console.log(`📄 Contenido recibido (primeros 100 chars): ${text.substring(0, 100)}`);
+                    
+                    try {
+                        const json = JSON.parse(text);
+                        return { json: () => Promise.resolve(json) };
+                    } catch (jsonError) {
+                        console.error(`❌ Error parsing JSON: ${jsonError.message}`);
+                        console.error(`📄 Contenido completo: ${text}`);
+                        throw new Error(`Invalid JSON: ${jsonError.message}`);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                lastError = error;
+                console.log(`⚠️ Fallo en ${this.baseUrls[i]}: ${error.message}`);
+                
+                if (i < this.baseUrls.length - 1) {
+                    console.log(`🔄 Probando siguiente URL...`);
+                }
+            }
         }
+        
+        throw new Error(`Falló carga de ${filename} desde todas las URLs. Último error: ${lastError.message}`);
     }
 
     /**
@@ -165,8 +200,8 @@ class MiniTilesLoader {
         try {
             console.log(`📦 Cargando ${tileData.filename} desde ${tileData.tar_file}...`);
             
-            // Descargar archivo TAR
-            const tarResponse = await this.fetchWithFallback(`${provincia}/${tileData.tar_file}`);
+            // Descargar archivo TAR - NOTA: archivos están sueltos en GitHub Release
+            const tarResponse = await this.fetchWithFallback(tileData.tar_file);
             const tarBuffer = await tarResponse.arrayBuffer();
             
             // Extraer el TIF específico del TAR usando una librería de TAR
