@@ -1,0 +1,71 @@
+{
+  "provincias": {
+    "norte": {
+      "altimetria_tiles": 144,
+      "vegetacion_tiles": 143,
+      "archivos": [
+        "altimetria_norte.json",
+        "altimetria_norte.tar.gz",
+        "vegetacion_norte.json",
+        "vegetacion_norte.tar.gz"
+      ]
+    },
+    "centro_norte": {
+      "altimetria_tiles": 72,
+      "vegetacion_tiles": 109,
+      "archivos": [
+        "altimetria_centro_norte.json",
+        "altimetria_centro_norte.tar.gz",
+        "vegetacion_centro_norte.json",
+        "vegetacion_centro_norte.tar.gz"
+      ]
+    },
+    "centro": {
+      "altimetria_tiles": 65,
+      "vegetacion_tiles": 68,
+      "archivos": [
+        "altimetria_centro.json",
+        "altimetria_centro.tar.gz",
+        "vegetacion_centro.json",
+        "vegetacion_centro.tar.gz"
+      ]
+    },
+    "sur": {
+      "altimetria_tiles": 70,
+      "vegetacion_tiles": 97,
+      "archivos": [
+        "altimetria_sur.json",
+        "altimetria_sur.tar.gz",
+        "vegetacion_sur.json",
+        "vegetacion_sur.tar.gz"
+      ]
+    },
+    "patagonia": {
+      "altimetria_tiles": 66,
+      "vegetacion_tiles": 63,
+      "archivos": [
+        "altimetria_patagonia.json",
+        "altimetria_patagonia.tar.gz",
+        "vegetacion_patagonia.json",
+        "vegetacion_patagonia.tar.gz"
+      ]
+    },
+    "otros": {
+      "altimetria_tiles": 2832,
+      "vegetacion_tiles": 275,
+      "archivos": [
+        "altimetria_otros.json",
+        "altimetria_otros.tar.gz",
+        "vegetacion_otros.json",
+        "vegetacion_otros.tar.gz"
+      ]
+    }
+  },
+  "metadata": {
+    "description": "Tiles divididos por provincias argentinas",
+    "tipos": [
+      "altimetria",
+      "vegetacion"
+    ]
+  }
+}

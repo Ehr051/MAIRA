@@ -1,0 +1,657 @@
+{
+  "tiles": {
+    "archivo_final_unido_24_25": {
+      "filename": "archivo_final_unido_24_25.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -63.333472333333326,
+        "west": -64.400139
+      }
+    },
+    "archivo_final_unido_24_31": {
+      "filename": "archivo_final_unido_24_31.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -56.933472333333334,
+        "west": -58.000139000000004
+      }
+    },
+    "archivo_final_unido_21_29": {
+      "filename": "archivo_final_unido_21_29.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -59.06680566666667,
+        "west": -60.13347233333334
+      }
+    },
+    "archivo_final_unido_21_28": {
+      "filename": "archivo_final_unido_21_28.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -60.13347233333334,
+        "west": -61.20013900000001
+      }
+    },
+    "archivo_final_unido_24_30": {
+      "filename": "archivo_final_unido_24_30.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -58.000139,
+        "west": -59.06680566666667
+      }
+    },
+    "archivo_final_unido_24_24": {
+      "filename": "archivo_final_unido_24_24.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -64.40013900000001,
+        "west": -65.46680566666667
+      }
+    },
+    "archivo_final_unido_24_32": {
+      "filename": "archivo_final_unido_24_32.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -55.86680566666667,
+        "west": -56.93347233333334
+      }
+    },
+    "archivo_final_unido_24_26": {
+      "filename": "archivo_final_unido_24_26.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -62.26680566666666,
+        "west": -63.33347233333333
+      }
+    },
+    "archivo_final_unido_24_27": {
+      "filename": "archivo_final_unido_24_27.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -61.200139,
+        "west": -62.26680566666667
+      }
+    },
+    "archivo_final_unido_24_33": {
+      "filename": "archivo_final_unido_24_33.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -54.800139,
+        "west": -55.86680566666667
+      }
+    },
+    "archivo_final_unido_24_23": {
+      "filename": "archivo_final_unido_24_23.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -65.46680566666667,
+        "west": -66.53347233333334
+      }
+    },
+    "archivo_final_unido_24_22": {
+      "filename": "archivo_final_unido_24_22.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -66.53347233333335,
+        "west": -67.60013900000001
+      }
+    },
+    "archivo_final_unido_23_29": {
+      "filename": "archivo_final_unido_23_29.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -59.06680566666667,
+        "west": -60.13347233333334
+      }
+    },
+    "archivo_final_unido_23_28": {
+      "filename": "archivo_final_unido_23_28.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -60.13347233333334,
+        "west": -61.20013900000001
+      }
+    },
+    "archivo_final_unido_20_22": {
+      "filename": "archivo_final_unido_20_22.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -66.53347233333335,
+        "west": -67.60013900000001
+      }
+    },
+    "archivo_final_unido_22_27": {
+      "filename": "archivo_final_unido_22_27.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -61.200139,
+        "west": -62.26680566666667
+      }
+    },
+    "archivo_final_unido_22_33": {
+      "filename": "archivo_final_unido_22_33.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -54.800139,
+        "west": -55.86680566666667
+      }
+    },
+    "archivo_final_unido_22_32": {
+      "filename": "archivo_final_unido_22_32.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -55.86680566666667,
+        "west": -56.93347233333334
+      }
+    },
+    "archivo_final_unido_22_26": {
+      "filename": "archivo_final_unido_22_26.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -62.26680566666666,
+        "west": -63.33347233333333
+      }
+    },
+    "archivo_final_unido_20_23": {
+      "filename": "archivo_final_unido_20_23.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -65.46680566666667,
+        "west": -66.53347233333334
+      }
+    },
+    "archivo_final_unido_22_30": {
+      "filename": "archivo_final_unido_22_30.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -58.000139,
+        "west": -59.06680566666667
+      }
+    },
+    "archivo_final_unido_22_24": {
+      "filename": "archivo_final_unido_22_24.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -64.40013900000001,
+        "west": -65.46680566666667
+      }
+    },
+    "archivo_final_unido_22_25": {
+      "filename": "archivo_final_unido_22_25.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -63.333472333333326,
+        "west": -64.400139
+      }
+    },
+    "archivo_final_unido_22_31": {
+      "filename": "archivo_final_unido_22_31.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -56.933472333333334,
+        "west": -58.000139000000004
+      }
+    },
+    "archivo_final_unido_20_30": {
+      "filename": "archivo_final_unido_20_30.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -58.000139,
+        "west": -59.06680566666667
+      }
+    },
+    "archivo_final_unido_20_24": {
+      "filename": "archivo_final_unido_20_24.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -64.40013900000001,
+        "west": -65.46680566666667
+      }
+    },
+    "archivo_final_unido_25_28": {
+      "filename": "archivo_final_unido_25_28.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -60.13347233333334,
+        "west": -61.20013900000001
+      }
+    },
+    "archivo_final_unido_25_29": {
+      "filename": "archivo_final_unido_25_29.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -59.06680566666667,
+        "west": -60.13347233333334
+      }
+    },
+    "archivo_final_unido_20_25": {
+      "filename": "archivo_final_unido_20_25.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -63.333472333333326,
+        "west": -64.400139
+      }
+    },
+    "archivo_final_unido_20_31": {
+      "filename": "archivo_final_unido_20_31.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -56.933472333333334,
+        "west": -58.000139000000004
+      }
+    },
+    "archivo_final_unido_20_27": {
+      "filename": "archivo_final_unido_20_27.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -61.200139,
+        "west": -62.26680566666667
+      }
+    },
+    "archivo_final_unido_20_33": {
+      "filename": "archivo_final_unido_20_33.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -54.800139,
+        "west": -55.86680566666667
+      }
+    },
+    "archivo_final_unido_22_22": {
+      "filename": "archivo_final_unido_22_22.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -66.53347233333335,
+        "west": -67.60013900000001
+      }
+    },
+    "archivo_final_unido_22_23": {
+      "filename": "archivo_final_unido_22_23.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -65.46680566666667,
+        "west": -66.53347233333334
+      }
+    },
+    "archivo_final_unido_20_32": {
+      "filename": "archivo_final_unido_20_32.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -55.86680566666667,
+        "west": -56.93347233333334
+      }
+    },
+    "archivo_final_unido_20_26": {
+      "filename": "archivo_final_unido_20_26.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -62.26680566666666,
+        "west": -63.33347233333333
+      }
+    },
+    "archivo_final_unido_25_33": {
+      "filename": "archivo_final_unido_25_33.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -54.800139,
+        "west": -55.86680566666667
+      }
+    },
+    "archivo_final_unido_25_27": {
+      "filename": "archivo_final_unido_25_27.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -61.200139,
+        "west": -62.26680566666667
+      }
+    },
+    "archivo_final_unido_25_26": {
+      "filename": "archivo_final_unido_25_26.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -62.26680566666666,
+        "west": -63.33347233333333
+      }
+    },
+    "archivo_final_unido_25_32": {
+      "filename": "archivo_final_unido_25_32.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -55.86680566666667,
+        "west": -56.93347233333334
+      }
+    },
+    "archivo_final_unido_20_28": {
+      "filename": "archivo_final_unido_20_28.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -60.13347233333334,
+        "west": -61.20013900000001
+      }
+    },
+    "archivo_final_unido_25_24": {
+      "filename": "archivo_final_unido_25_24.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -64.40013900000001,
+        "west": -65.46680566666667
+      }
+    },
+    "archivo_final_unido_25_30": {
+      "filename": "archivo_final_unido_25_30.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -58.000139,
+        "west": -59.06680566666667
+      }
+    },
+    "archivo_final_unido_25_31": {
+      "filename": "archivo_final_unido_25_31.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -56.933472333333334,
+        "west": -58.000139000000004
+      }
+    },
+    "archivo_final_unido_25_25": {
+      "filename": "archivo_final_unido_25_25.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -63.333472333333326,
+        "west": -64.400139
+      }
+    },
+    "archivo_final_unido_20_29": {
+      "filename": "archivo_final_unido_20_29.tif",
+      "bounds": {
+        "north": -30.266805666666666,
+        "south": -31.333472333333333,
+        "east": -59.06680566666667,
+        "west": -60.13347233333334
+      }
+    },
+    "archivo_final_unido_22_28": {
+      "filename": "archivo_final_unido_22_28.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -60.13347233333334,
+        "west": -61.20013900000001
+      }
+    },
+    "archivo_final_unido_22_29": {
+      "filename": "archivo_final_unido_22_29.tif",
+      "bounds": {
+        "north": -32.400138999999996,
+        "south": -33.466805666666666,
+        "east": -59.06680566666667,
+        "west": -60.13347233333334
+      }
+    },
+    "archivo_final_unido_25_22": {
+      "filename": "archivo_final_unido_25_22.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -66.53347233333335,
+        "west": -67.60013900000001
+      }
+    },
+    "archivo_final_unido_25_23": {
+      "filename": "archivo_final_unido_25_23.tif",
+      "bounds": {
+        "north": -35.600139,
+        "south": -36.66680566666667,
+        "east": -65.46680566666667,
+        "west": -66.53347233333334
+      }
+    },
+    "archivo_final_unido_23_31": {
+      "filename": "archivo_final_unido_23_31.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -56.933472333333334,
+        "west": -58.000139000000004
+      }
+    },
+    "archivo_final_unido_23_25": {
+      "filename": "archivo_final_unido_23_25.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -63.333472333333326,
+        "west": -64.400139
+      }
+    },
+    "archivo_final_unido_23_24": {
+      "filename": "archivo_final_unido_23_24.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -64.40013900000001,
+        "west": -65.46680566666667
+      }
+    },
+    "archivo_final_unido_23_30": {
+      "filename": "archivo_final_unido_23_30.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -58.000139,
+        "west": -59.06680566666667
+      }
+    },
+    "archivo_final_unido_23_26": {
+      "filename": "archivo_final_unido_23_26.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -62.26680566666666,
+        "west": -63.33347233333333
+      }
+    },
+    "archivo_final_unido_23_32": {
+      "filename": "archivo_final_unido_23_32.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -55.86680566666667,
+        "west": -56.93347233333334
+      }
+    },
+    "archivo_final_unido_21_23": {
+      "filename": "archivo_final_unido_21_23.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -65.46680566666667,
+        "west": -66.53347233333334
+      }
+    },
+    "archivo_final_unido_21_22": {
+      "filename": "archivo_final_unido_21_22.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -66.53347233333335,
+        "west": -67.60013900000001
+      }
+    },
+    "archivo_final_unido_23_33": {
+      "filename": "archivo_final_unido_23_33.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -54.800139,
+        "west": -55.86680566666667
+      }
+    },
+    "archivo_final_unido_23_27": {
+      "filename": "archivo_final_unido_23_27.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -61.200139,
+        "west": -62.26680566666667
+      }
+    },
+    "archivo_final_unido_23_23": {
+      "filename": "archivo_final_unido_23_23.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -65.46680566666667,
+        "west": -66.53347233333334
+      }
+    },
+    "archivo_final_unido_21_26": {
+      "filename": "archivo_final_unido_21_26.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -62.26680566666666,
+        "west": -63.33347233333333
+      }
+    },
+    "archivo_final_unido_21_32": {
+      "filename": "archivo_final_unido_21_32.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -55.86680566666667,
+        "west": -56.93347233333334
+      }
+    },
+    "archivo_final_unido_21_33": {
+      "filename": "archivo_final_unido_21_33.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -54.800139,
+        "west": -55.86680566666667
+      }
+    },
+    "archivo_final_unido_21_27": {
+      "filename": "archivo_final_unido_21_27.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -61.200139,
+        "west": -62.26680566666667
+      }
+    },
+    "archivo_final_unido_23_22": {
+      "filename": "archivo_final_unido_23_22.tif",
+      "bounds": {
+        "north": -33.466805666666666,
+        "south": -34.533472333333336,
+        "east": -66.53347233333335,
+        "west": -67.60013900000001
+      }
+    },
+    "archivo_final_unido_24_29": {
+      "filename": "archivo_final_unido_24_29.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -59.06680566666667,
+        "west": -60.13347233333334
+      }
+    },
+    "archivo_final_unido_21_31": {
+      "filename": "archivo_final_unido_21_31.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -56.933472333333334,
+        "west": -58.000139000000004
+      }
+    },
+    "archivo_final_unido_21_25": {
+      "filename": "archivo_final_unido_21_25.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -63.333472333333326,
+        "west": -64.400139
+      }
+    },
+    "archivo_final_unido_21_24": {
+      "filename": "archivo_final_unido_21_24.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -64.40013900000001,
+        "west": -65.46680566666667
+      }
+    },
+    "archivo_final_unido_21_30": {
+      "filename": "archivo_final_unido_21_30.tif",
+      "bounds": {
+        "north": -31.333472333333333,
+        "south": -32.400139,
+        "east": -58.000139,
+        "west": -59.06680566666667
+      }
+    },
+    "archivo_final_unido_24_28": {
+      "filename": "archivo_final_unido_24_28.tif",
+      "bounds": {
+        "north": -34.533472333333336,
+        "south": -35.600139000000006,
+        "east": -60.13347233333334,
+        "west": -61.20013900000001
+      }
+    }
+  },
+  "metadata": {
+    "provincia": "centro_norte",
+    "tipo": "altimetria",
+    "total_tiles": 72
+  }
+}
