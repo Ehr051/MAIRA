@@ -259,15 +259,15 @@ def crear_tar_file(tif_files, output_dir, provincia_name, tar_index):
     if tar_size > 95:  # Advertencia si está cerca del límite
         print(f"⚠️  ADVERTENCIA: {tar_filename} es grande ({tar_size:.1f} MB)")
 
-def procesar_todas_las_provincias():
+def procesar_todas_las_provincias(tif_files_dir):
     """
     Procesa todas las provincias disponibles
     """
     
-    # Directorios
-    base_dir = "/Users/mac/Documents/GitHub/MAIRA_git"
+    # Directorios (usar rutas relativas desde el script)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    base_dir = script_dir
     provincias_json_dir = os.path.join(base_dir, "tiles_por_provincias")
-    tif_files_dir = "/path/to/extracted/tif/files"  # Usuario debe especificar
     output_dir = os.path.join(base_dir, "mini_tiles_github")
     
     print("🚀 GENERADOR DE MINI-TILES PARA GITHUB")
@@ -284,9 +284,10 @@ def procesar_todas_las_provincias():
     
     # Buscar archivos JSON de provincias (solo altimetría por ahora)
     json_files = []
-    for file in os.listdir(provincias_json_dir):
-        if file.startswith("altimetria_") and file.endswith(".json"):
-            json_files.append(os.path.join(provincias_json_dir, file))
+    if os.path.exists(provincias_json_dir):
+        for file in os.listdir(provincias_json_dir):
+            if file.startswith("altimetria_") and file.endswith(".json") and file != "altimetria_otros.json":
+                json_files.append(os.path.join(provincias_json_dir, file))
     
     print(f"📄 Encontradas {len(json_files)} provincias para procesar")
     
@@ -294,20 +295,84 @@ def procesar_todas_las_provincias():
     if not os.path.exists(tif_files_dir):
         print("❌ ERROR: Directorio de archivos TIF no encontrado")
         print("💡 Necesitas extraer los archivos TIF de altimetria_tiles.tar.gz")
-        print("   Ejemplo: tar -xzf altimetria_tiles.tar.gz -C /path/to/extract/")
+        print("   Ejemplo: tar -xzf altimetria_tiles.tar.gz -C /tmp/tif_extract/")
+        return
+    
+    # Contar archivos TIF disponibles
+    tif_count = len([f for f in os.listdir(tif_files_dir) if f.endswith('.tif')])
+    print(f"📊 Archivos TIF disponibles: {tif_count}")
+    
+    if tif_count == 0:
+        print("❌ No se encontraron archivos TIF en el directorio especificado")
         return
     
     # Procesar cada provincia
+    success_count = 0
     for i, json_path in enumerate(json_files, 1):
         print(f"\n📍 [{i}/{len(json_files)}] Procesando: {os.path.basename(json_path)}")
         try:
             crear_mini_tiles_provincia(json_path, tif_files_dir, output_dir)
+            success_count += 1
         except Exception as e:
             print(f"❌ Error en {os.path.basename(json_path)}: {str(e)}")
     
-    print("\n🎉 ¡Procesamiento completado!")
+    print(f"\n🎉 ¡Procesamiento completado!")
+    print(f"✅ Provincias procesadas exitosamente: {success_count}/{len(json_files)}")
     print(f"📁 Resultado en: {output_dir}")
     print("💡 Cada archivo TAR.GZ debería ser < 50MB y compatible con GitHub")
+    
+    # Crear índice maestro de mini-tiles
+    crear_indice_maestro_mini_tiles(output_dir)
+
+def crear_indice_maestro_mini_tiles(output_dir):
+    """
+    Crea el índice maestro que lista todas las provincias y sus archivos
+    """
+    print("\n📋 Creando índice maestro de mini-tiles...")
+    
+    master_index = {
+        'version': '3.0',
+        'description': 'Índice maestro de mini-tiles para MAIRA',
+        'tile_size_km': TILE_SIZE_KM,
+        'max_tar_size_mb': MAX_TAR_SIZE_MB,
+        'provincias': {},
+        'total_provincias': 0,
+        'total_tar_files': 0
+    }
+    
+    # Buscar todos los índices de provincias
+    total_tar_files = 0
+    for root, dirs, files in os.walk(output_dir):
+        for file in files:
+            if file.endswith('_mini_tiles_index.json'):
+                provincia_name = file.replace('_mini_tiles_index.json', '')
+                index_path = os.path.join(root, file)
+                
+                try:
+                    with open(index_path, 'r') as f:
+                        provincia_index = json.load(f)
+                    
+                    master_index['provincias'][provincia_name] = {
+                        'index_file': file,
+                        'total_tiles': provincia_index.get('total_tiles', 0),
+                        'total_tar_files': provincia_index.get('total_tar_files', 0)
+                    }
+                    
+                    total_tar_files += provincia_index.get('total_tar_files', 0)
+                    
+                except Exception as e:
+                    print(f"⚠️ Error leyendo índice de {provincia_name}: {e}")
+    
+    master_index['total_provincias'] = len(master_index['provincias'])
+    master_index['total_tar_files'] = total_tar_files
+    
+    # Guardar índice maestro
+    master_path = os.path.join(output_dir, 'master_mini_tiles_index.json')
+    with open(master_path, 'w') as f:
+        json.dump(master_index, f, indent=2)
+    
+    print(f"✅ Índice maestro creado: {master_path}")
+    print(f"📊 Resumen: {master_index['total_provincias']} provincias, {master_index['total_tar_files']} archivos TAR")
 
 if __name__ == "__main__":
     print("🔧 Script para crear mini-tiles compatibles con GitHub")
@@ -316,15 +381,13 @@ if __name__ == "__main__":
     print(f"   - Límite TAR: {MAX_TAR_SIZE_MB} MB")
     print()
     
-    # El usuario puede cambiar estas rutas según su configuración
-    tif_dir = input("📁 Directorio con archivos TIF extraídos: ").strip()
-    if not tif_dir:
-        tif_dir = "/path/to/extracted/tif/files"
+    # Usar directorio predeterminado donde extrajimos los archivos
+    tif_dir = "/tmp/tif_extract/Altimetria"
     
     print(f"✅ Usando directorio TIF: {tif_dir}")
     
     if os.path.exists(tif_dir):
-        procesar_todas_las_provincias()
+        procesar_todas_las_provincias(tif_dir)
     else:
         print("❌ Directorio no encontrado. Extrae primero los archivos TIF.")
         print("💡 Comando sugerido:")
