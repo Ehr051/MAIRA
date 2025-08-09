@@ -8,7 +8,7 @@ class MiniTilesLoader {
                 // URLs de fallback para disponibilidad
         this.baseUrls = [
             'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/',     // GitHub Release (archivos sueltos) - PRINCIPAL
-            '../mini_tiles_github/',                                               // Local dev con estructura (para testing)
+            '../../mini_tiles_github/',                                           // Local dev con estructura (para testing)
             'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/mini_tiles_github/'   // CDN (backup, con estructura)
         ];
         

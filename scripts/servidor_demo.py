@@ -30,21 +30,22 @@ class CORSHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 def main():
     # Cambiar al directorio del proyecto
-    project_dir = Path(__file__).parent
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_dir = os.path.dirname(script_dir)
     os.chdir(project_dir)
     
     print("🚀 SERVIDOR DEMO MINI-TILES v3.0")
     print("=" * 40)
-    print(f"📁 Directorio: {project_dir}")
+    print(f"📁 Directorio: {os.getcwd()}")
     print(f"🌐 Puerto: {PORT}")
     print(f"🔗 URL Local: http://localhost:{PORT}")
-    print(f"🧪 Demo URL: http://localhost:{PORT}/demo_minitiles.html")
+    print(f"🧪 Demo URL: http://localhost:{PORT}/static/demo_minitiles.html")
     print()
     
     # Verificar archivos necesarios
     required_files = [
-        'demo_minitiles.html',
-        'mini_tiles_loader.js',
+        'static/demo_minitiles.html',
+        'Client/js/mini_tiles_loader.js',
         'mini_tiles_github/master_mini_tiles_index.json'
     ]
     
@@ -72,7 +73,7 @@ def main():
             print()
             
             # Abrir automáticamente en navegador
-            demo_url = f"http://localhost:{PORT}/demo_minitiles.html"
+            demo_url = f"http://localhost:{PORT}/static/demo_minitiles.html"
             print(f"🌐 Abriendo demo: {demo_url}")
             try:
                 webbrowser.open(demo_url)

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Template con Dependency Manager</title>
+    
+    <!-- Dependency Manager debe cargarse primero -->
+    <script src="../Client/js/dependency-manager.js"></script>
+    
+    <!-- Bootstrap CDN (siempre desde CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .status-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .dependency-status {
+            font-size: 12px;
+            margin: 2px 0;
+        }
+        
+        .loaded { color: green; }
+        .loading { color: orange; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mt-3">MAIRA - Demo con Dependency Manager</h1>
+                
+                <!-- Panel de estado -->
+                <div class="status-panel">
+                    <h6>Estado del Sistema</h6>
+                    <div id="dependency-status"></div>
+                    <div id="system-status"></div>
+                </div>
+                
+                <!-- Controles -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5>Controles del Sistema</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary" onclick="initializeMAIRA()">
+                                🚀 Inicializar MAIRA
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="testMilsymbol()">
+                                🎖️ Test Milsymbol
+                            </button>
+                            <button type="button" class="btn btn-info" onclick="testGeocoder()">
+                                🌍 Test Geocoder
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="showStats()">
+                                📊 Estadísticas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mapa -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5>Mapa Interactivo</h5>
+                        <div id="map"></div>
+                    </div>
+                </div>
+                
+                <!-- Log de actividad -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5>Log de Actividad</h5>
+                        <div id="activity-log" style="height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; font-family: monospace; font-size: 12px;">
+                            <div>🔧 Sistema inicializado. Presiona "Inicializar MAIRA" para comenzar.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts principales -->
+    <script src="../Client/js/mini_tiles_loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let map = null;
+        let systemInitialized = false;
+        
+        // Función para agregar logs
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('activity-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> ${message}`;
+            if (type === 'error') logEntry.style.color = 'red';
+            if (type === 'success') logEntry.style.color = 'green';
+            if (type === 'warning') logEntry.style.color = 'orange';
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // Actualizar estado de dependencias
+        function updateDependencyStatus() {
+            const statusDiv = document.getElementById('dependency-status');
+            const stats = window.dependencyManager.getStats();
+            
+            statusDiv.innerHTML = `
+                <div class="dependency-status loaded">✅ Cargadas: ${stats.loaded.length}</div>
+                <div class="dependency-status loading">🔄 Cargando: ${stats.loading.length}</div>
+                <div class="dependency-status">📦 Total disponibles: ${stats.total}</div>
+            `;
+        }
+        
+        // Actualizar estado del sistema
+        function updateSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            const miniTilesStats = window.miniTilesLoader ? window.miniTilesLoader.getStats() : null;
+            
+            statusDiv.innerHTML = `
+                <hr>
+                <div class="dependency-status ${systemInitialized ? 'loaded' : ''}">
+                    🎯 Sistema: ${systemInitialized ? 'Inicializado' : 'Pendiente'}
+                </div>
+                ${miniTilesStats ? `
+                    <div class="dependency-status ${miniTilesStats.masterIndexLoaded ? 'loaded' : ''}">
+                        🗺️ Mini-tiles: ${miniTilesStats.masterIndexLoaded ? 'Listo' : 'Pendiente'}
+                    </div>
+                    <div class="dependency-status">
+                        📊 Tiles en cache: ${miniTilesStats.tilesInCache}
+                    </div>
+                ` : ''}
+            `;
+        }
+        
+        // Inicializar MAIRA completo
+        async function initializeMAIRA() {
+            try {
+                addLog('🔧 Iniciando carga de dependencias...');
+                updateDependencyStatus();
+                
+                // Cargar todas las dependencias
+                await window.dependencyManager.loadMAIRADependencies();
+                addLog('✅ Dependencias cargadas correctamente', 'success');
+                
+                // Inicializar mini-tiles
+                addLog('🗺️ Inicializando sistema mini-tiles...');
+                await window.miniTilesLoader.initialize();
+                addLog('✅ Mini-tiles inicializado', 'success');
+                
+                // Crear mapa
+                addLog('🌍 Creando mapa base...');
+                await createMap();
+                addLog('✅ Mapa creado exitosamente', 'success');
+                
+                systemInitialized = true;
+                addLog('🎉 Sistema MAIRA completamente inicializado', 'success');
+                
+            } catch (error) {
+                addLog(`❌ Error inicializando MAIRA: ${error.message}`, 'error');
+                console.error('Error:', error);
+            }
+            
+            updateDependencyStatus();
+            updateSystemStatus();
+        }
+        
+        // Crear mapa Leaflet
+        async function createMap() {
+            if (!window.L) {
+                throw new Error('Leaflet no está disponible');
+            }
+            
+            map = L.map('map').setView([-34.6118, -58.3960], 5); // Argentina
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Agregar algunos controles básicos si están disponibles
+            if (window.L && L.Control.Geocoder) {
+                L.Control.geocoder().addTo(map);
+            }
+            
+            if (window.L && L.Control.FullScreen) {
+                map.addControl(new L.Control.FullScreen());
+            }
+            
+            addLog('🗺️ Mapa base configurado');
+        }
+        
+        // Test de Milsymbol
+        function testMilsymbol() {
+            if (!window.ms) {
+                addLog('❌ Milsymbol no está disponible', 'error');
+                return;
+            }
+            
+            try {
+                const symbol = new ms.Symbol("SFG-UCI----D", {size: 30});
+                addLog(`✅ Test Milsymbol exitoso: ${symbol.getSize().width}x${symbol.getSize().height}`, 'success');
+                
+                if (map) {
+                    const symbolIcon = L.divIcon({
+                        html: symbol.asSVG(),
+                        className: 'milsymbol-icon',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+                    
+                    L.marker([-34.6118, -58.3960], {icon: symbolIcon})
+                        .addTo(map)
+                        .bindPopup('Símbolo militar de prueba');
+                    
+                    addLog('🎖️ Símbolo militar agregado al mapa', 'success');
+                }
+            } catch (error) {
+                addLog(`❌ Error en test Milsymbol: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test de Geocoder
+        function testGeocoder() {
+            if (!window.L || !L.Control.Geocoder) {
+                addLog('❌ Geocoder no está disponible', 'error');
+                return;
+            }
+            
+            try {
+                const geocoder = L.Control.Geocoder.nominatim();
+                geocoder.geocode('Buenos Aires, Argentina', (results) => {
+                    if (results && results.length > 0) {
+                        const result = results[0];
+                        addLog(`✅ Geocoding exitoso: ${result.name} [${result.center.lat}, ${result.center.lng}]`, 'success');
+                        
+                        if (map) {
+                            map.setView([result.center.lat, result.center.lng], 10);
+                            L.marker([result.center.lat, result.center.lng])
+                                .addTo(map)
+                                .bindPopup(`Resultado geocoding: ${result.name}`)
+                                .openPopup();
+                        }
+                    } else {
+                        addLog('⚠️ No se encontraron resultados de geocoding', 'warning');
+                    }
+                });
+            } catch (error) {
+                addLog(`❌ Error en test Geocoder: ${error.message}`, 'error');
+            }
+        }
+        
+        // Mostrar estadísticas
+        function showStats() {
+            const depStats = window.dependencyManager.getStats();
+            const miniTilesStats = window.miniTilesLoader ? window.miniTilesLoader.getStats() : null;
+            
+            addLog('📊 === ESTADÍSTICAS DEL SISTEMA ===');
+            addLog(`📦 Dependencias cargadas: ${depStats.loaded.join(', ')}`);
+            if (depStats.loading.length > 0) {
+                addLog(`🔄 Dependencias cargando: ${depStats.loading.join(', ')}`);
+            }
+            
+            if (miniTilesStats) {
+                addLog(`🗺️ Mini-tiles - Provincias: ${miniTilesStats.totalProvincias}, TAR files: ${miniTilesStats.totalTarFiles}`);
+                addLog(`💾 Cache - Tiles: ${miniTilesStats.tilesInCache}, Activos: ${miniTilesStats.activeLoading}`);
+            }
+            
+            addLog(`🎯 Sistema inicializado: ${systemInitialized ? 'Sí' : 'No'}`);
+        }
+        
+        // Actualización periódica del estado
+        setInterval(() => {
+            updateDependencyStatus();
+            updateSystemStatus();
+        }, 2000);
+        
+        // Inicialización inicial
+        updateDependencyStatus();
+        updateSystemStatus();
+        
+        addLog('🚀 Template MAIRA listo. Sistema de dependencias híbrido CDN+Local inicializado.');
+    </script>
+</body>
+</html>

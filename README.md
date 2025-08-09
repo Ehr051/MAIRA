@@ -131,7 +131,7 @@ GET /api/status
 
 ```javascript
 // Cargar sistema mini-tiles
-import { MiniTilesLoader } from './mini_tiles_loader.js';
+import { MiniTilesLoader } from './Client/js/mini_tiles_loader.js';
 
 const loader = new MiniTilesLoader();
 

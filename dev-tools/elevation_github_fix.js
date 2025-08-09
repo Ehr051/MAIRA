@@ -8,9 +8,9 @@
 
 console.log('🔧 Aplicando fix para elevación con GitHub Releases (Sistema de Fajas)');
 
-// URLs base para diferentes métodos
-const GITHUB_BASE = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v2.0/';
-const CDN_BASE = 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v2.0/';
+// URLs base actualizadas para tiles v3.0
+const GITHUB_BASE = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/';
+const CDN_BASE = 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v3.0/';
 
 // Sistema de fajas cargado
 let fajasAdapter = null;
@@ -61,7 +61,7 @@ window.fetch = async function(url, options) {
     
     // 🎯 Interceptar carga del índice principal
     if (urlStr.includes('index_tiles_altimetria.json') && 
-        !urlStr.includes('tiles-v2.0') && 
+        !urlStr.includes('tiles-v3.0') && 
         !urlStr.includes('jsdelivr')) {
         
         console.log('🎯 Interceptando carga de índice de tiles - usando sistema de fajas');
