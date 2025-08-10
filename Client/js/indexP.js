@@ -664,6 +664,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+// Función para cerrar paneles
+function cerrarPanel(panelId) {
+    console.log(`🚪 Cerrando panel: ${panelId}`);
+    const panel = document.getElementById(panelId);
+    if (panel) {
+        panel.style.display = 'none';
+        console.log(`✅ Panel ${panelId} cerrado`);
+    } else {
+        console.warn(`⚠️ Panel ${panelId} no encontrado`);
+    }
+}
+
 // Exportación de funciones globales si es necesario
 window.toggleMenu = toggleMenu;
 window.togglePantallaCompleta = togglePantallaCompleta;
+window.cerrarPanel = cerrarPanel;

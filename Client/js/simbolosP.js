@@ -76,8 +76,14 @@ function actualizarSidc(nuevoCaracter) {
             
             var span = element.querySelector('.mil-symbol');
             if (span) {
-                var symbol = new ms.Symbol(newSidc, {size: 30});
-                span.innerHTML = symbol.asSVG();
+                // Verificar que milsymbol esté disponible
+                if (typeof ms !== 'undefined' && ms.Symbol) {
+                    var symbol = new ms.Symbol(newSidc, {size: 30});
+                    span.innerHTML = symbol.asSVG();
+                } else {
+                    console.warn('⚠️ Milsymbol no está disponible, usando texto como fallback');
+                    span.innerHTML = `<span style="font-size:12px;">${newSidc}</span>`;
+                }
             }
             
             if (element.hasAttribute('onclick')) {
@@ -157,6 +163,12 @@ window.agregarMarcador = function(sidc, nombre) {
             const sidcArray = sidcFormateado.split('');
             sidcArray[1] = window.equipoJugador === 'azul' ? 'F' : 'H';
             sidcFormateado = sidcArray.join('');
+        }
+
+        // Verificar que milsymbol esté disponible
+        if (typeof ms === 'undefined' || !ms.Symbol) {
+            console.error('❌ Milsymbol no está disponible. Verificar carga de librería.');
+            return null;
         }
 
         const sym = new ms.Symbol(sidcFormateado, { 

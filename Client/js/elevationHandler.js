@@ -1,7 +1,7 @@
-// elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles e integrando funciones anteriores y elevation.worker.js
+// elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v3.0
 
-// Ruta de la carpeta que contiene los tiles
-const TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria';
+// URL base para GitHub Releases mini-tiles v3.0
+const GITHUB_RELEASES_BASE = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0';
 
 // Índice de tiles
 let tileIndex;
@@ -9,14 +9,16 @@ let indiceCargado = false;
 
 // Cargar el índice de tiles al iniciar
 const cargarIndiceTiles = new Promise((resolve, reject) => {
-  fetch(`${TILE_FOLDER_PATH}/index_tiles_altimetria.json`)
+  // Intentar cargar desde el nuevo sistema de mini-tiles v3.0
+  fetch(`${GITHUB_RELEASES_BASE}/master_index.json`)
     .then((response) => {
       if (!response.ok) {
-        throw new Error('Error al cargar el índice de tiles.');
+        throw new Error('Error al cargar el índice de tiles desde GitHub Releases.');
       }
       return response.json();
     })
     .then((data) => {
+      console.log('🎯 Cargando índice desde mini-tiles v3.0');
       // Validar la estructura del índice
       if (!data.tiles || typeof data.tiles !== 'object') {
         throw new Error('El índice de tiles no tiene la estructura esperada.');
