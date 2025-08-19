@@ -9,6 +9,9 @@ const MINI_TILES_FALLBACK_URLS = [
   'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@main/mini_tiles_github/'
 ];
 
+// Ruta para tiles clásicos
+const TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria';
+
 // Índice de tiles
 let tileIndex;
 let indiceCargado = false;
@@ -104,16 +107,29 @@ async function cargarDatosElevacion(bounds) {
   }
 
   try {
-    // Buscar el tile que corresponde a la región especificada
-    const tile = buscarTileCorrespondiente(bounds);
+    // Buscar el tile que corresponde a la región especificada (ahora es async)
+    const tile = await buscarTileCorrespondiente(bounds);
 
     if (!tile) {
       console.warn('No se encontró un tile correspondiente a la región especificada.');
       return null;
     }
 
+    // Construir ruta del tile dependiendo del formato
+    let tilePath;
+    if (tile.provincia) {
+      // Formato mini-tiles: necesita descomprimir del TAR
+      console.log(`🗂️ Tile está en archivo comprimido: ${tile.tar_file}`);
+      // Por simplicidad, por ahora retornamos null para tiles comprimidos
+      // TODO: Implementar descompresión de TAR.GZ
+      console.warn('⚠️ Descompresión de TAR.GZ no implementada aún');
+      return null;
+    } else {
+      // Formato clásico
+      tilePath = `${TILE_FOLDER_PATH}/${tile.filename}`;
+    }
+
     // Cargar los datos de elevación del tile encontrado
-    const tilePath = `${TILE_FOLDER_PATH}/${tile.filename}`;
     const tileData = await loadTileData(tilePath);
     return tileData;
   } catch (error) {
@@ -150,7 +166,15 @@ async function loadTileData(tilePath) {
 }
 
 // Función para buscar el tile correspondiente en el índice de tiles
-function buscarTileCorrespondiente(bounds) {
+async function buscarTileCorrespondiente(bounds) {
+  
+  // Si tenemos índice maestro de mini-tiles, necesitamos cargar la provincia apropiada
+  if (tileIndex && tileIndex.provincias) {
+    const tile = await buscarTileEnProvincias(bounds);
+    if (tile) return tile;
+  }
+  
+  // Búsqueda en formato clásico
   for (const tileKey in tileIndex) {
     const tile = tileIndex[tileKey];
     if (!tile.bounds) {
@@ -164,9 +188,121 @@ function buscarTileCorrespondiente(bounds) {
       bounds.east <= east &&
       bounds.west >= west
     ) {
+      console.log(`🎯 Tile encontrado: ${tileKey}`);
       return tile;
     }
   }
+  
+  console.log(`❌ No se encontró tile para bounds:`, bounds);
+  return null;
+}
+
+// Nueva función para buscar tiles en provincias del formato mini-tiles
+async function buscarTileEnProvincias(bounds) {
+  const masterIndex = tileIndex;
+  
+  // Determinar qué provincia puede contener estas coordenadas
+  const lat = (bounds.north + bounds.south) / 2;
+  const lng = (bounds.east + bounds.west) / 2;
+  
+  // Lógica simple para determinar provincia basada en coordenadas
+  let provinciaTarget = 'centro'; // Buenos Aires está en centro
+  
+  if (lat < -42) {
+    provinciaTarget = 'sur';
+  } else if (lat < -36) {
+    provinciaTarget = 'centro';
+  } else if (lat < -30) {
+    provinciaTarget = 'centro_norte';
+  } else {
+    provinciaTarget = 'norte';
+  }
+  
+  // Si no está en patagonia, verificar longitud para centro/centro_norte
+  if (lat > -42 && lat < -30 && lng < -65) {
+    provinciaTarget = 'centro_norte';
+  }
+  
+  console.log(`🌍 Buscando en provincia: ${provinciaTarget} para coordenadas lat:${lat.toFixed(3)}, lng:${lng.toFixed(3)}`);
+  
+  // Cargar índice provincial si no está en cache
+  if (!window.provincialIndexes) {
+    window.provincialIndexes = {};
+  }
+  
+  if (!window.provincialIndexes[provinciaTarget]) {
+    try {
+      // Construir URL del índice provincial
+      let provincialUrl;
+      
+      // Intentar URL local primero
+      provincialUrl = `/mini_tiles_github/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
+      
+      console.log(`📡 Cargando índice provincial desde: ${provincialUrl}`);
+      
+      try {
+        const response = await fetch(provincialUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} para ${provincialUrl}`);
+        }
+        
+        const provincialData = await response.json();
+        if (!provincialData.tiles) {
+          throw new Error(`Índice provincial ${provinciaTarget} no tiene tiles`);
+        }
+        
+        window.provincialIndexes[provinciaTarget] = provincialData.tiles;
+        console.log(`✅ Índice provincial ${provinciaTarget} cargado: ${Object.keys(provincialData.tiles).length} tiles`);
+        
+      } catch (localError) {
+        // Si falla local, intentar GitHub
+        console.log(`⚠️ Error con URL local, intentando GitHub...`);
+        provincialUrl = `https://github.com/carlosmarin88/MAIRA_git/releases/download/mini-tiles-v3.0/${provinciaTarget}_mini_tiles_index.json`;
+        
+        const response = await fetch(provincialUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} para ${provincialUrl}`);
+        }
+        
+        const provincialData = await response.json();
+        if (!provincialData.tiles) {
+          throw new Error(`Índice provincial ${provinciaTarget} no tiene tiles`);
+        }
+        
+        window.provincialIndexes[provinciaTarget] = provincialData.tiles;
+        console.log(`✅ Índice provincial ${provinciaTarget} cargado desde GitHub: ${Object.keys(provincialData.tiles).length} tiles`);
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error cargando índice provincial ${provinciaTarget}:`, error);
+      return null;
+    }
+  }
+  
+  // Buscar en el índice provincial
+  const provincialTiles = window.provincialIndexes[provinciaTarget];
+  for (const tileKey in provincialTiles) {
+    const tile = provincialTiles[tileKey];
+    if (!tile.bounds) continue;
+    
+    const { north, south, east, west } = tile.bounds;
+    
+    if (
+      bounds.north <= north &&
+      bounds.south >= south &&
+      bounds.east <= east &&
+      bounds.west >= west
+    ) {
+      console.log(`🎯 Tile encontrado en ${provinciaTarget}: ${tileKey}`);
+      return {
+        ...tile,
+        provincia: provinciaTarget,
+        tileKey: tileKey
+      };
+    }
+  }
+  
+  console.log(`❌ No se encontró tile en provincia ${provinciaTarget} para bounds:`, bounds);
   return null;
 }
 
