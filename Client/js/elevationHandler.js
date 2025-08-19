@@ -118,20 +118,45 @@ async function cargarDatosElevacion(bounds) {
     // Construir ruta del tile dependiendo del formato
     let tilePath;
     if (tile.provincia) {
-      // Formato mini-tiles: necesita descomprimir del TAR
-      console.log(`🗂️ Tile está en archivo comprimido: ${tile.tar_file}`);
-      // Por simplicidad, por ahora retornamos null para tiles comprimidos
-      // TODO: Implementar descompresión de TAR.GZ
-      console.warn('⚠️ Descompresión de TAR.GZ no implementada aún');
+      // Formato mini-tiles: intentar múltiples URLs
+      console.log(`🗂️ Tile en formato mini-tiles: ${tile.filename} (provincia: ${tile.provincia})`);
+      
+      // Primero intentar extraer el tile si es necesario
+      await extractTileIfNeeded(tile);
+      
+      // URLs a intentar en orden de preferencia
+      const urlsToTry = [
+        `/mini_tiles_github/${tile.provincia}/tiles/${tile.filename}`,
+        `/mini_tiles_github/${tile.provincia}/${tile.filename}`,
+        `https://github.com/carlosmarin88/MAIRA_git/releases/download/mini-tiles-v3.0/${tile.filename}`,
+        `https://raw.githubusercontent.com/carlosmarin88/MAIRA_git/main/mini_tiles_github/${tile.provincia}/${tile.filename}`
+      ];
+      
+      // Intentar cargar desde cada URL
+      for (const url of urlsToTry) {
+        try {
+          console.log(`📍 Intentando cargar tile desde: ${url}`);
+          const tileData = await loadTileData(url);
+          if (tileData) {
+            console.log(`✅ Tile cargado exitosamente desde: ${url}`);
+            return tileData;
+          }
+        } catch (error) {
+          console.warn(`⚠️ Error cargando desde ${url}:`, error.message);
+          continue;
+        }
+      }
+      
+      console.error(`❌ No se pudo cargar el tile desde ninguna URL para ${tile.filename}`);
       return null;
     } else {
       // Formato clásico
       tilePath = `${TILE_FOLDER_PATH}/${tile.filename}`;
+      
+      // Cargar los datos de elevación del tile encontrado
+      const tileData = await loadTileData(tilePath);
+      return tileData;
     }
-
-    // Cargar los datos de elevación del tile encontrado
-    const tileData = await loadTileData(tilePath);
-    return tileData;
   } catch (error) {
     console.error('Error al cargar datos de elevación:', error);
     return null;
@@ -469,13 +494,9 @@ async function obtenerElevacion(lat, lon) {
     await cargarIndiceTiles;
   }
 
-  const tile = buscarTileCorrespondiente({ north: lat, south: lat, east: lon, west: lon });
-  if (!tile) {
-    console.log(`No se encontró tile para lat=${lat}, lon=${lon}`);
-    return null;
-  }
-
-  const tileData = await loadTileData(`${TILE_FOLDER_PATH}/${tile.filename}`);
+  const bounds = { north: lat, south: lat, east: lon, west: lon };
+  const tileData = await cargarDatosElevacion(bounds);
+  
   if (!tileData) {
     console.warn(`No se pudieron cargar los datos del tile para lat=${lat}, lon=${lon}`);
     return null;
@@ -622,6 +643,40 @@ window.elevationHandler = {
   obtenerElevacion,
   obtenerEstadoSistema,
 };
+
+// Función para extraer automáticamente un tile si es necesario
+async function extractTileIfNeeded(tile) {
+  try {
+    if (!tile.tar_file) {
+      // No hay información de archivo TAR, saltar extracción
+      return;
+    }
+    
+    console.log(`🔧 Verificando si necesita extraer: ${tile.filename} desde ${tile.tar_file}`);
+    
+    const response = await fetch('/api/extract-tile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        provincia: tile.provincia,
+        tile_filename: tile.filename,
+        tar_filename: tile.tar_file
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      console.log(`✅ ${result.message}: ${tile.filename}`);
+    } else {
+      console.warn(`⚠️ Error extrayendo tile: ${result.message}`);
+    }
+  } catch (error) {
+    console.error(`❌ Error en extractTileIfNeeded para ${tile.filename}:`, error);
+  }
+}
 
 
 // ✅ ESTRUCTURA MAIRA PARA ELEVACIÓN

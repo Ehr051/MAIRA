@@ -7,6 +7,7 @@ import random
 import string
 import time
 import traceback
+import tarfile
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -87,6 +88,50 @@ def health_check():
         conn.close()
         return jsonify({"status": "healthy", "database": "connected"})
     return jsonify({"status": "unhealthy", "database": "disconnected"}), 500
+
+@app.route('/api/extract-tile', methods=['POST'])
+def extract_tile():
+    """Endpoint para extraer un tile específico desde un archivo TAR.GZ"""
+    try:
+        data = request.json
+        provincia = data.get('provincia')
+        tile_filename = data.get('tile_filename')
+        tar_filename = data.get('tar_filename')
+        
+        if not all([provincia, tile_filename, tar_filename]):
+            return jsonify({"success": False, "message": "Faltan parámetros requeridos"}), 400
+        
+        # Construir rutas
+        base_path = f"mini_tiles_github/{provincia}"
+        tar_path = os.path.join(base_path, tar_filename)
+        tiles_dir = os.path.join(base_path, "tiles")
+        output_path = os.path.join(tiles_dir, tile_filename)
+        
+        # Verificar si el tile ya está extraído
+        if os.path.exists(output_path):
+            return jsonify({"success": True, "message": "Tile ya disponible", "path": f"/{output_path}"})
+        
+        # Crear directorio de tiles si no existe
+        os.makedirs(tiles_dir, exist_ok=True)
+        
+        # Verificar que el archivo TAR.GZ existe
+        if not os.path.exists(tar_path):
+            return jsonify({"success": False, "message": f"Archivo TAR.GZ no encontrado: {tar_path}"}), 404
+        
+        # Extraer el tile específico
+        with tarfile.open(tar_path, 'r:gz') as tar:
+            try:
+                tar.extract(tile_filename, tiles_dir)
+                return jsonify({
+                    "success": True, 
+                    "message": "Tile extraído exitosamente",
+                    "path": f"/{output_path}"
+                })
+            except KeyError:
+                return jsonify({"success": False, "message": f"Tile {tile_filename} no encontrado en {tar_filename}"}), 404
+    
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error extrayendo tile: {str(e)}"}), 500
 
 # API Routes
 @app.route('/api/login', methods=['POST'])
