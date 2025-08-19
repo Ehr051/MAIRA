@@ -664,6 +664,7 @@ function mostrarSalaEspera(partida) {
         // Intentar redirigir a iniciarpartida.html si no estamos ahí
         if (!window.location.href.includes('iniciarpartida.html')) {
             console.log('🔄 Redirigiendo a iniciarpartida.html...');
+            sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
             window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
         }
     }
