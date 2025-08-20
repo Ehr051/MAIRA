@@ -1298,6 +1298,103 @@ def debug_db():
     
     return jsonify(debug_info)
 
+@app.route('/setup/tables')
+def setup_tables():
+    """Endpoint para crear las tablas necesarias en PostgreSQL"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "No se pudo conectar a la base de datos", "status": "failed"}), 500
+            
+        cursor = conn.cursor()
+        results = {"status": "success", "operations": [], "timestamp": datetime.now().isoformat()}
+        
+        # Crear tabla usuarios
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                unidad VARCHAR(100),
+                is_online BOOLEAN DEFAULT false,
+                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        results["operations"].append("✅ Tabla usuarios creada/verificada")
+        
+        # Crear tabla partidas
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS partidas (
+                id SERIAL PRIMARY KEY,
+                codigo VARCHAR(10) UNIQUE NOT NULL,
+                configuracion JSONB,
+                estado VARCHAR(20) DEFAULT 'esperando',
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                fecha_finalizacion TIMESTAMP
+            );
+        """)
+        results["operations"].append("✅ Tabla partidas creada/verificada")
+        
+        # Crear tabla usuarios_partida
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS usuarios_partida (
+                id SERIAL PRIMARY KEY,
+                partida_id INTEGER REFERENCES partidas(id) ON DELETE CASCADE,
+                usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+                equipo VARCHAR(50) DEFAULT 'sin_equipo',
+                listo BOOLEAN DEFAULT false,
+                esCreador BOOLEAN DEFAULT false,
+                fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(partida_id, usuario_id)
+            );
+        """)
+        results["operations"].append("✅ Tabla usuarios_partida creada/verificada")
+        
+        # Crear índices para optimización
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_username ON usuarios(username);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_partidas_codigo ON partidas(codigo);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_partidas_estado ON partidas(estado);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_partida_partida ON usuarios_partida(partida_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_partida_usuario ON usuarios_partida(usuario_id);")
+        results["operations"].append("✅ Índices de optimización creados/verificados")
+        
+        # Confirmar cambios
+        conn.commit()
+        results["operations"].append("💾 Cambios confirmados en la base de datos")
+        
+        # Verificar configuración final
+        cursor.execute("""
+            SELECT table_name FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_name IN ('usuarios', 'partidas', 'usuarios_partida')
+            ORDER BY table_name;
+        """)
+        final_tables = [row[0] for row in cursor.fetchall()]
+        
+        required_tables = ['usuarios', 'partidas', 'usuarios_partida']
+        missing_tables = [t for t in required_tables if t not in final_tables]
+        
+        results["tables"] = {
+            "existing": final_tables,
+            "missing": missing_tables,
+            "status": "✅ All tables exist" if not missing_tables else f"❌ Missing tables: {missing_tables}"
+        }
+        
+        cursor.close()
+        conn.close()
+        
+        results["message"] = "🎉 Configuración de base de datos completada exitosamente"
+        return jsonify(results)
+        
+    except Exception as e:
+        return jsonify({
+            "error": str(e), 
+            "status": "failed", 
+            "timestamp": datetime.now().isoformat(),
+            "error_type": type(e).__name__
+        }), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     print(f"🚀 Iniciando MAIRA en puerto {port}")
