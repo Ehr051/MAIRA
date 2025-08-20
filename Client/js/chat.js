@@ -6,7 +6,7 @@ let salaActual = 'lobby';
 function inicializarChat(socketInstance) {
     socket = socketInstance;
     
-    socket.on('mensajeChat', recibirMensajeChat);
+    socket.on('nuevoMensajeChat', recibirMensajeChat);  // ✅ CORREGIDO: era 'mensajeChat'
     socket.on('historialChat', cargarHistorialChat);
     socket.on('errorChat', manejarErrorChat);
     socket.on('salaActualizada', manejarSalaActualizada);
@@ -47,11 +47,24 @@ function crearElementoMensaje(data) {
 
 function cambiarSalaChat(sala) {
     if (sala !== salaActual) {
-        socket.emit('cambiarSala', { salaAnterior: salaActual, nuevaSala: sala });
+        console.log(`💬 Cambiando de sala: ${salaActual} → ${sala}`);
+        socket.emit('cambiarSala', { salaAnterior: salaActual, salaNueva: sala });
         salaActual = sala;
         limpiarChat();
-        socket.emit('obtenerHistorialChat', { sala: salaActual });
+        // Opcional: solicitar historial de la nueva sala
+        // socket.emit('obtenerHistorialChat', { sala: salaActual });
     }
+}
+
+// ✅ NUEVA: Función para cambiar automáticamente cuando se une/crea partida
+function cambiarAChatPartida(codigoPartida) {
+    const nuevaSala = `chat_${codigoPartida}`;
+    cambiarSalaChat(nuevaSala);
+}
+
+// ✅ NUEVA: Función para volver al chat general
+function volverAChatGeneral() {
+    cambiarSalaChat('general');
 }
 
 function limpiarChat() {
@@ -114,10 +127,15 @@ function enviarMensajeChat() {
     const inputChat = document.getElementById('inputChat');
     const mensaje = inputChat.value.trim();
     if (mensaje) {
-        const sala = partidaActual ? partidaActual.codigo : 'general';
+        // ✅ CORREGIDO: Usar sala de chat específica si hay partida activa
+        let sala = 'general';
+        if (partidaActual && partidaActual.codigo) {
+            sala = `chat_${partidaActual.codigo}`;
+        }
+        
+        console.log(`📨 Enviando mensaje a sala: ${sala}`);
         socket.emit('mensajeChat', { usuario: userName, mensaje, sala });
         inputChat.value = '';
-        // Añadir el mensaje a la interfaz local inmediatamente
     }
 }
 
@@ -135,6 +153,8 @@ function recibirMensajeChat(data) {
 window.inicializarChat = inicializarChat;
 window.enviarMensajeChat = enviarMensajeChat;
 window.cambiarSalaChat = cambiarSalaChat;
+window.cambiarAChatPartida = cambiarAChatPartida;  // ✅ NUEVO
+window.volverAChatGeneral = volverAChatGeneral;    // ✅ NUEVO
 window.actualizarInterfazChat = actualizarInterfazChat;
 window.inicializarEventListenersChat = inicializarEventListenersChat;
 window.crearElementoMensaje = crearElementoMensaje;

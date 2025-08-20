@@ -451,6 +451,11 @@ def handle_login(data):
                 conn.close()
         
         print(f"Usuario {username} (ID: {user_id}) ha hecho login")
+        
+        # ✅ NUEVO: Unir automáticamente al lobby general
+        join_room('general', sid=request.sid)
+        print(f"🏠 Usuario {username} unido a sala general")
+        
         emit('loginExitoso', {
             'user_id': user_id,
             'username': username,
@@ -529,6 +534,10 @@ def crear_partida(data):
 
             join_room(codigo_partida, sid=request.sid)
             print(f"🏠 Usuario {creador_id} unido a sala: {codigo_partida}")
+            
+            # ✅ NUEVO: También unir a sala de chat de la partida
+            join_room(f"chat_{codigo_partida}", sid=request.sid)
+            print(f"💬 Usuario {creador_id} unido a chat: chat_{codigo_partida}")
             
             print(f"📤 Emitiendo evento 'partidaCreada' con datos: {partida}")
             emit('partidaCreada', partida)
@@ -628,6 +637,10 @@ def unirse_a_partida(data):
             
             # Unir al usuario a la sala
             join_room(codigo_partida, sid=request.sid)
+            
+            # ✅ NUEVO: También unir a sala de chat de la partida
+            join_room(f"chat_{codigo_partida}", sid=request.sid)
+            print(f"💬 Usuario {user_id} unido a chat: chat_{codigo_partida}")
             
             # Obtener información actualizada de la partida
             cursor.execute("""
@@ -749,7 +762,10 @@ def handle_mensaje_chat(data):
         sala = data.get('sala', 'general')
         user_id = user_sid_map.get(request.sid)
         
+        print(f"📨 Chat recibido - Usuario: {user_id}, Sala: {sala}, Mensaje: {mensaje[:50]}...")
+        
         if not user_id or not mensaje:
+            print("❌ Chat rechazado - Falta user_id o mensaje")
             return
         
         username = obtener_username(user_id)
@@ -764,10 +780,13 @@ def handle_mensaje_chat(data):
         }
         
         # Emitir mensaje a la sala
+        print(f"📤 Emitiendo 'nuevoMensajeChat' a sala '{sala}' desde {username}")
         socketio.emit('nuevoMensajeChat', mensaje_data, room=sala)
         
     except Exception as e:
-        print(f"Error manejando mensaje de chat: {e}")
+        print(f"❌ Error manejando mensaje de chat: {e}")
+        import traceback
+        traceback.print_exc()
 
 @socketio.on('mensajeJuego')
 def handle_mensaje_juego(data):
