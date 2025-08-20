@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 # URL directa de la base de datos PostgreSQL en Render (con SSL)
-DATABASE_URL = "postgresql://maira_database_user:fzjSqGnW5qyQRnAmQrDPIIa8KQEVfmgi@dpg-d2a02qidbo4c73aqtcdg-a.oregon-postgres.render.com/maira_database?sslmode=require"
+DATABASE_URL = "postgresql://maira_database_user:8aIryeDf36l4JnCGrRzXLKzBMeMnOiZv@dpg-d2a02qidbo4c73aqtcdg-a.oregon-postgres.render.com/maira_database?sslmode=require"
 
 def create_tables():
     """Crear las tablas necesarias para MAIRA"""

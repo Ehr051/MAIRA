@@ -4,7 +4,12 @@ Monitor de Estado MAIRA Producción
 Verifica que los cambios de emergencia estén funcionando
 """
 
-import requests
+try:
+    import requests
+except ImportError:
+    print("❌ Error: 'requests' no está instalado. Instalar con: pip install requests")
+    exit(1)
+
 import json
 import time
 from urllib.parse import urljoin
