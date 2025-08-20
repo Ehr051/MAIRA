@@ -18,6 +18,59 @@ function inicializarChat(socketInstance) {
         socket.broadcast.to(`salaEspera_${partidaActual.codigo}`).emit('mensajeRecibido', mensaje);
     });
 
+    // ✅ FUNCIONES NUEVAS: Para eventos faltantes de serverhttps.py
+    function enviarMensajePrivado(destinatarioId, mensaje) {
+        if (socket && socket.connected) {
+            socket.emit('mensajePrivado', {
+                remitente_id: userId,
+                destinatario_id: destinatarioId,
+                mensaje: mensaje,
+                timestamp: new Date().toISOString()
+            });
+            console.log(`📧 Mensaje privado enviado a usuario ${destinatarioId}`);
+        }
+    }
+
+    function finalizarTurno(data = {}) {
+        if (socket && socket.connected && partidaActual) {
+            const turnoData = {
+                partida_codigo: partidaActual.codigo,
+                usuario_id: userId,
+                ...data
+            };
+            socket.emit('finTurno', turnoData);
+            console.log('🔚 Turno finalizado:', turnoData);
+        }
+    }
+
+    function solicitarElementos(operacion, tipoElemento = 'all') {
+        if (socket && socket.connected) {
+            socket.emit('solicitarElementos', {
+                operacion: operacion,
+                tipo_elemento: tipoElemento,
+                usuario_id: userId,
+                timestamp: new Date().toISOString()
+            });
+            console.log(`📋 Solicitando elementos para operación: ${operacion}`);
+        }
+    }
+
+    // Listeners para los nuevos eventos
+    socket.on('mensajePrivadoRecibido', function(data) {
+        console.log('📧 Mensaje privado recibido:', data);
+        mostrarMensajePrivado(data);
+    });
+
+    socket.on('turnoFinalizado', function(data) {
+        console.log('🔚 Turno finalizado por:', data);
+        manejarFinTurno(data);
+    });
+
+    socket.on('elementosSolicitados', function(data) {
+        console.log('📋 Elementos solicitados:', data);
+        manejarElementosSolicitados(data);
+    });
+
     inicializarEventListenersChat();
 }
 

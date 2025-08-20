@@ -29,18 +29,22 @@ user_id_sid_map = {}
 
 # Configuración de Flask
 app = Flask(__name__, static_folder='.')
+app.config['SECRET_KEY'] = 'your-secret-key-here'
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-# Configuración de SocketIO
+# Configuración de SocketIO optimizada para Render.com
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*", 
     logger=True, 
     engineio_logger=True,
-    ping_timeout=60,
-    ping_interval=25,
-    transports=['polling', 'websocket']
+    ping_timeout=120,  # ✅ AUMENTADO: era 60
+    ping_interval=60,  # ✅ AUMENTADO: era 25
+    transports=['polling'],  # ✅ FORZAR POLLING en lugar de websocket para Render
+    upgrade=False  # ✅ NUEVO: Evitar upgrade a websocket
 )
 
 # Configuración de la base de datos PostgreSQL
@@ -109,6 +113,25 @@ def serve_static(path):
     except:
         # Si falla, servir index.html desde static/
         return send_from_directory('static', 'index.html')
+
+# ✅ NUEVAS: Rutas de archivos faltantes
+@app.route('/Client/uploads/<path:filename>')
+def serve_uploads(filename):
+    """Servir archivos de uploads"""
+    uploads_dir = os.path.join('.', 'Client', 'uploads')
+    return send_from_directory(uploads_dir, filename)
+
+@app.route('/Client/audio/<path:filename>')
+def serve_audio(filename):
+    """Servir archivos de audio"""
+    audio_dir = os.path.join('.', 'Client', 'audio')
+    return send_from_directory(audio_dir, filename)
+
+@app.route('/Client/<path:path>')
+def serve_client_files(path):
+    """Servir archivos estáticos del cliente"""
+    client_dir = os.path.join('.', 'Client')
+    return send_from_directory(client_dir, path)
 
 @app.route('/health')
 def health_check():
@@ -1253,6 +1276,23 @@ def cambio_turno(data):
     sala = data.get('sala', 'general')
     emit('turnoActualizado', data, room=sala)
 
+# ✅ NUEVOS: Eventos faltantes de serverhttps.py
+@socketio.on('finTurno')
+def fin_turno(data):
+    sala = data.get('sala', 'general')
+    emit('turnoFinalizado', data, room=sala)
+
+@socketio.on('mensajePrivado')
+def mensaje_privado(data):
+    destinatario_id = data.get('destinatario_id')
+    if destinatario_id and destinatario_id in user_id_sid_map:
+        socketio.emit('mensajePrivadoRecibido', data, room=user_id_sid_map[destinatario_id])
+
+@socketio.on('solicitarElementos')
+def solicitar_elementos(data):
+    operacion = data.get('operacion', 'general')
+    emit('elementosSolicitados', data, room=operacion)
+
 @app.route('/debug/db')
 def debug_db():
     """Endpoint de debugging para diagnosticar problemas de base de datos"""
@@ -1413,6 +1453,46 @@ def setup_tables():
             "timestamp": datetime.now().isoformat(),
             "error_type": type(e).__name__
         }), 500
+
+# ✅ FUNCIONALIDAD DE UPLOADS - Faltante de serverhttps.py
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if file:
+        filename = file.filename
+        file_path = os.path.join(app.config.get('UPLOAD_FOLDER', 'uploads'), filename)
+        
+        # Crear directorio si no existe
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        file.save(file_path)
+        return jsonify({'success': True, 'filename': filename}), 200
+
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image part'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if file and file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+        filename = file.filename
+        file_path = os.path.join('Client/image', filename)
+        
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        file.save(file_path)
+        return jsonify({'success': True, 'filename': filename}), 200
+    
+    return jsonify({'error': 'Invalid file type'}), 400
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
