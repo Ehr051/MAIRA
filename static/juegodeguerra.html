@@ -6,7 +6,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/Client/image/favicon_logoai/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/Client/image/favicon_logoai/favicon-16x16.png">
     <link rel="manifest" href="/Client/image/favicon_logoai/site.webmanifest">
-    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -101,10 +101,7 @@
  <!-- 5. GestorJuego al final ya que coordina todos los demás -->
  <script src="/Client/js/gestorJuego.js"></script>
  
- <!-- Scripts de tiles externos y GitHub Releases -->
- <script src="external_tiles_adapter.js"></script>
- <script src="github_releases_config.js"></script>
- <script src="temporary_tiles_solution.js"></script>
+ <!-- El elevationHandler.js ya maneja todos los tiles -->
 </head>
 <body>
   <!-- Loading container al principio del body -->

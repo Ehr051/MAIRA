@@ -304,7 +304,7 @@ def apply_fixes():
             '@socketio.on(\'actualizarPosicion\')',
             '@socketio.on(\'eliminarElemento\')'
         ]
-        ]
+        
         
         for handler in handlers_to_check:
             if handler not in app_content:

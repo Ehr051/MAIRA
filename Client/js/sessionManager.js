@@ -299,7 +299,9 @@ MAIRA.SessionManager = (function() {
                     reconnectionDelay: 1000,
                     reconnectionDelayMax: 5000,
                     reconnectionAttempts: 10,
-                    timeout: 10000
+                    timeout: 30000,
+                    transports: ['polling'],  // Solo polling para Render
+                    upgrade: false  // No intentar upgrade a websocket
                 });
                 
                 // Configurar eventos básicos

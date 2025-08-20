@@ -345,9 +345,10 @@ async function inicializarSocket() {
     
     try {
         socket = io(SERVER_URL, {
-            transports: ['websocket', 'polling'],
-            timeout: 20000,
-            forceNew: true
+            transports: ['polling'],  // Solo polling para Render
+            timeout: 30000,
+            forceNew: true,
+            upgrade: false  // No intentar upgrade a websocket
         });
 
         socket.on('connect', function() {

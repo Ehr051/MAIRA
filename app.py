@@ -1334,4 +1334,37 @@ def cambio_turno(data):
         print(f"❌ Error en cambio de turno: {e}")
         emit('error', {'mensaje': 'Error en cambio de turno'})
 
+@socketio.on('iniciarCombate')
+def iniciar_combate(data):
+    try:
+        codigo_partida = data.get('partidaCodigo') or data.get('codigo')
+        
+        if not codigo_partida:
+            print("❌ Código de partida faltante en iniciarCombate")
+            return
+        
+        print(f"⚔️ Iniciando combate en partida {codigo_partida}")
+        
+        # Emitir inicio de combate a toda la sala
+        socketio.emit('combateIniciado', {
+            'partida_codigo': codigo_partida,
+            'fase': 'combate',
+            'turno': 1,
+            'timestamp': datetime.now().isoformat(),
+            'mensaje': 'Combate iniciado. Comenzando turnos...'
+        }, room=codigo_partida)
+        
+        # También emitir evento para actualizar la interfaz de turnos
+        socketio.emit('iniciarTurnos', {
+            'partida_codigo': codigo_partida,
+            'turno_inicial': 1,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+        print(f"✅ Combate iniciado en partida {codigo_partida}")
+        
+    except Exception as e:
+        print(f"❌ Error iniciando combate: {e}")
+        emit('error', {'mensaje': 'Error iniciando combate'})
+
 # ✅ FUNCIONALIDAD DE UPLOADS - Faltante de serverhttps.py

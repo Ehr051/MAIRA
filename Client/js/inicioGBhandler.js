@@ -876,8 +876,9 @@ function iniciarConexion() {
     // Opciones de socket.io para mejorar la estabilidad de la conexión
     socket = io(serverURL, {
         reconnectionAttempts: 5,
-        timeout: 10000,
-        transports: ['websocket', 'polling']
+        timeout: 30000,
+        transports: ['polling'],  // Solo polling para Render
+        upgrade: false  // No intentar upgrade a websocket
     });
     
     // Evento de conexión

@@ -485,6 +485,164 @@ inicializarTurnos() {
         // Llamar al destruir del padre
         super.destruir();
     }
+
+    // ✅ FUNCIÓN CRÍTICA FALTANTE: iniciarFaseCombate()
+    iniciarFaseCombate() {
+        console.log('[GestorFases] 🎯 INICIANDO FASE DE COMBATE');
+        
+        try {
+            // 1. Cambiar fase del juego
+            this.fase = 'combate';
+            this.subfase = 'movimiento';
+            this.turnoActual = 1;
+            this.jugadorActualIndex = 0;
+            
+            // 2. Actualizar interfaz
+            this.actualizarInterfazFase();
+            
+            // 3. Emitir al servidor
+            if (this.gestorJuego?.gestorComunicacion?.socket) {
+                console.log('[GestorFases] Enviando iniciarCombate al servidor');
+                this.gestorJuego.gestorComunicacion.socket.emit('iniciarCombate', {
+                    partidaCodigo: window.codigoPartida,
+                    fase: 'combate',
+                    turno: this.turnoActual,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            // 4. Iniciar sistema de turnos
+            this.iniciarTurnos();
+            
+            console.log('[GestorFases] ✅ Fase de combate iniciada exitosamente');
+            
+        } catch (error) {
+            console.error('[GestorFases] ❌ Error iniciando fase de combate:', error);
+        }
+    }
+
+    // ✅ FUNCIÓN CRÍTICA: iniciarTurnos()
+    iniciarTurnos() {
+        console.log('[GestorTurnos] 🎮 INICIANDO SISTEMA DE TURNOS');
+        
+        try {
+            // 1. Configurar primer turno
+            this.turnoActual = 1;
+            this.jugadorActualIndex = 0;
+            this.tiempoRestante = this.configuracion.tiempoPorTurno || 120; // 2 minutos por defecto
+            
+            // 2. Actualizar interfaz
+            this.actualizarInterfazTurno();
+            
+            // 3. Mostrar mensaje de inicio
+            if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                this.gestorJuego.gestorInterfaz.mostrarMensaje(
+                    `¡Combate iniciado! Turno ${this.turnoActual} - ${this.obtenerJugadorActual()?.username || 'Jugador'}`,
+                    'info'
+                );
+            }
+            
+            // 4. Iniciar timer si es necesario
+            this.iniciarTimer();
+            
+            console.log('[GestorTurnos] ✅ Sistema de turnos iniciado');
+            
+        } catch (error) {
+            console.error('[GestorTurnos] ❌ Error iniciando turnos:', error);
+        }
+    }
+
+    // ✅ FUNCIÓN: actualizarInterfazFase()
+    actualizarInterfazFase() {
+        try {
+            // Actualizar indicador de fase
+            const indicadorFase = document.getElementById('indicador-fase');
+            if (indicadorFase) {
+                indicadorFase.textContent = `Fase: ${this.fase.toUpperCase()}`;
+                indicadorFase.className = `indicador-fase fase-${this.fase}`;
+            }
+            
+            // Ocultar botones de despliegue
+            const botonesDespliegue = document.querySelectorAll('.btn-despliegue');
+            botonesDespliegue.forEach(btn => {
+                btn.style.display = 'none';
+            });
+            
+            // Mostrar controles de combate
+            const controlesCombate = document.getElementById('controles-combate');
+            if (controlesCombate) {
+                controlesCombate.style.display = 'block';
+            }
+            
+            console.log('[GestorFases] Interfaz actualizada para fase:', this.fase);
+            
+        } catch (error) {
+            console.error('[GestorFases] Error actualizando interfaz:', error);
+        }
+    }
+
+    // ✅ FUNCIÓN: actualizarInterfazTurno()
+    actualizarInterfazTurno() {
+        try {
+            const jugadorActual = this.obtenerJugadorActual();
+            
+            // Actualizar indicador de turno
+            const indicadorTurno = document.getElementById('indicador-turno');
+            if (indicadorTurno) {
+                indicadorTurno.textContent = `Turno ${this.turnoActual} - ${jugadorActual?.username || 'Desconocido'}`;
+            }
+            
+            // Actualizar timer
+            const timer = document.getElementById('timer-turno');
+            if (timer) {
+                timer.textContent = this.formatearTiempo(this.tiempoRestante);
+            }
+            
+            // Habilitar/deshabilitar controles según el jugador
+            const esmiTurno = this.esJugadorActual(window.userId);
+            const botonesAccion = document.querySelectorAll('.btn-accion');
+            botonesAccion.forEach(btn => {
+                btn.disabled = !esmiTurno;
+            });
+            
+            console.log('[GestorTurnos] Interfaz actualizada - Turno:', this.turnoActual, 'Jugador:', jugadorActual?.username);
+            
+        } catch (error) {
+            console.error('[GestorTurnos] Error actualizando interfaz de turno:', error);
+        }
+    }
+
+    // ✅ FUNCIÓN: iniciarTimer()
+    iniciarTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        this.timerInterval = setInterval(() => {
+            this.tiempoRestante--;
+            
+            // Actualizar display del timer
+            const timer = document.getElementById('timer-turno');
+            if (timer) {
+                timer.textContent = this.formatearTiempo(this.tiempoRestante);
+            }
+            
+            // Si se acaba el tiempo, cambiar turno automáticamente
+            if (this.tiempoRestante <= 0) {
+                console.log('[GestorTurnos] ⏰ Tiempo agotado, cambiando turno automáticamente');
+                this.cambiarTurno();
+            }
+        }, 1000);
+    }
+
+    // ✅ FUNCIÓN: formatearTiempo()
+    formatearTiempo(segundos) {
+        const minutos = Math.floor(segundos / 60);
+        const segs = segundos % 60;
+        return `${minutos}:${segs.toString().padStart(2, '0')}`;
+    }
+
+    // ...existing code...
 }
 
 // Exportar la clase

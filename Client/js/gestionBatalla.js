@@ -1661,12 +1661,13 @@ function configurarEventosChat() {
             }
             
             socket = io(urlServidor, {
-                transports: ['websocket', 'polling'],
-                timeout: 20000,
+                transports: ['polling'],  // Solo polling para Render
+                timeout: 30000,
                 forceNew: true,
                 reconnection: true,
                 reconnectionAttempts: 5,
-                reconnectionDelay: 1000
+                reconnectionDelay: 1000,
+                upgrade: false  // No intentar upgrade a websocket
             });
             
             socket.on('connect', function() {
