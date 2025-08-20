@@ -1185,319 +1185,153 @@ def jugador_listo(data):
 
 @socketio.on('jugadorListoDespliegue')
 def jugador_listo_despliegue(data):
-    sala = data.get('sala', 'general')
-    emit('jugadorListoDespliegue', data, room=sala)
-
-@socketio.on('salirSalaEspera')
-def salir_sala_espera(data):
-    codigo_partida = data.get('codigo')
-    if codigo_partida:
-        leave_room(codigo_partida)
-        emit('salioDeSalaEspera', {'codigo': codigo_partida})
-
-@socketio.on('reconectarAPartida')
-def reconectar_a_partida(data):
-    codigo_partida = data.get('codigo')
-    if codigo_partida:
-        join_room(codigo_partida)
-        emit('reconectadoAPartida', {'codigo': codigo_partida})
-
-@socketio.on('cambiarSala')
-def cambiar_sala(data):
-    sala_anterior = data.get('salaAnterior')
-    sala_nueva = data.get('salaNueva')
-    
-    if sala_anterior:
-        leave_room(sala_anterior)
-    if sala_nueva:
-        join_room(sala_nueva)
+    try:
+        codigo_partida = data.get('partidaCodigo') or data.get('codigo')
+        jugador_id = data.get('jugadorId') or user_sid_map.get(request.sid)
         
-    emit('salaActualizada', {'sala': sala_nueva})
+        if not codigo_partida or not jugador_id:
+            print("❌ Datos incompletos en jugadorListoDespliegue")
+            return
+        
+        print(f"🎯 Jugador {jugador_id} listo para despliegue en partida {codigo_partida}")
+        
+        # Emitir a toda la sala de la partida
+        socketio.emit('jugadorListoDespliegue', {
+            'jugador_id': jugador_id,
+            'jugador': obtener_username(jugador_id),
+            'partida_codigo': codigo_partida,
+            'timestamp': data.get('timestamp', datetime.now().isoformat()),
+            'listo': True
+        }, room=codigo_partida)
+        
+        print(f"✅ Estado de despliegue actualizado para {obtener_username(jugador_id)}")
+        
+    except Exception as e:
+        print(f"❌ Error en jugadorListoDespliegue: {e}")
+        emit('error', {'mensaje': 'Error procesando estado de despliegue'})
 
-@socketio.on('obtenerListaAmigos')
-def obtener_lista_amigos(data):
-    # Implementación básica
-    emit('listaAmigos', {'amigos': []})
+@socketio.on('cargarElementos')
+def cargar_elementos(data):
+    try:
+        usuario_id = data.get('usuario_id') or user_sid_map.get(request.sid)
+        
+        if not usuario_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        # En una implementación real, cargarías desde la base de datos
+        # Por ahora, simulamos elementos vacíos
+        elementos_guardados = []
+        
+        emit('elementosActualizados', {
+            'elementos': elementos_guardados,
+            'usuario_id': usuario_id,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        print(f"📥 Elementos cargados para usuario {usuario_id}")
+        
+    except Exception as e:
+        print(f"❌ Error cargando elementos: {e}")
+        emit('error', {'mensaje': 'Error cargando elementos'})
 
-@socketio.on('agregarAmigo')
-def agregar_amigo(data):
-    emit('amigoAgregado', data)
+@socketio.on('actualizarPosicion')
+def actualizar_posicion_elemento(data):
+    try:
+        elemento_id = data.get('elemento_id')
+        nueva_posicion = data.get('posicion')
+        usuario_id = data.get('usuario_id') or user_sid_map.get(request.sid)
+        
+        if not all([elemento_id, nueva_posicion, usuario_id]):
+            emit('error', {'mensaje': 'Datos incompletos para actualizar posición'})
+            return
+        
+        # Emitir actualización a otros usuarios en la misma sala
+        emit('posicionActualizada', {
+            'elemento_id': elemento_id,
+            'posicion': nueva_posicion,
+            'usuario_id': usuario_id,
+            'timestamp': data.get('timestamp', datetime.now().isoformat())
+        }, broadcast=True, include_self=False)
+        
+        print(f"📍 Posición actualizada - Elemento: {elemento_id}, Usuario: {usuario_id}")
+        
+    except Exception as e:
+        print(f"❌ Error actualizando posición: {e}")
+        emit('error', {'mensaje': 'Error actualizando posición'})
 
-@socketio.on('actualizarEquipoJugador')
-def actualizar_equipo_jugador(data):
-    sala = data.get('sala', 'general')
-    emit('equipoJugadorActualizado', data, room=sala)
+@socketio.on('eliminarElemento')
+def eliminar_elemento(data):
+    try:
+        elemento_id = data.get('elemento_id')
+        usuario_id = data.get('usuario_id') or user_sid_map.get(request.sid)
+        
+        if not all([elemento_id, usuario_id]):
+            emit('error', {'mensaje': 'Datos incompletos para eliminar elemento'})
+            return
+        
+        # Emitir eliminación a todos los usuarios
+        emit('elementoEliminado', {
+            'elemento_id': elemento_id,
+            'usuario_id': usuario_id,
+            'timestamp': data.get('timestamp', datetime.now().isoformat())
+        }, broadcast=True)
+        
+        print(f"🗑️ Elemento eliminado - ID: {elemento_id}, Usuario: {usuario_id}")
+        
+    except Exception as e:
+        print(f"❌ Error eliminando elemento: {e}")
+        emit('error', {'mensaje': 'Error eliminando elemento'})
 
-@socketio.on('asignarDirectorTemporal')
-def asignar_director_temporal(data):
-    sala = data.get('sala', 'general')
-    emit('directorTemporalAsignado', data, room=sala)
-
-@socketio.on('obtenerInfoJugador')
-def obtener_info_jugador(data):
-    user_id = data.get('user_id')
-    if user_id:
-        username = obtener_username(user_id)
-        emit('infoJugador', {'user_id': user_id, 'username': username})
-
-@socketio.on('eliminarAmigo')
-def eliminar_amigo(data):
-    emit('amigoEliminado', data)
-
-@socketio.on('joinRoom')
-def join_room_handler(data):
-    sala = data.get('room')
-    if sala:
-        join_room(sala)
-        emit('joinedRoom', {'room': sala})
-
-@socketio.on('sectorDefinido')
-def sector_definido(data):
-    sala = data.get('sala', 'general')
-    emit('sectorDefinido', data, room=sala)
-
-@socketio.on('mensajeMultimedia')
-def mensaje_multimedia(data):
-    sala = data.get('sala', 'general')
-    emit('mensajeMultimedia', data, room=sala)
-
-@socketio.on('zonaDespliegueDefinida')
-def zona_despliegue_definida(data):
-    sala = data.get('sala', 'general')
-    emit('zonaDespliegueDefinida', data, room=sala)
-
-@socketio.on('iniciarCombate')
-def iniciar_combate(data):
-    sala = data.get('sala', 'general')
-    emit('combateIniciado', data, room=sala)
+@socketio.on('finalizarDespliegue')
+def finalizar_despliegue(data):
+    try:
+        codigo_partida = data.get('partidaCodigo') or data.get('codigo')
+        
+        if not codigo_partida:
+            print("❌ Código de partida faltante en finalizarDespliegue")
+            return
+        
+        print(f"🎯 Finalizando despliegue en partida {codigo_partida}")
+        
+        # Emitir a toda la sala
+        socketio.emit('despliegueCompleto', {
+            'partida_codigo': codigo_partida,
+            'siguiente_fase': 'combate',
+            'timestamp': datetime.now().isoformat(),
+            'mensaje': 'Despliegue finalizado. Iniciando combate...'
+        }, room=codigo_partida)
+        
+        print(f"✅ Despliegue finalizado en partida {codigo_partida}")
+        
+    except Exception as e:
+        print(f"❌ Error finalizando despliegue: {e}")
+        emit('error', {'mensaje': 'Error finalizando despliegue'})
 
 @socketio.on('cambioTurno')
 def cambio_turno(data):
-    sala = data.get('sala', 'general')
-    emit('turnoActualizado', data, room=sala)
-
-# ✅ NUEVOS: Eventos faltantes de serverhttps.py
-@socketio.on('finTurno')
-def fin_turno(data):
-    sala = data.get('sala', 'general')
-    emit('turnoFinalizado', data, room=sala)
-
-@socketio.on('mensajePrivado')
-def mensaje_privado(data):
-    destinatario_id = data.get('destinatario_id')
-    if destinatario_id and destinatario_id in user_id_sid_map:
-        socketio.emit('mensajePrivadoRecibido', data, room=user_id_sid_map[destinatario_id])
-
-@socketio.on('solicitarElementos')
-def solicitar_elementos(data):
-    operacion = data.get('operacion', 'general')
-    emit('elementosSolicitados', data, room=operacion)
-
-@app.route('/debug/db')
-def debug_db():
-    """Endpoint de debugging para diagnosticar problemas de base de datos"""
-    debug_info = {
-        "timestamp": datetime.now().isoformat(),
-        "environment": "PRODUCTION" if os.environ.get('DATABASE_URL') else "DEVELOPMENT",
-        "database_url_present": bool(os.environ.get('DATABASE_URL')),
-        "database_url_length": len(os.environ.get('DATABASE_URL', '')),
-        "connection_method": None,
-        "connection_test": None,
-        "postgres_version": None,
-        "error_details": None,
-        "tables_check": None,
-        "environment_summary": {
-            "DATABASE_URL": "✅ Configurado" if os.environ.get('DATABASE_URL') else "❌ No configurado",
-            "DB_HOST": "✅ Configurado" if os.environ.get('DB_HOST') else "❌ No configurado", 
-            "DB_NAME": "✅ Configurado" if os.environ.get('DB_NAME') else "❌ No configurado",
-            "DB_USER": "✅ Configurado" if os.environ.get('DB_USER') else "❌ No configurado",
-            "DB_PASSWORD": "✅ Configurado" if os.environ.get('DB_PASSWORD') else "❌ No configurado",
-            "DB_PORT": "✅ Configurado" if os.environ.get('DB_PORT') else "❌ No configurado"
-        }
-    }
-    
     try:
-        conn = get_db_connection()
-        if conn:
-            debug_info["connection_test"] = "✅ SUCCESS"
-            debug_info["connection_method"] = "DATABASE_URL" if os.environ.get('DATABASE_URL') else "Individual Variables"
-            
-            # Test básico de consulta
-            with conn.cursor() as cursor:
-                cursor.execute("SELECT version();")
-                version = cursor.fetchone()
-                debug_info["postgres_version"] = str(version['version']) if version else "Unknown"
-                
-                # Verificar si existen las tablas necesarias
-                cursor.execute("""
-                    SELECT table_name FROM information_schema.tables 
-                    WHERE table_schema = 'public' AND table_name IN ('usuarios', 'partidas', 'usuarios_partida')
-                    ORDER BY table_name;
-                """)
-                tables = cursor.fetchall()
-                existing_tables = [t['table_name'] for t in tables]
-                required_tables = ['usuarios', 'partidas', 'usuarios_partida']
-                missing_tables = [t for t in required_tables if t not in existing_tables]
-                
-                debug_info["tables_check"] = {
-                    "existing": existing_tables,
-                    "missing": missing_tables,
-                    "status": "✅ All tables exist" if not missing_tables else f"❌ Missing tables: {missing_tables}"
-                }
-            
-            conn.close()
-        else:
-            debug_info["connection_test"] = "❌ FAILED"
-            debug_info["error_details"] = "get_db_connection returned None - check logs for details"
-            
-    except Exception as e:
-        debug_info["connection_test"] = "❌ ERROR"
-        debug_info["error_details"] = str(e)
-        debug_info["error_type"] = type(e).__name__
-    
-    return jsonify(debug_info)
-
-@app.route('/setup/tables')
-def setup_tables():
-    """Endpoint para crear las tablas necesarias en PostgreSQL"""
-    try:
-        conn = get_db_connection()
-        if not conn:
-            return jsonify({"error": "No se pudo conectar a la base de datos", "status": "failed"}), 500
-            
-        cursor = conn.cursor()
-        results = {"status": "success", "operations": [], "timestamp": datetime.now().isoformat()}
+        codigo_partida = data.get('partidaCodigo') or data.get('codigo')
+        turno_actual = data.get('turno')
+        jugador_actual = data.get('jugador')
         
-        # Crear tabla usuarios
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(50) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                email VARCHAR(100) UNIQUE NOT NULL,
-                unidad VARCHAR(100),
-                is_online SMALLINT DEFAULT 0,
-                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        """)
-        results["operations"].append("✅ Tabla usuarios creada/verificada")
+        if not codigo_partida:
+            print("❌ Código de partida faltante en cambioTurno")
+            return
         
-        # Crear tabla partidas
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS partidas (
-                id SERIAL PRIMARY KEY,
-                codigo VARCHAR(10) UNIQUE NOT NULL,
-                configuracion JSONB,
-                estado VARCHAR(20) DEFAULT 'esperando',
-                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                fecha_finalizacion TIMESTAMP
-            );
-        """)
-        results["operations"].append("✅ Tabla partidas creada/verificada")
+        print(f"🔄 Cambio de turno en partida {codigo_partida} - Turno {turno_actual}")
         
-        # Crear tabla usuarios_partida
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuarios_partida (
-                id SERIAL PRIMARY KEY,
-                partida_id INTEGER REFERENCES partidas(id) ON DELETE CASCADE,
-                usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
-                equipo VARCHAR(50) DEFAULT 'sin_equipo',
-                listo BOOLEAN DEFAULT false,
-                esCreador BOOLEAN DEFAULT false,
-                fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(partida_id, usuario_id)
-            );
-        """)
-        results["operations"].append("✅ Tabla usuarios_partida creada/verificada")
+        socketio.emit('turnoActualizado', {
+            'partida_codigo': codigo_partida,
+            'turno': turno_actual,
+            'jugador_actual': jugador_actual,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
         
-        # Crear índices para optimización
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_username ON usuarios(username);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_partidas_codigo ON partidas(codigo);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_partidas_estado ON partidas(estado);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_partida_partida ON usuarios_partida(partida_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_usuarios_partida_usuario ON usuarios_partida(usuario_id);")
-        results["operations"].append("✅ Índices de optimización creados/verificados")
-        
-        # Confirmar cambios
-        conn.commit()
-        results["operations"].append("💾 Cambios confirmados en la base de datos")
-        
-        # Verificar configuración final
-        cursor.execute("""
-            SELECT table_name FROM information_schema.tables 
-            WHERE table_schema = 'public' AND table_name IN ('usuarios', 'partidas', 'usuarios_partida')
-            ORDER BY table_name;
-        """)
-        final_tables = [row['table_name'] for row in cursor.fetchall()]
-        
-        required_tables = ['usuarios', 'partidas', 'usuarios_partida']
-        missing_tables = [t for t in required_tables if t not in final_tables]
-        
-        results["tables"] = {
-            "existing": final_tables,
-            "missing": missing_tables,
-            "status": "✅ All tables exist" if not missing_tables else f"❌ Missing tables: {missing_tables}"
-        }
-        
-        cursor.close()
-        conn.close()
-        
-        results["message"] = "🎉 Configuración de base de datos completada exitosamente"
-        return jsonify(results)
+        print(f"✅ Turno actualizado en partida {codigo_partida}")
         
     except Exception as e:
-        return jsonify({
-            "error": str(e), 
-            "status": "failed", 
-            "timestamp": datetime.now().isoformat(),
-            "error_type": type(e).__name__
-        }), 500
+        print(f"❌ Error en cambio de turno: {e}")
+        emit('error', {'mensaje': 'Error en cambio de turno'})
 
 # ✅ FUNCIONALIDAD DE UPLOADS - Faltante de serverhttps.py
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    
-    if file:
-        filename = file.filename
-        file_path = os.path.join(app.config.get('UPLOAD_FOLDER', 'uploads'), filename)
-        
-        # Crear directorio si no existe
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        
-        file.save(file_path)
-        return jsonify({'success': True, 'filename': filename}), 200
-
-@app.route('/upload_image', methods=['POST'])
-def upload_image():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image part'}), 400
-    
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-    
-    if file and file.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-        filename = file.filename
-        file_path = os.path.join('Client/image', filename)
-        
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        
-        file.save(file_path)
-        return jsonify({'success': True, 'filename': filename}), 200
-    
-    return jsonify({'error': 'Invalid file type'}), 400
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))
-    print(f"🚀 Iniciando MAIRA en puerto {port}")
-    
-    # ✅ Configuración para Render.com
-    # En Render, usar host='0.0.0.0' y debug=False para producción
-    socketio.run(app, host='0.0.0.0', port=port, debug=False, allow_unsafe_werkzeug=True)

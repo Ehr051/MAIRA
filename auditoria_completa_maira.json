@@ -1,0 +1,438 @@
+{
+  "timestamp": "2025-08-20T19:28:09.421329",
+  "modules": {
+    "Planeamiento": {
+      "emits": [],
+      "listeners": [],
+      "files": [
+        {
+          "path": "static/planeamiento.html",
+          "events": {
+            "emits": [],
+            "listeners": []
+          },
+          "exists": true
+        },
+        {
+          "path": "Client/js/planeamiento.js",
+          "events": {
+            "emits": [],
+            "listeners": []
+          },
+          "exists": false
+        }
+      ]
+    },
+    "Comandos y Control (CO)": {
+      "emits": [],
+      "listeners": [],
+      "files": [
+        {
+          "path": "static/co.html",
+          "events": {
+            "emits": [],
+            "listeners": []
+          },
+          "exists": true
+        },
+        {
+          "path": "Client/js/co.js",
+          "events": {
+            "emits": [],
+            "listeners": []
+          },
+          "exists": true
+        }
+      ]
+    },
+    "Juego de Guerra": {
+      "emits": [],
+      "listeners": [],
+      "files": [
+        {
+          "path": "static/juegodeguerra.html",
+          "events": {
+            "emits": [],
+            "listeners": []
+          },
+          "exists": true
+        },
+        {
+          "path": "Client/js/juegodeguerra.js",
+          "events": {
+            "emits": [],
+            "listeners": []
+          },
+          "exists": false
+        }
+      ]
+    },
+    "Gestión de Batalla": {
+      "emits": [
+        "obtenerInformeCompleto",
+        "informeLeido",
+        "mensajeMultimedia",
+        "verificarEstructuraArchivos",
+        "unirseOperacion",
+        "mensajeChat",
+        "actualizarPosicion",
+        "joinRoom",
+        "solicitarEstadoElementos",
+        "nuevoInforme",
+        "actualizarPosicionGB",
+        "nuevoElemento"
+      ],
+      "listeners": [
+        "listaElementos",
+        "mensajeMultimedia",
+        "mensajePrivado",
+        "reconnect",
+        "mensajeChat",
+        "connect",
+        "nuevaConexion",
+        "desconexion",
+        "connect_error",
+        "disconnect",
+        "nuevoInforme",
+        "error"
+      ],
+      "files": [
+        {
+          "path": "static/gestionbatalla.html",
+          "events": {
+            "emits": [],
+            "listeners": []
+          },
+          "exists": true
+        },
+        {
+          "path": "Client/js/gestionbatalla.js",
+          "events": {
+            "emits": [
+              "informeLeido",
+              "mensajeMultimedia",
+              "verificarEstructuraArchivos",
+              "unirseOperacion",
+              "mensajeChat",
+              "actualizarPosicion",
+              "joinRoom",
+              "solicitarEstadoElementos",
+              "nuevoInforme",
+              "obtenerInformeCompleto",
+              "actualizarPosicionGB",
+              "nuevoElemento"
+            ],
+            "listeners": [
+              "listaElementos",
+              "mensajeMultimedia",
+              "mensajePrivado",
+              "reconnect",
+              "mensajeChat",
+              "connect",
+              "nuevaConexion",
+              "desconexion",
+              "connect_error",
+              "disconnect",
+              "nuevoInforme",
+              "error"
+            ]
+          },
+          "exists": true
+        }
+      ]
+    },
+    "Chat Sistema": {
+      "emits": [
+        "solicitarElementos",
+        "mensajePrivado",
+        "mensajeChat",
+        "obtenerHistorialChat",
+        "cambiarSala",
+        "finTurno"
+      ],
+      "listeners": [
+        "errorChat",
+        "mensajePrivadoRecibido",
+        "enviarMensajeGeneral",
+        "turnoFinalizado",
+        "enviarMensajeSalaEspera",
+        "nuevoMensajeChat",
+        "historialChat",
+        "salaActualizada",
+        "elementosSolicitados"
+      ],
+      "files": [
+        {
+          "path": "Client/js/chat.js",
+          "events": {
+            "emits": [
+              "solicitarElementos",
+              "mensajePrivado",
+              "mensajeChat",
+              "obtenerHistorialChat",
+              "cambiarSala",
+              "finTurno"
+            ],
+            "listeners": [
+              "errorChat",
+              "mensajePrivadoRecibido",
+              "enviarMensajeGeneral",
+              "turnoFinalizado",
+              "enviarMensajeSalaEspera",
+              "nuevoMensajeChat",
+              "historialChat",
+              "salaActualizada",
+              "elementosSolicitados"
+            ]
+          },
+          "exists": true
+        }
+      ]
+    },
+    "Backend (app.py)": {
+      "emits": [
+        "jugadorSeUnio",
+        "nuevoElementoOperacion",
+        "operacionesGB",
+        "invitacionRecibida",
+        "partidaCancelada",
+        "mensajePrivadoRecibido",
+        "partidaIniciada",
+        "partidasDisponibles",
+        "nuevoMensajeChat"
+      ],
+      "listeners": [
+        "obtenerInfoJugador",
+        "actualizarEquipoJugador",
+        "mensajeMultimedia",
+        "expulsarJugador",
+        "cambioTurno",
+        "registrarOperacion",
+        "inicioDespliegue",
+        "jugadorListo",
+        "jugadorListoDespliegue",
+        "salirSalaEspera",
+        "sectorConfirmado",
+        "anunciarElemento",
+        "zonaDespliegueDefinida",
+        "login",
+        "informeLeido",
+        "enviarInvitacion",
+        "actualizarEstadoGB",
+        "solicitarElementos",
+        "elementoConectado",
+        "iniciarPartida",
+        "crearPartida",
+        "unirseAPartida",
+        "nuevoInforme",
+        "obtenerInformeCompleto",
+        "actualizarPosicionGB",
+        "obtenerOperacionesGB",
+        "nuevoElemento",
+        "actualizarJugador",
+        "sectorDefinido",
+        "eliminarAmigo",
+        "zonaConfirmada",
+        "crearOperacionGB",
+        "mensajePrivado",
+        "reconectarAPartida",
+        "connect",
+        "obtenerPartidasDisponibles",
+        "cancelarPartida",
+        "cambioFase",
+        "asignarDirectorTemporal",
+        "obtenerListaAmigos",
+        "mensajeJuego",
+        "finTurno",
+        "unirseOperacionGB",
+        "estadoActual",
+        "unidadDesplegada",
+        "guardarElemento",
+        "mensajeChat",
+        "iniciarCombate",
+        "joinRoom",
+        "unirseAPartidaJuego",
+        "disconnect",
+        "cambiarSala",
+        "agregarAmigo"
+      ],
+      "files": [
+        {
+          "path": "app.py",
+          "events": {
+            "emits": [
+              "jugadorSeUnio",
+              "nuevoElementoOperacion",
+              "operacionesGB",
+              "invitacionRecibida",
+              "partidaCancelada",
+              "mensajePrivadoRecibido",
+              "partidaIniciada",
+              "partidasDisponibles",
+              "nuevoMensajeChat"
+            ],
+            "listeners": [
+              "obtenerInfoJugador",
+              "actualizarEquipoJugador",
+              "mensajeMultimedia",
+              "expulsarJugador",
+              "cambioTurno",
+              "registrarOperacion",
+              "inicioDespliegue",
+              "jugadorListo",
+              "jugadorListoDespliegue",
+              "salirSalaEspera",
+              "sectorConfirmado",
+              "anunciarElemento",
+              "zonaDespliegueDefinida",
+              "login",
+              "informeLeido",
+              "enviarInvitacion",
+              "actualizarEstadoGB",
+              "solicitarElementos",
+              "elementoConectado",
+              "iniciarPartida",
+              "crearPartida",
+              "unirseAPartida",
+              "nuevoInforme",
+              "obtenerInformeCompleto",
+              "actualizarPosicionGB",
+              "obtenerOperacionesGB",
+              "nuevoElemento",
+              "actualizarJugador",
+              "sectorDefinido",
+              "eliminarAmigo",
+              "zonaConfirmada",
+              "crearOperacionGB",
+              "mensajePrivado",
+              "reconectarAPartida",
+              "connect",
+              "obtenerPartidasDisponibles",
+              "cancelarPartida",
+              "cambioFase",
+              "asignarDirectorTemporal",
+              "obtenerListaAmigos",
+              "mensajeJuego",
+              "finTurno",
+              "unirseOperacionGB",
+              "estadoActual",
+              "unidadDesplegada",
+              "guardarElemento",
+              "mensajeChat",
+              "iniciarCombate",
+              "joinRoom",
+              "unirseAPartidaJuego",
+              "disconnect",
+              "cambiarSala",
+              "agregarAmigo"
+            ]
+          },
+          "exists": true
+        }
+      ]
+    }
+  },
+  "event_mapping": {},
+  "missing_handlers": [
+    "listaElementos",
+    "enviarMensajeGeneral",
+    "obtenerInfoJugador",
+    "actualizarEquipoJugador",
+    "expulsarJugador",
+    "cambioTurno",
+    "registrarOperacion",
+    "inicioDespliegue",
+    "jugadorListo",
+    "jugadorListoDespliegue",
+    "salirSalaEspera",
+    "salaActualizada",
+    "sectorConfirmado",
+    "anunciarElemento",
+    "errorChat",
+    "zonaDespliegueDefinida",
+    "login",
+    "enviarInvitacion",
+    "actualizarEstadoGB",
+    "elementoConectado",
+    "enviarMensajeSalaEspera",
+    "iniciarPartida",
+    "nuevaConexion",
+    "crearPartida",
+    "unirseAPartida",
+    "historialChat",
+    "obtenerOperacionesGB",
+    "elementosSolicitados",
+    "actualizarJugador",
+    "sectorDefinido",
+    "eliminarAmigo",
+    "zonaConfirmada",
+    "crearOperacionGB",
+    "turnoFinalizado",
+    "reconnect",
+    "reconectarAPartida",
+    "connect",
+    "obtenerPartidasDisponibles",
+    "connect_error",
+    "cancelarPartida",
+    "cambioFase",
+    "asignarDirectorTemporal",
+    "obtenerListaAmigos",
+    "mensajeJuego",
+    "error",
+    "unirseOperacionGB",
+    "estadoActual",
+    "unidadDesplegada",
+    "guardarElemento",
+    "iniciarCombate",
+    "desconexion",
+    "unirseAPartidaJuego",
+    "disconnect",
+    "agregarAmigo"
+  ],
+  "orphaned_emits": [
+    "nuevoElementoOperacion",
+    "jugadorSeUnio",
+    "operacionesGB",
+    "invitacionRecibida",
+    "partidaCancelada",
+    "verificarEstructuraArchivos",
+    "unirseOperacion",
+    "solicitarEstadoElementos",
+    "partidasDisponibles",
+    "partidaIniciada",
+    "obtenerHistorialChat",
+    "actualizarPosicion"
+  ],
+  "critical_issues": [
+    {
+      "module": "Juego de Guerra",
+      "missing_events": [
+        "crearPartida - FALTA EMIT EN FRONTEND",
+        "unirseAPartida - FALTA EMIT EN FRONTEND",
+        "iniciarPartida - FALTA EMIT EN FRONTEND",
+        "zonaDespliegueDefinida - FALTA EMIT EN FRONTEND",
+        "unidadDesplegada - FALTA EMIT EN FRONTEND",
+        "jugadorListoDespliegue - FALTA EMIT EN FRONTEND",
+        "iniciarCombate - FALTA EMIT EN FRONTEND",
+        "cambioTurno - FALTA EMIT EN FRONTEND",
+        "finTurno - FALTA EMIT EN FRONTEND"
+      ]
+    },
+    {
+      "module": "Gestión de Batalla",
+      "missing_events": [
+        "crearOperacionGB - FALTA EMIT EN FRONTEND",
+        "unirseOperacionGB - FALTA EMIT EN FRONTEND"
+      ]
+    },
+    {
+      "module": "Planeamiento",
+      "missing_events": [
+        "guardarElemento - FALTA EMIT EN FRONTEND",
+        "cargarElementos - COMPLETAMENTE FALTANTE",
+        "actualizarPosicion - COMPLETAMENTE FALTANTE",
+        "eliminarElemento - COMPLETAMENTE FALTANTE"
+      ]
+    }
+  ]
+}
