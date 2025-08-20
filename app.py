@@ -46,32 +46,45 @@ socketio = SocketIO(
 # Configuración de la base de datos PostgreSQL
 def get_db_connection():
     try:
+        # Priorizar DATABASE_URL (para producción en Render)
         DATABASE_URL = os.environ.get('DATABASE_URL')
         print(f"🔍 DATABASE_URL presente: {'SÍ' if DATABASE_URL else 'NO'}")
         
         if DATABASE_URL:
             # Mostrar parte de la URL sin exponer credenciales completas
-            url_preview = DATABASE_URL[:20] + "..." + DATABASE_URL[-20:] if len(DATABASE_URL) > 40 else DATABASE_URL
-            print(f"🔗 Usando DATABASE_URL: {url_preview}")
+            url_preview = DATABASE_URL[:30] + "..." + DATABASE_URL[-15:] if len(DATABASE_URL) > 45 else DATABASE_URL
+            print(f"🔗 Conectando con DATABASE_URL: {url_preview}")
             conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-        else:
-            host = os.environ.get('DB_HOST', 'localhost')
-            database = os.environ.get('DB_NAME', 'maira_db')
-            user = os.environ.get('DB_USER', 'postgres')
-            port = os.environ.get('DB_PORT', '5432')
-            print(f"🔗 Usando credenciales individuales: {user}@{host}:{port}/{database}")
-            conn = psycopg2.connect(
-                host=host,
-                database=database,
-                user=user,
-                password=os.environ.get('DB_PASSWORD', ''),
-                port=port,
-                cursor_factory=RealDictCursor
-            )
-        print("✅ Conexión exitosa a PostgreSQL")
+            print("✅ Conexión exitosa a PostgreSQL via DATABASE_URL")
+            return conn
+        
+        # Fallback para desarrollo local con variables individuales
+        host = os.environ.get('DB_HOST', 'localhost')
+        database = os.environ.get('DB_NAME', 'maira_db')
+        user = os.environ.get('DB_USER', 'postgres')
+        password = os.environ.get('DB_PASSWORD', '')
+        port = os.environ.get('DB_PORT', '5432')
+        
+        print(f"🔗 Intentando conexión local: {user}@{host}:{port}/{database}")
+        
+        if not password:
+            print("⚠️ DB_PASSWORD no está configurado para conexión local")
+            return None
+            
+        conn = psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port,
+            cursor_factory=RealDictCursor
+        )
+        print("✅ Conexión exitosa a PostgreSQL via credenciales individuales")
         return conn
+        
     except psycopg2.OperationalError as e:
         print(f"❌ Error de conexión PostgreSQL: {e}")
+        print(f"💡 Asegúrate de configurar DATABASE_URL en Render o las variables DB_* localmente")
         return None
     except psycopg2.Error as e:
         print(f"❌ Error de PostgreSQL: {e}")
@@ -1226,34 +1239,62 @@ def debug_db():
     """Endpoint de debugging para diagnosticar problemas de base de datos"""
     debug_info = {
         "timestamp": datetime.now().isoformat(),
+        "environment": "PRODUCTION" if os.environ.get('DATABASE_URL') else "DEVELOPMENT",
         "database_url_present": bool(os.environ.get('DATABASE_URL')),
-        "env_vars": {
-            "DB_HOST": os.environ.get('DB_HOST', 'No configurado'),
-            "DB_NAME": os.environ.get('DB_NAME', 'No configurado'),
-            "DB_USER": os.environ.get('DB_USER', 'No configurado'),
-            "DB_PORT": os.environ.get('DB_PORT', 'No configurado'),
-            "DATABASE_URL_length": len(os.environ.get('DATABASE_URL', ''))
-        },
+        "database_url_length": len(os.environ.get('DATABASE_URL', '')),
+        "connection_method": None,
         "connection_test": None,
-        "error_details": None
+        "postgres_version": None,
+        "error_details": None,
+        "tables_check": None,
+        "environment_summary": {
+            "DATABASE_URL": "✅ Configurado" if os.environ.get('DATABASE_URL') else "❌ No configurado",
+            "DB_HOST": "✅ Configurado" if os.environ.get('DB_HOST') else "❌ No configurado", 
+            "DB_NAME": "✅ Configurado" if os.environ.get('DB_NAME') else "❌ No configurado",
+            "DB_USER": "✅ Configurado" if os.environ.get('DB_USER') else "❌ No configurado",
+            "DB_PASSWORD": "✅ Configurado" if os.environ.get('DB_PASSWORD') else "❌ No configurado",
+            "DB_PORT": "✅ Configurado" if os.environ.get('DB_PORT') else "❌ No configurado"
+        }
     }
     
     try:
         conn = get_db_connection()
         if conn:
+            debug_info["connection_test"] = "✅ SUCCESS"
+            debug_info["connection_method"] = "DATABASE_URL" if os.environ.get('DATABASE_URL') else "Individual Variables"
+            
             # Test básico de consulta
             with conn.cursor() as cursor:
                 cursor.execute("SELECT version();")
                 version = cursor.fetchone()
-                debug_info["connection_test"] = "SUCCESS"
                 debug_info["postgres_version"] = str(version[0]) if version else "Unknown"
+                
+                # Verificar si existen las tablas necesarias
+                cursor.execute("""
+                    SELECT table_name FROM information_schema.tables 
+                    WHERE table_schema = 'public' AND table_name IN ('usuarios', 'partidas', 'usuarios_partida')
+                    ORDER BY table_name;
+                """)
+                tables = cursor.fetchall()
+                existing_tables = [t[0] for t in tables]
+                required_tables = ['usuarios', 'partidas', 'usuarios_partida']
+                missing_tables = [t for t in required_tables if t not in existing_tables]
+                
+                debug_info["tables_check"] = {
+                    "existing": existing_tables,
+                    "missing": missing_tables,
+                    "status": "✅ All tables exist" if not missing_tables else f"❌ Missing tables: {missing_tables}"
+                }
+            
             conn.close()
         else:
-            debug_info["connection_test"] = "FAILED"
-            debug_info["error_details"] = "get_db_connection returned None"
+            debug_info["connection_test"] = "❌ FAILED"
+            debug_info["error_details"] = "get_db_connection returned None - check logs for details"
+            
     except Exception as e:
-        debug_info["connection_test"] = "ERROR"
+        debug_info["connection_test"] = "❌ ERROR"
         debug_info["error_details"] = str(e)
+        debug_info["error_type"] = type(e).__name__
     
     return jsonify(debug_info)
 
