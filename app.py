@@ -1267,7 +1267,7 @@ def debug_db():
             with conn.cursor() as cursor:
                 cursor.execute("SELECT version();")
                 version = cursor.fetchone()
-                debug_info["postgres_version"] = str(version[0]) if version else "Unknown"
+                debug_info["postgres_version"] = str(version['version']) if version else "Unknown"
                 
                 # Verificar si existen las tablas necesarias
                 cursor.execute("""
@@ -1276,7 +1276,7 @@ def debug_db():
                     ORDER BY table_name;
                 """)
                 tables = cursor.fetchall()
-                existing_tables = [t[0] for t in tables]
+                existing_tables = [t['table_name'] for t in tables]
                 required_tables = ['usuarios', 'partidas', 'usuarios_partida']
                 missing_tables = [t for t in required_tables if t not in existing_tables]
                 
@@ -1370,7 +1370,7 @@ def setup_tables():
             WHERE table_schema = 'public' AND table_name IN ('usuarios', 'partidas', 'usuarios_partida')
             ORDER BY table_name;
         """)
-        final_tables = [row[0] for row in cursor.fetchall()]
+        final_tables = [row['table_name'] for row in cursor.fetchall()]
         
         required_tables = ['usuarios', 'partidas', 'usuarios_partida']
         missing_tables = [t for t in required_tables if t not in final_tables]
