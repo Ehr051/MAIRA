@@ -47,21 +47,37 @@ socketio = SocketIO(
 def get_db_connection():
     try:
         DATABASE_URL = os.environ.get('DATABASE_URL')
+        print(f"🔍 DATABASE_URL presente: {'SÍ' if DATABASE_URL else 'NO'}")
+        
         if DATABASE_URL:
+            # Mostrar parte de la URL sin exponer credenciales completas
+            url_preview = DATABASE_URL[:20] + "..." + DATABASE_URL[-20:] if len(DATABASE_URL) > 40 else DATABASE_URL
+            print(f"🔗 Usando DATABASE_URL: {url_preview}")
             conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
         else:
+            host = os.environ.get('DB_HOST', 'localhost')
+            database = os.environ.get('DB_NAME', 'maira_db')
+            user = os.environ.get('DB_USER', 'postgres')
+            port = os.environ.get('DB_PORT', '5432')
+            print(f"🔗 Usando credenciales individuales: {user}@{host}:{port}/{database}")
             conn = psycopg2.connect(
-                host=os.environ.get('DB_HOST', 'localhost'),
-                database=os.environ.get('DB_NAME', 'maira_db'),
-                user=os.environ.get('DB_USER', 'postgres'),
+                host=host,
+                database=database,
+                user=user,
                 password=os.environ.get('DB_PASSWORD', ''),
-                port=os.environ.get('DB_PORT', '5432'),
+                port=port,
                 cursor_factory=RealDictCursor
             )
         print("✅ Conexión exitosa a PostgreSQL")
         return conn
+    except psycopg2.OperationalError as e:
+        print(f"❌ Error de conexión PostgreSQL: {e}")
+        return None
+    except psycopg2.Error as e:
+        print(f"❌ Error de PostgreSQL: {e}")
+        return None
     except Exception as e:
-        print(f"❌ Error conectando a PostgreSQL: {e}")
+        print(f"❌ Error general conectando a PostgreSQL: {e}")
         return None
 
 # Rutas básicas
@@ -1204,6 +1220,42 @@ def iniciar_combate(data):
 def cambio_turno(data):
     sala = data.get('sala', 'general')
     emit('turnoActualizado', data, room=sala)
+
+@app.route('/debug/db')
+def debug_db():
+    """Endpoint de debugging para diagnosticar problemas de base de datos"""
+    debug_info = {
+        "timestamp": datetime.now().isoformat(),
+        "database_url_present": bool(os.environ.get('DATABASE_URL')),
+        "env_vars": {
+            "DB_HOST": os.environ.get('DB_HOST', 'No configurado'),
+            "DB_NAME": os.environ.get('DB_NAME', 'No configurado'),
+            "DB_USER": os.environ.get('DB_USER', 'No configurado'),
+            "DB_PORT": os.environ.get('DB_PORT', 'No configurado'),
+            "DATABASE_URL_length": len(os.environ.get('DATABASE_URL', ''))
+        },
+        "connection_test": None,
+        "error_details": None
+    }
+    
+    try:
+        conn = get_db_connection()
+        if conn:
+            # Test básico de consulta
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT version();")
+                version = cursor.fetchone()
+                debug_info["connection_test"] = "SUCCESS"
+                debug_info["postgres_version"] = str(version[0]) if version else "Unknown"
+            conn.close()
+        else:
+            debug_info["connection_test"] = "FAILED"
+            debug_info["error_details"] = "get_db_connection returned None"
+    except Exception as e:
+        debug_info["connection_test"] = "ERROR"
+        debug_info["error_details"] = str(e)
+    
+    return jsonify(debug_info)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
