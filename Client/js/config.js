@@ -5,9 +5,10 @@ window.MAIRA_CONFIG = {
         ? 'http://localhost:10000'
         : window.location.origin,
     
-    // Configuración de Socket.IO
+    // Configuración de Socket.IO para Render (solo polling)
     SOCKET_CONFIG: {
-        transports: ['websocket', 'polling'],
+        transports: ['polling'],  // ✅ SOLO POLLING para compatibilidad con Render
+        upgrade: false,           // ✅ Evitar upgrade a websocket  
         timeout: 20000,
         forceNew: true,
         reconnection: true,
