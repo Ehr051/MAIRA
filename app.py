@@ -1317,7 +1317,7 @@ def setup_tables():
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(100) UNIQUE NOT NULL,
                 unidad VARCHAR(100),
-                is_online BOOLEAN DEFAULT false,
+                is_online SMALLINT DEFAULT 0,
                 fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
