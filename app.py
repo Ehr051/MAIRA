@@ -133,6 +133,12 @@ def serve_client_files(path):
     client_dir = os.path.join('.', 'Client')
     return send_from_directory(client_dir, path)
 
+@app.route('/node_modules/<path:path>')
+def serve_node_modules(path):
+    """Servir archivos de node_modules (Socket.IO, etc.)"""
+    node_modules_dir = os.path.join('.', 'node_modules')
+    return send_from_directory(node_modules_dir, path)
+
 @app.route('/health')
 def health_check():
     conn = get_db_connection()

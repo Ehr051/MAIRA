@@ -50,6 +50,9 @@ node_modules/
 !node_modules/file-saver/
 !node_modules/proj4/
 !node_modules/mgrs/
+!node_modules/socket.io/
+!node_modules/jspdf/
+!node_modules/@raruto/
 
 npm-debug.log*
 yarn-debug.log*
