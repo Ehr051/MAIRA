@@ -1,5 +1,6 @@
 # Configuración de Gunicorn para Render.com
 # Optimizada para Socket.IO y aplicaciones Flask pesadas
+# Fix: Python 3.13 + gevent compatibility
 
 import os
 import multiprocessing
