@@ -6,17 +6,33 @@ import json
 import random
 import string
 import time
-import traceback
-import tarfile
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import bcrypt
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
+
+# Importaciones pesadas bajo demanda
+def lazy_import_psycopg2():
+    """Importar psycopg2 solo cuando se necesite"""
+    global psycopg2, RealDictCursor
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    return psycopg2, RealDictCursor
+
+def lazy_import_bcrypt():
+    """Importar bcrypt solo cuando se necesite"""
+    global bcrypt
+    import bcrypt
+    return bcrypt
+
+def lazy_import_tarfile():
+    """Importar tarfile solo cuando se necesite"""
+    global tarfile, traceback
+    import tarfile
+    import traceback
+    return tarfile, traceback
 
 # Variables globales
 usuarios_conectados = {}  
@@ -50,6 +66,9 @@ socketio = SocketIO(
 # Configuración de la base de datos PostgreSQL
 def get_db_connection():
     try:
+        # Lazy import de psycopg2 solo cuando se necesite
+        psycopg2, RealDictCursor = lazy_import_psycopg2()
+        
         # Priorizar DATABASE_URL (para producción en Render)
         DATABASE_URL = os.environ.get('DATABASE_URL')
         print(f"🔍 DATABASE_URL presente: {'SÍ' if DATABASE_URL else 'NO'}")
@@ -133,12 +152,6 @@ def serve_client_files(path):
     client_dir = os.path.join('.', 'Client')
     return send_from_directory(client_dir, path)
 
-@app.route('/node_modules/<path:path>')
-def serve_node_modules(path):
-    """Servir archivos de node_modules (Socket.IO, etc.)"""
-    node_modules_dir = os.path.join('.', 'node_modules')
-    return send_from_directory(node_modules_dir, path)
-
 @app.route('/health')
 def health_check():
     conn = get_db_connection()
@@ -177,7 +190,8 @@ def extract_tile():
             return jsonify({"success": False, "message": f"Archivo TAR.GZ no encontrado: {tar_path}"}), 404
         
         # Extraer el tile específico
-        with tarfile.open(tar_path, 'r:gz') as tar:
+        tarfile_lib, traceback_lib = lazy_import_tarfile()
+        with tarfile_lib.open(tar_path, 'r:gz') as tar:
             try:
                 tar.extract(tile_filename, tiles_dir)
                 return jsonify({
@@ -210,7 +224,7 @@ def login():
         cursor.execute("SELECT * FROM usuarios WHERE username = %s", (username,))
         user = cursor.fetchone()
 
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+        if user and lazy_import_bcrypt().checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             return jsonify({
                 "success": True,
                 "message": "Login exitoso",
@@ -253,7 +267,8 @@ def crear_usuario():
             if existing:
                 return jsonify({"success": False, "message": "El nombre de usuario o correo ya está en uso"}), 400
             
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            bcrypt_lib = lazy_import_bcrypt()
+            hashed_password = bcrypt_lib.hashpw(password.encode('utf-8'), bcrypt_lib.gensalt())
             
             cursor.execute(
                 "INSERT INTO usuarios (username, password, email, unidad, is_online) VALUES (%s, %s, %s, %s, %s)",
