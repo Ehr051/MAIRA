@@ -160,6 +160,42 @@ def health_check():
         return jsonify({"status": "healthy", "database": "connected"})
     return jsonify({"status": "unhealthy", "database": "disconnected"}), 500
 
+@app.route('/api/proxy/github/<path:file_path>')
+def proxy_github_file(file_path):
+    """Proxy para archivos de GitHub Release para evitar CORS"""
+    import requests
+    
+    try:
+        # URL base del release tiles-v3.0
+        base_url = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/'
+        github_url = base_url + file_path
+        
+        # Hacer la request al archivo de GitHub
+        response = requests.get(github_url, stream=True)
+        
+        if response.status_code == 200:
+            # Determinar el content-type basado en la extensión
+            content_type = 'application/octet-stream'
+            if file_path.endswith('.json'):
+                content_type = 'application/json'
+            elif file_path.endswith('.tar.gz'):
+                content_type = 'application/gzip'
+            
+            # Agregar headers CORS
+            headers = {
+                'Content-Type': content_type,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            }
+            
+            return response.content, 200, headers
+        else:
+            return jsonify({"error": f"File not found: {file_path}"}), 404
+            
+    except Exception as e:
+        return jsonify({"error": f"Proxy error: {str(e)}"}), 500
+
 @app.route('/api/extract-tile', methods=['POST'])
 def extract_tile():
     """Endpoint para extraer un tile específico desde un archivo TAR.GZ"""

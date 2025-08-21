@@ -7,9 +7,9 @@ class MiniTilesLoader {
     constructor() {
                 // URLs de fallback para disponibilidad
         this.baseUrls = [
-            'https://github.com/Ehr051/MAIRA/releases/download/tiles-v1.1/',     // GitHub Release (archivos sueltos) - PRINCIPAL
+            '/api/proxy/github/',     // Proxy local (evita CORS) - PRINCIPAL
             './mini_tiles_github/',                                                // Local dev con estructura (para testing)
-            'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v1.1/'   // CDN (backup, con estructura)
+            'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v3.0/'   // CDN (backup, con estructura)
         ];
         
         this.masterIndex = null;
