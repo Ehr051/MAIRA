@@ -205,6 +205,57 @@ def extract_tile():
     except Exception as e:
         return jsonify({"success": False, "message": f"Error extrayendo tile: {str(e)}"}), 500
 
+@app.route('/extraer_tile_vegetacion', methods=['POST'])
+def extraer_tile_vegetacion():
+    """Extraer un tile específico de vegetación desde archivos TAR.GZ del CDN"""
+    try:
+        data = request.json
+        archivo_tar = data.get('archivo_tar')
+        tile_filename = data.get('tile_filename')
+        
+        if not archivo_tar or not tile_filename:
+            return jsonify({"success": False, "message": "Parámetros requeridos: archivo_tar, tile_filename"}), 400
+        
+        # Construir rutas
+        base_path = "https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/"
+        tar_url = base_path + archivo_tar
+        tiles_dir = os.path.join("tiles", "vegetacion")
+        output_path = os.path.join(tiles_dir, tile_filename)
+        local_tar_path = os.path.join("temp_extract", archivo_tar)
+        
+        print(f"🌿 Solicitando tile de vegetación: {tile_filename} desde {archivo_tar}")
+        
+        # Verificar si el tile ya está extraído
+        if os.path.exists(output_path):
+            return jsonify({"success": True, "message": "Tile de vegetación ya disponible", "path": f"/{output_path}"})
+        
+        # Crear directorios si no existen
+        os.makedirs(tiles_dir, exist_ok=True)
+        os.makedirs("temp_extract", exist_ok=True)
+        
+        # Descargar el archivo TAR.GZ si no existe localmente
+        if not os.path.exists(local_tar_path):
+            print(f"📥 Descargando archivo TAR: {tar_url}")
+            import urllib.request
+            urllib.request.urlretrieve(tar_url, local_tar_path)
+        
+        # Extraer el tile específico de vegetación
+        tarfile_lib, traceback_lib = lazy_import_tarfile()
+        with tarfile_lib.open(local_tar_path, 'r:gz') as tar:
+            try:
+                tar.extract(tile_filename, tiles_dir)
+                return jsonify({
+                    "success": True, 
+                    "message": "Tile de vegetación extraído exitosamente",
+                    "path": f"/{output_path}"
+                })
+            except KeyError:
+                return jsonify({"success": False, "message": f"Tile de vegetación {tile_filename} no encontrado en {archivo_tar}"}), 404
+    
+    except Exception as e:
+        print(f"❌ Error extrayendo tile de vegetación: {str(e)}")
+        return jsonify({"success": False, "message": f"Error extrayendo tile de vegetación: {str(e)}"}), 500
+
 # API Routes
 @app.route('/api/login', methods=['POST'])
 def login():

@@ -1,22 +1,77 @@
 const vegetacionHandler = (function() {
     let tileIndex = null;
     const tileCache = new Map();
-    const BASE_PATH = '../Client/Libs/datos_argentina/Vegetacion';
+    
+    // Sistema CDN igual que altimetría
+    const CDN_CONFIG = {
+        github: {
+            base: 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/',
+            active: true
+        },
+        jsdelivr: {
+            base: 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v3.0/',
+            active: false
+        }
+    };
 
     async function cargarIndice() {
         try {
-            const response = await fetch(`${BASE_PATH}/vegetacion_tile_index.json`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Lista de archivos de índice de vegetación disponibles
+            const indicesDisponibles = [
+                'centro_mini_tiles_index.json',
+                'centro_norte_mini_tiles_index.json', 
+                'norte_mini_tiles_index.json',
+                'patagonia_mini_tiles_index.json',
+                'sur_mini_tiles_index.json'
+            ];
+
+            // Cargar todos los índices y combinarlos
+            let indicesCombinados = { tiles: {} };
+            
+            for (const archivoIndice of indicesDisponibles) {
+                try {
+                    const url = await obtenerUrlOptima(archivoIndice);
+                    console.log(`🌿 Cargando índice de vegetación: ${archivoIndice} desde ${url}`);
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        console.warn(`⚠️ No se pudo cargar ${archivoIndice}: ${response.status}`);
+                        continue;
+                    }
+                    
+                    const indice = await response.json();
+                    // Combinar tiles del índice actual
+                    Object.assign(indicesCombinados.tiles, indice.tiles || {});
+                    
+                } catch (error) {
+                    console.warn(`⚠️ Error cargando ${archivoIndice}:`, error);
+                }
             }
-            tileIndex = await response.json();
-            console.log("Índice de vegetación cargado correctamente");
-            console.log(`Tiles disponibles: ${Object.keys(tileIndex.tiles).length}`);
-            console.log(`Muestra de tiles disponibles: ${Object.keys(tileIndex.tiles).slice(0, 5).join(', ')}...`);
+            
+            tileIndex = indicesCombinados;
+            console.log("✅ Índices de vegetación cargados correctamente");
+            console.log(`📊 Tiles de vegetación disponibles: ${Object.keys(tileIndex.tiles).length}`);
+            console.log(`🗺️ Muestra de tiles: ${Object.keys(tileIndex.tiles).slice(0, 5).join(', ')}...`);
+            
         } catch (error) {
-            console.error("Error al cargar el índice de vegetación:", error);
+            console.error("❌ Error al cargar los índices de vegetación:", error);
             tileIndex = null;
         }
+    }
+
+    async function obtenerUrlOptima(archivo) {
+        // Priorizar GitHub Direct (inmediato)
+        if (CDN_CONFIG.github.active) {
+            return CDN_CONFIG.github.base + archivo;
+        }
+        
+        // Fallback a JSDelivr si está activo
+        if (CDN_CONFIG.jsdelivr.active) {
+            return CDN_CONFIG.jsdelivr.base + archivo;
+        }
+        
+        // Último fallback (no debería llegar aquí)
+        return CDN_CONFIG.github.base + archivo;
     }
 
     function encontrarTileParaPunto(lat, lng) {
@@ -35,46 +90,101 @@ const vegetacionHandler = (function() {
             return tileCache.get(tileKey);
         }
 
-        console.log(`Iniciando carga de tile: ${tileKey}`);
+        console.log(`🌿 Iniciando carga de tile de vegetación: ${tileKey}`);
 
         if (!tileIndex.tiles[tileKey]) {
-            console.warn(`No se encontró información para el tile ${tileKey} en el índice`);
+            console.warn(`⚠️ No se encontró información para el tile ${tileKey} en el índice`);
             return null;
         }
 
         const ndviInfo = tileIndex.tiles[tileKey].find(info => info.filename.includes('VI_NDVI'));
         if (!ndviInfo) {
-            console.error(`No se encontró información NDVI para el tile ${tileKey}`);
+            console.error(`❌ No se encontró información NDVI para el tile ${tileKey}`);
             return null;
         }
 
         try {
-            const url = `${BASE_PATH}/${ndviInfo.filename}`;
-            console.log(`Intentando cargar archivo desde: ${url}`);
+            // Determinar el archivo TAR correcto basado en la ubicación del tile
+            const region = determinarRegionPorTile(tileKey);
+            const archivoTar = `${region}_part_01.tar.gz`; // Empezar con part_01
+            
+            console.log(`🗺️ Tile ${tileKey} asignado a región: ${region}`);
+            console.log(`📦 Buscando en archivo: ${archivoTar}`);
 
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Intentar extraer el tile del servidor
+            const tileData = await extraerTileDelServidor(ndviInfo.filename, archivoTar);
+            
+            if (tileData) {
+                console.log(`✅ Tile ${tileKey} de vegetación cargado exitosamente`);
+                tileCache.set(tileKey, tileData);
+                return tileData;
+            } else {
+                console.warn(`⚠️ No se pudo cargar el tile ${tileKey} desde el servidor`);
+                return null;
             }
 
-            const arrayBuffer = await response.arrayBuffer();
-            const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
-            const image = await tiff.getImage();
-            const tileData = await image.readRasters();
-
-            const tileResult = {
-                data: tileData[0],
-                bounds: ndviInfo.bounds,
-                width: image.getWidth(),
-                height: image.getHeight()
-            };
-
-            tileCache.set(tileKey, tileResult);
-            console.log(`Tile ${tileKey} guardado en caché`);
-
-            return tileResult;
         } catch (error) {
-            console.error(`Error al cargar el tile ${tileKey}:`, error);
+            console.error(`❌ Error cargando tile de vegetación ${tileKey}:`, error);
+            return null;
+        }
+    }
+
+    function determinarRegionPorTile(tileKey) {
+        // Lógica para determinar la región basada en el tileKey
+        // Esto necesitará ser ajustado según la estructura real de tus tiles
+        if (tileKey.includes('centro_norte') || tileKey.match(/tile_[0-9]+_[0-9]+/) && parseInt(tileKey.split('_')[1]) < 15) {
+            return 'centro_norte';
+        } else if (tileKey.includes('centro') || tileKey.match(/tile_[0-9]+_[0-9]+/) && parseInt(tileKey.split('_')[1]) < 20) {
+            return 'centro';
+        } else if (tileKey.includes('norte') || tileKey.match(/tile_[0-9]+_[0-9]+/) && parseInt(tileKey.split('_')[1]) < 10) {
+            return 'norte';
+        } else if (tileKey.includes('sur') || tileKey.match(/tile_[0-9]+_[0-9]+/) && parseInt(tileKey.split('_')[1]) > 25) {
+            return 'sur';
+        } else {
+            return 'patagonia';
+        }
+    }
+
+    async function extraerTileDelServidor(filename, archivoTar) {
+        try {
+            const response = await fetch('/extraer_tile_vegetacion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    archivo_tar: archivoTar,
+                    tile_filename: filename
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error del servidor: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Cargar el archivo extraído
+                const tileResponse = await fetch(result.path);
+                const arrayBuffer = await tileResponse.arrayBuffer();
+                const tiff = await GeoTIFF.fromArrayBuffer(arrayBuffer);
+                const image = await tiff.getImage();
+                const tileData = await image.readRasters();
+
+                return {
+                    data: tileData[0],
+                    bounds: result.bounds || {},
+                    width: image.getWidth(),
+                    height: image.getHeight()
+                };
+            } else {
+                console.error('Error del servidor:', result.message);
+                return null;
+            }
+
+        } catch (error) {
+            console.error('Error extrayendo tile del servidor:', error);
             return null;
         }
     }
