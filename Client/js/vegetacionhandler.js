@@ -5,11 +5,11 @@ const vegetacionHandler = (function() {
     // Sistema CDN igual que altimetría
     const CDN_CONFIG = {
         github: {
-            base: 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0/',
+            base: 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v1.1/',
             active: true
         },
         jsdelivr: {
-            base: 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v3.0/',
+            base: 'https://cdn.jsdelivr.net/gh/Ehr051/MAIRA@tiles-v1.1/',
             active: false
         }
     };

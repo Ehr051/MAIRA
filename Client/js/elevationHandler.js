@@ -1,7 +1,7 @@
 // elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v3.0
 
 // URL base para GitHub Releases mini-tiles v3.0
-const GITHUB_RELEASES_BASE = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v3.0';
+const GITHUB_RELEASES_BASE = 'https://github.com/Ehr051/MAIRA/releases/download/tiles-v1.1';
 
 // URLs de fallback para mini-tiles
 const MINI_TILES_FALLBACK_URLS = [

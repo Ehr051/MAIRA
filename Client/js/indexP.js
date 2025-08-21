@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Error durante la inicialización de datos de elevación:', error);
     }
 
+
         // Si estamos en modo de Gestión de Batalla
         if (esModoGestionBatalla) {
             // Ocultar loading container después de la carga inicial
