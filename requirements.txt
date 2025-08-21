@@ -9,7 +9,7 @@ psycopg2-binary==2.9.10
 python-dotenv==1.0.1
 bcrypt==4.2.0
 gunicorn==21.2.0
-eventlet==0.36.1
+gevent==24.2.1
 
 # Dependencias core (reducidas)
 flask-sqlalchemy==2.5.1

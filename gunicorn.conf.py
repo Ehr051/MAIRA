@@ -7,7 +7,7 @@ import multiprocessing
 # Configuración del servidor
 bind = f"0.0.0.0:{os.getenv('PORT', '10000')}"
 workers = 1  # Solo 1 worker para evitar problemas de sesión con Socket.IO
-worker_class = "eventlet"  # Mejor para Socket.IO
+worker_class = "gevent"  # Compatible con Python 3.13 y Socket.IO
 worker_connections = 100
 
 # Timeouts críticos (incrementados para evitar worker timeouts)
