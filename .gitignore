@@ -1,6 +1,13 @@
 # MAIRA Project - Gitignore organizado
 # =====================================
 
+# Archivos legacy/obsoletos
+legacy_files/
+*.backup
+*.old
+*_backup.*
+*_old.*
+
 # Archivos de Python
 __pycache__/
 *.py[cod]

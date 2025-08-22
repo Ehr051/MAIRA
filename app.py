@@ -160,6 +160,58 @@ def health_check():
         return jsonify({"status": "healthy", "database": "connected"})
     return jsonify({"status": "unhealthy", "database": "disconnected"}), 500
 
+@app.route('/api/debug/tables')
+def debug_tables():
+    """Debug endpoint para verificar tablas de la base de datos"""
+    try:
+        psycopg2, RealDictCursor = lazy_import_psycopg2()
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "No database connection"}), 500
+        
+        cursor = conn.cursor()
+        
+        # Listar todas las tablas
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            ORDER BY table_name;
+        """)
+        tables = [row[0] for row in cursor.fetchall()]
+        
+        # Verificar tabla partidas específicamente
+        partidas_exists = 'partidas' in tables
+        
+        result = {
+            "tables": tables,
+            "partidas_table_exists": partidas_exists,
+            "total_tables": len(tables)
+        }
+        
+        # Si existe tabla partidas, obtener su estructura
+        if partidas_exists:
+            cursor.execute("""
+                SELECT column_name, data_type, is_nullable 
+                FROM information_schema.columns 
+                WHERE table_name = 'partidas' 
+                ORDER BY ordinal_position;
+            """)
+            partidas_structure = cursor.fetchall()
+            result["partidas_structure"] = partidas_structure
+            
+            # Contar registros
+            cursor.execute("SELECT COUNT(*) FROM partidas;")
+            result["partidas_count"] = cursor.fetchone()[0]
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"error": f"Debug error: {str(e)}"}), 500
+
 @app.route('/api/proxy/github/<path:file_path>')
 def proxy_github_file(file_path):
     """Proxy para archivos de GitHub Release para evitar CORS"""

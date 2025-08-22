@@ -476,12 +476,18 @@ class TestPlaneamiento {
 // Hacer disponible globalmente
 window.TestPlaneamiento = TestPlaneamiento;
 
-// Auto-ejecutar si se llama directamente
-if (typeof window !== 'undefined' && window.location) {
-    window.ejecutarTestPlaneamiento = async function(rapido = false) {
-        const test = new TestPlaneamiento();
-        return rapido ? await test.testRapido() : await test.ejecutarTodosLosTests();
-    };
-}
+// FUNCIONES DE CONVENIENCIA PARA EJECUTAR TESTS
+window.ejecutarTestPlaneamiento = async function(rapido = false) {
+    const test = new TestPlaneamiento();
+    if (rapido) {
+        return await test.testRapido();
+    } else {
+        return await test.ejecutarTodos();
+    }
+};
+
+window.ejecutarTestRapido = function() {
+    return window.ejecutarTestPlaneamiento(true);
+};
 
 console.log('🧪 TestPlaneamiento cargado. Ejecuta: ejecutarTestPlaneamiento() o ejecutarTestPlaneamiento(true)');
