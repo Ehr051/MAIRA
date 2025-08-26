@@ -6,6 +6,7 @@ import json
 import random
 import string
 import time
+import traceback
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -1556,7 +1557,11 @@ def api_crear_partida():
         # Convertir la configuración a formato JSON
         configuracion_json = json.dumps(configuracion)
 
-        with get_db_connection() as conn:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'error': 'Error de conexión a la base de datos'}), 500
+        
+        try:
             cursor = conn.cursor()
             
             # Insertar partida
@@ -1582,6 +1587,9 @@ def api_crear_partida():
             print(f"✅ Partida creada exitosamente: {codigo_partida}")
             return jsonify(resultado), 201
             
+        finally:
+            conn.close()
+            
     except Exception as e:
         print(f"❌ Error creando partida: {e}")
         return jsonify({
@@ -1597,7 +1605,11 @@ def api_partidas_disponibles():
     try:
         print("📋 API PARTIDAS DISPONIBLES...")
         
-        with get_db_connection() as conn:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'error': 'Error de conexión a la base de datos'}), 500
+        
+        try:
             cursor = conn.cursor()
             
             cursor.execute("""
@@ -1629,6 +1641,9 @@ def api_partidas_disponibles():
                 'total': len(partidas)
             })
             
+        finally:
+            conn.close()
+            
     except Exception as e:
         print(f"❌ Error obteniendo partidas: {e}")
         return jsonify({
@@ -1657,7 +1672,11 @@ def api_unirse_partida():
         if not usuario_id:
             return jsonify({'error': 'Usuario no identificado'}), 401
 
-        with get_db_connection() as conn:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({'error': 'Error de conexión a la base de datos'}), 500
+        
+        try:
             cursor = conn.cursor()
             
             # Verificar que la partida existe y está disponible
@@ -1704,6 +1723,9 @@ def api_unirse_partida():
             print(f"✅ Usuario {usuario_id} se unió a partida {codigo_partida}")
             return jsonify(resultado)
             
+        finally:
+            conn.close()
+            
     except Exception as e:
         print(f"❌ Error uniéndose a partida: {e}")
         return jsonify({
@@ -1723,7 +1745,16 @@ def debug_db_complete():
     try:
         print("🔍 INICIANDO DEBUG COMPLETO DE BD...")
         
-        with get_db_connection() as conn:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'timestamp': datetime.now().isoformat(),
+                'status': '❌ ERROR CONEXIÓN BD',
+                'error': 'No se pudo establecer conexión con PostgreSQL',
+                'solucion': 'Verificar DATABASE_URL en variables de entorno'
+            }), 500
+        
+        try:
             cursor = conn.cursor()
             
             # 1. Listar todas las tablas existentes
@@ -1804,6 +1835,9 @@ def debug_db_complete():
             print("✅ DEBUG COMPLETO EXITOSO")
             return jsonify(resultado)
             
+        finally:
+            conn.close()
+            
     except Exception as e:
         error_info = {
             'timestamp': datetime.now().isoformat(),
@@ -1823,7 +1857,15 @@ def debug_partidas_system():
     try:
         print("🎮 DIAGNÓSTICO SISTEMA PARTIDAS...")
         
-        with get_db_connection() as conn:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'timestamp': datetime.now().isoformat(),
+                'status': '❌ ERROR CONEXIÓN BD',
+                'error': 'No se pudo establecer conexión con PostgreSQL'
+            }), 500
+        
+        try:
             cursor = conn.cursor()
             
             # Verificar si tabla partidas existe y crearla si no
@@ -1935,6 +1977,9 @@ def debug_partidas_system():
             print("✅ DIAGNÓSTICO PARTIDAS COMPLETADO")
             return jsonify(resultado)
             
+        finally:
+            conn.close()
+            
     except Exception as e:
         error_info = {
             'timestamp': datetime.now().isoformat(),
@@ -1956,7 +2001,15 @@ def debug_test_partida():
         # Simular la misma lógica que usar crear_partida
         codigo = f"TEST_{random.randint(1000, 9999)}"
         
-        with get_db_connection() as conn:
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'timestamp': datetime.now().isoformat(),
+                'status': '❌ ERROR CONEXIÓN BD',
+                'error': 'No se pudo establecer conexión con PostgreSQL'
+            }), 500
+        
+        try:
             cursor = conn.cursor()
             
             # Intentar crear partida igual que el endpoint real
@@ -1997,6 +2050,9 @@ def debug_test_partida():
             
             print(f"✅ PRUEBA EXITOSA - Partida {codigo} creada y eliminada")
             return jsonify(resultado)
+            
+        finally:
+            conn.close()
             
     except Exception as e:
         error_info = {
