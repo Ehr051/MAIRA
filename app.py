@@ -1528,3 +1528,268 @@ def iniciar_combate(data):
         emit('error', {'mensaje': 'Error iniciando combate'})
 
 # ✅ FUNCIONALIDAD DE UPLOADS - Faltante de serverhttps.py
+
+# ==============================================
+# 🔧 ENDPOINTS DE DEBUG CRÍTICOS - DIAGNÓSTICO PARTIDAS
+# ==============================================
+
+@app.route('/api/debug/db-complete')
+def debug_db_complete():
+    """
+    DEBUG COMPLETO de base de datos - Diagnóstico exhaustivo
+    """
+    try:
+        print("🔍 INICIANDO DEBUG COMPLETO DE BD...")
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # 1. Listar todas las tablas existentes
+            cursor.execute("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public'
+                ORDER BY table_name;
+            """)
+            tablas = [row[0] for row in cursor.fetchall()]
+            
+            # 2. Verificar estructura de partidas específicamente
+            cursor.execute("""
+                SELECT column_name, data_type, is_nullable, column_default
+                FROM information_schema.columns 
+                WHERE table_name = 'partidas'
+                ORDER BY ordinal_position;
+            """)
+            estructura_partidas = [
+                {
+                    'columna': row[0],
+                    'tipo': row[1], 
+                    'nullable': row[2],
+                    'default': row[3]
+                } for row in cursor.fetchall()
+            ]
+            
+            # 3. Contar registros en partidas
+            try:
+                cursor.execute("SELECT COUNT(*) FROM partidas;")
+                count_partidas = cursor.fetchone()[0]
+            except:
+                count_partidas = "TABLA NO EXISTE O ERROR"
+            
+            # 4. Verificar si hay partidas recientes
+            partidas_recientes = []
+            try:
+                cursor.execute("""
+                    SELECT codigo, estado, fecha_creacion, jugadores_unidos 
+                    FROM partidas 
+                    ORDER BY fecha_creacion DESC 
+                    LIMIT 5;
+                """)
+                partidas_recientes = [
+                    {
+                        'codigo': row[0],
+                        'estado': row[1],
+                        'fecha': str(row[2]),
+                        'jugadores': row[3]
+                    } for row in cursor.fetchall()
+                ]
+            except Exception as e:
+                partidas_recientes = f"ERROR: {str(e)}"
+            
+            # 5. Verificar conexión PostgreSQL
+            cursor.execute("SELECT version();")
+            pg_version = cursor.fetchone()[0]
+            
+            resultado = {
+                'timestamp': datetime.now().isoformat(),
+                'status': '✅ DEBUG COMPLETADO',
+                'postgres_version': pg_version,
+                'total_tablas': len(tablas),
+                'tablas_existentes': tablas,
+                'tabla_partidas': {
+                    'existe': 'partidas' in tablas,
+                    'estructura': estructura_partidas,
+                    'total_registros': count_partidas,
+                    'registros_recientes': partidas_recientes
+                },
+                'flask_config': {
+                    'debug': app.debug,
+                    'testing': app.testing,
+                    'environment': os.environ.get('FLASK_ENV', 'production')
+                }
+            }
+            
+            print("✅ DEBUG COMPLETO EXITOSO")
+            return jsonify(resultado)
+            
+    except Exception as e:
+        error_info = {
+            'timestamp': datetime.now().isoformat(),
+            'status': '❌ ERROR EN DEBUG',
+            'error': str(e),
+            'tipo': type(e).__name__,
+            'traceback': traceback.format_exc()
+        }
+        print(f"❌ Error en debug completo: {e}")
+        return jsonify(error_info), 500
+
+@app.route('/api/debug/partidas-system')
+def debug_partidas_system():
+    """
+    DEBUG ESPECÍFICO del sistema de partidas
+    """
+    try:
+        print("🎮 DIAGNÓSTICO SISTEMA PARTIDAS...")
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Verificar si tabla partidas existe y crearla si no
+            cursor.execute("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_name = 'partidas'
+                );
+            """)
+            tabla_existe = cursor.fetchone()[0]
+            
+            if not tabla_existe:
+                print("⚠️ TABLA PARTIDAS NO EXISTE - CREANDO...")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS partidas (
+                        id SERIAL PRIMARY KEY,
+                        codigo VARCHAR(20) UNIQUE NOT NULL,
+                        estado VARCHAR(20) DEFAULT 'esperando',
+                        max_jugadores INTEGER DEFAULT 8,
+                        jugadores_unidos INTEGER DEFAULT 0,
+                        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        configuracion JSONB DEFAULT '{}',
+                        datos_mapa JSONB DEFAULT '{}'
+                    );
+                """)
+                conn.commit()
+                tabla_creada = True
+            else:
+                tabla_creada = False
+            
+            # Probar crear una partida de prueba
+            codigo_test = f"TEST_{int(time.time())}"
+            try:
+                cursor.execute("""
+                    INSERT INTO partidas (codigo, estado, max_jugadores) 
+                    VALUES (%s, %s, %s) 
+                    RETURNING id;
+                """, (codigo_test, 'esperando', 8))
+                partida_test_id = cursor.fetchone()[0]
+                conn.commit()
+                test_insert = "✅ INSERT EXITOSO"
+                
+                # Limpiar la partida de prueba
+                cursor.execute("DELETE FROM partidas WHERE codigo = %s;", (codigo_test,))
+                conn.commit()
+                
+            except Exception as e:
+                test_insert = f"❌ ERROR INSERT: {str(e)}"
+                partida_test_id = None
+            
+            # Verificar estructura final
+            cursor.execute("""
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = 'partidas'
+                ORDER BY ordinal_position;
+            """)
+            columnas = {row[0]: row[1] for row in cursor.fetchall()}
+            
+            resultado = {
+                'timestamp': datetime.now().isoformat(),
+                'status': '🎮 DIAGNÓSTICO PARTIDAS',
+                'tabla_partidas': {
+                    'existia_antes': tabla_existe,
+                    'creada_ahora': tabla_creada,
+                    'columnas': columnas,
+                    'test_insert': test_insert,
+                    'test_id': partida_test_id
+                },
+                'endpoints_disponibles': [
+                    '/api/crear_partida',
+                    '/api/unirse_partida',
+                    '/api/partidas_disponibles'
+                ]
+            }
+            
+            print("✅ DIAGNÓSTICO PARTIDAS COMPLETADO")
+            return jsonify(resultado)
+            
+    except Exception as e:
+        error_info = {
+            'timestamp': datetime.now().isoformat(),
+            'status': '❌ ERROR DIAGNÓSTICO PARTIDAS',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+        print(f"❌ Error diagnóstico partidas: {e}")
+        return jsonify(error_info), 500
+
+@app.route('/api/debug/test-partida')
+def debug_test_partida():
+    """
+    PRUEBA COMPLETA de crear partida desde cero
+    """
+    try:
+        print("🧪 PRUEBA COMPLETA CREAR PARTIDA...")
+        
+        # Simular la misma lógica que usar crear_partida
+        codigo = f"TEST_{random.randint(1000, 9999)}"
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Intentar crear partida igual que el endpoint real
+            cursor.execute("""
+                INSERT INTO partidas (codigo, estado, max_jugadores, jugadores_unidos) 
+                VALUES (%s, %s, %s, %s) 
+                RETURNING id;
+            """, (codigo, 'esperando', 8, 0))
+            
+            partida_id = cursor.fetchone()[0]
+            conn.commit()
+            
+            # Verificar que se creó correctamente
+            cursor.execute("SELECT * FROM partidas WHERE codigo = %s;", (codigo,))
+            partida_data = cursor.fetchone()
+            
+            resultado = {
+                'timestamp': datetime.now().isoformat(),
+                'status': '✅ PRUEBA CREAR PARTIDA EXITOSA',
+                'partida_creada': {
+                    'id': partida_id,
+                    'codigo': codigo,
+                    'datos_completos': {
+                        'id': partida_data[0],
+                        'codigo': partida_data[1],
+                        'estado': partida_data[2],
+                        'max_jugadores': partida_data[3],
+                        'jugadores_unidos': partida_data[4],
+                        'fecha_creacion': str(partida_data[5])
+                    }
+                },
+                'siguiente_paso': f"Probar POST a /api/crear_partida con datos reales"
+            }
+            
+            # Limpiar partida de prueba
+            cursor.execute("DELETE FROM partidas WHERE codigo = %s;", (codigo,))
+            conn.commit()
+            
+            print(f"✅ PRUEBA EXITOSA - Partida {codigo} creada y eliminada")
+            return jsonify(resultado)
+            
+    except Exception as e:
+        error_info = {
+            'timestamp': datetime.now().isoformat(),
+            'status': '❌ ERROR EN PRUEBA',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+        print(f"❌ Error en prueba partida: {e}")
+        return jsonify(error_info), 500
