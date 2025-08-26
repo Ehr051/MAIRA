@@ -2095,3 +2095,112 @@ def debug_test_partida():
         }
         print(f"❌ Error en prueba partida: {e}")
         return jsonify(error_info), 500
+
+@app.route('/api/debug/fix-schema-partidas', methods=['POST'])
+def fix_schema_partidas():
+    """
+    FIX CRÍTICO: Arreglar esquema tabla partidas para compatibilidad
+    """
+    try:
+        print("🔧 INICIANDO FIX ESQUEMA TABLA PARTIDAS...")
+        
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'timestamp': datetime.now().isoformat(),
+                'status': '❌ ERROR CONEXIÓN BD',
+                'error': 'No se pudo establecer conexión con PostgreSQL'
+            }), 500
+        
+        try:
+            cursor = conn.cursor()
+            cambios_realizados = []
+            
+            # 1. Verificar columnas existentes
+            cursor.execute("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'partidas'
+            """)
+            columnas_existentes = [row['column_name'] for row in cursor.fetchall()]
+            
+            # 2. Agregar max_jugadores si no existe
+            if 'max_jugadores' not in columnas_existentes:
+                cursor.execute("""
+                    ALTER TABLE partidas 
+                    ADD COLUMN max_jugadores INTEGER DEFAULT 8
+                """)
+                cambios_realizados.append("✅ Agregada columna max_jugadores")
+            else:
+                cambios_realizados.append("ℹ️ Columna max_jugadores ya existe")
+            
+            # 3. Agregar jugadores_unidos si no existe
+            if 'jugadores_unidos' not in columnas_existentes:
+                cursor.execute("""
+                    ALTER TABLE partidas 
+                    ADD COLUMN jugadores_unidos INTEGER DEFAULT 0
+                """)
+                cambios_realizados.append("✅ Agregada columna jugadores_unidos")
+            else:
+                cambios_realizados.append("ℹ️ Columna jugadores_unidos ya existe")
+            
+            # 4. Actualizar jugadores_unidos basado en datos reales
+            cursor.execute("""
+                UPDATE partidas SET jugadores_unidos = (
+                    SELECT COUNT(*) 
+                    FROM usuarios_partida up 
+                    WHERE up.partida_id = partidas.id
+                )
+            """)
+            filas_actualizadas = cursor.rowcount
+            cambios_realizados.append(f"✅ Actualizadas {filas_actualizadas} filas en jugadores_unidos")
+            
+            # 5. Establecer max_jugadores por defecto
+            cursor.execute("""
+                UPDATE partidas SET max_jugadores = 8 
+                WHERE max_jugadores IS NULL
+            """)
+            filas_max = cursor.rowcount
+            cambios_realizados.append(f"✅ Establecido max_jugadores en {filas_max} filas")
+            
+            # 6. Verificar estructura final
+            cursor.execute("""
+                SELECT column_name, data_type, is_nullable, column_default
+                FROM information_schema.columns 
+                WHERE table_name = 'partidas'
+                ORDER BY ordinal_position
+            """)
+            estructura_final = [
+                {
+                    'columna': row['column_name'],
+                    'tipo': row['data_type'],
+                    'nullable': row['is_nullable'],
+                    'default': row['column_default']
+                } for row in cursor.fetchall()
+            ]
+            
+            conn.commit()
+            
+            resultado = {
+                'timestamp': datetime.now().isoformat(),
+                'status': '✅ ESQUEMA REPARADO',
+                'cambios_realizados': cambios_realizados,
+                'estructura_final': estructura_final,
+                'siguiente_paso': 'Probar endpoints de partidas'
+            }
+            
+            print("✅ ESQUEMA TABLA PARTIDAS REPARADO")
+            return jsonify(resultado)
+            
+        finally:
+            conn.close()
+            
+    except Exception as e:
+        error_info = {
+            'timestamp': datetime.now().isoformat(),
+            'status': '❌ ERROR REPARANDO ESQUEMA',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+        print(f"❌ Error reparando esquema: {e}")
+        return jsonify(error_info), 500
