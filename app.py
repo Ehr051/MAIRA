@@ -1570,7 +1570,7 @@ def api_crear_partida():
                 VALUES (%s, %s, %s, %s) RETURNING id
             """, (codigo_partida, configuracion_json, estado, fecha_creacion))
             
-            partida_id = cursor.fetchone()[0]
+            partida_id = cursor.fetchone()['id']
             conn.commit()
 
             resultado = {
@@ -1626,12 +1626,12 @@ def api_partidas_disponibles():
             partidas = []
             for row in cursor.fetchall():
                 partidas.append({
-                    'id': row[0],
-                    'codigo': row[1],
-                    'estado': row[2],
-                    'configuracion': json.loads(row[3]) if row[3] else {},
-                    'fecha_creacion': row[4].isoformat() if row[4] else None,
-                    'jugadores_unidos': row[5] or 0
+                    'id': row['id'],
+                    'codigo': row['codigo'],
+                    'estado': row['estado'],
+                    'configuracion': json.loads(row['configuracion']) if row['configuracion'] else {},
+                    'fecha_creacion': row['fecha_creacion'].isoformat() if row['fecha_creacion'] else None,
+                    'jugadores_unidos': row['jugadores_unidos'] or 0
                 })
             
             print(f"✅ Encontradas {len(partidas)} partidas disponibles")
@@ -1764,7 +1764,7 @@ def debug_db_complete():
                 WHERE table_schema = 'public'
                 ORDER BY table_name;
             """)
-            tablas = [row[0] for row in cursor.fetchall()]
+            tablas = [row['table_name'] for row in cursor.fetchall()]
             
             # 2. Verificar estructura de partidas específicamente
             cursor.execute("""
@@ -1775,17 +1775,17 @@ def debug_db_complete():
             """)
             estructura_partidas = [
                 {
-                    'columna': row[0],
-                    'tipo': row[1], 
-                    'nullable': row[2],
-                    'default': row[3]
+                    'columna': row['column_name'],
+                    'tipo': row['data_type'], 
+                    'nullable': row['is_nullable'],
+                    'default': row['column_default']
                 } for row in cursor.fetchall()
             ]
             
             # 3. Contar registros en partidas
             try:
-                cursor.execute("SELECT COUNT(*) FROM partidas;")
-                count_partidas = cursor.fetchone()[0]
+                cursor.execute("SELECT COUNT(*) as count FROM partidas;")
+                count_partidas = cursor.fetchone()['count']
             except:
                 count_partidas = "TABLA NO EXISTE O ERROR"
             
@@ -1800,18 +1800,18 @@ def debug_db_complete():
                 """)
                 partidas_recientes = [
                     {
-                        'codigo': row[0],
-                        'estado': row[1],
-                        'fecha': str(row[2]),
-                        'jugadores': row[3]
+                        'codigo': row['codigo'],
+                        'estado': row['estado'],
+                        'fecha': str(row['fecha_creacion']),
+                        'jugadores': row['jugadores_unidos']
                     } for row in cursor.fetchall()
                 ]
             except Exception as e:
                 partidas_recientes = f"ERROR: {str(e)}"
             
             # 5. Verificar conexión PostgreSQL
-            cursor.execute("SELECT version();")
-            pg_version = cursor.fetchone()[0]
+            cursor.execute("SELECT version() as version;")
+            pg_version = cursor.fetchone()['version']
             
             resultado = {
                 'timestamp': datetime.now().isoformat(),
@@ -1873,9 +1873,9 @@ def debug_partidas_system():
                 SELECT EXISTS (
                     SELECT FROM information_schema.tables 
                     WHERE table_name = 'partidas'
-                );
+                ) as exists;
             """)
-            tabla_existe = cursor.fetchone()[0]
+            tabla_existe = cursor.fetchone()['exists']
             
             if not tabla_existe:
                 print("⚠️ TABLA PARTIDAS NO EXISTE - CREANDO...")
@@ -1901,9 +1901,9 @@ def debug_partidas_system():
                 SELECT EXISTS (
                     SELECT FROM information_schema.tables 
                     WHERE table_name = 'usuarios_partida'
-                );
+                ) as exists;
             """)
-            tabla_usuarios_existe = cursor.fetchone()[0]
+            tabla_usuarios_existe = cursor.fetchone()['exists']
             
             if not tabla_usuarios_existe:
                 print("⚠️ TABLA USUARIOS_PARTIDA NO EXISTE - CREANDO...")
@@ -1932,7 +1932,7 @@ def debug_partidas_system():
                     VALUES (%s, %s, %s) 
                     RETURNING id;
                 """, (codigo_test, 'esperando', 8))
-                partida_test_id = cursor.fetchone()[0]
+                partida_test_id = cursor.fetchone()['id']
                 conn.commit()
                 test_insert = "✅ INSERT EXITOSO"
                 
@@ -2019,7 +2019,7 @@ def debug_test_partida():
                 RETURNING id;
             """, (codigo, 'esperando', 8, 0))
             
-            partida_id = cursor.fetchone()[0]
+            partida_id = cursor.fetchone()['id']
             conn.commit()
             
             # Verificar que se creó correctamente
