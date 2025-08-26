@@ -1530,6 +1530,188 @@ def iniciar_combate(data):
 # ✅ FUNCIONALIDAD DE UPLOADS - Faltante de serverhttps.py
 
 # ==============================================
+# 🎮 ENDPOINTS HTTP CRÍTICOS - SISTEMA PARTIDAS
+# ==============================================
+
+@app.route('/api/crear_partida', methods=['POST'])
+def api_crear_partida():
+    """
+    Endpoint HTTP para crear partida - Equivalente al socket event
+    """
+    try:
+        print("🎮 API CREAR PARTIDA - Iniciando...")
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Datos faltantes'}), 400
+            
+        configuracion = data.get('configuracion')
+        if not configuracion:
+            return jsonify({'error': 'Configuración de partida faltante'}), 400
+
+        codigo_partida = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        estado = 'esperando'
+        fecha_creacion = datetime.now()
+
+        # Convertir la configuración a formato JSON
+        configuracion_json = json.dumps(configuracion)
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Insertar partida
+            cursor.execute("""
+                INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
+                VALUES (%s, %s, %s, %s) RETURNING id
+            """, (codigo_partida, configuracion_json, estado, fecha_creacion))
+            
+            partida_id = cursor.fetchone()[0]
+            conn.commit()
+
+            resultado = {
+                'success': True,
+                'partida': {
+                    'id': partida_id,
+                    'codigo': codigo_partida,
+                    'configuracion': configuracion,
+                    'estado': estado,
+                    'fecha_creacion': fecha_creacion.isoformat()
+                }
+            }
+            
+            print(f"✅ Partida creada exitosamente: {codigo_partida}")
+            return jsonify(resultado), 201
+            
+    except Exception as e:
+        print(f"❌ Error creando partida: {e}")
+        return jsonify({
+            'error': 'Error interno del servidor',
+            'details': str(e)
+        }), 500
+
+@app.route('/api/partidas_disponibles', methods=['GET'])
+def api_partidas_disponibles():
+    """
+    Obtener lista de partidas disponibles
+    """
+    try:
+        print("📋 API PARTIDAS DISPONIBLES...")
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                SELECT p.id, p.codigo, p.estado, p.configuracion, p.fecha_creacion,
+                       COUNT(up.usuario_id) as jugadores_unidos
+                FROM partidas p
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id
+                WHERE p.estado = 'esperando'
+                GROUP BY p.id, p.codigo, p.estado, p.configuracion, p.fecha_creacion
+                ORDER BY p.fecha_creacion DESC
+                LIMIT 20;
+            """)
+            
+            partidas = []
+            for row in cursor.fetchall():
+                partidas.append({
+                    'id': row[0],
+                    'codigo': row[1],
+                    'estado': row[2],
+                    'configuracion': json.loads(row[3]) if row[3] else {},
+                    'fecha_creacion': row[4].isoformat() if row[4] else None,
+                    'jugadores_unidos': row[5] or 0
+                })
+            
+            print(f"✅ Encontradas {len(partidas)} partidas disponibles")
+            return jsonify({
+                'success': True,
+                'partidas': partidas,
+                'total': len(partidas)
+            })
+            
+    except Exception as e:
+        print(f"❌ Error obteniendo partidas: {e}")
+        return jsonify({
+            'error': 'Error interno del servidor',
+            'details': str(e)
+        }), 500
+
+@app.route('/api/unirse_partida', methods=['POST'])
+def api_unirse_partida():
+    """
+    Endpoint HTTP para unirse a una partida
+    """
+    try:
+        print("🚪 API UNIRSE PARTIDA...")
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Datos faltantes'}), 400
+            
+        codigo_partida = data.get('codigo')
+        usuario_id = data.get('usuario_id')  # En producción esto vendría del token/sesión
+        
+        if not codigo_partida:
+            return jsonify({'error': 'Código de partida faltante'}), 400
+            
+        if not usuario_id:
+            return jsonify({'error': 'Usuario no identificado'}), 401
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Verificar que la partida existe y está disponible
+            cursor.execute("""
+                SELECT id, estado FROM partidas WHERE codigo = %s
+            """, (codigo_partida,))
+            
+            partida = cursor.fetchone()
+            if not partida:
+                return jsonify({'error': 'Partida no encontrada'}), 404
+                
+            partida_id, estado = partida
+            
+            if estado != 'esperando':
+                return jsonify({'error': 'La partida ya no está disponible'}), 400
+            
+            # Verificar si el usuario ya está en la partida
+            cursor.execute("""
+                SELECT id FROM usuarios_partida 
+                WHERE partida_id = %s AND usuario_id = %s
+            """, (partida_id, usuario_id))
+            
+            if cursor.fetchone():
+                return jsonify({'error': 'Ya estás en esta partida'}), 400
+            
+            # Unir al usuario a la partida
+            cursor.execute("""
+                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                VALUES (%s, %s, 'sin_equipo', false, false)
+            """, (partida_id, usuario_id))
+            
+            conn.commit()
+            
+            resultado = {
+                'success': True,
+                'mensaje': 'Te has unido a la partida exitosamente',
+                'partida': {
+                    'id': partida_id,
+                    'codigo': codigo_partida,
+                    'estado': estado
+                }
+            }
+            
+            print(f"✅ Usuario {usuario_id} se unió a partida {codigo_partida}")
+            return jsonify(resultado)
+            
+    except Exception as e:
+        print(f"❌ Error uniéndose a partida: {e}")
+        return jsonify({
+            'error': 'Error interno del servidor',
+            'details': str(e)
+        }), 500
+
+# ==============================================
 # 🔧 ENDPOINTS DE DEBUG CRÍTICOS - DIAGNÓSTICO PARTIDAS
 # ==============================================
 
@@ -1672,6 +1854,34 @@ def debug_partidas_system():
             else:
                 tabla_creada = False
             
+            # Verificar tabla usuarios_partida
+            cursor.execute("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_name = 'usuarios_partida'
+                );
+            """)
+            tabla_usuarios_existe = cursor.fetchone()[0]
+            
+            if not tabla_usuarios_existe:
+                print("⚠️ TABLA USUARIOS_PARTIDA NO EXISTE - CREANDO...")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS usuarios_partida (
+                        id SERIAL PRIMARY KEY,
+                        partida_id INTEGER REFERENCES partidas(id) ON DELETE CASCADE,
+                        usuario_id INTEGER NOT NULL,
+                        equipo VARCHAR(20) DEFAULT 'sin_equipo',
+                        listo BOOLEAN DEFAULT false,
+                        esCreador BOOLEAN DEFAULT false,
+                        fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(partida_id, usuario_id)
+                    );
+                """)
+                conn.commit()
+                tabla_usuarios_creada = True
+            else:
+                tabla_usuarios_creada = False
+            
             # Probar crear una partida de prueba
             codigo_test = f"TEST_{int(time.time())}"
             try:
@@ -1710,6 +1920,10 @@ def debug_partidas_system():
                     'columnas': columnas,
                     'test_insert': test_insert,
                     'test_id': partida_test_id
+                },
+                'tabla_usuarios_partida': {
+                    'existia_antes': tabla_usuarios_existe,
+                    'creada_ahora': tabla_usuarios_creada
                 },
                 'endpoints_disponibles': [
                     '/api/crear_partida',
