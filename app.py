@@ -1757,7 +1757,11 @@ def debug_db_complete():
         try:
             cursor = conn.cursor()
             
-            # 1. Listar todas las tablas existentes
+            # 1. Verificar conexión PostgreSQL primero
+            cursor.execute("SELECT version() as version;")
+            pg_version = cursor.fetchone()['version']
+            
+            # 2. Listar todas las tablas existentes
             cursor.execute("""
                 SELECT table_name 
                 FROM information_schema.tables 
@@ -1766,52 +1770,75 @@ def debug_db_complete():
             """)
             tablas = [row['table_name'] for row in cursor.fetchall()]
             
-            # 2. Verificar estructura de partidas específicamente
-            cursor.execute("""
-                SELECT column_name, data_type, is_nullable, column_default
-                FROM information_schema.columns 
-                WHERE table_name = 'partidas'
-                ORDER BY ordinal_position;
-            """)
-            estructura_partidas = [
-                {
-                    'columna': row['column_name'],
-                    'tipo': row['data_type'], 
-                    'nullable': row['is_nullable'],
-                    'default': row['column_default']
-                } for row in cursor.fetchall()
-            ]
+            # 3. Verificar estructura de partidas específicamente (solo si existe)
+            estructura_partidas = []
+            if 'partidas' in tablas:
+                try:
+                    cursor.execute("""
+                        SELECT column_name, data_type, is_nullable, column_default
+                        FROM information_schema.columns 
+                        WHERE table_name = 'partidas'
+                        ORDER BY ordinal_position;
+                    """)
+                    estructura_partidas = [
+                        {
+                            'columna': row['column_name'],
+                            'tipo': row['data_type'], 
+                            'nullable': row['is_nullable'],
+                            'default': row['column_default']
+                        } for row in cursor.fetchall()
+                    ]
+                except Exception as e:
+                    estructura_partidas = f"ERROR obteniendo estructura: {str(e)}"
             
-            # 3. Contar registros en partidas
-            try:
-                cursor.execute("SELECT COUNT(*) as count FROM partidas;")
-                count_partidas = cursor.fetchone()['count']
-            except:
-                count_partidas = "TABLA NO EXISTE O ERROR"
+            # 4. Contar registros en partidas (solo si existe)
+            count_partidas = "TABLA NO EXISTE"
+            if 'partidas' in tablas:
+                try:
+                    cursor.execute("SELECT COUNT(*) as count FROM partidas;")
+                    count_partidas = cursor.fetchone()['count']
+                except Exception as e:
+                    count_partidas = f"ERROR contando registros: {str(e)}"
             
-            # 4. Verificar si hay partidas recientes
+            # 5. Verificar partidas recientes (solo si existe)
             partidas_recientes = []
-            try:
-                cursor.execute("""
-                    SELECT codigo, estado, fecha_creacion, jugadores_unidos 
-                    FROM partidas 
-                    ORDER BY fecha_creacion DESC 
-                    LIMIT 5;
-                """)
-                partidas_recientes = [
-                    {
-                        'codigo': row['codigo'],
-                        'estado': row['estado'],
-                        'fecha': str(row['fecha_creacion']),
-                        'jugadores': row['jugadores_unidos']
-                    } for row in cursor.fetchall()
-                ]
-            except Exception as e:
-                partidas_recientes = f"ERROR: {str(e)}"
+            if 'partidas' in tablas:
+                try:
+                    cursor.execute("""
+                        SELECT codigo, estado, fecha_creacion 
+                        FROM partidas 
+                        ORDER BY fecha_creacion DESC 
+                        LIMIT 5;
+                    """)
+                    partidas_recientes = [
+                        {
+                            'codigo': row['codigo'],
+                            'estado': row['estado'],
+                            'fecha': str(row['fecha_creacion'])
+                        } for row in cursor.fetchall()
+                    ]
+                except Exception as e:
+                    partidas_recientes = f"ERROR obteniendo partidas: {str(e)}"
             
-            # 5. Verificar conexión PostgreSQL
-            cursor.execute("SELECT version() as version;")
-            pg_version = cursor.fetchone()['version']
+            # 6. Verificar estructura de usuarios_partida (solo si existe)
+            estructura_usuarios_partida = []
+            if 'usuarios_partida' in tablas:
+                try:
+                    cursor.execute("""
+                        SELECT column_name, data_type, is_nullable 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'usuarios_partida'
+                        ORDER BY ordinal_position;
+                    """)
+                    estructura_usuarios_partida = [
+                        {
+                            'columna': row['column_name'],
+                            'tipo': row['data_type'], 
+                            'nullable': row['is_nullable']
+                        } for row in cursor.fetchall()
+                    ]
+                except Exception as e:
+                    estructura_usuarios_partida = f"ERROR: {str(e)}"
             
             resultado = {
                 'timestamp': datetime.now().isoformat(),
@@ -1819,12 +1846,17 @@ def debug_db_complete():
                 'postgres_version': pg_version,
                 'total_tablas': len(tablas),
                 'tablas_existentes': tablas,
-                'tabla_partidas': {
-                    'existe': 'partidas' in tablas,
+                'analisis_partidas': {
+                    'tabla_existe': 'partidas' in tablas,
                     'estructura': estructura_partidas,
                     'total_registros': count_partidas,
                     'registros_recientes': partidas_recientes
                 },
+                'analisis_usuarios_partida': {
+                    'tabla_existe': 'usuarios_partida' in tablas,
+                    'estructura': estructura_usuarios_partida
+                },
+                'otras_tablas': [tabla for tabla in tablas if tabla not in ['partidas', 'usuarios_partida']],
                 'flask_config': {
                     'debug': app.debug,
                     'testing': app.testing,
