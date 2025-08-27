@@ -274,7 +274,18 @@ function crearPartida(e) {
 }
 
 function iniciarJuegoLocal(configuracion) {
+    // Crear estructura de datos compatible con gestorJuego.js
+    const datosPartida = {
+        configuracion: configuracion,
+        modo: 'local',
+        jugadores: [], // Se configurarán en gestorJuego.js
+        estado: 'configurando'
+    };
+    
+    console.log('💾 Guardando datos de partida local:', datosPartida);
+    localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
     localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
+    
     window.location.href = 'juegodeguerra.html';
 }
 
