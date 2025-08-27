@@ -20,6 +20,27 @@ function inicializarAplicacion() {
     }
     
     console.log('Usuario autenticado:', { userId, userName });
+    
+    // Verificar partida pendiente al cargar página
+    const partidaPendiente = sessionStorage.getItem('partidaPendiente');
+    if (partidaPendiente) {
+        console.log('🔄 Procesando partida pendiente...');
+        sessionStorage.removeItem('partidaPendiente');
+        
+        try {
+            const partida = JSON.parse(partidaPendiente);
+            setTimeout(() => {
+                if (typeof manejarPartidaCreada === 'function') {
+                    manejarPartidaCreada(partida);
+                } else if (window.manejarPartidaCreada) {
+                    window.manejarPartidaCreada(partida);
+                }
+            }, 1000); // Dar tiempo para que el DOM se configure
+        } catch (error) {
+            console.error('❌ Error al procesar partida pendiente:', error);
+        }
+    }
+    
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();

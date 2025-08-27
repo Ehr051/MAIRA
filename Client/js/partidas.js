@@ -226,6 +226,26 @@ function emitirUnirseAPartida(codigo) {
 
 function crearPartida(e) {
     e.preventDefault();
+    
+    console.log('🎮 Validando antes de crear partida...');
+    
+    // Verificar conexión de socket
+    if (!socket || !socket.connected) {
+        console.error('❌ Socket no conectado');
+        mostrarError('Error: No hay conexión con el servidor. Intentar reconectar.');
+        return;
+    }
+    
+    // Verificar datos de usuario
+    if (!window.userId || !window.userName) {
+        console.error('❌ Datos de usuario no configurados');
+        mostrarError('Error: Datos de usuario no configurados. Redirigir a inicio.');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    console.log('✅ Validaciones pasadas, continuando...');
+    
     const nombrePartida = document.getElementById('nombrePartida').value;
     const duracionPartida = document.getElementById('duracionPartida').value;
     const duracionTurno = document.getElementById('duracionTurno').value;
@@ -248,6 +268,7 @@ function crearPartida(e) {
     if (modoSeleccionado === 'local') {
         iniciarJuegoLocal(configuracion);
     } else {
+        console.log('🚀 Enviando crear partida al servidor...');
         socket.emit('crearPartida', { configuracion });
     }
 }
@@ -493,10 +514,40 @@ function manejarPartidaCreada(partida) {
         return;
     }
     
+    // Verificar que estamos en la página correcta
+    if (!window.location.href.includes('iniciarpartida.html')) {
+        console.log('🔄 Redirigiendo a iniciarpartida.html...');
+        sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
+        window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+        return;
+    }
+    
     console.log('✅ Asignando partidaActual y llamando a mostrarSalaEspera...');
     partidaActual = partida;
-    mostrarSalaEspera(partida);
-    console.log('🏁 manejarPartidaCreada completado');
+    
+    // Verificar elementos DOM con retry
+    function verificarYMostrarSala(reintentos = 3) {
+        const salaEspera = document.getElementById('salaEspera');
+        const nombrePartidaSala = document.getElementById('nombrePartidaSala');
+        const codigoPartidaSala = document.getElementById('codigoPartidaSala');
+        
+        if (salaEspera && nombrePartidaSala && codigoPartidaSala) {
+            console.log('✅ Elementos DOM encontrados, mostrando sala...');
+            mostrarSalaEspera(partida);
+            console.log('🏁 manejarPartidaCreada completado');
+            return;
+        }
+        
+        if (reintentos > 0) {
+            console.log(`⏳ Elementos no encontrados, reintentando... (${reintentos} restantes)`);
+            setTimeout(() => verificarYMostrarSala(reintentos - 1), 500);
+        } else {
+            console.error('❌ No se pudieron encontrar elementos DOM después de varios intentos');
+            alert('Error: No se puede mostrar la sala de espera. Recargar página.');
+        }
+    }
+    
+    verificarYMostrarSala();
 }
 
 function manejarUnidoAPartida(partida) {
@@ -603,6 +654,35 @@ function mostrarSalaEspera(partida) {
     console.log('👥 INICIANDO mostrarSalaEspera para partida:', partida.codigo);
     console.log('📄 Estado actual de la página:', window.location.href);
     console.log('🔍 Buscando elementos DOM...');
+    
+    // Verificar elementos requeridos
+    const elementosRequeridos = [
+        'salaEspera',
+        'nombrePartidaSala', 
+        'codigoPartidaSala',
+        'jugadoresSala'
+    ];
+    
+    const elementosNoEncontrados = elementosRequeridos.filter(id => !document.getElementById(id));
+    
+    if (elementosNoEncontrados.length > 0) {
+        console.error('❌ Elementos DOM faltantes:', elementosNoEncontrados);
+        console.log('📍 URL actual:', window.location.href);
+        
+        // Intentar redirigir si no estamos en la página correcta
+        if (!window.location.href.includes('iniciarpartida.html')) {
+            console.log('🔄 Redirigiendo a página correcta...');
+            sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
+            window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+            return;
+        }
+        
+        // Si estamos en la página correcta pero faltan elementos, es un error
+        alert(`Error: Elementos DOM faltantes: ${elementosNoEncontrados.join(', ')}`);
+        return;
+    }
+    
+    console.log('✅ Todos los elementos DOM presentes, continuando...');
     
     // ✅ CAMBIAR SALA DE CHAT:
     if (window.cambiarSalaChat) {
