@@ -2065,12 +2065,12 @@ def debug_test_partida():
                     'id': partida_id,
                     'codigo': codigo,
                     'datos_completos': {
-                        'id': partida_data[0],
-                        'codigo': partida_data[1],
-                        'estado': partida_data[2],
-                        'max_jugadores': partida_data[3],
-                        'jugadores_unidos': partida_data[4],
-                        'fecha_creacion': str(partida_data[5])
+                        'id': partida_data['id'],
+                        'codigo': partida_data['codigo'],
+                        'estado': partida_data['estado'],
+                        'max_jugadores': partida_data['max_jugadores'],
+                        'jugadores_unidos': partida_data['jugadores_unidos'],
+                        'fecha_creacion': str(partida_data['fecha_creacion'])
                     }
                 },
                 'siguiente_paso': f"Probar POST a /api/crear_partida con datos reales"
