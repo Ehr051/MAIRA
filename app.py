@@ -1566,9 +1566,9 @@ def api_crear_partida():
             
             # Insertar partida
             cursor.execute("""
-                INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
-                VALUES (%s, %s, %s, %s) RETURNING id
-            """, (codigo_partida, configuracion_json, estado, fecha_creacion))
+                INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion, jugadores_actuales)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id
+            """, (codigo_partida, configuracion_json, estado, fecha_creacion, 0))
             
             partida_id = cursor.fetchone()['id']
             conn.commit()
@@ -1614,24 +1614,30 @@ def api_partidas_disponibles():
             
             cursor.execute("""
                 SELECT p.id, p.codigo, p.estado, p.configuracion, p.fecha_creacion,
-                       COUNT(up.usuario_id) as jugadores_unidos
+                       p.jugadores_actuales
                 FROM partidas p
-                LEFT JOIN usuarios_partida up ON p.id = up.partida_id
                 WHERE p.estado = 'esperando'
-                GROUP BY p.id, p.codigo, p.estado, p.configuracion, p.fecha_creacion
                 ORDER BY p.fecha_creacion DESC
                 LIMIT 20;
             """)
             
             partidas = []
             for row in cursor.fetchall():
+                # Manejar configuracion JSON que puede estar corrupta
+                configuracion = {}
+                if row['configuracion']:
+                    try:
+                        configuracion = json.loads(row['configuracion'])
+                    except (json.JSONDecodeError, TypeError):
+                        configuracion = {'nombre': 'Partida sin nombre', 'corrupta': True}
+                
                 partidas.append({
                     'id': row['id'],
                     'codigo': row['codigo'],
                     'estado': row['estado'],
-                    'configuracion': json.loads(row['configuracion']) if row['configuracion'] else {},
+                    'configuracion': configuracion,
                     'fecha_creacion': row['fecha_creacion'].isoformat() if row['fecha_creacion'] else None,
-                    'jugadores_unidos': row['jugadores_unidos'] or 0
+                    'jugadores_actuales': row['jugadores_actuales'] or 0
                 })
             
             print(f"✅ Encontradas {len(partidas)} partidas disponibles")
@@ -2046,10 +2052,10 @@ def debug_test_partida():
             
             # Intentar crear partida igual que el endpoint real
             cursor.execute("""
-                INSERT INTO partidas (codigo, estado, max_jugadores, jugadores_unidos) 
-                VALUES (%s, %s, %s, %s) 
+                INSERT INTO partidas (codigo, estado, jugadores_actuales) 
+                VALUES (%s, %s, %s) 
                 RETURNING id;
-            """, (codigo, 'esperando', 8, 0))
+            """, (codigo, 'esperando', 0))
             
             partida_id = cursor.fetchone()['id']
             conn.commit()
@@ -2068,8 +2074,7 @@ def debug_test_partida():
                         'id': partida_data['id'],
                         'codigo': partida_data['codigo'],
                         'estado': partida_data['estado'],
-                        'max_jugadores': partida_data['max_jugadores'],
-                        'jugadores_unidos': partida_data['jugadores_unidos'],
+                        'jugadores_actuales': partida_data['jugadores_actuales'],
                         'fecha_creacion': str(partida_data['fecha_creacion'])
                     }
                 },
@@ -2203,4 +2208,103 @@ def fix_schema_partidas():
             'traceback': traceback.format_exc()
         }
         print(f"❌ Error reparando esquema: {e}")
+        return jsonify(error_info), 500
+
+@app.route('/api/debug/fix-json-configuracion', methods=['POST'])
+def fix_json_configuracion():
+    """
+    FIX CRÍTICO: Limpiar datos JSON corruptos en columna configuracion
+    """
+    try:
+        print("🧹 INICIANDO LIMPIEZA JSON CONFIGURACIÓN...")
+        
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'timestamp': datetime.now().isoformat(),
+                'status': '❌ ERROR CONEXIÓN BD',
+                'error': 'No se pudo establecer conexión con PostgreSQL'
+            }), 500
+        
+        try:
+            cursor = conn.cursor()
+            
+            # 1. Verificar registros con configuracion problemática
+            cursor.execute("""
+                SELECT id, codigo, configuracion 
+                FROM partidas 
+                WHERE configuracion IS NOT NULL 
+                ORDER BY fecha_creacion DESC 
+                LIMIT 20
+            """)
+            
+            registros = cursor.fetchall()
+            problemas_encontrados = []
+            registros_limpiados = 0
+            
+            for registro in registros:
+                partida_id = registro['id']
+                codigo = registro['codigo']
+                config = registro['configuracion']
+                
+                # Verificar si el JSON es válido
+                try:
+                    if config:
+                        json.loads(config)
+                    # Si llegamos aquí, el JSON es válido
+                    problemas_encontrados.append(f"✅ Partida {codigo}: JSON válido")
+                except (json.JSONDecodeError, TypeError):
+                    # JSON inválido, establecer configuración por defecto
+                    config_default = json.dumps({
+                        "nombre": f"Partida {codigo}",
+                        "max_jugadores": 8,
+                        "tipo_juego": "estrategia",
+                        "mapa": "default",
+                        "duracion_turno": 60
+                    })
+                    
+                    cursor.execute("""
+                        UPDATE partidas 
+                        SET configuracion = %s 
+                        WHERE id = %s
+                    """, (config_default, partida_id))
+                    
+                    registros_limpiados += 1
+                    problemas_encontrados.append(f"🔧 Partida {codigo}: JSON reparado")
+            
+            # 2. Establecer configuración por defecto para registros NULL
+            cursor.execute("""
+                UPDATE partidas 
+                SET configuracion = %s 
+                WHERE configuracion IS NULL
+            """, (json.dumps({"nombre": "Partida sin configuración", "max_jugadores": 8}),))
+            
+            registros_null = cursor.rowcount
+            
+            conn.commit()
+            
+            resultado = {
+                'timestamp': datetime.now().isoformat(),
+                'status': '✅ JSON CONFIGURACIÓN LIMPIADO',
+                'registros_analizados': len(registros),
+                'registros_reparados': registros_limpiados,
+                'registros_null_actualizados': registros_null,
+                'detalles': problemas_encontrados,
+                'siguiente_paso': 'Probar endpoints de partidas'
+            }
+            
+            print(f"✅ JSON CONFIGURACIÓN LIMPIADO: {registros_limpiados} reparados, {registros_null} null actualizados")
+            return jsonify(resultado)
+            
+        finally:
+            conn.close()
+            
+    except Exception as e:
+        error_info = {
+            'timestamp': datetime.now().isoformat(),
+            'status': '❌ ERROR LIMPIANDO JSON',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+        print(f"❌ Error limpiando JSON: {e}")
         return jsonify(error_info), 500
