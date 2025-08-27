@@ -514,6 +514,21 @@ async function inicializarSocket() {
             partidaActual = datosPartida;
             mostrarSalaEspera(partidaActual);
         });
+
+        // ✅ HANDLER PARA LOGIN EXITOSO:
+        socket.on('loginExitoso', function(data) {
+            console.log('✅ Login exitoso:', data);
+            console.log('🔓 Usuario autenticado, solicitando listas...');
+            
+            // Ahora que estamos autenticados, podemos solicitar las listas
+            obtenerListaAmigos();
+            obtenerPartidasDisponibles();
+        });
+
+        socket.on('loginError', function(data) {
+            console.error('❌ Error de login:', data);
+            mostrarError('Error de autenticación: ' + data.mensaje);
+        });
         
 
         // ✅ ASEGURAR CIERRE CORRECTO:
@@ -538,10 +553,8 @@ function manejarConexion() {
     console.log('Conectado al servidor');
     socket.emit('login', { user_id: userId, username: userName });
 
-    // Solicitar listas después de conectarse al servidor
-    console.log('Solicitando listas después de conectarse');
-    obtenerListaAmigos();
-    obtenerPartidasDisponibles();
+    // ✅ MOVIDO: Las listas se solicitan DESPUÉS del loginExitoso
+    console.log('🔐 Login enviado, esperando autenticación...');
 }
 
 

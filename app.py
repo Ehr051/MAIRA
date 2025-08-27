@@ -751,11 +751,22 @@ def crear_partida(data):
 def obtener_partidas_disponibles():
     """Envía la lista de partidas disponibles al cliente"""
     try:
-        print("📋 Cliente solicitó lista de partidas disponibles")
+        print(f"📋 Cliente {request.sid} solicitó lista de partidas disponibles")
+        
+        # Verificar si el usuario está autenticado
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            print(f"❌ Usuario {request.sid} no está autenticado")
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        print(f"✅ Usuario autenticado: {user_id}")
         actualizar_lista_partidas()
         print("✅ Lista de partidas enviada al cliente")
     except Exception as e:
-        print(f"Error obteniendo partidas disponibles: {e}")
+        print(f"❌ Error obteniendo partidas disponibles: {e}")
+        import traceback
+        traceback.print_exc()
         emit('error', {'mensaje': 'Error al obtener partidas'})
 
 @socketio.on('obtenerListaAmigos')
