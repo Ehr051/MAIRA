@@ -9,12 +9,17 @@ let modoSeleccionado = null;
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 
 function inicializarAplicacion() {
-    userId = localStorage.getItem('userId');
-    userName = localStorage.getItem('username');
+    // Usar el sistema UserIdentity centralizado
+    userId = MAIRA.UserIdentity.getUserId();
+    userName = MAIRA.UserIdentity.getUsername();
+    
     if (!userId || !userName) {
+        console.warn('No hay datos de usuario válidos, redirigiendo al login');
         window.location.href = 'index.html';
         return;
     }
+    
+    console.log('Usuario autenticado:', { userId, userName });
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();
@@ -510,7 +515,7 @@ async function inicializarSocket() {
 
 function manejarConexion() {
     console.log('Conectado al servidor');
-    socket.emit('login', { userId, username: userName });
+    socket.emit('login', { user_id: userId, username: userName });
 
     // Solicitar listas después de conectarse al servidor
     console.log('Solicitando listas después de conectarse');
