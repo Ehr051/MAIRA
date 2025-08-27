@@ -655,6 +655,9 @@ def handle_login(data):
 
 @socketio.on('crearPartida')
 def crear_partida(data):
+    print(f"🎮 CREAR PARTIDA - Datos recibidos: {data}")
+    print(f"🎮 CREAR PARTIDA - SID: {request.sid}")
+    print(f"🎮 CREAR PARTIDA - User ID: {user_sid_map.get(request.sid)}")
     try:
         print("Iniciando creación de partida con datos:", data)
         configuracion = data.get('configuracion')
