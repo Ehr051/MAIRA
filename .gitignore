@@ -7,6 +7,11 @@ legacy_files/
 *.old
 *_backup.*
 *_old.*
+backup_maira_20250826_211318/
+
+# Archivos de debug y desarrollo (no subir a producción)
+tools/static-debug/
+tools/static-demo/
 
 # Archivos de Python
 __pycache__/
@@ -185,4 +190,4 @@ iniciarpartida.html
 inicioGB.html
 juegodeguerra.html
 planeamiento.html
-static-index.htmlbackup_maira_20250826_211318/
+static-index.html
