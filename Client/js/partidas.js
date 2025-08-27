@@ -15,6 +15,7 @@ function inicializarPartidas(socketInstance) {
     
     // Eventos básicos de partida
     socket.on('partidaCreada', manejarPartidaCreada);
+    socket.on('partidasDisponibles', manejarPartidasDisponibles);
     socket.on('jugadorSalio', manejarJugadorSalio);
     socket.on('partidaCancelada', manejarPartidaCancelada);
     socket.on('jugadorListoActualizado', manejarJugadorListoActualizado);
@@ -568,6 +569,19 @@ function reconectarAPartida() {
     }
 }
 
+// Función para manejar la lista de partidas disponibles
+function manejarPartidasDisponibles(data) {
+    console.log('📋 EVENTO: partidasDisponibles recibido:', data);
+    
+    if (data && data.partidas) {
+        console.log(`🎮 Se recibieron ${data.partidas.length} partidas disponibles`);
+        actualizarListaPartidas(data.partidas);
+    } else {
+        console.warn('⚠️ Datos de partidas inválidos:', data);
+        // Si no hay partidas, pasar un array vacío
+        actualizarListaPartidas([]);
+    }
+}
 
 function manejarPartidaCreada(partida) {
     console.log('🎯 EVENTO: partidaCreada recibido:', partida);
@@ -961,6 +975,7 @@ function guardarConfiguracionLocal(configuracion) {
 window.unirseAPartida = unirseAPartida;
 window.mostrarError = mostrarError;
 window.actualizarListaPartidas = actualizarListaPartidas;
+window.manejarPartidasDisponibles = manejarPartidasDisponibles;
 window.parseConfiguracionPartida = parseConfiguracionPartida;
 window.actualizarInfoSalaEspera = actualizarInfoSalaEspera;
 window.mostrarBotonesCreador = mostrarBotonesCreador;
