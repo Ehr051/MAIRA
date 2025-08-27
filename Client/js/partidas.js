@@ -123,22 +123,52 @@ function iniciarActualizacionSalaEspera() {
 }
 
 function inicializarEventListenersPartidas() {
-    document.getElementById('btnCrearPartidaConfirmar').addEventListener('click', crearPartida);
-    document.getElementById('btnListoJugador')?.addEventListener('click', marcarJugadorListo);
-    document.getElementById('btnIniciarPartida')?.addEventListener('click', iniciarPartida);
-    document.getElementById('btnSalirSalaEspera').addEventListener('click', salirSalaEspera);
-    document.getElementById('btnCancelarPartida')?.addEventListener('click', cancelarPartida);
-    document.getElementById('btnUnirseAPartidaConfirmar').addEventListener('click', function(e) {
-        e.preventDefault();
-        const codigoInput = document.getElementById('codigoUnirse');
-        if (codigoInput) {
-            const codigo = codigoInput.value;
-            unirseAPartida(codigo);
-        } else {
-            console.error('Elemento codigoUnirse no encontrado');
-            mostrarError('Error al obtener el código de la partida');
-        }
-    });
+    // Validar que los elementos existan antes de agregar listeners
+    const btnCrearPartidaConfirmar = document.getElementById('btnCrearPartidaConfirmar');
+    if (btnCrearPartidaConfirmar) {
+        btnCrearPartidaConfirmar.addEventListener('click', crearPartida);
+    } else {
+        console.warn('⚠️ btnCrearPartidaConfirmar no encontrado');
+    }
+    
+    const btnListoJugador = document.getElementById('btnListoJugador');
+    if (btnListoJugador) {
+        btnListoJugador.addEventListener('click', marcarJugadorListo);
+    }
+    
+    const btnIniciarPartida = document.getElementById('btnIniciarPartida');
+    if (btnIniciarPartida) {
+        btnIniciarPartida.addEventListener('click', iniciarPartida);
+    }
+    
+    const btnSalirSalaEspera = document.getElementById('btnSalirSalaEspera');
+    if (btnSalirSalaEspera) {
+        btnSalirSalaEspera.addEventListener('click', salirSalaEspera);
+    } else {
+        console.warn('⚠️ btnSalirSalaEspera no encontrado');
+    }
+    
+    const btnCancelarPartida = document.getElementById('btnCancelarPartida');
+    if (btnCancelarPartida) {
+        btnCancelarPartida.addEventListener('click', cancelarPartida);
+    }
+    
+    const btnUnirseAPartidaConfirmar = document.getElementById('btnUnirseAPartidaConfirmar');
+    if (btnUnirseAPartidaConfirmar) {
+        btnUnirseAPartidaConfirmar.addEventListener('click', function(e) {
+            e.preventDefault();
+            const codigoInput = document.getElementById('codigoUnirse');
+            if (codigoInput) {
+                const codigo = codigoInput.value;
+                unirseAPartida(codigo);
+            } else {
+                console.error('Elemento codigoUnirse no encontrado');
+                mostrarError('Error al obtener el código de la partida');
+            }
+        });
+    } else {
+        console.warn('⚠️ btnUnirseAPartidaConfirmar no encontrado');
+    }
 }
 
 function unirseAPartida(codigo) {
@@ -236,13 +266,22 @@ function crearPartida(e) {
         return;
     }
     
-    // Verificar datos de usuario
-    if (!window.userId || !window.userName) {
-        console.error('❌ Datos de usuario no configurados');
+    // Verificar datos de usuario usando UserIdentity
+    const currentUserId = MAIRA.UserIdentity.getUserId();
+    const currentUserName = MAIRA.UserIdentity.getUsername();
+    
+    if (!currentUserId || !currentUserName) {
+        console.error('❌ Datos de usuario no configurados via UserIdentity');
         mostrarError('Error: Datos de usuario no configurados. Redirigir a inicio.');
         window.location.href = 'index.html';
         return;
     }
+    
+    console.log(`✅ Usuario validado: ${currentUserName} (${currentUserId})`);
+    
+    // Asegurar variables globales para compatibilidad
+    window.userId = currentUserId;
+    window.userName = currentUserName;
     
     console.log('✅ Validaciones pasadas, continuando...');
     
@@ -262,7 +301,7 @@ function crearPartida(e) {
         duracionTurno,
         objetivoPartida,
         modo: modoSeleccionado,
-        creadorId: userId
+        creadorId: currentUserId
     };
 
     if (modoSeleccionado === 'local') {
