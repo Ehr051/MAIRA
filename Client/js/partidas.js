@@ -15,7 +15,8 @@ function inicializarPartidas(socketInstance) {
     
     // Eventos básicos de partida
     socket.on('partidaCreada', manejarPartidaCreada);
-    socket.on('partidasDisponibles', manejarPartidasDisponibles);
+    socket.on('listaPartidas', manejarPartidasDisponibles);
+    socket.on('partidasDisponibles', manejarPartidasDisponibles); // Compatibilidad
     socket.on('jugadorSalio', manejarJugadorSalio);
     socket.on('partidaCancelada', manejarPartidaCancelada);
     socket.on('jugadorListoActualizado', manejarJugadorListoActualizado);
@@ -571,16 +572,20 @@ function reconectarAPartida() {
 
 // Función para manejar la lista de partidas disponibles
 function manejarPartidasDisponibles(data) {
-    console.log('📋 EVENTO: partidasDisponibles recibido:', data);
+    console.log('📋 EVENTO: listaPartidas/partidasDisponibles recibido:', data);
     
-    if (data && data.partidas) {
-        console.log(`🎮 Se recibieron ${data.partidas.length} partidas disponibles`);
-        actualizarListaPartidas(data.partidas);
-    } else {
-        console.warn('⚠️ Datos de partidas inválidos:', data);
-        // Si no hay partidas, pasar un array vacío
-        actualizarListaPartidas([]);
+    // Manejar ambos formatos: directo (serverhttps.py) o con wrapper (app.py)
+    let partidas = [];
+    if (Array.isArray(data)) {
+        // Formato directo del serverhttps.py
+        partidas = data;
+    } else if (data && data.partidas) {
+        // Formato con wrapper del app.py
+        partidas = data.partidas;
     }
+    
+    console.log(`🎮 Se recibieron ${partidas.length} partidas disponibles`);
+    actualizarListaPartidas(partidas);
 }
 
 function manejarPartidaCreada(partida) {

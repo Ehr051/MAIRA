@@ -7,8 +7,6 @@ import random
 import string
 import time
 import traceback
-import requests
-import urllib.request
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -560,7 +558,6 @@ def actualizar_lista_partidas():
             partidas_disponibles.append(partida_info)
         
         # Emitir a todos los usuarios conectados
-        print(f"📡 Emitiendo lista de {len(partidas_disponibles)} partidas a todos los clientes")
         socketio.emit('partidasDisponibles', {'partidas': partidas_disponibles})
         
     except Exception as e:
@@ -749,7 +746,7 @@ def crear_partida(data):
 
 @socketio.on('obtenerPartidasDisponibles')
 def obtener_partidas_disponibles():
-    """Envía la lista de partidas disponibles al cliente"""
+    """Envía la lista de partidas disponibles al cliente específico"""
     try:
         print(f"📋 Cliente {request.sid} solicitó lista de partidas disponibles")
         
@@ -757,28 +754,66 @@ def obtener_partidas_disponibles():
         user_id = user_sid_map.get(request.sid)
         if not user_id:
             print(f"❌ Usuario {request.sid} no está autenticado")
-            emit('error', {'mensaje': 'Usuario no autenticado'})
+            emit('errorObtenerPartidas', {'mensaje': 'Usuario no autenticado'})
             return
         
         print(f"✅ Usuario autenticado: {user_id}")
-        actualizar_lista_partidas()
+        
+        # Obtener partidas directamente para este cliente
+        conn = get_db_connection()
+        if conn is None:
+            emit('errorObtenerPartidas', {'mensaje': 'Error de conexión a la base de datos'})
+            return
+        
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT p.*, u.username as creador_username 
+            FROM partidas p 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios u ON up.usuario_id = u.id 
+            WHERE p.estado IN ('esperando', 'en_curso')
+            ORDER BY p.fecha_creacion DESC
+        """)
+        
+        partidas_db = cursor.fetchall()
+        partidas_disponibles = []
+        
+        for partida in partidas_db:
+            # Obtener jugadores de la partida
+            cursor.execute("""
+                SELECT u.id, u.username, up.equipo, up.listo 
+                FROM usuarios_partida up 
+                JOIN usuarios u ON up.usuario_id = u.id 
+                WHERE up.partida_id = %s
+            """, (partida['id'],))
+            
+            jugadores = cursor.fetchall()
+            
+            partida_info = {
+                'id': partida['id'],
+                'codigo': partida['codigo'],
+                'configuracion': json.loads(partida['configuracion']) if partida['configuracion'] else {},
+                'estado': partida['estado'],
+                'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
+                'creador_username': partida['creador_username'],
+                'jugadores': [dict(j) for j in jugadores],
+                'jugadores_count': len(jugadores)
+            }
+            partidas_disponibles.append(partida_info)
+        
+        # Emitir solo al cliente que lo solicita (como en serverhttps.py)
+        print(f"📡 Emitiendo lista de {len(partidas_disponibles)} partidas al cliente {request.sid}")
+        emit('listaPartidas', partidas_disponibles, room=request.sid)
         print("✅ Lista de partidas enviada al cliente")
+        
+        cursor.close()
+        conn.close()
+        
     except Exception as e:
         print(f"❌ Error obteniendo partidas disponibles: {e}")
         import traceback
         traceback.print_exc()
-        emit('error', {'mensaje': 'Error al obtener partidas'})
-
-@socketio.on('obtenerListaAmigos')
-def obtener_lista_amigos():
-    """Envía la lista de amigos del usuario"""
-    try:
-        # Por ahora devolvemos una lista vacía, luego se puede implementar
-        print("📋 Solicitando lista de amigos")
-        emit('listaAmigos', {'amigos': []})
-    except Exception as e:
-        print(f"Error obteniendo lista de amigos: {e}")
-        emit('error', {'mensaje': 'Error al obtener amigos'})
+        emit('errorObtenerPartidas', {'mensaje': 'Error al obtener partidas'})
 
 @socketio.on('unirseAPartida')
 def unirse_a_partida(data):

@@ -9,38 +9,12 @@ let modoSeleccionado = null;
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 
 function inicializarAplicacion() {
-    // Usar el sistema UserIdentity centralizado
-    userId = MAIRA.UserIdentity.getUserId();
-    userName = MAIRA.UserIdentity.getUsername();
-    
+    userId = localStorage.getItem('userId');
+    userName = localStorage.getItem('username');
     if (!userId || !userName) {
-        console.warn('No hay datos de usuario válidos, redirigiendo al login');
         window.location.href = 'index.html';
         return;
     }
-    
-    console.log('Usuario autenticado:', { userId, userName });
-    
-    // Verificar partida pendiente al cargar página
-    const partidaPendiente = sessionStorage.getItem('partidaPendiente');
-    if (partidaPendiente) {
-        console.log('🔄 Procesando partida pendiente...');
-        sessionStorage.removeItem('partidaPendiente');
-        
-        try {
-            const partida = JSON.parse(partidaPendiente);
-            setTimeout(() => {
-                if (typeof manejarPartidaCreada === 'function') {
-                    manejarPartidaCreada(partida);
-                } else if (window.manejarPartidaCreada) {
-                    window.manejarPartidaCreada(partida);
-                }
-            }, 1000); // Dar tiempo para que el DOM se configure
-        } catch (error) {
-            console.error('❌ Error al procesar partida pendiente:', error);
-        }
-    }
-    
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();
@@ -381,14 +355,6 @@ async function inicializarSocket() {
             console.log('Conectado al servidor');
             console.log('Socket ID:', socket.id);
             
-            // ✅ INICIALIZAR PARTIDAS con el socket
-            if (typeof inicializarPartidas === 'function') {
-                inicializarPartidas(socket);
-                console.log('✅ Partidas inicializadas con socket');
-            } else {
-                console.error('❌ función inicializarPartidas no encontrada');
-            }
-            
             // ✅ CORREGIR LLAMADA:
             if (window.inicializarChat) {
                 const resultado = window.inicializarChat(socket);
@@ -397,8 +363,9 @@ async function inicializarSocket() {
                 console.error('❌ Función inicializarChat no encontrada');
             }
             
-            // ✅ LLAMAR A MANEJAR CONEXIÓN (login)
-            manejarConexion();
+            console.log('Solicitando listas después de conectarse');
+            obtenerListaAmigos();  // ✅ CORREGIR: era solicitarListaAmigos()
+            obtenerPartidasDisponibles();
         });
         
         socket.on('disconnect', () => mostrarError('Se ha perdido la conexión con el servidor. Intentando reconectar...'));
@@ -414,18 +381,6 @@ async function inicializarSocket() {
                 actualizarListaPartidas(partidas);
             } else {
                 console.error('❌ Lista de partidas inválida recibida:', partidas);
-            }
-        });
-
-        // Manejar respuesta del servidor con partidasDisponibles (evento actual del servidor)
-        socket.on('partidasDisponibles', function(data) {
-            console.log('Partidas disponibles recibidas del servidor:', data);
-            
-            // El servidor envía {partidas: [...]}
-            if (data && Array.isArray(data.partidas)) {
-                actualizarListaPartidas(data.partidas);
-            } else {
-                console.error('❌ Datos de partidas inválidos recibidos:', data);
             }
         });
 
@@ -521,21 +476,6 @@ async function inicializarSocket() {
             partidaActual = datosPartida;
             mostrarSalaEspera(partidaActual);
         });
-
-        // ✅ HANDLER PARA LOGIN EXITOSO:
-        socket.on('loginExitoso', function(data) {
-            console.log('✅ Login exitoso:', data);
-            console.log('🔓 Usuario autenticado, solicitando listas...');
-            
-            // Ahora que estamos autenticados, podemos solicitar las listas
-            obtenerListaAmigos();
-            obtenerPartidasDisponibles();
-        });
-
-        socket.on('loginError', function(data) {
-            console.error('❌ Error de login:', data);
-            mostrarError('Error de autenticación: ' + data.mensaje);
-        });
         
 
         // ✅ ASEGURAR CIERRE CORRECTO:
@@ -558,10 +498,12 @@ async function inicializarSocket() {
 
 function manejarConexion() {
     console.log('Conectado al servidor');
-    socket.emit('login', { user_id: userId, username: userName });
+    socket.emit('login', { userId, username: userName });
 
-    // ✅ MOVIDO: Las listas se solicitan DESPUÉS del loginExitoso
-    console.log('🔐 Login enviado, esperando autenticación...');
+    // Solicitar listas después de conectarse al servidor
+    console.log('Solicitando listas después de conectarse');
+    obtenerListaAmigos();
+    obtenerPartidasDisponibles();
 }
 
 
