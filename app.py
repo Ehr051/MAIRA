@@ -558,6 +558,7 @@ def actualizar_lista_partidas():
             partidas_disponibles.append(partida_info)
         
         # Emitir a todos los usuarios conectados
+        print(f"📡 Emitiendo lista de {len(partidas_disponibles)} partidas a todos los clientes")
         socketio.emit('partidasDisponibles', {'partidas': partidas_disponibles})
         
     except Exception as e:
@@ -748,10 +749,23 @@ def crear_partida(data):
 def obtener_partidas_disponibles():
     """Envía la lista de partidas disponibles al cliente"""
     try:
+        print("📋 Cliente solicitó lista de partidas disponibles")
         actualizar_lista_partidas()
+        print("✅ Lista de partidas enviada al cliente")
     except Exception as e:
         print(f"Error obteniendo partidas disponibles: {e}")
         emit('error', {'mensaje': 'Error al obtener partidas'})
+
+@socketio.on('obtenerListaAmigos')
+def obtener_lista_amigos():
+    """Envía la lista de amigos del usuario"""
+    try:
+        # Por ahora devolvemos una lista vacía, luego se puede implementar
+        print("📋 Solicitando lista de amigos")
+        emit('listaAmigos', {'amigos': []})
+    except Exception as e:
+        print(f"Error obteniendo lista de amigos: {e}")
+        emit('error', {'mensaje': 'Error al obtener amigos'})
 
 @socketio.on('unirseAPartida')
 def unirse_a_partida(data):
