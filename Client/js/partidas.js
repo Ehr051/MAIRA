@@ -1,11 +1,16 @@
 // partidas.js: Maneja las partidas, tanto la creación como la unión, así como el manejo de jugadores y estados
 
 let socket;
-
 let userId, userName;
-
+let partidasInicializadas = false;
+let intervalActualizacion = null;
 
 function inicializarPartidas(socketInstance) {
+    // Evitar múltiples inicializaciones
+    if (partidasInicializadas) {
+        console.log('⚠️ Partidas ya inicializadas, saltando...');
+        return;
+    }
     socket = socketInstance;
     
     // Eventos básicos de partida
@@ -100,12 +105,22 @@ function inicializarPartidas(socketInstance) {
     // Inicializar event listeners y actualizaciones automáticas
     inicializarEventListenersPartidas();
     iniciarActualizacionAutomatica();
+    
+    // Marcar como inicializado
+    partidasInicializadas = true;
+    console.log('✅ Partidas inicializadas correctamente');
 }
 
 // Función auxiliar para actualización automática
 function iniciarActualizacionAutomatica() {
+    // Evitar múltiples intervalos
+    if (intervalActualizacion) {
+        clearInterval(intervalActualizacion);
+    }
+    
     // Actualizar lista de partidas cada 5 segundos
-    setInterval(obtenerPartidasDisponibles, 5000);
+    intervalActualizacion = setInterval(obtenerPartidasDisponibles, 5000);
+    console.log('⏰ Actualización automática iniciada (cada 5s)');
 }
 
 // Función auxiliar para actualización de sala de espera
@@ -153,7 +168,7 @@ function inicializarEventListenersPartidas() {
         btnCancelarPartida.addEventListener('click', cancelarPartida);
     }
     
-    const btnUnirseAPartidaConfirmar = document.getElementById('btnUnirseAPartidaConfirmar');
+    const btnUnirseAPartidaConfirmar = document.getElementById('btnunirseAPartidaConfirmar');
     if (btnUnirseAPartidaConfirmar) {
         btnUnirseAPartidaConfirmar.addEventListener('click', function(e) {
             e.preventDefault();
@@ -167,7 +182,7 @@ function inicializarEventListenersPartidas() {
             }
         });
     } else {
-        console.warn('⚠️ btnUnirseAPartidaConfirmar no encontrado');
+        console.warn('⚠️ btnunirseAPartidaConfirmar no encontrado');
     }
 }
 
