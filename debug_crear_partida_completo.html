@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Debug Crear Partida - MAIRA</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        .card { 
+            background: white; 
+            border-radius: 8px; 
+            padding: 20px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+        }
+        .card h3 { 
+            margin-top: 0; 
+            color: #333; 
+            border-bottom: 2px solid #007bff; 
+            padding-bottom: 8px; 
+        }
+        .log-area { 
+            background: #1e1e1e; 
+            color: #f0f0f0; 
+            border-radius: 4px; 
+            padding: 15px; 
+            height: 400px; 
+            overflow-y: auto; 
+            font-family: 'Courier New', monospace; 
+            font-size: 13px; 
+            white-space: pre-wrap; 
+        }
+        .status { 
+            padding: 8px 15px; 
+            border-radius: 4px; 
+            margin: 10px 0; 
+            font-weight: bold; 
+        }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.disconnected { background: #f8d7da; color: #721c24; }
+        .status.connecting { background: #fff3cd; color: #856404; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px 0; 
+            width: 100%; 
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        input { 
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            margin: 5px 0; 
+        }
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        #fullLog { grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Crear Partida - MAIRA</h1>
+    
+    <div class="container">
+        <!-- Panel de Control -->
+        <div class="card">
+            <h3>🎮 Control de Partidas</h3>
+            
+            <div id="socketStatus" class="status disconnected">
+                🔴 Socket: Desconectado
+            </div>
+            
+            <div class="form-group">
+                <label>Usuario de Prueba:</label>
+                <input type="text" id="testUser" value="TestUser_Debug" placeholder="Nombre usuario">
+            </div>
+            
+            <button onclick="iniciarConexion()" id="btnConectar">🔌 Conectar Socket</button>
+            <button onclick="desconectar()" id="btnDesconectar" disabled>❌ Desconectar</button>
+            
+            <hr>
+            
+            <h4>📋 Datos de Partida</h4>
+            <div class="form-group">
+                <label>Nombre de la Partida:</label>
+                <input type="text" id="nombrePartida" value="Partida Debug Test">
+            </div>
+            <div class="form-group">
+                <label>Duración (minutos):</label>
+                <input type="number" id="duracionPartida" value="30">
+            </div>
+            <div class="form-group">
+                <label>Duración Turno (minutos):</label>
+                <input type="number" id="duracionTurno" value="5">
+            </div>
+            <div class="form-group">
+                <label>Objetivo:</label>
+                <input type="text" id="objetivoPartida" value="Test de debug">
+            </div>
+            
+            <button onclick="crearPartidaTest()" id="btnCrearPartida" disabled>🎯 Crear Partida</button>
+            <button onclick="obtenerPartidas()" id="btnObtenerPartidas" disabled>📋 Obtener Partidas</button>
+            <button onclick="obtenerAmigos()" id="btnObtenerAmigos" disabled>👥 Obtener Amigos</button>
+            
+            <hr>
+            
+            <button onclick="limpiarLog()">🧹 Limpiar Log</button>
+            <button onclick="exportarLog()">📄 Exportar Log</button>
+        </div>
+        
+        <!-- Información de Estado -->
+        <div class="card">
+            <h3>📊 Estado del Sistema</h3>
+            
+            <div id="estadoInfo">
+                <div><strong>Socket ID:</strong> <span id="socketId">-</span></div>
+                <div><strong>Usuario ID:</strong> <span id="userId">-</span></div>
+                <div><strong>Estado:</strong> <span id="estadoSocket">Desconectado</span></div>
+                <div><strong>Última Actividad:</strong> <span id="ultimaActividad">-</span></div>
+                <div><strong>Eventos Enviados:</strong> <span id="eventosSent">0</span></div>
+                <div><strong>Eventos Recibidos:</strong> <span id="eventosRecv">0</span></div>
+                <div><strong>Errores:</strong> <span id="erroresCount">0</span></div>
+            </div>
+            
+            <div id="partidaActual" style="margin-top: 20px;">
+                <h4>🎯 Partida Actual</h4>
+                <div id="partidaInfo">No hay partida activa</div>
+            </div>
+        </div>
+        
+        <!-- Log Completo -->
+        <div class="card" id="fullLog">
+            <h3>📝 Log de Eventos (Tiempo Real)</h3>
+            <div id="logArea" class="log-area"></div>
+        </div>
+    </div>
+
+    <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        let userId = null;
+        let partidaActual = null;
+        let eventosEnviados = 0;
+        let eventosRecibidos = 0;
+        let errores = 0;
+        
+        function log(mensaje, tipo = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logArea = document.getElementById('logArea');
+            const clase = tipo === 'error' ? 'error' : tipo === 'success' ? 'success' : tipo === 'warning' ? 'warning' : 'info';
+            
+            const linea = `[${timestamp}] ${mensaje}\n`;
+            logArea.innerHTML += `<span class="${clase}">${linea}</span>`;
+            logArea.scrollTop = logArea.scrollHeight;
+            
+            // Actualizar última actividad
+            document.getElementById('ultimaActividad').textContent = timestamp;
+        }
+        
+        function actualizarEstadisticas() {
+            document.getElementById('eventosSent').textContent = eventosEnviados;
+            document.getElementById('eventosRecv').textContent = eventosRecibidos;
+            document.getElementById('erroresCount').textContent = errores;
+        }
+        
+        function actualizarEstadoSocket(estado, socketId = null) {
+            const statusDiv = document.getElementById('socketStatus');
+            const estadoSpan = document.getElementById('estadoSocket');
+            const socketIdSpan = document.getElementById('socketId');
+            
+            estadoSpan.textContent = estado;
+            if (socketId) socketIdSpan.textContent = socketId;
+            
+            if (estado === 'Conectado') {
+                statusDiv.className = 'status connected';
+                statusDiv.innerHTML = '🟢 Socket: Conectado';
+                document.getElementById('btnConectar').disabled = true;
+                document.getElementById('btnDesconectar').disabled = false;
+                document.getElementById('btnCrearPartida').disabled = false;
+                document.getElementById('btnObtenerPartidas').disabled = false;
+                document.getElementById('btnObtenerAmigos').disabled = false;
+            } else if (estado === 'Conectando') {
+                statusDiv.className = 'status connecting';
+                statusDiv.innerHTML = '🟡 Socket: Conectando...';
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.innerHTML = '🔴 Socket: Desconectado';
+                document.getElementById('btnConectar').disabled = false;
+                document.getElementById('btnDesconectar').disabled = true;
+                document.getElementById('btnCrearPartida').disabled = true;
+                document.getElementById('btnObtenerPartidas').disabled = true;
+                document.getElementById('btnObtenerAmigos').disabled = true;
+            }
+        }
+        
+        function iniciarConexion() {
+            const testUser = document.getElementById('testUser').value.trim();
+            if (!testUser) {
+                log('❌ ERROR: Debe ingresar un nombre de usuario', 'error');
+                return;
+            }
+            
+            log('🔌 Iniciando conexión Socket.IO...', 'info');
+            actualizarEstadoSocket('Conectando');
+            
+            // Simular datos de usuario
+            userId = 'debug_' + Date.now();
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('username', testUser);
+            document.getElementById('userId').textContent = userId;
+            
+            try {
+                socket = io('https://maira-3e76.onrender.com', {
+                    transports: ['polling', 'websocket'],
+                    timeout: 30000,
+                    reconnection: true,
+                    reconnectionDelay: 2000,
+                    reconnectionAttempts: 5,
+                    forceNew: true
+                });
+                
+                configurarEventosSocket();
+                
+            } catch (error) {
+                log(`❌ ERROR al crear socket: ${error.message}`, 'error');
+                errores++;
+                actualizarEstadisticas();
+                actualizarEstadoSocket('Desconectado');
+            }
+        }
+        
+        function configurarEventosSocket() {
+            // Eventos de conexión
+            socket.on('connect', () => {
+                log(`✅ CONECTADO - Socket ID: ${socket.id}`, 'success');
+                actualizarEstadoSocket('Conectado', socket.id);
+                
+                // Auto-login
+                const userData = {
+                    userId: userId,
+                    username: document.getElementById('testUser').value
+                };
+                
+                log(`👤 Enviando login: ${JSON.stringify(userData)}`, 'info');
+                socket.emit('login', userData);
+                eventosEnviados++;
+                actualizarEstadisticas();
+            });
+            
+            socket.on('disconnect', (razon) => {
+                log(`❌ DESCONECTADO - Razón: ${razon}`, 'error');
+                actualizarEstadoSocket('Desconectado');
+                errores++;
+                actualizarEstadisticas();
+            });
+            
+            socket.on('connect_error', (error) => {
+                log(`❌ ERROR DE CONEXIÓN: ${error.message}`, 'error');
+                errores++;
+                actualizarEstadisticas();
+            });
+            
+            socket.on('reconnect', (numeroIntento) => {
+                log(`🔄 RECONECTADO - Intento: ${numeroIntento}`, 'success');
+                actualizarEstadoSocket('Conectado', socket.id);
+            });
+            
+            socket.on('reconnect_error', (error) => {
+                log(`❌ ERROR DE RECONEXIÓN: ${error.message}`, 'error');
+                errores++;
+                actualizarEstadisticas();
+            });
+            
+            // Eventos de autenticación
+            socket.on('loginExitoso', (data) => {
+                log(`✅ LOGIN EXITOSO: ${JSON.stringify(data)}`, 'success');
+                eventosRecibidos++;
+                actualizarEstadisticas();
+            });
+            
+            socket.on('loginError', (data) => {
+                log(`❌ LOGIN ERROR: ${JSON.stringify(data)}`, 'error');
+                errores++;
+                actualizarEstadisticas();
+            });
+            
+            // Eventos de partidas
+            socket.on('partidaCreada', (partida) => {
+                log(`🎯 PARTIDA CREADA: ${JSON.stringify(partida, null, 2)}`, 'success');
+                partidaActual = partida;
+                actualizarInfoPartida(partida);
+                eventosRecibidos++;
+                actualizarEstadisticas();
+            });
+            
+            socket.on('errorCrearPartida', (error) => {
+                log(`❌ ERROR CREAR PARTIDA: ${JSON.stringify(error)}`, 'error');
+                errores++;
+                actualizarEstadisticas();
+            });
+            
+            socket.on('partidasDisponibles', (data) => {
+                log(`📋 PARTIDAS DISPONIBLES: ${JSON.stringify(data, null, 2)}`, 'info');
+                eventosRecibidos++;
+                actualizarEstadisticas();
+            });
+            
+            socket.on('listaAmigos', (amigos) => {
+                log(`👥 LISTA AMIGOS: ${JSON.stringify(amigos, null, 2)}`, 'info');
+                eventosRecibidos++;
+                actualizarEstadisticas();
+            });
+            
+            // Capturar TODOS los eventos
+            const eventoOriginal = socket.onevent;
+            socket.onevent = function(packet) {
+                const args = packet.data || [];
+                const eventName = args[0];
+                
+                // Solo logear eventos que no hemos manejado específicamente
+                if (!['connect', 'disconnect', 'loginExitoso', 'partidaCreada', 'errorCrearPartida', 'partidasDisponibles', 'listaAmigos'].includes(eventName)) {
+                    log(`📨 EVENTO: ${eventName} -> ${JSON.stringify(args.slice(1))}`, 'info');
+                    eventosRecibidos++;
+                    actualizarEstadisticas();
+                }
+                
+                return eventoOriginal.call(this, packet);
+            };
+        }
+        
+        function actualizarInfoPartida(partida) {
+            const partidaInfo = document.getElementById('partidaInfo');
+            if (partida) {
+                partidaInfo.innerHTML = `
+                    <div><strong>Código:</strong> ${partida.codigo}</div>
+                    <div><strong>Nombre:</strong> ${partida.configuracion?.nombrePartida || 'Sin nombre'}</div>
+                    <div><strong>Estado:</strong> ${partida.estado}</div>
+                    <div><strong>Jugadores:</strong> ${partida.jugadores?.length || 0}</div>
+                `;
+            } else {
+                partidaInfo.innerHTML = 'No hay partida activa';
+            }
+        }
+        
+        function crearPartidaTest() {
+            if (!socket || !socket.connected) {
+                log('❌ ERROR: Socket no conectado', 'error');
+                return;
+            }
+            
+            const configuracion = {
+                nombrePartida: document.getElementById('nombrePartida').value,
+                duracionPartida: parseInt(document.getElementById('duracionPartida').value),
+                duracionTurno: parseInt(document.getElementById('duracionTurno').value),
+                objetivoPartida: document.getElementById('objetivoPartida').value,
+                modo: 'internet',
+                creadorId: userId
+            };
+            
+            log(`🎯 CREANDO PARTIDA: ${JSON.stringify(configuracion, null, 2)}`, 'info');
+            socket.emit('crearPartida', { configuracion });
+            eventosEnviados++;
+            actualizarEstadisticas();
+        }
+        
+        function obtenerPartidas() {
+            if (!socket || !socket.connected) {
+                log('❌ ERROR: Socket no conectado', 'error');
+                return;
+            }
+            
+            log('📋 Solicitando partidas disponibles...', 'info');
+            socket.emit('obtenerPartidasDisponibles');
+            eventosEnviados++;
+            actualizarEstadisticas();
+        }
+        
+        function obtenerAmigos() {
+            if (!socket || !socket.connected) {
+                log('❌ ERROR: Socket no conectado', 'error');
+                return;
+            }
+            
+            log('👥 Solicitando lista de amigos...', 'info');
+            socket.emit('obtenerListaAmigos');
+            eventosEnviados++;
+            actualizarEstadisticas();
+        }
+        
+        function desconectar() {
+            if (socket) {
+                log('❌ Desconectando socket...', 'warning');
+                socket.disconnect();
+                socket = null;
+                partidaActual = null;
+                actualizarInfoPartida(null);
+                actualizarEstadoSocket('Desconectado');
+            }
+        }
+        
+        function limpiarLog() {
+            document.getElementById('logArea').innerHTML = '';
+            eventosEnviados = 0;
+            eventosRecibidos = 0;
+            errores = 0;
+            actualizarEstadisticas();
+        }
+        
+        function exportarLog() {
+            const logContent = document.getElementById('logArea').textContent;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `debug_log_${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Inicialización
+        window.addEventListener('load', () => {
+            log('🚀 Debug Client iniciado', 'info');
+            log('📝 Puedes crear partidas y monitorear eventos en tiempo real', 'info');
+        });
+        
+        // Cleanup al salir
+        window.addEventListener('beforeunload', () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        });
+    </script>
+</body>
+</html>
