@@ -384,6 +384,18 @@ async function inicializarSocket() {
             }
         });
 
+        // Manejar respuesta del servidor con partidasDisponibles (evento actual del servidor)
+        socket.on('partidasDisponibles', function(data) {
+            console.log('Partidas disponibles recibidas del servidor:', data);
+            
+            // El servidor envía {partidas: [...]}
+            if (data && Array.isArray(data.partidas)) {
+                actualizarListaPartidas(data.partidas);
+            } else {
+                console.error('❌ Datos de partidas inválidos recibidos:', data);
+            }
+        });
+
         // Manejar lista de partidas actualizada cada vez que haya un cambio
         socket.on('listaPartidasActualizada', function(partidas) {
             console.log('Lista de partidas actualizada recibida:', partidas);
