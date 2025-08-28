@@ -9,6 +9,7 @@
 var canvas;
 var jsPlumbInstance;
 var selectedElement = null;
+var elementoSeleccionado = null; // ✅ VARIABLE GLOBAL AGREGADA
 var currentZoom = 1;
 var enModoConexion = false;
 var connectionSource = null;
@@ -584,6 +585,8 @@ function inicializarEventosElementos() {
     // Agregar evento de clic
     nuevoElemento.addEventListener('click', function(e) {
       e.stopPropagation();
+      console.log('🖱️ Click detectado en elemento:', this);
+      
       if (enModoConexion) {
         if (window.manejarClickEnModoConexion) {
           window.manejarClickEnModoConexion(this);
@@ -591,21 +594,24 @@ function inicializarEventosElementos() {
           manejarClickEnModoConexion(this);
         }
       } else {
+        console.log('🎯 Llamando a seleccionarElemento...');
         seleccionarElemento(this);
       }
     });
     
-    // Agregar evento de doble clic para edición
-    el.addEventListener('dblclick', function(e) {
+    // Agregar evento de doble clic para edición (CORREGIDO: usar nuevoElemento)
+    nuevoElemento.addEventListener('dblclick', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        mostrarMenuContextual(e, el);
+        console.log('🖱️ Doble click detectado en elemento:', this);
+        mostrarMenuContextual(e, this);
     });
     
     // Agregar menú contextual
     nuevoElemento.addEventListener('contextmenu', function(e) {
       e.preventDefault();
       e.stopPropagation();
+      console.log('🖱️ Menú contextual en elemento:', this);
       mostrarMenuContextual(e, this);
     });
     
@@ -908,25 +914,7 @@ function configurarAtajosTeclado() {
 
 
 
-/* Seleccionar un elemento */
-function seleccionarElemento(el) {
-  // Deseleccionar elementos anteriores
-  deseleccionarElemento();
-  
-  // Marcar nuevo elemento como seleccionado
-  selectedElement = el;
-  if (selectedElement.classList) {
-    selectedElement.classList.add('selected');
-  }
-  
-  // Habilitar botón de eliminar en la barra de herramientas
-  var btnEliminar = document.getElementById('btnEliminar');
-  if (btnEliminar) {
-    btnEliminar.disabled = false;
-  }
-}
-
-
+/* Seleccionar un elemento - VERSIÓN UNIFICADA */
 function seleccionarElemento(elemento) {
     console.log('🎯 Seleccionando elemento:', elemento);
     
@@ -936,22 +924,38 @@ function seleccionarElemento(elemento) {
             return false;
         }
         
-        // ✅ VERIFICAR QUE EL ELEMENTO TENGA LAS PROPIEDADES NECESARIAS:
-        if (!elemento.setStyle || typeof elemento.setStyle !== 'function') {
-            console.warn('⚠️ Elemento no tiene método setStyle');
-            return false;
-        }
-        
         // Deseleccionar elemento anterior
-        if (elementoSeleccionado && elementoSeleccionado !== elemento) {
-            deseleccionarElemento();
+        deseleccionarElemento();
+        
+        // Establecer nuevo elemento seleccionado
+        elementoSeleccionado = elemento;
+        selectedElement = elemento; // Para compatibilidad con código existente
+        window.elementoSeleccionado = elemento; // También global
+        
+        // Agregar clase visual de selección
+        if (elemento.classList) {
+            elemento.classList.add('selected');
         }
         
-        elementoSeleccionado = elemento;
-        window.elementoSeleccionado = elemento; // ✅ TAMBIÉN GLOBAL
+        // Habilitar botón de eliminar en la barra de herramientas
+        var btnEliminar = document.getElementById('btnEliminar');
+        if (btnEliminar) {
+            btnEliminar.disabled = false;
+        }
         
-        // Resto del código de selección...
+        // ✅ VERIFICAR QUE EL ELEMENTO TENGA LAS PROPIEDADES NECESARIAS:
+        if (elemento.setStyle && typeof elemento.setStyle === 'function') {
+            // Aplicar estilo de selección para elementos Leaflet
+            elemento.setStyle({
+                color: '#ff0000',
+                weight: 3,
+                opacity: 1
+            });
+        }
+        
         console.log('✅ Elemento seleccionado exitosamente');
+        console.log('✅ elementoSeleccionado:', elementoSeleccionado);
+        console.log('✅ selectedElement:', selectedElement);
         return true;
         
     } catch (error) {
@@ -962,17 +966,41 @@ function seleccionarElemento(elemento) {
 
 /* Deseleccionar elemento */
 function deseleccionarElemento() {
-  if (window.selectedElement && window.selectedElement.classList) {  // <-- CORREGIDO
-    window.selectedElement.classList.remove('selected');
-  }
-  
-  window.selectedElement = null;  // <-- CORREGIDO
-  
-  // Deshabilitar botón de eliminar
-  var btnEliminar = document.getElementById('btnEliminar');
-  if (btnEliminar) {
-    btnEliminar.disabled = true;
-  }
+    console.log('🎯 Deseleccionando elemento...');
+    
+    // Deseleccionar selectedElement (compatibilidad)
+    if (selectedElement && selectedElement.classList) {
+        selectedElement.classList.remove('selected');
+    }
+    
+    // Deseleccionar elementoSeleccionado
+    if (elementoSeleccionado) {
+        if (elementoSeleccionado.classList) {
+            elementoSeleccionado.classList.remove('selected');
+        }
+        
+        // Restaurar estilo original para elementos Leaflet
+        if (elementoSeleccionado.setStyle && typeof elementoSeleccionado.setStyle === 'function') {
+            elementoSeleccionado.setStyle({
+                color: '#0000ff', // Color original
+                weight: 2,
+                opacity: 0.8
+            });
+        }
+    }
+    
+    // Limpiar todas las referencias
+    selectedElement = null;
+    elementoSeleccionado = null;
+    window.elementoSeleccionado = null;
+    
+    // Deshabilitar botón de eliminar
+    var btnEliminar = document.getElementById('btnEliminar');
+    if (btnEliminar) {
+        btnEliminar.disabled = true;
+    }
+    
+    console.log('✅ Elemento deseleccionado');
 }
 
 
