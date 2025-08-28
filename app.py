@@ -818,7 +818,19 @@ def actualizar_lista_partidas():
 @socketio.on('connect')
 def handle_connect():
     print(f"Cliente conectado: {request.sid}")
+    
+    # ✅ CRÍTICO: Auto-unir a sala general
+    join_room('general')
+    print(f"✅ Cliente {request.sid} añadido a sala general")
+    
     emit('conectado', {'mensaje': 'Conectado al servidor'})
+    
+    # Enviar información inicial del servidor
+    emit('servidorInfo', {
+        'version': '2.0',
+        'timestamp': datetime.now().isoformat(),
+        'sala_default': 'general'
+    })
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -827,18 +839,8 @@ def handle_disconnect():
     # Limpiar datos del usuario
     user_id = user_sid_map.get(request.sid)
     if user_id:
-        # Marcar usuario como desconectado en la base de datos
-        conn = get_db_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                cursor.execute("UPDATE usuarios SET is_online = 0 WHERE id = %s", (user_id,))
-                conn.commit()
-            except Exception as e:
-                print(f"Error actualizando estado offline: {e}")
-            finally:
-                cursor.close()
-                conn.close()
+        # ✅ ARREGLO PostgreSQL: Usar sintaxis correcta
+        actualizar_estado_usuario_en_bd(user_id, online=False)
         
         # Limpiar mapas
         if user_id in user_id_sid_map:
@@ -848,6 +850,261 @@ def handle_disconnect():
         # Limpiar de usuarios conectados
         if user_id in usuarios_conectados:
             del usuarios_conectados[user_id]
+
+# ============================================
+# 🔧 EVENTOS SOCKET.IO CRÍTICOS FALTANTES
+# ============================================
+
+@socketio.on('mensaje')
+def handle_mensaje(data):
+    """Maneja envío de mensajes de chat"""
+    try:
+        print(f"💬 MENSAJE - SID: {request.sid}")
+        print(f"💬 MENSAJE - Datos: {data}")
+        
+        # Obtener información del usuario
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            print(f"❌ Usuario no identificado para SID: {request.sid}")
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        # Obtener username del usuario
+        username = obtener_username(user_id)
+        
+        # Estructura del mensaje
+        mensaje_completo = {
+            'id': data.get('id', f"msg_{int(time.time()*1000)}"),
+            'contenido': data.get('contenido', ''),
+            'mensaje': data.get('mensaje', data.get('contenido', '')),
+            'emisor': username,
+            'emisor_id': user_id,
+            'timestamp': datetime.now().isoformat(),
+            'tipo': data.get('tipo', 'chat'),
+            'sala': data.get('sala', 'general')
+        }
+        
+        print(f"✅ Mensaje procesado: {mensaje_completo}")
+        
+        # Emitir a todos los usuarios en la sala
+        socketio.emit('mensajeRecibido', mensaje_completo, room=data.get('sala', 'general'))
+        
+        # Confirmar al emisor
+        emit('mensajeConfirmado', {
+            'id': mensaje_completo['id'],
+            'timestamp': mensaje_completo['timestamp']
+        })
+        
+    except Exception as e:
+        print(f"❌ Error procesando mensaje: {e}")
+        emit('error', {'mensaje': 'Error enviando mensaje'})
+
+@socketio.on('unirseASala')
+def handle_unirse_sala(data):
+    """Maneja unión a salas de chat"""
+    try:
+        sala = data.get('sala', 'general')
+        join_room(sala)
+        
+        user_id = user_sid_map.get(request.sid)
+        username = obtener_username(user_id) if user_id else 'Usuario desconocido'
+        
+        print(f"👥 Usuario {username} se unió a sala: {sala}")
+        
+        # Notificar a la sala
+        emit('usuarioUnido', {
+            'usuario': username,
+            'sala': sala,
+            'timestamp': datetime.now().isoformat()
+        }, room=sala)
+        
+    except Exception as e:
+        print(f"❌ Error uniéndose a sala: {e}")
+        emit('error', {'mensaje': 'Error uniéndose a sala'})
+
+@socketio.on('salirDeSala')
+def handle_salir_sala(data):
+    """Maneja salida de salas de chat"""
+    try:
+        sala = data.get('sala', 'general')
+        leave_room(sala)
+        
+        user_id = user_sid_map.get(request.sid)
+        username = obtener_username(user_id) if user_id else 'Usuario desconocido'
+        
+        print(f"👋 Usuario {username} salió de sala: {sala}")
+        
+        # Notificar a la sala
+        emit('usuarioSalio', {
+            'usuario': username,
+            'sala': sala,
+            'timestamp': datetime.now().isoformat()
+        }, room=sala)
+        
+    except Exception as e:
+        print(f"❌ Error saliendo de sala: {e}")
+        emit('error', {'mensaje': 'Error saliendo de sala'})
+
+@socketio.on('solicitar_amigos')
+def handle_solicitar_amigos():
+    """Maneja solicitud de lista de amigos"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        # Por ahora devolver lista vacía (implementar sistema de amigos después)
+        emit('listaAmigos', {
+            'amigos': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        print(f"📋 Lista de amigos enviada a usuario {user_id}")
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo amigos: {e}")
+        emit('error', {'mensaje': 'Error obteniendo lista de amigos'})
+
+@socketio.on('crearSalaGB')
+def handle_crear_sala_gb(data):
+    """Maneja creación de salas de Gestión de Batalla"""
+    try:
+        print(f"🎮 CREAR SALA GB - Datos: {data}")
+        
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        username = obtener_username(user_id)
+        
+        # Validar datos requeridos
+        nombre = data.get('nombre')
+        if not nombre:
+            emit('error', {'mensaje': 'Nombre de sala requerido'})
+            return
+        
+        # Generar código único para la sala
+        codigo_sala = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
+        # Crear registro en base de datos
+        conn = get_db_connection()
+        if conn is None:
+            emit('error', {'mensaje': 'Error de conexión a base de datos'})
+            return
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Crear tabla salas_gb si no existe
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS salas_gb (
+                    id SERIAL PRIMARY KEY,
+                    codigo VARCHAR(20) UNIQUE NOT NULL,
+                    nombre VARCHAR(255) NOT NULL,
+                    descripcion TEXT,
+                    creador_id INTEGER NOT NULL,
+                    estado VARCHAR(20) DEFAULT 'activa',
+                    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    configuracion JSONB DEFAULT '{}'
+                );
+            """)
+            
+            # Insertar nueva sala
+            cursor.execute("""
+                INSERT INTO salas_gb (codigo, nombre, descripcion, creador_id, configuracion)
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING id
+            """, (
+                codigo_sala,
+                nombre,
+                data.get('descripcion', ''),
+                user_id,
+                json.dumps(data)
+            ))
+            
+            sala_id = cursor.fetchone()['id']
+            conn.commit()
+            
+            print(f"✅ Sala GB creada: {codigo_sala} por {username}")
+            
+            # Responder al cliente
+            emit('salaGBCreada', {
+                'id': sala_id,
+                'codigo': codigo_sala,
+                'nombre': nombre,
+                'descripcion': data.get('descripcion', ''),
+                'creador': username,
+                'estado': 'activa',
+                'timestamp': datetime.now().isoformat()
+            })
+            
+            # Notificar a otros usuarios (opcional)
+            socketio.emit('nuevaSalaGB', {
+                'codigo': codigo_sala,
+                'nombre': nombre,
+                'creador': username
+            }, room='general')
+            
+        finally:
+            cursor.close()
+            conn.close()
+        
+    except Exception as e:
+        print(f"❌ Error creando sala GB: {e}")
+        import traceback
+        traceback.print_exc()
+        emit('error', {'mensaje': 'Error creando sala de Gestión de Batalla'})
+
+@socketio.on('listarSalasGB')
+def handle_listar_salas_gb():
+    """Lista salas de Gestión de Batalla disponibles"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            emit('error', {'mensaje': 'Error de conexión a base de datos'})
+            return
+        
+        try:
+            cursor = conn.cursor()
+            
+            # Obtener salas activas
+            cursor.execute("""
+                SELECT s.*, u.username as creador_username
+                FROM salas_gb s
+                LEFT JOIN usuarios u ON s.creador_id = u.id
+                WHERE s.estado = 'activa'
+                ORDER BY s.fecha_creacion DESC
+            """)
+            
+            salas = cursor.fetchall()
+            
+            salas_info = []
+            for sala in salas:
+                salas_info.append({
+                    'id': sala['id'],
+                    'codigo': sala['codigo'],
+                    'nombre': sala['nombre'],
+                    'descripcion': sala['descripcion'],
+                    'creador': sala['creador_username'],
+                    'fecha_creacion': sala['fecha_creacion'].isoformat() if sala['fecha_creacion'] else None
+                })
+            
+            emit('salasGBDisponibles', {
+                'salas': salas_info,
+                'total': len(salas_info)
+            })
+            
+            print(f"📋 Enviadas {len(salas_info)} salas GB")
+            
+        finally:
+            cursor.close()
+            conn.close()
+        
+    except Exception as e:
+        print(f"❌ Error listando salas GB: {e}")
+        emit('error', {'mensaje': 'Error obteniendo salas GB'})
 
 @socketio.on('login')
 def handle_login(data):
