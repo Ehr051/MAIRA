@@ -829,8 +829,27 @@ def handle_connect():
     emit('servidorInfo', {
         'version': '2.0',
         'timestamp': datetime.now().isoformat(),
-        'sala_default': 'general'
+        'sala_default': 'general',
+        'requiere_login': True,
+        'sid': request.sid
     })
+    
+    # ✅ NUEVO: Enviar estado de autenticación
+    user_id = user_sid_map.get(request.sid)
+    if user_id:
+        username = obtener_username(user_id)
+        emit('estadoAutenticacion', {
+            'autenticado': True,
+            'user_id': user_id,
+            'username': username
+        })
+        print(f"✅ Usuario ya autenticado: {username} (ID: {user_id})")
+    else:
+        emit('estadoAutenticacion', {
+            'autenticado': False,
+            'mensaje': 'Necesitas hacer login'
+        })
+        print(f"⚠️ Usuario no autenticado: {request.sid}")
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -864,9 +883,14 @@ def handle_mensaje(data):
         
         # Obtener información del usuario
         user_id = user_sid_map.get(request.sid)
+        print(f"🔍 DEBUG - SID: {request.sid}")
+        print(f"🔍 DEBUG - user_sid_map: {user_sid_map}")
+        print(f"🔍 DEBUG - user_id encontrado: {user_id}")
+        
         if not user_id:
             print(f"❌ Usuario no identificado para SID: {request.sid}")
-            emit('error', {'mensaje': 'Usuario no autenticado'})
+            print(f"❌ Mapas disponibles: user_sid_map={len(user_sid_map)}, user_id_sid_map={len(user_id_sid_map)}")
+            emit('error', {'mensaje': 'Usuario no autenticado - Realiza login primero'})
             return
         
         # Obtener username del usuario
@@ -965,6 +989,41 @@ def handle_solicitar_amigos():
     except Exception as e:
         print(f"❌ Error obteniendo amigos: {e}")
         emit('error', {'mensaje': 'Error obteniendo lista de amigos'})
+
+@socketio.on('obtenerListaAmigos')
+def handle_obtener_lista_amigos():
+    """Maneja solicitud de lista de amigos (evento faltante)"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        # Por ahora devolver lista vacía (implementar sistema de amigos después)
+        emit('listaAmigos', {
+            'amigos': [],
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        print(f"📋 Lista de amigos enviada a usuario {user_id}")
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo amigos: {e}")
+        emit('error', {'mensaje': 'Error obteniendo lista de amigos'})
+
+@socketio.on('mensajeChat')
+def handle_mensaje_chat(data):
+    """Maneja mensajes de chat (evento faltante - alias de mensaje)"""
+    try:
+        print(f"💬 MENSAJE CHAT - SID: {request.sid}")
+        print(f"💬 MENSAJE CHAT - Datos: {data}")
+        
+        # Redirigir al handler principal de mensaje
+        return handle_mensaje(data)
+        
+    except Exception as e:
+        print(f"❌ Error procesando mensaje chat: {e}")
+        emit('error', {'mensaje': 'Error enviando mensaje'})
 
 @socketio.on('crearSalaGB')
 def handle_crear_sala_gb(data):

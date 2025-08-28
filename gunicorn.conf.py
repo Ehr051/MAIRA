@@ -12,9 +12,9 @@ worker_class = "sync"  # Worker estándar compatible con todas las versiones
 worker_connections = 100
 
 # Timeouts críticos (incrementados para evitar worker timeouts)
-timeout = 120  # 2 minutos en lugar de 30 segundos
+timeout = 300  # 5 minutos para cargas pesadas
 keepalive = 30
-graceful_timeout = 60
+graceful_timeout = 120  # 2 minutos para cierre graceful
 
 # Configuración de memoria y procesos
 max_requests = 500
