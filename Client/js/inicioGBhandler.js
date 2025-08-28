@@ -6,9 +6,20 @@ let operacionesActivas = [];
 let operacionSeleccionada = null;
 let usuariosConectados = [];
 
+// ✅ NUEVAS VARIABLES DE AUTENTICACIÓN
+let userId = null;
+let userName = null;
+
 // Inicialización cuando el DOM está cargado
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Inicializando sala de espera para Gestión de Batalla');
+    
+    // ✅ VERIFICAR AUTENTICACIÓN ANTES DE CONTINUAR
+    if (!verificarAutenticacion()) {
+        console.log('❌ Usuario no autenticado, redirigiendo a index.html');
+        window.location.href = 'index.html';
+        return;
+    }
     
     // Conectar con el servidor
     iniciarConexion();
@@ -22,6 +33,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar preview SIDC
     inicializarPreviewSIDC();
 });
+
+/**
+ * ✅ NUEVA FUNCIÓN: Verificar autenticación del usuario
+ */
+function verificarAutenticacion() {
+    const userIdStr = localStorage.getItem('userId');
+    userId = userIdStr ? parseInt(userIdStr, 10) : null;
+    userName = localStorage.getItem('username');
+    
+    console.log('🔍 Verificando autenticación:');
+    console.log('   userId (string):', userIdStr);
+    console.log('   userId (convertido):', userId, 'tipo:', typeof userId);
+    console.log('   userName:', userName);
+    console.log('   isLoggedIn:', localStorage.getItem('isLoggedIn'));
+    
+    if (!userId || !userName || isNaN(userId)) {
+        console.log('❌ Datos de autenticación incompletos o inválidos');
+        return false;
+    }
+    
+    // Actualizar usuarioInfo con los datos de autenticación
+    usuarioInfo = {
+        id: userId,
+        username: userName
+    };
+    
+    console.log('✅ Usuario autenticado:', usuarioInfo);
+    return true;
+}
 
 
 
@@ -885,6 +925,16 @@ function iniciarConexion() {
     socket.on('connect', function() {
         console.log('Conectado al servidor. ID de socket:', socket.id);
         
+        // ✅ ENVIAR LOGIN INMEDIATAMENTE DESPUÉS DE CONECTAR
+        console.log('🔐 Enviando login para inicioGB...');
+        const loginData = { 
+            user_id: userId,    // Backend espera 'user_id'
+            username: userName  // Backend espera 'username'
+        };
+        
+        console.log('🔐 Datos de login:', JSON.stringify(loginData));
+        socket.emit('login', loginData);
+        
         // Llamar al nuevo handler
         onSocketConectado(socket.id);
         
@@ -935,6 +985,26 @@ function iniciarConexion() {
         actualizarListaUsuarios();
     });
     
+    // ✅ NUEVO: Manejar respuesta del login
+    socket.on('loginExitoso', function(data) {
+        console.log('✅ Login exitoso en inicioGB:', data);
+        usuarioInfo = {
+            id: data.user_id,
+            username: data.username
+        };
+        console.log('✅ Usuario autenticado en inicioGB:', usuarioInfo);
+        
+        // Solicitar datos después del login exitoso
+        socket.emit('obtenerOperacionesGB');
+        socket.emit('obtenerUsuariosConectados');
+    });
+    
+    // ✅ NUEVO: Manejar error de login
+    socket.on('loginError', function(data) {
+        console.error('❌ Error de login en inicioGB:', data);
+        alert('Error de autenticación: ' + data.mensaje);
+        window.location.href = 'index.html';
+    });
 
     
     // AGREGAR: Ping periódico para mantener la conexión activa
