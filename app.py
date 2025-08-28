@@ -7,6 +7,8 @@ import random
 import string
 import time
 import traceback
+import urllib.request
+import requests
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -160,6 +162,24 @@ def health_check():
         conn.close()
         return jsonify({"status": "healthy", "database": "connected"})
     return jsonify({"status": "unhealthy", "database": "disconnected"}), 500
+
+@app.route('/config', methods=['GET'])
+def get_config():
+    """Ruta de configuración crítica - MIGRADA DE serverhttps.py"""
+    return jsonify({
+        'SERVER_URL': os.environ.get('SERVER_URL', request.host_url.rstrip('/')),
+        'CLIENT_URL': os.environ.get('CLIENT_URL', request.host_url.rstrip('/')),
+        'SERVER_IP': os.environ.get('SERVER_IP', '0.0.0.0')
+    })
+
+@app.route('/api/adjuntos/<informe_id>', methods=['GET'])
+def obtener_adjunto_api(informe_id):
+    """API de adjuntos - MIGRADA DE serverhttps.py"""
+    try:
+        # Implementación básica para Render
+        return jsonify({"mensaje": "Adjuntos no implementados aún en versión Render"}), 501
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/debug/tables')
 def debug_tables():
@@ -434,6 +454,168 @@ def crear_usuario():
         print(f"Error al crear usuario: {e}")
         return jsonify({"success": False, "message": "Error de servidor", "error": str(e)}), 500
 
+# ========================
+# FUNCIONES AUXILIARES CRÍTICAS
+# ========================
+
+def get_usuarios_conectados():
+    """Obtiene lista de usuarios conectados activos"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return []
+        
+        cursor = conn.cursor()
+        
+        # ✅ CRÍTICO: Verificar tabla usuarios existe antes de consultar
+        try:
+            cursor.execute("""
+                SELECT id, username, fecha_ultimo_acceso 
+                FROM usuarios 
+                WHERE is_online = %s 
+                ORDER BY fecha_ultimo_acceso DESC
+            """, (True,))
+        except Exception as e:
+            print(f"❌ Error consultando usuarios - Creando tabla: {e}")
+            # Crear tabla usuarios si no existe
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS usuarios (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(255) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    is_online BOOLEAN DEFAULT false,
+                    fecha_ultimo_acceso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    puntuacion INTEGER DEFAULT 0,
+                    partidas_jugadas INTEGER DEFAULT 0,
+                    partidas_ganadas INTEGER DEFAULT 0
+                );
+            """)
+            conn.commit()
+            print("✅ Tabla usuarios creada/verificada")
+            return []  # Retorna vacío en primera ejecución
+        
+        usuarios = cursor.fetchall()
+        print(f"📊 Usuarios conectados: {len(usuarios)}")
+        
+        return [dict(u) for u in usuarios]
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo usuarios conectados: {e}")
+        return []
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
+def get_user_sid(user_id):
+    """Obtiene el SID de Socket.IO de un usuario por su ID"""
+    # Buscar en usuarios_conectados (estructura de memoria)
+    if hasattr(socketio, 'users_map'):
+        for sid, user_data in socketio.users_map.items():
+            if user_data.get('user_id') == user_id:
+                return sid
+    return None
+
+def obtener_partida_por_codigo(codigo):
+    """Obtiene información completa de una partida por su código"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return None
+        
+        cursor = conn.cursor()
+        
+        # ✅ Obtener partida principal
+        cursor.execute("""
+            SELECT p.*, u.username as creador_username 
+            FROM partidas p 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios u ON up.usuario_id = u.id 
+            WHERE p.codigo = %s
+        """, (codigo,))
+        
+        partida = cursor.fetchone()
+        
+        if not partida:
+            return None
+        
+        # ✅ Obtener jugadores de la partida
+        cursor.execute("""
+            SELECT u.id, u.username, up.equipo, up.listo, up.esCreador 
+            FROM usuarios_partida up 
+            JOIN usuarios u ON up.usuario_id = u.id 
+            WHERE up.partida_id = %s
+        """, (partida['id'],))
+        
+        jugadores = cursor.fetchall()
+        
+        # ✅ Parsear configuración JSON de forma segura
+        configuracion = {}
+        if partida.get('configuracion'):
+            try:
+                if isinstance(partida['configuracion'], str):
+                    configuracion = json.loads(partida['configuracion'])
+                else:
+                    configuracion = partida['configuracion']  # Ya es dict en PostgreSQL JSONB
+            except json.JSONDecodeError:
+                configuracion = {'nombre': 'Sin configuración'}
+        
+        partida_completa = {
+            'id': partida['id'],
+            'codigo': partida['codigo'],
+            'configuracion': configuracion,
+            'estado': partida['estado'],
+            'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
+            'creador_username': partida.get('creador_username'),
+            'jugadores': [dict(j) for j in jugadores],
+            'jugadores_count': len(jugadores)
+        }
+        
+        return partida_completa
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo partida {codigo}: {e}")
+        return None
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
+def actualizar_estado_usuario_en_bd(user_id, online=True):
+    """Actualiza el estado online/offline de un usuario en la base de datos"""
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return False
+        
+        cursor = conn.cursor()
+        
+        # ✅ ARREGLO PostgreSQL: Usar sintaxis correcta para booleanos
+        cursor.execute("""
+            UPDATE usuarios 
+            SET is_online = %s, fecha_ultimo_acceso = CURRENT_TIMESTAMP 
+            WHERE id = %s
+        """, (online, user_id))
+        
+        conn.commit()
+        
+        affected_rows = cursor.rowcount
+        if affected_rows > 0:
+            print(f"✅ Usuario {user_id} marcado como {'online' if online else 'offline'}")
+            return True
+        else:
+            print(f"⚠️ Usuario {user_id} no encontrado en BD")
+            return False
+        
+    except Exception as e:
+        print(f"❌ Error actualizando estado usuario {user_id}: {e}")
+        return False
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
 # Funciones auxiliares
 def obtener_username(user_id):
     """Obtiene el username de un usuario por su ID"""
@@ -519,49 +701,114 @@ def actualizar_lista_partidas():
     try:
         conn = get_db_connection()
         if conn is None:
+            print("❌ No se pudo conectar a PostgreSQL para actualizar partidas")
             return
         
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT p.*, u.username as creador_username 
-            FROM partidas p 
-            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
-            LEFT JOIN usuarios u ON up.usuario_id = u.id 
-            WHERE p.estado IN ('esperando', 'en_curso')
-            ORDER BY p.fecha_creacion DESC
-        """)
+        
+        # ✅ ARREGLO PostgreSQL: Verificar que tabla partidas existe
+        try:
+            cursor.execute("""
+                SELECT p.*, u.username as creador_username 
+                FROM partidas p 
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+                LEFT JOIN usuarios u ON up.usuario_id = u.id 
+                WHERE p.estado IN ('esperando', 'en_curso')
+                ORDER BY p.fecha_creacion DESC
+            """)
+        except Exception as e:
+            print(f"❌ Error consultando partidas - Creando tabla: {e}")
+            # Crear tabla partidas si no existe
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS partidas (
+                    id SERIAL PRIMARY KEY,
+                    codigo VARCHAR(20) UNIQUE NOT NULL,
+                    configuracion JSONB DEFAULT '{}',
+                    estado VARCHAR(20) DEFAULT 'esperando',
+                    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    jugadores_actuales INTEGER DEFAULT 0
+                );
+            """)
+            
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS usuarios_partida (
+                    id SERIAL PRIMARY KEY,
+                    partida_id INTEGER REFERENCES partidas(id) ON DELETE CASCADE,
+                    usuario_id INTEGER NOT NULL,
+                    equipo VARCHAR(20) DEFAULT 'sin_equipo',
+                    listo BOOLEAN DEFAULT false,
+                    esCreador BOOLEAN DEFAULT false,
+                    fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(partida_id, usuario_id)
+                );
+            """)
+            conn.commit()
+            print("✅ Tablas de partidas creadas/verificadas")
+            
+            # Intentar la consulta nuevamente
+            cursor.execute("""
+                SELECT p.*, u.username as creador_username 
+                FROM partidas p 
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+                LEFT JOIN usuarios u ON up.usuario_id = u.id 
+                WHERE p.estado IN ('esperando', 'en_curso')
+                ORDER BY p.fecha_creacion DESC
+            """)
         
         partidas_db = cursor.fetchall()
         partidas_disponibles = []
         
+        print(f"📊 Encontradas {len(partidas_db)} partidas en PostgreSQL")
+        
         for partida in partidas_db:
             # Obtener jugadores de la partida
-            cursor.execute("""
-                SELECT u.id, u.username, up.equipo, up.listo 
-                FROM usuarios_partida up 
-                JOIN usuarios u ON up.usuario_id = u.id 
-                WHERE up.partida_id = %s
-            """, (partida['id'],))
-            
-            jugadores = cursor.fetchall()
-            
-            partida_info = {
-                'id': partida['id'],
-                'codigo': partida['codigo'],
-                'configuracion': json.loads(partida['configuracion']) if partida['configuracion'] else {},
-                'estado': partida['estado'],
-                'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
-                'creador_username': partida['creador_username'],
-                'jugadores': [dict(j) for j in jugadores],
-                'jugadores_count': len(jugadores)
-            }
-            partidas_disponibles.append(partida_info)
+            try:
+                cursor.execute("""
+                    SELECT u.id, u.username, up.equipo, up.listo 
+                    FROM usuarios_partida up 
+                    JOIN usuarios u ON up.usuario_id = u.id 
+                    WHERE up.partida_id = %s
+                """, (partida['id'],))
+                
+                jugadores = cursor.fetchall()
+                
+                # Parsear configuracion JSON de forma segura
+                configuracion = {}
+                if partida.get('configuracion'):
+                    try:
+                        if isinstance(partida['configuracion'], str):
+                            configuracion = json.loads(partida['configuracion'])
+                        else:
+                            configuracion = partida['configuracion']  # Ya es dict en PostgreSQL JSONB
+                    except json.JSONDecodeError:
+                        configuracion = {'nombre': 'Configuración corrupta'}
+                
+                partida_info = {
+                    'id': partida['id'],
+                    'codigo': partida['codigo'],
+                    'configuracion': configuracion,
+                    'estado': partida['estado'],
+                    'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
+                    'creador_username': partida.get('creador_username'),
+                    'jugadores': [dict(j) for j in jugadores],
+                    'jugadores_count': len(jugadores)
+                }
+                partidas_disponibles.append(partida_info)
+                
+            except Exception as e:
+                print(f"❌ Error procesando partida {partida.get('codigo', 'unknown')}: {e}")
         
         # Emitir a todos los usuarios conectados
+        print(f"📡 Emitiendo {len(partidas_disponibles)} partidas a usuarios conectados")
         socketio.emit('partidasDisponibles', {'partidas': partidas_disponibles})
         
+        # ✅ CRÍTICO: También emitir evento que frontend puede estar esperando
+        socketio.emit('listaPartidasActualizada', room='general')
+        
     except Exception as e:
-        print(f"Error actualizando lista de partidas: {e}")
+        print(f"❌ Error crítico actualizando lista de partidas: {e}")
+        import traceback
+        traceback.print_exc()
     finally:
         if conn:
             cursor.close()
@@ -621,15 +868,42 @@ def handle_login(data):
             'fecha_conexion': datetime.now()
         }
         
-        # Marcar usuario como online en la base de datos
+        print(f"🔐 LOGIN - Usuario registrado: {username} (ID: {user_id}, SID: {request.sid})")
+        print(f"🔐 LOGIN - user_sid_map actualizado: {user_sid_map}")
+        
+        # Marcar usuario como online en la base de datos (PostgreSQL compatible)
         conn = get_db_connection()
         if conn:
             try:
                 cursor = conn.cursor()
-                cursor.execute("UPDATE usuarios SET is_online = 1 WHERE id = %s", (user_id,))
+                # ✅ ARREGLO PostgreSQL: Usar %s en lugar de ? para parámetros
+                cursor.execute("UPDATE usuarios SET is_online = %s WHERE id = %s", (1, user_id))
                 conn.commit()
+                print(f"✅ Usuario {username} marcado como ONLINE en PostgreSQL")
             except Exception as e:
-                print(f"Error actualizando estado online: {e}")
+                print(f"❌ Error actualizando estado online: {e}")
+                # Intentar crear tabla usuarios si no existe
+                try:
+                    cursor.execute("""
+                        CREATE TABLE IF NOT EXISTS usuarios (
+                            id SERIAL PRIMARY KEY,
+                            username VARCHAR(50) UNIQUE NOT NULL,
+                            password VARCHAR(255) NOT NULL,
+                            email VARCHAR(100) UNIQUE NOT NULL,
+                            unidad VARCHAR(100),
+                            is_online INTEGER DEFAULT 0,
+                            fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        );
+                    """)
+                    conn.commit()
+                    print("✅ Tabla usuarios creada/verificada")
+                    
+                    # Intentar nuevamente el update
+                    cursor.execute("UPDATE usuarios SET is_online = %s WHERE id = %s", (1, user_id))
+                    conn.commit()
+                    print(f"✅ Usuario {username} marcado como ONLINE (segundo intento)")
+                except Exception as e2:
+                    print(f"❌ Error crítico con tabla usuarios: {e2}")
             finally:
                 cursor.close()
                 conn.close()
@@ -732,6 +1006,9 @@ def crear_partida(data):
             print(f"📋 Actualizando lista de partidas globales...")
             actualizar_lista_partidas()
             
+            # ✅ CRÍTICO: Emitir evento que el frontend espera (igual que serverhttps.py)
+            socketio.emit('listaPartidasActualizada', room='general')
+            
             print(f"✅ Partida creada exitosamente: {codigo_partida}")
             print(f"🎯 Usuario debería recibir evento 'partidaCreada' ahora")
 
@@ -752,11 +1029,14 @@ def obtener_partidas_disponibles():
     """Envía la lista de partidas disponibles al cliente específico"""
     try:
         print(f"📋 Cliente {request.sid} solicitó lista de partidas disponibles")
+        print(f"🔍 user_sid_map completo: {user_sid_map}")
+        print(f"🔍 usuarios_conectados: {list(usuarios_conectados.keys())}")
         
         # Verificar si el usuario está autenticado
         user_id = user_sid_map.get(request.sid)
         if not user_id:
-            print(f"❌ Usuario {request.sid} no está autenticado")
+            print(f"❌ Usuario {request.sid} no está autenticado en user_sid_map")
+            print(f"❌ SIDs disponibles en user_sid_map: {list(user_sid_map.keys())}")
             emit('errorObtenerPartidas', {'mensaje': 'Usuario no autenticado'})
             return
         
@@ -1593,6 +1873,353 @@ def iniciar_combate(data):
         print(f"❌ Error iniciando combate: {e}")
         emit('error', {'mensaje': 'Error iniciando combate'})
 
+# ==============================================
+# 🔧 EVENTOS SOCKET.IO ADICIONALES - MIGRADOS DE serverhttps.py
+# ==============================================
+
+@socketio.on('mensajeMultimedia')
+def handle_mensaje_multimedia(data):
+    """Maneja mensajes con contenido multimedia (imágenes, audio, video) - MIGRADO DE serverhttps.py"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+            
+        # Validar datos mínimos
+        if 'tipo_contenido' not in data or 'contenido' not in data:
+            emit('error', {'mensaje': 'Formato de mensaje inválido'})
+            return
+            
+        # Generar ID único para el mensaje
+        mensaje_id = f"media_{time.time()}_{random.randint(1000, 9999)}"
+        
+        # Obtener sala/operación
+        sala = data.get('sala', 'general')
+        
+        # Datos del usuario
+        username = obtener_username(user_id)
+        
+        # Procesar contenido multimedia
+        tipo_contenido = data['tipo_contenido']  # image, audio, video
+        contenido_raw = data['contenido']  # base64
+        
+        mensaje_completo = {
+            'id': mensaje_id,
+            'usuario_id': user_id,
+            'username': username,
+            'tipo': 'multimedia',
+            'tipo_contenido': tipo_contenido,
+            'contenido': contenido_raw,
+            'timestamp': datetime.now().isoformat(),
+            'sala': sala
+        }
+        
+        # Emitir a la sala correspondiente
+        socketio.emit('mensajeMultimedia', mensaje_completo, room=sala)
+        print(f"📱 Mensaje multimedia enviado - Usuario: {username}, Tipo: {tipo_contenido}, Sala: {sala}")
+        
+    except Exception as e:
+        print(f"❌ Error en mensaje multimedia: {e}")
+        emit('error', {'mensaje': f'Error procesando mensaje multimedia: {str(e)}'})
+
+@socketio.on('mensajePrivado')
+def handle_mensaje_privado(data):
+    """Maneja mensajes privados entre usuarios - MIGRADO DE serverhttps.py"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+            
+        destinatario_id = data.get('destinatario_id')
+        mensaje = data.get('mensaje')
+        
+        if not destinatario_id or not mensaje:
+            emit('error', {'mensaje': 'Datos de mensaje privado incompletos'})
+            return
+        
+        # Verificar que el destinatario está conectado
+        destinatario_sid = user_id_sid_map.get(destinatario_id)
+        if not destinatario_sid:
+            emit('error', {'mensaje': 'El destinatario no está conectado'})
+            return
+        
+        mensaje_privado = {
+            'id': f"private_{int(time.time())}_{random.randint(1000, 9999)}",
+            'remitente_id': user_id,
+            'remitente': obtener_username(user_id),
+            'destinatario_id': destinatario_id,
+            'destinatario': obtener_username(destinatario_id),
+            'mensaje': mensaje,
+            'timestamp': datetime.now().isoformat(),
+            'tipo': 'privado'
+        }
+        
+        # Enviar al destinatario
+        socketio.emit('mensajePrivadoRecibido', mensaje_privado, room=destinatario_sid)
+        
+        # Confirmar al remitente
+        emit('mensajePrivadoEnviado', mensaje_privado)
+        
+        print(f"📩 Mensaje privado enviado de {obtener_username(user_id)} a {obtener_username(destinatario_id)}")
+        
+    except Exception as e:
+        print(f"❌ Error en mensaje privado: {e}")
+        emit('error', {'mensaje': f'Error enviando mensaje privado: {str(e)}'})
+
+@socketio.on('solicitarElementos')
+def handle_solicitar_elementos(data):
+    """Solicita elementos de una operación específica - MIGRADO DE serverhttps.py"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+            
+        operacion = data.get('operacion')
+        if not operacion:
+            emit('error', {'mensaje': 'Operación no especificada'})
+            return
+        
+        # En una implementación completa, aquí cargarías elementos desde la BD
+        # Por ahora, devolvemos estructura básica
+        elementos = operaciones_batalla.get(operacion, {}).get('elementos', [])
+        
+        emit('elementosOperacion', {
+            'operacion': operacion,
+            'elementos': elementos,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        print(f"📋 Elementos solicitados para operación {operacion} por usuario {user_id}")
+        
+    except Exception as e:
+        print(f"❌ Error solicitando elementos: {e}")
+        emit('error', {'mensaje': 'Error al solicitar elementos'})
+
+@socketio.on('joinRoom')
+def handle_join_room(data):
+    """Unirse a una sala específica - MIGRADO DE serverhttps.py"""
+    try:
+        sala = data.get('sala') or data.get('room')
+        if not sala:
+            emit('error', {'mensaje': 'Sala no especificada'})
+            return
+        
+        user_id = user_sid_map.get(request.sid)
+        username = obtener_username(user_id) if user_id else 'Usuario anónimo'
+        
+        join_room(sala, sid=request.sid)
+        
+        # Notificar al usuario que se unió exitosamente
+        emit('unidoASala', {
+            'sala': sala,
+            'usuario': username,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Notificar a otros en la sala (opcional)
+        socketio.emit('usuarioSeUnioASala', {
+            'usuario': username,
+            'user_id': user_id,
+            'sala': sala,
+            'timestamp': datetime.now().isoformat()
+        }, room=sala, include_self=False)
+        
+        print(f"🏠 Usuario {username} se unió a sala: {sala}")
+        
+    except Exception as e:
+        print(f"❌ Error uniéndose a sala: {e}")
+        emit('error', {'mensaje': 'Error al unirse a la sala'})
+
+@socketio.on('salirSalaEspera')
+def handle_salir_sala_espera(data):
+    """Salir de sala de espera de partida - MIGRADO DE serverhttps.py"""
+    try:
+        codigo_partida = data.get('codigo') or data.get('partidaCodigo')
+        user_id = user_sid_map.get(request.sid)
+        
+        if not codigo_partida or not user_id:
+            emit('error', {'mensaje': 'Datos incompletos para salir de sala'})
+            return
+        
+        # Salir de las salas relacionadas
+        leave_room(codigo_partida, sid=request.sid)
+        leave_room(f"chat_{codigo_partida}", sid=request.sid)
+        
+        # Notificar a otros en la partida
+        socketio.emit('jugadorSalio', {
+            'user_id': user_id,
+            'username': obtener_username(user_id),
+            'partida_codigo': codigo_partida,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+        emit('salidaExitosa', {
+            'partida_codigo': codigo_partida,
+            'mensaje': 'Has salido de la partida'
+        })
+        
+        # Actualizar lista de partidas
+        actualizar_lista_partidas()
+        
+        print(f"🚪 Usuario {obtener_username(user_id)} salió de partida {codigo_partida}")
+        
+    except Exception as e:
+        print(f"❌ Error saliendo de sala de espera: {e}")
+        emit('error', {'mensaje': 'Error al salir de la sala'})
+
+@socketio.on('reconectarAPartida')
+def handle_reconectar_partida(data):
+    """Reconectar a una partida existente - MIGRADO DE serverhttps.py"""
+    try:
+        codigo_partida = data.get('codigo')
+        user_id = user_sid_map.get(request.sid)
+        
+        if not codigo_partida or not user_id:
+            emit('error', {'mensaje': 'Datos incompletos para reconexión'})
+            return
+        
+        # Verificar que el usuario estaba en la partida
+        conn = get_db_connection()
+        if not conn:
+            emit('error', {'mensaje': 'Error de conexión a base de datos'})
+            return
+        
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT p.*, up.equipo, up.listo 
+                FROM partidas p
+                JOIN usuarios_partida up ON p.id = up.partida_id
+                WHERE p.codigo = %s AND up.usuario_id = %s
+            """, (codigo_partida, user_id))
+            
+            participacion = cursor.fetchone()
+            
+            if not participacion:
+                emit('error', {'mensaje': 'No tienes acceso a esta partida'})
+                return
+            
+            # Reincorporar a las salas
+            join_room(codigo_partida, sid=request.sid)
+            join_room(f"chat_{codigo_partida}", sid=request.sid)
+            
+            # Obtener estado actual de la partida
+            cursor.execute("""
+                SELECT u.id, u.username, up.equipo, up.listo 
+                FROM usuarios_partida up 
+                JOIN usuarios u ON up.usuario_id = u.id 
+                WHERE up.partida_id = %s
+            """, (participacion['id'],))
+            
+            jugadores = cursor.fetchall()
+            
+            partida_info = {
+                'id': participacion['id'],
+                'codigo': codigo_partida,
+                'configuracion': json.loads(participacion['configuracion']) if participacion['configuracion'] else {},
+                'estado': participacion['estado'],
+                'mi_equipo': participacion['equipo'],
+                'mi_estado_listo': participacion['listo'],
+                'jugadores': [dict(j) for j in jugadores]
+            }
+            
+            emit('reconexionExitosa', partida_info)
+            
+            # Notificar a otros que el usuario se reconectó
+            socketio.emit('jugadorReconectado', {
+                'user_id': user_id,
+                'username': obtener_username(user_id),
+                'timestamp': datetime.now().isoformat()
+            }, room=codigo_partida, include_self=False)
+            
+            print(f"🔄 Usuario {obtener_username(user_id)} reconectado a partida {codigo_partida}")
+            
+        finally:
+            cursor.close()
+            conn.close()
+            
+    except Exception as e:
+        print(f"❌ Error en reconexión: {e}")
+        emit('error', {'mensaje': 'Error durante la reconexión'})
+
+@socketio.on('sectorDefinido')
+def handle_sector_definido(data):
+    """Maneja la definición de sector en una partida - MIGRADO DE serverhttps.py"""
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        sector_info = data.get('sector')
+        
+        if not codigo_partida or not sector_info:
+            emit('error', {'mensaje': 'Datos de sector incompletos'})
+            return
+        
+        # Emitir a todos en la partida
+        socketio.emit('sectorDefinido', {
+            'partida_codigo': codigo_partida,
+            'sector': sector_info,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+        print(f"🗺️ Sector definido en partida {codigo_partida}")
+        
+    except Exception as e:
+        print(f"❌ Error definiendo sector: {e}")
+        emit('error', {'mensaje': 'Error al definir sector'})
+
+@socketio.on('zonaDespliegueDefinida')
+def handle_zona_despliegue_definida(data):
+    """Maneja la definición de zona de despliegue - MIGRADO DE serverhttps.py"""
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        zona_info = data.get('zona')
+        equipo = data.get('equipo')
+        
+        if not all([codigo_partida, zona_info, equipo]):
+            emit('error', {'mensaje': 'Datos de zona de despliegue incompletos'})
+            return
+        
+        # Emitir a todos en la partida
+        socketio.emit('zonaDespliegueDefinida', {
+            'partida_codigo': codigo_partida,
+            'zona': zona_info,
+            'equipo': equipo,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+        print(f"⚔️ Zona de despliegue definida para equipo {equipo} en partida {codigo_partida}")
+        
+    except Exception as e:
+        print(f"❌ Error definiendo zona de despliegue: {e}")
+        emit('error', {'mensaje': 'Error al definir zona de despliegue'})
+
+@socketio.on('finTurno')
+def handle_fin_turno(data):
+    """Maneja el fin de turno de un jugador - MIGRADO DE serverhttps.py"""
+    try:
+        codigo_partida = data.get('partidaCodigo')
+        jugador_id = data.get('jugadorId') or user_sid_map.get(request.sid)
+        
+        if not codigo_partida or not jugador_id:
+            emit('error', {'mensaje': 'Datos de fin de turno incompletos'})
+            return
+        
+        # Emitir fin de turno a toda la partida
+        socketio.emit('finTurno', {
+            'partida_codigo': codigo_partida,
+            'jugador_id': jugador_id,
+            'jugador': obtener_username(jugador_id),
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo_partida)
+        
+        print(f"⏱️ Fin de turno - Jugador: {obtener_username(jugador_id)}, Partida: {codigo_partida}")
+        
+    except Exception as e:
+        print(f"❌ Error en fin de turno: {e}")
+        emit('error', {'mensaje': 'Error procesando fin de turno'})
+
 # ✅ FUNCIONALIDAD DE UPLOADS - Faltante de serverhttps.py
 
 # ==============================================
@@ -2275,6 +2902,43 @@ def fix_schema_partidas():
         print(f"❌ Error reparando esquema: {e}")
         return jsonify(error_info), 500
 
+# ==============================================
+# 🎮 RUTAS DE CONTROL DE GESTOS - MIGRADAS DE serverhttps.py
+# ==============================================
+
+@app.route('/gestos/iniciar', methods=['POST'])
+def iniciar_gestos():
+    """Control de gestos - MIGRADO DE serverhttps.py"""
+    try:
+        # En Render no usamos subprocess para gestos
+        return jsonify({"success": True, "message": "Gestos no soportados en entorno Render"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/gestos/detener', methods=['POST'])
+def detener_gestos():
+    """Control de gestos - MIGRADO DE serverhttps.py"""
+    try:
+        return jsonify({"success": True, "message": "Gestos detenidos (no aplicable en Render)"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+@app.route('/gestos/estado', methods=['GET'])
+def estado_gestos():
+    """Estado de gestos - MIGRADO DE serverhttps.py"""
+    try:
+        return jsonify({"activo": False, "message": "Gestos no disponibles en entorno Render"}), 200
+    except Exception as e:
+        return jsonify({"activo": False, "error": str(e)}), 500
+
+@app.route('/gestos/calibrar', methods=['POST'])
+def calibrar_gestos():
+    """Calibración de gestos - MIGRADO DE serverhttps.py"""
+    try:
+        return jsonify({"success": True, "message": "Calibración no aplicable en entorno Render"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
 @app.route('/api/debug/fix-json-configuracion', methods=['POST'])
 def fix_json_configuracion():
     """
@@ -2373,3 +3037,217 @@ def fix_json_configuracion():
         }
         print(f"❌ Error limpiando JSON: {e}")
         return jsonify(error_info), 500
+
+# ==============================================
+# 🔧 FUNCIONES AUXILIARES CRÍTICAS - MIGRADAS DE serverhttps.py
+# ==============================================
+
+def get_user_sid(user_id):
+    """
+    Obtiene el Socket ID (SID) de un usuario a partir de su ID.
+    MIGRADA DE serverhttps.py
+    """
+    return user_id_sid_map.get(user_id)
+
+def obtener_partida_por_codigo(codigo):
+    """
+    Obtiene información de partida por código desde BD
+    MIGRADA DE serverhttps.py
+    """
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM partidas WHERE codigo = %s", (codigo,))
+            partida = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            return partida
+        except Exception as e:
+            print(f"Error obteniendo partida por código: {e}")
+            if conn:
+                conn.close()
+    return None
+
+def update_user_status(user_id, is_online):
+    """
+    Actualiza estado online/offline del usuario
+    MIGRADA DE serverhttps.py
+    """
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE usuarios SET is_online = %s WHERE id = %s", 
+                (is_online, user_id)
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error actualizando estado usuario: {e}")
+            if conn:
+                conn.close()
+
+def limpiar_partidas_vacias():
+    """
+    Limpia partidas sin jugadores de la BD
+    MIGRADA DE serverhttps.py
+    """
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            # Eliminar partidas sin jugadores (adaptado para PostgreSQL)
+            cursor.execute("""
+                DELETE FROM partidas 
+                WHERE id NOT IN (
+                    SELECT DISTINCT partida_id 
+                    FROM usuarios_partida 
+                    WHERE partida_id IS NOT NULL
+                )
+                AND estado = 'esperando'
+                AND fecha_creacion < CURRENT_TIMESTAMP - INTERVAL '1 hour'
+            """)
+            eliminadas = cursor.rowcount
+            conn.commit()
+            cursor.close()
+            conn.close()
+            print(f"🧹 Limpiadas {eliminadas} partidas vacías")
+        except Exception as e:
+            print(f"Error limpiando partidas vacías: {e}")
+            if conn:
+                conn.close()
+
+# ==============================================
+# 🎮 COMPATIBILIDAD CON NODE.JS GAMESERVER
+# ==============================================
+
+@socketio.on('manejarUnionPartida')
+def handle_manejo_union_partida(data):
+    """Compatibilidad con GameServer de Node.js - Unión a partida"""
+    # Redirigir al evento estándar con datos compatibles
+    if 'codigo' not in data and 'partidaCodigo' in data:
+        data['codigo'] = data['partidaCodigo']
+    unirse_a_partida(data)
+
+@socketio.on('manejarCambioFase')
+def handle_manejo_cambio_fase(data):
+    """Compatibilidad con GameServer de Node.js - Cambio de fase"""
+    try:
+        codigo = data.get('codigo') or data.get('partidaCodigo')
+        fase = data.get('fase')
+        subfase = data.get('subfase')
+        
+        if not codigo:
+            emit('error', {'mensaje': 'Código de partida requerido'})
+            return
+        
+        # Emitir cambio de fase con formato compatible con Node.js
+        socketio.emit('cambioFase', {
+            'codigo': codigo,
+            'partidaCodigo': codigo,
+            'fase': fase,
+            'subfase': subfase,
+            'timestamp': datetime.now().isoformat()
+        }, room=codigo)
+        
+        print(f"🔄 Cambio de fase Node.js compatible - Partida: {codigo}, Fase: {fase}")
+        
+    except Exception as e:
+        print(f"❌ Error en cambio de fase compatible: {e}")
+        emit('error', {'mensaje': 'Error en cambio de fase'})
+
+@socketio.on('enviarEstadoPartida')
+def handle_enviar_estado_partida(data):
+    """Compatibilidad con GameServer de Node.js - Estado de partida"""
+    try:
+        codigo_partida = data.get('partidaCodigo') or data.get('codigo')
+        
+        if not codigo_partida:
+            emit('error', {'mensaje': 'Código de partida requerido'})
+            return
+        
+        # Obtener estado actual de la partida
+        partida_info = obtener_partida_por_codigo(codigo_partida)
+        
+        if partida_info:
+            emit('estadoPartida', {
+                'codigo': codigo_partida,
+                'estado': partida_info.get('estado', 'desconocido'),
+                'configuracion': json.loads(partida_info.get('configuracion', '{}')),
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            emit('error', {'mensaje': 'Partida no encontrada'})
+        
+    except Exception as e:
+        print(f"❌ Error enviando estado de partida: {e}")
+        emit('error', {'mensaje': 'Error obteniendo estado de partida'})
+
+# ==============================================
+# � EVENTOS SOCKET.IO USUARIOS CONECTADOS
+# ==============================================
+
+@socketio.on('obtener_usuarios_conectados')
+def handle_obtener_usuarios_conectados():
+    """Maneja solicitud de lista de usuarios conectados"""
+    try:
+        usuarios_conectados = get_usuarios_conectados()
+        
+        emit('usuariosConectados', {
+            'usuarios': usuarios_conectados,
+            'total': len(usuarios_conectados),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        print(f"📊 Enviando {len(usuarios_conectados)} usuarios conectados")
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo usuarios conectados: {e}")
+        emit('error', {'mensaje': 'Error obteniendo usuarios conectados'})
+
+@socketio.on('solicitar_lista_partidas')
+def handle_solicitar_lista_partidas():
+    """Maneja solicitud de actualización de lista de partidas"""
+    try:
+        print("📋 Cliente solicita lista de partidas")
+        actualizar_lista_partidas()
+        
+    except Exception as e:
+        print(f"❌ Error al solicitar lista de partidas: {e}")
+        emit('error', {'mensaje': 'Error actualizando partidas'})
+
+# ==============================================
+# �🚀 INICIALIZACIÓN DEL SERVIDOR
+# ==============================================
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    
+    print("="*50)
+    print(f"🚀 INICIANDO MAIRA APP v2.0 - RENDER EDITION")
+    print(f"🌐 Puerto: {port}")
+    print(f"🐛 Debug: {debug}")
+    print(f"🗄️ Base de datos: PostgreSQL")
+    print(f"📡 SocketIO: Polling mode (Render optimized)")
+    print("="*50)
+    
+    # Intentar conexión inicial a la base de datos
+    conn = get_db_connection()
+    if conn:
+        print("✅ Conexión inicial a PostgreSQL exitosa")
+        conn.close()
+    else:
+        print("❌ ADVERTENCIA: No se pudo conectar a PostgreSQL al iniciar")
+    
+    # Iniciar servidor Flask + SocketIO
+    socketio.run(
+        app, 
+        host='0.0.0.0', 
+        port=port, 
+        debug=debug,
+        allow_unsafe_werkzeug=True  # Para Render.com
+    )
