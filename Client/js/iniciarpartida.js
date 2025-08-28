@@ -5,16 +5,31 @@ let usuariosConectados = new Map();
 let listaAmigos = new Set();
 let modoSeleccionado = null;
 
+// ✅ VARIABLES GLOBALES CRÍTICAS
+let userId = null;
+let userName = null;
+let socket = null;
 
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 
 function inicializarAplicacion() {
-    userId = localStorage.getItem('userId');
+    const userIdStr = localStorage.getItem('userId');
+    userId = userIdStr ? parseInt(userIdStr, 10) : null;  // ✅ Convertir a número
     userName = localStorage.getItem('username');
-    if (!userId || !userName) {
+    
+    console.log('🔍 Datos del localStorage:');
+    console.log('   userId (string):', userIdStr);
+    console.log('   userId (convertido):', userId, 'tipo:', typeof userId);
+    console.log('   userName:', userName);
+    console.log('   isLoggedIn:', localStorage.getItem('isLoggedIn'));
+    
+    if (!userId || !userName || isNaN(userId)) {
+        console.log('❌ Datos de usuario incompletos o inválidos, redirigiendo a index.html');
         window.location.href = 'index.html';
         return;
     }
+    
+    console.log('✅ Datos de usuario válidos, continuando...');
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();
@@ -497,11 +512,24 @@ async function inicializarSocket() {
 
 
 function manejarConexion() {
-    console.log('Conectado al servidor');
-    socket.emit('login', { userId, username: userName });
+    console.log('✅ Conectado al servidor');
+    console.log('🔍 Variables antes del login:');
+    console.log('   userId (variable):', userId, 'tipo:', typeof userId);
+    console.log('   userName (variable):', userName, 'tipo:', typeof userName);
+    console.log('   localStorage userId:', localStorage.getItem('userId'));
+    console.log('   localStorage username:', localStorage.getItem('username'));
+    
+    // ✅ CRÍTICO: Enviar con el formato que espera el backend
+    const loginData = { 
+        user_id: userId,    // Backend espera 'user_id'
+        username: userName  // Backend espera 'username'
+    };
+    
+    console.log('🔐 Enviando login con data:', JSON.stringify(loginData));
+    socket.emit('login', loginData);
 
     // Solicitar listas después de conectarse al servidor
-    console.log('Solicitando listas después de conectarse');
+    console.log('📡 Solicitando listas después de conectarse');
     obtenerListaAmigos();
     obtenerPartidasDisponibles();
 }
