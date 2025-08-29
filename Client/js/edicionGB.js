@@ -268,6 +268,8 @@ const unidadesMilitaresGB = {
         
     };
 
+// Compatibilidad: asignar unidadesMilitaresGB a unidadesMilitares para evitar errores
+const unidadesMilitares = unidadesMilitaresGB;
 
 function actualizarTipos(categoriaArma) {
     const [categoria, arma] = categoriaArma.split('|');

@@ -221,6 +221,15 @@ MAIRA.UserIdentity = (function() {
     }
 
     /**
+     * Verifica si los datos de usuario son válidos
+     * @returns {boolean} - True si los datos son válidos
+     */
+    function isValid() {
+        const info = loadFromStorage();
+        return !!(info && info.id && info.username);
+    }
+
+    /**
      * Obtiene el ID del usuario de forma consistente
      * @returns {string|null} - ID del usuario o null si no existe
      */
