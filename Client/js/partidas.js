@@ -810,8 +810,8 @@ function mostrarSalaEspera(partida) {
         console.log('👥 Actualizando lista de jugadores:', partida.jugadores);
         actualizarListaJugadoresSala(partida.jugadores);
         
-        // Mostrar botones según si es creador
-        const userIdLocal = window.userId || localStorage.getItem('userId');
+        // Mostrar botones según si es creador - usar UserIdentity consistente
+        const userIdLocal = MAIRA.UserIdentity.getUserId() || window.userId;
         const esCreador = partida.jugadores.some(j => j.id == userIdLocal && j.esCreador);
         
         const btnIniciar = document.getElementById('btnIniciarPartida');
