@@ -227,10 +227,32 @@ function emitirUnirseAPartida(codigo) {
         userName: userName
     });
     
-    // ✅ FIX: Verificar que socket esté definido
-    const socketActivo = socket || window.socketPartidas || window.socket;
+    // ✅ FIX: Búsqueda exhaustiva del socket
+    const socketActivo = socket || window.socketPartidas || window.socket || window.clientSocket;
+    
+    console.log('🔍 Búsqueda de socket:', {
+        socket: !!socket,
+        windowSocketPartidas: !!window.socketPartidas,
+        windowSocket: !!window.socket,
+        windowClientSocket: !!window.clientSocket,
+        socketActivo: !!socketActivo,
+        connected: socketActivo?.connected
+    });
+    
     if (!socketActivo || !socketActivo.connected) {
         console.error('❌ Socket no disponible para emitir unirseAPartida');
+        
+        // ✅ FALLBACK: Intentar usar socket global de iniciarpartida.js
+        if (window.iniciarPartidaSocket && window.iniciarPartidaSocket.connected) {
+            console.log('🔄 Usando socket de iniciarpartida.js como fallback');
+            window.iniciarPartidaSocket.emit('unirseAPartida', { 
+                codigo: codigo,
+                userId: userId,
+                userName: userName
+            });
+            return;
+        }
+        
         mostrarError('Error: No hay conexión con el servidor');
         ocultarIndicadorCarga();
         return;

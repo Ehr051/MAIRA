@@ -420,6 +420,14 @@ async function inicializarSocket() {
             console.log('✅ Conectado al servidor');
             console.log('Socket ID:', socketPartidas.id);
             
+            // ✅ HACER SOCKET DISPONIBLE GLOBALMENTE para partidas.js
+            window.socket = socketPartidas;
+            window.socketPartidas = socketPartidas;
+            window.iniciarPartidaSocket = socketPartidas;
+            window.clientSocket = socketPartidas;
+            
+            console.log('🌐 Socket configurado globalmente para acceso desde otros módulos');
+            
             // ✅ AUTENTICACIÓN INMEDIATA AL CONECTAR
             console.log('🔐 Enviando datos de autenticación...');
             const datosAuth = {
