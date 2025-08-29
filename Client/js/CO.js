@@ -16,8 +16,65 @@ var connectionSource = null;
 var symbolCounter = 0;
 var historial = { acciones: [], indice: -1 };
 
+// ✅ VARIABLES DE AUTENTICACIÓN
+let userId = null;
+let userName = null;
+
 /* Inicialización */
-document.addEventListener('DOMContentLoaded', inicializarCuadroOrganizacion);
+document.addEventListener('DOMContentLoaded', function() {
+    // ✅ Verificar autenticación antes de inicializar
+    if (!verificarAutenticacionCO()) {
+        console.log('❌ Usuario no autenticado, redirigiendo a index.html');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    inicializarCuadroOrganizacion();
+});
+
+/**
+ * ✅ Verificar autenticación del usuario
+ */
+function verificarAutenticacionCO() {
+    console.log('🔍 Verificando autenticación en CO...');
+    
+    // Verificar UserIdentity con fallback a localStorage
+    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
+        console.warn('⚠️ UserIdentity no disponible, usando localStorage...');
+        
+        const userIdFallback = localStorage.getItem('userId');
+        const userNameFallback = localStorage.getItem('username');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        
+        if (userIdFallback && userNameFallback && isLoggedIn === 'true') {
+            userId = parseInt(userIdFallback, 10);
+            userName = userNameFallback;
+            console.log('✅ Datos cargados desde localStorage en CO');
+        } else {
+            console.error('❌ No se pueden obtener datos de usuario válidos en CO');
+            return false;
+        }
+    } else {
+        userId = MAIRA.UserIdentity.getUserId();
+        userName = MAIRA.UserIdentity.getUsername();
+        console.log('✅ Datos cargados desde UserIdentity en CO');
+    }
+    
+    if (!userId || !userName || isNaN(parseInt(userId, 10))) {
+        console.error('❌ Datos de autenticación inválidos en CO');
+        return false;
+    }
+    
+    // Convertir a número si es necesario
+    userId = parseInt(userId, 10);
+    
+    // Exponer globalmente para compatibilidad
+    window.userId = userId;
+    window.userName = userName;
+    
+    console.log('✅ Usuario autenticado en CO:', { userId, userName });
+    return true;
+}
 
 
 

@@ -14,20 +14,62 @@ let socketPartidas = null; // Evitar conflictos con Socket.IO global
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 
 function inicializarAplicacion() {
-    // Usar UserIdentity centralizado para obtener datos consistentes
-    userIdLocal = MAIRA.UserIdentity.getUserId();
-    userNameLocal = MAIRA.UserIdentity.getUsername();
+    console.log('🔍 Iniciando verificación de autenticación en Partidas...');
     
-    console.log('🔍 Datos via UserIdentity:');
+    // Verificar UserIdentity con fallback a localStorage
+    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
+        console.warn('⚠️ UserIdentity no disponible, usando localStorage...');
+        
+        // Fallback a localStorage
+        const userIdFallback = localStorage.getItem('userId');
+        const userNameFallback = localStorage.getItem('username');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        
+        console.log('📋 Datos en localStorage:', {
+            userId: userIdFallback,
+            username: userNameFallback,
+            isLoggedIn: isLoggedIn
+        });
+        
+        if (userIdFallback && userNameFallback && isLoggedIn === 'true') {
+            userIdLocal = parseInt(userIdFallback, 10);
+            userNameLocal = userNameFallback;
+            console.log('✅ Datos cargados desde localStorage');
+        } else {
+            console.error('❌ No se pueden obtener datos de usuario válidos');
+            window.location.href = 'index.html';
+            return;
+        }
+    } else {
+        // Usar UserIdentity centralizado para obtener datos consistentes
+        userIdLocal = MAIRA.UserIdentity.getUserId();
+        userNameLocal = MAIRA.UserIdentity.getUsername();
+        
+        console.log('� Datos desde UserIdentity:', {
+            userId: userIdLocal,
+            userName: userNameLocal,
+            isAuthenticated: MAIRA.UserIdentity.isAuthenticated()
+        });
+    }
+    
+    console.log('🔍 Verificando datos de autenticación:');
     console.log('   userIdLocal:', userIdLocal, 'tipo:', typeof userIdLocal);
     console.log('   userNameLocal:', userNameLocal);
-    console.log('   isAuthenticated:', MAIRA.UserIdentity.isAuthenticated());
     
-    if (!userIdLocal || !userNameLocal || isNaN(userIdLocal)) {
-        console.log('❌ Datos de usuario incompletos o inválidos, redirigiendo a index.html');
+    if (!userIdLocal || !userNameLocal) {
+        console.error('❌ Datos de autenticación incompletos');
         window.location.href = 'index.html';
         return;
     }
+    
+    if (isNaN(parseInt(userIdLocal, 10))) {
+        console.error('❌ userIdLocal no es un número válido:', userIdLocal);
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // Convertir a número si es necesario
+    userIdLocal = parseInt(userIdLocal, 10);
     
     // ✅ Compatibilidad global: exponer userId para módulos legacy
     window.userId = userIdLocal;

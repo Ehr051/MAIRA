@@ -358,11 +358,19 @@ MAIRA.UserIdentity = (function() {
     };
 })();
 
-// Inicializar automáticamente
-document.addEventListener("DOMContentLoaded", function() {
+// Inicializar automáticamente y de inmediato
+function autoInit() {
     MAIRA.UserIdentity.loadFromStorage();
     console.log("Módulo UserIdentity inicializado automáticamente");
-});
+}
+
+// Inicializar inmediatamente si el script ya está cargado
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", autoInit);
+} else {
+    // DOM ya está listo, inicializar inmediatamente
+    autoInit();
+}
 
 // Exponer globalmente para compatibilidad
 window.UserIdentity = MAIRA.UserIdentity;

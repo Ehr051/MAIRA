@@ -38,39 +38,67 @@ document.addEventListener('DOMContentLoaded', function() {
  * ✅ NUEVA FUNCIÓN: Verificar autenticación del usuario usando UserIdentity
  */
 function verificarAutenticacion() {
-    // Verificar que UserIdentity esté disponible
+    console.log('🔍 Iniciando verificación de autenticación...');
+    
+    // Esperar un momento para que UserIdentity se inicialice si es necesario
     if (!window.MAIRA || !window.MAIRA.UserIdentity) {
-        console.error('❌ MAIRA.UserIdentity no está disponible. Intentando carga alternativa...');
+        console.warn('⚠️ UserIdentity no disponible aún, usando localStorage directamente...');
         
         // Intentar cargar desde localStorage directamente como fallback
         const userIdFallback = localStorage.getItem('userId');
         const userNameFallback = localStorage.getItem('username');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
         
-        if (userIdFallback && userNameFallback) {
+        console.log('📋 Datos en localStorage:', {
+            userId: userIdFallback,
+            username: userNameFallback, 
+            isLoggedIn: isLoggedIn
+        });
+        
+        if (userIdFallback && userNameFallback && isLoggedIn === 'true') {
             userId = parseInt(userIdFallback, 10);
             userName = userNameFallback;
             console.log('✅ Datos cargados desde localStorage como fallback');
         } else {
-            console.error('❌ No se pueden obtener datos de usuario');
-            window.location.href = 'index.html';
-            return;
+            console.error('❌ No se pueden obtener datos de usuario válidos');
+            console.error('   - userId:', userIdFallback);
+            console.error('   - userName:', userNameFallback);
+            console.error('   - isLoggedIn:', isLoggedIn);
+            return false;
         }
     } else {
+        console.log('🔧 Usando UserIdentity centralizado...');
         // Usar UserIdentity centralizado para datos consistentes  
         userId = MAIRA.UserIdentity.getUserId();
         userName = MAIRA.UserIdentity.getUsername();
+        
+        console.log('📋 Datos desde UserIdentity:', {
+            userId: userId,
+            userName: userName,
+            isAuthenticated: MAIRA.UserIdentity.isAuthenticated()
+        });
     }
     
-    console.log('🔍 Verificando autenticación via UserIdentity:');
+    console.log('🔍 Verificando datos de autenticación:');
     console.log('   userId:', userId, 'tipo:', typeof userId);
     console.log('   userName:', userName);
     
-    if (!userId || !userName || isNaN(userId)) {
-        console.log('❌ Datos de autenticación incompletos o inválidos');
+    if (!userId || !userName) {
+        console.error('❌ Datos de autenticación incompletos');
+        console.error('   - userId faltante:', !userId);
+        console.error('   - userName faltante:', !userName);
         return false;
     }
     
-        // Actualizar usuarioInfo con los datos de autenticación
+    if (isNaN(parseInt(userId, 10))) {
+        console.error('❌ userId no es un número válido:', userId);
+        return false;
+    }
+    
+    // Convertir userId a número si es necesario
+    userId = parseInt(userId, 10);
+    
+    // Actualizar usuarioInfo con los datos de autenticación
     usuarioInfo = {
         id: userId,
         username: userName
@@ -80,7 +108,7 @@ function verificarAutenticacion() {
     window.userId = userId;
     window.userName = userName;
     
-    console.log('✅ Usuario autenticado:', usuarioInfo);
+    console.log('✅ Usuario autenticado exitosamente:', usuarioInfo);
     return true;
 }
 
