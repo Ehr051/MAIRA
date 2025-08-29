@@ -60,8 +60,22 @@ def safe_json_parse(json_string):
         return {}
     
     try:
+        # Si ya es un diccionario, devolverlo directamente
+        if isinstance(json_string, dict):
+            return json_string
+            
+        # Primer intento: parseo normal
         return json.loads(json_string)
     except (json.JSONDecodeError, TypeError) as e:
+        # Segundo intento: puede estar doblemente escapado
+        try:
+            # Remover escapes extra y intentar nuevamente
+            clean_string = json_string.replace('\\"', '"')
+            if clean_string.startswith('{') and clean_string.endswith('}'):
+                return json.loads(clean_string)
+        except (json.JSONDecodeError, TypeError):
+            pass
+            
         print(f"⚠️ Error parsing JSON: {e}, contenido: {json_string[:100]}...")
         return {}
 def lazy_import_psycopg2():
