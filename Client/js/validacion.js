@@ -122,10 +122,20 @@ async function handleLogin(event) {
 
         if (response.ok) {
             limpiarError('errorLogin');
-            // Guardar información del usuario
+            // Guardar información del usuario en localStorage
             localStorage.setItem('userId', data.user_id);
             localStorage.setItem('username', username);
             localStorage.setItem('isLoggedIn', 'true');
+            
+            // ✅ CRÍTICO: Inicializar UserIdentity con los datos del login
+            if (window.MAIRA && window.MAIRA.UserIdentity) {
+                console.log('🔧 Inicializando UserIdentity con datos de login...');
+                window.MAIRA.UserIdentity.initialize(data.user_id, username);
+                console.log('✅ UserIdentity inicializado correctamente');
+            } else {
+                console.warn('⚠️ UserIdentity no disponible, usando localStorage como fallback');
+            }
+            
             // Usar la función de landing3d.js para mostrar selección de modo con animación
             if (window.mostrarSeleccionModo) {
                 window.mostrarSeleccionModo();
@@ -174,15 +184,39 @@ async function handleCrearUsuario(event) {
         const data = await response.json();
 
         if (response.ok) {
-            alert('Usuario creado exitosamente');
-            if (document.querySelector('.container.active')) {
-                // Si estamos en la interfaz 3D, solo cambiamos de formulario
-                ocultarFormulario('crearUsuarioForm');
-                mostrarFormulario('loginForm');
+            limpiarError('errorCrearUsuario');
+            
+            // Si el servidor devuelve datos de login automático, inicializar UserIdentity
+            if (data.user_id && data.username) {
+                console.log('🔧 Usuario creado con login automático, inicializando UserIdentity...');
+                localStorage.setItem('userId', data.user_id);
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                if (window.MAIRA && window.MAIRA.UserIdentity) {
+                    window.MAIRA.UserIdentity.initialize(data.user_id, data.username);
+                    console.log('✅ UserIdentity inicializado con nuevo usuario');
+                }
+                
+                // Mostrar selección de modo directamente
+                if (window.mostrarSeleccionModo) {
+                    window.mostrarSeleccionModo();
+                } else {
+                    ocultarTodosLosFormularios();
+                    mostrarFormulario('seleccionModo');
+                }
             } else {
-                // En la interfaz antigua
-                ocultarTodosLosFormularios();
-                mostrarFormulario('loginForm');
+                // Usuario creado sin login automático, mostrar formulario de login
+                alert('Usuario creado exitosamente');
+                if (document.querySelector('.container.active')) {
+                    // Si estamos en la interfaz 3D, solo cambiamos de formulario
+                    ocultarFormulario('crearUsuarioForm');
+                    mostrarFormulario('loginForm');
+                } else {
+                    // En la interfaz antigua
+                    ocultarTodosLosFormularios();
+                    mostrarFormulario('loginForm');
+                }
             }
         } else {
             mostrarError('errorCrearUsuario', data.message || 'Error al crear usuario');
