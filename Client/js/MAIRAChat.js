@@ -627,13 +627,20 @@ window.MAIRAChat = (function() {
      */
     function crearObjetoMensaje(texto, mensajeId) {
         const timestamp = new Date().toISOString();
+        
+        // Obtener usuario desde UserIdentity o fallback
+        const usuarioActual = window.MAIRA?.UserIdentity?.getUsername() || 
+                             window.userName || 
+                             localStorage.getItem('username') || 
+                             'Usuario';
+        
         const baseMessage = {
             id: mensajeId,
             contenido: texto,
             mensaje: texto, // Compatibilidad
             timestamp: timestamp,
-            emisor: usuario,
-            usuario: typeof usuario === 'object' ? usuario.usuario : usuario
+            emisor: usuarioActual,
+            usuario: usuarioActual
         };
         
         switch (modulo) {
@@ -653,8 +660,8 @@ window.MAIRAChat = (function() {
                     tipo: esPrivado ? 'privado' : 'global',
                     destinatario: destinatario,
                     emisor: {
-                        id: window.usuarioInfo?.id || 'user_unknown',
-                        nombre: typeof usuario === 'object' ? usuario.usuario : usuario
+                        id: window.usuarioInfo?.id || window.MAIRA?.UserIdentity?.getUserId() || 'user_unknown',
+                        nombre: usuarioActual
                     }
                 };
                 

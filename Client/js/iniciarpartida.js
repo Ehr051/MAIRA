@@ -646,11 +646,23 @@ function inicializarInterfazUsuario() {
 }
 
 function obtenerPartidasDisponibles() {
-    if (socket && socketPartidas.connected) {
-        console.log('Solicitando lista de partidas disponibles');
+    console.log('🔍 Verificando estado del socket para obtener partidas...');
+    console.log('   socketPartidas:', !!socketPartidas);
+    console.log('   socketPartidas.connected:', socketPartidas ? socketPartidas.connected : 'N/A');
+    
+    if (socketPartidas && socketPartidas.connected) {
+        console.log('✅ Solicitando lista de partidas disponibles');
         socketPartidas.emit('obtenerPartidasDisponibles');
     } else {
-        console.error('El socket no está conectado. No se puede solicitar la lista de partidas disponibles.');
+        console.warn('⚠️ Socket no conectado. Reintentando en 2 segundos...');
+        setTimeout(() => {
+            if (socketPartidas && socketPartidas.connected) {
+                console.log('✅ Reintento exitoso - Solicitando partidas disponibles');
+                socketPartidas.emit('obtenerPartidasDisponibles');
+            } else {
+                console.error('❌ Socket aún no conectado después del reintento');
+            }
+        }, 2000);
     }
 }
 

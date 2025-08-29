@@ -656,7 +656,7 @@ def obtener_partida_por_codigo(codigo):
         cursor.execute("""
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
-            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = TRUE 
             LEFT JOIN usuarios u ON up.usuario_id = u.id 
             WHERE p.codigo = %s
         """, (codigo,))
@@ -792,7 +792,7 @@ def actualizar_lista_operaciones_gb():
         cursor.execute("""
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
-            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = true 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = TRUE 
             LEFT JOIN usuarios u ON up.usuario_id = u.id 
             WHERE p.configuracion::text LIKE '%"tipo":"gestion_batalla"%' 
             AND p.estado IN ('preparacion', 'en_curso')
@@ -853,7 +853,7 @@ def actualizar_lista_partidas():
             cursor.execute("""
                 SELECT p.*, u.username as creador_username 
                 FROM partidas p 
-                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = true 
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = TRUE 
                 LEFT JOIN usuarios u ON up.usuario_id = u.id 
                 WHERE p.estado IN ('esperando', 'en_curso')
                 ORDER BY p.fecha_creacion DESC
@@ -891,7 +891,7 @@ def actualizar_lista_partidas():
             cursor.execute("""
                 SELECT p.*, u.username as creador_username 
                 FROM partidas p 
-                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = true 
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = TRUE 
                 LEFT JOIN usuarios u ON up.usuario_id = u.id 
                 WHERE p.estado IN ('esperando', 'en_curso')
                 ORDER BY p.fecha_creacion DESC
@@ -1510,7 +1510,7 @@ def obtener_partidas_disponibles():
         cursor.execute("""
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
-            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = TRUE 
             LEFT JOIN usuarios u ON up.usuario_id = u.id 
             WHERE p.estado IN ('esperando', 'en_curso')
             ORDER BY p.fecha_creacion DESC
@@ -1701,7 +1701,7 @@ def iniciar_partida(data):
             cursor.execute("""
                 SELECT p.* FROM partidas p
                 JOIN usuarios_partida up ON p.id = up.partida_id
-                WHERE p.codigo = %s AND up.usuario_id = %s AND up.esCreador = true
+                WHERE p.codigo = %s AND up.usuario_id = %s AND up.\"esCreador\" = TRUE
             """, (codigo_partida, user_id))
             
             partida = cursor.fetchone()
@@ -1805,7 +1805,7 @@ def cancelar_partida(data):
             cursor.execute("""
                 SELECT p.* FROM partidas p
                 JOIN usuarios_partida up ON p.id = up.partida_id
-                WHERE p.codigo = %s AND up.usuario_id = %s AND up.esCreador = true
+                WHERE p.codigo = %s AND up.usuario_id = %s AND up.\"esCreador\" = TRUE
             """, (codigo_partida, user_id))
             
             partida = cursor.fetchone()
