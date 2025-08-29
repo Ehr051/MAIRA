@@ -913,21 +913,24 @@ function unirseOperacionExistente() {
 function iniciarConexion() {
     const serverURL = obtenerURLServidor();
     
-    // Opciones de socket.io para mejorar la estabilidad de la conexión
-    socket = io(serverURL, {
-        reconnectionAttempts: 5,
-        timeout: 30000,
-        transports: ['polling'],  // Solo polling para Render
-        upgrade: false  // No intentar upgrade a websocket
-    });
+    // ✅ USAR CONFIGURACIÓN OPTIMIZADA del networkConfig.js
+    const socketConfig = window.getSocketConfig ? window.getSocketConfig() : {
+        reconnectionAttempts: 3,
+        timeout: 20000,
+        transports: ['polling'],
+        upgrade: false
+    };
+    
+    console.log('🚀 Configuración Socket.IO optimizada para GB:', socketConfig);
+    socket = io(serverURL, socketConfig);
     
     // Evento de conexión
     socket.on('connect', function() {
-        console.log('Conectado al servidor. ID de socket:', socket.id);
+        console.log('✅ Conectado al servidor GB. ID de socket:', socket.id);
         
         // ✅ ENVIAR LOGIN INMEDIATAMENTE DESPUÉS DE CONECTAR
         console.log('🔐 Enviando login para inicioGB...');
-        const loginData = { 
+        const loginData = {
             user_id: userId,    // Backend espera 'user_id'
             username: userName  // Backend espera 'username'
         };

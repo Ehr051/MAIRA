@@ -1,6 +1,6 @@
 # Configuración de Gunicorn para Render.com
 # Optimizada para Socket.IO y aplicaciones Flask pesadas
-# Fix: Python 3.13 + gevent compatibility
+# Fix: Python 3.13 + gevent compatibility + RENDIMIENTO OPTIMIZADO
 
 import os
 import multiprocessing
@@ -9,15 +9,15 @@ import multiprocessing
 bind = f"0.0.0.0:{os.getenv('PORT', '10000')}"
 workers = 1  # Solo 1 worker para evitar problemas de sesión con Socket.IO
 worker_class = "sync"  # Worker estándar compatible con todas las versiones
-worker_connections = 100
+worker_connections = 200  # ✅ Aumentado de 100 a 200
 
-# Timeouts críticos (incrementados para evitar worker timeouts)
-timeout = 300  # 5 minutos para cargas pesadas
-keepalive = 30
-graceful_timeout = 120  # 2 minutos para cierre graceful
+# Timeouts críticos (optimizados para rendimiento)
+timeout = 180  # ✅ Reducido de 300 a 180 (3 minutos)
+keepalive = 60  # ✅ Aumentado de 30 a 60 segundos
+graceful_timeout = 90  # ✅ Reducido de 120 a 90 segundos
 
-# Configuración de memoria y procesos
-max_requests = 500
+# Configuración de memoria y procesos (optimizada)
+max_requests = 800  # ✅ Aumentado de 500 a 800
 max_requests_jitter = 50
 preload_app = True
 

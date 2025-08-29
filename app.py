@@ -54,16 +54,18 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-# Configuración de SocketIO optimizada para Render.com
+# Configuración de SocketIO optimizada para Render.com + RENDIMIENTO
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*", 
-    logger=True, 
-    engineio_logger=True,
-    ping_timeout=120,  # ✅ AUMENTADO: era 60
-    ping_interval=60,  # ✅ AUMENTADO: era 25
+    logger=False,  # ✅ OPTIMIZACIÓN: Desactivar logging detallado para mejor rendimiento
+    engineio_logger=False,  # ✅ OPTIMIZACIÓN: Desactivar engineio logging
+    ping_timeout=90,  # ✅ OPTIMIZADO: Reducido de 120 a 90 para detectar desconexiones más rápido
+    ping_interval=45,  # ✅ OPTIMIZADO: Reducido de 60 a 45 para mejor responsividad
     transports=['polling'],  # ✅ FORZAR POLLING en lugar de websocket para Render
-    upgrade=False  # ✅ NUEVO: Evitar upgrade a websocket
+    upgrade=False,  # ✅ Evitar upgrade a websocket
+    async_mode='threading',  # ✅ NUEVO: Modo threading para mejor concurrencia
+    max_http_buffer_size=1000000  # ✅ NUEVO: Buffer de 1MB para mensajes grandes
 )
 
 # Configuración de la base de datos PostgreSQL

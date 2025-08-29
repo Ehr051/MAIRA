@@ -360,15 +360,19 @@ async function inicializarSocket() {
     console.log('Conectando al servidor:', SERVER_URL);
     
     try {
-        socket = io(SERVER_URL, {
-            transports: ['polling'],  // Solo polling para Render
-            timeout: 30000,
-            forceNew: true,
-            upgrade: false  // No intentar upgrade a websocket
-        });
+        // ✅ USAR CONFIGURACIÓN OPTIMIZADA del networkConfig.js
+        const socketConfig = window.getSocketConfig ? window.getSocketConfig() : {
+            transports: ['polling'],
+            timeout: 20000,
+            reconnectionAttempts: 3,
+            upgrade: false
+        };
+        
+        console.log('🚀 Configuración Socket.IO optimizada:', socketConfig);
+        socket = io(SERVER_URL, socketConfig);
 
         socket.on('connect', function() {
-            console.log('Conectado al servidor');
+            console.log('✅ Conectado al servidor');
             console.log('Socket ID:', socket.id);
             
             // ✅ CORREGIR LLAMADA:
