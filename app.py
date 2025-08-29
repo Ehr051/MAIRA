@@ -18,6 +18,18 @@ from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Importaciones bajo demanda para mejor rendimiento
+
+# ✅ FUNCIÓN HELPER PARA JSON SEGURO
+def safe_json_parse(json_string):
+    """Parsea JSON de forma segura, devuelve {} si falla"""
+    if not json_string:
+        return {}
+    
+    try:
+        return json.loads(json_string)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"⚠️ Error parsing JSON: {e}, contenido: {json_string[:100]}...")
+        return {}
 def lazy_import_psycopg2():
     """Importar psycopg2 solo cuando se necesite"""
     global psycopg2, RealDictCursor
@@ -1533,7 +1545,7 @@ def obtener_partidas_disponibles():
             partida_info = {
                 'id': partida['id'],
                 'codigo': partida['codigo'],
-                'configuracion': json.loads(partida['configuracion']) if partida['configuracion'] else {},
+                'configuracion': safe_json_parse(partida['configuracion']),
                 'estado': partida['estado'],
                 'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
                 'creador_username': partida['creador_username'],
@@ -2494,7 +2506,18 @@ def handle_solicitar_elementos(data):
 def handle_join_room(data):
     """Unirse a una sala específica - MIGRADO DE serverhttps.py"""
     try:
-        sala = data.get('sala') or data.get('room')
+        # ✅ Verificar tipo de dato recibido
+        if isinstance(data, str):
+            # Si recibimos un string, asumimos que es el nombre de la sala
+            sala = data
+        elif isinstance(data, dict):
+            # Si recibimos un dict, extraemos la sala
+            sala = data.get('sala') or data.get('room')
+        else:
+            print(f"❌ Tipo de dato inesperado en joinRoom: {type(data)}, valor: {data}")
+            emit('error', {'mensaje': 'Formato de datos inválido'})
+            return
+            
         if not sala:
             emit('error', {'mensaje': 'Sala no especificada'})
             return
@@ -2611,7 +2634,7 @@ def handle_reconectar_partida(data):
             partida_info = {
                 'id': participacion['id'],
                 'codigo': codigo_partida,
-                'configuracion': json.loads(participacion['configuracion']) if participacion['configuracion'] else {},
+                'configuracion': safe_json_parse(participacion['configuracion']),
                 'estado': participacion['estado'],
                 'mi_equipo': participacion['equipo'],
                 'mi_estado_listo': participacion['listo'],
