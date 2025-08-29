@@ -1725,7 +1725,26 @@ function configurarEventosChat() {
             
             socket.on('connect', function() {
                 console.log('📡 Conectado al servidor Socket.IO');
-                console.log('🆔 Socket ID:', socket.id);
+                
+                // ✅ Verificación mejorada del Socket ID
+                setTimeout(() => {
+                    if (socket && socket.id) {
+                        console.log('🆔 Socket ID:', socket.id);
+                        // Marcar socket como realmente conectado
+                        socketGlobal = socket;
+                        window.socketPartidas = socket;
+                    } else {
+                        console.warn('⚠️ Socket conectado pero ID aún no disponible');
+                        // Reintentar obtener ID
+                        setTimeout(() => {
+                            if (socket && socket.id) {
+                                console.log('🆔 Socket ID (reintento):', socket.id);
+                                socketGlobal = socket;
+                                window.socketPartidas = socket;
+                            }
+                        }, 500);
+                    }
+                }, 100);
                 
                 // Unirse a la sala de la operación
                 if (operacionActual) {
@@ -2729,6 +2748,118 @@ function recibirMensajeChat(mensaje) {
             resultadosDiv.appendChild(noResultados);
         }
     }
+
+/**
+ * ✅ Selecciona un elemento en el mapa (como en planeamiento)
+ * @param {Object} elemento - Elemento Leaflet a seleccionar
+ */
+function seleccionarElemento(elemento) {
+    console.log('🎯 GB: Seleccionando elemento:', elemento);
+    
+    try {
+        // ✅ DESELECCIONAR ANTERIOR SI EXISTE:
+        if (window.elementoSeleccionado && window.elementoSeleccionado !== elemento) {
+            deseleccionarElemento();
+        }
+        
+        // ✅ GUARDAR ESTILO ORIGINAL SOLO LA PRIMERA VEZ:
+        if (elemento.setStyle && !elemento.originalStyle && !elemento._editedStyle) {
+            elemento.originalStyle = {
+                color: elemento.options.color || '#3388ff',
+                weight: elemento.options.weight || 3,
+                opacity: elemento.options.opacity || 1,
+                fillOpacity: elemento.options.fillOpacity || 0.2
+            };
+            console.log('💾 GB: Estilo original guardado:', elemento.originalStyle);
+        }
+        
+        // ✅ APLICAR ESTILO DE SELECCIÓN (RESALTAR):
+        if (elemento.setStyle) {
+            let colorActual = '#3388ff';
+            let pesoActual = 3;
+            
+            if (elemento._editedStyle) {
+                colorActual = elemento._editedStyle.color;
+                pesoActual = elemento._editedStyle.weight;
+            } else if (elemento.originalStyle) {
+                colorActual = elemento.originalStyle.color;
+                pesoActual = elemento.originalStyle.weight;
+            } else {
+                colorActual = elemento.options.color || '#3388ff';
+                pesoActual = elemento.options.weight || 3;
+            }
+            
+            // Aplicar estilo de selección (más grueso y semi-transparente)
+            elemento.setStyle({
+                color: colorActual,
+                weight: Math.max(pesoActual + 2, 5), // Más grueso
+                opacity: 0.8,
+                fillOpacity: 0.4,
+                dashArray: '5, 5' // Línea punteada para indicar selección
+            });
+        }
+        
+        // ✅ MARCAR COMO SELECCIONADO:
+        window.elementoSeleccionado = elemento;
+        
+        // ✅ MOSTRAR EDITOR EN GB (diferente a planeamiento):
+        if (typeof mostrarEditorGB === 'function') {
+            mostrarEditorGB(elemento);
+        }
+        
+        console.log('✅ GB: Elemento seleccionado correctamente');
+        
+    } catch (error) {
+        console.error('❌ GB: Error seleccionando elemento:', error);
+    }
+}
+
+/**
+ * ✅ Deselecciona el elemento actual
+ */
+function deseleccionarElemento() {
+    console.log('🔄 GB: Deseleccionando elemento actual');
+    
+    try {
+        if (window.elementoSeleccionado) {
+            const elemento = window.elementoSeleccionado;
+            
+            // ✅ RESTAURAR ESTILO ORIGINAL:
+            if (elemento.setStyle) {
+                let estiloRestaurar = {};
+                
+                if (elemento._editedStyle) {
+                    estiloRestaurar = elemento._editedStyle;
+                } else if (elemento.originalStyle) {
+                    estiloRestaurar = elemento.originalStyle;
+                } else {
+                    estiloRestaurar = {
+                        color: '#3388ff',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.2,
+                        dashArray: null
+                    };
+                }
+                
+                elemento.setStyle(estiloRestaurar);
+            }
+            
+            // ✅ LIMPIAR SELECCIÓN:
+            window.elementoSeleccionado = null;
+            
+            // ✅ OCULTAR EDITOR EN GB:
+            if (typeof ocultarEditorGB === 'function') {
+                ocultarEditorGB();
+            }
+            
+            console.log('✅ GB: Elemento deseleccionado correctamente');
+        }
+        
+    } catch (error) {
+        console.error('❌ GB: Error deseleccionando elemento:', error);
+    }
+}
     
     /**
      * Integra los datos del elemento de GBinicio con la función agregarMarcador
@@ -8315,6 +8446,10 @@ return {
     centrarEnPosicion: centrarEnPosicion,
     mostrarTodosElementos: mostrarTodosElementos,
     
+    // ✅ FUNCIONES DE SELECCIÓN DE ELEMENTOS (como planeamiento):
+    seleccionarElemento: seleccionarElemento,
+    deseleccionarElemento: deseleccionarElemento,
+    
     // ✅ FUNCIONES DE COMUNICACIÓN:
     enviarMensajeChat: enviarMensajeChat,
     agregarMensajeChat: agregarMensajeChat,
@@ -8391,6 +8526,13 @@ return {
 
 // ✅ VERIFICACIÓN DE CREACIÓN:
 console.log('✅ gestionBatalla.js exportado globalmente y en estructura MAIRA');
+
+// ✅ EXPORTAR FUNCIONES DE SELECCIÓN AL SCOPE GLOBAL (como planeamiento):
+if (window.MAIRA && window.MAIRA.GestionBatalla) {
+    window.seleccionarElemento = window.MAIRA.GestionBatalla.seleccionarElemento;
+    window.deseleccionarElemento = window.MAIRA.GestionBatalla.deseleccionarElemento;
+    console.log('✅ Funciones de selección exportadas al scope global');
+}
 
 // ✅ VERIFICAR QUE EL MÓDULO SE CREÓ CORRECTAMENTE:
 if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.inicializar) {
