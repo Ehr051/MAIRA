@@ -17,6 +17,40 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+# Cargar variables de entorno desde .env
+from dotenv import load_dotenv
+
+# Detectar entorno automáticamente
+if os.environ.get('RENDER'):
+    # Estamos en Render (producción)
+    print("🌐 Entorno detectado: RENDER (Producción)")
+    # En Render, las variables se configuran en el dashboard
+else:
+    # Desarrollo local - cargar .env.development si existe, sino .env
+    env_file = '.env.development' if os.path.exists('.env.development') else '.env'
+    load_dotenv(env_file)
+    print(f"🏠 Entorno detectado: DESARROLLO LOCAL (usando {env_file})")
+
+# ✅ MODO DESARROLLO EN MEMORIA
+USE_MEMORY_MODE = os.environ.get('USE_MEMORY_MODE', 'False').lower() == 'true'
+
+# Base de datos en memoria para desarrollo
+memory_db = {
+    'usuarios': [
+        {'id': 1, 'usuario': 'admin', 'password': 'hashed_password', 'online': False},
+        {'id': 2, 'usuario': 'player1', 'password': 'hashed_password', 'online': False},
+        {'id': 3, 'usuario': 'player2', 'password': 'hashed_password', 'online': False},
+        {'id': 4, 'usuario': 'testuser', 'password': 'hashed_password', 'online': False},
+        {'id': 5, 'usuario': 'nova2', 'password': 'hashed_password', 'online': False}
+    ],
+    'partidas': [],
+    'usuarios_partida': [],
+    'amistades': [],
+    'mensajes': []
+} if USE_MEMORY_MODE else None
+
+print(f"🗄️ Modo base de datos: {'MEMORIA (desarrollo)' if USE_MEMORY_MODE else 'PostgreSQL'}")
+
 # Importaciones bajo demanda para mejor rendimiento
 
 # ✅ FUNCIÓN HELPER PARA JSON SEGURO
@@ -220,6 +254,11 @@ def get_db_connection():
     """Función de compatibilidad que usa pool si está disponible, sino conexión directa"""
     global db_pool
     
+    # Si estamos en modo memoria, devolver un mock de conexión
+    if USE_MEMORY_MODE:
+        print("🧠 Usando base de datos en memoria")
+        return MemoryDBConnection()
+    
     if db_pool is not None:
         # Usar pool si está disponible (mejor rendimiento)
         try:
@@ -232,6 +271,96 @@ def get_db_connection():
     
     # Fallback a conexión directa
     return get_db_connection_direct()
+
+class MemoryDBConnection:
+    """Mock de conexión de base de datos que usa memoria"""
+    
+    def __init__(self):
+        self.closed = False
+    
+    def cursor(self):
+        return MemoryDBCursor()
+    
+    def commit(self):
+        pass
+    
+    def rollback(self):
+        pass
+    
+    def close(self):
+        self.closed = True
+
+class MemoryDBCursor:
+    """Mock de cursor que simula consultas SQL en memoria"""
+    
+    def __init__(self):
+        self.results = []
+        self.rowcount = 0
+        
+    def execute(self, query, params=None):
+        """Simula ejecución de queries SQL"""
+        global memory_db
+        
+        query_lower = query.lower().strip()
+        
+        # LOGIN - verificar usuario
+        if 'select * from usuarios where usuario' in query_lower:
+            username = params[0] if params else 'nova2'
+            user = next((u for u in memory_db['usuarios'] if u['usuario'] == username), None)
+            if user:
+                self.results = [user]
+                self.rowcount = 1
+            else:
+                self.results = []
+                self.rowcount = 0
+        
+        # OBTENER PARTIDAS
+        elif 'select * from partidas' in query_lower:
+            self.results = memory_db['partidas']
+            self.rowcount = len(self.results)
+        
+        # CREAR PARTIDA
+        elif 'insert into partidas' in query_lower:
+            # Simular inserción de partida
+            nuevo_id = len(memory_db['partidas']) + 1
+            codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            partida = {
+                'id': nuevo_id,
+                'codigo': codigo,
+                'nombre': 'Partida Test',
+                'estado': 'esperando',
+                'configuracion': '{"nombrePartida": "Test", "duracionPartida": "30", "duracionTurno": "2"}',
+                'fecha_creacion': datetime.now(),
+                'max_jugadores': 8,
+                'jugadores_actuales': 1
+            }
+            memory_db['partidas'].append(partida)
+            self.results = [partida]
+            self.rowcount = 1
+        
+        # ACTUALIZAR USUARIO ONLINE
+        elif 'update usuarios set online' in query_lower:
+            if params:
+                user_id = params[0] if len(params) > 0 else None
+                if user_id:
+                    user = next((u for u in memory_db['usuarios'] if u['id'] == user_id), None)
+                    if user:
+                        user['online'] = True
+            self.rowcount = 1
+        
+        # DEFAULT - simular éxito
+        else:
+            self.results = []
+            self.rowcount = 1
+    
+    def fetchall(self):
+        return self.results
+    
+    def fetchone(self):
+        return self.results[0] if self.results else None
+    
+    def close(self):
+        pass
 
 # ✅ NUEVA FUNCIÓN: Devolver conexión al pool
 def return_db_connection(conn):
@@ -1956,7 +2085,7 @@ def crear_operacion_gb(data):
             return
 
         codigo_operacion = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        estado = 'preparacion'
+        estado = 'esperando'
         fecha_creacion = datetime.now()
 
         conn = get_db_connection()

@@ -746,36 +746,58 @@ function mostrarBotonesCreador(esCreador) {
 function mostrarSalaEspera(partida) {
     console.log('👥 INICIANDO mostrarSalaEspera para partida:', partida.codigo);
     console.log('📄 Estado actual de la página:', window.location.href);
-    console.log('🔍 Buscando elementos DOM...');
     
-    // Verificar elementos requeridos
-    const elementosRequeridos = [
-        'salaEspera',
-        'nombrePartidaSala', 
-        'codigoPartidaSala',
-        'jugadoresSala'
-    ];
-    
-    const elementosNoEncontrados = elementosRequeridos.filter(id => !document.getElementById(id));
-    
-    if (elementosNoEncontrados.length > 0) {
-        console.error('❌ Elementos DOM faltantes:', elementosNoEncontrados);
-        console.log('📍 URL actual:', window.location.href);
+    // ✅ VERIFICACIÓN MEJORADA CON RETRY
+    const intentarMostrarSala = (intento = 1, maxIntentos = 5) => {
+        console.log(`🔍 Intento ${intento}/${maxIntentos} - Buscando elementos DOM...`);
         
-        // Intentar redirigir si no estamos en la página correcta
-        if (!window.location.href.includes('iniciarpartida.html')) {
-            console.log('🔄 Redirigiendo a página correcta...');
-            sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
-            window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+        // Verificar elementos requeridos
+        const elementosRequeridos = [
+            'salaEspera',
+            'nombrePartidaSala', 
+            'codigoPartidaSala',
+            'jugadoresSala'
+        ];
+        
+        const elementosNoEncontrados = elementosRequeridos.filter(id => !document.getElementById(id));
+        
+        if (elementosNoEncontrados.length > 0) {
+            console.warn(`⚠️ Intento ${intento}: Elementos DOM faltantes:`, elementosNoEncontrados);
+            
+            if (intento < maxIntentos) {
+                // Reintentar después de un delay
+                setTimeout(() => intentarMostrarSala(intento + 1, maxIntentos), 500);
+                return;
+            }
+            
+            // Si agotamos los intentos, redirigir como último recurso
+            console.error('❌ AGOTADOS INTENTOS: Elementos DOM faltantes:', elementosNoEncontrados);
+            console.log('📍 URL actual:', window.location.href);
+            
+            // Intentar redirigir si no estamos en la página correcta
+            if (!window.location.href.includes('iniciarpartida.html')) {
+                console.log('🔄 Redirigiendo a página correcta...');
+                sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
+                window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+                return;
+            }
+            
+            // Si estamos en la página correcta pero faltan elementos, mostrar error
+            console.error('🚨 ERROR CRÍTICO: Elementos DOM faltantes en página correcta');
+            alert(`Error: Elementos DOM faltantes: ${elementosNoEncontrados.join(', ')}`);
             return;
         }
         
-        // Si estamos en la página correcta pero faltan elementos, es un error
-        alert(`Error: Elementos DOM faltantes: ${elementosNoEncontrados.join(', ')}`);
-        return;
-    }
+        console.log('✅ Todos los elementos DOM presentes, continuando...');
+        mostrarSalaEsperaDOM(partida);
+    };
     
-    console.log('✅ Todos los elementos DOM presentes, continuando...');
+    // Empezar verificación
+    intentarMostrarSala();
+};
+
+function mostrarSalaEsperaDOM(partida) {
+    console.log('🎯 Mostrando sala de espera para:', partida.codigo);
     
     // ✅ CAMBIAR SALA DE CHAT:
     if (window.cambiarSalaChat) {
@@ -820,7 +842,7 @@ function mostrarSalaEspera(partida) {
         actualizarListaJugadoresSala(partida.jugadores);
         
         // Mostrar botones según si es creador - usar UserIdentity consistente
-        const userIdLocal = MAIRA.UserIdentity.getUserId() || window.userId;
+        const userIdLocal = (window.UserIdentity && window.UserIdentity.getUserId()) || window.userId;
         const esCreador = partida.jugadores.some(j => j.id == userIdLocal && j.esCreador);
         
         const btnIniciar = document.getElementById('btnIniciarPartida');
@@ -831,18 +853,10 @@ function mostrarSalaEspera(partida) {
         
         console.log('✅ Sala de espera configurada correctamente');
     } else {
-        console.error('❌ No se encontraron elementos de sala de espera - revisando página actual...');
-        console.log('📍 URL actual:', window.location.href);
-        
-        // Intentar redirigir a iniciarpartida.html si no estamos ahí
-        if (!window.location.href.includes('iniciarpartida.html')) {
-            console.log('🔄 Redirigiendo a iniciarpartida.html...');
-            sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
-            window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
-        }
+        console.error('❌ ELEMENTOS DE SALA NO ENCONTRADOS - ESTO NO DEBERÍA PASAR');
     }
     
-    console.log('🏁 mostrarSalaEspera completado');
+    console.log('🏁 mostrarSalaEsperaDOM completado');
 }
 
 // Modificar la función existente actualizarListaPartidas para manejar posibles errores
@@ -861,26 +875,64 @@ function actualizarListaPartidas(partidas) {
         return;
     }
     
-    const tablaBody = document.querySelector('#tablaPartidas tbody');
-    if (!tablaBody) {
-        console.error('❌ No se encontró tabla de partidas');
+    const listaPartidas = document.querySelector('#listaPartidas');
+    if (!listaPartidas) {
+        console.error('❌ No se encontró lista de partidas');
         return;
     }
     
-    // Limpiar tabla
-    tablaBody.innerHTML = '';
+    // Limpiar lista
+    listaPartidas.innerHTML = '';
     
     // ✅ AGREGAR CADA PARTIDA:
     partidas.forEach(partida => {
         if (partida && partida.codigo) { // Validar partida individual
-            const fila = crearFilaPartida(partida);
-            tablaBody.appendChild(fila);
+            const elemento = crearElementoPartida(partida);
+            listaPartidas.appendChild(elemento);
         } else {
             console.warn('⚠️ Partida inválida ignorada:', partida);
         }
     });
     
     console.log(`✅ Lista actualizada con ${partidas.length} partidas`);
+}
+
+function crearElementoPartida(partida) {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+    
+    // Obtener configuración de la partida
+    let config = {};
+    try {
+        if (typeof partida.configuracion === 'string') {
+            config = JSON.parse(partida.configuracion);
+        } else {
+            config = partida.configuracion || {};
+        }
+    } catch (e) {
+        console.warn('Error parsing partida config:', e);
+        config = {};
+    }
+    
+    li.innerHTML = `
+        <div>
+            <strong>${partida.nombre || 'Sin nombre'}</strong>
+            <br>
+            <small class="text-muted">
+                Código: ${partida.codigo} | 
+                Duración: ${config.duracionPartida || 'N/A'} min | 
+                Turno: ${config.duracionTurno || 'N/A'} min
+            </small>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-success me-2" onclick="unirseAPartida('${partida.codigo}')">
+                Unirse
+            </button>
+            <span class="badge bg-primary">${partida.estado || 'esperando'}</span>
+        </div>
+    `;
+    
+    return li;
 }
 
 function mostrarIndicadorCarga() {
