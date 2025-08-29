@@ -737,11 +737,11 @@ def get_usuarios_conectados():
         # ✅ CRÍTICO: Verificar tabla usuarios existe antes de consultar
         try:
             cursor.execute("""
-                SELECT id, username, fecha_ultimo_acceso 
+                SELECT id, username 
                 FROM usuarios 
                 WHERE is_online = %s 
-                ORDER BY fecha_ultimo_acceso DESC
-            """, (True,))
+                ORDER BY id ASC
+            """, (1,))
         except Exception as e:
             print(f"❌ Error consultando usuarios - Creando tabla: {e}")
             # Crear tabla usuarios si no existe
@@ -750,8 +750,7 @@ def get_usuarios_conectados():
                     id SERIAL PRIMARY KEY,
                     username VARCHAR(255) UNIQUE NOT NULL,
                     password_hash VARCHAR(255) NOT NULL,
-                    is_online BOOLEAN DEFAULT false,
-                    fecha_ultimo_acceso TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    is_online SMALLINT DEFAULT 0,
                     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     puntuacion INTEGER DEFAULT 0,
                     partidas_jugadas INTEGER DEFAULT 0,
@@ -859,10 +858,11 @@ def actualizar_estado_usuario_en_bd(user_id, online=True):
         cursor = conn.cursor()
         
         # ✅ ARREGLO PostgreSQL: Convertir boolean a smallint (0/1)
+        # ✅ CORRECCIÓN: Remover fecha_ultimo_acceso que no existe en producción
         is_online_value = 1 if online else 0
         cursor.execute("""
             UPDATE usuarios 
-            SET is_online = %s, fecha_ultimo_acceso = CURRENT_TIMESTAMP 
+            SET is_online = %s 
             WHERE id = %s
         """, (is_online_value, user_id))
         
