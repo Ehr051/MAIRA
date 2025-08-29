@@ -420,9 +420,18 @@ async function inicializarSocket() {
             console.log('✅ Conectado al servidor');
             console.log('Socket ID:', socketPartidas.id);
             
+            // ✅ AUTENTICACIÓN INMEDIATA AL CONECTAR
+            console.log('🔐 Enviando datos de autenticación...');
+            const datosAuth = {
+                user_id: userIdLocal,
+                username: userNameLocal
+            };
+            console.log('🔐 Datos de autenticación:', datosAuth);
+            socketPartidas.emit('login', datosAuth);
+            
             // ✅ CORREGIR LLAMADA:
             if (window.inicializarChat) {
-                const resultado = window.inicializarChat(socket);
+                const resultado = window.inicializarChat(socketPartidas); // ✅ USAR socketPartidas, no socket
                 console.log('✅ Chat inicializado:', resultado);
             } else {
                 console.error('❌ Función inicializarChat no encontrada');
@@ -542,6 +551,36 @@ async function inicializarSocket() {
             mostrarSalaEspera(partidaActual);
         });
         
+
+        // ✅ MANEJAR RESPUESTA DE LOGIN
+        socketPartidas.on('loginResponse', function(response) {
+            console.log('🔐 Respuesta de login recibida:', response);
+            if (response.exito) {
+                console.log('✅ Login exitoso en iniciarpartida');
+            } else {
+                console.error('❌ Login fallido:', response.mensaje);
+                mostrarError('Error de autenticación: ' + response.mensaje);
+            }
+        });
+
+        // ✅ MANEJAR RESPUESTA DE CREAR PARTIDA
+        socketPartidas.on('partidaCreada', function(datosPartida) {
+            console.log('✅ Partida creada exitosamente:', datosPartida);
+            
+            if (datosPartida && datosPartida.codigo) {
+                console.log('🚀 Redirigiendo a sala de espera...');
+                partidaActual = datosPartida;
+                mostrarSalaEspera(datosPartida);
+            } else {
+                console.error('❌ Datos de partida inválidos:', datosPartida);
+                mostrarError('Error: Datos de partida incompletos');
+            }
+        });
+
+        socketPartidas.on('errorCrearPartida', function(error) {
+            console.error('❌ Error al crear partida:', error);
+            mostrarError('Error al crear partida: ' + (error.mensaje || error.message || 'Error desconocido'));
+        });
 
         // ✅ ASEGURAR CIERRE CORRECTO:
         socketPartidas.on('error', function(error) {

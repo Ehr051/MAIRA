@@ -317,13 +317,16 @@ function actualizarListaUsuarios() {
         const usuarioItem = document.createElement('li');
         usuarioItem.className = 'list-group-item d-flex justify-content-between align-items-center';
         
+        // ✅ CORREGIR CAMPO DE NOMBRE DE USUARIO
+        const nombreUsuario = usuario.username || usuario.usuario || usuario.nombre || 'Usuario desconocido';
+        
         // Si el usuario está en una operación, mostrar esa info
         const infoOperacion = usuario.operacion ? 
             ` <span class="badge badge-primary">${usuario.operacion}</span>` : '';
             
         usuarioItem.innerHTML = `
             <div>
-                <i class="fas fa-user"></i> ${usuario.nombre}
+                <i class="fas fa-user"></i> ${nombreUsuario}
                 ${infoOperacion}
             </div>
             <span class="badge badge-success">Conectado</span>
@@ -890,14 +893,14 @@ function unirseOperacionExistente() {
         }, 10000);
     }
     
-    // Crear ID único para usuario y elemento
-    const usuarioId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // ✅ USAR ID REAL DE USUARIO EN LUGAR DE GENERAR UNO TEMPORAL
+    const usuarioId = userId; // Usar el userId real autenticado
+    const elementoId = `elemento_${userId}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     
     // Crear info de usuario
     usuarioInfo = {
         id: usuarioId,
-        usuario: usuario,
+        usuario: userName, // ✅ USAR userName real en lugar de variable 'usuario'
         operacion: operacionSeleccionada.nombre
     };
     

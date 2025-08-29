@@ -325,7 +325,16 @@ function crearPartida(e) {
         iniciarJuegoLocal(configuracion);
     } else {
         console.log('🚀 Enviando crear partida al servidor...');
-        socket.emit('crearPartida', { configuracion });
+        
+        // ✅ USAR SOCKET CORRECTO
+        const socketActivo = window.socketPartidas || window.socket;
+        if (socketActivo && socketActivo.connected) {
+            console.log('✅ Socket encontrado y conectado, enviando datos...');
+            socketActivo.emit('crearPartida', { configuracion });
+        } else {
+            console.error('❌ Socket no disponible o no conectado');
+            mostrarError('Error: No hay conexión con el servidor');
+        }
     }
 }
 
