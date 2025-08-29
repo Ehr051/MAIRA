@@ -1,7 +1,7 @@
 // partidas.js: Maneja las partidas, tanto la creación como la unión, así como el manejo de jugadores y estados
 
 let socket;
-let userId, userName;
+let userName; // ✅ FIX: Solo declarar userName, userId viene de iniciarpartida.js
 let partidasInicializadas = false;
 let intervalActualizacion = null;
 
@@ -811,8 +811,8 @@ function mostrarSalaEspera(partida) {
         actualizarListaJugadoresSala(partida.jugadores);
         
         // Mostrar botones según si es creador
-        const userId = window.userId || localStorage.getItem('userId');
-        const esCreador = partida.jugadores.some(j => j.id == userId && j.esCreador);
+        const userIdLocal = window.userId || localStorage.getItem('userId');
+        const esCreador = partida.jugadores.some(j => j.id == userIdLocal && j.esCreador);
         
         const btnIniciar = document.getElementById('btnIniciarPartida');
         const btnCancelar = document.getElementById('btnCancelarPartida');
