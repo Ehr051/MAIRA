@@ -10,6 +10,34 @@ let usuariosConectados = [];
 let userId = null;
 let userName = null;
 
+/**
+ * 🔧 HELPER FUNCTION - Obtener datos de usuario consistentes
+ * Centraliza el acceso a datos de usuario para evitar inconsistencias
+ */
+function obtenerDatosUsuario() {
+    // Prioridad: UserIdentity > variables globales > usuarioInfo > localStorage
+    const userIdFinal = window.MAIRA?.UserIdentity?.getUserId() || 
+                       window.userId || 
+                       userId || 
+                       usuarioInfo?.id || 
+                       parseInt(localStorage.getItem('userId')) || 
+                       null;
+                       
+    const userNameFinal = window.MAIRA?.UserIdentity?.getUsername() || 
+                         window.userName || 
+                         userName || 
+                         usuarioInfo?.username || 
+                         usuarioInfo?.usuario || 
+                         localStorage.getItem('username') || 
+                         'Usuario';
+    
+    return {
+        id: userIdFinal,
+        username: userNameFinal,
+        isValid: !!(userIdFinal && userNameFinal)
+    };
+}
+
 // Inicialización cuando el DOM está cargado
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Inicializando sala de espera para Gestión de Batalla');
@@ -98,15 +126,17 @@ function verificarAutenticacion() {
     // Convertir userId a número si es necesario
     userId = parseInt(userId, 10);
     
-    // Actualizar usuarioInfo con los datos de autenticación
+    // ✅ Actualizar usuarioInfo con estructura CONSISTENTE
     usuarioInfo = {
         id: userId,
-        username: userName
+        username: userName,
+        usuario: userName  // Compatibilidad backward con código legacy
     };
     
     // ✅ Compatibilidad global: exponer variables para módulos legacy
     window.userId = userId;
     window.userName = userName;
+    window.usuarioInfo = usuarioInfo;  // Para acceso global
     
     console.log('✅ Usuario autenticado exitosamente:', usuarioInfo);
     return true;
@@ -198,7 +228,7 @@ function cargarDatosIniciales() {
         try {
             usuarioInfo = JSON.parse(usuarioGuardado);
             document.getElementById('idUsuarioActual').textContent = usuarioInfo.id;
-            document.getElementById('nombreUsuario').value = usuarioInfo.usuario || '';
+            document.getElementById('nombreUsuario').value = usuarioInfo.username || usuarioInfo.usuario || '';
         } catch (error) {
             console.error('Error al cargar información del usuario:', error);
         }
@@ -396,11 +426,16 @@ function crearNuevaOperacion() {
         }, 10000);
     }
     
+    // ✅ USAR FUNCIÓN HELPER PARA DATOS CONSISTENTES
+    const datosUsuario = obtenerDatosUsuario();
+    console.log('🔍 Datos usuario para creación:', datosUsuario);
+    
     // Crear objeto de operación
     const nuevaOperacion = {
         nombre: nombre,
         descripcion: descripcion,
-        creador: usuarioInfo ? usuarioInfo.usuario : 'Usuario',
+        creador: datosUsuario.username,
+        creadorId: datosUsuario.id,
         fechaCreacion: new Date().toISOString()
     };
     
@@ -428,12 +463,14 @@ function crearNuevaOperacion() {
         if (respuesta && respuesta.operacion) {
             operacionCreada = respuesta.operacion;
         } else {
-            // Estructura alternativa de respuesta
+            // Estructura alternativa de respuesta con datos consistentes
+            const datosUsuario = obtenerDatosUsuario();
             operacionCreada = {
                 id: Date.now().toString(),
                 nombre: nombre,
                 descripcion: descripcion,
-                creador: usuarioInfo ? usuarioInfo.usuario : 'Usuario'
+                creador: datosUsuario.username,
+                creadorId: datosUsuario.id
             };
         }
         
@@ -1045,8 +1082,15 @@ function iniciarConexion() {
         console.log('✅ Login exitoso en inicioGB:', data);
         usuarioInfo = {
             id: data.user_id,
-            username: data.username
+            username: data.username,
+            usuario: data.username  // Compatibilidad backward
         };
+        
+        // ✅ Actualizar variables globales para consistencia
+        window.userId = data.user_id;
+        window.userName = data.username;
+        window.usuarioInfo = usuarioInfo;
+        
         console.log('✅ Usuario autenticado en inicioGB:', usuarioInfo);
         
         // Solicitar datos después del login exitoso
