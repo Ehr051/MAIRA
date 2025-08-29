@@ -205,6 +205,41 @@ function inicializarInterfaz() {
     // Marcar como inicializada
     window.MAIRA_INTERFAZ_INICIALIZADA = true;
 }
+
+/**
+ * Actualiza la información de usuario en la interfaz
+ */
+function actualizarInterfazUsuario() {
+    try {
+        if (!usuarioInfo) return;
+        
+        // Actualizar nombre de usuario
+        const nombreUsuarioEl = document.getElementById('nombre-usuario');
+        if (nombreUsuarioEl) {
+            nombreUsuarioEl.textContent = usuarioInfo.usuario || usuarioInfo.username || 'Usuario';
+        }
+        
+        // Actualizar operación
+        const nombreOperacionEl = document.getElementById('nombre-operacion');
+        if (nombreOperacionEl) {
+            nombreOperacionEl.textContent = usuarioInfo.operacion || new URLSearchParams(window.location.search).get('operacion') || 'Sin operación';
+        }
+        
+        // Actualizar elemento si está disponible
+        const nombreElementoEl = document.getElementById('nombre-elemento');
+        if (nombreElementoEl && elementoTrabajo) {
+            nombreElementoEl.textContent = elementoTrabajo.designacion || elementoTrabajo.id || 'Elemento';
+        }
+        
+        console.log("✅ Interfaz de usuario actualizada:", {
+            usuario: usuarioInfo,
+            elemento: elementoTrabajo
+        });
+        
+    } catch (error) {
+        console.error("❌ Error actualizando interfaz de usuario:", error);
+    }
+}
     
     /**
      * Carga la información de usuario y elemento desde localStorage
@@ -212,11 +247,29 @@ function inicializarInterfaz() {
      */
     function cargarInfoDesdeLocalStorage() {
         try {
-            // Intentar cargar información de usuario
-            const usuarioGuardado = localStorage.getItem('gb_usuario_info');
-            if (usuarioGuardado) {
-                usuarioInfo = JSON.parse(usuarioGuardado);
-                console.log("Información de usuario cargada:", usuarioInfo);
+            // 🔧 PRIORIDAD: Usar UserIdentity como fuente principal
+            if (window.UserIdentity && window.UserIdentity.isInitialized()) {
+                const identidad = window.UserIdentity.obtenerIdentidad();
+                if (identidad && identidad.isAuthenticated) {
+                    usuarioInfo = {
+                        id: identidad.userId,
+                        usuario: identidad.userName,
+                        operacion: new URLSearchParams(window.location.search).get('operacion') || 'operacion'
+                    };
+                    console.log("✅ Usuario cargado desde UserIdentity:", usuarioInfo);
+                    
+                    // Actualizar interfaz inmediatamente
+                    actualizarInterfazUsuario();
+                }
+            }
+            
+            // Fallback: Intentar cargar información de usuario desde localStorage
+            if (!usuarioInfo) {
+                const usuarioGuardado = localStorage.getItem('gb_usuario_info');
+                if (usuarioGuardado) {
+                    usuarioInfo = JSON.parse(usuarioGuardado);
+                    console.log("Información de usuario cargada desde localStorage:", usuarioInfo);
+                }
             }
             
             // Intentar cargar información de elemento
