@@ -2244,8 +2244,8 @@ def crear_operacion_gb(data):
                 # Insertar al creador como director de operación
                 cursor.execute("""
                     INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
-                    VALUES (%s, %s, 'director', false, true)
-                """, (operacion_id, creador_id))
+                    VALUES (%s, %s, 'director', %s, %s)
+                """, (operacion_id, creador_id, 0, 1))
             
             conn.commit()
             print("✅ Operación GB creada exitosamente")
