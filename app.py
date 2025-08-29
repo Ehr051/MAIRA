@@ -667,7 +667,7 @@ def obtener_partida_por_codigo(codigo):
         
         # ✅ Obtener jugadores de la partida
         cursor.execute("""
-            SELECT u.id, u.username, up.equipo, up.listo, up.esCreador 
+            SELECT u.id, u.username, up.equipo, up.listo, up.\"esCreador\" 
             FROM usuarios_partida up 
             JOIN usuarios u ON up.usuario_id = u.id 
             WHERE up.partida_id = %s
@@ -791,7 +791,7 @@ def actualizar_lista_operaciones_gb():
         cursor.execute("""
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
-            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = true 
             LEFT JOIN usuarios u ON up.usuario_id = u.id 
             WHERE p.configuracion::text LIKE '%"tipo":"gestion_batalla"%' 
             AND p.estado IN ('preparacion', 'en_curso')
@@ -852,7 +852,7 @@ def actualizar_lista_partidas():
             cursor.execute("""
                 SELECT p.*, u.username as creador_username 
                 FROM partidas p 
-                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = true 
                 LEFT JOIN usuarios u ON up.usuario_id = u.id 
                 WHERE p.estado IN ('esperando', 'en_curso')
                 ORDER BY p.fecha_creacion DESC
@@ -878,7 +878,7 @@ def actualizar_lista_partidas():
                     usuario_id INTEGER NOT NULL,
                     equipo VARCHAR(20) DEFAULT 'sin_equipo',
                     listo BOOLEAN DEFAULT false,
-                    esCreador BOOLEAN DEFAULT false,
+                    \"esCreador\" BOOLEAN DEFAULT false,
                     fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(partida_id, usuario_id)
                 );
@@ -890,7 +890,7 @@ def actualizar_lista_partidas():
             cursor.execute("""
                 SELECT p.*, u.username as creador_username 
                 FROM partidas p 
-                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.\"esCreador\" = true 
                 LEFT JOIN usuarios u ON up.usuario_id = u.id 
                 WHERE p.estado IN ('esperando', 'en_curso')
                 ORDER BY p.fecha_creacion DESC
@@ -1429,7 +1429,7 @@ def crear_partida(data):
 
             # Insertar al creador en la tabla `usuarios_partida` con `esCreador` = true
             cursor.execute("""
-                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
                 VALUES (%s, %s, 'sin_equipo', false, true)
             """, (partida_id, creador_id))
             
