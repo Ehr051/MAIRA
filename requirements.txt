@@ -8,6 +8,11 @@ pymysql==1.0.2
 psycopg2-binary==2.9.10
 python-dotenv==1.0.1
 bcrypt==4.2.0
+
+# Uvicorn para mejor performance con Socket.IO
+uvicorn[standard]==0.30.6
+uvloop==0.19.0
+httptools==0.6.1
 gunicorn==21.2.0
 requests==2.32.3
 
