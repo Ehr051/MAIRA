@@ -17,6 +17,21 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+def convert_db_booleans(data):
+    """Convierte campos SMALLINT (0/1) a boolean (true/false) para JavaScript"""
+    if isinstance(data, dict):
+        result = {}
+        for key, value in data.items():
+            if key in ['listo', 'esCreador', 'online', 'activo'] and isinstance(value, int):
+                result[key] = bool(value)
+            else:
+                result[key] = value
+        return result
+    elif isinstance(data, list):
+        return [convert_db_booleans(item) for item in data]
+    else:
+        return data
+
 # Cargar variables de entorno desde .env
 from dotenv import load_dotenv
 
@@ -949,7 +964,7 @@ def obtener_partida_por_codigo(codigo):
             'estado': partida['estado'],
             'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
             'creador_username': partida.get('creador_username'),
-            'jugadores': [dict(j) for j in jugadores],
+            'jugadores': [convert_db_booleans(dict(j)) for j in jugadores],
             'jugadores_count': len(jugadores)
         }
         
@@ -1144,8 +1159,8 @@ def actualizar_lista_partidas():
                     partida_id INTEGER REFERENCES partidas(id) ON DELETE CASCADE,
                     usuario_id INTEGER NOT NULL,
                     equipo VARCHAR(20) DEFAULT 'sin_equipo',
-                    listo BOOLEAN DEFAULT false,
-                    \"esCreador\" BOOLEAN DEFAULT false,
+                    listo SMALLINT DEFAULT 0,
+                    \"esCreador\" SMALLINT DEFAULT 0,
                     fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(partida_id, usuario_id)
                 );
@@ -1198,7 +1213,7 @@ def actualizar_lista_partidas():
                     'estado': partida['estado'],
                     'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
                     'creador_username': partida.get('creador_username'),
-                    'jugadores': [dict(j) for j in jugadores],
+                    'jugadores': [convert_db_booleans(dict(j)) for j in jugadores],
                     'jugadores_count': len(jugadores)
                 }
                 partidas_disponibles.append(partida_info)
@@ -1803,7 +1818,7 @@ def obtener_partidas_disponibles():
                 'estado': partida['estado'],
                 'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
                 'creador_username': partida['creador_username'],
-                'jugadores': [dict(j) for j in jugadores],
+                'jugadores': [convert_db_booleans(dict(j)) for j in jugadores],
                 'jugadores_count': len(jugadores)
             }
             partidas_disponibles.append(partida_info)
@@ -1910,7 +1925,7 @@ def unirse_a_partida(data):
                 'codigo': codigo_partida,
                 'configuracion': configuracion,
                 'estado': partida['estado'],
-                'jugadores': [dict(j) for j in jugadores]
+                'jugadores': [convert_db_booleans(dict(j)) for j in jugadores]
             }
             
             # Notificar a todos en la sala que un jugador se unió
@@ -2891,8 +2906,8 @@ def handle_reconectar_partida(data):
                 'configuracion': safe_json_parse(participacion['configuracion']),
                 'estado': participacion['estado'],
                 'mi_equipo': participacion['equipo'],
-                'mi_estado_listo': participacion['listo'],
-                'jugadores': [dict(j) for j in jugadores]
+                'mi_estado_listo': bool(participacion['listo']) if isinstance(participacion['listo'], int) else participacion['listo'],
+                'jugadores': [convert_db_booleans(dict(j)) for j in jugadores]
             }
             
             emit('reconexionExitosa', partida_info)
@@ -3412,8 +3427,8 @@ def debug_partidas_system():
                         partida_id INTEGER REFERENCES partidas(id) ON DELETE CASCADE,
                         usuario_id INTEGER NOT NULL,
                         equipo VARCHAR(20) DEFAULT 'sin_equipo',
-                        listo BOOLEAN DEFAULT false,
-                        \"esCreador\" BOOLEAN DEFAULT false,
+                        listo SMALLINT DEFAULT 0,
+                        \"esCreador\" SMALLINT DEFAULT 0,
                         fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         UNIQUE(partida_id, usuario_id)
                     );

@@ -31,7 +31,7 @@ def setup_tables():
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(100) UNIQUE NOT NULL,
                 unidad VARCHAR(100),
-                is_online BOOLEAN DEFAULT false,
+                is_online SMALLINT DEFAULT 0,
                 fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
@@ -57,8 +57,8 @@ def setup_tables():
                 partida_id INTEGER REFERENCES partidas(id) ON DELETE CASCADE,
                 usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
                 equipo VARCHAR(50) DEFAULT 'sin_equipo',
-                listo BOOLEAN DEFAULT false,
-                esCreador BOOLEAN DEFAULT false,
+                listo SMALLINT DEFAULT 0,
+                esCreador SMALLINT DEFAULT 0,
                 fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(partida_id, usuario_id)
             );

@@ -205,7 +205,7 @@ def actualizar_lista_operaciones_gb():
         cursor.execute("""
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
-            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up."esCreador" = 1 
             LEFT JOIN usuarios u ON up.usuario_id = u.id 
             WHERE p.configuracion::text LIKE '%"tipo":"gestion_batalla"%' 
             AND p.estado IN ('preparacion', 'en_curso')
@@ -262,7 +262,7 @@ def actualizar_lista_partidas():
         cursor.execute("""
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
-            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up."esCreador" = 1 
             LEFT JOIN usuarios u ON up.usuario_id = u.id 
             WHERE p.estado IN ('esperando', 'en_curso')
             ORDER BY p.fecha_creacion DESC
@@ -444,7 +444,7 @@ def crear_partida(data):
                     'id': creador_id,
                     'username': obtener_username(creador_id),
                     'equipo': 'sin_equipo',
-                    'listo': False
+                    'listo': 0
                 }]
             }
 
@@ -574,7 +574,7 @@ def unirse_a_partida(data):
                     'id': user_id,
                     'username': obtener_username(user_id),
                     'equipo': 'sin_equipo',
-                    'listo': False
+                    'listo': 0
                 },
                 'partida': partida_info
             }, room=codigo_partida)
@@ -622,7 +622,7 @@ def iniciar_partida(data):
             cursor.execute("""
                 SELECT p.* FROM partidas p
                 JOIN usuarios_partida up ON p.id = up.partida_id
-                WHERE p.codigo = %s AND up.usuario_id = %s AND up.esCreador = true
+                WHERE p.codigo = %s AND up.usuario_id = %s AND up."esCreador" = 1
             """, (codigo_partida, user_id))
             
             partida = cursor.fetchone()
@@ -720,7 +720,7 @@ def cancelar_partida(data):
             cursor.execute("""
                 SELECT p.* FROM partidas p
                 JOIN usuarios_partida up ON p.id = up.partida_id
-                WHERE p.codigo = %s AND up.usuario_id = %s AND up.esCreador = true
+                WHERE p.codigo = %s AND up.usuario_id = %s AND up."esCreador" = 1
             """, (codigo_partida, user_id))
             
             partida = cursor.fetchone()
