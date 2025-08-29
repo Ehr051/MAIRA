@@ -33,27 +33,40 @@
 
 ## 🚀 Instrucciones de Uso
 
-### Opción 1: Flask (Actual)
+### Opción 1: Flask (Actual - Máxima Compatibilidad)
 ```bash
 # Método tradicional - compatible con todo
 python app.py
 ```
 
-### Opción 2: Uvicorn (Alto Rendimiento)
+### Opción 2: Uvicorn Adaptativo (Recomendado)
 ```bash
-# Método optimizado - 2-3x mejor performance
-./run_uvicorn.sh
+# Configuración automática según dependencias disponibles
+python uvicorn_adaptive.py
 
-# O manualmente:
-uvicorn app:create_asgi_app --factory --host 0.0.0.0 --port 5000 --loop uvloop --http httptools
+# O usando el script bash
+./run_uvicorn.sh
 ```
 
-### Opción 3: Render.com (Producción)
+### Opción 3: Uvicorn Manual
 ```bash
-# En render.yaml, cambiar:
-startCommand: "./run_uvicorn.sh"
-# O mantener:
+# Solo si uvloop y httptools están disponibles
+uvicorn app:create_asgi_app --factory --host 0.0.0.0 --port 5000 --loop uvloop --http httptools
+
+# Versión básica (sin optimizaciones C)
+uvicorn app:create_asgi_app --factory --host 0.0.0.0 --port 5000
+```
+
+### Opción 4: Render.com (Producción)
+```bash
+# Para compatibilidad máxima en render.yaml:
 startCommand: "python app.py"
+
+# Para Uvicorn sin optimizaciones C:
+startCommand: "python uvicorn_adaptive.py"
+
+# Para Uvicorn con optimizaciones (si funciona):
+startCommand: "./run_uvicorn.sh"
 ```
 
 ## 🔧 Configuración de Producción
@@ -61,16 +74,71 @@ startCommand: "python app.py"
 ### Variables de Entorno
 ```bash
 # Para Uvicorn con configuración custom
-export UVICORN_EXTRA_ARGS="--workers 2"
+export UVICORN_EXTRA_ARGS="--workers 1"  # Render Free tiene límites
 export PORT=5000
 
 # Para debug
 export UVICORN_EXTRA_ARGS="--reload --log-level debug"
 ```
 
-### Render.com Deploy
-1. **Mantener Flask**: Sin cambios, funciona igual
-2. **Migrar a Uvicorn**: Cambiar `startCommand` en `render.yaml`
+### Render.com Deploy - Estrategia Escalonada
+
+#### Nivel 1: Flask (Actual - Sin riesgos)
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: maira-app
+    env: python
+    buildCommand: "pip install -r requirements.production.txt"
+    startCommand: "python app.py"
+```
+
+#### Nivel 2: Uvicorn Básico (Mejora moderada)
+```yaml
+# render.yaml  
+services:
+  - type: web
+    name: maira-app
+    env: python
+    buildCommand: "pip install -r requirements.production.txt"
+    startCommand: "python uvicorn_adaptive.py"
+```
+
+#### Nivel 3: Uvicorn Optimizado (Máximo rendimiento)
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: maira-app
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "./run_uvicorn.sh"
+```
+
+## ⚠️ Solución de Problemas
+
+### Error de Compilación uvloop/httptools
+Si ves errores como:
+```
+ERROR: Failed building wheel for httptools
+gcc failed with exit code 1
+```
+
+**Solución 1**: Usar `requirements.production.txt`
+```bash
+pip install -r requirements.production.txt
+```
+
+**Solución 2**: Usar configuración adaptativa
+```bash
+python uvicorn_adaptive.py  # Se adapta automáticamente
+```
+
+**Solución 3**: Mantener Flask
+```bash
+python app.py  # Funciona siempre
+```
 
 ## ✅ Verificación de UserID Consistente
 
