@@ -149,6 +149,7 @@ MAIRA.UserIdentity = (function() {
                 const storedData = localStorage.getItem('usuario_info');
                 if (storedData) {
                     userData = JSON.parse(storedData);
+                    isInitialized = true; // ✅ Marcar como inicializado
                     console.log("Identidad de usuario cargada desde 'usuario_info'");
                 } else {
                     // Intentar con formato antiguo
@@ -160,6 +161,7 @@ MAIRA.UserIdentity = (function() {
                             username: parsed.usuario || parsed.username,
                             loginTime: parsed.loginTime || new Date().toISOString()
                         };
+                        isInitialized = true; // ✅ Marcar como inicializado
                         console.log("Identidad de usuario cargada desde 'gb_usuario_info'");
                     } else {
                         // Último intento con valores individuales
@@ -171,6 +173,7 @@ MAIRA.UserIdentity = (function() {
                                 username: username,
                                 loginTime: new Date().toISOString()
                             };
+                            isInitialized = true; // ✅ Marcar como inicializado
                             console.log("Identidad de usuario cargada desde valores individuales");
                         } else {
                             console.warn("No se encontró información de usuario en localStorage");
@@ -339,6 +342,14 @@ MAIRA.UserIdentity = (function() {
         return datos;
     }
 
+    /**
+     * Verifica si el módulo está inicializado
+     * @returns {boolean} - True si está inicializado
+     */
+    function checkInitialized() {
+        return isInitialized && userData !== null;
+    }
+
     // API público
     return {
         initialize,
@@ -354,6 +365,7 @@ MAIRA.UserIdentity = (function() {
         getUsername,  // Versión con fallback
         isAuthenticated,
         getUserData,
+        isInitialized: checkInitialized,  // ✅ AGREGAR función de verificación
         on  // Para eventos
     };
 })();
