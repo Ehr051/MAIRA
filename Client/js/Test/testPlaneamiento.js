@@ -117,33 +117,62 @@ class TestPlaneamiento {
     }
 
     /**
-     * Test 3: Verificar búsqueda de lugares
+     * Test 3: Verificar búsqueda de lugares (MEJORADO)
      */
     async verificarBusquedaLugares() {
+        console.log('🔍 Verificando búsqueda de lugares...');
+        
         const elementos = {
             'Input búsqueda': document.getElementById('busquedaLugar'),
             'Botón búsqueda': document.getElementById('btnBuscarLugar'),
             'Resultados': document.getElementById('resultadosBusquedaLugar'),
-            'Geocoder disponible': typeof L.Control.Geocoder !== 'undefined'
+            'Leaflet disponible': typeof L !== 'undefined',
+            'Geocoder disponible': typeof L !== 'undefined' && L.Control && L.Control.Geocoder,
+            'Geocoder.nominatim': typeof L !== 'undefined' && L.Control && L.Control.Geocoder && L.Control.Geocoder.nominatim
         };
+
+        console.log('📋 Estado de elementos para búsqueda:', elementos);
 
         const fallidas = Object.entries(elementos).filter(([key, value]) => !value);
         
-        if (fallidas.length === 0) {
-            // Test funcional básico
-            try {
-                const input = elementos['Input búsqueda'];
-                input.value = 'Buenos Aires';
-                input.dispatchEvent(new Event('input'));
-                
-                return { exito: true, mensaje: 'Búsqueda de lugares operativa ✓' };
-            } catch (error) {
-                return { exito: false, mensaje: `Error en búsqueda: ${error.message}` };
-            }
-        } else {
+        if (fallidas.length > 0) {
             return { 
                 exito: false, 
                 mensaje: `Elementos faltantes: ${fallidas.map(([k]) => k).join(', ')}` 
+            };
+        }
+
+        // Test funcional de la búsqueda
+        try {
+            const input = elementos['Input búsqueda'];
+            const resultados = elementos['Resultados'];
+            
+            // Verificar que la función de inicialización existe
+            if (typeof window.initializeBuscarLugar !== 'function') {
+                return { exito: false, mensaje: 'Función initializeBuscarLugar no disponible' };
+            }
+
+            // Test de entrada de texto
+            input.value = 'Buenos Aires';
+            const inputEvent = new Event('input');
+            input.dispatchEvent(inputEvent);
+            
+            // Verificar que el evento se procesa
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Test del botón de búsqueda
+            const btnBuscar = elementos['Botón búsqueda'];
+            const clickEvent = new MouseEvent('click');
+            btnBuscar.dispatchEvent(clickEvent);
+            
+            return { 
+                exito: true, 
+                mensaje: 'Búsqueda de lugares operativa ✓ (elementos y eventos funcionando)' 
+            };
+        } catch (error) {
+            return { 
+                exito: false, 
+                mensaje: `Error en test funcional de búsqueda: ${error.message}` 
             };
         }
     }

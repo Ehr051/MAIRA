@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Test Debug - Planeamiento MAIRA</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container { 
+            background: white; 
+            border-radius: 8px; 
+            padding: 20px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            margin-bottom: 20px;
+        }
+        .test-section { 
+            margin: 15px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            background: #fafafa;
+        }
+        .success { background: linear-gradient(135deg, #d4edda, #c3e6cb); color: #155724; border-color: #c3e6cb; }
+        .error { background: linear-gradient(135deg, #f8d7da, #f5c6cb); color: #721c24; border-color: #f5c6cb; }
+        .info { background: linear-gradient(135deg, #d1ecf1, #bee5eb); color: #0c5460; border-color: #bee5eb; }
+        .warning { background: linear-gradient(135deg, #fff3cd, #ffeaa7); color: #856404; border-color: #ffeaa7; }
+        
+        button { 
+            padding: 12px 20px; 
+            margin: 8px; 
+            background: linear-gradient(135deg, #007bff, #0056b3); 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            background: linear-gradient(135deg, #0056b3, #004085); 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        input { 
+            padding: 10px; 
+            margin: 5px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            font-size: 14px;
+        }
+        
+        .log { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            max-height: 400px; 
+            overflow-y: auto; 
+            font-family: 'Courier New', monospace; 
+            font-size: 13px; 
+            border: 1px solid #e9ecef;
+            white-space: pre-wrap;
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px; 
+        }
+        
+        h1 { 
+            color: #2c3e50; 
+            text-align: center; 
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h3 { 
+            color: #34495e; 
+            border-bottom: 2px solid #3498db; 
+            padding-bottom: 5px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+        .status-info { background: #17a2b8; }
+
+        .dependency-list {
+            list-style: none;
+            padding: 0;
+        }
+        .dependency-list li {
+            padding: 5px 10px;
+            margin: 3px 0;
+            border-radius: 3px;
+            border-left: 4px solid #3498db;
+        }
+        .dependency-ok { background: #d4edda; border-left-color: #28a745; }
+        .dependency-error { background: #f8d7da; border-left-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Debug - Módulo Planeamiento MAIRA</h1>
+    
+    <div class="container">
+        <h3>🚀 Control de Estado del Sistema</h3>
+        <div class="grid">
+            <div class="test-section">
+                <h4>📋 Verificación de Dependencias</h4>
+                <button onclick="verificarDependencias()">Verificar Dependencias</button>
+                <div id="dependenciasStatus"></div>
+            </div>
+            
+            <div class="test-section">
+                <h4>🗺️ Estado del Mapa</h4>
+                <button onclick="verificarMapa()">Verificar Mapa</button>
+                <div id="mapaStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>🔍 Test de Búsqueda de Lugares</h3>
+        <div class="grid">
+            <div class="test-section">
+                <h4>🏗️ Elementos de Interface</h4>
+                <button onclick="verificarElementosBusqueda()">Verificar Elementos</button>
+                <div id="elementosStatus"></div>
+            </div>
+            
+            <div class="test-section">
+                <h4>🧪 Test Funcional</h4>
+                <input type="text" id="testBusqueda" placeholder="Buscar ubicación..." value="Buenos Aires">
+                <button onclick="testBusquedaFuncional()">Test Búsqueda</button>
+                <div id="busquedaStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>🔧 Test Completo del Módulo</h3>
+        <button onclick="ejecutarTestCompleto()">🚀 Ejecutar Test Completo</button>
+        <div class="test-section">
+            <h4>📊 Resultados</h4>
+            <div id="resultadosCompletos"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>📋 Logs del Sistema</h3>
+        <button onclick="limpiarLogs()">🧹 Limpiar Logs</button>
+        <button onclick="exportarLogs()">💾 Exportar Logs</button>
+        <div class="log" id="logsContainer"></div>
+    </div>
+
+    <script>
+        let logs = [];
+        
+        function log(mensaje, tipo = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${tipo.toUpperCase()}: ${mensaje}`;
+            logs.push(logEntry);
+            
+            const container = document.getElementById('logsContainer');
+            container.textContent = logs.join('\n');
+            container.scrollTop = container.scrollHeight;
+            
+            console.log(logEntry);
+        }
+
+        function limpiarLogs() {
+            logs = [];
+            document.getElementById('logsContainer').textContent = '';
+        }
+
+        function exportarLogs() {
+            const blob = new Blob([logs.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `maira_planeamiento_debug_${new Date().toISOString().slice(0,19)}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function createStatusIndicator(status) {
+            return `<span class="status-indicator status-${status}"></span>`;
+        }
+
+        function verificarDependencias() {
+            log('Iniciando verificación de dependencias...');
+            
+            const dependencias = {
+                'Leaflet': typeof L !== 'undefined',
+                'Leaflet.Control': typeof L !== 'undefined' && !!L.Control,
+                'Leaflet.Control.Geocoder': typeof L !== 'undefined' && !!L.Control && !!L.Control.Geocoder,
+                'Geocoder.nominatim': typeof L !== 'undefined' && !!L.Control && !!L.Control.Geocoder && !!L.Control.Geocoder.nominatim,
+                'jQuery': typeof $ !== 'undefined',
+                'Milsymbol': typeof ms !== 'undefined',
+                'D3': typeof d3 !== 'undefined'
+            };
+            
+            let html = '<ul class="dependency-list">';
+            let errores = 0;
+            
+            Object.entries(dependencias).forEach(([nombre, disponible]) => {
+                const status = disponible ? 'ok' : 'error';
+                const icon = disponible ? '✅' : '❌';
+                html += `<li class="dependency-${status}">${icon} ${nombre}</li>`;
+                
+                if (!disponible) {
+                    errores++;
+                    log(`Dependencia faltante: ${nombre}`, 'error');
+                } else {
+                    log(`Dependencia OK: ${nombre}`, 'success');
+                }
+            });
+            
+            html += '</ul>';
+            
+            if (errores === 0) {
+                html = `<div class="success">${createStatusIndicator('success')}Todas las dependencias están disponibles</div>` + html;
+                log('✅ Todas las dependencias verificadas correctamente', 'success');
+            } else {
+                html = `<div class="error">${createStatusIndicator('error')}Faltan ${errores} dependencias críticas</div>` + html;
+                log(`❌ Faltan ${errores} dependencias críticas`, 'error');
+            }
+            
+            document.getElementById('dependenciasStatus').innerHTML = html;
+        }
+
+        function verificarMapa() {
+            log('Verificando estado del mapa...');
+            
+            const checks = {
+                'Mapa existe': !!window.mapa,
+                'Mapa inicializado': !!window.mapa && !!window.mapa._container,
+                'Centro configurado': !!window.mapa && !!window.mapa.getCenter(),
+                'Zoom válido': !!window.mapa && window.mapa.getZoom() > 0,
+                'Capas cargadas': !!window.mapa && Object.keys(window.mapa._layers).length > 0
+            };
+            
+            let html = '<ul class="dependency-list">';
+            let errores = 0;
+            
+            Object.entries(checks).forEach(([nombre, ok]) => {
+                const status = ok ? 'ok' : 'error';
+                const icon = ok ? '✅' : '❌';
+                html += `<li class="dependency-${status}">${icon} ${nombre}</li>`;
+                
+                if (!ok) {
+                    errores++;
+                    log(`Problema en mapa: ${nombre}`, 'error');
+                } else {
+                    log(`Mapa OK: ${nombre}`, 'success');
+                }
+            });
+            
+            html += '</ul>';
+            
+            if (errores === 0) {
+                html = `<div class="success">${createStatusIndicator('success')}Mapa funcionando correctamente</div>` + html;
+                log('✅ Mapa verificado correctamente', 'success');
+            } else {
+                html = `<div class="error">${createStatusIndicator('error')}Problemas en el mapa (${errores})</div>` + html;
+                log(`❌ Problemas detectados en el mapa: ${errores}`, 'error');
+            }
+            
+            document.getElementById('mapaStatus').innerHTML = html;
+        }
+
+        function verificarElementosBusqueda() {
+            log('Verificando elementos de búsqueda...');
+            
+            const elementos = {
+                'Input busquedaLugar': document.getElementById('busquedaLugar'),
+                'Botón btnBuscarLugar': document.getElementById('btnBuscarLugar'),
+                'Div resultadosBusquedaLugar': document.getElementById('resultadosBusquedaLugar'),
+                'Función initializeBuscarLugar': typeof window.initializeBuscarLugar === 'function'
+            };
+            
+            let html = '<ul class="dependency-list">';
+            let errores = 0;
+            
+            Object.entries(elementos).forEach(([nombre, elemento]) => {
+                const ok = !!elemento;
+                const status = ok ? 'ok' : 'error';
+                const icon = ok ? '✅' : '❌';
+                html += `<li class="dependency-${status}">${icon} ${nombre}</li>`;
+                
+                if (!ok) {
+                    errores++;
+                    log(`Elemento faltante: ${nombre}`, 'error');
+                } else {
+                    log(`Elemento OK: ${nombre}`, 'success');
+                }
+            });
+            
+            html += '</ul>';
+            
+            if (errores === 0) {
+                html = `<div class="success">${createStatusIndicator('success')}Todos los elementos disponibles</div>` + html;
+                log('✅ Elementos de búsqueda verificados correctamente', 'success');
+            } else {
+                html = `<div class="error">${createStatusIndicator('error')}Faltan ${errores} elementos</div>` + html;
+                log(`❌ Faltan ${errores} elementos de búsqueda`, 'error');
+            }
+            
+            document.getElementById('elementosStatus').innerHTML = html;
+        }
+
+        function testBusquedaFuncional() {
+            log('Iniciando test funcional de búsqueda...');
+            
+            const input = document.getElementById('busquedaLugar');
+            const resultados = document.getElementById('resultadosBusquedaLugar');
+            const busqueda = document.getElementById('testBusqueda').value;
+            
+            if (!input || !resultados) {
+                const msg = 'Elementos de búsqueda no encontrados';
+                document.getElementById('busquedaStatus').innerHTML = 
+                    `<div class="error">${createStatusIndicator('error')}${msg}</div>`;
+                log(msg, 'error');
+                return;
+            }
+            
+            try {
+                log(`Probando búsqueda con: "${busqueda}"`, 'info');
+                
+                // Simular entrada de usuario
+                input.value = busqueda;
+                
+                // Disparar evento de input
+                const inputEvent = new Event('input', { bubbles: true });
+                input.dispatchEvent(inputEvent);
+                
+                log('Evento de input disparado', 'info');
+                
+                // Esperar un momento y verificar resultados
+                setTimeout(() => {
+                    const contenidoResultados = resultados.innerHTML;
+                    
+                    if (contenidoResultados.includes('Buscando')) {
+                        document.getElementById('busquedaStatus').innerHTML = 
+                            `<div class="info">${createStatusIndicator('info')}Búsqueda en progreso...</div>`;
+                        log('✅ Búsqueda iniciada correctamente', 'success');
+                    } else if (contenidoResultados.trim() === '') {
+                        document.getElementById('busquedaStatus').innerHTML = 
+                            `<div class="warning">${createStatusIndicator('warning')}Sin resultados en contenedor</div>`;
+                        log('⚠️ No hay resultados en el contenedor', 'warning');
+                    } else {
+                        document.getElementById('busquedaStatus').innerHTML = 
+                            `<div class="success">${createStatusIndicator('success')}Resultados detectados</div>`;
+                        log(`✅ Resultados encontrados: ${contenidoResultados.substring(0, 100)}...`, 'success');
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                const msg = `Error en test funcional: ${error.message}`;
+                document.getElementById('busquedaStatus').innerHTML = 
+                    `<div class="error">${createStatusIndicator('error')}${msg}</div>`;
+                log(msg, 'error');
+            }
+        }
+
+        async function ejecutarTestCompleto() {
+            log('🚀 Iniciando test completo del módulo planeamiento...', 'info');
+            
+            document.getElementById('resultadosCompletos').innerHTML = 
+                '<div class="info">🔄 Ejecutando tests...</div>';
+            
+            const resultados = {};
+            
+            // Simular ejecución de todos los tests
+            await new Promise(resolve => setTimeout(resolve, 500));
+            verificarDependencias();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            verificarMapa();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            verificarElementosBusqueda();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testBusquedaFuncional();
+            
+            // Resumen final
+            setTimeout(() => {
+                const totalTests = 4;
+                const testsExitosos = document.querySelectorAll('.success').length;
+                const testsConError = document.querySelectorAll('.error').length;
+                
+                let resumen = `
+                    <div class="test-section">
+                        <h4>📊 Resumen de Tests</h4>
+                        <p><strong>Total de tests:</strong> ${totalTests}</p>
+                        <p><strong>Exitosos:</strong> ${testsExitosos}</p>
+                        <p><strong>Con errores:</strong> ${testsConError}</p>
+                `;
+                
+                if (testsConError === 0) {
+                    resumen += `<div class="success">${createStatusIndicator('success')}¡Todos los tests pasaron exitosamente!</div>`;
+                    log('🎉 ¡Todos los tests pasaron exitosamente!', 'success');
+                } else {
+                    resumen += `<div class="error">${createStatusIndicator('error')}Se encontraron ${testsConError} problemas que requieren atención</div>`;
+                    log(`⚠️ Se encontraron ${testsConError} problemas`, 'warning');
+                }
+                
+                resumen += '</div>';
+                
+                document.getElementById('resultadosCompletos').innerHTML = resumen;
+                log('✅ Test completo finalizado', 'info');
+            }, 2000);
+        }
+
+        // Auto-inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔧 Debug de Planeamiento MAIRA iniciado', 'info');
+            log(`📅 Fecha: ${new Date().toLocaleString()}`, 'info');
+            log(`🌐 URL: ${window.location.href}`, 'info');
+        });
+    </script>
+</body>
+</html>
