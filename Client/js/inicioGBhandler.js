@@ -138,6 +138,9 @@ function verificarAutenticacion() {
     window.userName = userName;
     window.usuarioInfo = usuarioInfo;  // Para acceso global
     
+    // ✅ Actualizar interfaz con información del usuario
+    actualizarInfoUsuarioEnInterfaz(userId, userName);
+    
     console.log('✅ Usuario autenticado exitosamente:', usuarioInfo);
     return true;
 }
@@ -227,12 +230,36 @@ function cargarDatosIniciales() {
     if (usuarioGuardado) {
         try {
             usuarioInfo = JSON.parse(usuarioGuardado);
-            document.getElementById('idUsuarioActual').textContent = usuarioInfo.id;
+            // ✅ Actualizar información en la interfaz
+            actualizarInfoUsuarioEnInterfaz(usuarioInfo.id, usuarioInfo.username || usuarioInfo.usuario || 'Usuario');
             document.getElementById('nombreUsuario').value = usuarioInfo.username || usuarioInfo.usuario || '';
         } catch (error) {
             console.error('Error al cargar información del usuario:', error);
         }
     }
+}
+
+/**
+ * ✅ NUEVA FUNCIÓN: Actualizar información del usuario en la interfaz
+ */
+function actualizarInfoUsuarioEnInterfaz(userId, userName) {
+    console.log('🔍 Actualizando info usuario en interfaz:', {userId, userName});
+    
+    // Actualizar ID del usuario
+    const elementoId = document.getElementById('idUsuarioActual');
+    if (elementoId) {
+        elementoId.textContent = userId || 'No disponible';
+    }
+    
+    // Actualizar nombre del usuario
+    const elementoNombre = document.getElementById('nombreUsuarioActual');
+    if (elementoNombre) {
+        elementoNombre.textContent = userName || 'Usuario';
+        elementoNombre.classList.remove('text-muted');
+        elementoNombre.classList.add('text-primary', 'fw-bold');
+    }
+    
+    console.log('✅ Info usuario actualizada en interfaz');
 }
 
 
@@ -866,6 +893,7 @@ function actualizarEstadoConexion(conectado) {
     // Buscar elementos de indicación de estado
     const indicator = document.getElementById('connection-indicator');
     const statusText = document.getElementById('status-text');
+    const estadoConexion = document.getElementById('estadoConexion');
     
     // Si no se encuentran, no emitir error, simplemente registrar e ignorar
     if (!indicator) {
@@ -886,6 +914,12 @@ function actualizarEstadoConexion(conectado) {
     } else {
         statusText.textContent = conectado ? 'Conectado' : 'Desconectado';
         statusText.className = conectado ? 'text-success' : 'text-danger';
+    }
+    
+    // ✅ Actualizar el nuevo badge de estado
+    if (estadoConexion) {
+        estadoConexion.textContent = conectado ? 'Conectado' : 'Desconectado';
+        estadoConexion.className = conectado ? 'badge bg-success' : 'badge bg-danger';
     }
     
     // Actualizar estado global
@@ -1090,6 +1124,9 @@ function iniciarConexion() {
         window.userId = data.user_id;
         window.userName = data.username;
         window.usuarioInfo = usuarioInfo;
+        
+        // ✅ Actualizar interfaz con información del usuario
+        actualizarInfoUsuarioEnInterfaz(data.user_id, data.username);
         
         console.log('✅ Usuario autenticado en inicioGB:', usuarioInfo);
         

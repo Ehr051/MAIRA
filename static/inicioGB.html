@@ -165,11 +165,20 @@
                 <!-- Información del Usuario -->
                 <div class="card mb-4" id="infoUsuario">
                     <div class="card-header">
-                        Mi Información
+                        <i class="fas fa-user-circle me-2"></i>Mi Información
                     </div>
                     <div class="card-body">
-                        <p><strong>ID:</strong> <span id="idUsuarioActual"></span></p>
-                        <p><strong>Estado:</strong> <span id="estadoConexion">Conectado</span></p>
+                        <div class="row">
+                            <div class="col-12 mb-2">
+                                <p class="mb-1"><strong><i class="fas fa-id-badge me-1"></i>Usuario:</strong> <span id="nombreUsuarioActual" class="text-primary fw-bold">Cargando...</span></p>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <p class="mb-1"><strong><i class="fas fa-hashtag me-1"></i>ID:</strong> <span id="idUsuarioActual" class="text-muted small">Cargando...</span></p>
+                            </div>
+                            <div class="col-12">
+                                <p class="mb-0"><strong><i class="fas fa-wifi me-1"></i>Estado:</strong> <span id="estadoConexion" class="badge bg-success">Conectado</span></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
