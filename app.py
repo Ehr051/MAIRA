@@ -68,8 +68,89 @@ socketio = SocketIO(
     max_http_buffer_size=1000000  # ✅ NUEVO: Buffer de 1MB para mensajes grandes
 )
 
-# Configuración de la base de datos PostgreSQL
-def get_db_connection():
+# ✅ DATABASE POOLING - OPTIMIZACIÓN CRÍTICA DE RENDIMIENTO
+import threading
+from contextlib import contextmanager
+
+# Pool de conexiones global
+db_pool = None
+pool_lock = threading.Lock()
+
+def initialize_db_pool():
+    """Inicializa el pool de conexiones PostgreSQL"""
+    global db_pool
+    try:
+        # Lazy import de psycopg2 y pool
+        psycopg2, RealDictCursor = lazy_import_psycopg2()
+        
+        # Importar pool de manera segura
+        try:
+            from psycopg2 import pool
+        except ImportError:
+            print("⚠️ psycopg2.pool no disponible, usando conexiones directas")
+            return False
+        
+        DATABASE_URL = os.environ.get('DATABASE_URL')
+        
+        if DATABASE_URL:
+            print("🏊‍♂️ Inicializando Connection Pool con DATABASE_URL...")
+            # Crear pool de conexiones para producción
+            db_pool = pool.ThreadedConnectionPool(
+                minconn=1,      # Mínimo 1 conexión siempre activa
+                maxconn=10,     # Máximo 10 conexiones para Render Free
+                dsn=DATABASE_URL,
+                cursor_factory=RealDictCursor
+            )
+            print("✅ Connection Pool inicializado exitosamente")
+            return True
+        else:
+            print("⚠️ DATABASE_URL no disponible, usando conexiones directas")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error inicializando Connection Pool: {e}")
+        return False
+
+@contextmanager
+def get_db_connection_pooled():
+    """Context manager para obtener conexión del pool"""
+    global db_pool
+    
+    if db_pool is None:
+        # Fallback a conexión directa si no hay pool
+        conn = get_db_connection_direct()
+        if conn:
+            try:
+                yield conn
+            finally:
+                conn.close()
+        else:
+            yield None
+        return
+    
+    conn = None
+    try:
+        # Obtener conexión del pool
+        conn = db_pool.getconn()
+        if conn:
+            # Verificar que la conexión esté activa
+            conn.autocommit = False
+            yield conn
+        else:
+            yield None
+    except Exception as e:
+        print(f"❌ Error obteniendo conexión del pool: {e}")
+        yield None
+    finally:
+        if conn:
+            try:
+                # Devolver conexión al pool
+                db_pool.putconn(conn)
+            except Exception as e:
+                print(f"⚠️ Error devolviendo conexión al pool: {e}")
+
+# Configuración de la base de datos PostgreSQL (función original como fallback)
+def get_db_connection_direct():
     try:
         # Lazy import de psycopg2 solo cuando se necesite
         psycopg2, RealDictCursor = lazy_import_psycopg2()
@@ -120,6 +201,46 @@ def get_db_connection():
     except Exception as e:
         print(f"❌ Error general conectando a PostgreSQL: {e}")
         return None
+
+# ✅ NUEVA FUNCIÓN: Mantener compatibilidad con código existente
+def get_db_connection():
+    """Función de compatibilidad que usa pool si está disponible, sino conexión directa"""
+    global db_pool
+    
+    if db_pool is not None:
+        # Usar pool si está disponible (mejor rendimiento)
+        try:
+            conn = db_pool.getconn()
+            if conn:
+                conn.autocommit = False
+                return conn
+        except Exception as e:
+            print(f"⚠️ Pool falló, usando conexión directa: {e}")
+    
+    # Fallback a conexión directa
+    return get_db_connection_direct()
+
+# ✅ NUEVA FUNCIÓN: Devolver conexión al pool
+def return_db_connection(conn):
+    """Devolver conexión al pool o cerrarla si no hay pool"""
+    global db_pool
+    
+    if conn is None:
+        return
+        
+    try:
+        if db_pool is not None:
+            # Devolver al pool
+            db_pool.putconn(conn)
+        else:
+            # Cerrar conexión directa
+            conn.close()
+    except Exception as e:
+        print(f"⚠️ Error devolviendo conexión: {e}")
+        try:
+            conn.close()
+        except:
+            pass
 
 # Rutas básicas
 @app.route('/')
@@ -381,6 +502,7 @@ def login():
     if conn is None:
         return jsonify({"success": False, "message": "Error conectando a la base de datos"}), 500
 
+    cursor = None
     try:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM usuarios WHERE username = %s", (username,))
@@ -399,9 +521,10 @@ def login():
         print("Error durante el login:", e)
         return jsonify({"success": False, "message": "Error de servidor", "error": str(e)}), 500
     finally:
-        if conn:
+        if cursor:
             cursor.close()
-            conn.close()
+        # ✅ OPTIMIZACIÓN: Usar función optimizada para devolver conexión
+        return_db_connection(conn)
 
 @app.route('/api/crear-usuario', methods=['POST'])
 def crear_usuario():
@@ -628,6 +751,7 @@ def obtener_username(user_id):
     if conn is None:
         return "Usuario desconocido"
     
+    cursor = None
     try:
         cursor = conn.cursor()
         cursor.execute("SELECT username FROM usuarios WHERE id = %s", (user_id,))
@@ -637,9 +761,10 @@ def obtener_username(user_id):
         print(f"Error obteniendo username: {e}")
         return "Usuario desconocido"
     finally:
-        if conn:
+        if cursor:
             cursor.close()
-            conn.close()
+        # ✅ OPTIMIZACIÓN: Usar función optimizada para devolver conexión
+        return_db_connection(conn)
 
 def actualizar_lista_operaciones_gb():
     """Actualiza la lista de operaciones GB disponibles para todos los usuarios"""
@@ -3598,6 +3723,14 @@ if __name__ == '__main__':
     print(f"🌐 Puerto: {port}")
     print(f"🐛 Debug: {debug}")
     print(f"🗄️ Base de datos: PostgreSQL")
+    
+    # ✅ INICIALIZAR CONNECTION POOL PARA MEJOR RENDIMIENTO
+    print("🏊‍♂️ Inicializando Connection Pool...")
+    pool_initialized = initialize_db_pool()
+    if pool_initialized:
+        print("✅ Connection Pool activado - RENDIMIENTO OPTIMIZADO")
+    else:
+        print("⚠️ Connection Pool no disponible - usando conexiones directas")
     print(f"📡 SocketIO: Polling mode (Render optimized)")
     print("="*50)
     
