@@ -35,29 +35,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * ✅ NUEVA FUNCIÓN: Verificar autenticación del usuario
+ * ✅ NUEVA FUNCIÓN: Verificar autenticación del usuario usando UserIdentity
  */
 function verificarAutenticacion() {
-    const userIdStr = localStorage.getItem('userId');
-    userId = userIdStr ? parseInt(userIdStr, 10) : null;
-    userName = localStorage.getItem('username');
+    // Usar UserIdentity centralizado para datos consistentes  
+    userId = MAIRA.UserIdentity.getUserId();
+    userName = MAIRA.UserIdentity.getUsername();
     
-    console.log('🔍 Verificando autenticación:');
-    console.log('   userId (string):', userIdStr);
-    console.log('   userId (convertido):', userId, 'tipo:', typeof userId);
+    console.log('🔍 Verificando autenticación via UserIdentity:');
+    console.log('   userId:', userId, 'tipo:', typeof userId);
     console.log('   userName:', userName);
-    console.log('   isLoggedIn:', localStorage.getItem('isLoggedIn'));
+    console.log('   isAuthenticated:', MAIRA.UserIdentity.isAuthenticated());
     
     if (!userId || !userName || isNaN(userId)) {
         console.log('❌ Datos de autenticación incompletos o inválidos');
         return false;
     }
     
-    // Actualizar usuarioInfo con los datos de autenticación
+        // Actualizar usuarioInfo con los datos de autenticación
     usuarioInfo = {
         id: userId,
         username: userName
     };
+    
+    // ✅ Compatibilidad global: exponer variables para módulos legacy
+    window.userId = userId;
+    window.userName = userName;
     
     console.log('✅ Usuario autenticado:', usuarioInfo);
     return true;

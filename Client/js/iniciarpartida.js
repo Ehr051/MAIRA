@@ -1,34 +1,37 @@
 // iniciarpartida.js: Interacción con la interfaz y conexión de sockets
-// Última actualización: 2025-08-29 para corregir variables duplicadas
+// Última actualización: 2025-08-29 para consistencia de UserID
 
 let partidaActual = null;
 let usuariosConectados = new Map();
 let listaAmigos = new Set();
 let modoSeleccionado = null;
 
-// ✅ VARIABLES GLOBALES CRÍTICAS
-let userId = null;
+// ✅ VARIABLES GLOBALES CRÍTICAS - Usando UserIdentity centralizado
+let userIdLocal = null; // Variable local para evitar conflictos
 let userName = null;
 let socket = null;
 
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 
 function inicializarAplicacion() {
-    const userIdStr = localStorage.getItem('userId');
-    userId = userIdStr ? parseInt(userIdStr, 10) : null;  // ✅ Convertir a número
-    userName = localStorage.getItem('username');
+    // Usar UserIdentity centralizado para obtener datos consistentes
+    userIdLocal = MAIRA.UserIdentity.getUserId();
+    userName = MAIRA.UserIdentity.getUsername();
     
-    console.log('🔍 Datos del localStorage:');
-    console.log('   userId (string):', userIdStr);
-    console.log('   userId (convertido):', userId, 'tipo:', typeof userId);
+    console.log('🔍 Datos via UserIdentity:');
+    console.log('   userIdLocal:', userIdLocal, 'tipo:', typeof userIdLocal);
     console.log('   userName:', userName);
-    console.log('   isLoggedIn:', localStorage.getItem('isLoggedIn'));
+    console.log('   isAuthenticated:', MAIRA.UserIdentity.isAuthenticated());
     
-    if (!userId || !userName || isNaN(userId)) {
+    if (!userIdLocal || !userName || isNaN(userIdLocal)) {
         console.log('❌ Datos de usuario incompletos o inválidos, redirigiendo a index.html');
         window.location.href = 'index.html';
         return;
     }
+    
+    // ✅ Compatibilidad global: exponer userId para módulos legacy
+    window.userId = userIdLocal;
+    window.userName = userName;
     
     console.log('✅ Datos de usuario válidos, continuando...');
     inicializarSocket();
@@ -56,7 +59,7 @@ function actualizarInfoUsuario() {
     const idElement = document.getElementById('idJugadorActual');
     if (nombreElement && idElement) {
         nombreElement.textContent = userName;
-        idElement.textContent = userId;
+        idElement.textContent = userIdLocal;
     }
 }
 
@@ -88,7 +91,7 @@ function actualizarListaUsuarios(data) {
     if (listaUsuarios) {
         listaUsuarios.innerHTML = '';
         data.forEach(usuario => {
-            if (usuario.id !== userId) {
+            if (usuario.id !== userIdLocal) {
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-center';
                 li.textContent = usuario.username;
@@ -187,7 +190,7 @@ function aplicarTema(esOscuro) {
 
 function reconectarAlJuego() {
     if (partidaActual) {
-        socket.emit('reconectarPartida', { userId, codigoPartida: partidaActual.codigo });
+        socket.emit('reconectarPartida', { userId: userIdLocal, codigoPartida: partidaActual.codigo });
     }
 }
 
@@ -441,17 +444,17 @@ async function inicializarSocket() {
         localStorage.setItem('partidaActual', JSON.stringify({
             codigo: datosPartida.codigo,
             jugadores: datosPartida.jugadores,
-            equipoJugador: datosPartida.jugadores.find(j => j.id === userId)?.equipo
+            equipoJugador: datosPartida.jugadores.find(j => j.id === userIdLocal)?.equipo
         }));
 
         // Verificar y establecer director si es necesario
         const jugadoresAzules = datosPartida.jugadores.filter(j => j.equipo === 'azul');
         if (jugadoresAzules.length > 0 && !datosPartida.director) {
             const primerJugadorAzul = jugadoresAzules[0];
-            if (primerJugadorAzul.id === userId) {
+            if (primerJugadorAzul.id === userIdLocal) {
                 console.log('Asignado como director temporal');
                 socket.emit('asignarDirectorTemporal', {
-                    jugadorId: userId,
+                    jugadorId: userIdLocal,
                     partidaCodigo: datosPartida.codigo
                 });
             }
@@ -464,7 +467,7 @@ async function inicializarSocket() {
         // Agregar evento para director asignado
         socket.on('directorAsignado', function(datos) {
             console.log('Director asignado:', datos);
-            if (datos.director === userId) {
+            if (datos.director === userIdLocal) {
                 console.log('Soy el director temporal');
             }
         });

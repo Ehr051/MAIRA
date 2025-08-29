@@ -14,5 +14,6 @@
             "database": "MAIRA",
             "username": "root"
         }
-    ]
+    ],
+    "chat.agent.maxRequests": 50
 }

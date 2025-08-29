@@ -776,22 +776,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // 1. Intentar recuperar datos de sessionStorage primero
         const datosSession = sessionStorage.getItem('datosPartidaActual');
-        let datosPartida, userId, userName;
+        let datosPartida, userIdLocal, userName;
 
         if (datosSession) {
             const datos = JSON.parse(datosSession);
             console.log('Datos recuperados de sessionStorage:', datos);
             datosPartida = datos.partidaActual;
-            userId = datos.userId;
+            userIdLocal = datos.userId;
             userName = datos.userName;
         } else {
-            // 2. Si no hay datos en session, usar localStorage
-            const datosPartidaStr = localStorage.getItem('datosPartida');
-            if (!datosPartidaStr) throw new Error('No se encontraron los datos de la partida');
-            datosPartida = JSON.parse(datosPartidaStr);
+            // 2. Si no hay datos en session, usar UserIdentity centralizado
+            datosPartida = obtenerDatosPartida();
             
-            userId = localStorage.getItem('userId');
-            userName = localStorage.getItem('username');
+            userIdLocal = MAIRA.UserIdentity.getUserId();
+            userName = MAIRA.UserIdentity.getUsername();
         }
 
         console.log('Datos de partida recuperados:', datosPartida);
@@ -838,12 +836,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             throw new Error('No hay jugadores definidos en la partida');
         }
 
-        if (!userId || !userName) {
+        if (!userIdLocal || !userName) {
             throw new Error('No se encontraron las credenciales del usuario');
         }
 
-        // Establecer variables globales
-        window.userId = userId;
+        // Establecer variables globales con compatibilidad
+        window.userId = userIdLocal;
         window.userName = userName;
         window.partidaActual = datosPartida;
 
@@ -883,8 +881,9 @@ async function cargarDatosPartida() {
 }
 
 function setVariablesGlobales(datosPartida) {
-    window.userId = localStorage.getItem('userId');
-    window.userName = localStorage.getItem('username');
+    // Usar UserIdentity centralizado para datos consistentes
+    window.userId = MAIRA.UserIdentity.getUserId();
+    window.userName = MAIRA.UserIdentity.getUsername();
     window.partidaActual = datosPartida;
     window.configuracionPartida = datosPartida.configuracion;
     window.jugadoresPartida = datosPartida.jugadores;

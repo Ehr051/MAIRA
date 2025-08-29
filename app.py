@@ -1,4 +1,5 @@
 # app_complete.py - Versión completa migrada de MAIRA para Render.com
+# Soporte híbrido Flask + Uvicorn para alto rendimiento
 
 import os
 import sys
@@ -3714,6 +3715,34 @@ def handle_solicitar_lista_partidas():
 # �🚀 INICIALIZACIÓN DEL SERVIDOR
 # ==============================================
 
+# ==============================================
+# 🚀 INICIALIZACIÓN DEL SERVIDOR
+# ==============================================
+
+# Función helper para inicialización común
+def initialize_app():
+    """Inicializa la aplicación (usado tanto por Flask como Uvicorn)"""
+    print("🏊‍♂️ Inicializando Connection Pool...")
+    pool_initialized = initialize_db_pool()
+    if pool_initialized:
+        print("✅ Connection Pool activado - RENDIMIENTO OPTIMIZADO")
+    else:
+        print("⚠️ Connection Pool no disponible - usando conexiones directas")
+    
+    # Intentar conexión inicial a la base de datos
+    conn = get_db_connection()
+    if conn:
+        print("✅ Conexión inicial a PostgreSQL exitosa")
+        conn.close()
+    else:
+        print("❌ ADVERTENCIA: No se pudo conectar a PostgreSQL al iniciar")
+
+# ASGI adapter para Uvicorn
+def create_asgi_app():
+    """Crea la aplicación ASGI para Uvicorn"""
+    initialize_app()
+    return socketio
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') == 'development'
@@ -3723,24 +3752,11 @@ if __name__ == '__main__':
     print(f"🌐 Puerto: {port}")
     print(f"🐛 Debug: {debug}")
     print(f"🗄️ Base de datos: PostgreSQL")
-    
-    # ✅ INICIALIZAR CONNECTION POOL PARA MEJOR RENDIMIENTO
-    print("🏊‍♂️ Inicializando Connection Pool...")
-    pool_initialized = initialize_db_pool()
-    if pool_initialized:
-        print("✅ Connection Pool activado - RENDIMIENTO OPTIMIZADO")
-    else:
-        print("⚠️ Connection Pool no disponible - usando conexiones directas")
     print(f"📡 SocketIO: Polling mode (Render optimized)")
     print("="*50)
     
-    # Intentar conexión inicial a la base de datos
-    conn = get_db_connection()
-    if conn:
-        print("✅ Conexión inicial a PostgreSQL exitosa")
-        conn.close()
-    else:
-        print("❌ ADVERTENCIA: No se pudo conectar a PostgreSQL al iniciar")
+    # Usar función de inicialización común
+    initialize_app()
     
     # Iniciar servidor Flask + SocketIO
     socketio.run(
