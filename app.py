@@ -647,6 +647,20 @@ def actualizar_lista_operaciones_gb():
             return
         
         cursor = conn.cursor()
+        
+        # ✅ DEBUG: Verificar estructura de tabla antes de hacer query
+        try:
+            cursor.execute("""
+                SELECT column_name, data_type 
+                FROM information_schema.columns 
+                WHERE table_name = 'usuarios_partida' 
+                ORDER BY ordinal_position
+            """)
+            columnas = cursor.fetchall()
+            print(f"🔍 Columnas en usuarios_partida: {[col['column_name'] for col in columnas]}")
+        except Exception as debug_e:
+            print(f"⚠️ No se pudo verificar estructura: {debug_e}")
+        
         cursor.execute("""
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
@@ -1886,6 +1900,40 @@ def obtener_operaciones_gb(data=None):
     except Exception as e:
         print(f"❌ Error obteniendo operaciones GB: {e}")
         emit('error', {'mensaje': 'Error al obtener operaciones'})
+
+@socketio.on('obtenerUsuariosConectados')
+def handle_obtener_usuarios_conectados():
+    """Maneja solicitud de lista de usuarios conectados"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if not user_id:
+            emit('error', {'mensaje': 'Usuario no autenticado'})
+            return
+        
+        # Obtener usuarios conectados en memoria
+        usuarios_en_memoria = []
+        for sid, uid in user_sid_map.items():
+            if uid in usuarios_conectados:
+                usuario_data = usuarios_conectados[uid]
+                usuarios_en_memoria.append({
+                    'id': uid,
+                    'username': usuario_data.get('username', 'Usuario'),
+                    'sid': sid,
+                    'conectado': True,
+                    'fecha_conexion': usuario_data.get('fecha_conexion', '').isoformat() if usuario_data.get('fecha_conexion') else ''
+                })
+        
+        emit('usuariosConectados', {
+            'usuarios': usuarios_en_memoria,
+            'total': len(usuarios_en_memoria),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        print(f"📊 Enviando {len(usuarios_en_memoria)} usuarios conectados a usuario {user_id}")
+        
+    except Exception as e:
+        print(f"❌ Error obteniendo usuarios conectados: {e}")
+        emit('error', {'mensaje': 'Error obteniendo usuarios conectados'})
 
 @socketio.on('unirseOperacionGB')
 def unirse_operacion_gb(data):

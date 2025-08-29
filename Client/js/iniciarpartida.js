@@ -1,4 +1,5 @@
 // iniciarpartida.js: Interacción con la interfaz y conexión de sockets
+// Última actualización: 2025-08-29 para corregir variables duplicadas
 
 let partidaActual = null;
 let usuariosConectados = new Map();
