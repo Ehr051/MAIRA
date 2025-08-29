@@ -8,7 +8,7 @@ let modoSeleccionado = null;
 
 // ✅ VARIABLES GLOBALES CRÍTICAS - Usando UserIdentity centralizado
 let userIdLocal = null; // Variable local para evitar conflictos
-let userName = null;
+let userNameLocal = null; // Variable local para evitar conflictos
 let socket = null;
 
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
@@ -16,14 +16,14 @@ document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 function inicializarAplicacion() {
     // Usar UserIdentity centralizado para obtener datos consistentes
     userIdLocal = MAIRA.UserIdentity.getUserId();
-    userName = MAIRA.UserIdentity.getUsername();
+    userNameLocal = MAIRA.UserIdentity.getUsername();
     
     console.log('🔍 Datos via UserIdentity:');
     console.log('   userIdLocal:', userIdLocal, 'tipo:', typeof userIdLocal);
-    console.log('   userName:', userName);
+    console.log('   userNameLocal:', userNameLocal);
     console.log('   isAuthenticated:', MAIRA.UserIdentity.isAuthenticated());
     
-    if (!userIdLocal || !userName || isNaN(userIdLocal)) {
+    if (!userIdLocal || !userNameLocal || isNaN(userIdLocal)) {
         console.log('❌ Datos de usuario incompletos o inválidos, redirigiendo a index.html');
         window.location.href = 'index.html';
         return;
@@ -31,7 +31,7 @@ function inicializarAplicacion() {
     
     // ✅ Compatibilidad global: exponer userId para módulos legacy
     window.userId = userIdLocal;
-    window.userName = userName;
+    window.userName = userNameLocal;
     
     console.log('✅ Datos de usuario válidos, continuando...');
     inicializarSocket();
@@ -58,7 +58,7 @@ function actualizarInfoUsuario() {
     const nombreElement = document.getElementById('nombreJugadorActual');
     const idElement = document.getElementById('idJugadorActual');
     if (nombreElement && idElement) {
-        nombreElement.textContent = userName;
+        nombreElement.textContent = userNameLocal;
         idElement.textContent = userIdLocal;
     }
 }
@@ -523,14 +523,14 @@ function manejarConexion() {
     console.log('✅ Conectado al servidor');
     console.log('🔍 Variables antes del login:');
     console.log('   userId (variable):', userId, 'tipo:', typeof userId);
-    console.log('   userName (variable):', userName, 'tipo:', typeof userName);
+    console.log('   userNameLocal (variable):', userNameLocal, 'tipo:', typeof userNameLocal);
     console.log('   localStorage userId:', localStorage.getItem('userId'));
     console.log('   localStorage username:', localStorage.getItem('username'));
     
     // ✅ CRÍTICO: Enviar con el formato que espera el backend
     const loginData = { 
         user_id: userId,    // Backend espera 'user_id'
-        username: userName  // Backend espera 'username'
+        username: userNameLocal  // Backend espera 'username'
     };
     
     console.log('🔐 Enviando login con data:', JSON.stringify(loginData));

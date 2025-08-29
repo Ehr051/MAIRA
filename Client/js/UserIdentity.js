@@ -197,6 +197,30 @@ MAIRA.UserIdentity = (function() {
     }
 
     /**
+     * Limpia todos los datos del usuario
+     */
+    function clear() {
+        userData = null;
+        isInitialized = false;
+        
+        // Limpiar localStorage
+        localStorage.removeItem('usuario_info');
+        localStorage.removeItem('gb_usuario_info');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        localStorage.removeItem('elemento_trabajo');
+        
+        // Limpiar variables globales
+        if (window.userId) delete window.userId;
+        if (window.userName) delete window.userName;
+        
+        // Emitir evento de limpieza
+        emitEvent('cleared', null);
+        
+        console.log("✅ UserIdentity: Datos de usuario limpiados");
+    }
+
+    /**
      * Obtiene el ID del usuario de forma consistente
      * @returns {string|null} - ID del usuario o null si no existe
      */

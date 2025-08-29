@@ -1,5 +1,5 @@
-# app_complete.py - Versión completa migrada de MAIRA para Render.com
-# Soporte híbrido Flask + Uvicorn para alto rendimiento
+# app.py - MAIRA Sistema completo para Render.com
+# Versión simplificada Flask para máxima compatibilidad
 
 import os
 import sys
@@ -17,7 +17,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Importaciones pesadas bajo demanda
+# Importaciones bajo demanda para mejor rendimiento
 def lazy_import_psycopg2():
     """Importar psycopg2 solo cuando se necesite"""
     global psycopg2, RealDictCursor
@@ -3719,9 +3719,9 @@ def handle_solicitar_lista_partidas():
 # 🚀 INICIALIZACIÓN DEL SERVIDOR
 # ==============================================
 
-# Función helper para inicialización común
+# Función de inicialización para la aplicación
 def initialize_app():
-    """Inicializa la aplicación (usado tanto por Flask como Uvicorn)"""
+    """Inicializa la aplicación Flask"""
     print("🏊‍♂️ Inicializando Connection Pool...")
     pool_initialized = initialize_db_pool()
     if pool_initialized:
@@ -3737,12 +3737,6 @@ def initialize_app():
     else:
         print("❌ ADVERTENCIA: No se pudo conectar a PostgreSQL al iniciar")
 
-# ASGI adapter para Uvicorn
-def create_asgi_app():
-    """Crea la aplicación ASGI para Uvicorn"""
-    initialize_app()
-    return socketio
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') == 'development'
@@ -3755,7 +3749,7 @@ if __name__ == '__main__':
     print(f"📡 SocketIO: Polling mode (Render optimized)")
     print("="*50)
     
-    # Usar función de inicialización común
+    # Inicializar aplicación Flask
     initialize_app()
     
     # Iniciar servidor Flask + SocketIO

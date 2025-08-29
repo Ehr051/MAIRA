@@ -38,14 +38,32 @@ document.addEventListener('DOMContentLoaded', function() {
  * ✅ NUEVA FUNCIÓN: Verificar autenticación del usuario usando UserIdentity
  */
 function verificarAutenticacion() {
-    // Usar UserIdentity centralizado para datos consistentes  
-    userId = MAIRA.UserIdentity.getUserId();
-    userName = MAIRA.UserIdentity.getUsername();
+    // Verificar que UserIdentity esté disponible
+    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
+        console.error('❌ MAIRA.UserIdentity no está disponible. Intentando carga alternativa...');
+        
+        // Intentar cargar desde localStorage directamente como fallback
+        const userIdFallback = localStorage.getItem('userId');
+        const userNameFallback = localStorage.getItem('username');
+        
+        if (userIdFallback && userNameFallback) {
+            userId = parseInt(userIdFallback, 10);
+            userName = userNameFallback;
+            console.log('✅ Datos cargados desde localStorage como fallback');
+        } else {
+            console.error('❌ No se pueden obtener datos de usuario');
+            window.location.href = 'index.html';
+            return;
+        }
+    } else {
+        // Usar UserIdentity centralizado para datos consistentes  
+        userId = MAIRA.UserIdentity.getUserId();
+        userName = MAIRA.UserIdentity.getUsername();
+    }
     
     console.log('🔍 Verificando autenticación via UserIdentity:');
     console.log('   userId:', userId, 'tipo:', typeof userId);
     console.log('   userName:', userName);
-    console.log('   isAuthenticated:', MAIRA.UserIdentity.isAuthenticated());
     
     if (!userId || !userName || isNaN(userId)) {
         console.log('❌ Datos de autenticación incompletos o inválidos');

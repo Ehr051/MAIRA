@@ -4,6 +4,8 @@
  */
 
 // Ejecutar test automático después de que todo se haya cargado
+// COMENTADO PARA DEBUGGING: No ejecutar automáticamente para ver logs de inicialización
+/*
 window.addEventListener('load', function() {
     // Esperar un poco más para que todo se inicialice
     setTimeout(async function() {
@@ -28,6 +30,7 @@ window.addEventListener('load', function() {
         }
     }, 5000); // 5 segundos después de cargar la página
 });
+*/
 
 // Agregar shortcut de teclado para ejecutar test
 document.addEventListener('keydown', function(event) {
