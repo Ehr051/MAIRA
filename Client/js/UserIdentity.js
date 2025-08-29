@@ -351,6 +351,7 @@ MAIRA.UserIdentity = (function() {
         // ✅ NUEVAS FUNCIONES CENTRALIZADAS
         getUserId,
         getUserName,
+        getUsername,  // Versión con fallback
         isAuthenticated,
         getUserData,
         on  // Para eventos
