@@ -1697,8 +1697,8 @@ def crear_partida(data):
             # Insertar al creador en la tabla `usuarios_partida` con `esCreador` = true
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
-                VALUES (%s, %s, 'sin_equipo', false, true)
-            """, (partida_id, creador_id))
+                VALUES (%s, %s, 'sin_equipo', %s, %s)
+            """, (partida_id, creador_id, 0, 1))
             
             conn.commit()
             print("Commit realizado con éxito")
@@ -1883,8 +1883,8 @@ def unirse_a_partida(data):
             # Agregar usuario a la partida
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
-                VALUES (%s, %s, 'sin_equipo', false, false)
-            """, (partida['id'], user_id))
+                VALUES (%s, %s, 'sin_equipo', %s, %s)
+            """, (partida['id'], user_id, 0, 0))
             
             conn.commit()
             
@@ -2381,8 +2381,8 @@ def unirse_operacion_gb(data):
             equipo = elemento_info.get('designacion', 'elemento')
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
-                VALUES (%s, %s, %s, false, false)
-            """, (operacion['id'], user_id, equipo))
+                VALUES (%s, %s, %s, %s, %s)
+            """, (operacion['id'], user_id, equipo, 0, 0))
             
             conn.commit()
             
@@ -3172,8 +3172,8 @@ def api_unirse_partida():
             # Unir al usuario a la partida
             cursor.execute("""
                 INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
-                VALUES (%s, %s, 'sin_equipo', false, false)
-            """, (partida_id, usuario_id))
+                VALUES (%s, %s, 'sin_equipo', %s, %s)
+            """, (partida_id, usuario_id, 0, 0))
             
             conn.commit()
             
