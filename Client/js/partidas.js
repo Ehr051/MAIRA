@@ -227,14 +227,23 @@ function emitirUnirseAPartida(codigo) {
         userName: userName
     });
     
-    socket.emit('unirseAPartida', { 
+    // ✅ FIX: Verificar que socket esté definido
+    const socketActivo = socket || window.socketPartidas || window.socket;
+    if (!socketActivo || !socketActivo.connected) {
+        console.error('❌ Socket no disponible para emitir unirseAPartida');
+        mostrarError('Error: No hay conexión con el servidor');
+        ocultarIndicadorCarga();
+        return;
+    }
+    
+    socketActivo.emit('unirseAPartida', { 
         codigo: codigo,
         userId: userId,
         userName: userName
     });
 
     // Configurar listeners para manejar respuestas
-    socket.once('unidoAPartida', function(datosPartida) {
+    socketActivo.once('unidoAPartida', function(datosPartida) {
         ocultarIndicadorCarga();
         console.log("Unido a la partida con éxito:", datosPartida);
         
@@ -262,7 +271,7 @@ function emitirUnirseAPartida(codigo) {
         }
     });
 
-    socket.once('errorUnirseAPartida', function(error) {
+    socketActivo.once('errorUnirseAPartida', function(error) {
         ocultarIndicadorCarga();
         console.error('Error al unirse a la partida:', error);
         mostrarError(error.mensaje || 'Error al unirse a la partida');

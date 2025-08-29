@@ -332,7 +332,7 @@ function actualizarInterfazUsuario() {
      */
     function redirigirASalaEspera() {
         console.warn("Redirigiendo a sala de espera por falta de información");
-        window.location.href = '/Client/inicioGB.html';
+        window.location.href = '/inicioGB.html';
     }
     
     /**
@@ -717,7 +717,7 @@ function configurarEventosChat() {
         const btnVolver = document.getElementById('btnVolver');
         if (btnVolver) {
             btnVolver.addEventListener('click', function() {
-                window.location.href = '/Client/inicioGB.html';
+                window.location.href = '/inicioGB.html';
             });
         }
         

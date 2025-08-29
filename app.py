@@ -858,18 +858,19 @@ def actualizar_estado_usuario_en_bd(user_id, online=True):
         
         cursor = conn.cursor()
         
-        # ✅ ARREGLO PostgreSQL: Usar sintaxis correcta para booleanos
+        # ✅ ARREGLO PostgreSQL: Convertir boolean a smallint (0/1)
+        is_online_value = 1 if online else 0
         cursor.execute("""
             UPDATE usuarios 
             SET is_online = %s, fecha_ultimo_acceso = CURRENT_TIMESTAMP 
             WHERE id = %s
-        """, (online, user_id))
+        """, (is_online_value, user_id))
         
         conn.commit()
         
         affected_rows = cursor.rowcount
         if affected_rows > 0:
-            print(f"✅ Usuario {user_id} marcado como {'online' if online else 'offline'}")
+            print(f"✅ Usuario {user_id} marcado como {'ONLINE' if online else 'OFFLINE'} en PostgreSQL")
             return True
         else:
             print(f"⚠️ Usuario {user_id} no encontrado en BD")
@@ -1757,7 +1758,7 @@ def unirse_a_partida(data):
             
             # Agregar usuario a la partida
             cursor.execute("""
-                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
                 VALUES (%s, %s, 'sin_equipo', false, false)
             """, (partida['id'], user_id))
             
@@ -2118,7 +2119,7 @@ def crear_operacion_gb(data):
             if creador_id:
                 # Insertar al creador como director de operación
                 cursor.execute("""
-                    INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                    INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
                     VALUES (%s, %s, 'director', false, true)
                 """, (operacion_id, creador_id))
             
@@ -2255,7 +2256,7 @@ def unirse_operacion_gb(data):
             # Agregar usuario a la operación
             equipo = elemento_info.get('designacion', 'elemento')
             cursor.execute("""
-                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
                 VALUES (%s, %s, %s, false, false)
             """, (operacion['id'], user_id, equipo))
             
@@ -3046,7 +3047,7 @@ def api_unirse_partida():
             
             # Unir al usuario a la partida
             cursor.execute("""
-                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
+                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
                 VALUES (%s, %s, 'sin_equipo', false, false)
             """, (partida_id, usuario_id))
             
@@ -3288,7 +3289,7 @@ def debug_partidas_system():
                         usuario_id INTEGER NOT NULL,
                         equipo VARCHAR(20) DEFAULT 'sin_equipo',
                         listo BOOLEAN DEFAULT false,
-                        esCreador BOOLEAN DEFAULT false,
+                        \"esCreador\" BOOLEAN DEFAULT false,
                         fecha_union TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         UNIQUE(partida_id, usuario_id)
                     );
