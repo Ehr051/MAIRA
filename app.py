@@ -78,6 +78,95 @@ def safe_json_parse(json_string):
             
         print(f"⚠️ Error parsing JSON: {e}, contenido: {json_string[:100]}...")
         return {}
+
+# ✅ FUNCIÓN DE LIMPIEZA AUTOMÁTICA DE PARTIDAS
+def limpiar_partidas_obsoletas():
+    """
+    Elimina partidas que cumplan alguno de estos criterios:
+    1. Sin jugadores por más de 2 horas
+    2. Tiempo transcurrido > 2x duración configurada
+    3. Creadas hace más de 24 horas y estado 'esperando'
+    """
+    try:
+        conn = get_db_connection()
+        if conn is None:
+            return {"eliminadas": 0, "error": "No se pudo conectar a la BD"}
+        
+        cursor = conn.cursor()
+        
+        # 1. Obtener partidas candidatas a eliminación
+        cursor.execute("""
+            SELECT p.id, p.codigo, p.configuracion, p.fecha_creacion, p.estado,
+                   COUNT(up.usuario_id) as jugadores_count
+            FROM partidas p
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id
+            GROUP BY p.id, p.codigo, p.configuracion, p.fecha_creacion, p.estado
+        """)
+        
+        partidas = cursor.fetchall()
+        partidas_a_eliminar = []
+        
+        for partida in partidas:
+            debe_eliminar = False
+            razon = ""
+            
+            # Parsear configuración
+            config = safe_json_parse(partida['configuracion']) if partida['configuracion'] else {}
+            duracion_partida = int(config.get('duracionPartida', 120))  # Default 2 horas
+            
+            # Calcular tiempo transcurrido
+            tiempo_transcurrido = datetime.now() - partida['fecha_creacion']
+            tiempo_transcurrido_minutos = tiempo_transcurrido.total_seconds() / 60
+            
+            # Criterio 1: Sin jugadores por más de 2 horas
+            if partida['jugadores_count'] == 0 and tiempo_transcurrido_minutos > 120:
+                debe_eliminar = True
+                razon = f"Sin jugadores por {tiempo_transcurrido_minutos:.0f} min"
+            
+            # Criterio 2: Tiempo > 2x duración configurada
+            elif tiempo_transcurrido_minutos > (duracion_partida * 2):
+                debe_eliminar = True
+                razon = f"Tiempo excedido: {tiempo_transcurrido_minutos:.0f}min > {duracion_partida*2}min"
+            
+            # Criterio 3: Esperando por más de 24 horas
+            elif partida['estado'] == 'esperando' and tiempo_transcurrido_minutos > 1440:  # 24 horas
+                debe_eliminar = True
+                razon = f"Esperando por {tiempo_transcurrido_minutos/60:.1f} horas"
+            
+            if debe_eliminar:
+                partidas_a_eliminar.append({
+                    'id': partida['id'], 
+                    'codigo': partida['codigo'], 
+                    'razon': razon
+                })
+        
+        # 2. Eliminar partidas obsoletas
+        eliminadas = 0
+        for partida in partidas_a_eliminar:
+            try:
+                # Eliminar usuarios_partida primero (FK constraint)
+                cursor.execute("DELETE FROM usuarios_partida WHERE partida_id = %s", (partida['id'],))
+                # Eliminar partida
+                cursor.execute("DELETE FROM partidas WHERE id = %s", (partida['id'],))
+                eliminadas += 1
+                print(f"🗑️ Partida {partida['codigo']} eliminada: {partida['razon']}")
+            except Exception as e:
+                print(f"❌ Error eliminando partida {partida['codigo']}: {e}")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        resultado = {"eliminadas": eliminadas, "detalles": partidas_a_eliminar}
+        if eliminadas > 0:
+            print(f"🧹 Limpieza completada: {eliminadas} partidas eliminadas")
+        
+        return resultado
+        
+    except Exception as e:
+        print(f"❌ Error en limpieza de partidas: {e}")
+        return {"eliminadas": 0, "error": str(e)}
+
 def lazy_import_psycopg2():
     """Importar psycopg2 solo cuando se necesite"""
     global psycopg2, RealDictCursor
@@ -1009,6 +1098,15 @@ def actualizar_lista_operaciones_gb():
 def actualizar_lista_partidas():
     """Actualiza la lista de partidas disponibles para todos los usuarios"""
     try:
+        # 🧹 LIMPIEZA AUTOMÁTICA: Ejecutar cada vez que se actualiza la lista
+        # Esto evita acumulación de partidas obsoletas
+        try:
+            resultado_limpieza = limpiar_partidas_obsoletas()
+            if resultado_limpieza['eliminadas'] > 0:
+                print(f"🧹 Auto-limpieza: {resultado_limpieza['eliminadas']} partidas obsoletas eliminadas")
+        except Exception as e:
+            print(f"⚠️ Error en auto-limpieza de partidas: {e}")
+        
         conn = get_db_connection()
         if conn is None:
             print("❌ No se pudo conectar a PostgreSQL para actualizar partidas")
@@ -3708,6 +3806,31 @@ def fix_json_configuracion():
         }
         print(f"❌ Error limpiando JSON: {e}")
         return jsonify(error_info), 500
+
+@app.route('/api/debug/limpiar-partidas', methods=['POST'])
+def endpoint_limpiar_partidas():
+    """
+    Endpoint para limpiar partidas obsoletas manualmente
+    """
+    try:
+        resultado = limpiar_partidas_obsoletas()
+        
+        response = {
+            'timestamp': datetime.now().isoformat(),
+            'status': '✅ LIMPIEZA COMPLETADA' if resultado['eliminadas'] > 0 else '✅ NO HAY PARTIDAS QUE LIMPIAR',
+            'partidas_eliminadas': resultado['eliminadas'],
+            'detalles': resultado.get('detalles', []),
+            'error': resultado.get('error')
+        }
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        return jsonify({
+            'timestamp': datetime.now().isoformat(),
+            'status': '❌ ERROR EN LIMPIEZA',
+            'error': str(e)
+        }), 500
 
 # ==============================================
 # 🔧 FUNCIONES AUXILIARES CRÍTICAS - MIGRADAS DE serverhttps.py
