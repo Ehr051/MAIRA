@@ -469,6 +469,14 @@ async function inicializarSocket() {
                 console.error('❌ Función inicializarChat no encontrada');
             }
             
+            // ✅ CRÍTICO: Inicializar sistema de partidas DESPUÉS del login
+            if (window.inicializarPartidas) {
+                const resultadoPartidas = window.inicializarPartidas(socketPartidas);
+                console.log('✅ Sistema de partidas inicializado:', resultadoPartidas);
+            } else {
+                console.error('❌ Función inicializarPartidas no encontrada');
+            }
+            
             // ✅ CRITICAL: Obtener listas DESPUÉS del login
             console.log('📋 Solicitando listas después del login exitoso...');
             obtenerListaAmigos();
@@ -491,6 +499,12 @@ async function inicializarSocket() {
                 username: userNameLocal
             };
             socketPartidas.emit('login', datosAuth);
+            
+            // ✅ CRÍTICO: Re-inicializar sistema de partidas
+            if (window.inicializarPartidas) {
+                const resultadoPartidas = window.inicializarPartidas(socketPartidas);
+                console.log('✅ Sistema de partidas re-inicializado:', resultadoPartidas);
+            }
             
             mostrarError('Conexión restaurada', 'success');
         });

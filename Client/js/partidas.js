@@ -11,12 +11,41 @@ function inicializarPartidas(socketInstance) {
         console.log('⚠️ Partidas ya inicializadas, saltando...');
         return;
     }
-    socket = socketInstance;
     
-    // Eventos básicos de partida
-    socket.on('partidaCreada', manejarPartidaCreada);
-    socket.on('listaPartidas', manejarPartidasDisponibles);
-    socket.on('partidasDisponibles', manejarPartidasDisponibles); // Compatibilidad
+    if (!socketInstance) {
+        console.error('❌ Socket no proporcionado a inicializarPartidas');
+        return false;
+    }
+    
+    socket = socketInstance;
+    console.log('🔧 Inicializando eventos de partidas con socket:', socket.id);
+    
+    // ✅ CRÍTICO: Configurar eventos con logging detallado
+    socket.on('partidaCreada', function(partida) {
+        console.log('🎯 EVENTO partidaCreada recibido en partidas.js:', partida);
+        manejarPartidaCreada(partida);
+    });
+    
+    socket.on('listaPartidas', function(partidas) {
+        console.log('📋 EVENTO listaPartidas recibido en partidas.js:', partidas);
+        manejarPartidasDisponibles(partidas);
+    });
+    
+    socket.on('partidasDisponibles', function(partidas) {
+        console.log('📋 EVENTO partidasDisponibles recibido en partidas.js:', partidas);
+        manejarPartidasDisponibles(partidas);
+    }); // Compatibilidad
+    
+    socket.on('errorCrearPartida', function(error) {
+        console.error('❌ ERROR crear partida:', error);
+        mostrarError('Error creando partida: ' + error.mensaje);
+    });
+    
+    // ✅ DEBUG: Listener para debugging
+    socket.on('debug_partidaCreada', function(data) {
+        console.log('🐛 [DEBUG] Evento debug_partidaCreada recibido:', data);
+    });
+    
     socket.on('jugadorSalio', manejarJugadorSalio);
     socket.on('partidaCancelada', manejarPartidaCancelada);
     socket.on('jugadorListoActualizado', manejarJugadorListoActualizado);
@@ -115,6 +144,22 @@ function inicializarPartidas(socketInstance) {
     
     // Marcar como inicializado
     partidasInicializadas = true;
+    console.log('✅ Eventos de partidas configurados correctamente');
+    console.log('🎯 Eventos registrados:', [
+        'partidaCreada',
+        'listaPartidas', 
+        'partidasDisponibles',
+        'errorCrearPartida',
+        'jugadorSalio',
+        'partidaCancelada',
+        'jugadorListoActualizado',
+        'errorPartida',
+        'partidaIniciada',
+        'equipoJugadorActualizado',
+        'jugadorActualizado'
+    ]);
+    
+    return true;
     console.log('✅ Partidas inicializadas correctamente');
 }
 
@@ -425,9 +470,25 @@ function crearPartida(e) {
             console.log('✅ Socket encontrado y conectado, enviando datos...');
             console.log('📤 Emitiendo evento "crearPartida" con configuración:', configuracion);
             
+            // ✅ CRÍTICO: Verificar que los event listeners están configurados
+            console.log('🔍 Event listeners del socket:', Object.keys(socketActivo._callbacks || {}));
+            
+            // ✅ AGREGAR LISTENER TEMPORAL para debugging
+            const debugListener = function(partida) {
+                console.log('🎯 [DEBUG] partidaCreada recibido en listener temporal:', partida);
+            };
+            socketActivo.on('partidaCreada', debugListener);
+            
             socketActivo.emit('crearPartida', { configuracion });
             
             console.log('✅ Evento enviado. Esperando respuesta "partidaCreada" del servidor...');
+            
+            // ✅ TIMEOUT para debugging
+            setTimeout(() => {
+                console.log('⏰ [DEBUG] Han pasado 5 segundos sin respuesta partidaCreada');
+                socketActivo.off('partidaCreada', debugListener);
+            }, 5000);
+            
         } else {
             console.error('❌ Socket no disponible o no conectado');
             console.error('🔍 Estado detallado del socket:', {

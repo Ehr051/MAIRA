@@ -1850,10 +1850,33 @@ def crear_partida(data):
             print("Insertando datos en la tabla partidas")
             # ✅ EXTRAER NOMBRE DE LA CONFIGURACIÓN
             nombre_partida = configuracion.get('nombrePartida', 'Sin nombre')
-            cursor.execute("""
-                INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
-                VALUES (%s, %s, %s, %s, %s) RETURNING id
-            """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
+            
+            # ✅ ARREGLO: Intentar inserción con nombre, si falla usar sin nombre
+            try:
+                cursor.execute("""
+                    INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
+                    VALUES (%s, %s, %s, %s, %s) RETURNING id
+                """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
+            except Exception as e:
+                print(f"⚠️ Error con columna nombre, intentando sin ella: {e}")
+                # Crear/modificar tabla para agregar columna nombre si no existe
+                try:
+                    cursor.execute("ALTER TABLE partidas ADD COLUMN IF NOT EXISTS nombre VARCHAR(255) DEFAULT 'Sin nombre'")
+                    conn.commit()
+                    print("✅ Columna 'nombre' agregada a tabla partidas")
+                    
+                    # Intentar de nuevo con nombre
+                    cursor.execute("""
+                        INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
+                        VALUES (%s, %s, %s, %s, %s) RETURNING id
+                    """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
+                except Exception as e2:
+                    print(f"⚠️ Error persistente, usando inserción básica: {e2}")
+                    # Fallback: inserción sin nombre
+                    cursor.execute("""
+                        INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
+                        VALUES (%s, %s, %s, %s) RETURNING id
+                    """, (codigo_partida, configuracion_json, estado, fecha_creacion))
             
             partida_id = cursor.fetchone()['id']
 
@@ -1896,7 +1919,18 @@ def crear_partida(data):
             print(f"💬 Usuario {creador_id} unido a chat: chat_{codigo_partida}")
             
             print(f"📤 Emitiendo evento 'partidaCreada' con datos: {partida}")
-            emit('partidaCreada', partida)
+            print(f"🔍 SID del creador: {request.sid}")
+            print(f"🔍 user_sid_map: {user_sid_map}")
+            
+            # ✅ CRÍTICO: Emitir el evento al cliente específico
+            emit('partidaCreada', partida, room=request.sid)
+            
+            # ✅ TAMBIÉN emitir de manera global para debug
+            socketio.emit('debug_partidaCreada', {
+                'partida': partida,
+                'creador_sid': request.sid,
+                'timestamp': datetime.now().isoformat()
+            }, room='general')
             
             print(f"📋 Actualizando lista de partidas globales...")
             actualizar_lista_partidas()
