@@ -63,12 +63,17 @@ function inicializarPartidas(socketInstance) {
     // Manejo de unión a partida
     socket.on('unionExitosa', function(datosPartida) {
         ocultarIndicadorCarga();
-        console.log("Unido a la partida con éxito", datosPartida);
+        console.log("✅ Unido a la partida con éxito", datosPartida);
+        console.log("🔍 URL actual al recibir unionExitosa:", window.location.href);
+        
         if (datosPartida) {
             partidaActual = datosPartida;
+            console.log("📍 Llamando a mostrarSalaEspera con:", datosPartida);
             mostrarSalaEspera(datosPartida);
             // Iniciar actualización automática de la sala
             iniciarActualizacionSalaEspera();
+        } else {
+            console.warn("⚠️ datosPartida está vacío o undefined");
         }
     });
 
@@ -646,7 +651,14 @@ function manejarPartidaCreada(partida) {
     if (!window.location.href.includes('iniciarpartida.html')) {
         console.log('🔄 Redirigiendo a iniciarpartida.html...');
         sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
-        window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+        
+        // ✅ Validar que partida.codigo existe antes de redirigir
+        if (partida.codigo && partida.codigo.trim()) {
+            window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+        } else {
+            console.warn('⚠️ Código de partida vacío, redirigiendo sin parámetros');
+            window.location.href = 'iniciarpartida.html';
+        }
         return;
     }
     
@@ -813,7 +825,14 @@ function mostrarSalaEspera(partida) {
             if (!window.location.href.includes('iniciarpartida.html')) {
                 console.log('🔄 Redirigiendo a página correcta...');
                 sessionStorage.setItem('partidaPendiente', JSON.stringify(partida));
-                window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+                
+                // ✅ Validar que partida.codigo existe antes de redirigir
+                if (partida.codigo && partida.codigo.trim()) {
+                    window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
+                } else {
+                    console.warn('⚠️ Código de partida vacío, redirigiendo sin parámetros');
+                    window.location.href = 'iniciarpartida.html';
+                }
                 return;
             }
             

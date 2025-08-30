@@ -108,7 +108,12 @@ function actualizarInfoUsuario() {
 function cambiarModoJuego() {
     modoSeleccionado = document.getElementById('modoJuego').value;
     ocultarTodosLosFormularios();
-    document.getElementById(modoSeleccionado === 'local' ? 'modoLocal' : 'modoOnline').style.display = 'block';
+    
+    if (modoSeleccionado === 'local') {
+        document.getElementById('modoLocal').style.display = 'block';
+    } else if (modoSeleccionado === 'internet') {
+        document.getElementById('modoOnline').style.display = 'block';
+    }
 }
 
 function mostrarFormularioCrearPartida() {
