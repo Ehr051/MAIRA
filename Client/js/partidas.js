@@ -221,10 +221,14 @@ function unirseAPartida(codigo) {
 }
 
 function emitirUnirseAPartida(codigo) {
+    // ✅ USAR USERIDENTITY DIRECTAMENTE
+    const currentUserId = window.UserIdentity ? window.UserIdentity.getUserId() : (window.userId || null);
+    const currentUserName = window.UserIdentity ? window.UserIdentity.getUserName() : (window.userName || null);
+    
     console.log('Emitiendo evento unirseAPartida con:', {
         codigo: codigo,
-        userId: userId, 
-        userName: userName
+        userId: currentUserId, 
+        userName: currentUserName
     });
     
     // ✅ FIX: Búsqueda exhaustiva del socket
@@ -247,8 +251,8 @@ function emitirUnirseAPartida(codigo) {
             console.log('🔄 Usando socket de iniciarpartida.js como fallback');
             window.iniciarPartidaSocket.emit('unirseAPartida', { 
                 codigo: codigo,
-                userId: userId,
-                userName: userName
+                userId: currentUserId,
+                userName: currentUserName
             });
             return;
         }
@@ -260,8 +264,8 @@ function emitirUnirseAPartida(codigo) {
     
     socketActivo.emit('unirseAPartida', { 
         codigo: codigo,
-        userId: userId,
-        userName: userName
+        userId: currentUserId,
+        userName: currentUserName
     });
 
     // Configurar listeners para manejar respuestas

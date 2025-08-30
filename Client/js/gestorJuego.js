@@ -786,7 +786,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             userName = datos.userName;
         } else {
             // 2. Si no hay datos en session, usar UserIdentity centralizado
-            datosPartida = obtenerDatosPartida();
+            datosPartida = await cargarDatosPartida();
             
             userIdLocal = MAIRA.UserIdentity.getUserId();
             userName = MAIRA.UserIdentity.getUsername();

@@ -1695,10 +1695,12 @@ def crear_partida(data):
         try:
             cursor = conn.cursor()
             print("Insertando datos en la tabla partidas")
+            # ✅ EXTRAER NOMBRE DE LA CONFIGURACIÓN
+            nombre_partida = configuracion.get('nombrePartida', 'Sin nombre')
             cursor.execute("""
-                INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
-                VALUES (%s, %s, %s, %s) RETURNING id
-            """, (codigo_partida, configuracion_json, estado, fecha_creacion))
+                INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id
+            """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
             
             partida_id = cursor.fetchone()['id']
 
@@ -1721,6 +1723,7 @@ def crear_partida(data):
             partida = {
                 'id': partida_id,
                 'codigo': codigo_partida,
+                'nombre': nombre_partida,  # ✅ AGREGAR NOMBRE
                 'configuracion': configuracion,
                 'estado': estado,
                 'fecha_creacion': fecha_creacion.isoformat(),
