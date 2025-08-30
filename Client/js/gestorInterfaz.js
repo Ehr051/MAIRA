@@ -270,11 +270,18 @@ actualizarInterfazPreparacion(estado) {
             
         case 'despliegue':
             this.ocultarControlesZonas();
-            this.actualizarPanelEstado({
-                fase: estado.fase,
-                subfase: 'despliegue',
-                mensaje: 'Fase de despliegue - Despliega tus unidades'
-            });
+            
+            // ✅ MODO LOCAL: Mostrar interfaz de turnos durante despliegue
+            const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
+            if (modoJuego === 'local') {
+                this.mostrarInterfazTurnos(estado);
+            } else {
+                this.actualizarPanelEstado({
+                    fase: estado.fase,
+                    subfase: 'despliegue',
+                    mensaje: 'Fase de despliegue - Despliega tus unidades'
+                });
+            }
             break;
     }
 }
@@ -330,16 +337,111 @@ limpiarInterfazPostZona() {
     }
 }
 
-mostrarMensajeEspera(contexto) {
-    const mensajes = {
-        sector: 'El director está definiendo el sector de juego',
-        zonas: 'El director está definiendo las zonas de despliegue',
-        despliegue: 'Esperando que todos los jugadores completen el despliegue'
-    };
-    this.mostrarMensaje(mensajes[contexto] || 'Esperando...', 'info');
-}
+    mostrarMensajeEspera(contexto) {
+        const mensajes = {
+            sector: 'El director está definiendo el sector de juego',
+            zonas: 'El director está definiendo las zonas de despliegue',
+            despliegue: 'Esperando que todos los jugadores completen el despliegue'
+        };
+        this.mostrarMensaje(mensajes[contexto] || 'Esperando...', 'info');
+    }
 
-    actualizarMensajesFase(fase, subfase, esDirector) {
+    mostrarInterfazTurnos(estado) {
+        console.log('🎮 Mostrando interfaz de turnos para modo local');
+        
+        // Crear o actualizar panel de turnos
+        let panelTurnos = document.getElementById('panel-turnos-local');
+        if (!panelTurnos) {
+            panelTurnos = document.createElement('div');
+            panelTurnos.id = 'panel-turnos-local';
+            panelTurnos.className = 'panel-turnos';
+            document.body.appendChild(panelTurnos);
+        }
+
+        const jugadorActual = estado.jugadorActual;
+        const tiempoRestante = this.gestorJuego?.gestorTurnos?.tiempoRestante || 0;
+        
+        panelTurnos.innerHTML = `
+            <div class="panel-turnos-contenido">
+                <h3>🎮 Modo Local - Sistema de Turnos</h3>
+                <div class="info-turno">
+                    <div class="turno-numero">Turno: ${estado.turnoActual || 1}</div>
+                    <div class="jugador-actual">
+                        Jugador Actual: <strong>${jugadorActual ? jugadorActual.nombre : 'Sin definir'}</strong>
+                        ${jugadorActual ? `<span class="equipo-${jugadorActual.equipo}">(${jugadorActual.equipo})</span>` : ''}
+                    </div>
+                    <div class="tiempo-restante">
+                        ⏰ Tiempo restante: <span id="reloj-turnos">${this.formatearTiempo(tiempoRestante)}</span>
+                    </div>
+                </div>
+                <div class="botones-turno">
+                    <button id="btn-pasar-turno" class="btn btn-primary">
+                        Pasar Turno
+                    </button>
+                    <button id="btn-finalizar-despliegue" class="btn btn-success">
+                        Finalizar Despliegue
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Configurar eventos
+        this.configurarEventosTurnos();
+        
+        // Posicionar panel
+        panelTurnos.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+            min-width: 300px;
+        `;
+    }
+
+    configurarEventosTurnos() {
+        const btnPasarTurno = document.getElementById('btn-pasar-turno');
+        if (btnPasarTurno) {
+            btnPasarTurno.onclick = () => {
+                console.log('🔄 Pasando turno manualmente');
+                this.gestorJuego?.gestorTurnos?.cambiarTurno();
+            };
+        }
+
+        const btnFinalizarDespliegue = document.getElementById('btn-finalizar-despliegue');
+        if (btnFinalizarDespliegue) {
+            btnFinalizarDespliegue.onclick = () => {
+                console.log('🏁 Finalizando fase de despliegue');
+                this.gestorJuego?.gestorFases?.iniciarCombate();
+            };
+        }
+    }
+
+    formatearTiempo(segundos) {
+        const minutos = Math.floor(segundos / 60);
+        const segs = segundos % 60;
+        return `${minutos}:${segs.toString().padStart(2, '0')}`;
+    }
+
+    actualizarRelojTurnos(tiempoRestante) {
+        const reloj = document.getElementById('reloj-turnos');
+        if (reloj) {
+            reloj.textContent = this.formatearTiempo(tiempoRestante);
+            
+            // Cambiar color según tiempo restante
+            if (tiempoRestante <= 10) {
+                reloj.style.color = '#ff4444';
+                reloj.style.fontWeight = 'bold';
+            } else if (tiempoRestante <= 30) {
+                reloj.style.color = '#ffaa00';
+            } else {
+                reloj.style.color = '#ffffff';
+            }
+        }
+    }    actualizarMensajesFase(fase, subfase, esDirector) {
         let mensaje = '';
         if (esDirector) {
             if (subfase === 'definicion_sector') {
@@ -360,9 +462,22 @@ mostrarMensajeEspera(contexto) {
         });
 
         // Configurar eventos del GestorTurnos
-        this.gestorJuego?.gestorTurnos?.emisorEventos.on('cambioTurno', (datos) => {
-            this.actualizarInterfazCompleta();
-        });
+        const gestorTurnos = this.gestorJuego?.gestorTurnos;
+        if (gestorTurnos) {
+            gestorTurnos.eventos.on('cambioTurno', (datos) => {
+                console.log('🔄 Evento cambioTurno recibido:', datos);
+                this.actualizarInterfazCompleta();
+            });
+
+            gestorTurnos.eventos.on('actualizacionReloj', (tiempoRestante) => {
+                this.actualizarRelojTurnos(tiempoRestante);
+            });
+
+            gestorTurnos.eventos.on('inicioTurnos', (datos) => {
+                console.log('🎮 Evento inicioTurnos recibido:', datos);
+                this.actualizarInterfazCompleta();
+            });
+        }
     }
 
    ocultarControlesSector() {
