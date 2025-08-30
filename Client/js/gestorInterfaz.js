@@ -108,6 +108,82 @@ class GestorInterfaz extends GestorBase {
                 border-radius: 5px;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.2);
                 pointer-events: auto;
+                min-width: 250px;
+            }
+
+            .fase-info, .subfase-info, .turno-info, .jugador-info {
+                margin: 5px 0;
+                padding: 5px;
+                background: #f0f0f0;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+
+            .fase-info {
+                color: #2c5aa0;
+            }
+
+            .subfase-info {
+                color: #5a9215;
+            }
+
+            .turno-info {
+                color: #d4851a;
+            }
+
+            .jugador-info {
+                color: #8b4513;
+            }
+
+            .reloj-turno {
+                background: #007bff;
+                color: white;
+                padding: 8px;
+                border-radius: 4px;
+                text-align: center;
+                font-weight: bold;
+                font-size: 16px;
+                margin: 8px 0;
+                animation: pulse 1s infinite;
+            }
+
+            .reloj-turno.tiempo-critico {
+                background: #dc3545;
+                animation: blink 0.5s infinite;
+            }
+
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+
+            .btn-listo-despliegue {
+                background: #28a745;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 5px;
+                font-weight: bold;
+                cursor: pointer;
+                width: 100%;
+                margin-top: 10px;
+                transition: background-color 0.3s;
+            }
+
+            .btn-listo-despliegue:hover {
+                background: #218838;
+            }
+
+            .btn-listo-despliegue:disabled {
+                background: #6c757d;
+                cursor: not-allowed;
             }
             
             @keyframes fadeInOut {
@@ -146,7 +222,20 @@ class GestorInterfaz extends GestorBase {
                     infoJugador = `Director Temporal: ${directorTemp.username} (${directorTemp.equipo})`;
                 }
             } else if (estado.subfase === 'despliegue') {
-                infoJugador = 'Todos los jugadores desplegando';
+                // ✅ MEJORAR: Mostrar info según modo de juego
+                const modoJuego = this.gestorJuego?.gestorTurnos?.modoJuego || 'online';
+                if (modoJuego === 'local') {
+                    // En modo local hay turnos durante el despliegue
+                    const jugadorActual = estado.jugadorActual;
+                    if (jugadorActual) {
+                        infoJugador = `Turno de despliegue: ${jugadorActual.username} (${jugadorActual.equipo})`;
+                    } else {
+                        infoJugador = 'Despliegue local - Esperando turno';
+                    }
+                } else {
+                    // En modo online todos despliegan simultáneamente
+                    infoJugador = 'Todos los jugadores desplegando simultáneamente';
+                }
             }
         } else if (estado.fase === 'combate') {
             const jugadorActual = estado.jugadorActual;
@@ -159,8 +248,14 @@ class GestorInterfaz extends GestorBase {
             <div class="fase-info">Fase: ${estado.fase}</div>
             <div class="subfase-info">Subfase: ${estado.subfase}</div>
             ${estado.fase === 'combate' ? `<div class="turno-info">Turno: ${estado.turnoActual}</div>` : ''}
+            ${(estado.fase === 'preparacion' && estado.subfase === 'despliegue' && this.gestorJuego?.gestorTurnos?.modoJuego === 'local') ? 
+                `<div class="turno-info">Turno de despliegue: ${estado.turnoActual || 1}</div>` : ''}
             <div class="jugador-info">${infoJugador}</div>
+            ${this.crearRelojTurno(estado)}
         `;
+        
+        // ✅ MOSTRAR/OCULTAR BOTÓN "LISTO PARA COMBATE"
+        this.mostrarBotonListoDespliegue();
     }
 
     actualizarInterfazFase(datos) {
@@ -270,18 +365,11 @@ actualizarInterfazPreparacion(estado) {
             
         case 'despliegue':
             this.ocultarControlesZonas();
-            
-            // ✅ MODO LOCAL: Mostrar interfaz de turnos durante despliegue
-            const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
-            if (modoJuego === 'local') {
-                this.mostrarInterfazTurnos(estado);
-            } else {
-                this.actualizarPanelEstado({
-                    fase: estado.fase,
-                    subfase: 'despliegue',
-                    mensaje: 'Fase de despliegue - Despliega tus unidades'
-                });
-            }
+            this.actualizarPanelEstado({
+                fase: estado.fase,
+                subfase: 'despliegue',
+                mensaje: 'Fase de despliegue - Despliega tus unidades'
+            });
             break;
     }
 }
@@ -337,111 +425,16 @@ limpiarInterfazPostZona() {
     }
 }
 
-    mostrarMensajeEspera(contexto) {
-        const mensajes = {
-            sector: 'El director está definiendo el sector de juego',
-            zonas: 'El director está definiendo las zonas de despliegue',
-            despliegue: 'Esperando que todos los jugadores completen el despliegue'
-        };
-        this.mostrarMensaje(mensajes[contexto] || 'Esperando...', 'info');
-    }
+mostrarMensajeEspera(contexto) {
+    const mensajes = {
+        sector: 'El director está definiendo el sector de juego',
+        zonas: 'El director está definiendo las zonas de despliegue',
+        despliegue: 'Esperando que todos los jugadores completen el despliegue'
+    };
+    this.mostrarMensaje(mensajes[contexto] || 'Esperando...', 'info');
+}
 
-    mostrarInterfazTurnos(estado) {
-        console.log('🎮 Mostrando interfaz de turnos para modo local');
-        
-        // Crear o actualizar panel de turnos
-        let panelTurnos = document.getElementById('panel-turnos-local');
-        if (!panelTurnos) {
-            panelTurnos = document.createElement('div');
-            panelTurnos.id = 'panel-turnos-local';
-            panelTurnos.className = 'panel-turnos';
-            document.body.appendChild(panelTurnos);
-        }
-
-        const jugadorActual = estado.jugadorActual;
-        const tiempoRestante = this.gestorJuego?.gestorTurnos?.tiempoRestante || 0;
-        
-        panelTurnos.innerHTML = `
-            <div class="panel-turnos-contenido">
-                <h3>🎮 Modo Local - Sistema de Turnos</h3>
-                <div class="info-turno">
-                    <div class="turno-numero">Turno: ${estado.turnoActual || 1}</div>
-                    <div class="jugador-actual">
-                        Jugador Actual: <strong>${jugadorActual ? jugadorActual.nombre : 'Sin definir'}</strong>
-                        ${jugadorActual ? `<span class="equipo-${jugadorActual.equipo}">(${jugadorActual.equipo})</span>` : ''}
-                    </div>
-                    <div class="tiempo-restante">
-                        ⏰ Tiempo restante: <span id="reloj-turnos">${this.formatearTiempo(tiempoRestante)}</span>
-                    </div>
-                </div>
-                <div class="botones-turno">
-                    <button id="btn-pasar-turno" class="btn btn-primary">
-                        Pasar Turno
-                    </button>
-                    <button id="btn-finalizar-despliegue" class="btn btn-success">
-                        Finalizar Despliegue
-                    </button>
-                </div>
-            </div>
-        `;
-
-        // Configurar eventos
-        this.configurarEventosTurnos();
-        
-        // Posicionar panel
-        panelTurnos.style.cssText = `
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            z-index: 1000;
-            min-width: 300px;
-        `;
-    }
-
-    configurarEventosTurnos() {
-        const btnPasarTurno = document.getElementById('btn-pasar-turno');
-        if (btnPasarTurno) {
-            btnPasarTurno.onclick = () => {
-                console.log('🔄 Pasando turno manualmente');
-                this.gestorJuego?.gestorTurnos?.cambiarTurno();
-            };
-        }
-
-        const btnFinalizarDespliegue = document.getElementById('btn-finalizar-despliegue');
-        if (btnFinalizarDespliegue) {
-            btnFinalizarDespliegue.onclick = () => {
-                console.log('🏁 Finalizando fase de despliegue');
-                this.gestorJuego?.gestorFases?.iniciarCombate();
-            };
-        }
-    }
-
-    formatearTiempo(segundos) {
-        const minutos = Math.floor(segundos / 60);
-        const segs = segundos % 60;
-        return `${minutos}:${segs.toString().padStart(2, '0')}`;
-    }
-
-    actualizarRelojTurnos(tiempoRestante) {
-        const reloj = document.getElementById('reloj-turnos');
-        if (reloj) {
-            reloj.textContent = this.formatearTiempo(tiempoRestante);
-            
-            // Cambiar color según tiempo restante
-            if (tiempoRestante <= 10) {
-                reloj.style.color = '#ff4444';
-                reloj.style.fontWeight = 'bold';
-            } else if (tiempoRestante <= 30) {
-                reloj.style.color = '#ffaa00';
-            } else {
-                reloj.style.color = '#ffffff';
-            }
-        }
-    }    actualizarMensajesFase(fase, subfase, esDirector) {
+    actualizarMensajesFase(fase, subfase, esDirector) {
         let mensaje = '';
         if (esDirector) {
             if (subfase === 'definicion_sector') {
@@ -462,20 +455,19 @@ limpiarInterfazPostZona() {
         });
 
         // Configurar eventos del GestorTurnos
-        const gestorTurnos = this.gestorJuego?.gestorTurnos;
-        if (gestorTurnos) {
-            gestorTurnos.eventos.on('cambioTurno', (datos) => {
-                console.log('🔄 Evento cambioTurno recibido:', datos);
+        if (this.gestorJuego?.gestorTurnos?.eventos) {
+            this.gestorJuego.gestorTurnos.eventos.on('cambioTurno', (datos) => {
+                console.log('[GestorInterfaz] 🔄 Cambio de turno detectado:', datos);
                 this.actualizarInterfazCompleta();
             });
-
-            gestorTurnos.eventos.on('actualizacionReloj', (tiempoRestante) => {
-                this.actualizarRelojTurnos(tiempoRestante);
-            });
-
-            gestorTurnos.eventos.on('inicioTurnos', (datos) => {
-                console.log('🎮 Evento inicioTurnos recibido:', datos);
+            
+            this.gestorJuego.gestorTurnos.eventos.on('inicioTurnos', (datos) => {
+                console.log('[GestorInterfaz] 🎮 Inicio de turnos detectado:', datos);
                 this.actualizarInterfazCompleta();
+            });
+            
+            this.gestorJuego.gestorTurnos.eventos.on('actualizacionReloj', (tiempoRestante) => {
+                this.actualizarRelojTurno(tiempoRestante);
             });
         }
     }
@@ -571,7 +563,115 @@ actualizarListaUnidadesDisponibles() {
     });
 }
 
+    // ✅ NUEVO: Crear reloj de turno
+    crearRelojTurno(estado) {
+        const gestorTurnos = this.gestorJuego?.gestorTurnos;
+        
+        // Solo mostrar reloj si hay turnos activos
+        if (!gestorTurnos || gestorTurnos.tiempoRestante === undefined) {
+            return '';
+        }
+        
+        // Mostrar en combate o en despliegue local
+        const mostrarReloj = estado.fase === 'combate' || 
+                           (estado.fase === 'preparacion' && estado.subfase === 'despliegue' && 
+                            gestorTurnos.modoJuego === 'local');
+        
+        if (!mostrarReloj) {
+            return '';
+        }
+        
+        const tiempoFormateado = this.formatearTiempo(gestorTurnos.tiempoRestante);
+        return `<div class="reloj-turno" id="reloj-turno">⏰ ${tiempoFormateado}</div>`;
+    }
 
+    // ✅ NUEVO: Actualizar reloj de turno
+    actualizarRelojTurno(tiempoRestante) {
+        const reloj = document.getElementById('reloj-turno');
+        if (reloj) {
+            const tiempoFormateado = this.formatearTiempo(tiempoRestante);
+            reloj.textContent = `⏰ ${tiempoFormateado}`;
+            
+            // Cambiar color si queda poco tiempo
+            if (tiempoRestante <= 30) {
+                reloj.classList.add('tiempo-critico');
+            } else {
+                reloj.classList.remove('tiempo-critico');
+            }
+        }
+    }
+
+    // ✅ NUEVO: Formatear tiempo
+    formatearTiempo(segundos) {
+        const minutos = Math.floor(segundos / 60);
+        const segs = segundos % 60;
+        return `${minutos}:${segs.toString().padStart(2, '0')}`;
+    }
+
+    // ✅ NUEVO: Mostrar botón "Listo para combate" según contexto
+    mostrarBotonListoDespliegue() {
+        const gestorTurnos = this.gestorJuego?.gestorTurnos;
+        const gestorFases = this.gestorJuego?.gestorFases;
+        
+        if (!gestorTurnos || !gestorFases) return;
+        
+        // Solo en fase de despliegue
+        if (gestorFases.fase !== 'preparacion' || gestorFases.subfase !== 'despliegue') {
+            this.ocultarBotonListoDespliegue();
+            return;
+        }
+        
+        // En modo online: mostrar siempre (todos despliegan simultáneamente)
+        // En modo local: mostrar solo en el turno del jugador
+        const modoJuego = gestorTurnos.modoJuego;
+        const esJugadorActual = gestorTurnos.esJugadorActual(window.userId);
+        const jugadorYaListo = gestorTurnos.jugadores.find(j => j.id === window.userId)?.despliegueListo;
+        
+        const deberMostrar = (modoJuego === 'online' || esJugadorActual) && !jugadorYaListo;
+        
+        if (deberMostrar) {
+            this.crearBotonListoDespliegue();
+        } else {
+            this.ocultarBotonListoDespliegue();
+        }
+    }
+
+    // ✅ NUEVO: Crear botón "Listo para combate"
+    crearBotonListoDespliegue() {
+        let boton = document.getElementById('btn-listo-despliegue');
+        
+        if (!boton) {
+            boton = document.createElement('button');
+            boton.id = 'btn-listo-despliegue';
+            boton.className = 'btn-listo-despliegue';
+            boton.textContent = 'Listo para combate';
+            
+            // Agregar al panel de estado
+            const panelEstado = document.getElementById('estado-juego');
+            if (panelEstado) {
+                panelEstado.appendChild(boton);
+            } else {
+                document.body.appendChild(boton);
+            }
+        }
+        
+        boton.style.display = 'block';
+        boton.disabled = false;
+        boton.textContent = 'Listo para combate';
+        
+        // Configurar evento
+        boton.onclick = () => {
+            this.gestorJuego?.gestorTurnos?.marcarJugadorListo();
+        };
+    }
+
+    // ✅ NUEVO: Ocultar botón "Listo para combate"
+    ocultarBotonListoDespliegue() {
+        const boton = document.getElementById('btn-listo-despliegue');
+        if (boton) {
+            boton.style.display = 'none';
+        }
+    }
 
     destruir() {
         Object.values(this.contenedores).forEach(contenedor => {

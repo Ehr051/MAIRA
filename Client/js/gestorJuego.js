@@ -52,7 +52,20 @@ class GestorJuego extends GestorBase {
             this.gestorCarga.mostrar('Iniciando juego...');
 
             // Establecer equipo del jugador
-            window.equipoJugador = configCompleta.jugadores.find(j => j.id === window.userId)?.equipo;
+            if (configCompleta.modoJuego === 'local') {
+                // En modo local, el primer jugador es el actual inicialmente
+                window.userId = configCompleta.jugadores[0].id;
+                window.equipoJugador = configCompleta.jugadores[0].equipo;
+                console.log('🎮 MODO LOCAL - Jugador inicial asignado:', {
+                    userId: window.userId,
+                    equipo: window.equipoJugador,
+                    jugadores: configCompleta.jugadores.length
+                });
+            } else {
+                // En modo online, buscar por ID del usuario actual
+                window.equipoJugador = configCompleta.jugadores.find(j => j.id === window.userId)?.equipo;
+                console.log('🌐 MODO ONLINE - Equipo asignado:', window.equipoJugador);
+            }
 
             // Inicializar estado
             this.estado = {
@@ -676,14 +689,6 @@ configurarEventos() {
 async function inicializarMAIRAChatJuego() {
     console.log('🔧 Inicializando MAIRAChat para juegodeguerra...');
     
-    // ✅ VERIFICAR MODO DE JUEGO ANTES DE INICIALIZAR CHAT
-    const modoJuego = this.configuracion?.modoJuego || 'online';
-    if (modoJuego === 'local') {
-        console.log('🏠 Modo local detectado: Chat deshabilitado');
-        console.log('ℹ️ En modo local todos los jugadores juegan en la misma PC por turnos');
-        return;
-    }
-    
     const intentarInicializarChat = () => {
         // ✅ CORREGIR: Buscar socket en las rutas CORRECTAS usando 'this'
         const socketDisponible = 
@@ -784,20 +789,22 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         // 1. Intentar recuperar datos de sessionStorage primero
         const datosSession = sessionStorage.getItem('datosPartidaActual');
-        let datosPartida, userIdLocal, userName;
+        let datosPartida, userId, userName;
 
         if (datosSession) {
             const datos = JSON.parse(datosSession);
             console.log('Datos recuperados de sessionStorage:', datos);
             datosPartida = datos.partidaActual;
-            userIdLocal = datos.userId;
+            userId = datos.userId;
             userName = datos.userName;
         } else {
-            // 2. Si no hay datos en session, usar UserIdentity centralizado
-            datosPartida = await cargarDatosPartida();
+            // 2. Si no hay datos en session, usar localStorage
+            const datosPartidaStr = localStorage.getItem('datosPartida');
+            if (!datosPartidaStr) throw new Error('No se encontraron los datos de la partida');
+            datosPartida = JSON.parse(datosPartidaStr);
             
-            userIdLocal = MAIRA.UserIdentity.getUserId();
-            userName = MAIRA.UserIdentity.getUsername();
+            userId = localStorage.getItem('userId');
+            userName = localStorage.getItem('username');
         }
 
         console.log('Datos de partida recuperados:', datosPartida);
@@ -844,12 +851,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             throw new Error('No hay jugadores definidos en la partida');
         }
 
-        if (!userIdLocal || !userName) {
+        if (!userId || !userName) {
             throw new Error('No se encontraron las credenciales del usuario');
         }
 
-        // Establecer variables globales con compatibilidad
-        window.userId = userIdLocal;
+        // Establecer variables globales
+        window.userId = userId;
         window.userName = userName;
         window.partidaActual = datosPartida;
 
@@ -872,187 +879,25 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 
 async function cargarDatosPartida() {
-    console.log('🔍 === CARGANDO DATOS DE PARTIDA ===');
-    
-    // ✅ CRITICAL: Detectar si es partida online por parámetro URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const codigoPartida = urlParams.get('codigo');
-    
-    console.log('🔍 [DETECT] Código de partida en URL:', codigoPartida);
-    
-    if (codigoPartida) {
-        console.log('🌐 === CARGANDO PARTIDA ONLINE DESDE API ===');
-        return await cargarPartidaOnlineDesdeAPI(codigoPartida);
-    } else {
-        console.log('🏠 === CARGANDO PARTIDA LOCAL DESDE STORAGE ===');
-        return await cargarPartidaLocalDesdeStorage();
-    }
-}
-
-async function cargarPartidaOnlineDesdeAPI(codigoPartida) {
-    console.log(`🌐 [API] Cargando partida online: ${codigoPartida}`);
-    
-    try {
-        // ✅ Obtener configuración de red
-        let serverUrl;
-        if (typeof window.MAIRA !== 'undefined' && window.MAIRA.NetworkConfig) {
-            serverUrl = window.MAIRA.NetworkConfig.getServerUrl();
-        } else {
-            // Fallback si NetworkConfig no está disponible
-            serverUrl = window.location.origin;
-        }
-        
-        console.log(`🔗 [API] Servidor: ${serverUrl}`);
-        
-        // ✅ Llamar a la API para obtener datos de la partida
-        const response = await fetch(`${serverUrl}/api/partida/${codigoPartida}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include'
-        });
-        
-        console.log(`📡 [API] Response status: ${response.status}`);
-        
-        if (!response.ok) {
-            throw new Error(`Error ${response.status}: No se pudo cargar la partida ${codigoPartida}`);
-        }
-        
-        const datosPartida = await response.json();
-        console.log('✅ [API] Datos de partida obtenidos:', datosPartida);
-        
-        // ✅ Validar estructura de datos
-        if (!datosPartida.codigo || !datosPartida.configuracion) {
-            throw new Error('Datos de partida incompletos desde API');
-        }
-        
-        console.log('🌐 [API] Partida online cargada exitosamente');
-        return datosPartida;
-        
-    } catch (error) {
-        console.error('❌ [API] Error cargando partida online:', error);
-        
-        // ✅ Fallback: Intentar obtener desde sessionStorage/localStorage
-        console.log('🔄 [FALLBACK] Intentando cargar desde storage como backup...');
-        return await cargarPartidaLocalDesdeStorage();
-    }
-}
-
-async function cargarPartidaLocalDesdeStorage() {
-    console.log('🏠 [STORAGE] Cargando partida desde storage local');
-    
-    // ✅ DEBUGGING: Mostrar TODAS las claves de localStorage PRIMERO
-    console.log('🔍 [DEBUG] Inventario completo de localStorage:');
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        const value = localStorage.getItem(key);
-        console.log(`  - ${key}: ${value?.substring(0, 150)}...`);
-    }
-    
-    // ✅ DEBUGGING: Mostrar sessionStorage también
-    console.log('🔍 [DEBUG] Inventario de sessionStorage:');
-    console.log(`  - datosPartidaActual: ${sessionStorage.getItem('datosPartidaActual')?.substring(0, 150)}...`);
-    
     // Intentar recuperar datos de sessionStorage primero
     const datosSession = sessionStorage.getItem('datosPartidaActual');
-    console.log('📱 Datos en sessionStorage:', !!datosSession);
-    
     if (datosSession) {
-        console.log('✅ Datos encontrados en sessionStorage');
-        try {
-            const datos = JSON.parse(datosSession);
-            console.log('📋 Estructura sessionStorage:', datos);
-            console.log('🔍 [DEBUG] partidaActual en session:', datos.partidaActual);
-            sessionStorage.removeItem('datosPartidaActual');
-            console.log('🗑️ sessionStorage limpiado');
-            return datos.partidaActual;
-        } catch (e) {
-            console.error('❌ Error parseando sessionStorage:', e);
-        }
+        const datos = JSON.parse(datosSession);
+        sessionStorage.removeItem('datosPartidaActual');
+        return datos.partidaActual;
     }
 
     // Si no hay datos en session, usar localStorage
     const datosPartidaStr = localStorage.getItem('datosPartida');
-    console.log('💾 Datos en localStorage:', !!datosPartidaStr);
-    console.log('🔍 [DEBUG] Contenido datosPartida:', datosPartidaStr?.substring(0, 200));
-    
     if (!datosPartidaStr) {
-        console.error('❌ No se encontraron datos de partida en localStorage');
-        
-        // ✅ FALLBACK: Intentar buscar configuracionPartidaLocal
-        const configLocal = localStorage.getItem('configuracionPartidaLocal');
-        console.log('🔍 [FALLBACK] Buscando configuracionPartidaLocal:', !!configLocal);
-        
-        if (configLocal) {
-            console.log('🔧 [FALLBACK] Intentando reconstruir desde configuracionPartidaLocal...');
-            try {
-                const config = JSON.parse(configLocal);
-                console.log('🔧 [FALLBACK] Configuración encontrada:', config);
-                
-                // Reconstruir datos de partida desde configuración
-                const datosReconstruidos = {
-                    codigo: 'LOCAL_FALLBACK_' + Date.now(),
-                    configuracion: config,
-                    modo: 'local',
-                    estado: 'iniciada',
-                    creadorId: config.creadorId || 5, // Fallback a userId
-                    fechaCreacion: new Date().toISOString(),
-                    jugadores: [{
-                        id: config.creadorId || 5,
-                        username: 'Jugador Local',
-                        equipo: 'azul',
-                        activo: true,
-                        listo: true,
-                        rol: 'comandante'
-                    }],
-                    configuracionJuego: {
-                        turnoActual: 0,
-                        tiempoTurno: parseInt(config.duracionTurno || 3) * 60 * 1000,
-                        duracionPartida: parseInt(config.duracionPartida || 30) * 60 * 1000,
-                        objetivo: config.objetivoPartida || 'Sin objetivo',
-                        modoLocal: true
-                    }
-                };
-                
-                console.log('✅ [FALLBACK] Datos reconstruidos exitosamente:', datosReconstruidos);
-                
-                // Guardar los datos reconstruidos para futuras cargas
-                localStorage.setItem('datosPartida', JSON.stringify(datosReconstruidos));
-                
-                return datosReconstruidos;
-                
-            } catch (e) {
-                console.error('❌ [FALLBACK] Error reconstruyendo datos:', e);
-            }
-        }
-        
-        console.log('🔍 Verificando todas las claves de localStorage:');
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            console.log(`  - ${key}: ${localStorage.getItem(key)?.substring(0, 100)}...`);
-        }
         throw new Error('No se encontraron los datos de la partida');
     }
-    
-    console.log('✅ Datos encontrados en localStorage');
-    try {
-        const datos = JSON.parse(datosPartidaStr);
-        console.log('📋 Estructura localStorage:', datos);
-        console.log('🏁 === FIN CARGAR DATOS DE PARTIDA ===');
-        return datos;
-    } catch (e) {
-        console.error('❌ Error parseando localStorage:', e);
-        throw new Error('Datos de partida corruptos');
-    }
-    
-    return datos;
+    return JSON.parse(datosPartidaStr);
 }
 
 function setVariablesGlobales(datosPartida) {
-    // Usar UserIdentity centralizado para datos consistentes
-    window.userId = MAIRA.UserIdentity.getUserId();
-    window.userName = MAIRA.UserIdentity.getUsername();
+    window.userId = localStorage.getItem('userId');
+    window.userName = localStorage.getItem('username');
     window.partidaActual = datosPartida;
     window.configuracionPartida = datosPartida.configuracion;
     window.jugadoresPartida = datosPartida.jugadores;

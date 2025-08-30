@@ -1,81 +1,20 @@
 // iniciarpartida.js: Interacción con la interfaz y conexión de sockets
-// Última actualización: 2025-08-29 para consistencia de UserID
 
 let partidaActual = null;
 let usuariosConectados = new Map();
 let listaAmigos = new Set();
 let modoSeleccionado = null;
 
-// ✅ VARIABLES GLOBALES CRÍTICAS - Usando UserIdentity centralizado
-let userIdLocal = null; // Variable local para evitar conflictos
-let userNameLocal = null; // Variable local para evitar conflictos
-let socketPartidas = null; // Evitar conflictos con Socket.IO global
 
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 
 function inicializarAplicacion() {
-    console.log('🔍 Iniciando verificación de autenticación en Partidas...');
-    
-    // Verificar UserIdentity con fallback a localStorage
-    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
-        console.warn('⚠️ UserIdentity no disponible, usando localStorage...');
-        
-        // Fallback a localStorage
-        const userIdFallback = localStorage.getItem('userId');
-        const userNameFallback = localStorage.getItem('username');
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        
-        console.log('📋 Datos en localStorage:', {
-            userId: userIdFallback,
-            username: userNameFallback,
-            isLoggedIn: isLoggedIn
-        });
-        
-        if (userIdFallback && userNameFallback && isLoggedIn === 'true') {
-            userIdLocal = parseInt(userIdFallback, 10);
-            userNameLocal = userNameFallback;
-            console.log('✅ Datos cargados desde localStorage');
-        } else {
-            console.error('❌ No se pueden obtener datos de usuario válidos');
-            window.location.href = 'index.html';
-            return;
-        }
-    } else {
-        // Usar UserIdentity centralizado para obtener datos consistentes
-        userIdLocal = MAIRA.UserIdentity.getUserId();
-        userNameLocal = MAIRA.UserIdentity.getUsername();
-        
-        console.log('� Datos desde UserIdentity:', {
-            userId: userIdLocal,
-            userName: userNameLocal,
-            isAuthenticated: MAIRA.UserIdentity.isAuthenticated()
-        });
-    }
-    
-    console.log('🔍 Verificando datos de autenticación:');
-    console.log('   userIdLocal:', userIdLocal, 'tipo:', typeof userIdLocal);
-    console.log('   userNameLocal:', userNameLocal);
-    
-    if (!userIdLocal || !userNameLocal) {
-        console.error('❌ Datos de autenticación incompletos');
+    userId = localStorage.getItem('userId');
+    userName = localStorage.getItem('username');
+    if (!userId || !userName) {
         window.location.href = 'index.html';
         return;
     }
-    
-    if (isNaN(parseInt(userIdLocal, 10))) {
-        console.error('❌ userIdLocal no es un número válido:', userIdLocal);
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    // Convertir a número si es necesario
-    userIdLocal = parseInt(userIdLocal, 10);
-    
-    // ✅ Compatibilidad global: exponer userId para módulos legacy
-    window.userId = userIdLocal;
-    window.userName = userNameLocal;
-    
-    console.log('✅ Datos de usuario válidos, continuando...');
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();
@@ -100,20 +39,15 @@ function actualizarInfoUsuario() {
     const nombreElement = document.getElementById('nombreJugadorActual');
     const idElement = document.getElementById('idJugadorActual');
     if (nombreElement && idElement) {
-        nombreElement.textContent = userNameLocal;
-        idElement.textContent = userIdLocal;
+        nombreElement.textContent = userName;
+        idElement.textContent = userId;
     }
 }
 
 function cambiarModoJuego() {
     modoSeleccionado = document.getElementById('modoJuego').value;
     ocultarTodosLosFormularios();
-    
-    if (modoSeleccionado === 'local') {
-        document.getElementById('modoLocal').style.display = 'block';
-    } else if (modoSeleccionado === 'internet') {
-        document.getElementById('modoOnline').style.display = 'block';
-    }
+    document.getElementById(modoSeleccionado === 'local' ? 'modoLocal' : 'modoOnline').style.display = 'block';
 }
 
 function mostrarFormularioCrearPartida() {
@@ -138,7 +72,7 @@ function actualizarListaUsuarios(data) {
     if (listaUsuarios) {
         listaUsuarios.innerHTML = '';
         data.forEach(usuario => {
-            if (usuario.id !== userIdLocal) {
+            if (usuario.id !== userId) {
                 const li = document.createElement('li');
                 li.className = 'list-group-item d-flex justify-content-between align-items-center';
                 li.textContent = usuario.username;
@@ -155,7 +89,7 @@ function actualizarListaUsuarios(data) {
 
 function obtenerListaAmigos() {
     console.log('Solicitando lista de amigos');
-    socketPartidas.emit('obtenerListaAmigos');
+    socket.emit('obtenerListaAmigos');
 }
 
 function actualizarListaAmigos(amigos) {
@@ -179,12 +113,12 @@ function crearElementoAmigo(amigo) {
 }
 
 function agregarAmigo(amigoId, amigoNombre) {
-    socketPartidas.emit('agregarAmigo', { amigoId: amigoId });
+    socket.emit('agregarAmigo', { amigoId: amigoId });
     console.log(`Intentando agregar amigo: ${amigoNombre} (ID: ${amigoId})`);
 }
 
 function eliminarAmigo(amigoId) {
-    socketPartidas.emit('eliminarAmigo', { amigoId: amigoId });
+    socket.emit('eliminarAmigo', { amigoId: amigoId });
 }
 
 function manejarAmigoAgregado(data) {
@@ -237,7 +171,7 @@ function aplicarTema(esOscuro) {
 
 function reconectarAlJuego() {
     if (partidaActual) {
-        socketPartidas.emit('reconectarPartida', { userId: userIdLocal, codigoPartida: partidaActual.codigo });
+        socket.emit('reconectarPartida', { userId, codigoPartida: partidaActual.codigo });
     }
 }
 
@@ -342,9 +276,12 @@ function recopilarConfiguracionPartida() {
     const jugadoresElements = document.querySelectorAll('#jugadoresLocal tbody tr');
     jugadoresElements.forEach((jugadorElement, index) => {
         configuracion.jugadores.push({
+            id: `local_player_${index + 1}`, // ✅ ASIGNAR ID ÚNICO PARA MODO LOCAL
             nombre: jugadorElement.querySelector('input[type="text"]').value.trim(),
+            username: jugadorElement.querySelector('input[type="text"]').value.trim(), // Alias para compatibilidad
             equipo: jugadorElement.querySelector('select').value,
-            ia: jugadorElement.querySelector('input[type="checkbox"]').checked
+            ia: jugadorElement.querySelector('input[type="checkbox"]').checked,
+            esLocal: true // ✅ MARCAR COMO JUGADOR LOCAL
         });
     });
 
@@ -375,7 +312,7 @@ function actualizarListaJugadoresLocal() {
 function manejarInvitacionRecibida(data) {
     const { invitador, codigoPartida } = data;
     if (confirm(`${invitador} te ha invitado a unirte a su partida. ¿Deseas aceptar?`)) {
-        socketPartidas.emit('unirseAPartida', { codigo: codigoPartida });
+        socket.emit('unirseAPartida', { codigo: codigoPartida });
     }
 }
 
@@ -410,123 +347,36 @@ async function inicializarSocket() {
     console.log('Conectando al servidor:', SERVER_URL);
     
     try {
-        // ✅ CONFIGURACIÓN OPTIMIZADA PARA ESTABILIDAD DE SESIÓN
-        const socketConfig = {
-            reconnectionAttempts: 5,  // ✅ AUMENTADO: Más intentos de reconexión
-            timeout: 30000,  // ✅ OPTIMIZADO: Timeout más largo para conexiones lentas
-            transports: ['polling'],  // ✅ FORZAR polling para compatibilidad con Render
-            upgrade: false,  // ✅ Evitar upgrade a websockets que puede causar problemas
-            forceNew: false,  // ✅ Permitir reutilización de conexión
-            autoConnect: true,  // ✅ Conectar automáticamente
-            reconnection: true,  // ✅ Habilitar reconexión automática
-            reconnectionDelay: 2000,  // ✅ Esperar 2s entre intentos
-            randomizationFactor: 0.5,  // ✅ Añadir aleatoriedad para evitar tormentas de reconexión
-            // ✅ NUEVO: Headers adicionales para debugging
-            extraHeaders: {
-                'User-Agent': 'MAIRA-Client/3.0'
-            },
-            // ✅ CRÍTICO: Query para identificar la aplicación
-            query: {
-                'client': 'maira_partidas',
-                'version': '3.0'
-            }
-        };
-        
-        console.log('🚀 Configuración Socket.IO optimizada:', socketConfig);
-        socketPartidas = io(SERVER_URL, socketConfig);
-
-        socketPartidas.on('connect', function() {
-            console.log('✅ Conectado al servidor');
-            console.log('Socket ID:', socketPartidas.id);
-            
-            // ✅ HACER SOCKET DISPONIBLE GLOBALMENTE para partidas.js
-            window.socket = socketPartidas;
-            window.socketPartidas = socketPartidas;
-            window.iniciarPartidaSocket = socketPartidas;
-            window.clientSocket = socketPartidas;
-            
-            console.log('🌐 Socket configurado globalmente para acceso desde otros módulos');
-            
-            // ✅ AUTENTICACIÓN INMEDIATA AL CONECTAR
-            console.log('🔐 Enviando datos de autenticación...');
-            const datosAuth = {
-                user_id: userIdLocal,
-                username: userNameLocal
-            };
-            console.log('🔐 Datos de autenticación:', datosAuth);
-            socketPartidas.emit('login', datosAuth);
+        socket = io(SERVER_URL, {
+            transports: ['polling'],  // Solo polling para Render
+            timeout: 30000,
+            forceNew: true,
+            upgrade: false  // No intentar upgrade a websocket
         });
-        
-        // ✅ NUEVO: Manejar respuesta de login
-        socketPartidas.on('loginExitoso', function(data) {
-            console.log('✅ Login exitoso:', data);
+
+        socket.on('connect', function() {
+            console.log('Conectado al servidor');
+            console.log('Socket ID:', socket.id);
             
-            // ✅ CRÍTICO: Inicializar chat DESPUÉS del login exitoso
+            // ✅ CORREGIR LLAMADA:
             if (window.inicializarChat) {
-                const resultado = window.inicializarChat(socketPartidas);
+                const resultado = window.inicializarChat(socket);
                 console.log('✅ Chat inicializado:', resultado);
             } else {
                 console.error('❌ Función inicializarChat no encontrada');
             }
             
-            // ✅ CRÍTICO: Inicializar sistema de partidas DESPUÉS del login
-            console.log('🔍 Verificando disponibilidad de inicializarPartidas...');
-            console.log('   window.inicializarPartidas:', typeof window.inicializarPartidas);
-            
-            if (window.inicializarPartidas) {
-                console.log('✅ Función inicializarPartidas encontrada, inicializando...');
-                const resultadoPartidas = window.inicializarPartidas(socketPartidas);
-                console.log('✅ Sistema de partidas inicializado:', resultadoPartidas);
-            } else {
-                console.error('❌ Función inicializarPartidas no encontrada');
-                console.log('🔍 Funciones disponibles en window que contienen "partidas":', 
-                    Object.keys(window).filter(key => key.toLowerCase().includes('partidas')));
-            }
-            
-            // ✅ CRITICAL: Obtener listas DESPUÉS del login
-            console.log('📋 Solicitando listas después del login exitoso...');
-            obtenerListaAmigos();
+            console.log('Solicitando listas después de conectarse');
+            obtenerListaAmigos();  // ✅ CORREGIR: era solicitarListaAmigos()
             obtenerPartidasDisponibles();
         });
         
-        socketPartidas.on('loginError', function(error) {
-            console.error('❌ Error de login:', error);
-            mostrarError('Error de autenticación: ' + error.mensaje);
-        });
-        
-        // ✅ MEJORADO: Manejo de reconexión con re-autenticación
-        socketPartidas.on('reconnect', function(attemptNumber) {
-            console.log('🔄 Reconectado después de', attemptNumber, 'intentos');
-            
-            // ✅ CRÍTICO: Re-autenticar inmediatamente después de reconectar
-            console.log('🔐 Re-autenticando después de reconexión...');
-            const datosAuth = {
-                user_id: userIdLocal,
-                username: userNameLocal
-            };
-            socketPartidas.emit('login', datosAuth);
-            
-            // ✅ CRÍTICO: Re-inicializar sistema de partidas
-            if (window.inicializarPartidas) {
-                const resultadoPartidas = window.inicializarPartidas(socketPartidas);
-                console.log('✅ Sistema de partidas re-inicializado:', resultadoPartidas);
-            }
-            
-            mostrarError('Conexión restaurada', 'success');
-        });
-        
-        socketPartidas.on('disconnect', function(reason) {
-            console.log('❌ Desconectado:', reason);
-            mostrarError('Se ha perdido la conexión con el servidor. Intentando reconectar...');
-        });
-        
-        socketPartidas.on('connect_error', function(error) {
-            console.error('❌ Error de conexión:', error);
-            mostrarError('Error de conexión: ' + error.message);
-        });
+        socket.on('disconnect', () => mostrarError('Se ha perdido la conexión con el servidor. Intentando reconectar...'));
+        socket.on('reconnect', manejarReconexion);
+        socket.on('connect_error', manejarErrorConexion);
 
         // Manejar la respuesta del servidor con la lista de partidas disponibles
-        socketPartidas.on('listaPartidas', function(partidas) {
+        socket.on('listaPartidas', function(partidas) {
             console.log('Lista de partidas disponibles recibida:', partidas);
             
             // ✅ VALIDAR Y ACTUALIZAR:
@@ -538,7 +388,7 @@ async function inicializarSocket() {
         });
 
         // Manejar lista de partidas actualizada cada vez que haya un cambio
-        socketPartidas.on('listaPartidasActualizada', function(partidas) {
+        socket.on('listaPartidasActualizada', function(partidas) {
             console.log('Lista de partidas actualizada recibida:', partidas);
             
             // ✅ VALIDAR ANTES DE ACTUALIZAR:
@@ -552,16 +402,16 @@ async function inicializarSocket() {
         });
         
         // Eventos específicos del juego
-        socketPartidas.on('usuariosConectados', actualizarListaUsuarios);
-        socketPartidas.on('amigoAgregado', manejarAmigoAgregado);
-        socketPartidas.on('amigoEliminado', manejarAmigoEliminado);
-        socketPartidas.on('errorEliminarAmigo', manejarErrorEliminarAmigo);
-        socketPartidas.on('listaAmigos', actualizarListaAmigos);
-        socketPartidas.on('invitacionRecibida', manejarInvitacionRecibida);
+        socket.on('usuariosConectados', actualizarListaUsuarios);
+        socket.on('amigoAgregado', manejarAmigoAgregado);
+        socket.on('amigoEliminado', manejarAmigoEliminado);
+        socket.on('errorEliminarAmigo', manejarErrorEliminarAmigo);
+        socket.on('listaAmigos', actualizarListaAmigos);
+        socket.on('invitacionRecibida', manejarInvitacionRecibida);
         
-        // ✅ REMOVIDO DUPLICADO: socketPartidas.on('partidaCreada') ya está manejado en partidas.js
+        // ✅ REMOVIDO DUPLICADO: socket.on('partidaCreada') ya está manejado en partidas.js
         
-        socketPartidas.on('partidaIniciada', function(datosPartida) {
+        socket.on('partidaIniciada', function(datosPartida) {
         console.log('Recibidos datos de partida iniciada:', datosPartida);
         
         if (!datosPartida || !datosPartida.jugadores) {
@@ -574,17 +424,17 @@ async function inicializarSocket() {
         localStorage.setItem('partidaActual', JSON.stringify({
             codigo: datosPartida.codigo,
             jugadores: datosPartida.jugadores,
-            equipoJugador: datosPartida.jugadores.find(j => j.id === userIdLocal)?.equipo
+            equipoJugador: datosPartida.jugadores.find(j => j.id === userId)?.equipo
         }));
 
         // Verificar y establecer director si es necesario
         const jugadoresAzules = datosPartida.jugadores.filter(j => j.equipo === 'azul');
         if (jugadoresAzules.length > 0 && !datosPartida.director) {
             const primerJugadorAzul = jugadoresAzules[0];
-            if (primerJugadorAzul.id === userIdLocal) {
+            if (primerJugadorAzul.id === userId) {
                 console.log('Asignado como director temporal');
-                socketPartidas.emit('asignarDirectorTemporal', {
-                    jugadorId: userIdLocal,
+                socket.emit('asignarDirectorTemporal', {
+                    jugadorId: userId,
                     partidaCodigo: datosPartida.codigo
                 });
             }
@@ -595,20 +445,20 @@ async function inicializarSocket() {
     });
 
         // Agregar evento para director asignado
-        socketPartidas.on('directorAsignado', function(datos) {
+        socket.on('directorAsignado', function(datos) {
             console.log('Director asignado:', datos);
-            if (datos.director === userIdLocal) {
+            if (datos.director === userId) {
                 console.log('Soy el director temporal');
             }
         });
 
 
 
-        socketPartidas.on('errorCreacionPartida', function(error) {
+        socket.on('errorCreacionPartida', function(error) {
             mostrarError(error.mensaje);
         });
         
-        socketPartidas.on('equipoJugadorActualizado', function(data) {
+        socket.on('equipoJugadorActualizado', function(data) {
             console.log('Equipo del jugador actualizado:', data);
             if (data.jugadores && Array.isArray(data.jugadores)) {
                 actualizarListaJugadoresSala(data.jugadores);
@@ -617,7 +467,7 @@ async function inicializarSocket() {
             }
         });
         
-        socketPartidas.on('unidoAPartida', function(datosPartida) {
+        socket.on('unidoAPartida', function(datosPartida) {
             console.log("Unido a la partida con éxito:", datosPartida);
         
             if (!datosPartida.configuracion) {
@@ -631,38 +481,8 @@ async function inicializarSocket() {
         });
         
 
-        // ✅ MANEJAR RESPUESTA DE LOGIN
-        socketPartidas.on('loginResponse', function(response) {
-            console.log('🔐 Respuesta de login recibida:', response);
-            if (response.exito) {
-                console.log('✅ Login exitoso en iniciarpartida');
-            } else {
-                console.error('❌ Login fallido:', response.mensaje);
-                mostrarError('Error de autenticación: ' + response.mensaje);
-            }
-        });
-
-        // ✅ MANEJAR RESPUESTA DE CREAR PARTIDA
-        socketPartidas.on('partidaCreada', function(datosPartida) {
-            console.log('✅ Partida creada exitosamente:', datosPartida);
-            
-            if (datosPartida && datosPartida.codigo) {
-                console.log('🚀 Redirigiendo a sala de espera...');
-                partidaActual = datosPartida;
-                mostrarSalaEspera(datosPartida);
-            } else {
-                console.error('❌ Datos de partida inválidos:', datosPartida);
-                mostrarError('Error: Datos de partida incompletos');
-            }
-        });
-
-        socketPartidas.on('errorCrearPartida', function(error) {
-            console.error('❌ Error al crear partida:', error);
-            mostrarError('Error al crear partida: ' + (error.mensaje || error.message || 'Error desconocido'));
-        });
-
         // ✅ ASEGURAR CIERRE CORRECTO:
-        socketPartidas.on('error', function(error) {
+        socket.on('error', function(error) {
             console.error('Error de socket:', error);
             mostrarError('Error de conexión: ' + error.message);
         });
@@ -680,29 +500,29 @@ async function inicializarSocket() {
 
 
 function manejarConexion() {
-    console.log('✅ Conectado al servidor');
-    console.log('🔍 Variables antes del login:');
-    console.log('   userId (variable):', userId, 'tipo:', typeof userId);
-    console.log('   userNameLocal (variable):', userNameLocal, 'tipo:', typeof userNameLocal);
-    console.log('   localStorage userId:', localStorage.getItem('userId'));
-    console.log('   localStorage username:', localStorage.getItem('username'));
-    
-    // ✅ CRÍTICO: Enviar con el formato que espera el backend
-    const loginData = { 
-        user_id: userId,    // Backend espera 'user_id'
-        username: userNameLocal  // Backend espera 'username'
-    };
-    
-    console.log('🔐 Enviando login con data:', JSON.stringify(loginData));
-    socketPartidas.emit('login', loginData);
+    console.log('Conectado al servidor');
+    socket.emit('login', { userId, username: userName });
 
     // Solicitar listas después de conectarse al servidor
-    console.log('📡 Solicitando listas después de conectarse');
+    console.log('Solicitando listas después de conectarse');
     obtenerListaAmigos();
     obtenerPartidasDisponibles();
 }
 
-// ✅ FUNCIONES DE RECONEXIÓN ELIMINADAS - Ya manejadas en los eventos socket
+
+function manejarReconexion() {
+    mostrarMensaje('Reconectado al servidor.');
+    if (partidaActual) {
+        reconectarAlJuego();
+    }
+}
+
+function manejarErrorConexion(error) {
+    console.error('Error de conexión:', error);
+    mostrarError('Error de conexión con el servidor. Por favor, intenta de nuevo más tarde.');
+}
+
+
 
 function inicializarInterfazUsuario() {
     actualizarInfoUsuario();
@@ -712,23 +532,11 @@ function inicializarInterfazUsuario() {
 }
 
 function obtenerPartidasDisponibles() {
-    console.log('🔍 Verificando estado del socket para obtener partidas...');
-    console.log('   socketPartidas:', !!socketPartidas);
-    console.log('   socketPartidas.connected:', socketPartidas ? socketPartidas.connected : 'N/A');
-    
-    if (socketPartidas && socketPartidas.connected) {
-        console.log('✅ Solicitando lista de partidas disponibles');
-        socketPartidas.emit('obtenerPartidasDisponibles');
+    if (socket && socket.connected) {
+        console.log('Solicitando lista de partidas disponibles');
+        socket.emit('obtenerPartidasDisponibles');
     } else {
-        console.warn('⚠️ Socket no conectado. Reintentando en 2 segundos...');
-        setTimeout(() => {
-            if (socketPartidas && socketPartidas.connected) {
-                console.log('✅ Reintento exitoso - Solicitando partidas disponibles');
-                socketPartidas.emit('obtenerPartidasDisponibles');
-            } else {
-                console.error('❌ Socket aún no conectado después del reintento');
-            }
-        }, 2000);
+        console.error('El socket no está conectado. No se puede solicitar la lista de partidas disponibles.');
     }
 }
 
@@ -746,6 +554,8 @@ window.limpiarFormularioCrearPartida = limpiarFormularioCrearPartida;
 window.manejarInvitacionRecibida = manejarInvitacionRecibida;
 window.inicializarAplicacion = inicializarAplicacion;
 window.inicializarSocket = inicializarSocket;
+window.manejarReconexion = manejarReconexion;
+window.manejarErrorConexion = manejarErrorConexion;
 window.inicializarEventListeners = inicializarEventListeners;
 window.inicializarInterfazUsuario = inicializarInterfazUsuario;
 window.actualizarInfoUsuario = actualizarInfoUsuario;
