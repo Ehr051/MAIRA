@@ -458,38 +458,25 @@ function crearPartida(e) {
         console.log('🌐 Iniciando juego online...');
         console.log('🚀 Enviando crear partida al servidor...');
         
-        // ✅ USAR SOCKET CORRECTO
+        // ✅ PRIMERO: Test de conectividad con el servidor
+        console.log('🧪 [TEST] Enviando evento de prueba para verificar conectividad...');
         const socketActivo = window.socketPartidas || window.socket;
-        console.log('🔌 Verificando socket activo:', {
-            socketPartidas: !!window.socketPartidas,
-            socket: !!window.socket,
-            socketActivo: !!socketActivo,
-            connected: socketActivo?.connected,
-            id: socketActivo?.id
-        });
         
         if (socketActivo && socketActivo.connected) {
-            console.log('✅ Socket encontrado y conectado, enviando datos...');
-            console.log('📤 Emitiendo evento "crearPartida" con configuración:', configuracion);
+            // ✅ Test de conectividad
+            socketActivo.emit('testConnectionServer');
+            socketActivo.on('testConnectionResponse', function(response) {
+                console.log('🧪 [TEST] Respuesta del servidor recibida:', response);
+                
+                // Ahora proceder con crear partida
+                procederCrearPartida(socketActivo, configuracion);
+            });
             
-            // ✅ CRÍTICO: Verificar que los event listeners están configurados
-            console.log('🔍 Event listeners del socket:', Object.keys(socketActivo._callbacks || {}));
-            
-            // ✅ AGREGAR LISTENER TEMPORAL para debugging
-            const debugListener = function(partida) {
-                console.log('🎯 [DEBUG] partidaCreada recibido en listener temporal:', partida);
-            };
-            socketActivo.on('partidaCreada', debugListener);
-            
-            socketActivo.emit('crearPartida', { configuracion });
-            
-            console.log('✅ Evento enviado. Esperando respuesta "partidaCreada" del servidor...');
-            
-            // ✅ TIMEOUT para debugging
+            // Timeout para el test
             setTimeout(() => {
-                console.log('⏰ [DEBUG] Han pasado 5 segundos sin respuesta partidaCreada');
-                socketActivo.off('partidaCreada', debugListener);
-            }, 5000);
+                console.log('🧪 [TEST] Timeout - procediendo sin confirmación de test');
+                procederCrearPartida(socketActivo, configuracion);
+            }, 2000);
             
         } else {
             console.error('❌ Socket no disponible o no conectado');
@@ -501,8 +488,30 @@ function crearPartida(e) {
             mostrarError('Error: No hay conexión con el servidor');
         }
     }
+}
+
+function procederCrearPartida(socketActivo, configuracion) {
+    console.log('🚀 === PROCEDIENDO A CREAR PARTIDA ===');
+    console.log('📤 Emitiendo evento "crearPartida" con configuración:', configuracion);
     
-    console.log('🏁 === FIN CREAR PARTIDA ===');
+    // ✅ CRÍTICO: Verificar que los event listeners están configurados
+    console.log('🔍 Event listeners del socket:', Object.keys(socketActivo._callbacks || {}));
+    
+    // ✅ AGREGAR LISTENER TEMPORAL para debugging
+    const debugListener = function(partida) {
+        console.log('🎯 [DEBUG] partidaCreada recibido en listener temporal:', partida);
+    };
+    socketActivo.on('partidaCreada', debugListener);
+    
+    socketActivo.emit('crearPartida', { configuracion });
+    
+    console.log('✅ Evento enviado. Esperando respuesta "partidaCreada" del servidor...');
+    
+    // ✅ TIMEOUT para debugging
+    setTimeout(() => {
+        console.log('⏰ [DEBUG] Han pasado 5 segundos sin respuesta partidaCreada');
+        socketActivo.off('partidaCreada', debugListener);
+    }, 5000);
 }
 
 function iniciarJuegoLocal(configuracion) {

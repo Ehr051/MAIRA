@@ -1821,15 +1821,18 @@ def handle_verificar_autenticacion():
 
 @socketio.on('crearPartida')
 def crear_partida(data):
+    print(f"🚨 === EVENTO CREAR PARTIDA RECIBIDO ===")
     print(f"🎮 CREAR PARTIDA - Datos recibidos: {data}")
     print(f"🎮 CREAR PARTIDA - SID: {request.sid}")
     print(f"🎮 CREAR PARTIDA - User ID: {user_sid_map.get(request.sid)}")
+    print(f"🎮 CREAR PARTIDA - Tipo de datos: {type(data)}")
+    print(f"🎮 CREAR PARTIDA - user_sid_map completo: {user_sid_map}")
     
     conn = None
     cursor = None
     
     try:
-        print("Iniciando creación de partida con datos:", data)
+        print("🔍 Iniciando creación de partida con datos:", data)
         configuracion = data.get('configuracion')
         if not configuracion:
             print("Error: Configuración de partida faltante")
@@ -1968,6 +1971,14 @@ def crear_partida(data):
                 conn.close()
             except:
                 pass
+
+@socketio.on('testConnectionServer')
+def test_connection_server():
+    """Evento de prueba para verificar conectividad"""
+    print(f"🧪 === TEST CONNECTION RECIBIDO ===")
+    print(f"🧪 SID: {request.sid}")
+    print(f"🧪 User ID: {user_sid_map.get(request.sid)}")
+    emit('testConnectionResponse', {'status': 'OK', 'timestamp': datetime.now().isoformat()})
 
 @socketio.on('obtenerPartidasDisponibles')
 def obtener_partidas_disponibles():
