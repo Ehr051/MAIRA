@@ -331,12 +331,21 @@ class GestorFases extends GestorBase {
         // 2. Cambiar fase localmente
         this.cambiarFase('preparacion', 'despliegue');
     
-        // 3. Emitir evento al servidor
-        if (this.gestorJuego?.gestorComunicacion) {
-            this.gestorJuego.gestorComunicacion.socket.emit('inicioDespliegue', {
-                jugadorId: window.userId,
-                zonasConfirmadas: this.zonasConfirmadas
-            });
+        // 3. ✅ VERIFICAR MODO ANTES DE EMITIR
+        const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
+        if (modoJuego === 'online') {
+            // Emitir evento al servidor solo en modo online
+            if (this.gestorJuego?.gestorComunicacion?.socket) {
+                this.gestorJuego.gestorComunicacion.socket.emit('inicioDespliegue', {
+                    jugadorId: window.userId,
+                    zonasConfirmadas: this.zonasConfirmadas
+                });
+                console.log('🌐 Evento inicioDespliegue emitido al servidor');
+            } else {
+                console.warn('❌ Socket no disponible para emitir inicioDespliegue');
+            }
+        } else {
+            console.log('🏠 Modo local: inicioDespliegue procesado localmente, sin socket');
         }
     
         // 4. Actualizar interfaz
@@ -1113,12 +1122,24 @@ actualizarInterfazDespliegue() {
     const panelFases = document.getElementById('panel-fases');
     if (!panelFases) return;
 
+    // ✅ VERIFICAR MODO PARA MOSTRAR INTERFAZ APROPIADA
+    const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
+    const jugadorActual = window.userId || 1;
+    
+    let titulo = 'Fase: Preparación - Despliegue';
+    let descripcion = 'Despliega tus unidades en tu zona asignada';
+    
+    if (modoJuego === 'local') {
+        titulo = `Jugador ${jugadorActual} - Despliegue`;
+        descripcion = `Jugador ${jugadorActual}: Despliega tus elementos en tu zona`;
+    }
+
     panelFases.innerHTML = `
         <div class="fase-actual">
-            <h3>Fase: Preparación - Despliegue</h3>
-            <p>Despliega tus unidades en tu zona asignada</p>
+            <h3>${titulo}</h3>
+            <p>${descripcion}</p>
             <button id="btn-listo-despliegue" class="btn btn-primary">
-                Listo para Combate
+                ${modoJuego === 'local' ? 'Listo - Siguiente Jugador' : 'Listo para Combate'}
             </button>
         </div>
     `;
@@ -1630,17 +1651,119 @@ marcarJugadorListo() {
             return false;
         }
 
-        // Emitir al servidor
-        this.gestorJuego?.gestorComunicacion?.socket.emit('jugadorListo', {
-            jugadorId: window.userId,
-            partidaCodigo: window.codigoPartida,
-            elementos: elementos
-        });
+        // ✅ VERIFICAR MODO DE JUEGO
+        const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
+        
+        if (modoJuego === 'local') {
+            console.log('🏠 Modo local: procesando jugador listo secuencialmente');
+            this.procesarJugadorListoLocal(elementos);
+        } else {
+            console.log('🌐 Modo online: emitiendo jugadorListo al servidor');
+            // Emitir al servidor solo en modo online
+            if (this.gestorJuego?.gestorComunicacion?.socket) {
+                this.gestorJuego.gestorComunicacion.socket.emit('jugadorListo', {
+                    jugadorId: window.userId,
+                    partidaCodigo: window.codigoPartida,
+                    elementos: elementos
+                });
+            } else {
+                console.warn('❌ Socket no disponible para emitir jugadorListo');
+            }
+        }
 
         return true;
     } catch (error) {
         console.error('[GestorFases] Error al marcar jugador listo:', error);
         return false;
+    }
+}
+
+/**
+ * ✅ NUEVO: Procesar jugador listo en modo local con turnos secuenciales
+ */
+procesarJugadorListoLocal(elementos) {
+    console.log('🏠 [Modo Local] Procesando jugador listo:', window.userId);
+    
+    // Guardar elementos del jugador actual
+    const partidaData = JSON.parse(localStorage.getItem('partidaLocal') || '{}');
+    if (!partidaData.elementosJugadores) partidaData.elementosJugadores = {};
+    
+    partidaData.elementosJugadores[window.userId] = {
+        elementos: elementos,
+        listo: true,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Obtener configuración de jugadores
+    const totalJugadores = partidaData.configuracion?.cantidadJugadores || 2;
+    const jugadoresListos = Object.keys(partidaData.elementosJugadores).length;
+    
+    console.log(`🎯 Jugadores listos: ${jugadoresListos}/${totalJugadores}`);
+    
+    // Si es el último jugador, pasar a combate
+    if (jugadoresListos >= totalJugadores) {
+        console.log('🎮 Todos los jugadores han terminado despliegue, iniciando combate');
+        localStorage.setItem('partidaLocal', JSON.stringify(partidaData));
+        
+        // Cambiar a fase combate
+        setTimeout(() => {
+            this.cambiarFase('combate', 'turnos');
+        }, 1500);
+        
+        this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+            'Todos los jugadores han completado el despliegue. ¡Iniciando combate!',
+            'success'
+        );
+        
+    } else {
+        // Pasar al siguiente jugador
+        const siguienteJugador = jugadoresListos + 1;
+        console.log(`🔄 Pasando al jugador ${siguienteJugador}`);
+        
+        localStorage.setItem('partidaLocal', JSON.stringify(partidaData));
+        
+        // Mostrar mensaje y preparar para siguiente jugador
+        this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
+            `Jugador ${window.userId} listo. Turno del Jugador ${siguienteJugador}`,
+            'info'
+        );
+        
+        // Simular cambio de jugador
+        setTimeout(() => {
+            window.userId = siguienteJugador;
+            this.actualizarInterfazDespliegue();
+            this.limpiarElementosVisuales(); // Limpiar elementos del jugador anterior
+        }, 2000);
+    }
+}
+
+/**
+ * ✅ NUEVO: Limpiar elementos visuales del mapa para cambio de jugador
+ */
+limpiarElementosVisuales() {
+    console.log('🧹 Limpiando elementos visuales para cambio de jugador');
+    
+    try {
+        // Limpiar elementos del mapa (markers, polígonos, etc.)
+        if (window.map && window.map.eachLayer) {
+            window.map.eachLayer((layer) => {
+                // Conservar tiles base y controles, remover solo elementos de juego
+                if (layer.options && 
+                    (layer.options.sidc || layer.options.nombre || layer.options.tipo)) {
+                    window.map.removeLayer(layer);
+                }
+            });
+        }
+        
+        // Limpiar referencias globales
+        if (window.elementoSeleccionado) {
+            window.elementoSeleccionado = null;
+        }
+        
+        console.log('✅ Elementos visuales limpiados');
+        
+    } catch (error) {
+        console.error('❌ Error limpiando elementos visuales:', error);
     }
 }
 
