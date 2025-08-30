@@ -1824,6 +1824,10 @@ def crear_partida(data):
     print(f"🎮 CREAR PARTIDA - Datos recibidos: {data}")
     print(f"🎮 CREAR PARTIDA - SID: {request.sid}")
     print(f"🎮 CREAR PARTIDA - User ID: {user_sid_map.get(request.sid)}")
+    
+    conn = None
+    cursor = None
+    
     try:
         print("Iniciando creación de partida con datos:", data)
         configuracion = data.get('configuracion')
@@ -1845,113 +1849,125 @@ def crear_partida(data):
             emit('errorCrearPartida', {'mensaje': 'Error de conexión a la base de datos'})
             return
 
-        try:
-            cursor = conn.cursor()
-            print("Insertando datos en la tabla partidas")
-            # ✅ EXTRAER NOMBRE DE LA CONFIGURACIÓN
-            nombre_partida = configuracion.get('nombrePartida', 'Sin nombre')
-            
-            # ✅ ARREGLO: Intentar inserción con nombre, si falla usar sin nombre
-            try:
-                cursor.execute("""
-                    INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
-                    VALUES (%s, %s, %s, %s, %s) RETURNING id
-                """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
-            except Exception as e:
-                print(f"⚠️ Error con columna nombre, intentando sin ella: {e}")
-                # Crear/modificar tabla para agregar columna nombre si no existe
-                try:
-                    cursor.execute("ALTER TABLE partidas ADD COLUMN IF NOT EXISTS nombre VARCHAR(255) DEFAULT 'Sin nombre'")
-                    conn.commit()
-                    print("✅ Columna 'nombre' agregada a tabla partidas")
-                    
-                    # Intentar de nuevo con nombre
-                    cursor.execute("""
-                        INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
-                        VALUES (%s, %s, %s, %s, %s) RETURNING id
-                    """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
-                except Exception as e2:
-                    print(f"⚠️ Error persistente, usando inserción básica: {e2}")
-                    # Fallback: inserción sin nombre
-                    cursor.execute("""
-                        INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
-                        VALUES (%s, %s, %s, %s) RETURNING id
-                    """, (codigo_partida, configuracion_json, estado, fecha_creacion))
-            
-            partida_id = cursor.fetchone()['id']
-
-            print("Insertando creador como primer jugador")
-            creador_id = user_sid_map.get(request.sid)
-            if creador_id is None:
-                print("Error: No se encontró el ID del creador")
-                emit('errorCrearPartida', {'mensaje': 'Error al obtener el ID del creador'})
-                return
-
-            # Insertar al creador en la tabla `usuarios_partida` con `esCreador` = true
+        cursor = conn.cursor()
+        
+        # ✅ NUEVA ESTRATEGIA: Primero verificar si existe la columna nombre
+        print("🔍 Verificando estructura de tabla partidas...")
+        cursor.execute("""
+            SELECT column_name FROM information_schema.columns 
+            WHERE table_name = 'partidas' AND column_name = 'nombre'
+        """)
+        
+        nombre_column_exists = cursor.fetchone() is not None
+        
+        # ✅ EXTRAER NOMBRE DE LA CONFIGURACIÓN
+        nombre_partida = configuracion.get('nombrePartida', 'Sin nombre')
+        
+        if nombre_column_exists:
+            print("✅ Columna 'nombre' existe, insertando con nombre")
             cursor.execute("""
-                INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
-                VALUES (%s, %s, 'sin_equipo', %s, %s)
-            """, (partida_id, creador_id, 0, 1))
-            
-            conn.commit()
-            print("Commit realizado con éxito")
+                INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id
+            """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
+        else:
+            print("⚠️ Columna 'nombre' no existe, creándola...")
+            cursor.execute("ALTER TABLE partidas ADD COLUMN nombre VARCHAR(255) DEFAULT 'Sin nombre'")
+            conn.commit()  # Commit del ALTER TABLE
+            print("✅ Columna 'nombre' creada, insertando con nombre")
+            cursor.execute("""
+                INSERT INTO partidas (codigo, nombre, configuracion, estado, fecha_creacion)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id
+            """, (codigo_partida, nombre_partida, configuracion_json, estado, fecha_creacion))
+        
+        partida_id = cursor.fetchone()['id']
 
-            partida = {
-                'id': partida_id,
-                'codigo': codigo_partida,
-                'nombre': nombre_partida,  # ✅ AGREGAR NOMBRE
-                'configuracion': configuracion,
-                'estado': estado,
-                'fecha_creacion': fecha_creacion.isoformat(),
-                'jugadores': [{
-                    'id': creador_id,
-                    'username': obtener_username(creador_id),
-                    'equipo': 'sin_equipo',
-                    'listo': False
-                }]
-            }
+        print("Insertando creador como primer jugador")
+        creador_id = user_sid_map.get(request.sid)
+        if creador_id is None:
+            print("Error: No se encontró el ID del creador")
+            emit('errorCrearPartida', {'mensaje': 'Error al obtener el ID del creador'})
+            return
 
-            join_room(codigo_partida, sid=request.sid)
-            print(f"🏠 Usuario {creador_id} unido a sala: {codigo_partida}")
-            
-            # ✅ NUEVO: También unir a sala de chat de la partida
-            join_room(f"chat_{codigo_partida}", sid=request.sid)
-            print(f"💬 Usuario {creador_id} unido a chat: chat_{codigo_partida}")
-            
-            print(f"📤 Emitiendo evento 'partidaCreada' con datos: {partida}")
-            print(f"🔍 SID del creador: {request.sid}")
-            print(f"🔍 user_sid_map: {user_sid_map}")
-            
-            # ✅ CRÍTICO: Emitir el evento al cliente específico
-            emit('partidaCreada', partida, room=request.sid)
-            
-            # ✅ TAMBIÉN emitir de manera global para debug
-            socketio.emit('debug_partidaCreada', {
-                'partida': partida,
-                'creador_sid': request.sid,
-                'timestamp': datetime.now().isoformat()
-            }, room='general')
-            
-            print(f"📋 Actualizando lista de partidas globales...")
-            actualizar_lista_partidas()
-            
-            # ✅ CRÍTICO: Emitir evento que el frontend espera (igual que serverhttps.py)
-            socketio.emit('listaPartidasActualizada', room='general')
-            
-            print(f"✅ Partida creada exitosamente: {codigo_partida}")
-            print(f"🎯 Usuario debería recibir evento 'partidaCreada' ahora")
+        # Insertar al creador en la tabla `usuarios_partida` con `esCreador` = true
+        cursor.execute("""
+            INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
+            VALUES (%s, %s, 'sin_equipo', %s, %s)
+        """, (partida_id, creador_id, 0, 1))
+        
+        conn.commit()
+        print("✅ Commit realizado con éxito")
 
-        except Exception as e:
-            conn.rollback()
-            print(f"Error en la base de datos al crear partida: {e}")
-            emit('errorCrearPartida', {'mensaje': f'Error en la base de datos: {str(e)}'})
-        finally:
-            cursor.close()
-            conn.close()
+        partida = {
+            'id': partida_id,
+            'codigo': codigo_partida,
+            'nombre': nombre_partida,  # ✅ AGREGAR NOMBRE
+            'configuracion': configuracion,
+            'estado': estado,
+            'fecha_creacion': fecha_creacion.isoformat(),
+            'jugadores': [{
+                'id': creador_id,
+                'username': obtener_username(creador_id),
+                'equipo': 'sin_equipo',
+                'listo': False
+            }]
+        }
+
+        join_room(codigo_partida, sid=request.sid)
+        print(f"🏠 Usuario {creador_id} unido a sala: {codigo_partida}")
+        
+        # ✅ NUEVO: También unir a sala de chat de la partida
+        join_room(f"chat_{codigo_partida}", sid=request.sid)
+        print(f"💬 Usuario {creador_id} unido a chat: chat_{codigo_partida}")
+        
+        print(f"📤 Emitiendo evento 'partidaCreada' con datos: {partida}")
+        print(f"🔍 SID del creador: {request.sid}")
+        print(f"🔍 user_sid_map: {user_sid_map}")
+        
+        # ✅ CRÍTICO: Emitir el evento al cliente específico
+        emit('partidaCreada', partida, room=request.sid)
+        
+        # ✅ TAMBIÉN emitir de manera global para debug
+        socketio.emit('debug_partidaCreada', {
+            'partida': partida,
+            'creador_sid': request.sid,
+            'timestamp': datetime.now().isoformat()
+        }, room='general')
+        
+        print(f"📋 Actualizando lista de partidas globales...")
+        actualizar_lista_partidas()
+        
+        # ✅ CRÍTICO: Emitir evento que el frontend espera (igual que serverhttps.py)
+        socketio.emit('listaPartidasActualizada', room='general')
+        
+        print(f"✅ Partida creada exitosamente: {codigo_partida}")
+        print(f"🎯 Usuario debería recibir evento 'partidaCreada' ahora")
 
     except Exception as e:
-        print(f"Error general al crear partida: {e}")
-        emit('errorCrearPartida', {'mensaje': f'Error interno: {str(e)}'})
+        print(f"❌ Error crítico al crear partida: {e}")
+        print(f"📍 Traceback: {traceback.format_exc()}")
+        
+        # ✅ MANEJO ROBUSTO DE ERRORES
+        if conn:
+            try:
+                conn.rollback()
+                print("🔄 Rollback ejecutado correctamente")
+            except Exception as rollback_error:
+                print(f"❌ Error en rollback: {rollback_error}")
+        
+        emit('errorCrearPartida', {'mensaje': f'Error en la base de datos: {str(e)}'})
+    
+    finally:
+        # ✅ CLEANUP GARANTIZADO
+        if cursor:
+            try:
+                cursor.close()
+            except:
+                pass
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
 
 @socketio.on('obtenerPartidasDisponibles')
 def obtener_partidas_disponibles():

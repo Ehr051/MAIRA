@@ -746,7 +746,6 @@ window.limpiarFormularioCrearPartida = limpiarFormularioCrearPartida;
 window.manejarInvitacionRecibida = manejarInvitacionRecibida;
 window.inicializarAplicacion = inicializarAplicacion;
 window.inicializarSocket = inicializarSocket;
-window.manejarErrorConexion = manejarErrorConexion;
 window.inicializarEventListeners = inicializarEventListeners;
 window.inicializarInterfazUsuario = inicializarInterfazUsuario;
 window.actualizarInfoUsuario = actualizarInfoUsuario;
