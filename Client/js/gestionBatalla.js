@@ -249,11 +249,11 @@ function actualizarInterfazUsuario() {
         try {
             // 🔧 PRIORIDAD: Usar UserIdentity como fuente principal
             if (window.UserIdentity && window.UserIdentity.isInitialized()) {
-                const identidad = window.UserIdentity.obtenerIdentidad();
-                if (identidad && identidad.isAuthenticated) {
+                const identidad = window.UserIdentity.getUserData();
+                if (identidad && window.UserIdentity.isAuthenticated()) {
                     usuarioInfo = {
-                        id: identidad.userId,
-                        usuario: identidad.userName,
+                        id: window.UserIdentity.getUserId(),
+                        usuario: window.UserIdentity.getUserName(),
                         operacion: new URLSearchParams(window.location.search).get('operacion') || 'operacion'
                     };
                     console.log("✅ Usuario cargado desde UserIdentity:", usuarioInfo);
