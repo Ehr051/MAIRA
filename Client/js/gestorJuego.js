@@ -864,20 +864,41 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 
 async function cargarDatosPartida() {
+    console.log('🔍 === CARGANDO DATOS DE PARTIDA ===');
+    
     // Intentar recuperar datos de sessionStorage primero
     const datosSession = sessionStorage.getItem('datosPartidaActual');
+    console.log('📱 Datos en sessionStorage:', !!datosSession);
+    
     if (datosSession) {
+        console.log('✅ Datos encontrados en sessionStorage');
         const datos = JSON.parse(datosSession);
+        console.log('📋 Estructura sessionStorage:', datos);
         sessionStorage.removeItem('datosPartidaActual');
+        console.log('🗑️ sessionStorage limpiado');
         return datos.partidaActual;
     }
 
     // Si no hay datos en session, usar localStorage
     const datosPartidaStr = localStorage.getItem('datosPartida');
+    console.log('💾 Datos en localStorage:', !!datosPartidaStr);
+    
     if (!datosPartidaStr) {
+        console.error('❌ No se encontraron datos de partida en ninguna ubicación');
+        console.log('🔍 Verificando todas las claves de localStorage:');
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            console.log(`  - ${key}: ${localStorage.getItem(key)?.substring(0, 100)}...`);
+        }
         throw new Error('No se encontraron los datos de la partida');
     }
-    return JSON.parse(datosPartidaStr);
+    
+    console.log('✅ Datos encontrados en localStorage');
+    const datos = JSON.parse(datosPartidaStr);
+    console.log('📋 Estructura localStorage:', datos);
+    console.log('🏁 === FIN CARGAR DATOS DE PARTIDA ===');
+    
+    return datos;
 }
 
 function setVariablesGlobales(datosPartida) {

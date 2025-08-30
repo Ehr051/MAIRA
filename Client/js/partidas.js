@@ -443,19 +443,67 @@ function crearPartida(e) {
 }
 
 function iniciarJuegoLocal(configuracion) {
-    // Crear estructura de datos compatible con gestorJuego.js
+    console.log('🏠 === INICIANDO JUEGO LOCAL ===');
+    console.log('⚙️ Configuración recibida:', configuracion);
+    
+    // Obtener datos de usuario
+    const currentUserId = MAIRA.UserIdentity.getUserId();
+    const currentUserName = MAIRA.UserIdentity.getUsername();
+    
+    console.log('👤 Datos de usuario para partida local:', {
+        userId: currentUserId,
+        userName: currentUserName
+    });
+    
+    // Crear estructura de datos completa compatible con gestorJuego.js
     const datosPartida = {
+        codigo: 'LOCAL_' + Date.now(), // Código único para partida local
         configuracion: configuracion,
         modo: 'local',
-        jugadores: [], // Se configurarán en gestorJuego.js
-        estado: 'configurando'
+        estado: 'iniciada', // ✅ Estado directo para local
+        creadorId: currentUserId,
+        fechaCreacion: new Date().toISOString(),
+        jugadores: [
+            {
+                id: currentUserId,
+                username: currentUserName,
+                equipo: 'azul', // Equipo por defecto para local
+                activo: true,
+                listo: true, // Ya está listo en local
+                rol: 'comandante'
+            }
+        ],
+        // ✅ Agregar configuración de juego específica para local
+        configuracionJuego: {
+            turnoActual: 0,
+            tiempoTurno: parseInt(configuracion.duracionTurno) * 60 * 1000, // Convertir a ms
+            duracionPartida: parseInt(configuracion.duracionPartida) * 60 * 1000,
+            objetivo: configuracion.objetivoPartida,
+            modoLocal: true
+        }
     };
     
-    console.log('💾 Guardando datos de partida local:', datosPartida);
+    console.log('💾 Estructura completa de datos de partida local:', datosPartida);
+    
+    // Guardar datos en localStorage con estructura completa
     localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
     localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
     
+    // También guardar en sessionStorage para compatibilidad
+    sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+        partidaActual: datosPartida,
+        userId: currentUserId,
+        userName: currentUserName,
+        equipoJugador: 'azul',
+        modoLocal: true
+    }));
+    
+    console.log('✅ Datos guardados en localStorage y sessionStorage');
+    console.log('🚀 Redirigiendo a juegodeguerra.html...');
+    
     window.location.href = 'juegodeguerra.html';
+    
+    console.log('🏁 === FIN INICIAR JUEGO LOCAL ===');
 }
 
 function salirSalaEspera() {
