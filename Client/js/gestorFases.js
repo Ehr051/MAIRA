@@ -349,6 +349,15 @@ class GestorFases extends GestorBase {
             }
         } else {
             console.log('🏠 Modo local: inicioDespliegue procesado localmente, sin socket');
+            
+            // ✅ MODO LOCAL: Inicializar sistema de turnos para despliegue
+            console.log('🎮 Iniciando sistema de turnos para modo local');
+            
+            // Actualizar fase en GestorTurnos antes de inicializar
+            if (this.gestorJuego?.gestorTurnos) {
+                this.gestorJuego.gestorTurnos.actualizarSegunFase('preparacion', 'despliegue');
+                this.gestorJuego.gestorTurnos.inicializarTurnos();
+            }
         }
     
         // 4. Actualizar interfaz

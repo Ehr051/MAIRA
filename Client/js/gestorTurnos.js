@@ -98,14 +98,24 @@ class GestorTurnos extends GestorBase {
     }
 
     actualizarSegunFase(fase, subfase) {
+        this.fase = fase;
+        this.subfase = subfase;
+        
         if (fase === 'preparacion') {
-            // Durante preparación no hay turnos activos
-            this.detenerReloj();
-            this.turnoActual = 0; // Indicar que no hay turno activo
-            
-            if (subfase === 'despliegue') {
-                // En despliegue todos pueden actuar simultáneamente
+            if (subfase === 'despliegue' && this.modoJuego === 'local') {
+                // ✅ MODO LOCAL: Mantener turnos activos durante despliegue
+                console.log('🎮 Modo local: manteniendo turnos activos durante despliegue');
                 this.modoDespliegue = true;
+                // NO detener reloj, mantener turnos
+            } else {
+                // Durante otras fases de preparación no hay turnos activos
+                this.detenerReloj();
+                this.turnoActual = 0; // Indicar que no hay turno activo
+                
+                if (subfase === 'despliegue') {
+                    // En despliegue online todos pueden actuar simultáneamente
+                    this.modoDespliegue = true;
+                }
             }
         } else if (fase === 'combate') {
             // Iniciar sistema de turnos para fase de combate
@@ -122,7 +132,13 @@ class GestorTurnos extends GestorBase {
             if (this.subfase === 'definicion_sector' || this.subfase === 'definicion_zonas') {
                 return this.director || this.directorTemporal;
             }
-            // En despliegue no hay jugador "actual", todos pueden actuar
+            
+            // ✅ MODO LOCAL: En despliegue local, SÍ hay jugador actual (turnos)
+            if (this.subfase === 'despliegue' && this.modoJuego === 'local') {
+                return this.jugadores[this.jugadorActualIndex];
+            }
+            
+            // En despliegue online no hay jugador "actual", todos pueden actuar
             return null;
         }
         
@@ -140,10 +156,17 @@ class GestorTurnos extends GestorBase {
     }
 
     inicializarTurnos() {
-        console.log('Iniciando sistema de turnos');
+        console.log('🎮 Iniciando sistema de turnos...');
+        console.log('🔍 Modo de juego:', this.modoJuego);
+        console.log('🔍 Cantidad de jugadores:', this.jugadores.length);
+        console.log('🔍 Jugadores:', this.jugadores.map(j => ({id: j.id, nombre: j.nombre, equipo: j.equipo})));
+        
         this.turnoActual = 1;
         this.jugadorActualIndex = 0;
         this.tiempoRestante = this.duracionTurno;
+        
+        const jugadorActual = this.obtenerJugadorActual();
+        console.log('🎯 Jugador actual inicial:', jugadorActual);
         
         // Iniciar reloj
         this.iniciarReloj();
