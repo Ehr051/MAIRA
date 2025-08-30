@@ -76,7 +76,20 @@ const vegetacionHandler = (function() {
 
     function encontrarTileParaPunto(lat, lng) {
         for (const [tileKey, tileInfo] of Object.entries(tileIndex.tiles)) {
-            const bounds = tileInfo[0].bounds; // Asumimos que todos los tipos de tile tienen los mismos límites
+            // ✅ VALIDACIÓN: Verificar que tileInfo existe y tiene datos
+            if (!tileInfo || !Array.isArray(tileInfo) || tileInfo.length === 0) {
+                console.warn(`Tile ${tileKey} no tiene información válida:`, tileInfo);
+                continue;
+            }
+            
+            // ✅ VALIDACIÓN: Verificar que el primer elemento tiene bounds
+            const firstTile = tileInfo[0];
+            if (!firstTile || !firstTile.bounds) {
+                console.warn(`Tile ${tileKey} no tiene bounds válidos:`, firstTile);
+                continue;
+            }
+            
+            const bounds = firstTile.bounds; // Asumimos que todos los tipos de tile tienen los mismos límites
             if (lat <= bounds.north && lat >= bounds.south && lng >= bounds.west && lng <= bounds.east) {
                 return tileKey;
             }

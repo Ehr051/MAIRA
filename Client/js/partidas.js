@@ -365,9 +365,16 @@ function emitirUnirseAPartida(codigo) {
         // Mostrar sala de espera
         mostrarSalaEspera(datosPartida);
         
-        // Cambiar de sala para el chat
-        if (window.cambiarSalaChat) {
-            window.cambiarSalaChat(codigo);
+        // ✅ VERIFICAR MODO ANTES DE CAMBIAR SALA DE CHAT
+        const modoJuego = datosPartida.configuracion?.modoJuego || 'online';
+        if (modoJuego === 'online') {
+            // Cambiar de sala para el chat solo en modo online
+            if (window.cambiarSalaChat) {
+                window.cambiarSalaChat(codigo);
+                console.log('🌐 Chat habilitado para partida online');
+            }
+        } else {
+            console.log('🏠 Chat deshabilitado para partida local');
         }
     });
 
@@ -1060,12 +1067,17 @@ function mostrarSalaEspera(partida) {
 function mostrarSalaEsperaDOM(partida) {
     console.log('🎯 Mostrando sala de espera para:', partida.codigo);
     
-    // ✅ CAMBIAR SALA DE CHAT:
-    if (window.cambiarSalaChat) {
-        const exito = window.cambiarSalaChat(partida.codigo);
-        console.log('🔄 Cambio de sala chat:', exito ? 'exitoso' : 'falló');
+    // ✅ VERIFICAR MODO ANTES DE CAMBIAR SALA DE CHAT:
+    const modoJuego = partida.configuracion?.modoJuego || 'online';
+    if (modoJuego === 'online') {
+        if (window.cambiarSalaChat) {
+            const exito = window.cambiarSalaChat(partida.codigo);
+            console.log('🔄 Cambio de sala chat:', exito ? 'exitoso' : 'falló');
+        } else {
+            console.error('❌ Función cambiarSalaChat no disponible');
+        }
     } else {
-        console.error('❌ Función cambiarSalaChat no disponible');
+        console.log('🏠 Chat omitido para partida local');
     }
     
     // Buscar elementos de la sala de espera

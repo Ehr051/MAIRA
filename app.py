@@ -4299,6 +4299,102 @@ def handle_solicitar_lista_partidas():
         emit('error', {'mensaje': 'Error actualizando partidas'})
 
 # ==============================================
+# 🌐 API REST ENDPOINTS PARA PARTIDAS
+# ==============================================
+
+@app.route('/api/partida/<string:codigo_partida>', methods=['GET'])
+def get_partida_api(codigo_partida):
+    """API REST para obtener datos completos de una partida por código"""
+    try:
+        print(f"📡 [API] Solicitando datos de partida: {codigo_partida}")
+        
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'error': 'Error de conexión a la base de datos'}), 500
+        
+        cursor = conn.cursor()
+        
+        # Obtener datos básicos de la partida
+        cursor.execute("""
+            SELECT p.*, u.username as creador_username 
+            FROM partidas p 
+            LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up."esCreador" = 1 
+            LEFT JOIN usuarios u ON up.usuario_id = u.id 
+            WHERE p.codigo = %s
+        """, (codigo_partida,))
+        
+        partida = cursor.fetchone()
+        
+        if not partida:
+            print(f"❌ [API] Partida no encontrada: {codigo_partida}")
+            return jsonify({'error': 'Partida no encontrada'}), 404
+        
+        # Obtener jugadores de la partida
+        cursor.execute("""
+            SELECT u.id, u.username, up.equipo, up.listo, up."esCreador"
+            FROM usuarios_partida up 
+            JOIN usuarios u ON up.usuario_id = u.id 
+            WHERE up.partida_id = %s
+        """, (partida['id'],))
+        
+        jugadores = cursor.fetchall()
+        
+        # Parsear configuración JSON
+        configuracion_raw = partida.get('configuracion', '{}')
+        try:
+            if isinstance(configuracion_raw, str):
+                configuracion = json.loads(configuracion_raw)
+            else:
+                configuracion = configuracion_raw
+        except json.JSONDecodeError:
+            configuracion = {}
+        
+        # Construir respuesta completa
+        datos_partida = {
+            'id': partida['id'],
+            'codigo': partida['codigo'],
+            'nombre': partida.get('nombre', configuracion.get('nombrePartida', 'Sin nombre')),
+            'configuracion': configuracion,
+            'estado': partida['estado'],
+            'fechaCreacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
+            'creadorUsername': partida.get('creador_username', 'Usuario desconocido'),
+            'jugadores': [
+                {
+                    'id': j['id'],
+                    'username': j['username'],
+                    'equipo': j['equipo'],
+                    'listo': j['listo'],
+                    'esCreador': j['esCreador'],
+                    'activo': True,
+                    'rol': 'comandante' if j['esCreador'] else 'jugador'
+                }
+                for j in jugadores
+            ],
+            # ✅ Agregar configuración de juego para compatibilidad con gestorJuego.js
+            'configuracionJuego': {
+                'turnoActual': 0,
+                'tiempoTurno': int(configuracion.get('duracionTurno', 3)) * 60 * 1000,
+                'duracionPartida': int(configuracion.get('duracionPartida', 30)) * 60 * 1000,
+                'objetivo': configuracion.get('objetivoPartida', 'Sin objetivo'),
+                'modoLocal': False,
+                'modo': 'online'
+            }
+        }
+        
+        print(f"✅ [API] Datos de partida enviados: {codigo_partida}")
+        return jsonify(datos_partida)
+        
+    except Exception as e:
+        print(f"❌ [API] Error obteniendo partida {codigo_partida}: {e}")
+        return jsonify({'error': f'Error interno del servidor: {str(e)}'}), 500
+    
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+# ==============================================
 # �🚀 INICIALIZACIÓN DEL SERVIDOR
 # ==============================================
 

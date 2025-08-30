@@ -648,13 +648,52 @@ confirmarZona(equipo) {
 
         console.log('Emitiendo zonaConfirmada con datos:', zonaData);
         
-        // Emitir al servidor
-        this.gestorJuego?.gestorComunicacion?.socket.emit('zonaConfirmada', {
-            zona: zonaData,
-            jugadorId: window.userId,
-            partidaCodigo: window.codigoPartida,
-            cambiarFase: equipo === 'azul'  // Agregar esta flag
-        });
+        // ✅ CRÍTICO: Verificar modo de juego antes de emitir
+        const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
+        console.log('🔍 Modo de juego detectado:', modoJuego);
+        
+        if (modoJuego === 'local') {
+            console.log('🏠 Modo local: procesando zona directamente sin socket');
+            
+            // En modo local, procesar directamente
+            this.procesarZonaConfirmada({
+                zona: zonaData,
+                jugadorId: window.userId,
+                partidaCodigo: window.codigoPartida || 'LOCAL',
+                cambiarFase: equipo === 'azul'
+            });
+            
+        } else {
+            console.log('🌐 Modo online: emitiendo al servidor');
+            
+            // Verificar que el socket existe
+            if (!this.gestorJuego?.gestorComunicacion?.socket) {
+                console.error('❌ Socket no disponible para emitir zonaConfirmada');
+                console.error('🔍 Estado gestorComunicacion:', {
+                    gestorComunicacion: !!this.gestorJuego?.gestorComunicacion,
+                    socket: !!this.gestorJuego?.gestorComunicacion?.socket,
+                    socketConectado: this.gestorJuego?.gestorComunicacion?.socket?.connected
+                });
+                
+                // Fallback: procesar localmente
+                console.log('🔧 Fallback: procesando zona localmente');
+                this.procesarZonaConfirmada({
+                    zona: zonaData,
+                    jugadorId: window.userId,
+                    partidaCodigo: window.codigoPartida || 'FALLBACK',
+                    cambiarFase: equipo === 'azul'
+                });
+                return;
+            }
+            
+            // Emitir al servidor
+            this.gestorJuego.gestorComunicacion.socket.emit('zonaConfirmada', {
+                zona: zonaData,
+                jugadorId: window.userId,
+                partidaCodigo: window.codigoPartida,
+                cambiarFase: equipo === 'azul'
+            });
+        }
 
         // Actualizar localmente
         this.zonasLayers[equipo] = this.zonaTemporalLayer;
@@ -674,9 +713,60 @@ confirmarZona(equipo) {
         this.mostrarMensajeAyuda('Error al confirmar la zona');
         return false;
     }
-}
+    }
 
-configurarEventosSocket() {
+    /**
+     * ✅ NUEVO: Procesar zona confirmada en modo local
+     * Maneja la confirmación de zona sin necesidad de socket
+     */
+    procesarZonaConfirmada(datos) {
+        console.log('🏠 [Modo Local] Procesando zona confirmada:', datos);
+        
+        try {
+            const { zona, jugadorId, partidaCodigo, cambiarFase } = datos;
+            
+            // Actualizar estado local
+            this.zonasLayers[zona.equipo] = this.zonaTemporalLayer;
+            this.zonasDespliegue[zona.equipo] = zona.bounds;
+            
+            // Marcar como confirmada
+            this.zonaDefinida[zona.equipo] = true;
+            this.zonaConfirmada[zona.equipo] = true;
+            
+            console.log('🎯 Zona confirmada para equipo:', zona.equipo);
+            console.log('🗺️ Zona bounds:', zona.bounds);
+            
+            // Si es zona azul, cambiar a fase despliegue
+            if (zona.equipo === 'azul' && cambiarFase) {
+                console.log('🔄 Zona azul confirmada, cambiando a fase despliegue');
+                setTimeout(() => {
+                    this.cambiarFase('preparacion', 'despliegue');
+                }, 1000); // Delay para asegurar que se actualice la interfaz
+            }
+            
+            // Actualizar interfaz
+            this.actualizarInterfaz();
+            
+            // Guardar en localStorage para persistencia
+            const partidaData = JSON.parse(localStorage.getItem('partidaLocal') || '{}');
+            if (!partidaData.zonasDefinidas) partidaData.zonasDefinidas = {};
+            
+            partidaData.zonasDefinidas[zona.equipo] = {
+                bounds: zona.bounds,
+                equipo: zona.equipo,
+                confirmada: true,
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('partidaLocal', JSON.stringify(partidaData));
+            console.log('💾 Zona guardada en localStorage');
+            
+        } catch (error) {
+            console.error('❌ Error procesando zona confirmada:', error);
+        }
+    }
+
+    configurarEventosSocket() {
     const socket = this.gestorJuego?.gestorComunicacion?.socket;
     if (!socket) return;
 

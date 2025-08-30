@@ -676,6 +676,14 @@ configurarEventos() {
 async function inicializarMAIRAChatJuego() {
     console.log('🔧 Inicializando MAIRAChat para juegodeguerra...');
     
+    // ✅ VERIFICAR MODO DE JUEGO ANTES DE INICIALIZAR CHAT
+    const modoJuego = this.configuracion?.modoJuego || 'online';
+    if (modoJuego === 'local') {
+        console.log('🏠 Modo local detectado: Chat deshabilitado');
+        console.log('ℹ️ En modo local todos los jugadores juegan en la misma PC por turnos');
+        return;
+    }
+    
     const intentarInicializarChat = () => {
         // ✅ CORREGIR: Buscar socket en las rutas CORRECTAS usando 'this'
         const socketDisponible = 
@@ -865,6 +873,74 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function cargarDatosPartida() {
     console.log('🔍 === CARGANDO DATOS DE PARTIDA ===');
+    
+    // ✅ CRITICAL: Detectar si es partida online por parámetro URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const codigoPartida = urlParams.get('codigo');
+    
+    console.log('🔍 [DETECT] Código de partida en URL:', codigoPartida);
+    
+    if (codigoPartida) {
+        console.log('🌐 === CARGANDO PARTIDA ONLINE DESDE API ===');
+        return await cargarPartidaOnlineDesdeAPI(codigoPartida);
+    } else {
+        console.log('🏠 === CARGANDO PARTIDA LOCAL DESDE STORAGE ===');
+        return await cargarPartidaLocalDesdeStorage();
+    }
+}
+
+async function cargarPartidaOnlineDesdeAPI(codigoPartida) {
+    console.log(`🌐 [API] Cargando partida online: ${codigoPartida}`);
+    
+    try {
+        // ✅ Obtener configuración de red
+        let serverUrl;
+        if (typeof window.MAIRA !== 'undefined' && window.MAIRA.NetworkConfig) {
+            serverUrl = window.MAIRA.NetworkConfig.getServerUrl();
+        } else {
+            // Fallback si NetworkConfig no está disponible
+            serverUrl = window.location.origin;
+        }
+        
+        console.log(`🔗 [API] Servidor: ${serverUrl}`);
+        
+        // ✅ Llamar a la API para obtener datos de la partida
+        const response = await fetch(`${serverUrl}/api/partida/${codigoPartida}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+        
+        console.log(`📡 [API] Response status: ${response.status}`);
+        
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: No se pudo cargar la partida ${codigoPartida}`);
+        }
+        
+        const datosPartida = await response.json();
+        console.log('✅ [API] Datos de partida obtenidos:', datosPartida);
+        
+        // ✅ Validar estructura de datos
+        if (!datosPartida.codigo || !datosPartida.configuracion) {
+            throw new Error('Datos de partida incompletos desde API');
+        }
+        
+        console.log('🌐 [API] Partida online cargada exitosamente');
+        return datosPartida;
+        
+    } catch (error) {
+        console.error('❌ [API] Error cargando partida online:', error);
+        
+        // ✅ Fallback: Intentar obtener desde sessionStorage/localStorage
+        console.log('🔄 [FALLBACK] Intentando cargar desde storage como backup...');
+        return await cargarPartidaLocalDesdeStorage();
+    }
+}
+
+async function cargarPartidaLocalDesdeStorage() {
+    console.log('🏠 [STORAGE] Cargando partida desde storage local');
     
     // ✅ DEBUGGING: Mostrar TODAS las claves de localStorage PRIMERO
     console.log('🔍 [DEBUG] Inventario completo de localStorage:');
