@@ -410,12 +410,26 @@ async function inicializarSocket() {
     console.log('Conectando al servidor:', SERVER_URL);
     
     try {
-        // ✅ USAR CONFIGURACIÓN OPTIMIZADA del networkConfig.js
-        const socketConfig = window.getSocketConfig ? window.getSocketConfig() : {
-            transports: ['polling'],
-            timeout: 20000,
-            reconnectionAttempts: 3,
-            upgrade: false
+        // ✅ CONFIGURACIÓN OPTIMIZADA PARA ESTABILIDAD DE SESIÓN
+        const socketConfig = {
+            reconnectionAttempts: 5,  // ✅ AUMENTADO: Más intentos de reconexión
+            timeout: 30000,  // ✅ OPTIMIZADO: Timeout más largo para conexiones lentas
+            transports: ['polling'],  // ✅ FORZAR polling para compatibilidad con Render
+            upgrade: false,  // ✅ Evitar upgrade a websockets que puede causar problemas
+            forceNew: false,  // ✅ Permitir reutilización de conexión
+            autoConnect: true,  // ✅ Conectar automáticamente
+            reconnection: true,  // ✅ Habilitar reconexión automática
+            reconnectionDelay: 2000,  // ✅ Esperar 2s entre intentos
+            randomizationFactor: 0.5,  // ✅ Añadir aleatoriedad para evitar tormentas de reconexión
+            // ✅ NUEVO: Headers adicionales para debugging
+            extraHeaders: {
+                'User-Agent': 'MAIRA-Client/3.0'
+            },
+            // ✅ CRÍTICO: Query para identificar la aplicación
+            query: {
+                'client': 'maira_partidas',
+                'version': '3.0'
+            }
         };
         
         console.log('🚀 Configuración Socket.IO optimizada:', socketConfig);
@@ -441,23 +455,55 @@ async function inicializarSocket() {
             };
             console.log('🔐 Datos de autenticación:', datosAuth);
             socketPartidas.emit('login', datosAuth);
+        });
+        
+        // ✅ NUEVO: Manejar respuesta de login
+        socketPartidas.on('loginExitoso', function(data) {
+            console.log('✅ Login exitoso:', data);
             
-            // ✅ CORREGIR LLAMADA:
+            // ✅ CRÍTICO: Inicializar chat DESPUÉS del login exitoso
             if (window.inicializarChat) {
-                const resultado = window.inicializarChat(socketPartidas); // ✅ USAR socketPartidas, no socket
+                const resultado = window.inicializarChat(socketPartidas);
                 console.log('✅ Chat inicializado:', resultado);
             } else {
                 console.error('❌ Función inicializarChat no encontrada');
             }
             
-            console.log('Solicitando listas después de conectarse');
-            obtenerListaAmigos();  // ✅ CORREGIR: era solicitarListaAmigos()
+            // ✅ CRITICAL: Obtener listas DESPUÉS del login
+            console.log('📋 Solicitando listas después del login exitoso...');
+            obtenerListaAmigos();
             obtenerPartidasDisponibles();
         });
         
-        socketPartidas.on('disconnect', () => mostrarError('Se ha perdido la conexión con el servidor. Intentando reconectar...'));
-        socketPartidas.on('reconnect', manejarReconexion);
-        socketPartidas.on('connect_error', manejarErrorConexion);
+        socketPartidas.on('loginError', function(error) {
+            console.error('❌ Error de login:', error);
+            mostrarError('Error de autenticación: ' + error.mensaje);
+        });
+        
+        // ✅ MEJORADO: Manejo de reconexión con re-autenticación
+        socketPartidas.on('reconnect', function(attemptNumber) {
+            console.log('🔄 Reconectado después de', attemptNumber, 'intentos');
+            
+            // ✅ CRÍTICO: Re-autenticar inmediatamente después de reconectar
+            console.log('🔐 Re-autenticando después de reconexión...');
+            const datosAuth = {
+                user_id: userIdLocal,
+                username: userNameLocal
+            };
+            socketPartidas.emit('login', datosAuth);
+            
+            mostrarError('Conexión restaurada', 'success');
+        });
+        
+        socketPartidas.on('disconnect', function(reason) {
+            console.log('❌ Desconectado:', reason);
+            mostrarError('Se ha perdido la conexión con el servidor. Intentando reconectar...');
+        });
+        
+        socketPartidas.on('connect_error', function(error) {
+            console.error('❌ Error de conexión:', error);
+            mostrarError('Error de conexión: ' + error.message);
+        });
 
         // Manejar la respuesta del servidor con la lista de partidas disponibles
         socketPartidas.on('listaPartidas', function(partidas) {
@@ -636,20 +682,7 @@ function manejarConexion() {
     obtenerPartidasDisponibles();
 }
 
-
-function manejarReconexion() {
-    mostrarMensaje('Reconectado al servidor.');
-    if (partidaActual) {
-        reconectarAlJuego();
-    }
-}
-
-function manejarErrorConexion(error) {
-    console.error('Error de conexión:', error);
-    mostrarError('Error de conexión con el servidor. Por favor, intenta de nuevo más tarde.');
-}
-
-
+// ✅ FUNCIONES DE RECONEXIÓN ELIMINADAS - Ya manejadas en los eventos socket
 
 function inicializarInterfazUsuario() {
     actualizarInfoUsuario();

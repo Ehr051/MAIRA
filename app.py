@@ -202,6 +202,69 @@ def lazy_import_tarfile():
     import traceback
     return tarfile, traceback
 
+# ✅ ARREGLO CRÍTICO: Sistema de limpieza automática de sesiones inválidas
+def limpiar_sesiones_invalidas():
+    """Limpia sesiones que ya no están activas del socketio"""
+    try:
+        global user_sid_map, user_id_sid_map, usuarios_conectados
+        
+        # Obtener todas las sesiones activas del socketio
+        sesiones_activas = set()
+        try:
+            # Intentar obtener las sesiones conectadas actuales
+            for sid in socketio.server.manager.get_namespaces():
+                for room_sid in socketio.server.manager.get_participants('/', sid):
+                    sesiones_activas.add(room_sid)
+        except:
+            # Si no podemos obtener las sesiones, usar método alternativo
+            pass
+        
+        # Limpiar mapas de sesiones que ya no existen
+        sids_a_limpiar = []
+        for sid in user_sid_map.keys():
+            # Si la sesión no está en las activas (o no pudimos verificar), marcar para limpieza
+            if sesiones_activas and sid not in sesiones_activas:
+                sids_a_limpiar.append(sid)
+        
+        # Limpiar sesiones inválidas
+        for sid in sids_a_limpiar:
+            user_id = user_sid_map.get(sid)
+            if user_id:
+                print(f"🧹 Limpiando sesión inválida: SID={sid}, User={user_id}")
+                
+                # Limpiar mapas
+                if sid in user_sid_map:
+                    del user_sid_map[sid]
+                if user_id in user_id_sid_map:
+                    del user_id_sid_map[user_id]
+                if user_id in usuarios_conectados:
+                    del usuarios_conectados[user_id]
+        
+        if sids_a_limpiar:
+            print(f"✅ Limpieza automática: {len(sids_a_limpiar)} sesiones inválidas removidas")
+        
+    except Exception as e:
+        print(f"⚠️ Error en limpieza automática de sesiones: {e}")
+
+# ✅ PROGRAMAR LIMPIEZA AUTOMÁTICA
+import threading
+import time
+
+def iniciar_limpieza_automatica():
+    """Inicia el hilo de limpieza automática de sesiones"""
+    def limpieza_periodica():
+        while True:
+            try:
+                time.sleep(60)  # Limpiar cada 60 segundos
+                limpiar_sesiones_invalidas()
+            except Exception as e:
+                print(f"⚠️ Error en limpieza periódica: {e}")
+                time.sleep(60)  # Continuar después del error
+    
+    hilo_limpieza = threading.Thread(target=limpieza_periodica, daemon=True)
+    hilo_limpieza.start()
+    print("✅ Sistema de limpieza automática iniciado")
+
 # Variables globales
 usuarios_conectados = {}  
 operaciones_batalla = {}
@@ -219,18 +282,22 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-# Configuración de SocketIO optimizada para Render.com + RENDIMIENTO
+# Configuración de SocketIO optimizada para Render.com + ARREGLO CRÍTICO SESIONES
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*", 
     logger=False,  # ✅ OPTIMIZACIÓN: Desactivar logging detallado para mejor rendimiento
     engineio_logger=False,  # ✅ OPTIMIZACIÓN: Desactivar engineio logging
-    ping_timeout=90,  # ✅ OPTIMIZADO: Reducido de 120 a 90 para detectar desconexiones más rápido
-    ping_interval=45,  # ✅ OPTIMIZADO: Reducido de 60 a 45 para mejor responsividad
+    ping_timeout=120,  # ✅ ARREGLO CRÍTICO: Aumentado a 120s para evitar desconexiones prematuras
+    ping_interval=25,  # ✅ ARREGLO CRÍTICO: Reducido a 25s para mejor detección de estado
     transports=['polling'],  # ✅ FORZAR POLLING en lugar de websocket para Render
     upgrade=False,  # ✅ Evitar upgrade a websocket
     async_mode='threading',  # ✅ NUEVO: Modo threading para mejor concurrencia
-    max_http_buffer_size=1000000  # ✅ NUEVO: Buffer de 1MB para mensajes grandes
+    max_http_buffer_size=1000000,  # ✅ NUEVO: Buffer de 1MB para mensajes grandes
+    # ✅ ARREGLO CRÍTICO: Configuraciones adicionales para estabilidad de sesión
+    allow_upgrades=False,  # Evitar upgrades que causan invalidación de sesión
+    http_compression=False,  # Desactivar compresión que puede causar problemas
+    cookie='maira_session'  # Cookie de sesión específica para MAIRA
 )
 
 # ✅ DATABASE POOLING - OPTIMIZACIÓN CRÍTICA DE RENDIMIENTO
@@ -1284,14 +1351,21 @@ def handle_disconnect():
         # ✅ ARREGLO PostgreSQL: Usar sintaxis correcta
         actualizar_estado_usuario_en_bd(user_id, online=False)
         
-        # Limpiar mapas
-        if user_id in user_id_sid_map:
-            del user_id_sid_map[user_id]
-        del user_sid_map[request.sid]
-        
-        # Limpiar de usuarios conectados
-        if user_id in usuarios_conectados:
-            del usuarios_conectados[user_id]
+        # ✅ ARREGLO CRÍTICO: Limpiar mapas de manera más robusta
+        try:
+            # Limpiar mapas
+            if user_id in user_id_sid_map:
+                del user_id_sid_map[user_id]
+            if request.sid in user_sid_map:
+                del user_sid_map[request.sid]
+            
+            # Limpiar de usuarios conectados
+            if user_id in usuarios_conectados:
+                del usuarios_conectados[user_id]
+                
+            print(f"✅ Usuario {user_id} limpiado correctamente de todos los mapas")
+        except Exception as e:
+            print(f"⚠️ Error limpiando mapas para usuario {user_id}: {e}")
 
 # ============================================
 # 🔧 EVENTOS SOCKET.IO CRÍTICOS FALTANTES
@@ -1594,9 +1668,21 @@ def handle_login(data):
         user_id = data.get('user_id')
         username = data.get('username')
         
+        print(f"🔐 LOGIN ATTEMPT - SID: {request.sid}, User: {username}, ID: {user_id}")
+        
         if not user_id or not username:
+            print(f"❌ LOGIN FAILED - Datos incompletos: user_id={user_id}, username={username}")
             emit('loginError', {'mensaje': 'Datos de login incompletos'})
             return
+        
+        # ✅ ARREGLO CRÍTICO: Limpiar cualquier sesión anterior del usuario
+        # Buscar si el usuario ya tenía una sesión
+        old_sid = user_id_sid_map.get(user_id)
+        if old_sid and old_sid != request.sid:
+            print(f"🧹 Limpiando sesión anterior del usuario {user_id}: {old_sid}")
+            # Limpiar mapas de la sesión anterior
+            if old_sid in user_sid_map:
+                del user_sid_map[old_sid]
         
         # Registrar usuario en mapas de seguimiento
         user_sid_map[request.sid] = user_id
@@ -1607,8 +1693,9 @@ def handle_login(data):
             'fecha_conexion': datetime.now()
         }
         
-        print(f"🔐 LOGIN - Usuario registrado: {username} (ID: {user_id}, SID: {request.sid})")
-        print(f"🔐 LOGIN - user_sid_map actualizado: {user_sid_map}")
+        print(f"✅ LOGIN SUCCESS - Usuario registrado: {username} (ID: {user_id}, SID: {request.sid})")
+        print(f"�️ user_sid_map completo: {user_sid_map}")
+        print(f"🗺️ usuarios_conectados: {list(usuarios_conectados.keys())}")
         
         # Marcar usuario como online en la base de datos (PostgreSQL compatible)
         conn = get_db_connection()
@@ -1659,12 +1746,78 @@ def handle_login(data):
             'mensaje': 'Login exitoso via SocketIO'
         })
         
-        # Enviar lista de partidas disponibles
-        actualizar_lista_partidas()
+        # ✅ CRÍTICO: Enviar listas DESPUÉS del login exitoso
+        try:
+            # Enviar lista de partidas disponibles
+            actualizar_lista_partidas()
+            
+            # Enviar lista de amigos si está disponible
+            emit('listaAmigos', [])  # Lista vacía por ahora
+            
+            print(f"✅ Listas enviadas a usuario {username}")
+        except Exception as e:
+            print(f"⚠️ Error enviando listas después del login: {e}")
         
     except Exception as e:
-        print(f"Error en login SocketIO: {e}")
+        print(f"❌ ERROR CRÍTICO en login SocketIO: {e}")
+        import traceback
+        traceback.print_exc()
         emit('loginError', {'mensaje': 'Error interno del servidor'})
+        
+        # ✅ NUEVO: Unir automáticamente al lobby general
+        join_room('general', sid=request.sid)
+        print(f"🏠 Usuario {username} unido a sala general")
+        
+        emit('loginExitoso', {
+            'user_id': user_id,
+            'username': username,
+            'mensaje': 'Login exitoso via SocketIO'
+        })
+        
+        # ✅ CRÍTICO: Enviar listas DESPUÉS del login exitoso
+        try:
+            # Enviar lista de partidas disponibles
+            actualizar_lista_partidas()
+            
+            # Enviar lista de amigos si está disponible
+            emit('listaAmigos', [])  # Lista vacía por ahora
+            
+            print(f"✅ Listas enviadas a usuario {username}")
+        except Exception as e:
+            print(f"⚠️ Error enviando listas después del login: {e}")
+        
+    except Exception as e:
+        print(f"❌ ERROR CRÍTICO en login SocketIO: {e}")
+        import traceback
+        traceback.print_exc()
+        emit('loginError', {'mensaje': 'Error interno del servidor'})
+
+# ✅ NUEVO EVENTO: Verificar estado de autenticación
+@socketio.on('verificarAutenticacion')
+def handle_verificar_autenticacion():
+    """Permite al cliente verificar su estado de autenticación"""
+    try:
+        user_id = user_sid_map.get(request.sid)
+        if user_id:
+            username = obtener_username(user_id)
+            emit('estadoAutenticacion', {
+                'autenticado': True,
+                'user_id': user_id,
+                'username': username
+            })
+            print(f"✅ Estado autenticación verificado: {username} (ID: {user_id})")
+        else:
+            emit('estadoAutenticacion', {
+                'autenticado': False,
+                'mensaje': 'No autenticado'
+            })
+            print(f"⚠️ Usuario {request.sid} no está autenticado")
+    except Exception as e:
+        print(f"❌ Error verificando autenticación: {e}")
+        emit('estadoAutenticacion', {
+            'autenticado': False,
+            'mensaje': 'Error interno'
+        })
 
 @socketio.on('crearPartida')
 def crear_partida(data):
@@ -1803,42 +1956,95 @@ def obtener_partidas_disponibles():
         partidas_db = cursor.fetchall()
         partidas_disponibles = []
         
+        print(f"📊 Encontradas {len(partidas_db)} partidas en la base de datos")
+        
         for partida in partidas_db:
-            # Obtener jugadores de la partida
-            cursor.execute("""
-                SELECT u.id, u.username, up.equipo, up.listo 
-                FROM usuarios_partida up 
-                JOIN usuarios u ON up.usuario_id = u.id 
-                WHERE up.partida_id = %s
-            """, (partida['id'],))
-            
-            jugadores = cursor.fetchall()
-            
-            partida_info = {
-                'id': partida['id'],
-                'codigo': partida['codigo'],
-                'configuracion': safe_json_parse(partida['configuracion']),
-                'estado': partida['estado'],
-                'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
-                'creador_username': partida['creador_username'],
-                'jugadores': [convert_db_booleans(dict(j)) for j in jugadores],
-                'jugadores_count': len(jugadores)
-            }
-            partidas_disponibles.append(partida_info)
+            try:
+                # Obtener jugadores de la partida
+                cursor.execute("""
+                    SELECT u.id, u.username, up.equipo, up.listo 
+                    FROM usuarios_partida up 
+                    JOIN usuarios u ON up.usuario_id = u.id 
+                    WHERE up.partida_id = %s
+                """, (partida['id'],))
+                
+                jugadores = cursor.fetchall()
+                
+                # ✅ ARREGLO CRÍTICO: Parsear configuración JSON de manera segura
+                configuracion_raw = partida.get('configuracion', '{}')
+                configuracion_parsed = {}
+                
+                try:
+                    if isinstance(configuracion_raw, str):
+                        configuracion_parsed = json.loads(configuracion_raw)
+                    elif isinstance(configuracion_raw, dict):
+                        configuracion_parsed = configuracion_raw
+                    else:
+                        configuracion_parsed = {}
+                        
+                    print(f"🔧 Partida {partida['codigo']} - Configuración: {configuracion_parsed}")
+                except json.JSONDecodeError as e:
+                    print(f"⚠️ Error parseando JSON para partida {partida['codigo']}: {e}")
+                    configuracion_parsed = {
+                        'nombrePartida': 'Sin nombre',
+                        'duracionPartida': 'N/A',
+                        'duracionTurno': 'N/A'
+                    }
+                
+                partida_info = {
+                    'id': partida['id'],
+                    'codigo': partida['codigo'],
+                    'configuracion': configuracion_parsed,
+                    'estado': partida['estado'],
+                    'fecha_creacion': partida['fecha_creacion'].isoformat() if partida['fecha_creacion'] else None,
+                    'creador_username': partida.get('creador_username', 'Usuario desconocido'),
+                    'jugadores': [convert_db_booleans(dict(j)) for j in jugadores],
+                    'jugadores_count': len(jugadores),
+                    # ✅ CAMPOS ADICIONALES PARA DEBUGGING
+                    'configuracion_raw': str(configuracion_raw)[:100] + '...' if len(str(configuracion_raw)) > 100 else str(configuracion_raw)
+                }
+                
+                print(f"✅ Partida procesada: {partida['codigo']} - Nombre: {configuracion_parsed.get('nombrePartida', 'Sin nombre')}")
+                partidas_disponibles.append(partida_info)
+                
+            except Exception as e:
+                print(f"❌ Error procesando partida {partida.get('codigo', 'desconocida')}: {e}")
+                continue
+        
+        cursor.close()
+        conn.close()
         
         # Emitir solo al cliente que lo solicita (como en serverhttps.py)
         print(f"📡 Emitiendo lista de {len(partidas_disponibles)} partidas al cliente {request.sid}")
         emit('listaPartidas', partidas_disponibles, room=request.sid)
         print("✅ Lista de partidas enviada al cliente")
         
-        cursor.close()
-        conn.close()
-        
     except Exception as e:
         print(f"❌ Error obteniendo partidas disponibles: {e}")
         import traceback
         traceback.print_exc()
-        emit('errorObtenerPartidas', {'mensaje': 'Error al obtener partidas'})
+        emit('errorObtenerPartidas', {'mensaje': f'Error interno: {str(e)}'})
+
+# ✅ FUNCIÓN AUXILIAR MEJORADA: Parseo seguro de JSON
+def safe_json_parse(json_data, default=None):
+    """Parsea JSON de manera segura, devolviendo default en caso de error"""
+    if default is None:
+        default = {}
+    
+    try:
+        if json_data is None:
+            return default
+        elif isinstance(json_data, dict):
+            return json_data
+        elif isinstance(json_data, str):
+            if json_data.strip() == '':
+                return default
+            return json.loads(json_data)
+        else:
+            return default
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"⚠️ Error parseando JSON: {e}, datos: {json_data}")
+        return default
 
 @socketio.on('unirseAPartida')
 def unirse_a_partida(data):
@@ -4071,6 +4277,9 @@ if __name__ == '__main__':
     
     # Inicializar aplicación Flask
     initialize_app()
+    
+    # ✅ INICIALIZAR SISTEMA DE LIMPIEZA AUTOMÁTICA
+    iniciar_limpieza_automatica()
     
     # Iniciar servidor Flask + SocketIO
     socketio.run(
