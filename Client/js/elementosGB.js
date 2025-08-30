@@ -3744,7 +3744,8 @@ function iniciarTrackingElemento(elementoId) {
     }
 
     // Inicializar tracking para este elemento
-    const colorIndex = Math.abs(elementoId.split('').reduce((acc, char) => {
+    const elementoIdStr = String(elementoId); // Convertir a string
+    const colorIndex = Math.abs(elementoIdStr.split('').reduce((acc, char) => {
         return char.charCodeAt(0) + ((acc << 5) - acc);
     }, 0)) % trackingConfig.colores.length;
 

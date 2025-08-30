@@ -200,6 +200,23 @@ function inicializarInterfaz() {
     // Configurar otros componentes...
     inicializarMenusAvanzados();
     
+    // ✅ Inicializar MiRadial para modo GB
+    setTimeout(() => {
+        if (window.MiRadial && window.mapa) {
+            console.log('🎯 Inicializando MiRadial para Gestión de Batalla...');
+            window.MiRadial.init(window.mapa);
+            
+            // Configurar modo GB
+            window.MAIRA = window.MAIRA || {};
+            window.MAIRA.modoGB = true;
+            
+            console.log('✅ MiRadial inicializado para GB');
+        } else {
+            console.warn('⚠️ MiRadial o mapa no disponibles para inicialización');
+            console.log('🔍 Estado:', { MiRadial: !!window.MiRadial, mapa: !!window.mapa });
+        }
+    }, 1000); // Delay para asegurar que el mapa esté completamente cargado
+    
     console.log("Componentes de interfaz inicializados");
     
     // Marcar como inicializada
@@ -1725,6 +1742,14 @@ function configurarEventosChat() {
             
             socket.on('connect', function() {
                 console.log('📡 Conectado al servidor Socket.IO');
+                
+                // ✅ AGREGAR AUTENTICACIÓN INMEDIATA
+                const datosAuth = {
+                    user_id: usuarioInfo.id,
+                    username: usuarioInfo.usuario
+                };
+                console.log('🔐 Enviando autenticación GB:', datosAuth);
+                socket.emit('login', datosAuth);
                 
                 // ✅ Verificación mejorada del Socket ID
                 setTimeout(() => {
@@ -8100,6 +8125,15 @@ function configurarEventosSocket() {
     socket.on('error', function(error) {
         console.error('Error de socket:', error);
         mostrarNotificacion("Error de socket: " + (error.mensaje || error), "error");
+    });
+    
+    // ✅ AGREGAR HANDLER PARA LOGIN EXITOSO
+    socket.on('loginExitoso', function(data) {
+        console.log('✅ Login exitoso en GB:', data);
+        // Marcar usuario como autenticado
+        if (data.user_id && data.username) {
+            console.log(`🔐 Usuario autenticado en GB: ${data.username} (${data.user_id})`);
+        }
     });
     
     // Eventos para mensajes

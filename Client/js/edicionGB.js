@@ -298,6 +298,15 @@ function actualizarCaracteristicas(categoriaArma, tipo) {
     });
 }
 
+// Función auxiliar para cerrar todos los paneles
+function cerrarTodosPaneles() {
+    const paneles = document.querySelectorAll('.panel-edicion');
+    paneles.forEach(panel => {
+        panel.style.display = 'none';
+        panel.classList.remove('show');
+    });
+}
+
 function mostrarPanelEdicion(panelId) {
     console.log(`Intentando mostrar panel: ${panelId}`);
     cerrarTodosPaneles();
