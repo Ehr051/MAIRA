@@ -881,15 +881,15 @@ function iniciarHeartbeat() {
             
             socket.emit('heartbeat', datos);
             
-            // También forzar solicitud de lista completa periódicamente
-            if (Math.random() < 0.3) { // 30% de probabilidad para reducir tráfico
+            // ✅ OPTIMIZADO: Solicitud de lista más frecuente pero inteligente
+            if (Math.random() < 0.4) { // 40% de probabilidad 
                 socket.emit('solicitarElementos', { 
                     operacion: operacionActual,
                     solicitante: usuarioInfo.id
                 });
             }
         }
-    }, 5000); // cada 5 segundos
+    }, 3000); // ✅ OPTIMIZADO: cada 3 segundos (más responsive)
 }
 
 
@@ -915,6 +915,48 @@ function sincronizarElementos() {
     
     // Actualizar contador de elementos
     actualizarContadorElementos();
+}
+
+/**
+ * ✅ NUEVA: Función para sincronización inmediata sin demoras
+ */
+function sincronizacionInmediata() {
+    console.log("🚀 Ejecutando sincronización inmediata");
+    
+    if (!socket || !socket.connected) {
+        console.warn("❌ No se puede sincronizar sin conexión al servidor");
+        return false;
+    }
+    
+    // Limpiar duplicados primero
+    limpiarElementosDuplicados();
+    
+    // Enviar heartbeat inmediato para notificar cambios
+    if (usuarioInfo) {
+        const datos = {
+            id: usuarioInfo.id,
+            usuario: usuarioInfo.usuario,
+            elemento: elementoTrabajo,
+            posicion: ultimaPosicion,
+            operacion: operacionActual,
+            timestamp: new Date().toISOString(),
+            conectado: true,
+            cambioInmediato: true // ✅ Flag para indicar cambio inmediato
+        };
+        
+        socket.emit('heartbeat', datos);
+        socket.emit('actualizarElemento', datos);
+    }
+    
+    // Solicitar actualización de la lista
+    socket.emit('solicitarElementos', {
+        operacion: operacionActual,
+        solicitante: usuarioInfo?.id,
+        inmediato: true
+    });
+    
+    console.log("✅ Sincronización inmediata ejecutada");
+    return true;
 }
 
 /**
@@ -1005,57 +1047,54 @@ function forzarSincronizacionElementos() {
     return true;
 }
 
-// Función para limpiar elementos duplicados
+// ✅ OPTIMIZADO: Función mejorada para limpiar elementos duplicados del mismo usuario
 function limpiarElementosDuplicados() {
     console.log("🧹 Limpiando elementos duplicados o inválidos");
     
-    // 1. Identificar IDs de usuarios existentes
-    const idsUsuarios = new Set();
+    // 1. Agrupar elementos por usuario
+    const elementosPorUsuario = {};
     const elementosAEliminar = [];
     
-    // Primer paso: recopilar IDs de usuarios válidos
+    // Primer paso: agrupar todos los elementos por usuario
     Object.entries(elementosConectados).forEach(([id, elem]) => {
-        // Verificar si es un ID de usuario (user_) vs un ID de elemento (elemento_)
-        if (id.startsWith('user_')) {
-            idsUsuarios.add(id);
-        }
-    });
-    
-    console.log(`🔍 Identificados ${idsUsuarios.size} IDs de usuarios únicos`);
-    
-    // 2. Buscar elementos con IDs similares (posibles duplicados)
-    Object.entries(elementosConectados).forEach(([id, elem]) => {
-        // Si es un ID de elemento y no de usuario
-        if (id.startsWith('elemento_')) {
-            // Extraer el ID base del usuario
-            const match = id.match(/elemento_(\d+)_/);
-            if (match && match[1]) {
-                const idBase = match[1];
-                
-                // Buscar si existe un usuario con este ID base
-                let tieneUsuarioCorrespondiente = false;
-                idsUsuarios.forEach(idUsuario => {
-                    if (idUsuario.includes(idBase)) {
-                        tieneUsuarioCorrespondiente = true;
-                    }
-                });
-                
-                // Si hay un usuario correspondiente, marcar para eliminación
-                if (tieneUsuarioCorrespondiente) {
-                    elementosAEliminar.push(id);
-                }
-            }
-        }
-        
-        // También verificar si el elemento es válido (tiene datos)
         if (!elem || !elem.datos) {
             elementosAEliminar.push(id);
+            return;
+        }
+        
+        const userId = elem.datos.id || elem.datos.usuario || id;
+        if (!elementosPorUsuario[userId]) {
+            elementosPorUsuario[userId] = [];
+        }
+        
+        elementosPorUsuario[userId].push({
+            id: id,
+            elemento: elem,
+            timestamp: elem.datos.timestamp || elem.timestamp || '0'
+        });
+    });
+    
+    console.log(`🔍 Agrupados elementos por ${Object.keys(elementosPorUsuario).length} usuarios únicos`);
+    
+    // 2. Para cada usuario, mantener solo el elemento más reciente
+    Object.entries(elementosPorUsuario).forEach(([userId, elementos]) => {
+        if (elementos.length > 1) {
+            console.log(`👤 Usuario ${userId} tiene ${elementos.length} elementos, limpiando duplicados...`);
+            
+            // Ordenar por timestamp (más reciente primero)
+            elementos.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // Mantener solo el primero (más reciente), eliminar el resto
+            for (let i = 1; i < elementos.length; i++) {
+                elementosAEliminar.push(elementos[i].id);
+                console.log(`🗑️ Marcando para eliminación elemento duplicado: ${elementos[i].id}`);
+            }
         }
     });
     
     // 3. Eliminar elementos duplicados o inválidos
     elementosAEliminar.forEach(id => {
-        console.log(`🗑️ Eliminando elemento duplicado/inválido: ${id}`);
+        console.log(`🗑️ Eliminando elemento: ${id}`);
         
         // Eliminar del mapa si tiene marcador
         if (elementosConectados[id]?.marcador && window.mapa) {
@@ -1084,8 +1123,9 @@ function limpiarElementosDuplicados() {
     return elementosAEliminar.length;
 }
 
-// Exponer la función forzar sincronización globalmente para llamarla desde consola
+// ✅ Exponer funciones de sincronización globalmente
 window.forzarSincronizacionElementos = forzarSincronizacionElementos;
+window.sincronizacionInmediata = sincronizacionInmediata;
 
 
 function procesarElementosRecibidos(elemento) {
@@ -1373,14 +1413,14 @@ function iniciarSeguimiento() {
         // Activar la variable de seguimiento
         seguimientoActivo = true;
         
-        // Agregar intervalo adicional para envío periódico si no existe
+        // ✅ OPTIMIZADO: Intervalo reducido para mayor responsividad
         if (!window.intervaloPosicion) {
             window.intervaloPosicion = setInterval(function() {
                 if (socket && socket.connected && ultimaPosicion) {
                     // Usar la función más segura
                     enviarPosicionActual();
                 }
-            }, 20000); // Cada 20 segundos
+            }, 10000); // ✅ OPTIMIZADO: Cada 10 segundos (más frecuente)
         }
         
         // Guardar estado en localStorage
@@ -1420,9 +1460,15 @@ function enviarPosicionActual() {
         conectado: true
     };
     
+    // ✅ OPTIMIZADO: Envío más eficiente de posición
     socket.emit('actualizarPosicionGB', datos);
     socket.emit('nuevoElemento', datos);
     socket.emit('anunciarElemento', datos);
+    
+    // ✅ NUEVO: Trigger sincronización inmediata tras actualización de posición
+    if (typeof sincronizacionInmediata === 'function') {
+        sincronizacionInmediata();
+    }
 }
 
 

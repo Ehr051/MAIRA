@@ -1497,20 +1497,22 @@ window.enviarElementoAlServidor = function(elemento) {
             window.MAIRA.Utils.mostrarNotificacion("Elemento actualizado correctamente", "success");
         }
         
-        // NUEVO: Forzar múltiples sincronizaciones con distintos intervalos
+        // ✅ OPTIMIZADO: Usar sincronización inmediata si está disponible
+        if (typeof window.sincronizacionInmediata === 'function') {
+            console.log("🚀 Usando sincronización inmediata optimizada");
+            window.sincronizacionInmediata();
+        } else if (typeof window.forzarSincronizacionElementos === 'function') {
+            console.log("� Usando sincronización estándar");
+            window.forzarSincronizacionElementos();
+        }
+        
+        // Backup de sincronización solo si es necesario
         setTimeout(() => {
             if (typeof window.forzarSincronizacionElementos === 'function') {
-                console.log("Forzando primera sincronización (500ms)");
+                console.log("🔄 Sincronización de backup (500ms)");
                 window.forzarSincronizacionElementos();
             }
         }, 500);
-        
-        setTimeout(() => {
-            if (typeof window.forzarSincronizacionElementos === 'function') {
-                console.log("Forzando segunda sincronización (2s)");
-                window.forzarSincronizacionElementos();
-            }
-        }, 2000);
         
         return true;
     } catch (error) {
