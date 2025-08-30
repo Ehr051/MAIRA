@@ -470,11 +470,17 @@ async function inicializarSocket() {
             }
             
             // ✅ CRÍTICO: Inicializar sistema de partidas DESPUÉS del login
+            console.log('🔍 Verificando disponibilidad de inicializarPartidas...');
+            console.log('   window.inicializarPartidas:', typeof window.inicializarPartidas);
+            
             if (window.inicializarPartidas) {
+                console.log('✅ Función inicializarPartidas encontrada, inicializando...');
                 const resultadoPartidas = window.inicializarPartidas(socketPartidas);
                 console.log('✅ Sistema de partidas inicializado:', resultadoPartidas);
             } else {
                 console.error('❌ Función inicializarPartidas no encontrada');
+                console.log('🔍 Funciones disponibles en window que contienen "partidas":', 
+                    Object.keys(window).filter(key => key.toLowerCase().includes('partidas')));
             }
             
             // ✅ CRITICAL: Obtener listas DESPUÉS del login
@@ -740,7 +746,6 @@ window.limpiarFormularioCrearPartida = limpiarFormularioCrearPartida;
 window.manejarInvitacionRecibida = manejarInvitacionRecibida;
 window.inicializarAplicacion = inicializarAplicacion;
 window.inicializarSocket = inicializarSocket;
-window.manejarReconexion = manejarReconexion;
 window.manejarErrorConexion = manejarErrorConexion;
 window.inicializarEventListeners = inicializarEventListeners;
 window.inicializarInterfazUsuario = inicializarInterfazUsuario;

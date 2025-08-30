@@ -1,5 +1,7 @@
 // partidas.js: Maneja las partidas, tanto la creación como la unión, así como el manejo de jugadores y estados
 
+console.log('🔧 [PARTIDAS.JS] Cargando módulo de partidas...');
+
 let socket;
 let userName; // ✅ FIX: Solo declarar userName, userId viene de iniciarpartida.js
 let partidasInicializadas = false;
@@ -1275,6 +1277,8 @@ window.mostrarBotonesCreador = mostrarBotonesCreador;
 window.mostrarSalaEspera = mostrarSalaEspera;
 window.inicializarPartidas = inicializarPartidas;
 window.crearPartida = crearPartida;
+
+console.log('✅ [PARTIDAS.JS] Funciones exportadas a window, incluyendo inicializarPartidas');
 window.salirSalaEspera = salirSalaEspera;
 window.cancelarPartida = cancelarPartida;
 window.marcarJugadorListo = marcarJugadorListo;
