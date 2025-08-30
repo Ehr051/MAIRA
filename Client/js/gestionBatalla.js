@@ -16,6 +16,30 @@ window.MAIRA_UI_STATES = {
     panelAbierto: false
 };
 
+/**
+ * Inicializa eventos para evitar que los menús se cierren al hacer clic dentro
+ */
+function inicializarEventosMenus() {
+    const menusCollapse = document.querySelectorAll('.menu.collapse, .submenu.collapse');
+    
+    menusCollapse.forEach(menu => {
+        // Evitar que los clicks dentro del menú lo cierren
+        menu.addEventListener('click', function(e) {
+            // Solo detener propagación si no es un botón que debe cerrar el menú
+            const target = e.target;
+            const esBotonCerrar = target.classList.contains('btn-close') || 
+                                 target.closest('.btn-close') ||
+                                 target.getAttribute('data-dismiss') === 'modal';
+            
+            if (!esBotonCerrar) {
+                e.stopPropagation();
+            }
+        });
+    });
+    
+    console.log('🔧 Eventos de menús inicializados para', menusCollapse.length, 'menús');
+}
+
 // Módulo de Gestión de Batalla
 MAIRA.GestionBatalla = (function() {
     // Variables privadas del módulo
@@ -158,6 +182,9 @@ function inicializarInterfaz() {
     
     console.log("Inicializando componentes de la interfaz");
     
+    // 🔧 Inicializar eventos de menús para evitar que se cierren
+    inicializarEventosMenus();
+    
     // Inicializar panel lateral
     inicializarPanelLateral();
     
@@ -294,6 +321,17 @@ function actualizarInterfazUsuario() {
             if (elementoGuardado) {
                 elementoTrabajo = JSON.parse(elementoGuardado);
                 console.log("Información de elemento cargada:", elementoTrabajo);
+                
+                // 🔧 Asegurar que los datos estén completos
+                if (!elementoTrabajo.designacion && elementoTrabajo.designacionPrincipal) {
+                    elementoTrabajo.designacion = elementoTrabajo.designacionPrincipal;
+                }
+                if (!elementoTrabajo.dependencia && elementoTrabajo.dependenciaPrincipal) {
+                    elementoTrabajo.dependencia = elementoTrabajo.dependenciaPrincipal;
+                }
+                
+                // Guardar datos actualizados
+                localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
             }
             
             // Verificar si se cargaron ambos
@@ -1775,6 +1813,17 @@ function configurarEventosChat() {
                 if (operacionActual) {
                     socket.emit('joinRoom', operacionActual);
                     console.log(`🏠 Uniéndose a la sala: ${operacionActual}`);
+                    
+                    // 🔧 Solicitar elementos inmediatamente después de unirse a la sala
+                    setTimeout(() => {
+                        if (typeof window.elementosGB !== 'undefined' && window.elementosGB.solicitarElementos) {
+                            console.log('🔄 Solicitando elementos al conectarse...');
+                            window.elementosGB.solicitarElementos();
+                        } else if (typeof solicitarElementos === 'function') {
+                            console.log('🔄 Solicitando elementos (función global)...');
+                            solicitarElementos();
+                        }
+                    }, 1000);
                 }
                 
                 // Configurar eventos del socket

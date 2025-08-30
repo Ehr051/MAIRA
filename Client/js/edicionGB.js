@@ -751,9 +751,12 @@ function guardarCambiosUnidadGB() {
         let idUsuarioFinal = idElementoOriginal;
         let idUsuarioBase = null;
 
+        // Convertir a string si es necesario
+        const idString = String(idElementoOriginal || '');
+
         // Si es un elemento creado manualmente, extraer el ID de usuario
-        if (idElementoOriginal && idElementoOriginal.startsWith('elemento_')) {
-            const match = idElementoOriginal.match(/elemento_(\d+)_/);
+        if (idString && idString.startsWith('elemento_')) {
+            const match = idString.match(/elemento_(\d+)_/);
             if (match && match[1]) {
                 idUsuarioBase = match[1];
                 

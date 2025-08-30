@@ -210,6 +210,14 @@ function toggleMenu(menuId) {
     const esVisible = menu.classList.contains('show');
     console.log(`✅ Menú '${menuId}' ${esVisible ? 'mostrado' : 'ocultado'}`);
     
+    // 🔧 Prevenir que los clicks dentro del menú lo cierren
+    if (esVisible && !menu.hasAttribute('data-click-handler')) {
+        menu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        menu.setAttribute('data-click-handler', 'true');
+    }
+    
     return true;
 }
 
