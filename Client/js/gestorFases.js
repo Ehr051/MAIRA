@@ -198,11 +198,14 @@ class GestorFases extends GestorBase {
     }
 
     habilitarZonaAzul() {
+        console.log('🔧 [DEBUG] habilitarZonaAzul() llamado');
         // Limpiar botones anteriores
         this.limpiarInterfazAnterior();
         
         this.mostrarMensajeAyuda('Zona roja confirmada. Ahora puede definirse la zona azul.');
+        console.log('🔧 [DEBUG] Antes de actualizarBotonesFase()');
         this.actualizarBotonesFase();
+        console.log('🔧 [DEBUG] Después de actualizarBotonesFase()');
     }
     
     actualizarEstadoCompleto(datos) {
@@ -1076,13 +1079,13 @@ actualizarBotonesFase() {
             case 'definicion_zonas':
                 if (esDirector) {
                     contenido = `
-                        <button id="btn-zona-azul" class="btn btn-primary"
-                            ${this.zonasDespliegue.azul ? 'disabled' : ''}>
-                            Definir Zona Azul
-                        </button>
                         <button id="btn-zona-roja" class="btn btn-danger" 
-                            ${!this.zonasDespliegue.azul || this.zonasDespliegue.rojo ? 'disabled' : ''}>
+                            ${this.zonasDespliegue.rojo ? 'disabled' : ''}>
                             Definir Zona Roja
+                        </button>
+                        <button id="btn-zona-azul" class="btn btn-primary"
+                            ${!this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : ''}>
+                            Definir Zona Azul
                         </button>
                     `;
                 } else {
@@ -1349,6 +1352,8 @@ validarFaseActual() {
     }
 
     configurarEventosBotones() {
+        console.log('🔧 [DEBUG] configurarEventosBotones() iniciado');
+        
         const btnDefinirSector = document.getElementById('btn-definir-sector');
         if (btnDefinirSector) {
             btnDefinirSector.onclick = () => this.iniciarDefinicionSector();
@@ -1361,7 +1366,9 @@ validarFaseActual() {
 
         const btnZonaRoja = document.getElementById('btn-zona-roja');
         if (btnZonaRoja) {
+            console.log('🔧 [DEBUG] Configurando event listener para btn-zona-roja');
             btnZonaRoja.onclick = () => {
+                console.log('🔧 [DEBUG] btn-zona-roja CLICKED por usuario');
                 console.log('Iniciando definición zona roja');
                 this.iniciarDefinicionZona('rojo');
             };
@@ -1369,7 +1376,10 @@ validarFaseActual() {
 
         const btnZonaAzul = document.getElementById('btn-zona-azul');
         if (btnZonaAzul) {
+            console.log('🔧 [DEBUG] Configurando event listener para btn-zona-azul');
+            console.log('🔧 [DEBUG] btnZonaAzul.disabled:', btnZonaAzul.disabled);
             btnZonaAzul.onclick = () => {
+                console.log('🔧 [DEBUG] btn-zona-azul CLICKED por usuario');
                 console.log('Iniciando definición zona azul');
                 this.iniciarDefinicionZona('azul');
             };
