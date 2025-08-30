@@ -22,6 +22,10 @@ class GestorTurnos extends GestorBase {
             // Validar configuración
             this.validarConfiguracion(configuracion);
             
+            // ✅ DETECTAR MODO DE JUEGO
+            this.modoJuego = configuracion.modoJuego || 'online';
+            console.log('🎮 GestorTurnos inicializado en modo:', this.modoJuego);
+            
             // Configurar jugadores
             this.jugadores = configuracion.jugadores;
             this.duracionTurno = configuracion.duracionTurno || 300; // 5 minutos por defecto
@@ -48,14 +52,14 @@ class GestorTurnos extends GestorBase {
             throw new Error('La configuración es requerida');
         }
     
-        console.log('Validando configuración en GestorTurnos:', config); // Debug
+        console.log('Validando configuración en GestorTurnos:', config);
     
         // Validar jugadores de forma más flexible
         if (!Array.isArray(config.jugadores)) {
             config.jugadores = [];
         }
     
-        // Validar y ajustar duración del turno
+        // Validar y ajustar duración del turno (en segundos)
         let duracionTurno = parseInt(config.duracionTurno);
         
         if (isNaN(duracionTurno)) {
@@ -69,35 +73,8 @@ class GestorTurnos extends GestorBase {
         // Actualizar la configuración con el valor validado
         config.duracionTurno = duracionTurno;
     
-        console.log('Configuración validada:', config); // Debug
+        console.log('Configuración validada:', config);
         return true;
-    }
-    
-    async inicializar(configuracion) {
-        try {
-            console.log('Iniciando GestorTurnos con configuración:', configuracion); // Debug
-            
-            // Validar configuración
-            this.validarConfiguracion(configuracion);
-            
-            // Configurar jugadores
-            this.jugadores = configuracion.jugadores;
-            this.duracionTurno = configuracion.duracionTurno;
-            
-            // Establecer director
-            this.establecerDirector();
-    
-            // Inicializar estados de jugadores
-            this.inicializarEstadosJugadores();
-            
-            // Configurar eventos
-            this.configurarEventos();
-    
-            return true;
-        } catch (error) {
-            console.error('Error al inicializar GestorTurnos:', error);
-            return false;
-        }
     }
 
     establecerDirector() {
@@ -162,22 +139,22 @@ class GestorTurnos extends GestorBase {
         }
     }
 
-inicializarTurnos() {
-    console.log('Iniciando sistema de turnos');
-    this.turnoActual = 1;
-    this.jugadorActualIndex = 0;
-    this.tiempoRestante = this.duracionTurno;
-    
-    // Iniciar reloj
-    this.iniciarReloj();
-    
-    // Emitir evento de inicio de turnos
-    this.emisorEventos.emit('inicioTurnos', {
-        turnoActual: this.turnoActual,
-        jugadorActual: this.obtenerJugadorActual(),
-        timestamp: new Date().toISOString()
-    });
-}
+    inicializarTurnos() {
+        console.log('Iniciando sistema de turnos');
+        this.turnoActual = 1;
+        this.jugadorActualIndex = 0;
+        this.tiempoRestante = this.duracionTurno;
+        
+        // Iniciar reloj
+        this.iniciarReloj();
+        
+        // Emitir evento de inicio de turnos
+        this.eventos.emit('inicioTurnos', {
+            turnoActual: this.turnoActual,
+            jugadorActual: this.obtenerJugadorActual(),
+            timestamp: new Date().toISOString()
+        });
+    }
     reiniciarTurnos() {
         this.jugadorActualIndex = 0;
         this.turnoActual = 1;
@@ -193,13 +170,13 @@ inicializarTurnos() {
         this.intervalReloj = setInterval(() => {
             if (this.tiempoRestante > 0) {
                 this.tiempoRestante--;
-                this.emisorEventos.emit('actualizacionReloj', this.tiempoRestante);
+                this.eventos.emit('actualizacionReloj', this.tiempoRestante);
             } else {
                 this.finalizarTurnoActual();
             }
         }, 1000);
 
-        this.emisorEventos.emit('inicioCuentaRegresiva', this.tiempoRestante);
+        this.eventos.emit('inicioCuentaRegresiva', this.tiempoRestante);
     }
 
     detenerReloj() {
@@ -226,7 +203,7 @@ inicializarTurnos() {
         }
 
         // Emitir evento de cambio de turno
-        this.emisorEventos.emit('cambioTurno', {
+        this.eventos.emit('cambioTurno', {
             jugadorAnterior: jugadorActual,
             jugadorActual: this.obtenerJugadorActual(),
             turno: this.turnoActual,
@@ -257,22 +234,25 @@ inicializarTurnos() {
         }
 
         // Emitir evento de fin de turno
-        this.emisorEventos.emit('finTurno', {
+        this.eventos.emit('finTurno', {
             jugador: jugadorActual,
             turno: this.turnoActual,
             forzado: forzado,
             timestamp: new Date().toISOString()
         });
 
-        // Si estamos en modo online, notificar al servidor
-        if (this.socket) {
+        // ✅ VERIFICAR MODO DE JUEGO
+        if (this.modoJuego === 'online' && this.socket) {
+            // Modo online: notificar al servidor
             this.socket.emit('finTurno', {
                 jugadorId: jugadorActual.id,
                 turno: this.turnoActual,
                 forzado: forzado
             });
+            console.log('🌐 Fin de turno enviado al servidor');
         } else {
-            // En modo local, cambiar turno directamente
+            // Modo local: cambiar turno directamente
+            console.log('🏠 Modo local: cambiando turno directamente');
             this.cambiarTurno();
         }
     }
@@ -426,7 +406,7 @@ inicializarTurnos() {
         jugador.despliegueListo = true;
         
         // Emitir evento local
-        this.emisorEventos.emit('jugadorListoDespliegue', datos);
+        this.eventos.emit('jugadorListoDespliegue', datos);
     
         // Verificar si todos están listos para iniciar combate
         if (this.todosJugadoresListos() && 

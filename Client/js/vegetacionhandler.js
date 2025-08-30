@@ -16,13 +16,13 @@ const vegetacionHandler = (function() {
 
     async function cargarIndice() {
         try {
-            // ✅ USAR ÍNDICES CORRECTOS: tiles_por_provincias con estructura estándar
+            // ✅ REVERTIR: Usar índices originales que funcionan
             const indicesDisponibles = [
-                'tiles_por_provincias/vegetacion_centro.json',
-                'tiles_por_provincias/vegetacion_centro_norte.json', 
-                'tiles_por_provincias/vegetacion_norte.json',
-                'tiles_por_provincias/vegetacion_patagonia.json',
-                'tiles_por_provincias/vegetacion_sur.json'
+                'centro_mini_tiles_index.json',
+                'centro_norte_mini_tiles_index.json', 
+                'norte_mini_tiles_index.json',
+                'patagonia_mini_tiles_index.json',
+                'sur_mini_tiles_index.json'
             ];
 
             // Cargar todos los índices y combinarlos

@@ -709,6 +709,13 @@ confirmarZona(equipo) {
         // Actualizar localmente
         this.zonasLayers[equipo] = this.zonaTemporalLayer;
         this.zonasDespliegue[equipo] = zonaData.bounds;
+        
+        // ✅ DEBUG: Verificar que se actualiza correctamente
+        console.log('🔧 Zona confirmada:', equipo);
+        console.log('🔧 zonasDespliegue después de confirmar:', this.zonasDespliegue);
+        console.log('🔧 zonasDespliegue.rojo:', this.zonasDespliegue.rojo);
+        console.log('🔧 zonasDespliegue.azul:', this.zonasDespliegue.azul);
+        
         this.zonaTemporalLayer = null;
         this.dibujandoZona = null;
 
@@ -717,7 +724,11 @@ confirmarZona(equipo) {
             console.log('Zona azul confirmada, cambiando a fase despliegue');
             this.cambiarFase('preparacion', 'despliegue');
         }
-        this.actualizarBotonesFase();
+        
+        // ✅ ASEGURAR QUE SE ACTUALICEN LOS BOTONES
+        setTimeout(() => {
+            this.actualizarBotonesFase();
+        }, 100); // Pequeño delay para asegurar que el DOM se actualice
         return true;
     } catch (error) {
         console.error('Error al confirmar zona:', error);
@@ -1303,11 +1314,23 @@ validarFaseActual() {
                     break;
                 case 'definicion_zonas':
                     if (esDirector || this.esDirectorTemporal) {
+                        // ✅ DEBUG: Verificar estado de zonas
+                        console.log('🔧 DEBUG - Estado zonasDespliegue:', this.zonasDespliegue);
+                        console.log('🔧 DEBUG - zonasDespliegue.rojo:', this.zonasDespliegue.rojo);
+                        console.log('🔧 DEBUG - zonasDespliegue.azul:', this.zonasDespliegue.azul);
+                        console.log('🔧 DEBUG - !this.zonasDespliegue.rojo:', !this.zonasDespliegue.rojo);
+                        
+                        const rojoDisabled = this.zonasDespliegue.rojo ? 'disabled' : '';
+                        const azulDisabled = !this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : '';
+                        
+                        console.log('🔧 DEBUG - rojoDisabled:', rojoDisabled);
+                        console.log('🔧 DEBUG - azulDisabled:', azulDisabled);
+                        
                         return `
-                            <button id="btn-zona-roja" ${this.zonasDespliegue.rojo ? 'disabled' : ''}>
+                            <button id="btn-zona-roja" ${rojoDisabled}>
                                 Definir Zona Roja
                             </button>
-                            <button id="btn-zona-azul" ${!this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : ''}>
+                            <button id="btn-zona-azul" ${azulDisabled}>
                                 Definir Zona Azul
                             </button>
                             ${this.zonasDespliegue.azul && this.zonasDespliegue.rojo ? '<button id="btn-iniciar-despliegue">Iniciar Despliegue</button>' : ''}
