@@ -866,25 +866,91 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function cargarDatosPartida() {
     console.log('🔍 === CARGANDO DATOS DE PARTIDA ===');
     
+    // ✅ DEBUGGING: Mostrar TODAS las claves de localStorage PRIMERO
+    console.log('🔍 [DEBUG] Inventario completo de localStorage:');
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        console.log(`  - ${key}: ${value?.substring(0, 150)}...`);
+    }
+    
+    // ✅ DEBUGGING: Mostrar sessionStorage también
+    console.log('🔍 [DEBUG] Inventario de sessionStorage:');
+    console.log(`  - datosPartidaActual: ${sessionStorage.getItem('datosPartidaActual')?.substring(0, 150)}...`);
+    
     // Intentar recuperar datos de sessionStorage primero
     const datosSession = sessionStorage.getItem('datosPartidaActual');
     console.log('📱 Datos en sessionStorage:', !!datosSession);
     
     if (datosSession) {
         console.log('✅ Datos encontrados en sessionStorage');
-        const datos = JSON.parse(datosSession);
-        console.log('📋 Estructura sessionStorage:', datos);
-        sessionStorage.removeItem('datosPartidaActual');
-        console.log('🗑️ sessionStorage limpiado');
-        return datos.partidaActual;
+        try {
+            const datos = JSON.parse(datosSession);
+            console.log('📋 Estructura sessionStorage:', datos);
+            console.log('🔍 [DEBUG] partidaActual en session:', datos.partidaActual);
+            sessionStorage.removeItem('datosPartidaActual');
+            console.log('🗑️ sessionStorage limpiado');
+            return datos.partidaActual;
+        } catch (e) {
+            console.error('❌ Error parseando sessionStorage:', e);
+        }
     }
 
     // Si no hay datos en session, usar localStorage
     const datosPartidaStr = localStorage.getItem('datosPartida');
     console.log('💾 Datos en localStorage:', !!datosPartidaStr);
+    console.log('🔍 [DEBUG] Contenido datosPartida:', datosPartidaStr?.substring(0, 200));
     
     if (!datosPartidaStr) {
-        console.error('❌ No se encontraron datos de partida en ninguna ubicación');
+        console.error('❌ No se encontraron datos de partida en localStorage');
+        
+        // ✅ FALLBACK: Intentar buscar configuracionPartidaLocal
+        const configLocal = localStorage.getItem('configuracionPartidaLocal');
+        console.log('🔍 [FALLBACK] Buscando configuracionPartidaLocal:', !!configLocal);
+        
+        if (configLocal) {
+            console.log('🔧 [FALLBACK] Intentando reconstruir desde configuracionPartidaLocal...');
+            try {
+                const config = JSON.parse(configLocal);
+                console.log('🔧 [FALLBACK] Configuración encontrada:', config);
+                
+                // Reconstruir datos de partida desde configuración
+                const datosReconstruidos = {
+                    codigo: 'LOCAL_FALLBACK_' + Date.now(),
+                    configuracion: config,
+                    modo: 'local',
+                    estado: 'iniciada',
+                    creadorId: config.creadorId || 5, // Fallback a userId
+                    fechaCreacion: new Date().toISOString(),
+                    jugadores: [{
+                        id: config.creadorId || 5,
+                        username: 'Jugador Local',
+                        equipo: 'azul',
+                        activo: true,
+                        listo: true,
+                        rol: 'comandante'
+                    }],
+                    configuracionJuego: {
+                        turnoActual: 0,
+                        tiempoTurno: parseInt(config.duracionTurno || 3) * 60 * 1000,
+                        duracionPartida: parseInt(config.duracionPartida || 30) * 60 * 1000,
+                        objetivo: config.objetivoPartida || 'Sin objetivo',
+                        modoLocal: true
+                    }
+                };
+                
+                console.log('✅ [FALLBACK] Datos reconstruidos exitosamente:', datosReconstruidos);
+                
+                // Guardar los datos reconstruidos para futuras cargas
+                localStorage.setItem('datosPartida', JSON.stringify(datosReconstruidos));
+                
+                return datosReconstruidos;
+                
+            } catch (e) {
+                console.error('❌ [FALLBACK] Error reconstruyendo datos:', e);
+            }
+        }
+        
         console.log('🔍 Verificando todas las claves de localStorage:');
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -894,9 +960,15 @@ async function cargarDatosPartida() {
     }
     
     console.log('✅ Datos encontrados en localStorage');
-    const datos = JSON.parse(datosPartidaStr);
-    console.log('📋 Estructura localStorage:', datos);
-    console.log('🏁 === FIN CARGAR DATOS DE PARTIDA ===');
+    try {
+        const datos = JSON.parse(datosPartidaStr);
+        console.log('📋 Estructura localStorage:', datos);
+        console.log('🏁 === FIN CARGAR DATOS DE PARTIDA ===');
+        return datos;
+    } catch (e) {
+        console.error('❌ Error parseando localStorage:', e);
+        throw new Error('Datos de partida corruptos');
+    }
     
     return datos;
 }

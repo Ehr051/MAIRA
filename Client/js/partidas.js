@@ -557,23 +557,46 @@ function iniciarJuegoLocal(configuracion) {
     
     console.log('💾 Estructura completa de datos de partida local:', datosPartida);
     
+    // ✅ CRÍTICO: Verificar que localStorage está limpio antes de guardar
+    console.log('🔍 [DEBUG] Estado ANTES de guardar:');
+    console.log('  - datosPartida existente:', localStorage.getItem('datosPartida'));
+    console.log('  - configuracionPartidaLocal existente:', localStorage.getItem('configuracionPartidaLocal'));
+    
     // Guardar datos en localStorage con estructura completa
     localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
     localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
     
+    // ✅ VERIFICAR que se guardó correctamente
+    console.log('🔍 [DEBUG] Estado DESPUÉS de guardar:');
+    console.log('  - datosPartida guardado:', !!localStorage.getItem('datosPartida'));
+    console.log('  - configuracionPartidaLocal guardado:', !!localStorage.getItem('configuracionPartidaLocal'));
+    console.log('  - Contenido datosPartida:', JSON.parse(localStorage.getItem('datosPartida')));
+    
     // También guardar en sessionStorage para compatibilidad
-    sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+    const sessionData = {
         partidaActual: datosPartida,
         userId: currentUserId,
         userName: currentUserName,
         equipoJugador: 'azul',
         modoLocal: true
-    }));
+    };
+    
+    console.log('🔍 [DEBUG] Datos que se guardan en sessionStorage:', sessionData);
+    sessionStorage.setItem('datosPartidaActual', JSON.stringify(sessionData));
+    
+    // ✅ VERIFICAR sessionStorage también
+    console.log('🔍 [DEBUG] sessionStorage guardado:', !!sessionStorage.getItem('datosPartidaActual'));
     
     console.log('✅ Datos guardados en localStorage y sessionStorage');
-    console.log('🚀 Redirigiendo a juegodeguerra.html...');
+    console.log('🚀 Redirigiendo a juegodeguerra.html en 1 segundo...');
     
-    window.location.href = 'juegodeguerra.html';
+    // ✅ CRITICAL: Añadir delay para asegurar que los datos se persistan
+    setTimeout(() => {
+        console.log('🔍 [DEBUG] Último check antes de redirección:');
+        console.log('  - datosPartida final:', !!localStorage.getItem('datosPartida'));
+        console.log('  - sessionStorage final:', !!sessionStorage.getItem('datosPartidaActual'));
+        window.location.href = 'juegodeguerra.html';
+    }, 1000);
     
     console.log('🏁 === FIN INICIAR JUEGO LOCAL ===');
 }
