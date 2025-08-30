@@ -960,7 +960,7 @@
       </div>
       
       <!-- Botón flotante para mostrar panel lateral (cuando está oculto) -->
-      <button id="toggle-panel-btn" class="panel-toggle-btn" onclick="window.MAIRA.GestionBatalla.togglePanel()">
+      <button id="toggle-panel-btn" class="panel-toggle-btn" onclick="console.log('🔘 Botón flotante clickeado!'); if(window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.togglePanel) { window.MAIRA.GestionBatalla.togglePanel(); } else { console.error('❌ togglePanel no disponible en botón flotante:', { MAIRA: !!window.MAIRA, GestionBatalla: !!window.MAIRA?.GestionBatalla, togglePanel: typeof window.MAIRA?.GestionBatalla?.togglePanel }); }">
         <i class="fas fa-chevron-left"></i>
         <span class="tooltip">Abrir Panel</span>
       </button>
@@ -969,7 +969,7 @@
       <div id="panel-lateral" class="panel-lateral oculto">
         <div class="panel-header">
           <h3>Gestión de Batalla</h3>
-          <button id="cerrar-panel" class="btn-cerrar-panel" onclick="window.MAIRA.GestionBatalla.togglePanel()">
+          <button id="cerrar-panel" class="btn-cerrar-panel" onclick="console.log('🔘 Botón toggle clickeado!'); if(window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.togglePanel) { window.MAIRA.GestionBatalla.togglePanel(); } else { console.error('❌ togglePanel no disponible:', { MAIRA: !!window.MAIRA, GestionBatalla: !!window.MAIRA?.GestionBatalla, togglePanel: typeof window.MAIRA?.GestionBatalla?.togglePanel }); }">
             <i class="fas fa-chevron-right"></i>
           </button>
         </div>

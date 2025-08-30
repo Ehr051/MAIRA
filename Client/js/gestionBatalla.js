@@ -822,6 +822,8 @@ function configurarEventosChat() {
      * @param {boolean} [forzarEstado] - Opcional: forzar un estado específico (true=visible, false=oculto)
      */
     function togglePanel(forzarEstado) {
+        console.log('🚀 TogglePanel ejecutándose!', { forzarEstado });
+        
         const panel = document.getElementById('panel-lateral');
         const botonFlotante = document.getElementById('toggle-panel-btn');
         const botonCerrar = document.getElementById('cerrar-panel');
@@ -8659,6 +8661,11 @@ window.actualizarMarcadorUsuario = MAIRA.GestionBatalla.actualizarMarcadorUsuari
 window.conectarAlServidor = MAIRA.GestionBatalla.conectarAlServidor;
 window.obtenerURLServidor = MAIRA.GestionBatalla.obtenerURLServidor;
 
+// 🔧 Asegurar que togglePanel esté disponible en ambos namespaces
+if (!window.MAIRA.GestionBatalla.togglePanel) {
+    window.MAIRA.GestionBatalla.togglePanel = togglePanel;
+}
+
 // Conectar con agregarMarcador global para mantener compatibilidad
 window.agregarMarcadorGB = MAIRA.GestionBatalla.agregarMarcadorGB;
 
@@ -9147,3 +9154,20 @@ window.demoGestionBatalla = async function() {
         console.error('❌ Error durante la demo:', error);
     }
 };
+
+// 🛠️ Debugging: Verificar que togglePanel esté disponible al cargar la página
+window.addEventListener('DOMContentLoaded', function() {
+    console.log('🔍 Verificando disponibilidad de togglePanel:', {
+        'window.MAIRA': !!window.MAIRA,
+        'window.MAIRA.GestionBatalla': !!window.MAIRA?.GestionBatalla,
+        'window.MAIRA.GestionBatalla.togglePanel': typeof window.MAIRA?.GestionBatalla?.togglePanel,
+        'window.togglePanel': typeof window.togglePanel
+    });
+    
+    // Test manual de la función
+    if (window.MAIRA?.GestionBatalla?.togglePanel) {
+        console.log('✅ togglePanel está disponible en MAIRA.GestionBatalla');
+    } else {
+        console.error('❌ togglePanel NO está disponible en MAIRA.GestionBatalla');
+    }
+});

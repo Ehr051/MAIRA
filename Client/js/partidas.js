@@ -226,9 +226,25 @@ function unirseAPartida(codigo) {
 }
 
 function emitirUnirseAPartida(codigo) {
+    console.log('🚀 === INICIANDO UNIRSE A PARTIDA ===');
+    console.log('📝 Código recibido:', codigo);
+    
     // ✅ USAR USERIDENTITY DIRECTAMENTE
     const currentUserId = window.UserIdentity ? window.UserIdentity.getUserId() : (window.userId || null);
     const currentUserName = window.UserIdentity ? window.UserIdentity.getUserName() : (window.userName || null);
+    
+    console.log('👤 Datos de usuario para unirse:', {
+        userId: currentUserId,
+        userName: currentUserName,
+        fuente: window.UserIdentity ? 'UserIdentity' : 'variables globales'
+    });
+    
+    if (!currentUserId || !currentUserName) {
+        console.error('❌ Datos de usuario no válidos para unirse a partida');
+        mostrarError('Error: Datos de usuario no configurados');
+        ocultarIndicadorCarga();
+        return;
+    }
     
     console.log('Emitiendo evento unirseAPartida con:', {
         codigo: codigo,
@@ -245,7 +261,8 @@ function emitirUnirseAPartida(codigo) {
         windowSocket: !!window.socket,
         windowClientSocket: !!window.clientSocket,
         socketActivo: !!socketActivo,
-        connected: socketActivo?.connected
+        connected: socketActivo?.connected,
+        id: socketActivo?.id
     });
     
     if (!socketActivo || !socketActivo.connected) {
@@ -259,6 +276,7 @@ function emitirUnirseAPartida(codigo) {
                 userId: currentUserId,
                 userName: currentUserName
             });
+            console.log('✅ Evento emitido usando socket fallback');
             return;
         }
         
@@ -267,11 +285,15 @@ function emitirUnirseAPartida(codigo) {
         return;
     }
     
+    console.log('📤 Emitiendo evento "unirseAPartida" al servidor...');
     socketActivo.emit('unirseAPartida', { 
         codigo: codigo,
         userId: currentUserId,
         userName: currentUserName
     });
+    
+    console.log('✅ Evento enviado. Esperando respuesta "unionExitosa" del servidor...');
+    console.log('🏁 === FIN UNIRSE A PARTIDA ===');
 
     // Configurar listeners para manejar respuestas
     socketActivo.once('unidoAPartida', function(datosPartida) {
@@ -314,7 +336,8 @@ function emitirUnirseAPartida(codigo) {
 function crearPartida(e) {
     e.preventDefault();
     
-    console.log('🎮 Validando antes de crear partida...');
+    console.log('🎮 === INICIANDO CREAR PARTIDA ===');
+    console.log('🔍 Validando antes de crear partida...');
     
     // Verificar conexión de socket
     if (!socket || !socket.connected) {
@@ -323,9 +346,18 @@ function crearPartida(e) {
         return;
     }
     
+    console.log('✅ Socket conectado correctamente');
+    
     // Verificar datos de usuario usando UserIdentity
     const currentUserId = MAIRA.UserIdentity.getUserId();
     const currentUserName = MAIRA.UserIdentity.getUsername();
+    
+    console.log('🔍 Datos de usuario obtenidos:', {
+        userId: currentUserId,
+        userName: currentUserName,
+        tipo_userId: typeof currentUserId,
+        tipo_userName: typeof currentUserName
+    });
     
     if (!currentUserId || !currentUserName) {
         console.error('❌ Datos de usuario no configurados via UserIdentity');
@@ -340,14 +372,23 @@ function crearPartida(e) {
     window.userId = currentUserId;
     window.userName = currentUserName;
     
-    console.log('✅ Validaciones pasadas, continuando...');
+    console.log('✅ Validaciones pasadas, obteniendo datos del formulario...');
     
     const nombrePartida = document.getElementById('nombrePartida').value;
     const duracionPartida = document.getElementById('duracionPartida').value;
     const duracionTurno = document.getElementById('duracionTurno').value;
     const objetivoPartida = document.getElementById('objetivoPartida').value;
     
+    console.log('📝 Datos del formulario:', {
+        nombrePartida,
+        duracionPartida,
+        duracionTurno,
+        objetivoPartida,
+        modoSeleccionado
+    });
+    
     if (!nombrePartida || !duracionPartida || !duracionTurno || !objetivoPartida) {
+        console.error('❌ Faltan campos del formulario');
         mostrarError('Por favor, complete todos los campos');
         return;
     }
@@ -361,21 +402,44 @@ function crearPartida(e) {
         creadorId: currentUserId
     };
 
+    console.log('⚙️ Configuración completa creada:', configuracion);
+
     if (modoSeleccionado === 'local') {
+        console.log('🏠 Iniciando juego local...');
         iniciarJuegoLocal(configuracion);
     } else {
+        console.log('🌐 Iniciando juego online...');
         console.log('🚀 Enviando crear partida al servidor...');
         
         // ✅ USAR SOCKET CORRECTO
         const socketActivo = window.socketPartidas || window.socket;
+        console.log('🔌 Verificando socket activo:', {
+            socketPartidas: !!window.socketPartidas,
+            socket: !!window.socket,
+            socketActivo: !!socketActivo,
+            connected: socketActivo?.connected,
+            id: socketActivo?.id
+        });
+        
         if (socketActivo && socketActivo.connected) {
             console.log('✅ Socket encontrado y conectado, enviando datos...');
+            console.log('📤 Emitiendo evento "crearPartida" con configuración:', configuracion);
+            
             socketActivo.emit('crearPartida', { configuracion });
+            
+            console.log('✅ Evento enviado. Esperando respuesta "partidaCreada" del servidor...');
         } else {
             console.error('❌ Socket no disponible o no conectado');
+            console.error('🔍 Estado detallado del socket:', {
+                socketActivo,
+                connected: socketActivo?.connected,
+                readyState: socketActivo?.readyState
+            });
             mostrarError('Error: No hay conexión con el servidor');
         }
     }
+    
+    console.log('🏁 === FIN CREAR PARTIDA ===');
 }
 
 function iniciarJuegoLocal(configuracion) {
