@@ -16,13 +16,13 @@ const vegetacionHandler = (function() {
 
     async function cargarIndice() {
         try {
-            // Lista de archivos de índice de vegetación disponibles
+            // ✅ USAR ÍNDICES CORRECTOS: tiles_por_provincias con estructura estándar
             const indicesDisponibles = [
-                'centro_mini_tiles_index.json',
-                'centro_norte_mini_tiles_index.json', 
-                'norte_mini_tiles_index.json',
-                'patagonia_mini_tiles_index.json',
-                'sur_mini_tiles_index.json'
+                'tiles_por_provincias/vegetacion_centro.json',
+                'tiles_por_provincias/vegetacion_centro_norte.json', 
+                'tiles_por_provincias/vegetacion_norte.json',
+                'tiles_por_provincias/vegetacion_patagonia.json',
+                'tiles_por_provincias/vegetacion_sur.json'
             ];
 
             // Cargar todos los índices y combinarlos
@@ -76,20 +76,38 @@ const vegetacionHandler = (function() {
 
     function encontrarTileParaPunto(lat, lng) {
         for (const [tileKey, tileInfo] of Object.entries(tileIndex.tiles)) {
-            // ✅ VALIDACIÓN: Verificar que tileInfo existe y tiene datos
-            if (!tileInfo || !Array.isArray(tileInfo) || tileInfo.length === 0) {
-                console.warn(`Tile ${tileKey} no tiene información válida:`, tileInfo);
+            // ✅ VALIDACIÓN: Verificar que tileInfo existe
+            if (!tileInfo) {
+                console.warn(`Tile ${tileKey} no tiene información:`, tileInfo);
                 continue;
             }
             
-            // ✅ VALIDACIÓN: Verificar que el primer elemento tiene bounds
-            const firstTile = tileInfo[0];
-            if (!firstTile || !firstTile.bounds) {
-                console.warn(`Tile ${tileKey} no tiene bounds válidos:`, firstTile);
+            let bounds = null;
+            
+            // ✅ MANEJAR DIFERENTES ESTRUCTURAS DE DATOS:
+            if (Array.isArray(tileInfo) && tileInfo.length > 0) {
+                // ESTRUCTURA ALTIMETRÍA: Array de objetos con bounds
+                const firstTile = tileInfo[0];
+                if (!firstTile || !firstTile.bounds) {
+                    console.warn(`Tile ${tileKey} no tiene bounds válidos en array:`, firstTile);
+                    continue;
+                }
+                bounds = firstTile.bounds;
+            } else if (tileInfo.bounds) {
+                // ESTRUCTURA VEGETACIÓN: Objeto directo con bounds
+                bounds = tileInfo.bounds;
+            } else {
+                console.warn(`Tile ${tileKey} no tiene estructura válida:`, tileInfo);
                 continue;
             }
             
-            const bounds = firstTile.bounds; // Asumimos que todos los tipos de tile tienen los mismos límites
+            // ✅ VERIFICAR BOUNDS
+            if (!bounds || !bounds.north || !bounds.south || !bounds.east || !bounds.west) {
+                console.warn(`Tile ${tileKey} bounds incompletos:`, bounds);
+                continue;
+            }
+            
+            // ✅ COMPROBAR SI EL PUNTO ESTÁ DENTRO
             if (lat <= bounds.north && lat >= bounds.south && lng >= bounds.west && lng <= bounds.east) {
                 return tileKey;
             }

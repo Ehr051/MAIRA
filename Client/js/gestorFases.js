@@ -660,7 +660,8 @@ confirmarZona(equipo) {
                 zona: zonaData,
                 jugadorId: window.userId,
                 partidaCodigo: window.codigoPartida || 'LOCAL',
-                cambiarFase: equipo === 'azul'
+                // ✅ CORREGIR: Solo cambiar a despliegue cuando AMBAS zonas estén definidas
+                cambiarFase: false // Será manejado en procesarZonaConfirmada
             });
             
         } else {
@@ -691,7 +692,8 @@ confirmarZona(equipo) {
                 zona: zonaData,
                 jugadorId: window.userId,
                 partidaCodigo: window.codigoPartida,
-                cambiarFase: equipo === 'azul'
+                // ✅ CORREGIR: Solo cambiar cuando ambas zonas estén listas
+                cambiarFase: false // El servidor manejará la lógica
             });
         }
 
@@ -736,12 +738,25 @@ confirmarZona(equipo) {
             console.log('🎯 Zona confirmada para equipo:', zona.equipo);
             console.log('🗺️ Zona bounds:', zona.bounds);
             
-            // Si es zona azul, cambiar a fase despliegue
-            if (zona.equipo === 'azul' && cambiarFase) {
-                console.log('🔄 Zona azul confirmada, cambiando a fase despliegue');
+            // ✅ VERIFICAR SI AMBAS ZONAS ESTÁN CONFIRMADAS
+            const zonaAzulConfirmada = this.zonaConfirmada['azul'] || false;
+            const zonaRojaConfirmada = this.zonaConfirmada['roja'] || false;
+            
+            console.log('📊 Estado zonas:', {
+                azul: zonaAzulConfirmada,
+                roja: zonaRojaConfirmada,
+                ambas: zonaAzulConfirmada && zonaRojaConfirmada
+            });
+            
+            // Solo cambiar a despliegue cuando AMBAS zonas estén confirmadas
+            if (zonaAzulConfirmada && zonaRojaConfirmada) {
+                console.log('🔄 AMBAS zonas confirmadas, cambiando a fase despliegue');
                 setTimeout(() => {
                     this.cambiarFase('preparacion', 'despliegue');
                 }, 1000); // Delay para asegurar que se actualice la interfaz
+            } else {
+                const faltante = !zonaAzulConfirmada ? 'azul' : 'roja';
+                console.log(`⏳ Esperando confirmación de zona ${faltante}`);
             }
             
             // Actualizar interfaz
@@ -1041,13 +1056,13 @@ actualizarBotonesFase() {
             case 'definicion_zonas':
                 if (esDirector) {
                     contenido = `
-                        <button id="btn-zona-roja" class="btn btn-danger" 
-                            ${this.zonasDespliegue.rojo ? 'disabled' : ''}>
-                            Definir Zona Roja
-                        </button>
                         <button id="btn-zona-azul" class="btn btn-primary"
-                            ${!this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : ''}>
+                            ${this.zonasDespliegue.azul ? 'disabled' : ''}>
                             Definir Zona Azul
+                        </button>
+                        <button id="btn-zona-roja" class="btn btn-danger" 
+                            ${!this.zonasDespliegue.azul || this.zonasDespliegue.rojo ? 'disabled' : ''}>
+                            Definir Zona Roja
                         </button>
                     `;
                 } else {
