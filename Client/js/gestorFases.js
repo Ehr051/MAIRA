@@ -73,6 +73,17 @@ class GestorFases extends GestorBase {
         return window.userId;
     }
 
+    // Función auxiliar para emitir eventos al servidor solo en modo online
+    emitirEventoServidor(evento, datos) {
+        if (this.gestorJuego?.gestorComunicacion?.socket?.connected) {
+            this.gestorJuego.gestorComunicacion.socket.emit(evento, datos);
+            return true;
+        } else {
+            console.log(`🎮 Modo local: omitiendo evento ${evento} al servidor`);
+            return false;
+        }
+    }
+
     
     // Métodos auxiliares para el manejo de eventos remotos
     enviarEstadoActual() {
@@ -656,8 +667,8 @@ confirmarZona(equipo) {
 
         console.log('Emitiendo zonaConfirmada con datos:', zonaData);
         
-        // Emitir al servidor
-        this.gestorJuego?.gestorComunicacion?.socket.emit('zonaConfirmada', {
+        // Emitir al servidor SOLO en modo online
+        this.emitirEventoServidor('zonaConfirmada', {
             zona: zonaData,
             jugadorId: window.userId,
             partidaCodigo: window.codigoPartida,
