@@ -347,16 +347,34 @@ async function inicializarSocket() {
     console.log('Conectando al servidor:', SERVER_URL);
     
     try {
+        // ✅ OBTENER TOKEN DE AUTENTICACIÓN
+        const userInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+        const token = userInfo.token || localStorage.getItem('authToken');
+        
         socket = io(SERVER_URL, {
             transports: ['polling'],  // Solo polling para Render
             timeout: 30000,
             forceNew: true,
-            upgrade: false  // No intentar upgrade a websocket
+            upgrade: false,  // No intentar upgrade a websocket
+            auth: {
+                token: token,
+                userId: userInfo.id,
+                username: userInfo.username
+            }
         });
 
         socket.on('connect', function() {
             console.log('Conectado al servidor');
             console.log('Socket ID:', socket.id);
+            
+            // ✅ ENVIAR AUTENTICACIÓN INMEDIATAMENTE DESPUÉS DE CONECTAR
+            if (token && userInfo.id) {
+                socket.emit('authenticate', {
+                    token: token,
+                    userId: userInfo.id,
+                    username: userInfo.username
+                });
+            }
             
             // ✅ CORREGIR LLAMADA:
             if (window.inicializarChat) {

@@ -984,11 +984,8 @@ actualizarBotonesFase() {
                 }
                 break;
             case 'despliegue':
-                const btnListo = document.createElement('button');
-                btnListo.textContent = 'Listo para combate';
-                btnListo.disabled = jugadorActual?.listo;
-                btnListo.onclick = () => this.marcarJugadorListo();
-                panelFases.appendChild(btnListo);
+                // ✅ REMOVER BOTÓN DUPLICADO - El botón se maneja en gestorInterfaz
+                contenido = '<div class="estado-fase">Fase de despliegue - Tu turno</div>';
                 break;
         }
     }
@@ -1037,17 +1034,10 @@ actualizarInterfazDespliegue() {
         <div class="fase-actual">
             <h3>Fase: Preparación - Despliegue</h3>
             <p>Despliega tus unidades en tu zona asignada</p>
-            <button id="btn-listo-despliegue" class="btn btn-primary">
-                Listo para Combate
-            </button>
         </div>
     `;
 
-    // Configurar evento del botón
-    const btnListo = document.getElementById('btn-listo-despliegue');
-    if (btnListo) {
-        btnListo.onclick = () => this.marcarJugadorListo();
-    }
+    // NO crear botón aquí - se maneja en gestorInterfaz
 }
 
 limpiarEstadoFaseAnterior(faseAnterior, subfaseAnterior) {
@@ -1215,9 +1205,7 @@ validarFaseActual() {
                     break;
                 case 'despliegue':
                     return `
-                        <button id="btn-listo-despliegue" ${jugador?.listo ? 'disabled' : ''}>
-                            Listo para combate
-                        </button>
+                        <!-- Botón manejado por gestorInterfaz -->
                     `;
             }
         }
@@ -1256,25 +1244,7 @@ validarFaseActual() {
             btnIniciarDespliegue.onclick = () => this.iniciarDespliegue();
         }
 
-        const btnListoDespliegue = document.getElementById('btn-listo-despliegue');
-            if (btnListoDespliegue) {
-                btnListoDespliegue.onclick = () => {
-                    // Deshabilitar el botón
-                    btnListoDespliegue.disabled = true;
-                    
-                    // Marcar jugador como listo
-                    this.marcarJugadorListo();
-                    
-                    // Emitir al servidor
-                    if (this.gestorJuego?.gestorComunicacion?.socket) {
-                        this.gestorJuego.gestorComunicacion.socket.emit('jugadorListo', {
-                            jugadorId: window.userId,
-                            partidaCodigo: window.codigoPartida,
-                            equipo: window.equipoJugador
-                        });
-                    }
-                };
-            }
+        // Botón listo manejado por gestorInterfaz
     }
 
     mostrarBotonFinalizarFase() {
@@ -1432,7 +1402,16 @@ validarElementosJugador(jugadorId) {
         // Si no tiene opciones, está incompleto
         if (!elem.options) return true;
         
-        // Determinar si es un equipo basado en el código SIDC
+        // En modo local, ser más flexible con la validación
+        if (this.configuracion?.modoJuego === 'local') {
+            // Solo verificar que tenga tipo y sidc
+            return !elem.options.tipo || 
+                   elem.options.tipo === "desconocido" || 
+                   elem.options.tipo === "" ||
+                   !elem.options.sidc;
+        }
+        
+        // Para modo online, usar validación completa
         const esEquipo = elem.options.sidc?.charAt(4) === 'E';
         
         // Verificar el tipo - "desconocido" no es válido

@@ -371,6 +371,8 @@ actualizarInterfazPreparacion(estado) {
                 mensaje: 'Fase de despliegue - Despliega tus unidades'
             });
             this.actualizarBotonListoDespliegue(estado);
+            // Auto-centrar en la zona de despliegue asignada
+            this.centrarEnZonaDespliegue();
             break;
     }
 }
@@ -692,6 +694,37 @@ actualizarListaUnidadesDisponibles() {
             boton.textContent = 'Listo para combate';
         } else {
             boton.style.display = 'none';
+        }
+    }
+
+    centrarEnZonaDespliegue() {
+        try {
+            // Obtener la zona de despliegue asignada al jugador actual
+            const jugadorData = this.gestorJugadores.obtenerJugadorActual();
+            if (!jugadorData || !jugadorData.zonaDespliegue) {
+                console.log('No se encontró zona de despliegue para el jugador actual');
+                return;
+            }
+
+            const zonaDespliegue = jugadorData.zonaDespliegue;
+            
+            // Calcular el centro de la zona
+            const centroX = (zonaDespliegue.x + zonaDespliegue.ancho / 2);
+            const centroY = (zonaDespliegue.y + zonaDespliegue.alto / 2);
+            
+            // Centrar la cámara en la zona con un zoom apropiado
+            if (this.gestorMapas && this.gestorMapas.centrarCamara) {
+                // Calcular un zoom que permita ver toda la zona más un margen
+                const margen = 100; // píxeles de margen
+                const zoomAncho = window.innerWidth / (zonaDespliegue.ancho + margen * 2);
+                const zoomAlto = window.innerHeight / (zonaDespliegue.alto + margen * 2);
+                const zoomOptimo = Math.min(zoomAncho, zoomAlto, 2); // Máximo zoom 2x
+                
+                this.gestorMapas.centrarCamara(centroX, centroY, zoomOptimo);
+                console.log(`Cámara centrada en zona de despliegue: (${centroX}, ${centroY}) con zoom ${zoomOptimo}`);
+            }
+        } catch (error) {
+            console.error('Error al centrar en zona de despliegue:', error);
         }
     }
 

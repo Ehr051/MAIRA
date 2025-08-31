@@ -805,19 +805,26 @@ class GestorTurnos extends GestorBase {
                     return false;
                 }
                 
-                if (!datos.magnitud) {
-                    console.warn('[GestorTurnos] Elemento sin magnitud:', datos);
-                    return false;
-                }
-                
-                if (!datos.designacion) {
-                    console.warn('[GestorTurnos] Elemento sin designación:', datos);
-                    return false;
-                }
-                
-                if (!datos.dependencia) {
-                    console.warn('[GestorTurnos] Elemento sin dependencia:', datos);
-                    return false;
+                // ✅ VALIDACIÓN MÁS FLEXIBLE PARA MODO LOCAL
+                if (this.configuracion.modoJuego === 'local') {
+                    // En modo local, solo verificar que tenga datos básicos
+                    console.log('[GestorTurnos] ✅ Validación local - elemento básico válido');
+                } else {
+                    // Validación estricta para modo online
+                    if (!datos.magnitud) {
+                        console.warn('[GestorTurnos] Elemento sin magnitud:', datos);
+                        return false;
+                    }
+                    
+                    if (!datos.designacion) {
+                        console.warn('[GestorTurnos] Elemento sin designación:', datos);
+                        return false;
+                    }
+                    
+                    if (!datos.dependencia) {
+                        console.warn('[GestorTurnos] Elemento sin dependencia:', datos);
+                        return false;
+                    }
                 }
             }
 
