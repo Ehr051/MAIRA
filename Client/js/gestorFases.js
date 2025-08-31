@@ -1544,12 +1544,28 @@ marcarJugadorListo() {
             return false;
         }
 
-        // Emitir al servidor
-        this.gestorJuego?.gestorComunicacion?.socket.emit('jugadorListo', {
+        // Marcar jugador como listo
+        const jugadorActual = this.jugadores.find(j => j.id === window.userId);
+        if (jugadorActual) {
+            jugadorActual.listo = true;
+            console.log(`[GestorFases] Jugador ${window.userId} marcado como listo`);
+        }
+
+        // En modo local, emitir evento pero no al servidor
+        this.emitirEventoServidor('jugadorListo', {
             jugadorId: window.userId,
             partidaCodigo: window.codigoPartida,
             elementos: elementos
         });
+
+        // Verificar si todos están listos o si estamos en modo local
+        if (this.gestorJuego?.configuracion?.modoJuego === 'local' || this.todosJugadoresListos()) {
+            console.log('[GestorFases] Condiciones cumplidas para iniciar combate');
+            // Pequeño delay para que se actualice la interfaz
+            setTimeout(() => {
+                this.iniciarFaseCombate();
+            }, 500);
+        }
 
         return true;
     } catch (error) {
@@ -1568,14 +1584,14 @@ todosJugadoresListos() {
     iniciarFaseCombate() {
         console.log('Iniciando fase de combate');
         
-        // Verificar que realmente estamos listos
-        if (!this.todosJugadoresListos()) {
+        // En modo local, no verificar todos los jugadores
+        if (this.gestorJuego?.configuracion?.modoJuego !== 'local' && !this.todosJugadoresListos()) {
             console.warn('No todos los jugadores están listos');
             return;
         }
 
-        // Emitir al servidor
-        this.gestorJuego?.gestorComunicacion?.socket.emit('iniciarCombate', {
+        // Emitir al servidor (solo en modo online)
+        this.emitirEventoServidor('iniciarCombate', {
             partidaCodigo: window.codigoPartida,
             timestamp: new Date().toISOString()
         });
@@ -1583,6 +1599,8 @@ todosJugadoresListos() {
         // Cambiar fase localmente
         this.fase = 'combate';
         this.subfase = 'turno';
+        
+        console.log('[GestorFases] Cambiando a fase combate e inicializando turnos');
         
         // Inicializar sistema de turnos
         this.gestorJuego?.gestorTurnos?.inicializarTurnos();
