@@ -161,26 +161,13 @@ function debugStep2_ForceAuthentication() {
         console.log('❌ Error de login recibido:', error);
     });
     
-    // Enviar autenticación - probemos diferentes formatos
+    // Enviar autenticación - CORREGIDO: usar user_id en lugar de userId
     socket.emit('login', {
-        userId: userId,
+        user_id: userId,     // ✅ CORREGIDO: snake_case como espera el servidor
         username: username
     });
     
-    // También enviar authenticate (por si acaso)
-    socket.emit('authenticate', {
-        userId: userId,
-        username: username,
-        token: localStorage.getItem('authToken') || 'debug_token'
-    });
-    
-    // Y probar el formato que usa la aplicación
-    socket.emit('autenticarUsuario', {
-        userId: userId,
-        username: username
-    });
-    
-    console.log('📨 Autenticación enviada, esperando respuesta...');
+    console.log('📨 Autenticación enviada con formato correcto, esperando respuesta...');
     return true;
 }
 
@@ -419,8 +406,8 @@ function debugForceLogin() {
             console.log('❌ Error login manual:', error);
         });
         
-        socket.emit('login', { userId, username });
-        console.log('✅ Login manual enviado:', { userId, username });
+        socket.emit('login', { user_id: userId, username });
+        console.log('✅ Login manual enviado:', { user_id: userId, username });
     }
 }
 

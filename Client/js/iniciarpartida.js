@@ -369,9 +369,8 @@ async function inicializarSocket() {
             
             // ✅ ENVIAR AUTENTICACIÓN INMEDIATAMENTE DESPUÉS DE CONECTAR
             if (token && userInfo.id) {
-                socket.emit('authenticate', {
-                    token: token,
-                    userId: userInfo.id,
+                socket.emit('login', {
+                    user_id: userInfo.id,      // ✅ CORREGIDO: snake_case
                     username: userInfo.username
                 });
             }
