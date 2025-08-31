@@ -268,8 +268,6 @@ const unidadesMilitaresGB = {
         
     };
 
-// Compatibilidad: asignar unidadesMilitaresGB a unidadesMilitares para evitar errores
-const unidadesMilitares = unidadesMilitaresGB;
 
 function actualizarTipos(categoriaArma) {
     const [categoria, arma] = categoriaArma.split('|');
@@ -295,15 +293,6 @@ function actualizarCaracteristicas(categoriaArma, tipo) {
         option.value = caract;
         option.textContent = caract;
         caracteristicaSelect.appendChild(option);
-    });
-}
-
-// Función auxiliar para cerrar todos los paneles
-function cerrarTodosPaneles() {
-    const paneles = document.querySelectorAll('.panel-edicion');
-    paneles.forEach(panel => {
-        panel.style.display = 'none';
-        panel.classList.remove('show');
     });
 }
 
@@ -751,12 +740,9 @@ function guardarCambiosUnidadGB() {
         let idUsuarioFinal = idElementoOriginal;
         let idUsuarioBase = null;
 
-        // Convertir a string si es necesario
-        const idString = String(idElementoOriginal || '');
-
         // Si es un elemento creado manualmente, extraer el ID de usuario
-        if (idString && idString.startsWith('elemento_')) {
-            const match = idString.match(/elemento_(\d+)_/);
+        if (idElementoOriginal && idElementoOriginal.startsWith('elemento_')) {
+            const match = idElementoOriginal.match(/elemento_(\d+)_/);
             if (match && match[1]) {
                 idUsuarioBase = match[1];
                 
@@ -1497,22 +1483,20 @@ window.enviarElementoAlServidor = function(elemento) {
             window.MAIRA.Utils.mostrarNotificacion("Elemento actualizado correctamente", "success");
         }
         
-        // ✅ OPTIMIZADO: Usar sincronización inmediata si está disponible
-        if (typeof window.sincronizacionInmediata === 'function') {
-            console.log("🚀 Usando sincronización inmediata optimizada");
-            window.sincronizacionInmediata();
-        } else if (typeof window.forzarSincronizacionElementos === 'function') {
-            console.log("� Usando sincronización estándar");
-            window.forzarSincronizacionElementos();
-        }
-        
-        // Backup de sincronización solo si es necesario
+        // NUEVO: Forzar múltiples sincronizaciones con distintos intervalos
         setTimeout(() => {
             if (typeof window.forzarSincronizacionElementos === 'function') {
-                console.log("🔄 Sincronización de backup (500ms)");
+                console.log("Forzando primera sincronización (500ms)");
                 window.forzarSincronizacionElementos();
             }
         }, 500);
+        
+        setTimeout(() => {
+            if (typeof window.forzarSincronizacionElementos === 'function') {
+                console.log("Forzando segunda sincronización (2s)");
+                window.forzarSincronizacionElementos();
+            }
+        }, 2000);
         
         return true;
     } catch (error) {
@@ -2453,7 +2437,15 @@ function esUnidad(sidc) {
 }
 
 function verificarElementosAntesDeEnviarListo() {
-    const jugadorId = window.userId;
+    // Función auxiliar para obtener el jugador propietario correcto
+    function obtenerJugadorPropietario() {
+        if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
+            return window.gestorTurnos.obtenerJugadorPropietario();
+        }
+        return window.userId;
+    }
+    
+    const jugadorId = obtenerJugadorPropietario();
     if (!jugadorId) {
         console.error('No hay ID de jugador disponible');
         return false;

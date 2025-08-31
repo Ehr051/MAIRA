@@ -907,6 +907,14 @@ function guardarCambiosEquipo() {
         });
 
         // Crear nuevo marcador con todas las propiedades
+        // Función auxiliar para obtener el jugador propietario correcto
+        function obtenerJugadorPropietario() {
+            if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
+                return window.gestorTurnos.obtenerJugadorPropietario();
+            }
+            return window.userId;
+        }
+
         const nuevoMarcador = L.marker(posicionActual, {
             icon: icon,
             draggable: true,
@@ -916,7 +924,7 @@ function guardarCambiosEquipo() {
             designacion: designacion,
             dependencia: dependencia,
             equipoJugador: equipoElemento,
-            jugadorId: window.userId
+            jugadorId: obtenerJugadorPropietario()
         });
         
         // Añadir el nuevo marcador al calco
@@ -967,6 +975,14 @@ function enviarElementoAlServidor(elemento) {
             return false;
         }
 
+        // Función auxiliar para obtener el jugador propietario correcto
+        function obtenerJugadorPropietario() {
+            if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
+                return window.gestorTurnos.obtenerJugadorPropietario();
+            }
+            return window.userId;
+        }
+
         const datosElemento = {
             id: elemento.options.id,
             tipo: elemento.options.tipo,
@@ -976,7 +992,7 @@ function enviarElementoAlServidor(elemento) {
             magnitud: elemento.options.magnitud,
             coordenadas: elemento.getLatLng(),
             equipo: window.equipoJugador,
-            jugadorId: window.userId,
+            jugadorId: obtenerJugadorPropietario(),
             operacion: window.MAIRA?.GestionBatalla?.operacionActual || window.operacionActual
         };
 
@@ -1893,7 +1909,15 @@ function esUnidad(sidc) {
 }
 
 function verificarElementosAntesDeEnviarListo() {
-    const jugadorId = window.userId;
+    // Función auxiliar para obtener el jugador propietario correcto
+    function obtenerJugadorPropietario() {
+        if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
+            return window.gestorTurnos.obtenerJugadorPropietario();
+        }
+        return window.userId;
+    }
+    
+    const jugadorId = obtenerJugadorPropietario();
     if (!jugadorId) {
         console.error('No hay ID de jugador disponible');
         return false;

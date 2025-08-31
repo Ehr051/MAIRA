@@ -65,6 +65,14 @@ class GestorFases extends GestorBase {
         };
     }
 
+    // Función auxiliar para obtener el jugador propietario correcto
+    obtenerJugadorPropietario() {
+        if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorPropietario) {
+            return window.gestorTurnos.obtenerJugadorPropietario();
+        }
+        return window.userId;
+    }
+
     
     // Métodos auxiliares para el manejo de eventos remotos
     enviarEstadoActual() {
@@ -198,14 +206,11 @@ class GestorFases extends GestorBase {
     }
 
     habilitarZonaAzul() {
-        console.log('🔧 [DEBUG] habilitarZonaAzul() llamado');
         // Limpiar botones anteriores
         this.limpiarInterfazAnterior();
         
         this.mostrarMensajeAyuda('Zona roja confirmada. Ahora puede definirse la zona azul.');
-        console.log('🔧 [DEBUG] Antes de actualizarBotonesFase()');
         this.actualizarBotonesFase();
-        console.log('🔧 [DEBUG] Después de actualizarBotonesFase()');
     }
     
     actualizarEstadoCompleto(datos) {
@@ -334,30 +339,12 @@ class GestorFases extends GestorBase {
         // 2. Cambiar fase localmente
         this.cambiarFase('preparacion', 'despliegue');
     
-        // 3. ✅ VERIFICAR MODO ANTES DE EMITIR
-        const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
-        if (modoJuego === 'online') {
-            // Emitir evento al servidor solo en modo online
-            if (this.gestorJuego?.gestorComunicacion?.socket) {
-                this.gestorJuego.gestorComunicacion.socket.emit('inicioDespliegue', {
-                    jugadorId: window.userId,
-                    zonasConfirmadas: this.zonasConfirmadas
-                });
-                console.log('🌐 Evento inicioDespliegue emitido al servidor');
-            } else {
-                console.warn('❌ Socket no disponible para emitir inicioDespliegue');
-            }
-        } else {
-            console.log('🏠 Modo local: inicioDespliegue procesado localmente, sin socket');
-            
-            // ✅ MODO LOCAL: Inicializar sistema de turnos para despliegue
-            console.log('🎮 Iniciando sistema de turnos para modo local');
-            
-            // Actualizar fase en GestorTurnos antes de inicializar
-            if (this.gestorJuego?.gestorTurnos) {
-                this.gestorJuego.gestorTurnos.actualizarSegunFase('preparacion', 'despliegue');
-                this.gestorJuego.gestorTurnos.inicializarTurnos();
-            }
+        // 3. Emitir evento al servidor
+        if (this.gestorJuego?.gestorComunicacion) {
+            this.gestorJuego.gestorComunicacion.socket.emit('inicioDespliegue', {
+                jugadorId: window.userId,
+                zonasConfirmadas: this.zonasConfirmadas
+            });
         }
     
         // 4. Actualizar interfaz
@@ -669,65 +656,17 @@ confirmarZona(equipo) {
 
         console.log('Emitiendo zonaConfirmada con datos:', zonaData);
         
-        // ✅ CRÍTICO: Verificar modo de juego antes de emitir
-        const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
-        console.log('🔍 Modo de juego detectado:', modoJuego);
-        
-        if (modoJuego === 'local') {
-            console.log('🏠 Modo local: procesando zona directamente sin socket');
-            
-            // En modo local, procesar directamente
-            this.procesarZonaConfirmada({
-                zona: zonaData,
-                jugadorId: window.userId,
-                partidaCodigo: window.codigoPartida || 'LOCAL',
-                // ✅ CORREGIR: Solo cambiar a despliegue cuando AMBAS zonas estén definidas
-                cambiarFase: false // Será manejado en procesarZonaConfirmada
-            });
-            
-        } else {
-            console.log('🌐 Modo online: emitiendo al servidor');
-            
-            // Verificar que el socket existe
-            if (!this.gestorJuego?.gestorComunicacion?.socket) {
-                console.error('❌ Socket no disponible para emitir zonaConfirmada');
-                console.error('🔍 Estado gestorComunicacion:', {
-                    gestorComunicacion: !!this.gestorJuego?.gestorComunicacion,
-                    socket: !!this.gestorJuego?.gestorComunicacion?.socket,
-                    socketConectado: this.gestorJuego?.gestorComunicacion?.socket?.connected
-                });
-                
-                // Fallback: procesar localmente
-                console.log('🔧 Fallback: procesando zona localmente');
-                this.procesarZonaConfirmada({
-                    zona: zonaData,
-                    jugadorId: window.userId,
-                    partidaCodigo: window.codigoPartida || 'FALLBACK',
-                    cambiarFase: equipo === 'azul'
-                });
-                return;
-            }
-            
-            // Emitir al servidor
-            this.gestorJuego.gestorComunicacion.socket.emit('zonaConfirmada', {
-                zona: zonaData,
-                jugadorId: window.userId,
-                partidaCodigo: window.codigoPartida,
-                // ✅ CORREGIR: Solo cambiar cuando ambas zonas estén listas
-                cambiarFase: false // El servidor manejará la lógica
-            });
-        }
+        // Emitir al servidor
+        this.gestorJuego?.gestorComunicacion?.socket.emit('zonaConfirmada', {
+            zona: zonaData,
+            jugadorId: window.userId,
+            partidaCodigo: window.codigoPartida,
+            cambiarFase: equipo === 'azul'  // Agregar esta flag
+        });
 
         // Actualizar localmente
         this.zonasLayers[equipo] = this.zonaTemporalLayer;
         this.zonasDespliegue[equipo] = zonaData.bounds;
-        
-        // ✅ DEBUG: Verificar que se actualiza correctamente
-        console.log('🔧 Zona confirmada:', equipo);
-        console.log('🔧 zonasDespliegue después de confirmar:', this.zonasDespliegue);
-        console.log('🔧 zonasDespliegue.rojo:', this.zonasDespliegue.rojo);
-        console.log('🔧 zonasDespliegue.azul:', this.zonasDespliegue.azul);
-        
         this.zonaTemporalLayer = null;
         this.dibujandoZona = null;
 
@@ -736,84 +675,16 @@ confirmarZona(equipo) {
             console.log('Zona azul confirmada, cambiando a fase despliegue');
             this.cambiarFase('preparacion', 'despliegue');
         }
-        
-        // ✅ ASEGURAR QUE SE ACTUALICEN LOS BOTONES
-        setTimeout(() => {
-            this.actualizarBotonesFase();
-        }, 100); // Pequeño delay para asegurar que el DOM se actualice
+        this.actualizarBotonesFase();
         return true;
     } catch (error) {
         console.error('Error al confirmar zona:', error);
         this.mostrarMensajeAyuda('Error al confirmar la zona');
         return false;
     }
-    }
+}
 
-    /**
-     * ✅ NUEVO: Procesar zona confirmada en modo local
-     * Maneja la confirmación de zona sin necesidad de socket
-     */
-    procesarZonaConfirmada(datos) {
-        console.log('🏠 [Modo Local] Procesando zona confirmada:', datos);
-        
-        try {
-            const { zona, jugadorId, partidaCodigo, cambiarFase } = datos;
-            
-            // Actualizar estado local
-            this.zonasLayers[zona.equipo] = this.zonaTemporalLayer;
-            this.zonasDespliegue[zona.equipo] = zona.bounds;
-            
-            // Marcar como confirmada
-            this.zonaDefinida[zona.equipo] = true;
-            this.zonaConfirmada[zona.equipo] = true;
-            
-            console.log('🎯 Zona confirmada para equipo:', zona.equipo);
-            console.log('🗺️ Zona bounds:', zona.bounds);
-            
-            // ✅ VERIFICAR SI AMBAS ZONAS ESTÁN CONFIRMADAS
-            const zonaAzulConfirmada = this.zonaConfirmada['azul'] || false;
-            const zonaRojaConfirmada = this.zonaConfirmada['roja'] || false;
-            
-            console.log('📊 Estado zonas:', {
-                azul: zonaAzulConfirmada,
-                roja: zonaRojaConfirmada,
-                ambas: zonaAzulConfirmada && zonaRojaConfirmada
-            });
-            
-            // Solo cambiar a despliegue cuando AMBAS zonas estén confirmadas
-            if (zonaAzulConfirmada && zonaRojaConfirmada) {
-                console.log('🔄 AMBAS zonas confirmadas, cambiando a fase despliegue');
-                setTimeout(() => {
-                    this.cambiarFase('preparacion', 'despliegue');
-                }, 1000); // Delay para asegurar que se actualice la interfaz
-            } else {
-                const faltante = !zonaAzulConfirmada ? 'azul' : 'roja';
-                console.log(`⏳ Esperando confirmación de zona ${faltante}`);
-            }
-            
-            // Actualizar interfaz
-            this.actualizarInterfaz();
-            
-            // Guardar en localStorage para persistencia
-            const partidaData = JSON.parse(localStorage.getItem('partidaLocal') || '{}');
-            if (!partidaData.zonasDefinidas) partidaData.zonasDefinidas = {};
-            
-            partidaData.zonasDefinidas[zona.equipo] = {
-                bounds: zona.bounds,
-                equipo: zona.equipo,
-                confirmada: true,
-                timestamp: new Date().toISOString()
-            };
-            
-            localStorage.setItem('partidaLocal', JSON.stringify(partidaData));
-            console.log('💾 Zona guardada en localStorage');
-            
-        } catch (error) {
-            console.error('❌ Error procesando zona confirmada:', error);
-        }
-    }
-
-    configurarEventosSocket() {
+configurarEventosSocket() {
     const socket = this.gestorJuego?.gestorComunicacion?.socket;
     if (!socket) return;
 
@@ -1145,24 +1016,12 @@ actualizarInterfazDespliegue() {
     const panelFases = document.getElementById('panel-fases');
     if (!panelFases) return;
 
-    // ✅ VERIFICAR MODO PARA MOSTRAR INTERFAZ APROPIADA
-    const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
-    const jugadorActual = window.userId || 1;
-    
-    let titulo = 'Fase: Preparación - Despliegue';
-    let descripcion = 'Despliega tus unidades en tu zona asignada';
-    
-    if (modoJuego === 'local') {
-        titulo = `Jugador ${jugadorActual} - Despliegue`;
-        descripcion = `Jugador ${jugadorActual}: Despliega tus elementos en tu zona`;
-    }
-
     panelFases.innerHTML = `
         <div class="fase-actual">
-            <h3>${titulo}</h3>
-            <p>${descripcion}</p>
+            <h3>Fase: Preparación - Despliegue</h3>
+            <p>Despliega tus unidades en tu zona asignada</p>
             <button id="btn-listo-despliegue" class="btn btn-primary">
-                ${modoJuego === 'local' ? 'Listo - Siguiente Jugador' : 'Listo para Combate'}
+                Listo para Combate
             </button>
         </div>
     `;
@@ -1326,23 +1185,11 @@ validarFaseActual() {
                     break;
                 case 'definicion_zonas':
                     if (esDirector || this.esDirectorTemporal) {
-                        // ✅ DEBUG: Verificar estado de zonas
-                        console.log('🔧 DEBUG - Estado zonasDespliegue:', this.zonasDespliegue);
-                        console.log('🔧 DEBUG - zonasDespliegue.rojo:', this.zonasDespliegue.rojo);
-                        console.log('🔧 DEBUG - zonasDespliegue.azul:', this.zonasDespliegue.azul);
-                        console.log('🔧 DEBUG - !this.zonasDespliegue.rojo:', !this.zonasDespliegue.rojo);
-                        
-                        const rojoDisabled = this.zonasDespliegue.rojo ? 'disabled' : '';
-                        const azulDisabled = !this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : '';
-                        
-                        console.log('🔧 DEBUG - rojoDisabled:', rojoDisabled);
-                        console.log('🔧 DEBUG - azulDisabled:', azulDisabled);
-                        
                         return `
-                            <button id="btn-zona-roja" ${rojoDisabled}>
+                            <button id="btn-zona-roja" ${this.zonasDespliegue.rojo ? 'disabled' : ''}>
                                 Definir Zona Roja
                             </button>
-                            <button id="btn-zona-azul" ${azulDisabled}>
+                            <button id="btn-zona-azul" ${!this.zonasDespliegue.rojo || this.zonasDespliegue.azul ? 'disabled' : ''}>
                                 Definir Zona Azul
                             </button>
                             ${this.zonasDespliegue.azul && this.zonasDespliegue.rojo ? '<button id="btn-iniciar-despliegue">Iniciar Despliegue</button>' : ''}
@@ -1361,8 +1208,6 @@ validarFaseActual() {
     }
 
     configurarEventosBotones() {
-        console.log('🔧 [DEBUG] configurarEventosBotones() iniciado');
-        
         const btnDefinirSector = document.getElementById('btn-definir-sector');
         if (btnDefinirSector) {
             btnDefinirSector.onclick = () => this.iniciarDefinicionSector();
@@ -1375,9 +1220,7 @@ validarFaseActual() {
 
         const btnZonaRoja = document.getElementById('btn-zona-roja');
         if (btnZonaRoja) {
-            console.log('🔧 [DEBUG] Configurando event listener para btn-zona-roja');
             btnZonaRoja.onclick = () => {
-                console.log('🔧 [DEBUG] btn-zona-roja CLICKED por usuario');
                 console.log('Iniciando definición zona roja');
                 this.iniciarDefinicionZona('rojo');
             };
@@ -1385,10 +1228,7 @@ validarFaseActual() {
 
         const btnZonaAzul = document.getElementById('btn-zona-azul');
         if (btnZonaAzul) {
-            console.log('🔧 [DEBUG] Configurando event listener para btn-zona-azul');
-            console.log('🔧 [DEBUG] btnZonaAzul.disabled:', btnZonaAzul.disabled);
             btnZonaAzul.onclick = () => {
-                console.log('🔧 [DEBUG] btn-zona-azul CLICKED por usuario');
                 console.log('Iniciando definición zona azul');
                 this.iniciarDefinicionZona('azul');
             };
@@ -1693,119 +1533,17 @@ marcarJugadorListo() {
             return false;
         }
 
-        // ✅ VERIFICAR MODO DE JUEGO
-        const modoJuego = this.gestorJuego?.configuracion?.modoJuego || 'online';
-        
-        if (modoJuego === 'local') {
-            console.log('🏠 Modo local: procesando jugador listo secuencialmente');
-            this.procesarJugadorListoLocal(elementos);
-        } else {
-            console.log('🌐 Modo online: emitiendo jugadorListo al servidor');
-            // Emitir al servidor solo en modo online
-            if (this.gestorJuego?.gestorComunicacion?.socket) {
-                this.gestorJuego.gestorComunicacion.socket.emit('jugadorListo', {
-                    jugadorId: window.userId,
-                    partidaCodigo: window.codigoPartida,
-                    elementos: elementos
-                });
-            } else {
-                console.warn('❌ Socket no disponible para emitir jugadorListo');
-            }
-        }
+        // Emitir al servidor
+        this.gestorJuego?.gestorComunicacion?.socket.emit('jugadorListo', {
+            jugadorId: window.userId,
+            partidaCodigo: window.codigoPartida,
+            elementos: elementos
+        });
 
         return true;
     } catch (error) {
         console.error('[GestorFases] Error al marcar jugador listo:', error);
         return false;
-    }
-}
-
-/**
- * ✅ NUEVO: Procesar jugador listo en modo local con turnos secuenciales
- */
-procesarJugadorListoLocal(elementos) {
-    console.log('🏠 [Modo Local] Procesando jugador listo:', window.userId);
-    
-    // Guardar elementos del jugador actual
-    const partidaData = JSON.parse(localStorage.getItem('partidaLocal') || '{}');
-    if (!partidaData.elementosJugadores) partidaData.elementosJugadores = {};
-    
-    partidaData.elementosJugadores[window.userId] = {
-        elementos: elementos,
-        listo: true,
-        timestamp: new Date().toISOString()
-    };
-    
-    // Obtener configuración de jugadores
-    const totalJugadores = partidaData.configuracion?.cantidadJugadores || 2;
-    const jugadoresListos = Object.keys(partidaData.elementosJugadores).length;
-    
-    console.log(`🎯 Jugadores listos: ${jugadoresListos}/${totalJugadores}`);
-    
-    // Si es el último jugador, pasar a combate
-    if (jugadoresListos >= totalJugadores) {
-        console.log('🎮 Todos los jugadores han terminado despliegue, iniciando combate');
-        localStorage.setItem('partidaLocal', JSON.stringify(partidaData));
-        
-        // Cambiar a fase combate
-        setTimeout(() => {
-            this.cambiarFase('combate', 'turnos');
-        }, 1500);
-        
-        this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-            'Todos los jugadores han completado el despliegue. ¡Iniciando combate!',
-            'success'
-        );
-        
-    } else {
-        // Pasar al siguiente jugador
-        const siguienteJugador = jugadoresListos + 1;
-        console.log(`🔄 Pasando al jugador ${siguienteJugador}`);
-        
-        localStorage.setItem('partidaLocal', JSON.stringify(partidaData));
-        
-        // Mostrar mensaje y preparar para siguiente jugador
-        this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-            `Jugador ${window.userId} listo. Turno del Jugador ${siguienteJugador}`,
-            'info'
-        );
-        
-        // Simular cambio de jugador
-        setTimeout(() => {
-            window.userId = siguienteJugador;
-            this.actualizarInterfazDespliegue();
-            this.limpiarElementosVisuales(); // Limpiar elementos del jugador anterior
-        }, 2000);
-    }
-}
-
-/**
- * ✅ NUEVO: Limpiar elementos visuales del mapa para cambio de jugador
- */
-limpiarElementosVisuales() {
-    console.log('🧹 Limpiando elementos visuales para cambio de jugador');
-    
-    try {
-        // Limpiar elementos del mapa (markers, polígonos, etc.)
-        if (window.map && window.map.eachLayer) {
-            window.map.eachLayer((layer) => {
-                // Conservar tiles base y controles, remover solo elementos de juego
-                if (layer.options && 
-                    (layer.options.sidc || layer.options.nombre || layer.options.tipo)) {
-                    window.map.removeLayer(layer);
-                }
-            });
-        }
-        
-        // Limpiar referencias globales
-        if (window.elementoSeleccionado) {
-            window.elementoSeleccionado = null;
-        }
-        
-        console.log('✅ Elementos visuales limpiados');
-        
-    } catch (error) {
-        console.error('❌ Error limpiando elementos visuales:', error);
     }
 }
 

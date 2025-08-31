@@ -780,6 +780,17 @@ class GestorTurnos extends GestorBase {
         }
     }
 
+    // Método para obtener el ID del jugador que debe poseer los elementos
+    obtenerJugadorPropietario() {
+        if (this.esLocal) {
+            // En modo local, usar el jugador del turno actual
+            return this.jugadorActual?.id || this.jugadorActual;
+        } else {
+            // En modo online, usar el userId normal
+            return window.userId;
+        }
+    }
+
     // ...existing code...
 }
 
