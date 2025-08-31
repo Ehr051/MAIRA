@@ -1718,6 +1718,54 @@ todosJugadoresListos() {
                         }
                     });
                     break;
+
+                case 'despliegue':
+                    // En fase de despliegue, solo mostrar elementos del jugador actual
+                    if (window.calcoActivo) {
+                        const jugadorActualId = window.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId;
+                        
+                        window.calcoActivo.eachLayer(layer => {
+                            // Solo procesar elementos militares que tienen jugador asignado
+                            if (layer.options && (layer.options.jugador || layer.options.jugadorId)) {
+                                const propietario = layer.options.jugador || layer.options.jugadorId;
+                                
+                                if (propietario === jugadorActualId) {
+                                    // Elemento del jugador actual: visible y editable
+                                    if (layer.setStyle) {
+                                        layer.setStyle({ opacity: 1 });
+                                    }
+                                    layer.options.draggable = true;
+                                } else {
+                                    // Elemento de otro jugador: semi-transparente y no editable
+                                    if (layer.setStyle) {
+                                        layer.setStyle({ opacity: 0.3 });
+                                    }
+                                    layer.options.draggable = false;
+                                }
+                            }
+                        });
+                    }
+                    break;
+
+                case 'combate':
+                    // En combate, todos los elementos son visibles pero solo editables por su propietario
+                    if (window.calcoActivo) {
+                        const jugadorActualId = window.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId;
+                        
+                        window.calcoActivo.eachLayer(layer => {
+                            if (layer.options && (layer.options.jugador || layer.options.jugadorId)) {
+                                // Todos los elementos son visibles
+                                if (layer.setStyle) {
+                                    layer.setStyle({ opacity: 1 });
+                                }
+                                
+                                // Solo editables por su propietario
+                                const propietario = layer.options.jugador || layer.options.jugadorId;
+                                layer.options.draggable = (propietario === jugadorActualId);
+                            }
+                        });
+                    }
+                    break;
             }
         }
 

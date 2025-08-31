@@ -107,13 +107,13 @@ class GestorTurnos extends GestorBase {
         
         if (fase === 'preparacion') {
             if (subfase === 'despliegue' && this.modoJuego === 'local') {
-                // ✅ MODO LOCAL: Iniciar turnos para despliegue
-                console.log('🎮 Modo local: iniciando turnos para despliegue');
+                // ✅ MODO LOCAL: Iniciar turnos para despliegue SIN RELOJ
+                console.log('🎮 Modo local: iniciando turnos para despliegue sin límite de tiempo');
                 this.modoDespliegue = true;
                 this.turnoActual = 1;
                 this.jugadorActualIndex = 0;
-                this.tiempoRestante = this.duracionTurno;
-                this.iniciarReloj();
+                // ❌ NO INICIAR RELOJ EN DESPLIEGUE
+                this.detenerReloj();
                 
                 // Emitir evento de inicio de turnos
                 this.eventos.emit('inicioTurnos', {
@@ -275,8 +275,12 @@ class GestorTurnos extends GestorBase {
             timestamp: new Date().toISOString()
         });
 
-        // Reiniciar reloj
-        this.iniciarReloj();
+        // ✅ Solo iniciar reloj en fase de combate
+        if (this.fase === 'combate') {
+            this.iniciarReloj();
+        } else {
+            console.log('🕐 Reloj no iniciado: fase de despliegue');
+        }
     }
 
     obtenerSiguienteJugadorIndex() {
@@ -336,22 +340,25 @@ class GestorTurnos extends GestorBase {
                 return false;
             }
     
-            // 2. Validar que estamos en la fase correcta
+            // 2. Verificar fase correcta
             if (this.fase !== 'preparacion' || this.subfase !== 'despliegue') {
                 console.warn('[GestorFases] No se puede marcar como listo: fase incorrecta');
                 return false;
             }
             
-            // 3. Validar elementos desplegados
-            if (!this.validarElementosJugador(window.userId)) {
+            // 3. Obtener jugador actual correcto
+            const jugadorActualId = this.obtenerJugadorPropietario();
+            
+            // 4. Validar elementos desplegados
+            if (!this.validarElementosJugador(jugadorActualId)) {
                 console.warn('[GestorFases] Validación de elementos fallida');
                 return false;
             }
             
             console.log('[GestorFases] Elementos validados, marcando jugador como listo');
             
-            // 4. Buscar y actualizar el jugador en la lista
-            const jugadorIndex = this.jugadores.findIndex(j => j.id === window.userId);
+            // 5. Buscar y actualizar el jugador en la lista
+            const jugadorIndex = this.jugadores.findIndex(j => j.id === jugadorActualId);
             if (jugadorIndex === -1) {
                 console.error('[GestorFases] Jugador no encontrado en la lista de jugadores');
                 return false;
@@ -360,11 +367,11 @@ class GestorTurnos extends GestorBase {
             this.jugadores[jugadorIndex].listo = true;
             this.jugadores[jugadorIndex].despliegueListo = true;
             
-            // 5. Emitir al servidor
+            // 6. Emitir al servidor
             if (this.gestorJuego?.gestorComunicacion?.socket) {
                 console.log('[GestorFases] Enviando estado listo al servidor');
                 this.gestorJuego.gestorComunicacion.socket.emit('jugadorListoDespliegue', {
-                    jugadorId: window.userId,
+                    jugadorId: jugadorActualId,
                     partidaCodigo: window.codigoPartida,
                     timestamp: new Date().toISOString()
                 });
@@ -372,23 +379,35 @@ class GestorTurnos extends GestorBase {
                 console.warn('[GestorFases] No hay conexión al servidor disponible');
             }
             
-            // 6. Actualizar interfaz
+            // 7. Actualizar interfaz
             const btnListo = document.getElementById('btn-listo-despliegue');
             if (btnListo) {
                 btnListo.disabled = true;
                 btnListo.textContent = 'Listo ✓';
             }
             
-            // 7. ✅ MODO LOCAL: Pasar automáticamente al siguiente turno después de marcar listo
+            // 8. ✅ MODO LOCAL: Pasar automáticamente al siguiente turno después de marcar listo
             if (this.configuracion.modoJuego === 'local') {
                 console.log('[GestorTurnos] Jugador listo, pasando al siguiente turno en modo local');
-                setTimeout(() => {
-                    this.pasarTurno();
-                }, 1000); // Pequeño delay para que se vea la confirmación
+                // Detener el reloj actual
+                this.detenerReloj();
+                
+                // Verificar si todos han marcado listo
+                const todosListos = this.todosJugadoresListos();
+                const esUltimoJugador = this.jugadorActualIndex === (this.jugadores.length - 1);
+                
+                if (todosListos || esUltimoJugador) {
+                    console.log('[GestorTurnos] Último jugador o todos listos, iniciando combate');
+                    setTimeout(() => this.iniciarFaseCombate(), 1000);
+                } else {
+                    setTimeout(() => {
+                        this.pasarTurno();
+                    }, 500); // Pequeño delay para que se vea la confirmación
+                }
             }
             
-            // 8. Verificar si todos están listos para iniciar combate
-            if (this.todosJugadoresListos() && this.esDirector(window.userId)) {
+            // 9. Verificar si todos están listos para iniciar combate (solo para modo online)
+            if (this.configuracion.modoJuego !== 'local' && this.todosJugadoresListos() && this.esDirector(jugadorActualId)) {
                 console.log('[GestorFases] Todos los jugadores listos, iniciando combate');
                 setTimeout(() => this.iniciarFaseCombate(), 1000);
             }
@@ -528,7 +547,13 @@ class GestorTurnos extends GestorBase {
     }
     
     todosJugadoresListos() {
-        return this.jugadores.every(j => j.despliegueListo);
+        if (this.configuracion.modoJuego === 'local') {
+            // En modo local, verificar si todos han tenido su turno y marcado listo
+            return this.jugadores.every(j => j.despliegueListo);
+        } else {
+            // En modo online, verificar normalmente
+            return this.jugadores.every(j => j.despliegueListo);
+        }
     }
 
     manejarFinTurnoRemoto(datos) {
@@ -584,10 +609,16 @@ class GestorTurnos extends GestorBase {
             this.turnoActual = 1;
             this.jugadorActualIndex = 0;
             
-            // 2. Actualizar interfaz
+            // 2. Notificar a gestorFases el cambio de fase
+            if (this.gestorJuego?.gestorFases?.cambiarFase) {
+                console.log('[GestorFases] Notificando cambio a fase de combate');
+                this.gestorJuego.gestorFases.cambiarFase('combate', 'movimiento');
+            }
+            
+            // 3. Actualizar interfaz
             this.actualizarInterfazFase();
             
-            // 3. Emitir al servidor
+            // 4. Emitir al servidor
             if (this.gestorJuego?.gestorComunicacion?.socket) {
                 console.log('[GestorFases] Enviando iniciarCombate al servidor');
                 this.gestorJuego.gestorComunicacion.socket.emit('iniciarCombate', {
@@ -598,7 +629,7 @@ class GestorTurnos extends GestorBase {
                 });
             }
             
-            // 4. Iniciar sistema de turnos
+            // 5. Iniciar sistema de turnos
             this.iniciarTurnos();
             
             console.log('[GestorFases] ✅ Fase de combate iniciada exitosamente');
@@ -616,7 +647,7 @@ class GestorTurnos extends GestorBase {
             // 1. Configurar primer turno
             this.turnoActual = 1;
             this.jugadorActualIndex = 0;
-            this.tiempoRestante = this.configuracion.tiempoPorTurno || 120; // 2 minutos por defecto
+            this.tiempoRestante = this.duracionTurno; // Usar la duración configurada
             
             // 2. Actualizar interfaz
             this.actualizarInterfazTurno();
@@ -624,13 +655,13 @@ class GestorTurnos extends GestorBase {
             // 3. Mostrar mensaje de inicio
             if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
                 this.gestorJuego.gestorInterfaz.mostrarMensaje(
-                    `¡Combate iniciado! Turno ${this.turnoActual} - ${this.obtenerJugadorActual()?.username || 'Jugador'}`,
+                    `¡Combate iniciado! Turno ${this.turnoActual} - ${this.obtenerJugadorActual()?.nombre || 'Jugador'}`,
                     'info'
                 );
             }
             
-            // 4. Iniciar timer si es necesario
-            this.iniciarTimer();
+            // 4. Iniciar reloj de combate
+            this.iniciarReloj();
             
             console.log('[GestorTurnos] ✅ Sistema de turnos iniciado');
             

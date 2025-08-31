@@ -191,7 +191,7 @@ window.agregarMarcador = function(sidc, nombre) {
             sidc: sidcFormateado,
             nombre: nombre || '',
             ...(modoJuegoGuerra && {
-                jugador: window.userId,
+                jugador: window.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId,
                 equipo: window.equipoJugador,
                 id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 designacion: '',

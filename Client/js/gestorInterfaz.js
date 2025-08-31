@@ -370,6 +370,7 @@ actualizarInterfazPreparacion(estado) {
                 subfase: 'despliegue',
                 mensaje: 'Fase de despliegue - Despliega tus unidades'
             });
+            this.actualizarBotonListoDespliegue(estado);
             break;
     }
 }
@@ -669,6 +670,27 @@ actualizarListaUnidadesDisponibles() {
     ocultarBotonListoDespliegue() {
         const boton = document.getElementById('btn-listo-despliegue');
         if (boton) {
+            boton.style.display = 'none';
+        }
+    }
+
+    // ✅ NUEVO: Actualizar botón listo según el turno actual
+    actualizarBotonListoDespliegue(estado) {
+        const boton = document.getElementById('btn-listo-despliegue');
+        if (!boton) {
+            this.mostrarBotonListoDespliegue();
+            return;
+        }
+
+        const jugadorActualId = this.gestorJuego?.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId;
+        const esElTurnoActual = jugadorActualId === (window.userId || window.gestorTurnos?.obtenerJugadorPropietario?.());
+        
+        // Solo mostrar el botón si es el turno del jugador actual
+        if (esElTurnoActual) {
+            boton.style.display = 'block';
+            boton.disabled = false;
+            boton.textContent = 'Listo para combate';
+        } else {
             boton.style.display = 'none';
         }
     }
