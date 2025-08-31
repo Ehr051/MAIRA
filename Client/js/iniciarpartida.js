@@ -347,9 +347,28 @@ async function inicializarSocket() {
     console.log('Conectando al servidor:', SERVER_URL);
     
     try {
-        // ✅ OBTENER TOKEN DE AUTENTICACIÓN
-        const userInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
-        const token = userInfo.token || localStorage.getItem('authToken');
+        // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
+        let userInfo = null;
+        let token = null;
+        
+        // Intentar obtener desde UserIdentity primero
+        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+            const userId = MAIRA.UserIdentity.getUserId();
+            const username = MAIRA.UserIdentity.getUsername();
+            const userData = MAIRA.UserIdentity.getUserData();
+            userInfo = {
+                id: userId,
+                username: username,
+                token: userData.token || localStorage.getItem('authToken')
+            };
+            token = userInfo.token;
+            console.log('🔧 Usando datos de UserIdentity:', userInfo);
+        } else {
+            // Fallback a localStorage
+            userInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+            token = userInfo.token || localStorage.getItem('authToken');
+            console.log('🔧 Usando datos de localStorage:', userInfo);
+        }
         
         socket = io(SERVER_URL, {
             transports: ['polling'],  // Solo polling para Render
@@ -368,12 +387,36 @@ async function inicializarSocket() {
             console.log('Socket ID:', socket.id);
             
             // ✅ ENVIAR AUTENTICACIÓN INMEDIATAMENTE DESPUÉS DE CONECTAR
-            if (token && userInfo.id) {
+            // Re-obtener datos más actualizados en caso de que hayan cambiado
+            let currentUserInfo = userInfo;
+            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+                const userId = MAIRA.UserIdentity.getUserId();
+                const username = MAIRA.UserIdentity.getUsername();
+                currentUserInfo = {
+                    id: userId,
+                    username: username
+                };
+            }
+            
+            if (currentUserInfo && currentUserInfo.id) {
+                console.log('🚀 Enviando autenticación:', {
+                    user_id: currentUserInfo.id,
+                    username: currentUserInfo.username
+                });
                 socket.emit('login', {
-                    user_id: userInfo.id,      // ✅ CORREGIDO: snake_case
-                    username: userInfo.username
+                    user_id: currentUserInfo.id,      // ✅ CORREGIDO: snake_case
+                    username: currentUserInfo.username
+                });
+            } else {
+                console.error('❌ No se puede autenticar - datos de usuario no disponibles:', {
+                    userInfo: currentUserInfo,
+                    hasId: !!currentUserInfo?.id
                 });
             }
+            
+            // ✅ EXPONER SOCKET GLOBALMENTE
+            window.socket = socket;
+            console.log('🌐 Socket expuesto globalmente');
             
             // ✅ CORREGIR LLAMADA:
             if (window.inicializarChat) {
@@ -386,6 +429,21 @@ async function inicializarSocket() {
             console.log('Solicitando listas después de conectarse');
             obtenerListaAmigos();  // ✅ CORREGIR: era solicitarListaAmigos()
             obtenerPartidasDisponibles();
+        });
+        
+        // ✅ LISTENER PARA RESPUESTA DE AUTENTICACIÓN
+        socket.on('loginResponse', function(response) {
+            console.log('🔐 Respuesta de autenticación:', response);
+            if (response.success) {
+                console.log('✅ Login exitoso');
+            } else {
+                console.error('❌ Login fallido:', response.message);
+            }
+        });
+        
+        // ✅ LISTENER PARA CONFIRMACIÓN DE LOGIN (ALTERNATIVO)
+        socket.on('login_success', function(data) {
+            console.log('✅ Login exitoso (confirmación):', data);
         });
         
         socket.on('disconnect', () => mostrarError('Se ha perdido la conexión con el servidor. Intentando reconectar...'));
