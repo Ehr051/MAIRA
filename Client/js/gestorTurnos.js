@@ -379,7 +379,15 @@ class GestorTurnos extends GestorBase {
                 btnListo.textContent = 'Listo ✓';
             }
             
-            // 7. Verificar si todos están listos para iniciar combate
+            // 7. ✅ MODO LOCAL: Pasar automáticamente al siguiente turno después de marcar listo
+            if (this.configuracion.modoJuego === 'local') {
+                console.log('[GestorTurnos] Jugador listo, pasando al siguiente turno en modo local');
+                setTimeout(() => {
+                    this.pasarTurno();
+                }, 1000); // Pequeño delay para que se vea la confirmación
+            }
+            
+            // 8. Verificar si todos están listos para iniciar combate
             if (this.todosJugadoresListos() && this.esDirector(window.userId)) {
                 console.log('[GestorFases] Todos los jugadores listos, iniciando combate');
                 setTimeout(() => this.iniciarFaseCombate(), 1000);
@@ -793,9 +801,10 @@ class GestorTurnos extends GestorBase {
 
     // Método para obtener el ID del jugador que debe poseer los elementos
     obtenerJugadorPropietario() {
-        if (this.esLocal) {
+        if (this.modoJuego === 'local') {
             // En modo local, usar el jugador del turno actual
-            return this.jugadorActual?.id || this.jugadorActual;
+            const jugadorActual = this.obtenerJugadorActual();
+            return jugadorActual?.id || jugadorActual;
         } else {
             // En modo online, usar el userId normal
             return window.userId;
