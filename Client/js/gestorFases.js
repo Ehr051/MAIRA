@@ -1012,6 +1012,12 @@ cambiarFase(fase, subfase) {
     this.fase = fase;
     this.subfase = subfase;
     
+    // Notificar al gestor de turnos sobre el cambio de fase
+    if (this.gestorJuego?.gestorTurnos?.actualizarSegunFase) {
+        console.log(`[GestorFases] Notificando cambio de fase a GestorTurnos: ${fase}/${subfase}`);
+        this.gestorJuego.gestorTurnos.actualizarSegunFase(fase, subfase);
+    }
+    
     // Si es fase despliegue, actualizar interfaz específica
     if (subfase === 'despliegue') {
         console.log('Iniciando interfaz de despliegue');

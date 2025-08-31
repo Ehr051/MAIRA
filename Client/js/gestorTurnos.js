@@ -101,15 +101,26 @@ class GestorTurnos extends GestorBase {
     }
 
     actualizarSegunFase(fase, subfase) {
+        console.log(`[GestorTurnos] Actualizando según fase: ${fase}/${subfase}, modo: ${this.modoJuego}`);
         this.fase = fase;
         this.subfase = subfase;
         
         if (fase === 'preparacion') {
             if (subfase === 'despliegue' && this.modoJuego === 'local') {
-                // ✅ MODO LOCAL: Mantener turnos activos durante despliegue
-                console.log('🎮 Modo local: manteniendo turnos activos durante despliegue');
+                // ✅ MODO LOCAL: Iniciar turnos para despliegue
+                console.log('🎮 Modo local: iniciando turnos para despliegue');
                 this.modoDespliegue = true;
-                // NO detener reloj, mantener turnos
+                this.turnoActual = 1;
+                this.jugadorActualIndex = 0;
+                this.tiempoRestante = this.duracionTurno;
+                this.iniciarReloj();
+                
+                // Emitir evento de inicio de turnos
+                this.eventos.emit('inicioTurnos', {
+                    turnoActual: this.turnoActual,
+                    jugadorActual: this.obtenerJugadorActual(),
+                    timestamp: new Date().toISOString()
+                });
             } else {
                 // Durante otras fases de preparación no hay turnos activos
                 this.detenerReloj();
