@@ -791,18 +791,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         const datosSession = sessionStorage.getItem('datosPartidaActual');
         let datosPartida, userId, userName;
 
+        console.log('🔍 DEBUG - datosSession existe:', !!datosSession);
+
         if (datosSession) {
             const datos = JSON.parse(datosSession);
-            console.log('Datos recuperados de sessionStorage:', datos);
+            console.log('📦 Datos recuperados de sessionStorage:', datos);
+            console.log('🔍 DEBUG - partidaActual jugadores:', datos.partidaActual?.jugadores?.length);
             datosPartida = datos.partidaActual;
             userId = datos.userId;
             userName = datos.userName;
         } else {
+            console.log('📦 No hay datosPartidaActual en sessionStorage, buscando alternativas');
             // 2. Si no hay datos en session, buscar en localStorage
             let datosPartidaStr = localStorage.getItem('datosPartida');
             
+            console.log('🔍 DEBUG - datosPartida en localStorage:', !!datosPartidaStr);
+            
             // 3. ✅ NUEVO: Si no hay datosPartida, buscar configuracionPartidaLocal (modo local)
             if (!datosPartidaStr) {
+                console.log('📦 Buscando configuracionPartidaLocal...');
                 const configLocalStr = localStorage.getItem('configuracionPartidaLocal');
                 if (configLocalStr) {
                     const configLocal = JSON.parse(configLocalStr);
