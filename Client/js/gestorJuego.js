@@ -807,8 +807,75 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             console.log('🔍 DEBUG - datosPartida en localStorage:', !!datosPartidaStr);
             
-            // 3. ✅ NUEVO: Si no hay datosPartida, buscar configuracionPartidaLocal (modo local)
-            if (!datosPartidaStr) {
+            if (datosPartidaStr) {
+                const datosPartidaTemp = JSON.parse(datosPartidaStr);
+                console.log('📦 datosPartida encontrado:', datosPartidaTemp);
+                console.log('🔍 DEBUG - jugadores en datosPartida:', datosPartidaTemp.jugadores?.length || 0);
+                
+                // ✅ VERIFICAR: Si datosPartida no tiene jugadores SUFICIENTES, usar configuracionPartidaLocal
+                const configLocalStr = localStorage.getItem('configuracionPartidaLocal');
+                let configLocal = null;
+                if (configLocalStr) {
+                    configLocal = JSON.parse(configLocalStr);
+                }
+                
+                // Si configuracionPartidaLocal tiene MÁS jugadores que datosPartida, usar configLocal
+                const jugadoresDataPartida = datosPartidaTemp.jugadores?.length || 0;
+                const jugadoresConfigLocal = configLocal?.jugadores?.length || 0;
+                
+                console.log(`🔍 Comparando jugadores: datosPartida=${jugadoresDataPartida}, configLocal=${jugadoresConfigLocal}`);
+                
+                if (jugadoresConfigLocal > jugadoresDataPartida && jugadoresConfigLocal > 1) {
+                    console.log('✅ FORZANDO uso de configuracionPartidaLocal porque tiene más jugadores');
+                    console.log(`📊 datosPartida tenía ${jugadoresDataPartida} jugadores, configLocal tiene ${jugadoresConfigLocal}`);
+                    // Usar configuracionPartidaLocal que tiene los jugadores correctos
+                    datosPartida = {
+                        codigo: 'LOCAL_FALLBACK_' + Date.now(),
+                        configuracion: configLocal,
+                        modo: 'local',
+                        estado: 'iniciada',
+                        creadorId: configLocal.jugadores[0]?.id || 'local_player_1',
+                        jugadores: configLocal.jugadores
+                    };
+                    
+                    console.log('✅ DEBUG - NUEVO datosPartida creado con', datosPartida.jugadores?.length, 'jugadores');
+                    console.log('✅ DEBUG - Jugadores:', datosPartida.jugadores.map(j => ({id: j.id, nombre: j.nombre})));
+                    userId = configLocal.jugadores[0]?.id || 'local_player_1';
+                    userName = configLocal.jugadores[0]?.nombre || 'Jugador Local';
+                    
+                    // Limpiar datosPartida corrupto del localStorage para evitar futuros conflictos
+                    localStorage.removeItem('datosPartida');
+                    console.log('🧹 Limpiado datosPartida corrupto del localStorage');
+                } else if (!datosPartidaTemp.jugadores || datosPartidaTemp.jugadores.length === 0) {
+                    console.log('⚠️ datosPartida sin jugadores, buscando configuracionPartidaLocal...');
+                    if (configLocal) {
+                        console.log('🏠 Configuración LOCAL con jugadores encontrada:', configLocal);
+                        console.log('🔍 DEBUG - Jugadores en configLocal:', configLocal.jugadores?.length);
+                        
+                        // Usar configuracionPartidaLocal que tiene los jugadores correctos
+                        datosPartida = {
+                            codigo: 'LOCAL_FALLBACK_' + Date.now(),
+                            configuracion: configLocal,
+                            modo: 'local',
+                            estado: 'iniciada',
+                            creadorId: configLocal.jugadores[0]?.id || 'local_player_1',
+                            jugadores: configLocal.jugadores
+                        };
+                        
+                        console.log('✅ DEBUG - Usando configLocal, jugadores:', datosPartida.jugadores?.length);
+                        userId = configLocal.jugadores[0]?.id || 'local_player_1';
+                        userName = configLocal.jugadores[0]?.nombre || 'Jugador Local';
+                    } else {
+                        throw new Error('No se encontraron jugadores válidos en configuración local');
+                    }
+                } else {
+                    // datosPartida tiene jugadores válidos
+                    datosPartida = datosPartidaTemp;
+                    userId = localStorage.getItem('userId');
+                    userName = localStorage.getItem('username');
+                }
+            } else {
+                // 3. Si no hay datosPartida, buscar configuracionPartidaLocal (modo local)
                 console.log('📦 Buscando configuracionPartidaLocal...');
                 const configLocalStr = localStorage.getItem('configuracionPartidaLocal');
                 if (configLocalStr) {
@@ -835,10 +902,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 } else {
                     throw new Error('No se encontraron los datos de la partida');
                 }
-            } else {
-                datosPartida = JSON.parse(datosPartidaStr);
-                userId = localStorage.getItem('userId');
-                userName = localStorage.getItem('username');
             }
         }
 
