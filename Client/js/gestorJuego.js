@@ -872,6 +872,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             objetivoPartida: datosPartida.configuracion.objetivoPartida || 'No definido'
          };
 
+        // 🔍 DEBUG ESPECÍFICO: Rastrear jugadores
+        console.log('🔍 DEBUG JUGADORES EN CONFIGURACIÓN:');
+        console.log('  datosPartida.jugadores:', datosPartida.jugadores);
+        console.log('  configuracion.jugadores:', configuracion.jugadores);
+        console.log('  cantidad jugadores:', configuracion.jugadores?.length);
+
         console.log('Configuración preparada para inicialización:', configuracion);
 
         // Validar datos críticos
