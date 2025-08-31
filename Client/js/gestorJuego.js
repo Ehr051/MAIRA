@@ -798,13 +798,37 @@ document.addEventListener('DOMContentLoaded', async function() {
             userId = datos.userId;
             userName = datos.userName;
         } else {
-            // 2. Si no hay datos en session, usar localStorage
-            const datosPartidaStr = localStorage.getItem('datosPartida');
-            if (!datosPartidaStr) throw new Error('No se encontraron los datos de la partida');
-            datosPartida = JSON.parse(datosPartidaStr);
+            // 2. Si no hay datos en session, buscar en localStorage
+            let datosPartidaStr = localStorage.getItem('datosPartida');
             
-            userId = localStorage.getItem('userId');
-            userName = localStorage.getItem('username');
+            // 3. ✅ NUEVO: Si no hay datosPartida, buscar configuracionPartidaLocal (modo local)
+            if (!datosPartidaStr) {
+                const configLocalStr = localStorage.getItem('configuracionPartidaLocal');
+                if (configLocalStr) {
+                    const configLocal = JSON.parse(configLocalStr);
+                    console.log('🏠 Configuración LOCAL recuperada:', configLocal);
+                    
+                    // Crear estructura compatible con datosPartida
+                    datosPartida = {
+                        codigo: 'LOCAL_FALLBACK_' + Date.now(),
+                        configuracion: configLocal,
+                        modo: 'local',
+                        estado: 'iniciada',
+                        creadorId: configLocal.jugadores[0]?.id || 'local_player_1',
+                        jugadores: configLocal.jugadores
+                    };
+                    
+                    // Asignar usuario como el primer jugador
+                    userId = configLocal.jugadores[0]?.id || 'local_player_1';
+                    userName = configLocal.jugadores[0]?.nombre || 'Jugador Local';
+                } else {
+                    throw new Error('No se encontraron los datos de la partida');
+                }
+            } else {
+                datosPartida = JSON.parse(datosPartidaStr);
+                userId = localStorage.getItem('userId');
+                userName = localStorage.getItem('username');
+            }
         }
 
         console.log('Datos de partida recuperados:', datosPartida);

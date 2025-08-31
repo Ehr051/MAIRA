@@ -22,6 +22,9 @@ class GestorTurnos extends GestorBase {
             // Validar configuración
             this.validarConfiguracion(configuracion);
             
+            // ✅ GUARDAR CONFIGURACIÓN
+            this.configuracion = configuracion;
+            
             // ✅ DETECTAR MODO DE JUEGO
             this.modoJuego = configuracion.modoJuego || 'online';
             console.log('🎮 GestorTurnos inicializado en modo:', this.modoJuego);
