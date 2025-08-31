@@ -505,6 +505,9 @@ async function inicializarSocket() {
             mostrarError('Error de conexión: ' + error.message);
         });
         
+        // ✅ EXPONER SOCKET GLOBALMENTE PARA DEBUG
+        window.socket = socket;
+        
     } catch (error) {
         console.error('Error al inicializar socket:', error);
         mostrarError('Error de conexión con el servidor');
