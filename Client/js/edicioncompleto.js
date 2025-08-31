@@ -780,7 +780,40 @@ function guardarCambiosUnidad() {
         const magnitud = document.getElementById('magnitud').value;
         const esEquipoActual = esEquipo(nuevoSidc);
         
-        // Validar campos requeridos (código de validación...)
+        // Validar campos requeridos: tipo, designación, magnitud, y propietario
+        if (!tipo || tipo.trim() === '') {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un tipo definido", "error");
+            }
+            console.error('Validación fallida: falta tipo');
+            return false;
+        }
+        
+        if (!designacion || designacion.trim() === '') {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion("Error: Debe ingresar una designación para el elemento", "error");
+            }
+            console.error('Validación fallida: falta designación');
+            return false;
+        }
+        
+        if (!esEquipoActual && (!magnitud || magnitud.trim() === '')) {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion("Error: Debe ingresar la magnitud del elemento", "error");
+            }
+            console.error('Validación fallida: falta magnitud');
+            return false;
+        }
+        
+        if (!jugadorElemento) {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
+            }
+            console.error('Validación fallida: falta propietario');
+            return false;
+        }
+        
+        console.log('✅ Validación completa - elemento tiene tipo, designación, magnitud y propietario');
 
         // Guardar la posición actual y el ID
         const posicionActual = elementoSeleccionado.getLatLng();
@@ -858,15 +891,33 @@ function guardarCambiosEquipo() {
         const designacion = document.getElementById('designacionEquipo').value;
         const dependencia = document.getElementById('asignacionEquipo').value;
         
-        // Validar datos
-        if (!designacion || !dependencia) {
-            if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+        // Validar campos requeridos para equipos: tipo, designación, y propietario
+        // (Los equipos no requieren magnitud)
+        
+        if (!designacion || designacion.trim() === '') {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion("Error: Debe ingresar una designación para el equipo", "error");
+            } else if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
                 window.gestorJuego.gestorInterfaz.mostrarMensaje(
-                    'Designación y asignación son obligatorios para equipos',
+                    'Designación es obligatoria para equipos',
                     'error'
                 );
             } else {
-                alert('Designación y asignación son obligatorios para equipos');
+                alert('Designación es obligatoria para equipos');
+            }
+            return false;
+        }
+        
+        if (!dependencia || dependencia.trim() === '') {
+            if (window.MAIRA?.Utils?.mostrarNotificacion) {
+                window.MAIRA.Utils.mostrarNotificacion("Error: Debe ingresar la dependencia/asignación para el equipo", "error");
+            } else if (window.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                window.gestorJuego.gestorInterfaz.mostrarMensaje(
+                    'Asignación es obligatoria para equipos',
+                    'error'
+                );
+            } else {
+                alert('Asignación es obligatoria para equipos');
             }
             return false;
         }
