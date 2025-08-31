@@ -710,6 +710,76 @@ class GestorTurnos extends GestorBase {
         return `${minutos}:${segs.toString().padStart(2, '0')}`;
     }
 
+    // ✅ MÉTODO FALTANTE: validarElementosJugador()
+    validarElementosJugador(jugadorId) {
+        try {
+            // Buscar elementos del jugador en el mapa
+            const elementos = [];
+            
+            if (window.mapa && window.mapa.eachLayer) {
+                window.mapa.eachLayer(layer => {
+                    if (layer.options && (
+                        layer.options.jugadorId === jugadorId ||
+                        layer.options.propietario === jugadorId ||
+                        (window.equipoJugador && layer.options.equipo === window.equipoJugador)
+                    )) {
+                        elementos.push(layer);
+                    }
+                });
+            }
+
+            console.log(`[Diagnóstico] Elementos para jugador ${jugadorId} antes de marcar como listo`);
+            console.log('Total elementos:', elementos.length);
+            
+            if (elementos.length === 0) {
+                console.warn('[GestorTurnos] No hay elementos desplegados para el jugador');
+                return false;
+            }
+
+            // Verificar que cada elemento tenga datos completos
+            for (let i = 0; i < elementos.length; i++) {
+                const elem = elementos[i];
+                const datos = elem.options;
+                
+                console.log(`Elemento #${i + 1}:`, {
+                    id: datos.id,
+                    tipo: datos.tipo || datos.nombre,
+                    designacion: datos.designacion,
+                    dependencia: datos.dependencia,
+                    magnitud: datos.magnitud,
+                    equipo: datos.equipo
+                });
+
+                if (!datos.tipo && !datos.nombre) {
+                    console.warn('[GestorTurnos] Elemento sin tipo:', datos);
+                    return false;
+                }
+                
+                if (!datos.magnitud) {
+                    console.warn('[GestorTurnos] Elemento sin magnitud:', datos);
+                    return false;
+                }
+                
+                if (!datos.designacion) {
+                    console.warn('[GestorTurnos] Elemento sin designación:', datos);
+                    return false;
+                }
+                
+                if (!datos.dependencia) {
+                    console.warn('[GestorTurnos] Elemento sin dependencia:', datos);
+                    return false;
+                }
+            }
+
+            console.log('[GestorTurnos] ✅ Todos los elementos validados correctamente');
+            return true;
+            
+        } catch (error) {
+            console.error('[GestorTurnos] Error validando elementos:', error);
+            return false;
+        }
+    }
+
     // ...existing code...
 }
 

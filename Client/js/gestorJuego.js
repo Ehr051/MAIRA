@@ -807,6 +807,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 if (configLocalStr) {
                     const configLocal = JSON.parse(configLocalStr);
                     console.log('🏠 Configuración LOCAL recuperada:', configLocal);
+                    console.log('🔍 DEBUG - Jugadores en configLocal:', configLocal.jugadores);
+                    console.log('🔍 DEBUG - Cantidad de jugadores:', configLocal.jugadores?.length);
                     
                     // Crear estructura compatible con datosPartida
                     datosPartida = {
@@ -817,6 +819,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                         creadorId: configLocal.jugadores[0]?.id || 'local_player_1',
                         jugadores: configLocal.jugadores
                     };
+                    
+                    console.log('🔍 DEBUG - datosPartida.jugadores creado:', datosPartida.jugadores);
                     
                     // Asignar usuario como el primer jugador
                     userId = configLocal.jugadores[0]?.id || 'local_player_1';
