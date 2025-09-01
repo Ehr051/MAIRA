@@ -15,8 +15,6 @@
     <script src="/node_modules/socket.io/client-dist/socket.io.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/Client/js/UserIdentity.js"></script>
-    <script src="/Client/js/UserIdentityLoader.js"></script>
     <script src="/Client/js/MAIRAChat.js"></script>
     <script src="/Client/js/partidas.js"></script>
     <script src="/Client/js/iniciarpartida.js"></script>
@@ -38,8 +36,9 @@
                     <div class="card-body">
                         <select id="modoJuego" class="form-control">
                             <option value="">Seleccione un modo</option>
-                            <option value="local">Partida Local</option>
-                            <option value="internet">Partida En Línea</option>
+                            <option value="local">Modo Local</option>
+                            <option value="lan">Modo LAN</option>
+                            <option value="internet">Modo Internet</option>
                         </select>
                     </div>
                 </div>
@@ -100,10 +99,10 @@
                     </div>
                 </div>
 
-                <!-- Modo En Línea (LAN/Internet) -->
+                <!-- Modo LAN e Internet -->
                 <div class="card mb-4" id="modoOnline" style="display: none;">
                     <div class="card-header">
-                        Partida En Línea
+                        Partida Online
                     </div>
                     <div class="card-body">
                         <button id="crearPartida" class="btn btn-primary btn-block mb-2">Crear Partida</button>

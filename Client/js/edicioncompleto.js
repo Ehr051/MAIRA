@@ -805,6 +805,9 @@ function guardarCambiosUnidad() {
             return false;
         }
         
+        // Definir jugadorElemento antes de usarlo
+        const jugadorElemento = elementoSeleccionado.options.jugador || window.userId;
+        
         if (!jugadorElemento) {
             if (window.MAIRA?.Utils?.mostrarNotificacion) {
                 window.MAIRA.Utils.mostrarNotificacion("Error: El elemento debe tener un propietario asignado", "error");
@@ -819,7 +822,6 @@ function guardarCambiosUnidad() {
         const posicionActual = elementoSeleccionado.getLatLng();
         const idElemento = elementoSeleccionado.options.id;
         const equipoElemento = elementoSeleccionado.options.equipo || window.equipoJugador;
-        const jugadorElemento = elementoSeleccionado.options.jugador || window.userId;
         
         // Eliminar el marcador actual del calco
         window.calcoActivo.removeLayer(elementoSeleccionado);

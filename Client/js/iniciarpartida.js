@@ -30,6 +30,24 @@ function inicializarEventListeners() {
     document.getElementById('volverConfiguracionGeneral').addEventListener('click', volverConfiguracionGeneral);
     document.getElementById('iniciarJuegoLocal').addEventListener('click', iniciarJuegoLocalDesdeUI);
     
+    // ✅ Event listener para formulario crear partida online
+    const formCrearPartida = document.querySelector('#formCrearPartida form');
+    if (formCrearPartida) {
+        formCrearPartida.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevenir recarga de página
+            crearPartidaOnline();
+        });
+    }
+    
+    // ✅ Event listener alternativo para el botón directamente
+    const btnCrearPartidaConfirmar = document.getElementById('btnCrearPartidaConfirmar');
+    if (btnCrearPartidaConfirmar) {
+        btnCrearPartidaConfirmar.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevenir submit del formulario
+            crearPartidaOnline();
+        });
+    }
+    
     // Listeners para preferencias
     document.getElementById('volumenJuego')?.addEventListener('change', guardarPreferencias);
     document.getElementById('temaOscuro')?.addEventListener('change', cambiarTema);
@@ -618,6 +636,143 @@ function obtenerPartidasDisponibles() {
     }
 }
 
+function crearPartidaOnline() {
+    console.log('🎮 Creando partida online...');
+    
+    // Verificar conexión de socket
+    if (!socket || !socket.connected) {
+        console.error('❌ Socket no conectado');
+        alert('Error: No hay conexión con el servidor. Inténtalo de nuevo.');
+        return;
+    }
+    
+    // Obtener datos del formulario
+    const nombrePartida = document.getElementById('nombrePartida').value.trim();
+    const duracionPartida = parseInt(document.getElementById('duracionPartida').value);
+    const duracionTurno = parseInt(document.getElementById('duracionTurno').value);
+    const objetivoPartida = document.getElementById('objetivoPartida').value.trim();
+    
+    // Validar campos
+    if (!nombrePartida || !duracionPartida || !duracionTurno || !objetivoPartida) {
+        alert('Por favor, complete todos los campos');
+        return;
+    }
+    
+    if (duracionPartida <= 0 || duracionTurno <= 0) {
+        alert('La duración de la partida y del turno deben ser mayor a 0');
+        return;
+    }
+    
+    // Obtener datos de usuario
+    let currentUserId, currentUserName;
+    
+    if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+        currentUserId = MAIRA.UserIdentity.getUserId();
+        currentUserName = MAIRA.UserIdentity.getUsername();
+    } else {
+        // Fallback a localStorage
+        currentUserId = localStorage.getItem('userId');
+        currentUserName = localStorage.getItem('username');
+    }
+    
+    if (!currentUserId || !currentUserName) {
+        console.error('❌ Datos de usuario no configurados');
+        alert('Error: Datos de usuario no configurados. Redirigiendo a inicio.');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    console.log(`✅ Usuario validado: ${currentUserName} (${currentUserId})`);
+    
+    const configuracion = {
+        nombrePartida,
+        duracionPartida,
+        duracionTurno,
+        objetivoPartida,
+        modo: modoSeleccionado || 'internet',
+        creadorId: currentUserId
+    };
+    
+    console.log('🚀 Enviando crear partida al servidor...');
+    
+    // Configurar listeners para respuesta del servidor
+    socket.once('partidaCreada', function(datosPartida) {
+        console.log('✅ Partida creada exitosamente:', datosPartida);
+        partidaActual = datosPartida;
+        
+        // Limpiar formulario
+        limpiarFormularioCrearPartida();
+        
+        // Mostrar sala de espera
+        mostrarSalaEspera(datosPartida);
+        
+        // Cambiar de sala para el chat si existe la función
+        if (window.cambiarSalaChat) {
+            window.cambiarSalaChat(datosPartida.codigo);
+        }
+    });
+    
+    socket.once('errorCrearPartida', function(error) {
+        console.error('❌ Error al crear partida:', error);
+        alert(error.mensaje || 'Error al crear la partida');
+    });
+    
+    // Emitir evento para crear partida
+    socket.emit('crearPartida', { configuracion });
+}
+
+function mostrarSalaEspera(datosPartida) {
+    console.log('📋 Mostrando sala de espera para partida:', datosPartida);
+    
+    // Ocultar todos los formularios
+    ocultarTodosLosFormularios();
+    
+    // Mostrar sala de espera
+    const salaEspera = document.getElementById('salaEspera');
+    if (salaEspera) {
+        salaEspera.style.display = 'block';
+        
+        // Actualizar información de la partida
+        const nombrePartidaSala = document.getElementById('nombrePartidaSala');
+        const codigoPartidaSala = document.getElementById('codigoPartidaSala');
+        
+        if (nombrePartidaSala) nombrePartidaSala.textContent = datosPartida.configuracion.nombrePartida;
+        if (codigoPartidaSala) codigoPartidaSala.textContent = datosPartida.codigo;
+        
+        // Actualizar lista de jugadores
+        if (datosPartida.jugadores) {
+            actualizarListaJugadoresSala(datosPartida.jugadores);
+        }
+        
+        // Mostrar botones del creador si es el creador
+        const currentUserId = MAIRA?.UserIdentity?.getUserId() || localStorage.getItem('userId');
+        const esCreador = datosPartida.creadorId === currentUserId;
+        
+        const btnIniciarPartida = document.getElementById('btnIniciarPartida');
+        const btnCancelarPartida = document.getElementById('btnCancelarPartida');
+        
+        if (btnIniciarPartida) btnIniciarPartida.style.display = esCreador ? 'block' : 'none';
+        if (btnCancelarPartida) btnCancelarPartida.style.display = esCreador ? 'block' : 'none';
+    }
+}
+
+function actualizarListaJugadoresSala(jugadores) {
+    const tbody = document.querySelector('#jugadoresSala tbody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    jugadores.forEach(jugador => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${jugador.username || jugador.nombre}</td>
+            <td><span class="badge badge-${jugador.equipo === 'rojo' ? 'danger' : 'primary'}">${jugador.equipo}</span></td>
+            <td>${jugador.listo ? '<span class="text-success">✓ Listo</span>' : '<span class="text-warning">⏳ Esperando</span>'}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
 // Exportar funciones necesarias
 window.obtenerListaAmigos = obtenerListaAmigos;
 window.agregarAmigo = agregarAmigo;
@@ -662,6 +817,9 @@ window.recopilarConfiguracionPartida = recopilarConfiguracionPartida;
 window.actualizarListaJugadoresLocal = actualizarListaJugadoresLocal;
 window.manejarConexion = manejarConexion;
 window.unirseAPartida = unirseAPartida;
+window.crearPartidaOnline = crearPartidaOnline;
+window.mostrarSalaEspera = mostrarSalaEspera;
+window.actualizarListaJugadoresSala = actualizarListaJugadoresSala;
 
 // Inicialización cuando se carga la página
 window.onload = function() {

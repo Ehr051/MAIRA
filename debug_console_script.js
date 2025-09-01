@@ -1,3 +1,4 @@
+
 // 🔍 MAIRA Debug Console Script - Diagnóstico de Partidas Online
 // Ejecutar paso a paso en la consola del navegador
 

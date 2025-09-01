@@ -255,155 +255,63 @@ function updateDistanceDisplay(id) {
 
 // Función para inicializar la búsqueda de lugar
 function initializeBuscarLugar() {
-    console.log('🔍 Iniciando inicialización de buscarLugar');
+    console.log('Iniciando inicialización de buscarLugar');
     var busquedaLugarInput = document.getElementById('busquedaLugar');
     var btnBuscarLugar = document.getElementById('btnBuscarLugar');
     var resultadosBusquedaLugar = document.getElementById('resultadosBusquedaLugar');
 
-    if (!busquedaLugarInput || !btnBuscarLugar || !resultadosBusquedaLugar) {
-        console.error('❌ No se pueden encontrar elementos de búsqueda:', {
-            input: !!busquedaLugarInput,
-            boton: !!btnBuscarLugar,
-            resultados: !!resultadosBusquedaLugar
-        });
+    if (!busquedaLugarInput || !btnBuscarLugar || !resultadosBusquedaLugar || !mapa) {
+        console.error('No se pueden inicializar los elementos de búsqueda o el mapa');
         return;
     }
 
-    if (!window.mapa) {
-        console.error('❌ Mapa no disponible para búsqueda');
-        return;
-    }
+    console.log('Todos los elementos necesarios encontrados, continuando con la inicialización');
 
-    if (typeof L === 'undefined' || !L.Control || !L.Control.Geocoder) {
-        console.error('❌ L.Control.Geocoder no está disponible. Verificar dependencias.');
-        console.log('📋 Estado de Leaflet:', {
-            Leaflet: typeof L !== 'undefined',
-            Control: typeof L !== 'undefined' && !!L.Control,
-            Geocoder: typeof L !== 'undefined' && !!L.Control && !!L.Control.Geocoder
-        });
-        return;
-    }
-
-    console.log('✅ Todos los elementos necesarios encontrados, configurando geocoder...');
-
-    // Configurar geocoder con opciones mejoradas
-    var geocoder;
-    try {
-        geocoder = L.Control.Geocoder.nominatim({
-            serviceUrl: 'https://nominatim.openstreetmap.org/',
-            htmlTemplate: function(r) {
-                var a = r.html || r.name;
-                var parts = [];
-                if (r.name) parts.push(r.name);
-                if (r.properties && r.properties.display_name) {
-                    parts.push(r.properties.display_name);
-                } else if (r.display_name) {
-                    parts.push(r.display_name);
-                }
-                return parts.join(', ');
-            }
-        });
-        console.log('✅ Geocoder configurado correctamente');
-    } catch (error) {
-        console.error('❌ Error configurando geocoder:', error);
-        return;
-    }
+    var geocoder = L.Control.Geocoder.nominatim();
 
     function handleSearch() {
         var busqueda = busquedaLugarInput.value.trim();
-        if (busqueda.length === 0) {
-            resultadosBusquedaLugar.innerHTML = '';
-            return;
-        }
+        if (busqueda.length === 0) return;
 
-        console.log('🔍 Realizando búsqueda para:', busqueda);
-        resultadosBusquedaLugar.innerHTML = '<li>🔍 Buscando...</li>';
-
+        console.log('Realizando búsqueda para:', busqueda);
         geocoder.geocode(busqueda, function(results) {
-            console.log('📍 Resultados de búsqueda:', results);
+            console.log('Resultados de búsqueda:', results);
             resultadosBusquedaLugar.innerHTML = '';
-            
-            if (results && results.length > 0) {
-                console.log(`✅ Encontrados ${results.length} resultados`);
-                results.slice(0, 5).forEach(function(result, index) { // Limitar a 5 resultados
+            if (results.length > 0) {
+                results.forEach(function(result) {
                     var li = document.createElement('li');
-                    li.style.cursor = 'pointer';
-                    li.style.padding = '8px';
-                    li.style.borderBottom = '1px solid #eee';
-                    
-                    // Crear nombre descriptivo
-                    var nombre = result.name || result.html || 'Ubicación';
-                    if (result.properties && result.properties.display_name) {
-                        nombre = result.properties.display_name;
-                    } else if (result.display_name) {
-                        nombre = result.display_name;
-                    }
-                    
-                    li.textContent = nombre;
-                    
+                    li.textContent = result.name;
                     li.addEventListener('click', function() {
-                        console.log('📍 Centrando mapa en:', result.center, 'Nombre:', nombre);
                         mapa.setView(result.center, 13);
-                        
-                        // Agregar marcador temporal
-                        if (window.marcadorBusqueda) {
-                            mapa.removeLayer(window.marcadorBusqueda);
-                        }
-                        window.marcadorBusqueda = L.marker(result.center)
-                            .addTo(mapa)
-                            .bindPopup(nombre)
-                            .openPopup();
-                        
+                        console.log('Mapa centrado en:', result.center);
                         busquedaLugarInput.value = '';
                         resultadosBusquedaLugar.innerHTML = '';
-                        console.log('✅ Mapa centrado exitosamente');
                     });
-                    
-                    li.addEventListener('mouseenter', function() {
-                        this.style.backgroundColor = '#f0f0f0';
-                    });
-                    
-                    li.addEventListener('mouseleave', function() {
-                        this.style.backgroundColor = 'transparent';
-                    });
-                    
                     resultadosBusquedaLugar.appendChild(li);
                 });
             } else {
-                console.log('⚠️ No se encontraron resultados para:', busqueda);
-                resultadosBusquedaLugar.innerHTML = '<li style="color: #666; font-style: italic;">No se encontraron resultados</li>';
+                resultadosBusquedaLugar.innerHTML = '<li>No se encontraron resultados</li>';
             }
-        }, function(error) {
-            console.error('❌ Error en búsqueda:', error);
-            resultadosBusquedaLugar.innerHTML = '<li style="color: #d32f2f;">Error en la búsqueda. Intente nuevamente.</li>';
         });
     }
 
-    // Event listeners mejorados
     busquedaLugarInput.addEventListener('input', function() {
-        const valor = busquedaLugarInput.value.trim();
-        if (valor.length > 2) {
-            clearTimeout(window.searchTimeout);
-            window.searchTimeout = setTimeout(handleSearch, 500); // Debounce
+        if (busquedaLugarInput.value.trim().length > 2) {
+            handleSearch();
         } else {
             resultadosBusquedaLugar.innerHTML = '';
         }
     });
 
-    btnBuscarLugar.addEventListener('click', function(e) {
-        e.preventDefault();
-        clearTimeout(window.searchTimeout);
-        handleSearch();
-    });
+    btnBuscarLugar.addEventListener('click', handleSearch);
     
     busquedaLugarInput.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            clearTimeout(window.searchTimeout);
             handleSearch();
         }
     });
 
-    console.log('✅ Búsqueda de lugares inicializada correctamente');
+    console.log('Función buscarLugar inicializada correctamente');
 }
 
 // Inicialización cuando el DOM está completamente cargado

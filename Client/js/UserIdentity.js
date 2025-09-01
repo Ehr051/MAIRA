@@ -1,7 +1,7 @@
 /**
- * UserIdentity.js - Sistema centralizado de gestión de identidad de usuario
+ * UserIdentity.js
  * Módulo para gestionar la identidad del usuario de manera consistente en todo el sistema
- * @version 2.0.0 - Optimizado para MAIRA con Socket.IO
+ * @version 1.0.0
  */
 
 // Namespace global
@@ -11,37 +11,29 @@ window.MAIRA = window.MAIRA || {};
 MAIRA.UserIdentity = (function() {
     // Datos del usuario almacenados en memoria
     let userData = null;
-    let isInitialized = false;
-    
-    // Event emitter para cambios de estado
-    const events = {};
 
     /**
      * Inicializa la identidad del usuario con los datos proporcionados
-     * @param {string|number} userId - Identificador único del usuario
+     * @param {string} userId - Identificador único del usuario
      * @param {string} username - Nombre de usuario
      * @param {Object} elementoTrabajo - Datos del elemento asociado al usuario
      * @returns {Object} - Datos del usuario inicializados
      */
     function initialize(userId, username, elementoTrabajo) {
-        console.log("🔐 UserIdentity: Inicializando identidad:", userId, username);
-        
-        // Convertir userId a número si viene como string
-        const userIdNum = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+        console.log("Inicializando identidad de usuario:", userId, username);
         
         userData = {
-            id: userIdNum,
+            id: userId,
             username: username,
             loginTime: new Date().toISOString(),
-            elementoTrabajo: elementoTrabajo || {},
-            sessionId: generateSessionId()
+            elementoTrabajo: elementoTrabajo || {}
         };
         
         // Guardar en localStorage para consistencia entre recargas
         localStorage.setItem('usuario_info', JSON.stringify(userData));
         
         // También guardar de forma individual para compatibilidad con código antiguo
-        localStorage.setItem('userId', userIdNum.toString());
+        localStorage.setItem('userId', userId);
         localStorage.setItem('username', username);
         
         // Si hay elementoTrabajo, guardarlo por separado
@@ -49,92 +41,6 @@ MAIRA.UserIdentity = (function() {
             localStorage.setItem('elemento_trabajo', JSON.stringify(elementoTrabajo));
         }
         
-        // Marcar como inicializado
-        isInitialized = true;
-        
-        // Exponer globalmente para compatibilidad
-        window.userId = userIdNum;
-        window.userName = username;
-        
-        // Emitir evento de inicialización
-        emitEvent('initialized', userData);
-        
-        console.log("✅ UserIdentity: Usuario inicializado correctamente");
-        return userData;
-    }
-    
-    /**
-     * Genera un ID de sesión único
-     */
-    function generateSessionId() {
-        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    }
-    
-    /**
-     * Sistema de eventos simple
-     */
-    function emitEvent(eventName, data) {
-        if (events[eventName]) {
-            events[eventName].forEach(callback => callback(data));
-        }
-    }
-    
-    function on(eventName, callback) {
-        if (!events[eventName]) {
-            events[eventName] = [];
-        }
-        events[eventName].push(callback);
-    }
-    
-    /**
-     * Obtiene el ID del usuario (función principal para uso en toda la app)
-     * @returns {number|null} - ID del usuario o null si no existe
-     */
-    function getUserId() {
-        if (userData && userData.id) {
-            return userData.id;
-        }
-        
-        // Intentar cargar desde localStorage
-        const savedUserId = localStorage.getItem('userId');
-        if (savedUserId) {
-            return parseInt(savedUserId, 10);
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Obtiene el nombre del usuario
-     * @returns {string|null} - Nombre del usuario o null si no existe
-     */
-    function getUserName() {
-        if (userData && userData.username) {
-            return userData.username;
-        }
-        
-        // Intentar cargar desde localStorage
-        return localStorage.getItem('username');
-    }
-    
-    /**
-     * Verifica si el usuario está autenticado
-     * @returns {boolean} - true si está autenticado
-     */
-    function isAuthenticated() {
-        const userId = getUserId();
-        const userName = getUserName();
-        return !!(userId && userName);
-    }
-    
-    /**
-     * Obtiene toda la información del usuario
-     * @returns {Object|null} - Datos completos del usuario
-     */
-    function getUserData() {
-        if (!userData) {
-            loadFromStorage();
-        }
         return userData;
     }
 
@@ -149,7 +55,6 @@ MAIRA.UserIdentity = (function() {
                 const storedData = localStorage.getItem('usuario_info');
                 if (storedData) {
                     userData = JSON.parse(storedData);
-                    isInitialized = true; // ✅ Marcar como inicializado
                     console.log("Identidad de usuario cargada desde 'usuario_info'");
                 } else {
                     // Intentar con formato antiguo
@@ -161,7 +66,6 @@ MAIRA.UserIdentity = (function() {
                             username: parsed.usuario || parsed.username,
                             loginTime: parsed.loginTime || new Date().toISOString()
                         };
-                        isInitialized = true; // ✅ Marcar como inicializado
                         console.log("Identidad de usuario cargada desde 'gb_usuario_info'");
                     } else {
                         // Último intento con valores individuales
@@ -173,7 +77,6 @@ MAIRA.UserIdentity = (function() {
                                 username: username,
                                 loginTime: new Date().toISOString()
                             };
-                            isInitialized = true; // ✅ Marcar como inicializado
                             console.log("Identidad de usuario cargada desde valores individuales");
                         } else {
                             console.warn("No se encontró información de usuario en localStorage");
@@ -197,39 +100,6 @@ MAIRA.UserIdentity = (function() {
         }
         
         return userData;
-    }
-
-    /**
-     * Limpia todos los datos del usuario
-     */
-    function clear() {
-        userData = null;
-        isInitialized = false;
-        
-        // Limpiar localStorage
-        localStorage.removeItem('usuario_info');
-        localStorage.removeItem('gb_usuario_info');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('username');
-        localStorage.removeItem('elemento_trabajo');
-        
-        // Limpiar variables globales
-        if (window.userId) delete window.userId;
-        if (window.userName) delete window.userName;
-        
-        // Emitir evento de limpieza
-        emitEvent('cleared', null);
-        
-        console.log("✅ UserIdentity: Datos de usuario limpiados");
-    }
-
-    /**
-     * Verifica si los datos de usuario son válidos
-     * @returns {boolean} - True si los datos son válidos
-     */
-    function isValid() {
-        const info = loadFromStorage();
-        return !!(info && info.id && info.username);
     }
 
     /**
@@ -342,47 +212,23 @@ MAIRA.UserIdentity = (function() {
         return datos;
     }
 
-    /**
-     * Verifica si el módulo está inicializado
-     * @returns {boolean} - True si está inicializado
-     */
-    function checkInitialized() {
-        return isInitialized && userData !== null;
-    }
-
     // API público
     return {
         initialize,
         loadFromStorage,
-        clear,
-        isValid,
+        getUserId,
+        getUsername,
         getElementoTrabajo,
         updateElementoTrabajo,
-        applyToData,
-        // ✅ NUEVAS FUNCIONES CENTRALIZADAS
-        getUserId,
-        getUserName,
-        getUsername,  // Versión con fallback
-        isAuthenticated,
-        getUserData,
-        isInitialized: checkInitialized,  // ✅ AGREGAR función de verificación
-        on  // Para eventos
+        applyToData
     };
 })();
 
-// Inicializar automáticamente y de inmediato
-function autoInit() {
+// Inicializar automáticamente
+document.addEventListener("DOMContentLoaded", function() {
     MAIRA.UserIdentity.loadFromStorage();
     console.log("Módulo UserIdentity inicializado automáticamente");
-}
-
-// Inicializar inmediatamente si el script ya está cargado
-if (document.readyState === 'loading') {
-    document.addEventListener("DOMContentLoaded", autoInit);
-} else {
-    // DOM ya está listo, inicializar inmediatamente
-    autoInit();
-}
+});
 
 // Exponer globalmente para compatibilidad
 window.UserIdentity = MAIRA.UserIdentity;

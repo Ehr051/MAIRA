@@ -6,48 +6,9 @@ let operacionesActivas = [];
 let operacionSeleccionada = null;
 let usuariosConectados = [];
 
-// ✅ NUEVAS VARIABLES DE AUTENTICACIÓN
-let userId = null;
-let userName = null;
-
-/**
- * 🔧 HELPER FUNCTION - Obtener datos de usuario consistentes
- * Centraliza el acceso a datos de usuario para evitar inconsistencias
- */
-function obtenerDatosUsuario() {
-    // Prioridad: UserIdentity > variables globales > usuarioInfo > localStorage
-    const userIdFinal = window.MAIRA?.UserIdentity?.getUserId() || 
-                       window.userId || 
-                       userId || 
-                       usuarioInfo?.id || 
-                       parseInt(localStorage.getItem('userId')) || 
-                       null;
-                       
-    const userNameFinal = window.MAIRA?.UserIdentity?.getUsername() || 
-                         window.userName || 
-                         userName || 
-                         usuarioInfo?.username || 
-                         usuarioInfo?.usuario || 
-                         localStorage.getItem('username') || 
-                         'Usuario';
-    
-    return {
-        id: userIdFinal,
-        username: userNameFinal,
-        isValid: !!(userIdFinal && userNameFinal)
-    };
-}
-
 // Inicialización cuando el DOM está cargado
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Inicializando sala de espera para Gestión de Batalla');
-    
-    // ✅ VERIFICAR AUTENTICACIÓN ANTES DE CONTINUAR
-    if (!verificarAutenticacion()) {
-        console.log('❌ Usuario no autenticado, redirigiendo a index.html');
-        window.location.href = 'index.html';
-        return;
-    }
     
     // Conectar con el servidor
     iniciarConexion();
@@ -61,89 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar preview SIDC
     inicializarPreviewSIDC();
 });
-
-/**
- * ✅ NUEVA FUNCIÓN: Verificar autenticación del usuario usando UserIdentity
- */
-function verificarAutenticacion() {
-    console.log('🔍 Iniciando verificación de autenticación...');
-    
-    // Esperar un momento para que UserIdentity se inicialice si es necesario
-    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
-        console.warn('⚠️ UserIdentity no disponible aún, usando localStorage directamente...');
-        
-        // Intentar cargar desde localStorage directamente como fallback
-        const userIdFallback = localStorage.getItem('userId');
-        const userNameFallback = localStorage.getItem('username');
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        
-        console.log('📋 Datos en localStorage:', {
-            userId: userIdFallback,
-            username: userNameFallback, 
-            isLoggedIn: isLoggedIn
-        });
-        
-        if (userIdFallback && userNameFallback && isLoggedIn === 'true') {
-            userId = parseInt(userIdFallback, 10);
-            userName = userNameFallback;
-            console.log('✅ Datos cargados desde localStorage como fallback');
-        } else {
-            console.error('❌ No se pueden obtener datos de usuario válidos');
-            console.error('   - userId:', userIdFallback);
-            console.error('   - userName:', userNameFallback);
-            console.error('   - isLoggedIn:', isLoggedIn);
-            return false;
-        }
-    } else {
-        console.log('🔧 Usando UserIdentity centralizado...');
-        // Usar UserIdentity centralizado para datos consistentes  
-        userId = MAIRA.UserIdentity.getUserId();
-        userName = MAIRA.UserIdentity.getUsername();
-        
-        console.log('📋 Datos desde UserIdentity:', {
-            userId: userId,
-            userName: userName,
-            isAuthenticated: MAIRA.UserIdentity.isAuthenticated()
-        });
-    }
-    
-    console.log('🔍 Verificando datos de autenticación:');
-    console.log('   userId:', userId, 'tipo:', typeof userId);
-    console.log('   userName:', userName);
-    
-    if (!userId || !userName) {
-        console.error('❌ Datos de autenticación incompletos');
-        console.error('   - userId faltante:', !userId);
-        console.error('   - userName faltante:', !userName);
-        return false;
-    }
-    
-    if (isNaN(parseInt(userId, 10))) {
-        console.error('❌ userId no es un número válido:', userId);
-        return false;
-    }
-    
-    // Convertir userId a número si es necesario
-    userId = parseInt(userId, 10);
-    
-    // ✅ Actualizar usuarioInfo con estructura CONSISTENTE
-    usuarioInfo = {
-        id: userId,
-        username: userName,
-        usuario: userName  // Compatibilidad backward con código legacy
-    };
-    
-    // ✅ Compatibilidad global: exponer variables para módulos legacy
-    window.userId = userId;
-    window.userName = userName;
-    window.usuarioInfo = usuarioInfo;  // Para acceso global
-    
-    // ✅ Actualizar interfaz con información del usuario
-    actualizarInfoUsuarioEnInterfaz(userId, userName);
-    
-    console.log('✅ Usuario autenticado exitosamente:', usuarioInfo);
-    return true;
-}
 
 
 
@@ -230,36 +108,12 @@ function cargarDatosIniciales() {
     if (usuarioGuardado) {
         try {
             usuarioInfo = JSON.parse(usuarioGuardado);
-            // ✅ Actualizar información en la interfaz
-            actualizarInfoUsuarioEnInterfaz(usuarioInfo.id, usuarioInfo.username || usuarioInfo.usuario || 'Usuario');
-            document.getElementById('nombreUsuario').value = usuarioInfo.username || usuarioInfo.usuario || '';
+            document.getElementById('idUsuarioActual').textContent = usuarioInfo.id;
+            document.getElementById('nombreUsuario').value = usuarioInfo.usuario || '';
         } catch (error) {
             console.error('Error al cargar información del usuario:', error);
         }
     }
-}
-
-/**
- * ✅ NUEVA FUNCIÓN: Actualizar información del usuario en la interfaz
- */
-function actualizarInfoUsuarioEnInterfaz(userId, userName) {
-    console.log('🔍 Actualizando info usuario en interfaz:', {userId, userName});
-    
-    // Actualizar ID del usuario
-    const elementoId = document.getElementById('idUsuarioActual');
-    if (elementoId) {
-        elementoId.textContent = userId || 'No disponible';
-    }
-    
-    // Actualizar nombre del usuario
-    const elementoNombre = document.getElementById('nombreUsuarioActual');
-    if (elementoNombre) {
-        elementoNombre.textContent = userName || 'Usuario';
-        elementoNombre.classList.remove('text-muted');
-        elementoNombre.classList.add('text-primary', 'fw-bold');
-    }
-    
-    console.log('✅ Info usuario actualizada en interfaz');
 }
 
 
@@ -374,16 +228,13 @@ function actualizarListaUsuarios() {
         const usuarioItem = document.createElement('li');
         usuarioItem.className = 'list-group-item d-flex justify-content-between align-items-center';
         
-        // ✅ CORREGIR CAMPO DE NOMBRE DE USUARIO
-        const nombreUsuario = usuario.username || usuario.usuario || usuario.nombre || 'Usuario desconocido';
-        
         // Si el usuario está en una operación, mostrar esa info
         const infoOperacion = usuario.operacion ? 
             ` <span class="badge badge-primary">${usuario.operacion}</span>` : '';
             
         usuarioItem.innerHTML = `
             <div>
-                <i class="fas fa-user"></i> ${nombreUsuario}
+                <i class="fas fa-user"></i> ${usuario.nombre}
                 ${infoOperacion}
             </div>
             <span class="badge badge-success">Conectado</span>
@@ -453,16 +304,11 @@ function crearNuevaOperacion() {
         }, 10000);
     }
     
-    // ✅ USAR FUNCIÓN HELPER PARA DATOS CONSISTENTES
-    const datosUsuario = obtenerDatosUsuario();
-    console.log('🔍 Datos usuario para creación:', datosUsuario);
-    
     // Crear objeto de operación
     const nuevaOperacion = {
         nombre: nombre,
         descripcion: descripcion,
-        creador: datosUsuario.username,
-        creadorId: datosUsuario.id,
+        creador: usuarioInfo ? usuarioInfo.usuario : 'Usuario',
         fechaCreacion: new Date().toISOString()
     };
     
@@ -490,14 +336,12 @@ function crearNuevaOperacion() {
         if (respuesta && respuesta.operacion) {
             operacionCreada = respuesta.operacion;
         } else {
-            // Estructura alternativa de respuesta con datos consistentes
-            const datosUsuario = obtenerDatosUsuario();
+            // Estructura alternativa de respuesta
             operacionCreada = {
                 id: Date.now().toString(),
                 nombre: nombre,
                 descripcion: descripcion,
-                creador: datosUsuario.username,
-                creadorId: datosUsuario.id
+                creador: usuarioInfo ? usuarioInfo.usuario : 'Usuario'
             };
         }
         
@@ -893,7 +737,6 @@ function actualizarEstadoConexion(conectado) {
     // Buscar elementos de indicación de estado
     const indicator = document.getElementById('connection-indicator');
     const statusText = document.getElementById('status-text');
-    const estadoConexion = document.getElementById('estadoConexion');
     
     // Si no se encuentran, no emitir error, simplemente registrar e ignorar
     if (!indicator) {
@@ -914,12 +757,6 @@ function actualizarEstadoConexion(conectado) {
     } else {
         statusText.textContent = conectado ? 'Conectado' : 'Desconectado';
         statusText.className = conectado ? 'text-success' : 'text-danger';
-    }
-    
-    // ✅ Actualizar el nuevo badge de estado
-    if (estadoConexion) {
-        estadoConexion.textContent = conectado ? 'Conectado' : 'Desconectado';
-        estadoConexion.className = conectado ? 'badge bg-success' : 'badge bg-danger';
     }
     
     // Actualizar estado global
@@ -964,14 +801,14 @@ function unirseOperacionExistente() {
         }, 10000);
     }
     
-    // ✅ USAR ID REAL DE USUARIO EN LUGAR DE GENERAR UNO TEMPORAL
-    const usuarioId = userId; // Usar el userId real autenticado
-    const elementoId = `elemento_${userId}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    // Crear ID único para usuario y elemento
+    const usuarioId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const elementoId = `elemento_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Crear info de usuario
     usuarioInfo = {
         id: usuarioId,
-        usuario: userName, // ✅ USAR userName real en lugar de variable 'usuario'
+        usuario: usuario,
         operacion: operacionSeleccionada.nombre
     };
     
@@ -1036,30 +873,17 @@ function unirseOperacionExistente() {
 function iniciarConexion() {
     const serverURL = obtenerURLServidor();
     
-    // ✅ USAR CONFIGURACIÓN OPTIMIZADA del networkConfig.js
-    const socketConfig = window.getSocketConfig ? window.getSocketConfig() : {
-        reconnectionAttempts: 3,
-        timeout: 20000,
-        transports: ['polling'],
-        upgrade: false
-    };
-    
-    console.log('🚀 Configuración Socket.IO optimizada para GB:', socketConfig);
-    socket = io(serverURL, socketConfig);
+    // Opciones de socket.io para mejorar la estabilidad de la conexión
+    socket = io(serverURL, {
+        reconnectionAttempts: 5,
+        timeout: 30000,
+        transports: ['polling'],  // Solo polling para Render
+        upgrade: false  // No intentar upgrade a websocket
+    });
     
     // Evento de conexión
     socket.on('connect', function() {
-        console.log('✅ Conectado al servidor GB. ID de socket:', socket.id);
-        
-        // ✅ ENVIAR LOGIN INMEDIATAMENTE DESPUÉS DE CONECTAR
-        console.log('🔐 Enviando login para inicioGB...');
-        const loginData = {
-            user_id: userId,    // Backend espera 'user_id'
-            username: userName  // Backend espera 'username'
-        };
-        
-        console.log('🔐 Datos de login:', JSON.stringify(loginData));
-        socket.emit('login', loginData);
+        console.log('Conectado al servidor. ID de socket:', socket.id);
         
         // Llamar al nuevo handler
         onSocketConectado(socket.id);
@@ -1111,36 +935,6 @@ function iniciarConexion() {
         actualizarListaUsuarios();
     });
     
-    // ✅ NUEVO: Manejar respuesta del login
-    socket.on('loginExitoso', function(data) {
-        console.log('✅ Login exitoso en inicioGB:', data);
-        usuarioInfo = {
-            id: data.user_id,
-            username: data.username,
-            usuario: data.username  // Compatibilidad backward
-        };
-        
-        // ✅ Actualizar variables globales para consistencia
-        window.userId = data.user_id;
-        window.userName = data.username;
-        window.usuarioInfo = usuarioInfo;
-        
-        // ✅ Actualizar interfaz con información del usuario
-        actualizarInfoUsuarioEnInterfaz(data.user_id, data.username);
-        
-        console.log('✅ Usuario autenticado en inicioGB:', usuarioInfo);
-        
-        // Solicitar datos después del login exitoso
-        socket.emit('obtenerOperacionesGB');
-        socket.emit('obtenerUsuariosConectados');
-    });
-    
-    // ✅ NUEVO: Manejar error de login
-    socket.on('loginError', function(data) {
-        console.error('❌ Error de login en inicioGB:', data);
-        alert('Error de autenticación: ' + data.mensaje);
-        window.location.href = 'index.html';
-    });
 
     
     // AGREGAR: Ping periódico para mantener la conexión activa

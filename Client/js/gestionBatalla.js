@@ -16,30 +16,6 @@ window.MAIRA_UI_STATES = {
     panelAbierto: false
 };
 
-/**
- * Inicializa eventos para evitar que los menús se cierren al hacer clic dentro
- */
-function inicializarEventosMenus() {
-    const menusCollapse = document.querySelectorAll('.menu.collapse, .submenu.collapse');
-    
-    menusCollapse.forEach(menu => {
-        // Evitar que los clicks dentro del menú lo cierren
-        menu.addEventListener('click', function(e) {
-            // Solo detener propagación si no es un botón que debe cerrar el menú
-            const target = e.target;
-            const esBotonCerrar = target.classList.contains('btn-close') || 
-                                 target.closest('.btn-close') ||
-                                 target.getAttribute('data-dismiss') === 'modal';
-            
-            if (!esBotonCerrar) {
-                e.stopPropagation();
-            }
-        });
-    });
-    
-    console.log('🔧 Eventos de menús inicializados para', menusCollapse.length, 'menús');
-}
-
 // Módulo de Gestión de Batalla
 MAIRA.GestionBatalla = (function() {
     // Variables privadas del módulo
@@ -182,9 +158,6 @@ function inicializarInterfaz() {
     
     console.log("Inicializando componentes de la interfaz");
     
-    // 🔧 Inicializar eventos de menús para evitar que se cierren
-    inicializarEventosMenus();
-    
     // Inicializar panel lateral
     inicializarPanelLateral();
     
@@ -227,62 +200,10 @@ function inicializarInterfaz() {
     // Configurar otros componentes...
     inicializarMenusAvanzados();
     
-    // ✅ Inicializar MiRadial para modo GB
-    setTimeout(() => {
-        if (window.MiRadial && window.mapa) {
-            console.log('🎯 Inicializando MiRadial para Gestión de Batalla...');
-            window.MiRadial.init(window.mapa);
-            
-            // Configurar modo GB
-            window.MAIRA = window.MAIRA || {};
-            window.MAIRA.modoGB = true;
-            
-            console.log('✅ MiRadial inicializado para GB');
-        } else {
-            console.warn('⚠️ MiRadial o mapa no disponibles para inicialización');
-            console.log('🔍 Estado:', { MiRadial: !!window.MiRadial, mapa: !!window.mapa });
-        }
-    }, 1000); // Delay para asegurar que el mapa esté completamente cargado
-    
     console.log("Componentes de interfaz inicializados");
     
     // Marcar como inicializada
     window.MAIRA_INTERFAZ_INICIALIZADA = true;
-}
-
-/**
- * Actualiza la información de usuario en la interfaz
- */
-function actualizarInterfazUsuario() {
-    try {
-        if (!usuarioInfo) return;
-        
-        // Actualizar nombre de usuario
-        const nombreUsuarioEl = document.getElementById('nombre-usuario');
-        if (nombreUsuarioEl) {
-            nombreUsuarioEl.textContent = usuarioInfo.usuario || usuarioInfo.username || 'Usuario';
-        }
-        
-        // Actualizar operación
-        const nombreOperacionEl = document.getElementById('nombre-operacion');
-        if (nombreOperacionEl) {
-            nombreOperacionEl.textContent = usuarioInfo.operacion || new URLSearchParams(window.location.search).get('operacion') || 'Sin operación';
-        }
-        
-        // Actualizar elemento si está disponible
-        const nombreElementoEl = document.getElementById('nombre-elemento');
-        if (nombreElementoEl && elementoTrabajo) {
-            nombreElementoEl.textContent = elementoTrabajo.designacion || elementoTrabajo.id || 'Elemento';
-        }
-        
-        console.log("✅ Interfaz de usuario actualizada:", {
-            usuario: usuarioInfo,
-            elemento: elementoTrabajo
-        });
-        
-    } catch (error) {
-        console.error("❌ Error actualizando interfaz de usuario:", error);
-    }
 }
     
     /**
@@ -291,29 +212,11 @@ function actualizarInterfazUsuario() {
      */
     function cargarInfoDesdeLocalStorage() {
         try {
-            // 🔧 PRIORIDAD: Usar UserIdentity como fuente principal
-            if (window.UserIdentity && window.UserIdentity.isInitialized()) {
-                const identidad = window.UserIdentity.getUserData();
-                if (identidad && window.UserIdentity.isAuthenticated()) {
-                    usuarioInfo = {
-                        id: window.UserIdentity.getUserId(),
-                        usuario: window.UserIdentity.getUserName(),
-                        operacion: new URLSearchParams(window.location.search).get('operacion') || 'operacion'
-                    };
-                    console.log("✅ Usuario cargado desde UserIdentity:", usuarioInfo);
-                    
-                    // Actualizar interfaz inmediatamente
-                    actualizarInterfazUsuario();
-                }
-            }
-            
-            // Fallback: Intentar cargar información de usuario desde localStorage
-            if (!usuarioInfo) {
-                const usuarioGuardado = localStorage.getItem('gb_usuario_info');
-                if (usuarioGuardado) {
-                    usuarioInfo = JSON.parse(usuarioGuardado);
-                    console.log("Información de usuario cargada desde localStorage:", usuarioInfo);
-                }
+            // Intentar cargar información de usuario
+            const usuarioGuardado = localStorage.getItem('gb_usuario_info');
+            if (usuarioGuardado) {
+                usuarioInfo = JSON.parse(usuarioGuardado);
+                console.log("Información de usuario cargada:", usuarioInfo);
             }
             
             // Intentar cargar información de elemento
@@ -321,17 +224,6 @@ function actualizarInterfazUsuario() {
             if (elementoGuardado) {
                 elementoTrabajo = JSON.parse(elementoGuardado);
                 console.log("Información de elemento cargada:", elementoTrabajo);
-                
-                // 🔧 Asegurar que los datos estén completos
-                if (!elementoTrabajo.designacion && elementoTrabajo.designacionPrincipal) {
-                    elementoTrabajo.designacion = elementoTrabajo.designacionPrincipal;
-                }
-                if (!elementoTrabajo.dependencia && elementoTrabajo.dependenciaPrincipal) {
-                    elementoTrabajo.dependencia = elementoTrabajo.dependenciaPrincipal;
-                }
-                
-                // Guardar datos actualizados
-                localStorage.setItem('gb_elemento_info', JSON.stringify(elementoTrabajo));
             }
             
             // Verificar si se cargaron ambos
@@ -387,7 +279,7 @@ function actualizarInterfazUsuario() {
      */
     function redirigirASalaEspera() {
         console.warn("Redirigiendo a sala de espera por falta de información");
-        window.location.href = '/inicioGB.html';
+        window.location.href = '/Client/inicioGB.html';
     }
     
     /**
@@ -772,7 +664,7 @@ function configurarEventosChat() {
         const btnVolver = document.getElementById('btnVolver');
         if (btnVolver) {
             btnVolver.addEventListener('click', function() {
-                window.location.href = '/inicioGB.html';
+                window.location.href = '/Client/inicioGB.html';
             });
         }
         
@@ -822,8 +714,6 @@ function configurarEventosChat() {
      * @param {boolean} [forzarEstado] - Opcional: forzar un estado específico (true=visible, false=oculto)
      */
     function togglePanel(forzarEstado) {
-        console.log('🚀 TogglePanel ejecutándose!', { forzarEstado });
-        
         const panel = document.getElementById('panel-lateral');
         const botonFlotante = document.getElementById('toggle-panel-btn');
         const botonCerrar = document.getElementById('cerrar-panel');
@@ -1782,50 +1672,12 @@ function configurarEventosChat() {
             
             socket.on('connect', function() {
                 console.log('📡 Conectado al servidor Socket.IO');
-                
-                // ✅ AGREGAR AUTENTICACIÓN INMEDIATA
-                const datosAuth = {
-                    user_id: usuarioInfo.id,
-                    username: usuarioInfo.usuario
-                };
-                console.log('🔐 Enviando autenticación GB:', datosAuth);
-                socket.emit('login', datosAuth);
-                
-                // ✅ Verificación mejorada del Socket ID
-                setTimeout(() => {
-                    if (socket && socket.id) {
-                        console.log('🆔 Socket ID:', socket.id);
-                        // Marcar socket como realmente conectado
-                        socketGlobal = socket;
-                        window.socketPartidas = socket;
-                    } else {
-                        console.warn('⚠️ Socket conectado pero ID aún no disponible');
-                        // Reintentar obtener ID
-                        setTimeout(() => {
-                            if (socket && socket.id) {
-                                console.log('🆔 Socket ID (reintento):', socket.id);
-                                socketGlobal = socket;
-                                window.socketPartidas = socket;
-                            }
-                        }, 500);
-                    }
-                }, 100);
+                console.log('🆔 Socket ID:', socket.id);
                 
                 // Unirse a la sala de la operación
                 if (operacionActual) {
                     socket.emit('joinRoom', operacionActual);
                     console.log(`🏠 Uniéndose a la sala: ${operacionActual}`);
-                    
-                    // 🔧 Solicitar elementos inmediatamente después de unirse a la sala
-                    setTimeout(() => {
-                        if (typeof window.elementosGB !== 'undefined' && window.elementosGB.solicitarElementos) {
-                            console.log('🔄 Solicitando elementos al conectarse...');
-                            window.elementosGB.solicitarElementos();
-                        } else if (typeof solicitarElementos === 'function') {
-                            console.log('🔄 Solicitando elementos (función global)...');
-                            solicitarElementos();
-                        }
-                    }, 1000);
                 }
                 
                 // Configurar eventos del socket
@@ -2824,118 +2676,6 @@ function recibirMensajeChat(mensaje) {
             resultadosDiv.appendChild(noResultados);
         }
     }
-
-/**
- * ✅ Selecciona un elemento en el mapa (como en planeamiento)
- * @param {Object} elemento - Elemento Leaflet a seleccionar
- */
-function seleccionarElemento(elemento) {
-    console.log('🎯 GB: Seleccionando elemento:', elemento);
-    
-    try {
-        // ✅ DESELECCIONAR ANTERIOR SI EXISTE:
-        if (window.elementoSeleccionado && window.elementoSeleccionado !== elemento) {
-            deseleccionarElemento();
-        }
-        
-        // ✅ GUARDAR ESTILO ORIGINAL SOLO LA PRIMERA VEZ:
-        if (elemento.setStyle && !elemento.originalStyle && !elemento._editedStyle) {
-            elemento.originalStyle = {
-                color: elemento.options.color || '#3388ff',
-                weight: elemento.options.weight || 3,
-                opacity: elemento.options.opacity || 1,
-                fillOpacity: elemento.options.fillOpacity || 0.2
-            };
-            console.log('💾 GB: Estilo original guardado:', elemento.originalStyle);
-        }
-        
-        // ✅ APLICAR ESTILO DE SELECCIÓN (RESALTAR):
-        if (elemento.setStyle) {
-            let colorActual = '#3388ff';
-            let pesoActual = 3;
-            
-            if (elemento._editedStyle) {
-                colorActual = elemento._editedStyle.color;
-                pesoActual = elemento._editedStyle.weight;
-            } else if (elemento.originalStyle) {
-                colorActual = elemento.originalStyle.color;
-                pesoActual = elemento.originalStyle.weight;
-            } else {
-                colorActual = elemento.options.color || '#3388ff';
-                pesoActual = elemento.options.weight || 3;
-            }
-            
-            // Aplicar estilo de selección (más grueso y semi-transparente)
-            elemento.setStyle({
-                color: colorActual,
-                weight: Math.max(pesoActual + 2, 5), // Más grueso
-                opacity: 0.8,
-                fillOpacity: 0.4,
-                dashArray: '5, 5' // Línea punteada para indicar selección
-            });
-        }
-        
-        // ✅ MARCAR COMO SELECCIONADO:
-        window.elementoSeleccionado = elemento;
-        
-        // ✅ MOSTRAR EDITOR EN GB (diferente a planeamiento):
-        if (typeof mostrarEditorGB === 'function') {
-            mostrarEditorGB(elemento);
-        }
-        
-        console.log('✅ GB: Elemento seleccionado correctamente');
-        
-    } catch (error) {
-        console.error('❌ GB: Error seleccionando elemento:', error);
-    }
-}
-
-/**
- * ✅ Deselecciona el elemento actual
- */
-function deseleccionarElemento() {
-    console.log('🔄 GB: Deseleccionando elemento actual');
-    
-    try {
-        if (window.elementoSeleccionado) {
-            const elemento = window.elementoSeleccionado;
-            
-            // ✅ RESTAURAR ESTILO ORIGINAL:
-            if (elemento.setStyle) {
-                let estiloRestaurar = {};
-                
-                if (elemento._editedStyle) {
-                    estiloRestaurar = elemento._editedStyle;
-                } else if (elemento.originalStyle) {
-                    estiloRestaurar = elemento.originalStyle;
-                } else {
-                    estiloRestaurar = {
-                        color: '#3388ff',
-                        weight: 3,
-                        opacity: 1,
-                        fillOpacity: 0.2,
-                        dashArray: null
-                    };
-                }
-                
-                elemento.setStyle(estiloRestaurar);
-            }
-            
-            // ✅ LIMPIAR SELECCIÓN:
-            window.elementoSeleccionado = null;
-            
-            // ✅ OCULTAR EDITOR EN GB:
-            if (typeof ocultarEditorGB === 'function') {
-                ocultarEditorGB();
-            }
-            
-            console.log('✅ GB: Elemento deseleccionado correctamente');
-        }
-        
-    } catch (error) {
-        console.error('❌ GB: Error deseleccionando elemento:', error);
-    }
-}
     
     /**
      * Integra los datos del elemento de GBinicio con la función agregarMarcador
@@ -8178,15 +7918,6 @@ function configurarEventosSocket() {
         mostrarNotificacion("Error de socket: " + (error.mensaje || error), "error");
     });
     
-    // ✅ AGREGAR HANDLER PARA LOGIN EXITOSO
-    socket.on('loginExitoso', function(data) {
-        console.log('✅ Login exitoso en GB:', data);
-        // Marcar usuario como autenticado
-        if (data.user_id && data.username) {
-            console.log(`🔐 Usuario autenticado en GB: ${data.username} (${data.user_id})`);
-        }
-    });
-    
     // Eventos para mensajes
     socket.on('mensajeChat', function(mensaje) {
         console.log('Mensaje global recibido:', mensaje);
@@ -8531,10 +8262,6 @@ return {
     centrarEnPosicion: centrarEnPosicion,
     mostrarTodosElementos: mostrarTodosElementos,
     
-    // ✅ FUNCIONES DE SELECCIÓN DE ELEMENTOS (como planeamiento):
-    seleccionarElemento: seleccionarElemento,
-    deseleccionarElemento: deseleccionarElemento,
-    
     // ✅ FUNCIONES DE COMUNICACIÓN:
     enviarMensajeChat: enviarMensajeChat,
     agregarMensajeChat: agregarMensajeChat,
@@ -8612,13 +8339,6 @@ return {
 // ✅ VERIFICACIÓN DE CREACIÓN:
 console.log('✅ gestionBatalla.js exportado globalmente y en estructura MAIRA');
 
-// ✅ EXPORTAR FUNCIONES DE SELECCIÓN AL SCOPE GLOBAL (como planeamiento):
-if (window.MAIRA && window.MAIRA.GestionBatalla) {
-    window.seleccionarElemento = window.MAIRA.GestionBatalla.seleccionarElemento;
-    window.deseleccionarElemento = window.MAIRA.GestionBatalla.deseleccionarElemento;
-    console.log('✅ Funciones de selección exportadas al scope global');
-}
-
 // ✅ VERIFICAR QUE EL MÓDULO SE CREÓ CORRECTAMENTE:
 if (window.MAIRA && window.MAIRA.GestionBatalla && window.MAIRA.GestionBatalla.inicializar) {
     console.log('✅ MAIRA.GestionBatalla creado correctamente');
@@ -8660,11 +8380,6 @@ window.obtenerPosicionInicial = MAIRA.GestionBatalla.obtenerPosicionInicial;
 window.actualizarMarcadorUsuario = MAIRA.GestionBatalla.actualizarMarcadorUsuario;
 window.conectarAlServidor = MAIRA.GestionBatalla.conectarAlServidor;
 window.obtenerURLServidor = MAIRA.GestionBatalla.obtenerURLServidor;
-
-// 🔧 Asegurar que togglePanel esté disponible en ambos namespaces
-if (!window.MAIRA.GestionBatalla.togglePanel) {
-    window.MAIRA.GestionBatalla.togglePanel = togglePanel;
-}
 
 // Conectar con agregarMarcador global para mantener compatibilidad
 window.agregarMarcadorGB = MAIRA.GestionBatalla.agregarMarcadorGB;
@@ -9154,20 +8869,3 @@ window.demoGestionBatalla = async function() {
         console.error('❌ Error durante la demo:', error);
     }
 };
-
-// 🛠️ Debugging: Verificar que togglePanel esté disponible al cargar la página
-window.addEventListener('DOMContentLoaded', function() {
-    console.log('🔍 Verificando disponibilidad de togglePanel:', {
-        'window.MAIRA': !!window.MAIRA,
-        'window.MAIRA.GestionBatalla': !!window.MAIRA?.GestionBatalla,
-        'window.MAIRA.GestionBatalla.togglePanel': typeof window.MAIRA?.GestionBatalla?.togglePanel,
-        'window.togglePanel': typeof window.togglePanel
-    });
-    
-    // Test manual de la función
-    if (window.MAIRA?.GestionBatalla?.togglePanel) {
-        console.log('✅ togglePanel está disponible en MAIRA.GestionBatalla');
-    } else {
-        console.error('❌ togglePanel NO está disponible en MAIRA.GestionBatalla');
-    }
-});

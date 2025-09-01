@@ -700,7 +700,15 @@ actualizarListaUnidadesDisponibles() {
     centrarEnZonaDespliegue() {
         try {
             // Obtener la zona de despliegue asignada al jugador actual
-            const jugadorData = this.gestorJugadores.obtenerJugadorActual();
+            let jugadorData = null;
+            
+            // Intentar obtener desde gestorTurnos si está disponible
+            if (window.gestorTurnos && window.gestorTurnos.obtenerJugadorActual) {
+                jugadorData = window.gestorTurnos.obtenerJugadorActual();
+            } else if (this.gestorJugadores && this.gestorJugadores.obtenerJugadorActual) {
+                jugadorData = this.gestorJugadores.obtenerJugadorActual();
+            }
+            
             if (!jugadorData || !jugadorData.zonaDespliegue) {
                 console.log('No se encontró zona de despliegue para el jugador actual');
                 return;

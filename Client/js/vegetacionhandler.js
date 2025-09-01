@@ -16,7 +16,7 @@ const vegetacionHandler = (function() {
 
     async function cargarIndice() {
         try {
-            // ✅ REVERTIR: Usar índices originales que funcionan
+            // Lista de archivos de índice de vegetación disponibles
             const indicesDisponibles = [
                 'centro_mini_tiles_index.json',
                 'centro_norte_mini_tiles_index.json', 
@@ -76,38 +76,7 @@ const vegetacionHandler = (function() {
 
     function encontrarTileParaPunto(lat, lng) {
         for (const [tileKey, tileInfo] of Object.entries(tileIndex.tiles)) {
-            // ✅ VALIDACIÓN: Verificar que tileInfo existe
-            if (!tileInfo) {
-                console.warn(`Tile ${tileKey} no tiene información:`, tileInfo);
-                continue;
-            }
-            
-            let bounds = null;
-            
-            // ✅ MANEJAR DIFERENTES ESTRUCTURAS DE DATOS:
-            if (Array.isArray(tileInfo) && tileInfo.length > 0) {
-                // ESTRUCTURA ALTIMETRÍA: Array de objetos con bounds
-                const firstTile = tileInfo[0];
-                if (!firstTile || !firstTile.bounds) {
-                    console.warn(`Tile ${tileKey} no tiene bounds válidos en array:`, firstTile);
-                    continue;
-                }
-                bounds = firstTile.bounds;
-            } else if (tileInfo.bounds) {
-                // ESTRUCTURA VEGETACIÓN: Objeto directo con bounds
-                bounds = tileInfo.bounds;
-            } else {
-                console.warn(`Tile ${tileKey} no tiene estructura válida:`, tileInfo);
-                continue;
-            }
-            
-            // ✅ VERIFICAR BOUNDS
-            if (!bounds || !bounds.north || !bounds.south || !bounds.east || !bounds.west) {
-                console.warn(`Tile ${tileKey} bounds incompletos:`, bounds);
-                continue;
-            }
-            
-            // ✅ COMPROBAR SI EL PUNTO ESTÁ DENTRO
+            const bounds = tileInfo[0].bounds; // Asumimos que todos los tipos de tile tienen los mismos límites
             if (lat <= bounds.north && lat >= bounds.south && lng >= bounds.west && lng <= bounds.east) {
                 return tileKey;
             }

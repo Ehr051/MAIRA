@@ -328,55 +328,63 @@ class GestorTurnos extends GestorBase {
 
     marcarJugadorListo() {
         try {
-            // 1. Primero verificar elementos antes de continuar
-            if (!this.verificarElementosAntesDeEnviarListo()) {
-                console.warn('No hay elementos válidos para enviar al servidor');
-                if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
-                    this.gestorJuego.gestorInterfaz.mostrarMensaje(
-                        'No se encontraron elementos para marcar como listo',
-                        'error'
-                    );
-                }
-                return false;
-            }
-    
             // 2. Verificar fase correcta
             if (this.fase !== 'preparacion' || this.subfase !== 'despliegue') {
-                console.warn('[GestorFases] No se puede marcar como listo: fase incorrecta');
+                console.warn('[GestorTurnos] No se puede marcar como listo: fase incorrecta');
                 return false;
             }
             
             // 3. Obtener jugador actual correcto
-            const jugadorActualId = this.obtenerJugadorPropietario();
-            
-            // 4. Validar elementos desplegados
-            if (!this.validarElementosJugador(jugadorActualId)) {
-                console.warn('[GestorFases] Validación de elementos fallida');
+            const jugadorActual = this.obtenerJugadorActual();
+            if (!jugadorActual) {
+                console.error('[GestorTurnos] No se encontró jugador actual');
                 return false;
             }
             
-            console.log('[GestorFases] Elementos validados, marcando jugador como listo');
+            console.log(`[GestorTurnos] Marcando jugador como listo: ${jugadorActual.nombre} (${jugadorActual.id})`);
             
-            // 5. Buscar y actualizar el jugador en la lista
-            const jugadorIndex = this.jugadores.findIndex(j => j.id === jugadorActualId);
-            if (jugadorIndex === -1) {
-                console.error('[GestorFases] Jugador no encontrado en la lista de jugadores');
-                return false;
-            }
-            
-            this.jugadores[jugadorIndex].listo = true;
-            this.jugadores[jugadorIndex].despliegueListo = true;
-            
-            // 6. Emitir al servidor
-            if (this.gestorJuego?.gestorComunicacion?.socket) {
-                console.log('[GestorFases] Enviando estado listo al servidor');
-                this.gestorJuego.gestorComunicacion.socket.emit('jugadorListoDespliegue', {
-                    jugadorId: jugadorActualId,
-                    partidaCodigo: window.codigoPartida,
-                    timestamp: new Date().toISOString()
-                });
+            // 4. En modo local: verificar elementos pero permitir continuar si no hay elementos aún
+            if (this.config.modoJuego === 'local') {
+                console.log('🏠 Modo local: verificando elementos...');
+                const tieneElementos = this.verificarElementosAntesDeEnviarListo();
+                if (!tieneElementos) {
+                    console.log('🏠 Modo local: sin elementos, pero permitiendo continuar');
+                    // En modo local, permitir marcar como listo incluso sin elementos
+                }
             } else {
-                console.warn('[GestorFases] No hay conexión al servidor disponible');
+                // 4. En modo online: verificar elementos antes de continuar (obligatorio)
+                if (!this.verificarElementosAntesDeEnviarListo()) {
+                    console.warn('No hay elementos válidos para enviar al servidor');
+                    if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
+                        this.gestorJuego.gestorInterfaz.mostrarMensaje(
+                            'Debe desplegar al menos un elemento antes de marcar como listo',
+                            'error'
+                        );
+                    }
+                    return false;
+                }
+            }
+            
+            // 5. Marcar jugador como listo
+            jugadorActual.listo = true;
+            jugadorActual.despliegueListo = true;
+            
+            console.log(`✅ Jugador ${jugadorActual.nombre} marcado como listo`);
+            
+            // 6. En modo online: enviar al servidor
+            if (this.config.modoJuego !== 'local') {
+                if (this.gestorJuego?.gestorComunicacion?.socket) {
+                    console.log('[GestorTurnos] Enviando estado listo al servidor');
+                    this.gestorJuego.gestorComunicacion.socket.emit('jugadorListoDespliegue', {
+                        jugadorId: jugadorActual.id,
+                        partidaCodigo: window.codigoPartida,
+                        timestamp: new Date().toISOString()
+                    });
+                } else {
+                    console.warn('[GestorTurnos] No hay conexión al servidor disponible');
+                }
+            } else {
+                console.log('🏠 Modo local: no enviando al servidor');
             }
             
             // 7. Actualizar interfaz
@@ -384,37 +392,39 @@ class GestorTurnos extends GestorBase {
             if (btnListo) {
                 btnListo.disabled = true;
                 btnListo.textContent = 'Listo ✓';
+                btnListo.classList.add('btn-success');
             }
             
-            // 8. ✅ MODO LOCAL: Pasar automáticamente al siguiente turno después de marcar listo
-            if (this.configuracion.modoJuego === 'local') {
-                console.log('[GestorTurnos] Jugador listo, pasando al siguiente turno en modo local');
-                // Detener el reloj actual
-                this.detenerReloj();
+            // 8. En modo local: manejar flujo automático
+            if (this.config.modoJuego === 'local') {
+                console.log('[GestorTurnos] Modo local: verificando si pasar al siguiente turno');
                 
-                // Verificar si todos han marcado listo
-                const todosListos = this.todosJugadoresListos();
+                // Verificar si todos están listos o es el último jugador
+                const todosListos = this.jugadores.every(j => j.listo);
                 const esUltimoJugador = this.jugadorActualIndex === (this.jugadores.length - 1);
                 
-                if (todosListos || esUltimoJugador) {
-                    console.log('[GestorTurnos] Último jugador o todos listos, iniciando combate');
+                if (todosListos) {
+                    console.log('[GestorTurnos] Todos los jugadores listos, iniciando combate');
+                    setTimeout(() => this.iniciarFaseCombate(), 1000);
+                } else if (esUltimoJugador) {
+                    console.log('[GestorTurnos] Último jugador completado, iniciando combate');
                     setTimeout(() => this.iniciarFaseCombate(), 1000);
                 } else {
-                    setTimeout(() => {
-                        this.pasarTurno();
-                    }, 500); // Pequeño delay para que se vea la confirmación
+                    console.log('[GestorTurnos] Pasando al siguiente turno');
+                    setTimeout(() => this.pasarTurno(), 500);
                 }
             }
             
-            // 9. Verificar si todos están listos para iniciar combate (solo para modo online)
-            if (this.configuracion.modoJuego !== 'local' && this.todosJugadoresListos() && this.esDirector(jugadorActualId)) {
-                console.log('[GestorFases] Todos los jugadores listos, iniciando combate');
-                setTimeout(() => this.iniciarFaseCombate(), 1000);
-            }
+            // 9. Emitir evento para notificar el cambio
+            this.emitir('jugadorListo', {
+                jugador: jugadorActual,
+                todosListos: this.jugadores.every(j => j.listo),
+                timestamp: new Date().toISOString()
+            });
             
             return true;
         } catch (error) {
-            console.error('[GestorFases] Error al marcar jugador como listo:', error);
+            console.error('[GestorTurnos] Error al marcar jugador como listo:', error);
             if (this.gestorJuego?.gestorInterfaz?.mostrarMensaje) {
                 this.gestorJuego.gestorInterfaz.mostrarMensaje(
                     'Error al marcar como listo: ' + (error.message || 'Error desconocido'),
@@ -423,6 +433,7 @@ class GestorTurnos extends GestorBase {
             }
             return false;
         }
+    
     }
     
     // Añadir este método a la clase GestorFases
@@ -435,27 +446,48 @@ class GestorTurnos extends GestorBase {
         
         // Obtener y mostrar todos los elementos
         const elementos = [];
+        const todosLosElementos = [];
+        
         if (window.calcoActivo) {
             window.calcoActivo.eachLayer(layer => {
+                // Guardar todos los elementos para debug
+                todosLosElementos.push({
+                    id: layer.options?.id,
+                    tipo: layer.options?.tipo,
+                    jugador: layer.options?.jugador,
+                    jugadorId: layer.options?.jugadorId,
+                    propietario: layer.options?.propietario,
+                    equipo: layer.options?.equipo,
+                    todas_opciones: layer.options
+                });
+                
+                // Verificar múltiples propiedades que podrían contener el ID del jugador
                 if (layer.options && 
-                    (layer.options.jugadorId === jugadorId || layer.options.jugador === jugadorId)) {
+                    (layer.options.jugadorId === jugadorId || 
+                     layer.options.jugador === jugadorId ||
+                     layer.options.propietario === jugadorId)) {
                     elementos.push(layer);
                 }
             });
         }
         
         console.group(`[Diagnóstico] Elementos para jugador ${jugadorId} antes de marcar como listo`);
-        console.log(`Total elementos: ${elementos.length}`);
+        console.log(`Total elementos en mapa: ${todosLosElementos.length}`);
+        console.log(`Elementos del jugador: ${elementos.length}`);
+        console.log('Todos los elementos en el mapa:', todosLosElementos);
         
         elementos.forEach((elem, i) => {
             const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
-            console.log(`Elemento #${i+1}:`, {
+            console.log(`Elemento #${i+1} del jugador:`, {
                 id: elem.options?.id,
                 tipo: elem.options?.tipo,
                 designacion: elem.options?.designacion,
                 dependencia: elem.options?.dependencia,
                 magnitud: elem.options?.magnitud,
                 sidc: elem.options?.sidc,
+                jugador: elem.options?.jugador,
+                jugadorId: elem.options?.jugadorId,
+                propietario: elem.options?.propietario,
                 esEquipo
             });
         });
@@ -862,8 +894,6 @@ class GestorTurnos extends GestorBase {
             return window.userId;
         }
     }
-
-    // ...existing code...
 }
 
 // Exportar la clase

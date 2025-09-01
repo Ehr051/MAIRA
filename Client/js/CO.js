@@ -9,72 +9,14 @@
 var canvas;
 var jsPlumbInstance;
 var selectedElement = null;
-var elementoSeleccionado = null; // ✅ VARIABLE GLOBAL AGREGADA
 var currentZoom = 1;
 var enModoConexion = false;
 var connectionSource = null;
 var symbolCounter = 0;
 var historial = { acciones: [], indice: -1 };
 
-// ✅ VARIABLES DE AUTENTICACIÓN
-let userId = null;
-let userName = null;
-
 /* Inicialización */
-document.addEventListener('DOMContentLoaded', function() {
-    // ✅ Verificar autenticación antes de inicializar
-    if (!verificarAutenticacionCO()) {
-        console.log('❌ Usuario no autenticado, redirigiendo a index.html');
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    inicializarCuadroOrganizacion();
-});
-
-/**
- * ✅ Verificar autenticación del usuario
- */
-function verificarAutenticacionCO() {
-    console.log('🔍 Verificando autenticación en CO...');
-    
-    // Verificar UserIdentity con fallback a localStorage
-    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
-        console.warn('⚠️ UserIdentity no disponible, usando localStorage...');
-        
-        const userIdFallback = localStorage.getItem('userId');
-        const userNameFallback = localStorage.getItem('username');
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        
-        if (userIdFallback && userNameFallback && isLoggedIn === 'true') {
-            userId = parseInt(userIdFallback, 10);
-            userName = userNameFallback;
-            console.log('✅ Datos cargados desde localStorage en CO');
-        } else {
-            console.error('❌ No se pueden obtener datos de usuario válidos en CO');
-            return false;
-        }
-    } else {
-        userId = MAIRA.UserIdentity.getUserId();
-        userName = MAIRA.UserIdentity.getUsername();
-        console.log('✅ Datos cargados desde UserIdentity en CO');
-    }
-    
-    if (!userId || !userName || isNaN(parseInt(userId, 10))) {
-        console.error('❌ Datos de autenticación inválidos en CO');
-        return false;
-    }
-    
-    // Convertir a número si es necesario
-    userId = parseInt(userId, 10);
-    
-    // Exponer globalmente para compatibilidad
-    window.userId = userId;
-    window.userName = userName;
-    
-    console.log('✅ Usuario autenticado en CO:', { userId, userName });
-    return true;
-}
+document.addEventListener('DOMContentLoaded', inicializarCuadroOrganizacion);
 
 
 
@@ -642,8 +584,6 @@ function inicializarEventosElementos() {
     // Agregar evento de clic
     nuevoElemento.addEventListener('click', function(e) {
       e.stopPropagation();
-      console.log('🖱️ Click detectado en elemento:', this);
-      
       if (enModoConexion) {
         if (window.manejarClickEnModoConexion) {
           window.manejarClickEnModoConexion(this);
@@ -651,24 +591,21 @@ function inicializarEventosElementos() {
           manejarClickEnModoConexion(this);
         }
       } else {
-        console.log('🎯 Llamando a seleccionarElemento...');
         seleccionarElemento(this);
       }
     });
     
-    // Agregar evento de doble clic para edición (CORREGIDO: usar nuevoElemento)
-    nuevoElemento.addEventListener('dblclick', function(e) {
+    // Agregar evento de doble clic para edición
+    el.addEventListener('dblclick', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        console.log('🖱️ Doble click detectado en elemento:', this);
-        mostrarMenuContextual(e, this);
+        mostrarMenuContextual(e, el);
     });
     
     // Agregar menú contextual
     nuevoElemento.addEventListener('contextmenu', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('🖱️ Menú contextual en elemento:', this);
       mostrarMenuContextual(e, this);
     });
     
@@ -971,7 +908,25 @@ function configurarAtajosTeclado() {
 
 
 
-/* Seleccionar un elemento - VERSIÓN UNIFICADA */
+/* Seleccionar un elemento */
+function seleccionarElemento(el) {
+  // Deseleccionar elementos anteriores
+  deseleccionarElemento();
+  
+  // Marcar nuevo elemento como seleccionado
+  selectedElement = el;
+  if (selectedElement.classList) {
+    selectedElement.classList.add('selected');
+  }
+  
+  // Habilitar botón de eliminar en la barra de herramientas
+  var btnEliminar = document.getElementById('btnEliminar');
+  if (btnEliminar) {
+    btnEliminar.disabled = false;
+  }
+}
+
+
 function seleccionarElemento(elemento) {
     console.log('🎯 Seleccionando elemento:', elemento);
     
@@ -981,38 +936,22 @@ function seleccionarElemento(elemento) {
             return false;
         }
         
-        // Deseleccionar elemento anterior
-        deseleccionarElemento();
-        
-        // Establecer nuevo elemento seleccionado
-        elementoSeleccionado = elemento;
-        selectedElement = elemento; // Para compatibilidad con código existente
-        window.elementoSeleccionado = elemento; // También global
-        
-        // Agregar clase visual de selección
-        if (elemento.classList) {
-            elemento.classList.add('selected');
-        }
-        
-        // Habilitar botón de eliminar en la barra de herramientas
-        var btnEliminar = document.getElementById('btnEliminar');
-        if (btnEliminar) {
-            btnEliminar.disabled = false;
-        }
-        
         // ✅ VERIFICAR QUE EL ELEMENTO TENGA LAS PROPIEDADES NECESARIAS:
-        if (elemento.setStyle && typeof elemento.setStyle === 'function') {
-            // Aplicar estilo de selección para elementos Leaflet
-            elemento.setStyle({
-                color: '#ff0000',
-                weight: 3,
-                opacity: 1
-            });
+        if (!elemento.setStyle || typeof elemento.setStyle !== 'function') {
+            console.warn('⚠️ Elemento no tiene método setStyle');
+            return false;
         }
         
+        // Deseleccionar elemento anterior
+        if (elementoSeleccionado && elementoSeleccionado !== elemento) {
+            deseleccionarElemento();
+        }
+        
+        elementoSeleccionado = elemento;
+        window.elementoSeleccionado = elemento; // ✅ TAMBIÉN GLOBAL
+        
+        // Resto del código de selección...
         console.log('✅ Elemento seleccionado exitosamente');
-        console.log('✅ elementoSeleccionado:', elementoSeleccionado);
-        console.log('✅ selectedElement:', selectedElement);
         return true;
         
     } catch (error) {
@@ -1023,41 +962,17 @@ function seleccionarElemento(elemento) {
 
 /* Deseleccionar elemento */
 function deseleccionarElemento() {
-    console.log('🎯 Deseleccionando elemento...');
-    
-    // Deseleccionar selectedElement (compatibilidad)
-    if (selectedElement && selectedElement.classList) {
-        selectedElement.classList.remove('selected');
-    }
-    
-    // Deseleccionar elementoSeleccionado
-    if (elementoSeleccionado) {
-        if (elementoSeleccionado.classList) {
-            elementoSeleccionado.classList.remove('selected');
-        }
-        
-        // Restaurar estilo original para elementos Leaflet
-        if (elementoSeleccionado.setStyle && typeof elementoSeleccionado.setStyle === 'function') {
-            elementoSeleccionado.setStyle({
-                color: '#0000ff', // Color original
-                weight: 2,
-                opacity: 0.8
-            });
-        }
-    }
-    
-    // Limpiar todas las referencias
-    selectedElement = null;
-    elementoSeleccionado = null;
-    window.elementoSeleccionado = null;
-    
-    // Deshabilitar botón de eliminar
-    var btnEliminar = document.getElementById('btnEliminar');
-    if (btnEliminar) {
-        btnEliminar.disabled = true;
-    }
-    
-    console.log('✅ Elemento deseleccionado');
+  if (window.selectedElement && window.selectedElement.classList) {  // <-- CORREGIDO
+    window.selectedElement.classList.remove('selected');
+  }
+  
+  window.selectedElement = null;  // <-- CORREGIDO
+  
+  // Deshabilitar botón de eliminar
+  var btnEliminar = document.getElementById('btnEliminar');
+  if (btnEliminar) {
+    btnEliminar.disabled = true;
+  }
 }
 
 

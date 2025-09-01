@@ -1,196 +1,83 @@
-# 📚 Centro de Documentación MAIRA
+# MAIRA - Sistema de Análisis de Terreno y Gestión Táctica
 
-[![Version](https://img.shields.io/badge/Version-3.0.0-blue)](https://github.com/Ehr051/MAIRA)
-[![Documentation](https://img.shields.io/badge/Docs-Comprehensive-green)](https://github.com/Ehr051/MAIRA/tree/main/docs)
-[![Status](https://img.shields.io/badge/Status-Production-success)](https://maira-3e76.onrender.com)
+[![Mini-tiles System](https://img.shields.io/badge/Mini--tiles-v3.0-success)](https://github.com/Ehr051/MAIRA/releases/tag/tiles-v3.0)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> 🎯 **Centro completo de documentación técnica para el Sistema de Gestión de Batalla MAIRA v3.0**
+## 🎯 Descripción
 
----
+MAIRA es un sistema avanzado de análisis de terreno y gestión táctica que proporciona:
 
-## 📋 Navegación Rápida
+- **📊 Análisis de Altimetría**: Datos de elevación de Argentina con resolución de 25km
+- **🌱 Análisis de Vegetación**: Información detallada de cobertura vegetal
+- **🗺️ Sistema de Mini-tiles**: Arquitectura escalable para manejo de datos geoespaciales
+- **⚡ Carga Inteligente**: Sistema de caching y pre-carga optimizado
 
-| 📖 Sección | 📝 Descripción | 🔗 Enlaces |
-|-------------|----------------|------------|
-| **🚀 Inicio Rápido** | Setup básico del sistema | [README Principal](../README.md) |
-| **🔧 Documentación Técnica** | Especificaciones completas | [Ver abajo](#-documentación-core) |
-| **� Deployment** | Guías de producción | [Render.com Guide](../DEPLOYMENT_RENDER.md) |
-| **🧪 Testing** | Pruebas y QA | [Testing Guide](#-testing-y-calidad) |
+## 🚀 Características Principales
 
----
+### ✅ Sistema Mini-tiles v3.0
+- **97 archivos TAR** (<1.15MB c/u, compatibles con GitHub)
+- **9,501 mini-tiles** de 25km × 25km cada uno
+- **72MB total** vs 6.3GB original (99% reducción)
+- **Distribución global** via GitHub Releases + CDN
+- **$0 costo** de almacenamiento
 
-## 📚 Documentación Core
+### 🌍 Cobertura Geográfica
+- **Argentina completa** dividida en 5 regiones:
+  - Norte (Salta, Jujuy, Formosa, Chaco)
+  - Centro-Norte (Córdoba, Santiago del Estero, Tucumán)
+  - Centro (Buenos Aires, La Pampa, Mendoza)
+  - Patagonia (Neuquén, Río Negro, Chubut)
+  - Sur (Santa Cruz, Tierra del Fuego)
 
-### 🏗️ **Arquitectura y Sistema**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[SISTEMA_TECNICO_COMPLETO.md](./SISTEMA_TECNICO_COMPLETO.md)** | 📊 Documentación técnica completa del sistema | Desarrolladores Senior |
-| **[ANALISIS_MAIRA_COMPLETO.md](./ANALISIS_MAIRA_COMPLETO.md)** | 🔍 Análisis profundo de la arquitectura | Arquitectos |
-| **[architect-review.md](./architect-review.md)** | 🏛️ Revisor de arquitectura | Arquitectos |
-| **[backend-architect.md](./backend-architect.md)** | ⚙️ Arquitecto backend | Backend Devs |
+## 📁 Estructura del Proyecto
 
-### 🤖 **Sistema de Agentes IA**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[AGENTS.md](./AGENTS.md)** | 🤖 Sistema completo de agentes IA | AI Engineers |
-| **[ai-engineer.md](./ai-engineer.md)** | 🧠 Ingeniero de IA especializado | AI Developers |
-| **[ml-engineer.md](./ml-engineer.md)** | 📊 Ingeniero Machine Learning | ML Engineers |
-| **[mlops-engineer.md](./mlops-engineer.md)** | 🔄 Ingeniero MLOps | DevOps ML |
+```
+MAIRA/
+├── README.md                 # Este archivo
+├── index.html               # Aplicación principal
+├── mini_tiles_loader.js     # Loader principal de tiles
+├── app.py                   # Servidor backend (Python)
+├── package.json             # Dependencias Node.js
+├── requirements.txt         # Dependencias Python
+├── Client/                  # Frontend de la aplicación
+├── Server/                  # Backend Python
+├── mini_tiles_github/       # Sistema de mini-tiles
+├── tiles_por_provincias/    # Índices provinciales
+├── docs/                    # Documentación
+├── scripts/                 # Scripts de generación
+└── dev-tools/              # Herramientas de desarrollo
+```
 
-### 🌐 **Desarrollo Frontend**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[frontend-developer.md](./frontend-developer.md)** | 🎨 Desarrollador frontend | Frontend Devs |
-| **[dx-optimizer.md](./dx-optimizer.md)** | ⚡ Optimizador experiencia desarrollador | UX/DX Engineers |
-| **[javascript-pro.md](./javascript-pro.md)** | ⚡ Especialista JavaScript | JS Developers |
+## 🛠️ Instalación y Uso
 
-### 💻 **Desarrollo Backend**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[data-engineer.md](./data-engineer.md)** | 🗄️ Ingeniero de datos | Data Engineers |
-| **[data-scientist.md](./data-scientist.md)** | 📊 Científico de datos | Data Scientists |
-| **[database-admin.md](./database-admin.md)** | 🗃️ Administrador base datos | DBAs |
-| **[database-optimizer.md](./database-optimizer.md)** | ⚡ Optimizador base datos | Performance DBAs |
+### 1. Clonar el Repositorio
+```bash
+git clone https://github.com/Ehr051/MAIRA.git
+cd MAIRA
+```
 
-### 🔧 **DevOps y Infraestructura**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[devops-troubleshooter.md](./devops-troubleshooter.md)** | 🛠️ Solucionador DevOps | DevOps Engineers |
-| **[cloud-architect.md](./cloud-architect.md)** | ☁️ Arquitecto cloud | Cloud Engineers |
-| **[network-engineer.md](./network-engineer.md)** | 🌐 Ingeniero de redes | Network Admins |
-| **[incident-responder.md](./incident-responder.md)** | 🚨 Respondedor incidentes | SRE Teams |
+### 2. Instalar Dependencias
+```bash
+# Python
+pip install -r requirements.txt
 
-### 📱 **Desarrollo Móvil**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[mobile-developer.md](./mobile-developer.md)** | 📱 Desarrollador móvil | Mobile Devs |
-| **[ios-developer.md](./ios-developer.md)** | 🍎 Desarrollador iOS | iOS Developers |
+# Node.js (opcional)
+npm install
+```
 
-### 🧪 **Testing y Calidad**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[code-reviewer.md](./code-reviewer.md)** | 🔍 Revisor de código | QA Engineers |
-| **[debugger.md](./debugger.md)** | 🐛 Depurador especializado | Debug Specialists |
-| **[error-detective.md](./error-detective.md)** | 🕵️ Detective de errores | Error Analysts |
-| **[performance-engineer.md](./performance-engineer.md)** | ⚡ Ingeniero performance | Performance Experts |
+### 3. Ejecutar la Aplicación
+```bash
+# Servidor Python
+python app.py
 
-### � **Especialistas por Lenguaje**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[c-pro.md](./c-pro.md)** | ⚙️ Especialista C | C Developers |
-| **[cpp-pro.md](./cpp-pro.md)** | 🔧 Especialista C++ | C++ Developers |
-| **[golang-pro.md](./golang-pro.md)** | 🐹 Especialista Go | Go Developers |
-| **[php-pro.md](./php-pro.md)** | 🐘 Especialista PHP | PHP Developers |
+# O usar el servidor demo para testing
+python scripts/servidor_demo.py
+```
 
-### 🔌 **APIs y Integraciones**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[api-documenter.md](./api-documenter.md)** | 📋 Documentador APIs | API Designers |
-| **[graphql-architect.md](./graphql-architect.md)** | 🕸️ Arquitecto GraphQL | GraphQL Devs |
-| **[payment-integration.md](./payment-integration.md)** | 💳 Integración pagos | Payment Engineers |
-
-### 🏗️ **Modernización y Legacy**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[legacy-modernizer.md](./legacy-modernizer.md)** | 🔄 Modernizador sistemas legacy | Migration Teams |
-| **[DEPENDENCY_MANAGEMENT.md](./DEPENDENCY_MANAGEMENT.md)** | 📦 Gestión dependencias | DevOps |
-
-### 🛡️ **Seguridad y Negocio**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[legal-advisor.md](./legal-advisor.md)** | ⚖️ Asesor legal | Legal Teams |
-| **[customer-support.md](./customer-support.md)** | 🎧 Soporte al cliente | Support Teams |
-| **[business-analyst.md](./business-analyst.md)** | 📈 Analista negocio | Business Analysts |
-| **[content-marketer.md](./content-marketer.md)** | 📝 Marketing contenido | Marketing Teams |
-
-### 🔧 **Gestión y Contexto**
-| 📄 Documento | 📝 Descripción | 🎯 Audiencia |
-|---------------|----------------|--------------|
-| **[context-manager.md](./context-manager.md)** | 🧠 Gestor de contexto | Project Managers |
-
----
-
-## 🎯 Documentación por Estado del Sistema
-
-### ✅ **Completado y Operativo**
-- ✅ **[MINI_TILES_SUCCESS.md](./MINI_TILES_SUCCESS.md)** - Sistema mini-tiles funcionando
-- ✅ **[ELEVATION_FIX_APPLIED.md](./ELEVATION_FIX_APPLIED.md)** - Fix de elevación aplicado
-- ✅ **Sistema de autenticación** - JWT + bcrypt operativo
-- ✅ **Socket.IO real-time** - Comunicación tiempo real estable
-- ✅ **Deployment en Render.com** - Producción operativa
-
-### 🔄 **En Desarrollo Activo**
-- 🔄 **Sistema de partidas multijugador** - Funcionalidad core
-- 🔄 **Chat en tiempo real** - Comunicación entre jugadores  
-- 🔄 **Gestión de batalla** - Interface de combate
-- 🔄 **Optimizaciones performance** - Mejoras continuas
-
-### 📋 **Planificado**
-- 📋 **Sistema de rankings** - Clasificaciones usuarios
-- 📋 **Modo espectador** - Observar partidas
-- 📋 **Replay system** - Reproducir partidas
-- 📋 **Analytics avanzados** - Métricas detalladas
-
----
-
-## 🔍 Buscar Documentación
-
-### Por Rol/Especialidad:
-- **👨‍💻 Desarrolladores Frontend**: `frontend-developer.md`, `javascript-pro.md`, `dx-optimizer.md`
-- **⚙️ Desarrolladores Backend**: `backend-architect.md`, `data-engineer.md`, `database-admin.md`
-- **☁️ DevOps Engineers**: `devops-troubleshooter.md`, `cloud-architect.md`, `incident-responder.md`
-- **🤖 AI/ML Engineers**: `ai-engineer.md`, `ml-engineer.md`, `mlops-engineer.md`
-- **🧪 QA Engineers**: `code-reviewer.md`, `debugger.md`, `performance-engineer.md`
-
-### Por Tecnología:
-- **🐍 Python**: `SISTEMA_TECNICO_COMPLETO.md`, `data-engineer.md`, `ml-engineer.md`
-- **⚡ JavaScript**: `javascript-pro.md`, `frontend-developer.md`
-- **🗄️ PostgreSQL**: `database-admin.md`, `database-optimizer.md`
-- **🔌 Socket.IO**: `SISTEMA_TECNICO_COMPLETO.md`, `backend-architect.md`
-- **🗺️ Leaflet/Maps**: `frontend-developer.md`, `MINI_TILES_SUCCESS.md`
-
----
-
-## � Enlaces Externos y Recursos
-
-### 📚 **Documentación Oficial**
-- 🌐 **[MAIRA Live](https://maira-3e76.onrender.com)** - Sistema en producción
-- 📦 **[GitHub Repository](https://github.com/Ehr051/MAIRA)** - Código fuente
-- 🚀 **[Render.com Dashboard](https://dashboard.render.com)** - Panel deployment
-
-### 🛠️ **Herramientas de Desarrollo**
-- 🧪 **[Test Suite](../dev-tools/)** - Herramientas testing
-- 🔍 **[Debug Panel](../dev-tools/debug-panel.js)** - Panel debugging
-- 📊 **[System Status](../static/estado_sistema_maira.html)** - Estado sistema
-
-### 🎓 **Guías de Aprendizaje**
-- 📖 **[Setup Guide](../README.md#-instalación)** - Configuración inicial
-- 🚀 **[Deployment Guide](../DEPLOYMENT_RENDER.md)** - Deploy producción
-- 🧪 **[Testing Guide](../dev-tools/README.md)** - Guía testing
-
----
-
-## 📞 Soporte y Contribuciones
-
-### 🆘 **¿Necesitas Ayuda?**
-1. 📖 Consulta esta documentación primero
-2. 🔍 Busca en [Issues de GitHub](https://github.com/Ehr051/MAIRA/issues)
-3. 🧪 Ejecuta los tests de diagnóstico
-4. 📧 Contacta al equipo de desarrollo
-
-### 🤝 **¿Quieres Contribuir?**
-1. 🍴 Haz fork del repositorio
-2. 🌿 Crea rama para tu feature
-3. 📝 Actualiza documentación relevante
-4. 🧪 Asegúrate que tests pasen
-5. 📤 Envía Pull Request
-
----
-
-**📚 Centro de Documentación MAIRA v3.0**  
-**👨‍💻 Mantenido por**: MAIRA Development Team  
-**📅 Última actualización**: Agosto 2025  
-**📄 Licencia**: MIT License
+### 4. Usar el Sistema Mini-tiles
+```javascript
+// Cargar el loader
+const loader = new MiniTilesLoader();
 
 // Obtener tile para coordenadas específicas
 const tile = await loader.getTile(-34.6118, -58.396, 'altimetria');

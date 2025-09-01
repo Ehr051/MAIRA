@@ -474,7 +474,7 @@ def crear_partida(data):
 
                 # Insertar al creador en la tabla `usuarios_partida` con `esCreador` = 1
                 cursor.execute("""
-                    INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, \"esCreador\")
+                    INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
                     VALUES (%s, %s, 'sin_equipo', 0, 1)
                 """, (partida_id, creador_id))
                 
@@ -683,7 +683,7 @@ def iniciar_partida(data):
                         u.username,
                         up.equipo,
                         up.listo,
-                        up.\"esCreador\"
+                        up.esCreador
                     FROM usuarios_partida up
                     JOIN usuarios u ON up.usuario_id = u.id
                     WHERE up.partida_id = %s

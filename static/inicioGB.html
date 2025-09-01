@@ -16,8 +16,6 @@
     <script src="/node_modules/milsymbol/dist/milsymbol.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/Client/js/UserIdentity.js"></script>
-    <script src="/Client/js/UserIdentityLoader.js"></script>
     <script src="/Client/js/MAIRAChat.js"></script>
     <script src="/Client/js/inicioGBhandler.js"></script>
 </head>
@@ -165,20 +163,11 @@
                 <!-- Información del Usuario -->
                 <div class="card mb-4" id="infoUsuario">
                     <div class="card-header">
-                        <i class="fas fa-user-circle me-2"></i>Mi Información
+                        Mi Información
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-12 mb-2">
-                                <p class="mb-1"><strong><i class="fas fa-id-badge me-1"></i>Usuario:</strong> <span id="nombreUsuarioActual" class="text-primary fw-bold">Cargando...</span></p>
-                            </div>
-                            <div class="col-12 mb-2">
-                                <p class="mb-1"><strong><i class="fas fa-hashtag me-1"></i>ID:</strong> <span id="idUsuarioActual" class="text-muted small">Cargando...</span></p>
-                            </div>
-                            <div class="col-12">
-                                <p class="mb-0"><strong><i class="fas fa-wifi me-1"></i>Estado:</strong> <span id="estadoConexion" class="badge bg-success">Conectado</span></p>
-                            </div>
-                        </div>
+                        <p><strong>ID:</strong> <span id="idUsuarioActual"></span></p>
+                        <p><strong>Estado:</strong> <span id="estadoConexion">Conectado</span></p>
                     </div>
                 </div>
 
