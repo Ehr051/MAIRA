@@ -2,6 +2,393 @@ window.interpolarPuntosRuta = interpolarpuntos;
 // herramientas.js
 // Este archivo contiene funciones para herramientas de medición, búsqueda y manipulación del mapa
 
+// ======================================================
+// MAIRA - Optimización Móvil y Táctil Integrada
+// ======================================================
+
+/**
+ * Detección avanzada de dispositivo móvil y configuración táctil
+ */
+function detectarDispositivoMovil() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const deviceInfo = {
+        isMobile: /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent),
+        isTablet: /ipad|android(?!.*mobile)|kindle|silk/i.test(userAgent) || 
+                 (window.innerWidth >= 768 && window.innerWidth <= 1024),
+        isIOS: /ipad|iphone|ipod/i.test(userAgent),
+        hasTouch: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+        screenWidth: screen.width,
+        windowWidth: window.innerWidth
+    };
+    
+    // Configurar viewport dinámico para móviles
+    if (deviceInfo.isMobile || deviceInfo.isTablet) {
+        let viewport = document.querySelector('meta[name="viewport"]');
+        if (!viewport) {
+            viewport = document.createElement('meta');
+            viewport.name = 'viewport';
+            document.head.appendChild(viewport);
+        }
+        
+        if (deviceInfo.isIOS) {
+            viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no';
+        } else {
+            viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+        }
+    }
+    
+    return deviceInfo;
+}
+
+/**
+ * Configuración de gestos táctiles mejorados para herramientas de medición
+ */
+function configurarGestosTactiles() {
+    const deviceInfo = detectarDispositivoMovil();
+    
+    if (!deviceInfo.hasTouch) return;
+    
+    console.log('🔧 Configurando gestos táctiles para herramientas');
+    
+    // Variables para tracking de gestos
+    let touchStartTime = 0;
+    let touchStartPos = { x: 0, y: 0 };
+    let tapCount = 0;
+    let tapTimer = null;
+    
+    // Manejo específico para mediciones
+    document.addEventListener('touchstart', (e) => {
+        touchStartTime = Date.now();
+        const touch = e.touches[0];
+        touchStartPos = { x: touch.clientX, y: touch.clientY };
+        
+        // Si es en el mapa y hay herramienta activa
+        if (e.target.closest('.leaflet-container') && window.herramientaActiva) {
+            e.preventDefault(); // Prevenir scroll en mediciones
+        }
+    }, { passive: false });
+    
+    document.addEventListener('touchend', (e) => {
+        const touchEndTime = Date.now();
+        const touch = e.changedTouches[0];
+        const touchEndPos = { x: touch.clientX, y: touch.clientY };
+        
+        const deltaTime = touchEndTime - touchStartTime;
+        const deltaX = touchEndPos.x - touchStartPos.x;
+        const deltaY = touchEndPos.y - touchStartPos.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Detectar tap (click) en lugar de drag
+        if (distance < 10 && deltaTime < 300) {
+            tapCount++;
+            
+            if (tapTimer) clearTimeout(tapTimer);
+            
+            tapTimer = setTimeout(() => {
+                if (tapCount === 1) {
+                    // Single tap - equivale a click
+                    simularClickEnPunto(touchEndPos);
+                } else if (tapCount === 2) {
+                    // Double tap - equivale a double click
+                    simularDoubleClickEnPunto(touchEndPos);
+                }
+                tapCount = 0;
+            }, 300);
+        }
+    }, { passive: true });
+    
+    // Mejorar botones para táctil
+    aplicarEstilosTactiles();
+}
+
+/**
+ * Aplicar estilos optimizados para dispositivos táctiles
+ */
+function aplicarEstilosTactiles() {
+    const estilosTactiles = document.createElement('style');
+    estilosTactiles.id = 'estilos-tactiles-maira';
+    estilosTactiles.textContent = `
+        /* Optimizaciones táctiles para herramientas */
+        .leaflet-control-zoom a,
+        .leaflet-bar a {
+            min-width: 44px !important;
+            min-height: 44px !important;
+            line-height: 44px !important;
+            font-size: 18px !important;
+        }
+        
+        /* Botones de herramientas más grandes en móviles */
+        @media (max-width: 768px) {
+            #botones-secundarios button {
+                min-height: 48px !important;
+                min-width: 48px !important;
+                padding: 12px !important;
+                font-size: 14px !important;
+                margin: 5px !important;
+            }
+            
+            .menu-btn button {
+                min-height: 48px !important;
+                padding: 12px 16px !important;
+                font-size: 15px !important;
+            }
+            
+            /* Displays informativos adaptados */
+            .medicion-display,
+            .coordenadas-display {
+                bottom: 140px !important;
+                left: 10px !important;
+                right: 10px !important;
+                width: auto !important;
+                font-size: 14px !important;
+                padding: 10px !important;
+                border-radius: 8px !important;
+            }
+            
+            .medicion-display {
+                bottom: 180px !important;
+            }
+        }
+        
+        /* Feedback táctil visual */
+        @media (hover: none) and (pointer: coarse) {
+            button:active,
+            .leaflet-control a:active {
+                transform: scale(0.95) !important;
+                opacity: 0.8 !important;
+            }
+        }
+    `;
+    
+    // Solo añadir si no existe
+    if (!document.getElementById('estilos-tactiles-maira')) {
+        document.head.appendChild(estilosTactiles);
+    }
+}
+
+/**
+ * Simular click en punto específico para herramientas de medición
+ */
+function simularClickEnPunto(punto) {
+    const elemento = document.elementFromPoint(punto.x, punto.y);
+    if (elemento && elemento.closest('.leaflet-container')) {
+        // Crear evento de mouse sintético
+        const evento = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            clientX: punto.x,
+            clientY: punto.y
+        });
+        elemento.dispatchEvent(evento);
+    }
+}
+
+/**
+ * Simular double click para finalizar mediciones
+ */
+function simularDoubleClickEnPunto(punto) {
+    const elemento = document.elementFromPoint(punto.x, punto.y);
+    if (elemento && elemento.closest('.leaflet-container')) {
+        // Crear evento de doble click sintético
+        const evento = new MouseEvent('dblclick', {
+            bubbles: true,
+            cancelable: true,
+            clientX: punto.x,
+            clientY: punto.y
+        });
+        elemento.dispatchEvent(evento);
+        
+        console.log('📱 Double tap detectado - finalizando medición');
+    }
+}
+
+// Inicializar optimizaciones móviles cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        configurarGestosTactiles();
+    });
+} else {
+    configurarGestosTactiles();
+}
+
+/**
+ * Configurar eventos táctiles específicos para medición
+ */
+function configurarEventosTactilesMedicion() {
+    const mapContainer = mapa.getContainer();
+    
+    // Variables para tracking de touch en medición
+    let touchStartPos = null;
+    let hasMoved = false;
+    let touchCount = 0;
+    let lastTouchTime = 0;
+    const touchThreshold = 300; // ms para detectar doble tap
+    const touchMoveThreshold = 10; // px para detectar movimiento
+
+    // Touch start para medición
+    const onTouchStartMedicion = (e) => {
+        if (!measuringDistance) return;
+        
+        touchStartPos = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+            time: Date.now()
+        };
+        hasMoved = false;
+        e.preventDefault(); // Prevenir scroll durante medición
+    };
+
+    // Touch move para medición
+    const onTouchMoveMedicion = (e) => {
+        if (!touchStartPos) return;
+        
+        const moveDistance = Math.sqrt(
+            Math.pow(e.touches[0].clientX - touchStartPos.x, 2) +
+            Math.pow(e.touches[0].clientY - touchStartPos.y, 2)
+        );
+        
+        if (moveDistance > touchMoveThreshold) {
+            hasMoved = true;
+        }
+    };
+
+    // Touch end para medición
+    const onTouchEndMedicion = (e) => {
+        if (!measuringDistance || !touchStartPos || hasMoved) {
+            touchStartPos = null;
+            return;
+        }
+
+        const touchDuration = Date.now() - touchStartPos.time;
+        
+        // Solo procesar toques rápidos y precisos
+        if (touchDuration < 500) {
+            const now = Date.now();
+            
+            // Detectar doble tap para finalizar medición
+            if (now - lastTouchTime < touchThreshold && touchCount > 0) {
+                console.log('📱 Doble tap detectado - finalizando medición');
+                finalizarMedicion();
+                return;
+            }
+            
+            lastTouchTime = now;
+            touchCount++;
+
+            // Convertir posición de touch a coordenadas del mapa
+            const containerPoint = L.point(touchStartPos.x, touchStartPos.y);
+            const latlng = mapa.containerPointToLatLng(containerPoint);
+            
+            // Agregar punto de medición
+            addDistancePoint({ latlng });
+            
+            // Actualizar instrucciones táctiles
+            actualizarInstruccionesTactiles(touchCount);
+        }
+        
+        touchStartPos = null;
+    };
+
+    // Limpiar eventos anteriores si existen
+    if (window.touchEventHandlersMedicion) {
+        mapContainer.removeEventListener('touchstart', window.touchEventHandlersMedicion.touchstart);
+        mapContainer.removeEventListener('touchmove', window.touchEventHandlersMedicion.touchmove);
+        mapContainer.removeEventListener('touchend', window.touchEventHandlersMedicion.touchend);
+    }
+
+    // Agregar nuevos event listeners
+    mapContainer.addEventListener('touchstart', onTouchStartMedicion, { passive: false });
+    mapContainer.addEventListener('touchmove', onTouchMoveMedicion, { passive: true });
+    mapContainer.addEventListener('touchend', onTouchEndMedicion, { passive: true });
+
+    // Guardar referencias para limpieza posterior
+    window.touchEventHandlersMedicion = {
+        touchstart: onTouchStartMedicion,
+        touchmove: onTouchMoveMedicion,
+        touchend: onTouchEndMedicion
+    };
+}
+
+/**
+ * Mostrar alerta optimizada para dispositivos táctiles
+ */
+function mostrarAlertaTactil(mensaje) {
+    // Crear modal táctil más amigable que alert()
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+    `;
+    
+    const contenido = document.createElement('div');
+    contenido.style.cssText = `
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 80vw;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    `;
+    
+    contenido.innerHTML = `
+        <div style="font-size: 16px; margin-bottom: 15px; color: #333;">
+            ${mensaje}
+        </div>
+        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" 
+                style="background: #007cba; color: white; border: none; padding: 12px 24px; 
+                       border-radius: 6px; font-size: 16px; min-height: 44px; min-width: 80px;">
+            Entendido
+        </button>
+    `;
+    
+    modal.appendChild(contenido);
+    document.body.appendChild(modal);
+}
+
+/**
+ * Mostrar display de medición optimizado para táctil
+ */
+function mostrarDisplayMedicionTactil(deviceInfo) {
+    let medicionDisplay = document.getElementById('medicionDistancia');
+    if (medicionDisplay) {
+        const instrucciones = deviceInfo.hasTouch ? 
+            'Toque para agregar puntos • Doble toque para finalizar' :
+            'Haga clic para comenzar la medición';
+            
+        medicionDisplay.innerHTML = `
+            <span>${instrucciones}</span>
+            <button onclick="finalizarMedicion()" style="float: right; min-height: 32px; min-width: 32px;">✕</button>
+        `;
+        medicionDisplay.style.display = 'block';
+    }
+}
+
+/**
+ * Actualizar instrucciones durante la medición táctil
+ */
+function actualizarInstruccionesTactiles(puntos) {
+    let medicionDisplay = document.getElementById('medicionDistancia');
+    if (medicionDisplay) {
+        const span = medicionDisplay.querySelector('span');
+        if (span && puntos > 0) {
+            span.textContent = `${puntos} punto${puntos > 1 ? 's' : ''} • Doble toque para finalizar`;
+        }
+    }
+}
+
+// ======================================================
+// VARIABLES GLOBALES Y FUNCIONES ORIGINALES
+// ======================================================
+
 // VERIFICAR QUE ESTAS VARIABLES ESTÉN DECLARADAS AL INICIO:
 
 // ✅ VARIABLES GLOBALES NECESARIAS (línea ~10):
@@ -359,12 +746,17 @@ document.addEventListener('DOMContentLoaded', function() {
 // REEMPLAZAR FUNCIÓN medirDistancia (línea ~290):
 
 function medirDistancia() {
-    console.log("Iniciando medición de distancia");
+    console.log("🔄 Iniciando medición optimizada para táctil");
     
     // ✅ VERIFICAR CALCO ACTIVO:
     calcoActivo = obtenerCalcoActivo();
     if (!calcoActivo) {
-        alert('Debe tener un calco activo para medir distancias');
+        const deviceInfo = detectarDispositivoMovil();
+        if (deviceInfo.isMobile || deviceInfo.hasTouch) {
+            mostrarAlertaTactil('Debe tener un calco activo para medir distancias');
+        } else {
+            alert('Debe tener un calco activo para medir distancias');
+        }
         return;
     }
     
@@ -372,7 +764,13 @@ function medirDistancia() {
         finalizarMedicion();
     } else {
         measuringDistance = true;
-        mapa.getContainer().style.cursor = 'crosshair';
+        
+        // Configurar cursor solo para dispositivos no táctiles
+        const deviceInfo = detectarDispositivoMovil();
+        if (!deviceInfo.hasTouch) {
+            mapa.getContainer().style.cursor = 'crosshair';
+        }
+        
         lineaActual = crearLinea();
         
         // ✅ REMOVER LISTENERS EXISTENTES PARA EVITAR CONFLICTOS:
@@ -380,20 +778,18 @@ function medirDistancia() {
         mapa.off('mousemove', actualizarDistanciaProvisional);
         mapa.off('dblclick', finalizarMedicion);
         
-        // ✅ AGREGAR NUEVOS LISTENERS:
-        mapa.on('click', addDistancePoint);
-        mapa.on('mousemove', actualizarDistanciaProvisional);
-        mapa.once('dblclick', finalizarMedicion);
-        
-        // Mostrar el display de medición con un mensaje inicial
-        let medicionDisplay = document.getElementById('medicionDistancia');
-        if (medicionDisplay) {
-            medicionDisplay.innerHTML = `
-                <span>Haga clic para comenzar la medición</span>
-                <button onclick="finalizarMedicion()" style="float: right;">X</button>
-            `;
-            medicionDisplay.style.display = 'block';
+        // ✅ CONFIGURAR EVENTOS SEGÚN DISPOSITIVO:
+        if (deviceInfo.hasTouch) {
+            configurarEventosTactilesMedicion();
+        } else {
+            // Desktop - eventos estándar
+            mapa.on('click', addDistancePoint);
+            mapa.on('mousemove', actualizarDistanciaProvisional);
+            mapa.once('dblclick', finalizarMedicion);
         }
+        
+        // Mostrar el display de medición con mensaje optimizado
+        mostrarDisplayMedicionTactil(deviceInfo);
     }
 }
 
@@ -445,9 +841,20 @@ function finalizarMedicion(e) {
     
     measuringDistance = false;
     mapa.getContainer().style.cursor = '';
+    
+    // Limpiar eventos estándar
     mapa.off('click', addDistancePoint);
     mapa.off('mousemove', actualizarDistanciaProvisional);
     mapa.off('dblclick', finalizarMedicion);
+    
+    // Limpiar eventos táctiles si existen
+    if (window.touchEventHandlersMedicion) {
+        const mapContainer = mapa.getContainer();
+        mapContainer.removeEventListener('touchstart', window.touchEventHandlersMedicion.touchstart);
+        mapContainer.removeEventListener('touchmove', window.touchEventHandlersMedicion.touchmove);
+        mapContainer.removeEventListener('touchend', window.touchEventHandlersMedicion.touchend);
+        window.touchEventHandlersMedicion = null;
+    }
     
     if (lineaActual) {
         let linea = lineas[lineaActual];

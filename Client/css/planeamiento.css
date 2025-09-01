@@ -1151,72 +1151,197 @@ main {
   }
 
   /* Estilo general del panel */
+/* Panel de Turnos y Fases - Responsive Optimizado */
 #panelTurnos {
-    position: absolute;
-    top: 20px;
-    left: 0;
-    padding: 10px;
-    width: 200px;
-    background-color: rgba(0, 0, 0, 0.8);
-    border: 1px solid #444;
-    border-radius: 5px;
-    color: white;
-    font-family: Arial, sans-serif;
+  position: fixed;
+  top: 50px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 15px 20px;
+  font-family: 'Arial', sans-serif;
+  z-index: 1000;
+  border-bottom: 2px solid #0281a8;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Contenido del panel organizado en grid responsive */
+#panelTurnos > div {
+  display: grid;
+  grid-template-columns: 1fr auto auto 150px;
+  gap: 20px;
+  align-items: center;
+  margin: 0;
+}
+
+/* Información de fase y turno más legible */
+#faseActual,
+#turnoActual,
+#jugadorActual {
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+#faseActual {
+  color: #4CAF50;
+  font-size: 18px;
+}
+
+#turnoActual {
+  color: #2196F3;
+}
+
+#jugadorActual {
+  color: #FFC107;
+}
+
+/* Reloj de turno mejorado */
+#relojTurno {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #FF5722, #E64A19);
+  color: white;
+  text-align: center;
+  min-width: 80px;
+  box-shadow: 0 3px 10px rgba(255, 87, 34, 0.4);
+}
+
+/* Botón finalizar turno optimizado */
+#btnFinalizarTurno {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  min-height: 44px;
+  min-width: 140px;
+}
+
+#btnFinalizarTurno:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+#btnFinalizarTurno:active {
+  transform: translateY(0);
+}
+
+#btnFinalizarTurno:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Botón preparación */
+#btnFinalizarPreparacion {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+  min-height: 44px;
+  min-width: 140px;
+}
+
+#btnFinalizarPreparacion:hover {
+  background: linear-gradient(135deg, #1976D2, #1565C0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+/* RESPONSIVE: Móviles */
+@media (max-width: 768px) {
+  #panelTurnos {
+    padding: 12px 15px;
     font-size: 14px;
-    text-align: center;
   }
   
-  /* Estilo para los elementos internos */
   #panelTurnos > div {
-    margin-bottom: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 12px;
+    text-align: center;
   }
   
   #faseActual,
   #turnoActual,
   #jugadorActual {
-    font-weight: bold;
+    font-size: 14px;
   }
   
-  /* Estilo del reloj */
+  #faseActual {
+    font-size: 16px;
+  }
+  
   #relojTurno {
     font-size: 16px;
-    font-weight: bold;
-    padding: 5px;
-    border-radius: 5px;
-    background-color: transparent;
+    padding: 6px 12px;
+    justify-self: center;
   }
   
-  /* Botones */
-  #btnFinalizarPreparacion,
-  #btnFinalizarTurno {
+  #btnFinalizarTurno,
+  #btnFinalizarPreparacion {
     width: 100%;
-    margin: 5px 0;
-    padding: 8px;
-    background-color: #333;
-    color: white;
-    border: 1px solid #555;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    max-width: 200px;
+    justify-self: center;
+    padding: 14px 24px;
+    font-size: 15px;
   }
-  
-  #btnFinalizarPreparacion:hover,
-  #btnFinalizarTurno:hover {
-    background-color: #555;
-  }
-  
-  /* Color del reloj según el turno */
-  #relojTurno.azul {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  #relojTurno.rojo {
-    background-color: #dc3545;
-    color: white;
-  }
-  
+}
 
+/* RESPONSIVE: Tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+  #panelTurnos > div {
+    grid-template-columns: 1fr 1fr auto 130px;
+    gap: 15px;
+  }
+  
+  #btnFinalizarTurno,
+  #btnFinalizarPreparacion {
+    min-width: 120px;
+  }
+}
+
+/* RESPONSIVE: Pantallas muy pequeñas */
+@media (max-width: 480px) {
+  #panelTurnos {
+    padding: 10px 12px;
+  }
+  
+  #panelTurnos > div {
+    gap: 8px;
+  }
+  
+  #faseActual,
+  #turnoActual,
+  #jugadorActual {
+    font-size: 13px;
+  }
+  
+  #relojTurno {
+    font-size: 14px;
+    padding: 5px 10px;
+  }
+}
 /* Contenedor de botones */
 #botonesContainer {
     display: flex;
@@ -1367,221 +1492,5 @@ main {
     /* ✅ TAMAÑO AUTOMÁTICO: */
     width: auto !important;
     height: auto !important;
-}
-
-/* ================================================
-   RESPONSIVE DESIGN OPTIMIZATIONS
-   ================================================ */
-
-/* Mobile optimizations (max-width: 768px) */
-@media (max-width: 768px) {
-    /* Header and main menu */
-    header {
-        padding: 10px;
-    }
-    
-    #botones-principales {
-        flex-wrap: wrap;
-        padding: 10px;
-        gap: 5px;
-    }
-    
-    .menu-btn {
-        flex: 1 1 45%;
-        min-width: 120px;
-    }
-    
-    .menu-btn button {
-        width: 100%;
-        padding: 12px 8px;
-        font-size: 14px;
-        min-height: 44px; /* Touch target minimum */
-    }
-    
-    /* Secondary buttons repositioned */
-    #botones-secundarios {
-        bottom: 80px;
-        left: 10px;
-        right: 10px;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-    }
-    
-    #botones-secundarios button {
-        min-height: 44px;
-        min-width: 80px;
-        padding: 10px 12px;
-        font-size: 14px;
-        margin: 2px;
-    }
-    
-    /* Map controls larger for touch */
-    .leaflet-control-zoom a {
-        width: 36px !important;
-        height: 36px !important;
-        line-height: 36px !important;
-        font-size: 18px !important;
-    }
-    
-    /* Info displays repositioned */
-    .medicion-display,
-    .coordenadas-display,
-    .perfil-display {
-        position: fixed;
-        bottom: 140px;
-        left: 10px;
-        right: 10px;
-        width: auto;
-        max-width: calc(100% - 20px);
-        padding: 10px;
-        font-size: 14px;
-        border-radius: 8px;
-        backdrop-filter: blur(10px);
-    }
-    
-    .medicion-display {
-        bottom: 180px;
-    }
-    
-    /* Menus as mobile-friendly modals */
-    .menu {
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 90% !important;
-        max-width: 350px !important;
-        max-height: 80vh !important;
-        overflow-y: auto !important;
-        z-index: 3000 !important;
-        border-radius: 12px !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
-        backdrop-filter: blur(15px) !important;
-    }
-    
-    .menu a {
-        padding: 15px 20px !important;
-        font-size: 16px !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-    }
-    
-    /* Submenu mobile layout */
-    .submenu-content {
-        position: static !important;
-        width: 100% !important;
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        margin-left: 20px !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Fullscreen button repositioned */
-    .fullscreen-button {
-        top: 20px !important;
-        right: 70px !important;
-        width: 44px !important;
-        height: 44px !important;
-        font-size: 20px !important;
-        background: rgba(0, 0, 0, 0.7) !important;
-        border-radius: 50% !important;
-    }
-}
-
-/* Tablet optimizations (769px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .menu-btn button {
-        padding: 12px 16px;
-        font-size: 15px;
-    }
-    
-    #botones-secundarios {
-        bottom: 60px;
-    }
-    
-    .leaflet-control-zoom a {
-        width: 32px !important;
-        height: 32px !important;
-        line-height: 32px !important;
-    }
-}
-
-/* Touch device optimizations */
-@media (hover: none) and (pointer: coarse) {
-    /* Ensure all interactive elements meet touch target size */
-    button,
-    .btn,
-    .leaflet-control a,
-    .menu a,
-    input[type="button"],
-    input[type="submit"] {
-        min-height: 44px !important;
-        min-width: 44px !important;
-    }
-    
-    /* Enhanced feedback for touch */
-    .menu-btn button:active {
-        transform: scale(0.95);
-        background-color: rgba(2, 129, 168, 0.3) !important;
-    }
-    
-    #botones-secundarios button:active {
-        transform: scale(0.95);
-        opacity: 0.8;
-    }
-    
-    /* Remove hover effects that don't work on touch */
-    .menu-btn button:hover,
-    #botones-secundarios button:hover {
-        background-color: inherit;
-        transform: none;
-    }
-}
-
-/* Very small screens (max-width: 480px) */
-@media (max-width: 480px) {
-    .menu-btn {
-        flex: 1 1 100%;
-    }
-    
-    .coordenadas-display {
-        display: none; /* Hide to save space */
-    }
-    
-    .menu {
-        width: 95% !important;
-        max-height: 85vh !important;
-    }
-    
-    #botones-secundarios button {
-        min-width: 70px;
-        font-size: 12px;
-        padding: 8px 10px;
-    }
-}
-
-/* Landscape orientation optimizations */
-@media (max-width: 768px) and (orientation: landscape) {
-    #botones-principales {
-        padding: 5px;
-    }
-    
-    .menu-btn button {
-        padding: 8px 12px;
-        font-size: 13px;
-    }
-    
-    #botones-secundarios {
-        bottom: 20px;
-    }
-    
-    .medicion-display,
-    .coordenadas-display {
-        bottom: 60px;
-        font-size: 12px;
-        padding: 6px 10px;
-    }
 }
 
