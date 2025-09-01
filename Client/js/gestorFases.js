@@ -263,6 +263,7 @@ class GestorFases extends GestorBase {
             
             // Validar configuración
             this.validarConfiguracion(config);
+            this.config = config; // Guardar configuración para usarla en otras funciones
             this.jugadores = config.jugadores;
             this.gestorJuego = config.gestorJuego;
             
@@ -403,7 +404,14 @@ limpiarInterfazAnterior() {
         this.esDirectorTemporal = !this.director;
         
         if (this.esDirectorTemporal) {
-            this.primerJugador = this.jugadores.find(j => j.equipo === 'azul') || this.jugadores[0];
+            // En modo local, el director temporal es siempre el primer jugador
+            if (this.config && this.config.modoJuego === 'local') {
+                this.primerJugador = this.jugadores[0];
+            } else {
+                // En modo online, preferir el equipo azul
+                this.primerJugador = this.jugadores.find(j => j.equipo === 'azul') || this.jugadores[0];
+            }
+            
             if (this.primerJugador) {
                 this.primerJugador.rolTemporal = 'director';
                 console.log('Director temporal establecido:', this.primerJugador);
