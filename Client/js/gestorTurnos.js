@@ -1,4 +1,34 @@
 // gestorTurnos.js
+
+// Constantes para evitar strings mágicos
+const FASES = {
+    PREPARACION: 'preparacion',
+    COMBATE: 'combate'
+};
+
+const SUBFASES = {
+    DEFINICION_SECTOR: 'definicion_sector',
+    DEFINICION_ZONAS: 'definicion_zonas',
+    DESPLIEGUE: 'despliegue'
+};
+
+const MODOS_JUEGO = {
+    LOCAL: 'local',
+    ONLINE: 'online'
+};
+
+// Logger condicional para optimizar en producción
+const logger = {
+    debug: (...args) => {
+        if (typeof window !== 'undefined' && window.DEBUG_MODE) {
+            console.log('[GestorTurnos]', ...args);
+        }
+    },
+    warn: (...args) => console.warn('[GestorTurnos]', ...args),
+    error: (...args) => console.error('[GestorTurnos]', ...args),
+    info: (...args) => console.log('[GestorTurnos]', ...args)
+};
+
 class GestorTurnos extends GestorBase {
     constructor() {
         super();
@@ -329,8 +359,9 @@ class GestorTurnos extends GestorBase {
     marcarJugadorListo() {
         try {
             // 2. Verificar fase correcta
-            if (this.fase !== 'preparacion' || this.subfase !== 'despliegue') {
+            if (this.fase !== FASES.PREPARACION || this.subfase !== SUBFASES.DESPLIEGUE) {
                 console.warn('[GestorTurnos] No se puede marcar como listo: fase incorrecta');
+                console.warn(`[GestorTurnos] Fase actual: ${this.fase}, Subfase: ${this.subfase}`);
                 return false;
             }
             
@@ -344,7 +375,7 @@ class GestorTurnos extends GestorBase {
             console.log(`[GestorTurnos] Marcando jugador como listo: ${jugadorActual.nombre} (${jugadorActual.id})`);
             
             // 4. En modo local: verificar elementos pero permitir continuar si no hay elementos aún
-            if (this.config.modoJuego === 'local') {
+            if (this.configuracion.modoJuego === MODOS_JUEGO.LOCAL) {
                 console.log('🏠 Modo local: verificando elementos...');
                 const tieneElementos = this.verificarElementosAntesDeEnviarListo();
                 if (!tieneElementos) {
@@ -372,7 +403,7 @@ class GestorTurnos extends GestorBase {
             console.log(`✅ Jugador ${jugadorActual.nombre} marcado como listo`);
             
             // 6. En modo online: enviar al servidor
-            if (this.config.modoJuego !== 'local') {
+            if (this.configuracion.modoJuego !== MODOS_JUEGO.LOCAL) {
                 if (this.gestorJuego?.gestorComunicacion?.socket) {
                     console.log('[GestorTurnos] Enviando estado listo al servidor');
                     this.gestorJuego.gestorComunicacion.socket.emit('jugadorListoDespliegue', {
@@ -392,11 +423,14 @@ class GestorTurnos extends GestorBase {
             if (btnListo) {
                 btnListo.disabled = true;
                 btnListo.textContent = 'Listo ✓';
-                btnListo.classList.add('btn-success');
+                // Verificar que classList existe antes de usarlo
+                if (btnListo.classList) {
+                    btnListo.classList.add('btn-success');
+                }
             }
             
             // 8. En modo local: manejar flujo automático
-            if (this.config.modoJuego === 'local') {
+            if (this.configuracion.modoJuego === MODOS_JUEGO.LOCAL) {
                 console.log('[GestorTurnos] Modo local: verificando si pasar al siguiente turno');
                 
                 // Verificar si todos están listos o es el último jugador
@@ -433,14 +467,18 @@ class GestorTurnos extends GestorBase {
             }
             return false;
         }
-    
     }
     
-    // Añadir este método a la clase GestorFases
     verificarElementosAntesDeEnviarListo() {
         const jugadorId = window.userId;
         if (!jugadorId) {
-            console.error('No hay ID de jugador disponible');
+            console.error('[GestorTurnos] No hay ID de jugador disponible');
+            return false;
+        }
+        
+        // Verificar que calcoActivo existe
+        if (!window.calcoActivo) {
+            console.warn('[GestorTurnos] No hay calco activo disponible');
             return false;
         }
         

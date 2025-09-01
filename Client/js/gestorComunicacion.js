@@ -28,17 +28,15 @@ class GestorComunicacion extends GestorBase {
                 // Guardar referencia al gestorJuego
                 this.gestorJuego = config.gestorJuego;
     
-                // Inicializar solo si es modo online o lan
-                if (config.modoJuego === 'lan' || config.modoJuego === 'online') {
+                // Inicializar solo si es modo online
+                if (config.modoJuego === 'online') {
                     // Verificar código de partida
                     if (!this.codigoPartida) {
                         throw new Error('No hay código de partida disponible');
                     }
-    
+
                     // Conectar socket
-                    await this.conectarSocket(config.urlServidor || this.configuracion.urlServidor);
-                    
-                    // Configurar eventos
+                    await this.conectarSocket(config.urlServidor || this.configuracion.urlServidor);                    // Configurar eventos
                     this.configurarEventosSocket();
                     
                     this.log('GestorComunicacion inicializado correctamente');

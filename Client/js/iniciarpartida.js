@@ -689,7 +689,7 @@ function crearPartidaOnline() {
         duracionPartida,
         duracionTurno,
         objetivoPartida,
-        modo: modoSeleccionado || 'internet',
+        modo: modoSeleccionado || 'online',
         creadorId: currentUserId
     };
     
