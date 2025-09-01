@@ -1295,7 +1295,7 @@ def obtener_operaciones_gb(data=None):
         actualizar_lista_operaciones_gb()
     except Exception as e:
         print(f"❌ Error obteniendo operaciones GB: {e}")
-        emit('error', {'mensaje': 'Error al obtener operaciones'})
+        emit('operacionesGB', {'operaciones': []})  # Enviar lista vacía en caso de error
 
 @socketio.on('unirseOperacionGB')
 def unirse_operacion_gb(data):

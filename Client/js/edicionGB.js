@@ -273,7 +273,7 @@ function actualizarTipos(categoriaArma) {
     const [categoria, arma] = categoriaArma.split('|');
     const tipoSelect = document.getElementById('tipo');
     tipoSelect.innerHTML = '';
-    const tipos = unidadesMilitares[categoria][arma].tipos;
+    const tipos = unidadesMilitaresGB[categoria][arma].tipos;
     Object.keys(tipos).forEach(tipo => {
         let option = document.createElement('option');
         option.value = tipo;
@@ -287,7 +287,7 @@ function actualizarCaracteristicas(categoriaArma, tipo) {
     const [categoria, arma] = categoriaArma.split('|');
     const caracteristicaSelect = document.getElementById('caracteristica');
     caracteristicaSelect.innerHTML = '';
-    const caracteristicas = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas;
+    const caracteristicas = unidadesMilitaresGB[categoria][arma].tipos[tipo].caracteristicas;
     Object.keys(caracteristicas).forEach(caract => {
         let option = document.createElement('option');
         option.value = caract;
@@ -372,7 +372,7 @@ function actualizarCampoSIDC(id, valor) {
 
 function determinarTipoUnidad(sidc) {
     const codigoUnidad = sidc.substr(4, 6);
-    for (const [categoria, armas] of Object.entries(unidadesMilitares)) {
+    for (const [categoria, armas] of Object.entries(unidadesMilitaresGB)) {
         for (const [arma, detalles] of Object.entries(armas)) {
             if (codigoUnidad.startsWith(detalles.codigo)) {
                 const restoCodigo = codigoUnidad.substr(detalles.codigo.length);
@@ -416,9 +416,9 @@ function obtenerSIDCActual() {
         magnitud
     });
 
-    const codigoArma = unidadesMilitares[categoria][arma].codigo;
-    const codigoTipo = unidadesMilitares[categoria][arma].tipos[tipo].codigo;
-    const codigoCaracteristica = unidadesMilitares[categoria][arma].tipos[tipo].caracteristicas[caracteristica];
+    const codigoArma = unidadesMilitaresGB[categoria][arma].codigo;
+    const codigoTipo = unidadesMilitaresGB[categoria][arma].tipos[tipo].codigo;
+    const codigoCaracteristica = unidadesMilitaresGB[categoria][arma].tipos[tipo].caracteristicas[caracteristica];
 
     let centroParte = (codigoArma + codigoTipo + codigoCaracteristica).padEnd(6, '-');
     sidc = sidc.substr(0, 1) + afiliacion + sidc.substr(2, 1) + estado + centroParte;
@@ -480,7 +480,7 @@ function inicializarSelectores() {
     const armaSelect = document.getElementById('arma');
     if (armaSelect) {
         armaSelect.innerHTML = '';
-        Object.entries(unidadesMilitares).forEach(([categoria, armas]) => {
+        Object.entries(unidadesMilitaresGB).forEach(([categoria, armas]) => {
             Object.keys(armas).forEach(arma => {
                 let option = document.createElement('option');
                 option.value = `${categoria}|${arma}`;
@@ -602,10 +602,10 @@ function obtenerTipoDeElemento(sidc) {
             return tiposEquipo[codigoEquipo] || 'equipo_general';
         }
         
-        // Buscar en unidadesMilitares
-        for (const categoria in unidadesMilitares) {
-            for (const arma in unidadesMilitares[categoria]) {
-                if (unidadesMilitares[categoria][arma].codigo === codigo) {
+        // Buscar en unidadesMilitaresGB
+        for (const categoria in unidadesMilitaresGB) {
+            for (const arma in unidadesMilitaresGB[categoria]) {
+                if (unidadesMilitaresGB[categoria][arma].codigo === codigo) {
                     return arma.toLowerCase();
                 }
             }

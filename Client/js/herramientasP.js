@@ -255,44 +255,64 @@ function updateDistanceDisplay(id) {
 
 // Función para inicializar la búsqueda de lugar
 function initializeBuscarLugar() {
-    console.log('Iniciando inicialización de buscarLugar');
+    console.log('🔍 Iniciando inicialización de buscarLugar');
     var busquedaLugarInput = document.getElementById('busquedaLugar');
     var btnBuscarLugar = document.getElementById('btnBuscarLugar');
     var resultadosBusquedaLugar = document.getElementById('resultadosBusquedaLugar');
 
-    if (!busquedaLugarInput || !btnBuscarLugar || !resultadosBusquedaLugar || !mapa) {
-        console.error('No se pueden inicializar los elementos de búsqueda o el mapa');
+    if (!busquedaLugarInput || !btnBuscarLugar || !resultadosBusquedaLugar) {
+        console.warn('⚠️ Elementos de búsqueda de lugar no encontrados en esta página');
         return;
     }
 
-    console.log('Todos los elementos necesarios encontrados, continuando con la inicialización');
+    if (!window.mapa) {
+        console.error('❌ Mapa no disponible para búsqueda de lugar');
+        return;
+    }
+
+    console.log('✅ Todos los elementos necesarios encontrados, verificando geocoder...');
+
+    // Verificar que el geocoder esté disponible
+    if (typeof L === 'undefined' || !L.Control || !L.Control.Geocoder) {
+        console.error('❌ Leaflet Geocoder no está cargado');
+        return;
+    }
 
     var geocoder = L.Control.Geocoder.nominatim();
+    console.log('✅ Geocoder inicializado:', geocoder);
 
     function handleSearch() {
         var busqueda = busquedaLugarInput.value.trim();
         if (busqueda.length === 0) return;
 
-        console.log('Realizando búsqueda para:', busqueda);
-        geocoder.geocode(busqueda, function(results) {
-            console.log('Resultados de búsqueda:', results);
-            resultadosBusquedaLugar.innerHTML = '';
-            if (results.length > 0) {
-                results.forEach(function(result) {
-                    var li = document.createElement('li');
-                    li.textContent = result.name;
-                    li.addEventListener('click', function() {
-                        mapa.setView(result.center, 13);
-                        console.log('Mapa centrado en:', result.center);
-                        busquedaLugarInput.value = '';
-                        resultadosBusquedaLugar.innerHTML = '';
+        console.log('🔍 Realizando búsqueda para:', busqueda);
+        
+        try {
+            geocoder.geocode(busqueda, function(results) {
+                console.log('📍 Resultados de búsqueda:', results);
+                resultadosBusquedaLugar.innerHTML = '';
+                if (results.length > 0) {
+                    results.forEach(function(result) {
+                        var li = document.createElement('li');
+                        li.textContent = result.name;
+                        li.style.cursor = 'pointer';
+                        li.style.padding = '5px';
+                        li.addEventListener('click', function() {
+                            window.mapa.setView(result.center, 13);
+                            console.log('🎯 Mapa centrado en:', result.center);
+                            busquedaLugarInput.value = '';
+                            resultadosBusquedaLugar.innerHTML = '';
+                        });
+                        resultadosBusquedaLugar.appendChild(li);
                     });
-                    resultadosBusquedaLugar.appendChild(li);
-                });
-            } else {
-                resultadosBusquedaLugar.innerHTML = '<li>No se encontraron resultados</li>';
-            }
-        });
+                } else {
+                    resultadosBusquedaLugar.innerHTML = '<li style="color: #666;">No se encontraron resultados</li>';
+                }
+            });
+        } catch (error) {
+            console.error('❌ Error en geocoder:', error);
+            resultadosBusquedaLugar.innerHTML = '<li style="color: red;">Error en la búsqueda</li>';
+        }
     }
 
     busquedaLugarInput.addEventListener('input', function() {
@@ -311,7 +331,7 @@ function initializeBuscarLugar() {
         }
     });
 
-    console.log('Función buscarLugar inicializada correctamente');
+    console.log('✅ Función buscarLugar inicializada correctamente');
 }
 
 // Inicialización cuando el DOM está completamente cargado
@@ -1114,8 +1134,120 @@ function ajustarFlechaAncha(linea) {
 // AGREGAR función inicializarControlGestos (línea ~280):
 function inicializarControlGestos() {
     console.log('🎮 Inicializando control de gestos');
-    // Función placeholder - implementar según necesidades
-    console.log('✅ Control de gestos inicializado');
+    
+    // Verificar si estamos en dispositivo móvil
+    const esMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!esMobile) {
+        console.log('📱 No es dispositivo móvil, gestos táctiles omitidos');
+        return;
+    }
+    
+    // Detectar elemento del mapa
+    const mapaElement = document.getElementById('mapa') || document.querySelector('.leaflet-container');
+    if (!mapaElement) {
+        console.warn('⚠️ Elemento del mapa no encontrado para gestos');
+        return;
+    }
+    
+    // Variables para tracking de gestos
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let isGesturing = false;
+    let gestureTimeout = null;
+    
+    // Configuración de gestos
+    const SWIPE_THRESHOLD = 70;    // Distancia mínima para swipe
+    const SWIPE_VELOCITY = 0.3;    // Velocidad mínima
+    const VERTICAL_THRESHOLD = 50; // Límite vertical para swipe horizontal
+    
+    // Evento touchstart
+    mapaElement.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+            isGesturing = false;
+            
+            // Limpiar timeout anterior
+            if (gestureTimeout) {
+                clearTimeout(gestureTimeout);
+            }
+        } else if (e.touches.length === 2) {
+            isGesturing = true; // Zoom/pinch gesture
+        }
+    });
+    
+    // Detectar movimientos durante el gesto
+    mapaElement.addEventListener('touchmove', function(e) {
+        if (e.touches.length > 1) {
+            isGesturing = true;
+        }
+    });
+    
+    // Detectar swipe y otros gestos
+    mapaElement.addEventListener('touchend', function(e) {
+        if (isGesturing || !e.changedTouches || e.changedTouches.length === 0) return;
+        
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const touchTime = Date.now() - touchStartTime;
+        
+        // Evitar gestos muy rápidos o muy lentos
+        if (touchTime < 50 || touchTime > 1000) return;
+        
+        const distX = touchEndX - touchStartX;
+        const distY = touchEndY - touchStartY;
+        const velocidadX = Math.abs(distX) / touchTime;
+        
+        // Swipe horizontal para abrir/cerrar paneles
+        if (Math.abs(distX) > SWIPE_THRESHOLD && 
+            Math.abs(distY) < VERTICAL_THRESHOLD && 
+            velocidadX > SWIPE_VELOCITY) {
+            
+            console.log('👆 Swipe detectado:', distX > 0 ? 'derecha' : 'izquierda');
+            
+            if (distX > 0) {
+                // Swipe derecha -> Mostrar panel
+                if (window.MAIRA?.GestionBatalla?.togglePanel) {
+                    window.MAIRA.GestionBatalla.togglePanel(true);
+                } else if (window.mostrarPanel) {
+                    window.mostrarPanel();
+                }
+            } else {
+                // Swipe izquierda -> Ocultar panel
+                if (window.MAIRA?.GestionBatalla?.togglePanel) {
+                    window.MAIRA.GestionBatalla.togglePanel(false);
+                } else if (window.ocultarPanel) {
+                    window.ocultarPanel();
+                }
+            }
+        }
+        
+        // Double tap para centrar/zoom
+        if (Math.abs(distX) < 10 && Math.abs(distY) < 10 && touchTime < 300) {
+            if (gestureTimeout) {
+                // Es un double tap
+                clearTimeout(gestureTimeout);
+                gestureTimeout = null;
+                console.log('👆👆 Double tap detectado');
+                
+                // Zoom in en la posición
+                if (window.mapa) {
+                    const latlng = window.mapa.containerPointToLatLng(L.point(touchEndX, touchEndY));
+                    window.mapa.setView(latlng, window.mapa.getZoom() + 1);
+                }
+            } else {
+                // Primer tap, esperar segundo
+                gestureTimeout = setTimeout(() => {
+                    gestureTimeout = null;
+                    // Single tap - no hacer nada especial
+                }, 250);
+            }
+        }
+    });
+    
+    console.log('✅ Control de gestos inicializado para dispositivos móviles');
 }
 
 
@@ -1125,12 +1257,56 @@ function inicializarControlGestos() {
 window.initializeBuscarLugar = function() {
     console.log('🔍 Inicializando buscarLugar desde herramientasP...');
     
-    // Buscar si ya está inicializado
-    if (typeof inicializarBuscarLugar === 'function') {
-        inicializarBuscarLugar();
-    } else {
-        console.log('✅ Función buscarLugar ya está disponible');
+    // Verificar múltiples veces si es necesario
+    let intentos = 0;
+    const maxIntentos = 10;
+    
+    function intentarInicializar() {
+        intentos++;
+        
+        // Verificar que Leaflet y Geocoder estén disponibles
+        if (typeof L === 'undefined') {
+            console.warn(`⚠️ Intento ${intentos}/${maxIntentos}: Leaflet no disponible`);
+            if (intentos < maxIntentos) {
+                setTimeout(intentarInicializar, 500);
+                return;
+            }
+            console.error('❌ Leaflet no se cargó después de múltiples intentos');
+            return;
+        }
+        
+        if (!L.Control || !L.Control.Geocoder) {
+            console.warn(`⚠️ Intento ${intentos}/${maxIntentos}: Geocoder no disponible`);
+            if (intentos < maxIntentos) {
+                setTimeout(intentarInicializar, 500);
+                return;
+            }
+            console.error('❌ Geocoder no se cargó después de múltiples intentos');
+            return;
+        }
+        
+        // Verificar que el mapa esté disponible
+        if (!window.mapa) {
+            console.warn(`⚠️ Intento ${intentos}/${maxIntentos}: Mapa no disponible`);
+            if (intentos < maxIntentos) {
+                setTimeout(intentarInicializar, 500);
+                return;
+            }
+            console.error('❌ Mapa no se inicializó después de múltiples intentos');
+            return;
+        }
+        
+        // Buscar si ya está inicializado
+        if (typeof inicializarBuscarLugar === 'function') {
+            console.log('✅ Inicializando función buscarLugar...');
+            inicializarBuscarLugar();
+        } else {
+            console.warn('❌ Función inicializarBuscarLugar no está disponible');
+        }
     }
+    
+    // Iniciar el proceso
+    intentarInicializar();
 };
 
 // EN herramientasP.js línea ~830 - SIMPLIFICAR FUNCIÓN:

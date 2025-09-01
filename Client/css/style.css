@@ -1848,3 +1848,224 @@ footer:before {
     background-color: #131414;
     min-height: 100vh;
 }
+
+/* ================================================
+   MOBILE AND TOUCH OPTIMIZATIONS - STYLE.CSS
+   ================================================ */
+
+/* Touch target improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Ensure all buttons meet touch standards */
+    button,
+    .btn,
+    .mode button,
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        padding: 12px 20px !important;
+    }
+    
+    /* Enhanced touch feedback */
+    button:active,
+    .btn:active,
+    .mode button:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    
+    /* Remove hover effects on touch devices */
+    .mode:hover,
+    .feature:hover,
+    .application:hover {
+        transform: none;
+        box-shadow: inherit;
+    }
+    
+    /* Improve form controls for touch */
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    select {
+        font-size: 16px !important; /* Prevent iOS zoom */
+        padding: 12px !important;
+        border-radius: 6px !important;
+    }
+}
+
+/* Enhanced mobile viewport handling */
+@media (max-width: 768px) {
+    /* Login panel full optimization */
+    .login-panel {
+        width: 90% !important;
+        max-width: 400px !important;
+        padding: 20px !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Form improvements */
+    .formulario {
+        width: 95% !important;
+        padding: 20px !important;
+        border-radius: 12px !important;
+    }
+    
+    .formulario input {
+        padding: 14px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .formulario button {
+        padding: 14px 24px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+        min-height: 48px !important;
+    }
+    
+    /* Mode selection improvements */
+    .modes-container {
+        flex-direction: column !important;
+        gap: 15px !important;
+        padding: 0 10px !important;
+    }
+    
+    .mode {
+        width: 100% !important;
+        min-height: 80px !important;
+        padding: 20px !important;
+        margin: 0 !important;
+    }
+    
+    .mode button {
+        width: 100% !important;
+        padding: 16px !important;
+        font-size: 16px !important;
+        min-height: 48px !important;
+    }
+    
+    /* Applications grid mobile */
+    .applications-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        padding: 0 10px !important;
+    }
+    
+    .application {
+        padding: 25px 20px !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Features grid mobile */
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        padding: 0 10px !important;
+    }
+    
+    .feature {
+        padding: 25px 20px !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Typography mobile scaling */
+    .title {
+        font-size: 2.5rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .description {
+        width: 95% !important;
+        font-size: 1.2rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Section improvements */
+    .section {
+        padding: 40px 15px !important;
+    }
+    
+    .section h2 {
+        font-size: 2rem !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Footer mobile optimization */
+    .footer-content {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        text-align: center !important;
+    }
+    
+    .contact-info p {
+        font-size: 14px !important;
+        padding: 8px 12px !important;
+    }
+    
+    /* Back to top button mobile */
+    #backToTop {
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 44px !important;
+        height: 44px !important;
+        line-height: 44px !important;
+        font-size: 18px !important;
+    }
+}
+
+/* Very small screens (max-width: 480px) */
+@media (max-width: 480px) {
+    .login-panel {
+        width: 95% !important;
+        padding: 15px !important;
+    }
+    
+    .title {
+        font-size: 2rem !important;
+    }
+    
+    .description {
+        font-size: 1.1rem !important;
+    }
+    
+    .formulario {
+        padding: 15px !important;
+    }
+    
+    .mode {
+        min-height: 70px !important;
+        padding: 15px !important;
+    }
+    
+    .section {
+        padding: 30px 10px !important;
+    }
+    
+    .section h2 {
+        font-size: 1.8rem !important;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .title {
+        font-size: 2.2rem !important;
+    }
+    
+    .modes-container {
+        flex-direction: row !important;
+        gap: 10px !important;
+    }
+    
+    .mode {
+        width: 48% !important;
+        min-height: 60px !important;
+        padding: 15px 10px !important;
+    }
+    
+    .section {
+        padding: 30px 15px !important;
+    }
+}
