@@ -279,6 +279,9 @@ function configurarEventosTactilesMedicion() {
             const containerPoint = L.point(touchStartPos.x, touchStartPos.y);
             const latlng = mapa.containerPointToLatLng(containerPoint);
             
+            // Feedback visual táctil
+            mostrarFeedbackTactil(touchStartPos.x, touchStartPos.y);
+            
             // Agregar punto de medición
             addDistancePoint({ latlng });
             
@@ -373,15 +376,79 @@ function mostrarDisplayMedicionTactil(deviceInfo) {
 }
 
 /**
+ * Mostrar feedback visual táctil cuando se agrega un punto
+ */
+function mostrarFeedbackTactil(x, y) {
+    const feedback = document.createElement('div');
+    feedback.style.cssText = `
+        position: fixed;
+        left: ${x - 15}px;
+        top: ${y - 15}px;
+        width: 30px;
+        height: 30px;
+        background: rgba(0, 123, 255, 0.8);
+        border: 2px solid #007bff;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        animation: feedbackPulse 0.6s ease-out forwards;
+    `;
+    
+    // Añadir animación CSS si no existe
+    if (!document.getElementById('feedback-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'feedback-styles';
+        styles.textContent = `
+            @keyframes feedbackPulse {
+                0% {
+                    transform: scale(0.5);
+                    opacity: 1;
+                }
+                50% {
+                    transform: scale(1.2);
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: scale(1.5);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    document.body.appendChild(feedback);
+    
+    // Remover el elemento después de la animación
+    setTimeout(() => {
+        if (feedback.parentNode) {
+            feedback.parentNode.removeChild(feedback);
+        }
+    }, 600);
+}
+
+/**
  * Actualizar instrucciones durante la medición táctil
  */
 function actualizarInstruccionesTactiles(puntos) {
     let medicionDisplay = document.getElementById('medicionDistancia');
-    if (medicionDisplay) {
-        const span = medicionDisplay.querySelector('span');
-        if (span && puntos > 0) {
-            span.textContent = `${puntos} punto${puntos > 1 ? 's' : ''} • Doble toque para finalizar`;
-        }
+    if (medicionDisplay && lineaActual) {
+        const distanciaActual = calcularDistancia(lineas[lineaActual].polyline);
+        
+        medicionDisplay.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>📏 ${puntos} punto${puntos > 1 ? 's' : ''} • ${distanciaActual.toFixed(2)}m</span>
+                <div>
+                    <button onclick="finalizarMedicion()" style="min-height: 36px; min-width: 60px; margin-left: 8px; background: #28a745; color: white; border: none; border-radius: 4px;">✓ Fin</button>
+                    <button onclick="finalizarMedicion()" style="min-height: 36px; min-width: 36px; margin-left: 4px; background: #dc3545; color: white; border: none; border-radius: 4px;">✕</button>
+                </div>
+            </div>
+            <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                ${puntos === 0 ? 'Toque para comenzar' : 'Toque para continuar • Doble toque para finalizar'}
+            </div>
+        `;
+        
+        console.log(`📱 Instrucciones actualizadas - ${puntos} puntos, ${distanciaActual.toFixed(2)}m`);
     }
 }
 
@@ -811,8 +878,37 @@ function addDistancePoint(e) {
     actualizarLinea(lineaActual);
     actualizarMedicion(lineaActual);
 
-    // Asegurarse de que el display de medición permanezca visible
-    document.getElementById('medicionDistancia').style.display = 'block';
+    // Mejorar feedback para dispositivos táctiles
+    const deviceInfo = detectarDispositivoMovil();
+    const puntos = lineas[lineaActual].polyline.getLatLngs().length;
+    const distanciaActual = calcularDistancia(lineas[lineaActual].polyline);
+    
+    // Asegurarse de que el display de medición permanezca visible con información actualizada
+    let medicionDisplay = document.getElementById('medicionDistancia');
+    if (medicionDisplay) {
+        if (deviceInfo.hasTouch) {
+            medicionDisplay.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📏 ${puntos} punto${puntos > 1 ? 's' : ''} • ${distanciaActual.toFixed(2)}m</span>
+                    <div>
+                        <button onclick="finalizarMedicion()" style="min-height: 36px; min-width: 60px; margin-left: 8px; background: #28a745; color: white; border: none; border-radius: 4px;">✓ Fin</button>
+                        <button onclick="finalizarMedicion()" style="min-height: 36px; min-width: 36px; margin-left: 4px; background: #dc3545; color: white; border: none; border-radius: 4px;">✕</button>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                    Toque para agregar • Doble toque para finalizar
+                </div>
+            `;
+        } else {
+            medicionDisplay.innerHTML = `
+                <span>Distancia: ${distanciaActual.toFixed(2)} metros (${puntos} puntos)</span>
+                <button onclick="finalizarMedicion()" style="float: right;">X</button>
+            `;
+        }
+        medicionDisplay.style.display = 'block';
+    }
+    
+    console.log(`📍 Punto ${puntos} agregado - Distancia actual: ${distanciaActual.toFixed(2)}m`);
 }
 
 function actualizarDistanciaProvisional(e) {
@@ -820,12 +916,34 @@ function actualizarDistanciaProvisional(e) {
         const latlngs = lineas[lineaActual].polyline.getLatLngs();
         if (latlngs.length > 0) {
             const distanciaProvisional = calcularDistancia(L.polyline([...latlngs, e.latlng]));
-            document.getElementById('medicionDistancia').innerHTML = `
-                <span>Distancia: ${distanciaProvisional.toFixed(2)} metros</span>
-                <button onclick="finalizarMedicion()" style="float: right;">X</button>
-            `;
-            // Asegurarse de que el display de medición permanezca visible
-            document.getElementById('medicionDistancia').style.display = 'block';
+            const puntos = latlngs.length;
+            const deviceInfo = detectarDispositivoMovil();
+            
+            let medicionDisplay = document.getElementById('medicionDistancia');
+            if (medicionDisplay) {
+                if (deviceInfo.hasTouch) {
+                    // En móviles, mostrar información más completa
+                    medicionDisplay.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>📏 ${puntos} punto${puntos > 1 ? 's' : ''} → ${distanciaProvisional.toFixed(2)}m</span>
+                            <div>
+                                <button onclick="finalizarMedicion()" style="min-height: 36px; min-width: 60px; margin-left: 8px; background: #28a745; color: white; border: none; border-radius: 4px;">✓ Fin</button>
+                                <button onclick="finalizarMedicion()" style="min-height: 36px; min-width: 36px; margin-left: 4px; background: #dc3545; color: white; border: none; border-radius: 4px;">✕</button>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                            Toque para agregar punto • Doble toque para finalizar
+                        </div>
+                    `;
+                } else {
+                    // En desktop, mostrar versión más simple
+                    medicionDisplay.innerHTML = `
+                        <span>Distancia: ${distanciaProvisional.toFixed(2)} metros</span>
+                        <button onclick="finalizarMedicion()" style="float: right;">X</button>
+                    `;
+                }
+                medicionDisplay.style.display = 'block';
+            }
         }
     }
 }
