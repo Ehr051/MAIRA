@@ -460,12 +460,16 @@ def obtener_username(user_id):
 def actualizar_lista_operaciones_gb():
     """Actualiza la lista de operaciones GB disponibles para todos los usuarios"""
     try:
+        print("🔄 [DEBUG] Iniciando actualización de lista operaciones GB")
+        
         conn = get_db_connection()
         if conn is None:
+            print("❌ [DEBUG] No se pudo obtener conexión BD en actualizar_lista_operaciones_gb")
             return
         
         cursor = conn.cursor()
-        cursor.execute("""
+        
+        query = """
             SELECT p.*, u.username as creador_username 
             FROM partidas p 
             LEFT JOIN usuarios_partida up ON p.id = up.partida_id AND up.esCreador = true 
@@ -473,12 +477,19 @@ def actualizar_lista_operaciones_gb():
             WHERE p.configuracion::text LIKE '%"tipo":"gestion_batalla"%' 
             AND p.estado IN ('preparacion', 'en_curso')
             ORDER BY p.fecha_creacion DESC
-        """)
+        """
+        
+        print(f"📋 [DEBUG] Ejecutando query: {query}")
+        cursor.execute(query)
         
         operaciones_db = cursor.fetchall()
+        print(f"📊 [DEBUG] Encontradas {len(operaciones_db)} operaciones GB en BD")
+        
         operaciones_disponibles = []
         
-        for operacion in operaciones_db:
+        for i, operacion in enumerate(operaciones_db):
+            print(f"🔍 [DEBUG] Procesando operación {i+1}/{len(operaciones_db)}: {operacion['codigo']}")
+            
             # Obtener participantes de la operación
             cursor.execute("""
                 SELECT u.id, u.username, up.equipo 
@@ -488,7 +499,14 @@ def actualizar_lista_operaciones_gb():
             """, (operacion['id'],))
             
             participantes = cursor.fetchall()
-            configuracion = json.loads(operacion['configuracion']) if operacion['configuracion'] else {}
+            print(f"👥 [DEBUG] Operación {operacion['codigo']} tiene {len(participantes)} participantes")
+            
+            try:
+                configuracion = json.loads(operacion['configuracion']) if operacion['configuracion'] else {}
+                print(f"⚙️ [DEBUG] Configuración parseada para {operacion['codigo']}: {configuracion}")
+            except json.JSONDecodeError as e:
+                print(f"❌ [DEBUG] Error parseando configuración JSON para {operacion['codigo']}: {e}")
+                configuracion = {}
             
             operacion_info = {
                 'id': operacion['id'],
@@ -501,18 +519,24 @@ def actualizar_lista_operaciones_gb():
                 'participantes': len(participantes),
                 'elementos': [{'usuario': p['username'], 'equipo': p['equipo']} for p in participantes]
             }
+            
+            print(f"📦 [DEBUG] Operación info creada: {json.dumps(operacion_info, indent=2)}")
             operaciones_disponibles.append(operacion_info)
         
         # Emitir a todos los usuarios conectados
-        print(f"📡 Emitiendo lista de {len(operaciones_disponibles)} operaciones GB")
+        print(f"📡 [DEBUG] Emitiendo lista de {len(operaciones_disponibles)} operaciones GB")
         socketio.emit('operacionesGB', {'operaciones': operaciones_disponibles})
+        print("✅ [DEBUG] Lista operaciones GB emitida exitosamente")
         
     except Exception as e:
-        print(f"❌ Error actualizando lista de operaciones GB: {e}")
+        print(f"❌ [DEBUG] Error actualizando lista de operaciones GB: {e}")
+        print(f"📊 [DEBUG] Tipo de error: {type(e).__name__}")
+        print(f"📄 [DEBUG] Detalles del error: {str(e)}")
     finally:
         if conn:
             cursor.close()
             conn.close()
+            print("🔌 [DEBUG] Conexión BD cerrada en actualizar_lista_operaciones_gb")
 
 def actualizar_lista_partidas():
     """Actualiza la lista de partidas disponibles para todos los usuarios"""
@@ -1200,30 +1224,35 @@ def unidad_desplegada(data):
 @socketio.on('crearOperacionGB')
 def crear_operacion_gb(data):
     try:
-        print("🎖️ Iniciando creación de operación GB con datos:", data)
+        print("🎖️ [DEBUG] Iniciando creación de operación GB")
+        print(f"📥 [DEBUG] Datos recibidos del frontend: {json.dumps(data, indent=2)}")
         
         nombre = data.get('nombre')
         descripcion = data.get('descripcion', '')
         creador = data.get('creador', 'Desconocido')
         
+        print(f"🔍 [DEBUG] Datos extraídos - Nombre: '{nombre}', Descripción: '{descripcion}', Creador: '{creador}'")
+        
         if not nombre:
-            print("Error: Nombre de operación faltante")
+            print("❌ [DEBUG] Error: Nombre de operación faltante")
             emit('error', {'mensaje': 'Nombre de operación requerido'})
             return
 
         codigo_operacion = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         estado = 'preparacion'
         fecha_creacion = datetime.now()
+        
+        print(f"🏷️ [DEBUG] Código generado: {codigo_operacion}, Estado: {estado}")
 
         conn = get_db_connection()
         if conn is None:
-            print("Error: No se pudo establecer conexión con la base de datos")
+            print("❌ [DEBUG] Error: No se pudo establecer conexión con la base de datos")
             emit('error', {'mensaje': 'Error de conexión a la base de datos'})
             return
 
         try:
             cursor = conn.cursor()
-            print("🗄️ Insertando operación GB en base de datos")
+            print("🗄️ [DEBUG] Insertando operación GB en base de datos")
             
             # Usar la tabla partidas con un tipo específico para GB
             configuracion_gb = {
@@ -1234,23 +1263,31 @@ def crear_operacion_gb(data):
                 'creador': creador
             }
             
+            print(f"📝 [DEBUG] Configuración GB a insertar: {json.dumps(configuracion_gb, indent=2)}")
+            
             cursor.execute("""
                 INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
                 VALUES (%s, %s, %s, %s) RETURNING id
             """, (codigo_operacion, json.dumps(configuracion_gb), estado, fecha_creacion))
             
             operacion_id = cursor.fetchone()['id']
+            print(f"✅ [DEBUG] Operación insertada con ID: {operacion_id}")
 
             creador_id = user_sid_map.get(request.sid)
+            print(f"👤 [DEBUG] Creador ID obtenido: {creador_id}")
+            
             if creador_id:
                 # Insertar al creador como director de operación
                 cursor.execute("""
                     INSERT INTO usuarios_partida (partida_id, usuario_id, equipo, listo, esCreador)
                     VALUES (%s, %s, 'director', false, true)
                 """, (operacion_id, creador_id))
+                print("✅ [DEBUG] Creador insertado como director")
+            else:
+                print("⚠️ [DEBUG] No se pudo obtener ID del creador")
             
             conn.commit()
-            print("✅ Operación GB creada exitosamente")
+            print("✅ [DEBUG] Transacción confirmada exitosamente")
 
             operacion = {
                 'id': operacion_id,
@@ -1263,28 +1300,37 @@ def crear_operacion_gb(data):
                 'participantes': 1,
                 'elementos': []
             }
+            
+            print(f"📤 [DEBUG] Datos de operación a enviar: {json.dumps(operacion, indent=2)}")
 
             # Unir a sala específica de la operación
             join_room(f"gb_{codigo_operacion}", sid=request.sid)
+            print(f"🏠 [DEBUG] Usuario unido a sala: gb_{codigo_operacion}")
             
-            print(f"📤 Emitiendo 'operacionGBCreada' con datos: {operacion}")
+            print(f"📤 [DEBUG] Emitiendo 'operacionGBCreada' con datos: {operacion}")
             emit('operacionGBCreada', {'operacion': operacion})
             
             # Actualizar lista global de operaciones
+            print("🔄 [DEBUG] Actualizando lista global de operaciones")
             actualizar_lista_operaciones_gb()
             
-            print(f"🎖️ Operación GB creada exitosamente: {codigo_operacion}")
+            print(f"🎖️ [DEBUG] Operación GB creada exitosamente: {codigo_operacion}")
 
         except Exception as e:
             conn.rollback()
-            print(f"❌ Error en la base de datos al crear operación GB: {e}")
+            print(f"❌ [DEBUG] Error en la base de datos al crear operación GB: {e}")
+            print(f"📊 [DEBUG] Tipo de error: {type(e).__name__}")
+            print(f"📄 [DEBUG] Detalles del error: {str(e)}")
             emit('error', {'mensaje': f'Error en la base de datos: {str(e)}'})
         finally:
             cursor.close()
             conn.close()
+            print("🔌 [DEBUG] Conexión a BD cerrada")
 
     except Exception as e:
-        print(f"❌ Error general al crear operación GB: {e}")
+        print(f"❌ [DEBUG] Error general al crear operación GB: {e}")
+        print(f"📊 [DEBUG] Tipo de error: {type(e).__name__}")
+        print(f"📄 [DEBUG] Detalles del error: {str(e)}")
         emit('error', {'mensaje': f'Error interno: {str(e)}'})
 
 @socketio.on('obtenerOperacionesGB')
@@ -1958,7 +2004,234 @@ def debug_db_complete():
         print(f"❌ Error en debug completo: {e}")
         return jsonify(error_info), 500
 
-@app.route('/api/debug/partidas-system')
+@app.route('/api/debug/operaciones-diagnostico')
+def debug_operaciones_completo():
+    """
+    DIAGNÓSTICO COMPLETO OPERACIONES Y PARTIDAS
+    Endpoint específico para diagnosticar problemas con operaciones y partidas
+    """
+    try:
+        print("🔍 INICIANDO DIAGNÓSTICO COMPLETO OPERACIONES...")
+        
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({
+                'timestamp': datetime.now().isoformat(),
+                'status': '❌ ERROR CONEXIÓN BD',
+                'error': 'No se pudo establecer conexión con PostgreSQL'
+            }), 500
+        
+        diagnostico = {
+            'timestamp': datetime.now().isoformat(),
+            'status': '✅ DIAGNÓSTICO COMPLETO',
+            'esquema_bd': {},
+            'datos_partidas': {},
+            'usuarios_partida': {},
+            'operaciones_gb': {},
+            'logs_debug': []
+        }
+        
+        try:
+            cursor = conn.cursor()
+            
+            # 1. DIAGNÓSTICO ESQUEMA
+            print("📋 Diagnosticando esquema de base de datos...")
+            cursor.execute("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                ORDER BY table_name
+            """)
+            tablas = [row['table_name'] for row in cursor.fetchall()]
+            diagnostico['esquema_bd']['tablas'] = tablas
+            diagnostico['logs_debug'].append(f"Encontradas {len(tablas)} tablas: {', '.join(tablas)}")
+            
+            # Estructura tabla partidas
+            if 'partidas' in tablas:
+                cursor.execute("""
+                    SELECT column_name, data_type, is_nullable, column_default 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'partidas' 
+                    ORDER BY ordinal_position
+                """)
+                diagnostico['esquema_bd']['estructura_partidas'] = [
+                    {
+                        'columna': col['column_name'],
+                        'tipo': col['data_type'],
+                        'nulo': col['is_nullable'],
+                        'default': col['column_default']
+                    } for col in cursor.fetchall()
+                ]
+            
+            # 2. DIAGNÓSTICO DATOS PARTIDAS
+            print("📊 Diagnosticando datos de partidas...")
+            cursor.execute("""
+                SELECT 
+                    CASE 
+                        WHEN configuracion::text LIKE '%"tipo":"gestion_batalla"%' THEN 'Gestión Batalla'
+                        WHEN configuracion::text LIKE '%"modo"%' THEN 'Juego Guerra'
+                        ELSE 'Otro/Sin clasificar'
+                    END as tipo,
+                    COUNT(*) as cantidad,
+                    STRING_AGG(DISTINCT estado, ', ') as estados
+                FROM partidas 
+                GROUP BY 1
+                ORDER BY cantidad DESC
+            """)
+            diagnostico['datos_partidas']['distribucion_tipos'] = [
+                {
+                    'tipo': row['tipo'],
+                    'cantidad': row['cantidad'],
+                    'estados': row['estados']
+                } for row in cursor.fetchall()
+            ]
+            
+            # Partidas recientes
+            cursor.execute("""
+                SELECT 
+                    codigo, 
+                    estado,
+                    fecha_creacion,
+                    LEFT(configuracion::text, 200) as config_preview
+                FROM partidas 
+                ORDER BY fecha_creacion DESC 
+                LIMIT 10
+            """)
+            diagnostico['datos_partidas']['recientes'] = [
+                {
+                    'codigo': row['codigo'],
+                    'estado': row['estado'],
+                    'fecha': row['fecha_creacion'].isoformat() if row['fecha_creacion'] else None,
+                    'config_preview': row['config_preview']
+                } for row in cursor.fetchall()
+            ]
+            
+            # 3. OPERACIONES GB ESPECÍFICAMENTE
+            print("🎖️ Diagnosticando operaciones Gestión Batalla...")
+            cursor.execute("""
+                SELECT 
+                    p.codigo,
+                    p.estado,
+                    p.fecha_creacion,
+                    p.configuracion,
+                    COUNT(up.usuario_id) as participantes_count
+                FROM partidas p
+                LEFT JOIN usuarios_partida up ON p.id = up.partida_id
+                WHERE p.configuracion::text LIKE '%"tipo":"gestion_batalla"%'
+                GROUP BY p.id, p.codigo, p.estado, p.fecha_creacion, p.configuracion
+                ORDER BY p.fecha_creacion DESC
+            """)
+            operaciones = cursor.fetchall()
+            
+            diagnostico['operaciones_gb']['total'] = len(operaciones)
+            diagnostico['operaciones_gb']['operaciones'] = []
+            
+            for op in operaciones:
+                try:
+                    config = json.loads(op['configuracion']) if op['configuracion'] else {}
+                except:
+                    config = {}
+                
+                op_info = {
+                    'codigo': op['codigo'],
+                    'estado': op['estado'],
+                    'fecha': op['fecha_creacion'].isoformat() if op['fecha_creacion'] else None,
+                    'nombre': config.get('nombre', 'Sin nombre'),
+                    'creador': config.get('creador', 'Desconocido'),
+                    'participantes': op['participantes_count'],
+                    'configuracion_valida': bool(config)
+                }
+                diagnostico['operaciones_gb']['operaciones'].append(op_info)
+            
+            # 4. DIAGNÓSTICO USUARIOS_PARTIDA
+            print("👥 Diagnosticando usuarios_partida...")
+            if 'usuarios_partida' in tablas:
+                cursor.execute("""
+                    SELECT 
+                        COUNT(*) as total_registros,
+                        COUNT(DISTINCT partida_id) as partidas_con_usuarios,
+                        COUNT(DISTINCT usuario_id) as usuarios_unicos
+                    FROM usuarios_partida
+                """)
+                stats = cursor.fetchone()
+                diagnostico['usuarios_partida']['estadisticas'] = {
+                    'total_registros': stats['total_registros'],
+                    'partidas_con_usuarios': stats['partidas_con_usuarios'],
+                    'usuarios_unicos': stats['usuarios_unicos']
+                }
+                
+                # Distribución por equipo
+                cursor.execute("""
+                    SELECT equipo, COUNT(*) as cantidad
+                    FROM usuarios_partida 
+                    GROUP BY equipo 
+                    ORDER BY cantidad DESC
+                """)
+                diagnostico['usuarios_partida']['distribucion_equipos'] = [
+                    {'equipo': row['equipo'], 'cantidad': row['cantidad']}
+                    for row in cursor.fetchall()
+                ]
+            
+            # 5. TEST DE FUNCIONALIDAD
+            print("🧪 Realizando test de funcionalidad...")
+            timestamp_test = datetime.now()
+            codigo_test = f"DIAG_{int(timestamp_test.timestamp())}"
+            
+            try:
+                # Insertar operación de prueba
+                cursor.execute("""
+                    INSERT INTO partidas (codigo, configuracion, estado, fecha_creacion)
+                    VALUES (%s, %s, %s, %s) RETURNING id
+                """, (codigo_test, json.dumps({
+                    'tipo': 'gestion_batalla',
+                    'nombre': 'Test Diagnóstico',
+                    'creador': 'Sistema Debug'
+                }), 'preparacion', timestamp_test))
+                
+                test_id = cursor.fetchone()['id']
+                
+                # Verificar que se puede recuperar
+                cursor.execute("""
+                    SELECT * FROM partidas WHERE id = %s
+                """, (test_id,))
+                
+                test_result = cursor.fetchone()
+                
+                # Limpiar test
+                cursor.execute("DELETE FROM partidas WHERE id = %s", (test_id,))
+                conn.commit()
+                
+                diagnostico['test_funcionalidad'] = {
+                    'creacion_exitosa': True,
+                    'recuperacion_exitosa': bool(test_result),
+                    'limpieza_exitosa': True
+                }
+                
+            except Exception as e:
+                diagnostico['test_funcionalidad'] = {
+                    'error': str(e),
+                    'creacion_exitosa': False
+                }
+                conn.rollback()
+            
+            diagnostico['logs_debug'].append("✅ Diagnóstico completado exitosamente")
+            
+        except Exception as e:
+            diagnostico['logs_debug'].append(f"❌ Error durante diagnóstico: {e}")
+            diagnostico['error'] = str(e)
+        finally:
+            cursor.close()
+            conn.close()
+        
+        return jsonify(diagnostico)
+        
+    except Exception as e:
+        return jsonify({
+            'timestamp': datetime.now().isoformat(),
+            'status': '❌ ERROR GENERAL',
+            'error': str(e),
+            'logs_debug': [f"Error general: {e}"]
+        }), 500
 def debug_partidas_system():
     """
     DEBUG ESPECÍFICO del sistema de partidas
