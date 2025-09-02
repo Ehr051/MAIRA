@@ -217,3 +217,35 @@ app_complete.py
 # juegodeguerra.html - ESENCIAL: NO EXCLUIR
 # planeamiento.html - ESENCIAL: NO EXCLUIR
 static-index.html
+# =====================================
+# WORKSPACE DE DESARROLLO LOCAL
+# =====================================
+development/
+
+# Scripts de desarrollo y testing
+*_debug.js
+*_test.html
+debug_*.js
+test_*.html
+diagnostico_*.html
+verificacion_*.js
+auditoria_*.js
+
+# Informes temporales  
+INFORME_*.md
+ANALISIS_*.md
+PLAN_*.md
+
+# Scripts temporales
+prepare_*.py
+setup_*.sh
+convert_*.py
+clean_*.py
+monitor_*.sh
+backup_*.sh
+crear_backup_*.sh
+verificar_*.py
+
+# Archivos de configuración temporal
+uvicorn.conf.py
+render-*.yaml
