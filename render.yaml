@@ -1,0 +1,29 @@
+version: 1
+services:
+  - type: web
+    name: maira-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: maira-postgres
+          property: connectionString
+    
+  - type: pserv
+    name: maira-postgres
+    env: postgresql
+    plan: free
+    databaseName: maira_db
+    
+  - type: static
+    name: maira-frontend  
+    env: static
+    buildCommand: echo "Frontend ready"
+    staticPublishPath: ./frontend
