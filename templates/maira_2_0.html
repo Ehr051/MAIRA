@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA 2.0 - Sistema Militar Argentino de Entrenamiento</title>
+    
+    <!-- CSS existente del sistema MAIRA -->
+    <link rel="stylesheet" href="/Client/css/estilos.css">
+    <link rel="stylesheet" href="/Client/css/mapas.css">
+    <link rel="stylesheet" href="/Client/css/militar.css">
+    
+    <!-- Nuevos estilos para MAIRA 2.0 -->
+    <style>
+        /* Panel de estado del sistema */
+        #maira-system-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-width: 300px;
+            transition: opacity 0.3s;
+        }
+
+        #maira-system-panel.hidden {
+            opacity: 0.1;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            margin: 2px 0;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-healthy { background-color: #00ff00; }
+        .status-warning { background-color: #ffff00; }
+        .status-critical { background-color: #ff0000; }
+        .status-loading { background-color: #0099ff; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Notificaciones del sistema */
+        #maira-notifications {
+            position: fixed;
+            top: 60px;
+            right: 10px;
+            z-index: 9999;
+            max-width: 350px;
+        }
+
+        .maira-notification {
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #0099ff;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .maira-notification.error {
+            border-left-color: #ff0000;
+            background: #330000;
+        }
+
+        .maira-notification.warning {
+            border-left-color: #ffff00;
+            background: #333300;
+        }
+
+        .maira-notification.success {
+            border-left-color: #00ff00;
+            background: #003300;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Overlay de carga del sistema */
+        #maira-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .loading-logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #0099ff;
+        }
+
+        .loading-progress {
+            width: 300px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #0099ff, #00ff99);
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .loading-status {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .loading-components {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .component-loading {
+            margin: 2px 0;
+        }
+
+        .component-loaded {
+            color: #00ff00;
+        }
+
+        .component-failed {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay de carga del sistema -->
+    <div id="maira-loading-overlay">
+        <div class="loading-logo">🎯 MAIRA 2.0</div>
+        <div class="loading-status">Inicializando Sistema Militar Argentino...</div>
+        <div class="loading-progress">
+            <div class="loading-bar" style="width: 0%"></div>
+        </div>
+        <div class="loading-components">
+            <div class="component-loading" data-component="MemoryManager">○ Memory Manager</div>
+            <div class="component-loading" data-component="SecurityManager">○ Security Manager</div>
+            <div class="component-loading" data-component="ErrorRecoveryManager">○ Error Recovery</div>
+            <div class="component-loading" data-component="PerformanceMonitor">○ Performance Monitor</div>
+            <div class="component-loading" data-component="ModularArchitect">○ Modular Architect</div>
+            <div class="component-loading" data-component="GamingMechanicsManager">○ Gaming Mechanics</div>
+            <div class="component-loading" data-component="IntegrationSystem">○ Integration System</div>
+        </div>
+    </div>
+
+    <!-- Panel de estado del sistema -->
+    <div id="maira-system-panel">
+        <div style="font-weight: bold; margin-bottom: 5px;">MAIRA 2.0 Sistema</div>
+        <div class="system-status">
+            <div class="status-dot status-loading"></div>
+            <span id="system-overall-status">Inicializando...</span>
+        </div>
+        <div style="font-size: 10px; margin-top: 5px; cursor: pointer;" onclick="toggleSystemDetails()">
+            [Detalles]
+        </div>
+        <div id="system-details" style="display: none; margin-top: 5px; font-size: 10px;">
+            <div id="system-components"></div>
+            <div id="system-performance" style="margin-top: 5px;"></div>
+        </div>
+    </div>
+
+    <!-- Área de notificaciones -->
+    <div id="maira-notifications"></div>
+
+    <!-- Contenido principal del sistema MAIRA existente -->
+    <div id="maira-main-content">
+        <!-- Aquí va el contenido existente de MAIRA -->
+        <div id="mapa-container">
+            <!-- El mapa se renderizará aquí -->
+        </div>
+
+        <div id="controles-container">
+            <!-- Controles del sistema -->
+        </div>
+
+        <div id="panel-informacion">
+            <!-- Panel de información -->
+        </div>
+    </div>
+
+    <!-- Scripts existentes de MAIRA -->
+    <script src="/Client/Libs/leaflet/leaflet.js"></script>
+    <script src="/Client/Libs/milsymbol/milsymbol.js"></script>
+    <script src="/Client/js/socketio.min.js"></script>
+
+    <!-- NUEVO: Cargador del sistema MAIRA 2.0 -->
+    <script src="/static/js/maira-loader.js"></script>
+
+    <!-- Scripts para la interfaz mejorada -->
+    <script>
+        // Variables globales para la UI
+        let systemLoadingOverlay = null;
+        let systemPanel = null;
+        let notificationsContainer = null;
+        let loadingProgress = 0;
+
+        // Inicializar UI cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeUI();
+            setupSystemEventListeners();
+        });
+
+        /**
+         * Inicializa la interfaz de usuario
+         */
+        function initializeUI() {
+            systemLoadingOverlay = document.getElementById('maira-loading-overlay');
+            systemPanel = document.getElementById('maira-system-panel');
+            notificationsContainer = document.getElementById('maira-notifications');
+
+            // Ocultar panel de sistema inicialmente
+            systemPanel.classList.add('hidden');
+
+            console.log('[MAIRA UI] Interfaz inicializada');
+        }
+
+        /**
+         * Configura listeners para eventos del sistema
+         */
+        function setupSystemEventListeners() {
+            // Eventos del cargador del sistema
+            window.addEventListener('maira_system_loaded', handleSystemLoaded);
+            window.addEventListener('maira_system_error', handleSystemError);
+            window.addEventListener('maira_partial_load', handlePartialLoad);
+
+            // Eventos de componentes individuales
+            window.addEventListener('component_ready', handleComponentReady);
+            
+            // Eventos del sistema de integración
+            if (window.MAIRA && window.MAIRA.Events) {
+                window.MAIRA.Events.on('system_ready', handleSystemReady);
+                window.MAIRA.Events.on('system_health_report', handleHealthReport);
+                window.MAIRA.Events.on('performance_issues', handlePerformanceIssues);
+                window.MAIRA.Events.on('security_event', handleSecurityEvent);
+            }
+
+            // Polling para eventos si no están disponibles inmediatamente
+            setTimeout(setupDelayedEventListeners, 2000);
+        }
+
+        /**
+         * Configura listeners con delay para componentes que pueden no estar listos
+         */
+        function setupDelayedEventListeners() {
+            if (window.MAIRA && window.MAIRA.Events) {
+                window.MAIRA.Events.on('gaming_action', handleGamingAction);
+                window.MAIRA.Events.on('memory_status', handleMemoryStatus);
+                window.MAIRA.Events.on('partida_iniciada', handlePartidaIniciada);
+            }
+        }
+
+        /**
+         * Maneja la carga completa del sistema
+         */
+        function handleSystemLoaded(event) {
+            const { loadTime, components } = event.detail;
+            
+            updateLoadingProgress(100);
+            
+            setTimeout(() => {
+                systemLoadingOverlay.style.display = 'none';
+                systemPanel.classList.remove('hidden');
+                
+                updateSystemStatus('healthy', 'Sistema Operativo');
+                
+                showNotification('success', `Sistema MAIRA 2.0 cargado en ${loadTime}ms`, 5000);
+            }, 500);
+        }
+
+        /**
+         * Maneja errores del sistema
+         */
+        function handleSystemError(event) {
+            const { error, loaded, failed } = event.detail;
+            
+            updateSystemStatus('critical', 'Error del Sistema');
+            showNotification('error', `Error del sistema: ${error}`, 10000);
+            
+            // Mostrar componentes fallidos
+            if (failed.length > 0) {
+                failed.forEach(comp => {
+                    markComponentFailed(comp.component);
+                });
+            }
+        }
+
+        /**
+         * Maneja carga parcial del sistema
+         */
+        function handlePartialLoad(event) {
+            const { loaded, failed } = event.detail;
+            
+            updateSystemStatus('warning', 'Modo Parcial');
+            showNotification('warning', 'Sistema en modo parcial - funcionalidad limitada', 8000);
+            
+            setTimeout(() => {
+                systemLoadingOverlay.style.display = 'none';
+                systemPanel.classList.remove('hidden');
+            }, 1000);
+        }
+
+        /**
+         * Maneja la carga de componentes individuales
+         */
+        function handleComponentReady(event) {
+            const { component } = event.detail;
+            markComponentLoaded(component);
+            
+            loadingProgress += (100 / 7); // 7 componentes principales
+            updateLoadingProgress(Math.min(95, loadingProgress));
+        }
+
+        /**
+         * Maneja el evento de sistema listo del IntegrationSystem
+         */
+        function handleSystemReady(event) {
+            console.log('[MAIRA UI] Sistema completamente listo:', event.detail);
+            updateSystemStatus('healthy', 'Completamente Operativo');
+        }
+
+        /**
+         * Maneja reportes de salud del sistema
+         */
+        function handleHealthReport(event) {
+            const report = event.detail;
+            
+            if (report.overall === 'healthy') {
+                updateSystemStatus('healthy', 'Sistema Saludable');
+            } else if (report.overall === 'degraded') {
+                updateSystemStatus('warning', 'Rendimiento Degradado');
+            } else if (report.overall === 'critical') {
+                updateSystemStatus('critical', 'Estado Crítico');
+            }
+
+            // Actualizar detalles del sistema
+            updateSystemDetails(report);
+        }
+
+        /**
+         * Maneja problemas de rendimiento
+         */
+        function handlePerformanceIssues(event) {
+            const issues = event.detail;
+            
+            issues.forEach(issue => {
+                if (issue.level === 'critical') {
+                    showNotification('error', `Rendimiento crítico: ${issue.message}`, 10000);
+                } else {
+                    showNotification('warning', `Advertencia: ${issue.message}`, 5000);
+                }
+            });
+        }
+
+        /**
+         * Maneja eventos de seguridad
+         */
+        function handleSecurityEvent(event) {
+            const secEvent = event.detail;
+            
+            if (secEvent.type === 'validation_failed' || secEvent.type === 'rate_limit_exceeded') {
+                showNotification('warning', `Evento de seguridad: ${secEvent.type}`, 5000);
+            }
+        }
+
+        /**
+         * Maneja acciones de gaming
+         */
+        function handleGamingAction(event) {
+            const { action, user } = event.detail;
+            console.log(`[Gaming] ${user} ejecutó: ${action}`);
+        }
+
+        /**
+         * Maneja estado de memoria
+         */
+        function handleMemoryStatus(event) {
+            const { ratio } = event.detail;
+            
+            if (ratio > 0.9) {
+                showNotification('error', 'Memoria crítica - optimizando automáticamente', 5000);
+            } else if (ratio > 0.8) {
+                showNotification('warning', 'Uso alto de memoria', 3000);
+            }
+        }
+
+        /**
+         * Maneja inicio de partidas
+         */
+        function handlePartidaIniciada(event) {
+            const { tipo, participantes } = event.detail;
+            showNotification('success', `Partida ${tipo} iniciada con ${participantes} participantes`, 3000);
+        }
+
+        /**
+         * Actualiza el progreso de carga
+         */
+        function updateLoadingProgress(percent) {
+            const bar = document.querySelector('.loading-bar');
+            if (bar) {
+                bar.style.width = percent + '%';
+            }
+        }
+
+        /**
+         * Marca un componente como cargado
+         */
+        function markComponentLoaded(componentName) {
+            const element = document.querySelector(`[data-component="${componentName}"]`);
+            if (element) {
+                element.textContent = `● ${componentName.replace('Manager', '')}`;
+                element.classList.remove('component-loading');
+                element.classList.add('component-loaded');
+            }
+        }
+
+        /**
+         * Marca un componente como fallido
+         */
+        function markComponentFailed(componentName) {
+            const element = document.querySelector(`[data-component="${componentName}"]`);
+            if (element) {
+                element.textContent = `✗ ${componentName.replace('Manager', '')}`;
+                element.classList.remove('component-loading');
+                element.classList.add('component-failed');
+            }
+        }
+
+        /**
+         * Actualiza el estado general del sistema
+         */
+        function updateSystemStatus(status, message) {
+            const statusDot = systemPanel.querySelector('.status-dot');
+            const statusText = document.getElementById('system-overall-status');
+            
+            // Limpiar clases anteriores
+            statusDot.className = 'status-dot';
+            statusDot.classList.add(`status-${status}`);
+            
+            statusText.textContent = message;
+        }
+
+        /**
+         * Actualiza los detalles del sistema
+         */
+        function updateSystemDetails(report) {
+            const componentsDiv = document.getElementById('system-components');
+            const performanceDiv = document.getElementById('system-performance');
+            
+            // Actualizar componentes
+            let componentsHTML = '';
+            for (const [name, status] of Object.entries(report.components)) {
+                const statusClass = status.status === 'healthy' ? 'status-healthy' : 
+                                  status.status === 'warning' ? 'status-warning' : 'status-critical';
+                componentsHTML += `<div><span class="status-dot ${statusClass}"></span>${name}</div>`;
+            }
+            componentsDiv.innerHTML = componentsHTML;
+            
+            // Actualizar rendimiento
+            if (window.MAIRA && window.MAIRA.PerformanceMonitor) {
+                const perfReport = window.MAIRA.PerformanceMonitor.getPerformanceReport();
+                performanceDiv.innerHTML = `
+                    <div>Salud: ${perfReport.systemHealth}%</div>
+                    <div>FPS: ${perfReport.metrics.fps?.value || 'N/A'}</div>
+                    <div>Memoria: ${perfReport.metrics.memory?.value?.used?.toFixed(1) || 'N/A'}MB</div>
+                `;
+            }
+        }
+
+        /**
+         * Muestra una notificación
+         */
+        function showNotification(type, message, duration = 5000) {
+            const notification = document.createElement('div');
+            notification.className = `maira-notification ${type}`;
+            notification.innerHTML = `
+                <div style="font-weight: bold;">${type.toUpperCase()}</div>
+                <div>${message}</div>
+            `;
+            
+            notificationsContainer.appendChild(notification);
+            
+            // Auto-remover después del duration
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, duration);
+        }
+
+        /**
+         * Alterna la visibilidad de los detalles del sistema
+         */
+        function toggleSystemDetails() {
+            const details = document.getElementById('system-details');
+            if (details.style.display === 'none') {
+                details.style.display = 'block';
+                
+                // Actualizar datos si están disponibles
+                if (window.MAIRA && window.MAIRA.PerformanceMonitor) {
+                    const report = window.MAIRA.PerformanceMonitor.getPerformanceReport();
+                    updateSystemDetails({ components: {}, ...report });
+                }
+            } else {
+                details.style.display = 'none';
+            }
+        }
+
+        /**
+         * Función para mostrar información del sistema (debug)
+         */
+        function showSystemInfo() {
+            if (window.MairaLoader) {
+                console.log('Sistema MAIRA:', window.MairaLoader.getSystemInfo());
+            }
+            
+            if (window.MAIRA && window.MAIRA.IntegrationSystem) {
+                console.log('Estado de integración:', window.MAIRA.IntegrationSystem.getSystemStatus());
+            }
+        }
+
+        // Exponer funciones útiles globalmente
+        window.MAIRA_UI = {
+            showNotification: showNotification,
+            updateSystemStatus: updateSystemStatus,
+            showSystemInfo: showSystemInfo,
+            toggleSystemDetails: toggleSystemDetails
+        };
+
+        console.log('[MAIRA UI] Sistema de interfaz configurado');
+    </script>
+
+    <!-- Scripts existentes de MAIRA (estos se cargarán después del nuevo sistema) -->
+    <script src="/Client/js/mapas.js"></script>
+    <script src="/Client/js/simbolosP.js"></script>
+    <script src="/Client/js/gestorTurnos.js"></script>
+    <script src="/Client/js/iniciarpartida.js"></script>
+
+    <!-- Finalización del sistema -->
+    <script>
+        // Verificar que todo esté listo
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (window.MAIRA && window.MAIRA.loaded) {
+                    console.log('🎯 MAIRA 2.0 Sistema completamente cargado y operativo');
+                    
+                    // Ocultar overlay si aún está visible
+                    const overlay = document.getElementById('maira-loading-overlay');
+                    if (overlay && overlay.style.display !== 'none') {
+                        overlay.style.display = 'none';
+                    }
+                } else {
+                    console.warn('⚠️ MAIRA 2.0 no se cargó completamente');
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
