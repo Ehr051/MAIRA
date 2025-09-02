@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug Partidas Online - MAIRA</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .debug-section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 20px;
+        }
+        .debug-section h3 {
+            color: #58a6ff;
+            margin-top: 0;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #238636;
+            color: white;
+        }
+        .status.error {
+            background: #da3633;
+            color: white;
+        }
+        .status.warning {
+            background: #bf8700;
+            color: white;
+        }
+        .status.info {
+            background: #1f6feb;
+            color: white;
+        }
+        .log-entry {
+            background: #21262d;
+            border-left: 3px solid #30363d;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .timestamp {
+            color: #7d8590;
+            font-size: 11px;
+        }
+        button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2ea043;
+        }
+        button.danger {
+            background: #da3633;
+        }
+        button.danger:hover {
+            background: #f85149;
+        }
+        .test-input {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico de Partidas Online - MAIRA</h1>
+        <p>Esta herramienta diagnostica paso a paso el sistema de partidas online para identificar fallas.</p>
+
+        <div class="grid">
+            <!-- Sección de Estado de Conexión -->
+            <div class="debug-section">
+                <h3>🌐 Estado de Conexión</h3>
+                <div id="connection-status">
+                    <div class="status info">⏳ Iniciando diagnóstico...</div>
+                </div>
+                <button onclick="testConnection()">🔄 Probar Conexión</button>
+                <button onclick="clearLogs()">🗑️ Limpiar Logs</button>
+            </div>
+
+            <!-- Sección de Autenticación -->
+            <div class="debug-section">
+                <h3>🔐 Autenticación</h3>
+                <div id="auth-status">
+                    <div class="status info">⏳ Verificando autenticación...</div>
+                </div>
+                <input type="text" id="test-user-id" class="test-input" placeholder="User ID de prueba" value="">
+                <input type="text" id="test-username" class="test-input" placeholder="Username de prueba" value="">
+                <button onclick="testAuthentication()">🔑 Probar Auth</button>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Sección de Creación de Partida -->
+            <div class="debug-section">
+                <h3>🎮 Creación de Partida</h3>
+                <div id="create-game-status">
+                    <div class="status info">⏳ Esperando prueba...</div>
+                </div>
+                <input type="text" id="test-game-name" class="test-input" placeholder="Nombre de partida" value="Test-Debug">
+                <button onclick="testCreateGame()">🆕 Crear Partida</button>
+            </div>
+
+            <!-- Sección de Lista de Partidas -->
+            <div class="debug-section">
+                <h3>📋 Lista de Partidas</h3>
+                <div id="list-games-status">
+                    <div class="status info">⏳ Esperando solicitud...</div>
+                </div>
+                <button onclick="testGetGameList()">📜 Obtener Lista</button>
+            </div>
+        </div>
+
+        <!-- Sección de Logs Detallados -->
+        <div class="debug-section">
+            <h3>📊 Logs Detallados</h3>
+            <div id="detailed-logs" style="max-height: 400px; overflow-y: auto;">
+                <!-- Los logs aparecerán aquí -->
+            </div>
+        </div>
+
+        <!-- Sección de Tests Adicionales -->
+        <div class="debug-section">
+            <h3>🧪 Tests Adicionales</h3>
+            <button onclick="testDatabaseConnection()">🗄️ Test Base de Datos</button>
+            <button onclick="testUserSidMap()">👤 Test User-SID Map</button>
+            <button onclick="testSocketEvents()">⚡ Test Eventos Socket</button>
+            <button onclick="runFullDiagnostic()">🔬 Diagnóstico Completo</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = null;
+        let diagnosticLogs = [];
+
+        // Configuración del servidor
+        const SERVER_URL = window.location.origin;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                timestamp,
+                message,
+                type
+            };
+            
+            diagnosticLogs.push(logEntry);
+            
+            const logsContainer = document.getElementById('detailed-logs');
+            const logElement = document.createElement('div');
+            logElement.className = 'log-entry';
+            logElement.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span> 
+                <strong>[${type.toUpperCase()}]</strong> ${message}
+            `;
+            
+            logsContainer.appendChild(logElement);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        function updateStatus(sectionId, message, type) {
+            const section = document.getElementById(sectionId);
+            const iconMap = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': '🔄'
+            };
+            
+            section.innerHTML = `<div class="status ${type}">${iconMap[type]} ${message}</div>`;
+            log(`${sectionId}: ${message}`, type);
+        }
+
+        function clearLogs() {
+            document.getElementById('detailed-logs').innerHTML = '';
+            diagnosticLogs = [];
+            log('Logs limpiados', 'info');
+        }
+
+        async function testConnection() {
+            updateStatus('connection-status', 'Conectando al servidor...', 'info');
+            
+            try {
+                // Desconectar socket anterior si existe
+                if (socket) {
+                    socket.disconnect();
+                }
+
+                // Crear nueva conexión
+                socket = io(SERVER_URL, {
+                    transports: ['polling'],
+                    timeout: 30000,
+                    forceNew: true,
+                    upgrade: false
+                });
+
+                // Configurar eventos del socket
+                socket.on('connect', () => {
+                    updateStatus('connection-status', `Conectado exitosamente (Socket ID: ${socket.id})`, 'success');
+                    log(`Socket conectado con ID: ${socket.id}`, 'success');
+                });
+
+                socket.on('disconnect', (reason) => {
+                    updateStatus('connection-status', `Desconectado: ${reason}`, 'error');
+                    log(`Socket desconectado: ${reason}`, 'error');
+                });
+
+                socket.on('connect_error', (error) => {
+                    updateStatus('connection-status', `Error de conexión: ${error.message}`, 'error');
+                    log(`Error de conexión: ${error.message}`, 'error');
+                });
+
+                // Configurar eventos específicos para debugging
+                socket.on('loginExitoso', (data) => {
+                    log(`Login exitoso recibido: ${JSON.stringify(data)}`, 'success');
+                });
+
+                socket.on('partidaCreada', (data) => {
+                    log(`Partida creada: ${JSON.stringify(data, null, 2)}`, 'success');
+                    updateStatus('create-game-status', `Partida creada: ${data.codigo}`, 'success');
+                });
+
+                socket.on('errorCrearPartida', (error) => {
+                    log(`Error crear partida: ${JSON.stringify(error)}`, 'error');
+                    updateStatus('create-game-status', `Error: ${error.mensaje}`, 'error');
+                });
+
+                socket.on('listaPartidas', (partidas) => {
+                    log(`Lista de partidas recibida: ${JSON.stringify(partidas, null, 2)}`, 'success');
+                    updateStatus('list-games-status', `${partidas.length} partidas encontradas`, 'success');
+                });
+
+                socket.on('errorObtenerPartidas', (error) => {
+                    log(`Error obtener partidas: ${JSON.stringify(error)}`, 'error');
+                    updateStatus('list-games-status', `Error: ${error.mensaje}`, 'error');
+                });
+
+            } catch (error) {
+                updateStatus('connection-status', `Error: ${error.message}`, 'error');
+                log(`Error en testConnection: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAuthentication() {
+            const userId = document.getElementById('test-user-id').value || 'test_user_1';
+            const username = document.getElementById('test-username').value || 'DebugUser';
+            
+            updateStatus('auth-status', 'Probando autenticación...', 'info');
+            
+            if (!socket || !socket.connected) {
+                updateStatus('auth-status', 'Error: Socket no conectado', 'error');
+                return;
+            }
+
+            try {
+                // Simular login
+                socket.emit('login', {
+                    userId: userId,
+                    username: username
+                });
+
+                log(`Enviando login: userId=${userId}, username=${username}`, 'info');
+                
+                // Esperar respuesta
+                setTimeout(() => {
+                    updateStatus('auth-status', `Autenticación enviada para ${username}`, 'success');
+                }, 1000);
+
+            } catch (error) {
+                updateStatus('auth-status', `Error: ${error.message}`, 'error');
+                log(`Error en testAuthentication: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCreateGame() {
+            const gameName = document.getElementById('test-game-name').value || 'Test-Debug';
+            
+            updateStatus('create-game-status', 'Creando partida de prueba...', 'info');
+            
+            if (!socket || !socket.connected) {
+                updateStatus('create-game-status', 'Error: Socket no conectado', 'error');
+                return;
+            }
+
+            try {
+                const configuracion = {
+                    nombrePartida: gameName,
+                    duracionPartida: 60,
+                    duracionTurno: 30,
+                    objetivoPartida: 'Test de debugging',
+                    modo: 'online',
+                    creadorId: document.getElementById('test-user-id').value || 'test_user_1'
+                };
+
+                socket.emit('crearPartida', {
+                    configuracion: configuracion
+                });
+
+                log(`Enviando crear partida: ${JSON.stringify(configuracion, null, 2)}`, 'info');
+
+            } catch (error) {
+                updateStatus('create-game-status', `Error: ${error.message}`, 'error');
+                log(`Error en testCreateGame: ${error.message}`, 'error');
+            }
+        }
+
+        async function testGetGameList() {
+            updateStatus('list-games-status', 'Solicitando lista de partidas...', 'info');
+            
+            if (!socket || !socket.connected) {
+                updateStatus('list-games-status', 'Error: Socket no conectado', 'error');
+                return;
+            }
+
+            try {
+                socket.emit('obtenerPartidasDisponibles');
+                log('Solicitando lista de partidas disponibles', 'info');
+
+            } catch (error) {
+                updateStatus('list-games-status', `Error: ${error.message}`, 'error');
+                log(`Error en testGetGameList: ${error.message}`, 'error');
+            }
+        }
+
+        function testDatabaseConnection() {
+            log('Test de base de datos solicitado', 'info');
+            // Esto requeriría un endpoint específico en el servidor
+        }
+
+        function testUserSidMap() {
+            log('Test de User-SID Map solicitado', 'info');
+            // Esto requeriría un endpoint específico en el servidor
+        }
+
+        function testSocketEvents() {
+            log('Test de eventos Socket solicitado', 'info');
+            if (socket && socket.connected) {
+                socket.emit('ping', { timestamp: Date.now() });
+                log('Ping enviado al servidor', 'info');
+            }
+        }
+
+        async function runFullDiagnostic() {
+            log('=== INICIANDO DIAGNÓSTICO COMPLETO ===', 'info');
+            
+            await new Promise(resolve => {
+                testConnection();
+                setTimeout(resolve, 2000);
+            });
+            
+            await new Promise(resolve => {
+                testAuthentication();
+                setTimeout(resolve, 2000);
+            });
+            
+            await new Promise(resolve => {
+                testGetGameList();
+                setTimeout(resolve, 2000);
+            });
+            
+            await new Promise(resolve => {
+                testCreateGame();
+                setTimeout(resolve, 2000);
+            });
+            
+            log('=== DIAGNÓSTICO COMPLETO FINALIZADO ===', 'info');
+        }
+
+        // Inicializar automáticamente al cargar la página
+        window.addEventListener('load', () => {
+            log('🔍 Debug de Partidas Online inicializado', 'info');
+            log(`🌐 Servidor objetivo: ${SERVER_URL}`, 'info');
+            
+            // Auto-llenar campos si hay datos en localStorage
+            const userInfo = JSON.parse(localStorage.getItem('usuario_info') || '{}');
+            if (userInfo.id) {
+                document.getElementById('test-user-id').value = userInfo.id;
+                document.getElementById('test-username').value = userInfo.username || 'DebugUser';
+            }
+        });
+    </script>
+</body>
+</html>
