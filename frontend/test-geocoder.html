@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Geocoder MAIRA</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="/node_modules/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 600px; margin: 0 auto; }
+        .test-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; }
+        .test-results { border: 1px solid #ddd; max-height: 200px; overflow-y: auto; }
+        .test-results li { list-style: none; padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .test-results li:hover { background-color: #f0f0f0; }
+        .log { background: #f9f9f9; padding: 10px; border-left: 4px solid #007cba; margin: 10px 0; }
+        #map { height: 300px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Test Geocoder MAIRA</h1>
+        
+        <div class="log">
+            <strong>Estado del sistema:</strong>
+            <div id="status">Verificando...</div>
+        </div>
+        
+        <label for="testInput">Buscar ubicación:</label>
+        <input type="text" id="testInput" class="test-input" placeholder="Escribe el nombre de una ciudad o lugar...">
+        
+        <ul id="testResults" class="test-results"></ul>
+        
+        <div id="map"></div>
+        
+        <div class="log">
+            <strong>Instrucciones:</strong>
+            <ul>
+                <li>Escribe al menos 3 caracteres</li>
+                <li>Los resultados deberían aparecer automáticamente</li>
+                <li>Haz click en un resultado para centrarlo en el mapa</li>
+                <li>Abre la consola (F12) para ver logs detallados</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="/node_modules/leaflet/dist/leaflet.js"></script>
+    <script src="/node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
+    
+    <script>
+        console.log('🚀 Iniciando test de geocoder...');
+        
+        // 1. Crear mapa
+        const map = L.map('map').setView([-34.6037, -58.3816], 10); // Buenos Aires
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // 2. Verificar estado
+        const statusDiv = document.getElementById('status');
+        const testInput = document.getElementById('testInput');
+        const testResults = document.getElementById('testResults');
+        
+        function updateStatus() {
+            const checks = {
+                'Leaflet': typeof L !== 'undefined',
+                'L.Control': typeof L !== 'undefined' && !!L.Control,
+                'L.Control.Geocoder': typeof L !== 'undefined' && !!L.Control && !!L.Control.Geocoder,
+                'Nominatim': typeof L !== 'undefined' && !!L.Control && !!L.Control.Geocoder && !!L.Control.Geocoder.nominatim
+            };
+            
+            let html = '';
+            for (const [name, status] of Object.entries(checks)) {
+                html += `<div>${status ? '✅' : '❌'} ${name}</div>`;
+            }
+            statusDiv.innerHTML = html;
+            
+            return Object.values(checks).every(Boolean);
+        }
+        
+        const allReady = updateStatus();
+        
+        if (!allReady) {
+            console.error('❌ No todos los componentes están disponibles');
+            testResults.innerHTML = '<li style="color: red;">Error: Componentes del geocoder no disponibles</li>';
+        } else {
+            console.log('✅ Todos los componentes disponibles');
+            
+            // 3. Configurar geocoder
+            let geocoder;
+            try {
+                geocoder = L.Control.Geocoder.nominatim({
+                    serviceUrl: 'https://nominatim.openstreetmap.org/',
+                    htmlTemplate: function(r) {
+                        return r.html || r.name || r.display_name || 'Ubicación';
+                    }
+                });
+                console.log('✅ Geocoder configurado');
+            } catch (error) {
+                console.error('❌ Error configurando geocoder:', error);
+                testResults.innerHTML = '<li style="color: red;">Error configurando geocoder</li>';
+            }
+            
+            // 4. Configurar eventos
+            let searchTimeout;
+            
+            function performSearch() {
+                const query = testInput.value.trim();
+                if (query.length < 3) {
+                    testResults.innerHTML = '';
+                    return;
+                }
+                
+                console.log('🔍 Buscando:', query);
+                testResults.innerHTML = '<li>🔍 Buscando...</li>';
+                
+                geocoder.geocode(query, function(results) {
+                    console.log('📍 Resultados:', results);
+                    testResults.innerHTML = '';
+                    
+                    if (results && results.length > 0) {
+                        results.slice(0, 8).forEach(function(result, index) {
+                            const li = document.createElement('li');
+                            const name = result.name || result.display_name || `Resultado ${index + 1}`;
+                            li.textContent = name;
+                            
+                            li.addEventListener('click', function() {
+                                console.log('📍 Seleccionado:', result);
+                                map.setView(result.center, 13);
+                                
+                                // Agregar marcador
+                                if (window.testMarker) {
+                                    map.removeLayer(window.testMarker);
+                                }
+                                window.testMarker = L.marker(result.center)
+                                    .addTo(map)
+                                    .bindPopup(name)
+                                    .openPopup();
+                                
+                                testInput.value = '';
+                                testResults.innerHTML = '';
+                            });
+                            
+                            testResults.appendChild(li);
+                        });
+                    } else {
+                        testResults.innerHTML = '<li style="color: #666;">No se encontraron resultados</li>';
+                    }
+                }, function(error) {
+                    console.error('❌ Error en búsqueda:', error);
+                    testResults.innerHTML = '<li style="color: red;">Error en la búsqueda</li>';
+                });
+            }
+            
+            testInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(performSearch, 300);
+            });
+            
+            testInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    clearTimeout(searchTimeout);
+                    performSearch();
+                }
+            });
+            
+            console.log('🎯 Test listo. Escribe en el campo de búsqueda.');
+        }
+    </script>
+</body>
+</html>
