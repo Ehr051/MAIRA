@@ -1,0 +1,4557 @@
+🚀 Iniciando procesador de tiles de vegetación NDVI...
+🌿 Encontrados 755 tiles NDVI
+📊 Total de tiles a procesar: 755
+
+🔄 Procesando lote 1/16 (50 tiles)
+🔄 Procesando tile_0_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_0_0_0 - 388KB
+   ✅ tile_0_0_0_1 - 376KB
+   ✅ tile_0_0_1_0 - 331KB
+   ✅ tile_0_0_1_1 - 321KB
+🔄 Procesando tile_0_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_1_0_0 - 325KB
+   ✅ tile_0_1_0_1 - 297KB
+   ✅ tile_0_1_1_0 - 362KB
+   ✅ tile_0_1_1_1 - 336KB
+🔄 Procesando tile_0_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_10_0_0 - 371KB
+   ✅ tile_0_10_0_1 - 347KB
+   ✅ tile_0_10_1_0 - 337KB
+   ✅ tile_0_10_1_1 - 359KB
+🔄 Procesando tile_0_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_1000_0_0 - 288KB
+   ✅ tile_0_1000_0_1 - 362KB
+   ✅ tile_0_1000_1_0 - 402KB
+   ✅ tile_0_1000_1_1 - 409KB
+🔄 Procesando tile_0_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_11_0_0 - 361KB
+   ✅ tile_0_11_0_1 - 299KB
+   ✅ tile_0_11_1_0 - 352KB
+   ✅ tile_0_11_1_1 - 382KB
+🔄 Procesando tile_0_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_12_0_0 - 325KB
+   ✅ tile_0_12_0_1 - 352KB
+   ✅ tile_0_12_1_0 - 359KB
+   ✅ tile_0_12_1_1 - 334KB
+🔄 Procesando tile_0_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_13_0_0 - 371KB
+   ✅ tile_0_13_0_1 - 339KB
+   ✅ tile_0_13_1_0 - 361KB
+   ✅ tile_0_13_1_1 - 366KB
+🔄 Procesando tile_0_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_14_0_0 - 371KB
+   ✅ tile_0_14_0_1 - 371KB
+   ✅ tile_0_14_1_0 - 332KB
+   ✅ tile_0_14_1_1 - 376KB
+🔄 Procesando tile_0_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_15_0_0 - 332KB
+   ✅ tile_0_15_0_1 - 379KB
+   ✅ tile_0_15_1_0 - 324KB
+   ✅ tile_0_15_1_1 - 354KB
+🔄 Procesando tile_0_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_16_0_0 - 326KB
+   ✅ tile_0_16_0_1 - 341KB
+   ✅ tile_0_16_1_0 - 352KB
+   ✅ tile_0_16_1_1 - 332KB
+🔄 Procesando tile_0_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_17_0_0 - 370KB
+   ✅ tile_0_17_0_1 - 366KB
+   ✅ tile_0_17_1_0 - 379KB
+   ✅ tile_0_17_1_1 - 380KB
+🔄 Procesando tile_0_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_18_0_0 - 370KB
+   ✅ tile_0_18_0_1 - 375KB
+   ✅ tile_0_18_1_0 - 362KB
+   ✅ tile_0_18_1_1 - 386KB
+🔄 Procesando tile_0_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_19_0_0 - 400KB
+   ✅ tile_0_19_0_1 - 374KB
+   ✅ tile_0_19_1_0 - 403KB
+   ✅ tile_0_19_1_1 - 391KB
+🔄 Procesando tile_0_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_2_0_0 - 341KB
+   ✅ tile_0_2_0_1 - 343KB
+   ✅ tile_0_2_1_0 - 360KB
+   ✅ tile_0_2_1_1 - 281KB
+🔄 Procesando tile_0_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_20_0_0 - 276KB
+   ✅ tile_0_20_0_1 - 264KB
+   ✅ tile_0_20_1_0 - 256KB
+   ✅ tile_0_20_1_1 - 272KB
+🔄 Procesando tile_0_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_2000_0_0 - 449KB
+   ✅ tile_0_2000_0_1 - 443KB
+   ✅ tile_0_2000_1_0 - 442KB
+   ✅ tile_0_2000_1_1 - 440KB
+🔄 Procesando tile_0_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_3_0_0 - 320KB
+   ✅ tile_0_3_0_1 - 284KB
+   ✅ tile_0_3_1_0 - 328KB
+   ✅ tile_0_3_1_1 - 361KB
+🔄 Procesando tile_0_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_3000_0_0 - 446KB
+   ✅ tile_0_3000_0_1 - 488KB
+   ✅ tile_0_3000_1_0 - 586KB
+   ✅ tile_0_3000_1_1 - 585KB
+🔄 Procesando tile_0_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_4_0_0 - 339KB
+   ✅ tile_0_4_0_1 - 402KB
+   ✅ tile_0_4_1_0 - 404KB
+   ✅ tile_0_4_1_1 - 500KB
+🔄 Procesando tile_0_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_4000_0_0 - 537KB
+   ✅ tile_0_4000_0_1 - 522KB
+   ✅ tile_0_4000_1_0 - 532KB
+   ✅ tile_0_4000_1_1 - 497KB
+🔄 Procesando tile_0_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_5_0_0 - 402KB
+   ✅ tile_0_5_0_1 - 413KB
+   ✅ tile_0_5_1_0 - 406KB
+   ✅ tile_0_5_1_1 - 321KB
+🔄 Procesando tile_0_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_5000_0_0 - 529KB
+   ✅ tile_0_5000_0_1 - 542KB
+   ✅ tile_0_5000_1_0 - 520KB
+   ✅ tile_0_5000_1_1 - 537KB
+🔄 Procesando tile_0_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_6_0_0 - 350KB
+   ✅ tile_0_6_0_1 - 398KB
+   ✅ tile_0_6_1_0 - 413KB
+   ✅ tile_0_6_1_1 - 401KB
+🔄 Procesando tile_0_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_6000_0_0 - 507KB
+   ✅ tile_0_6000_0_1 - 506KB
+   ✅ tile_0_6000_1_0 - 517KB
+   ✅ tile_0_6000_1_1 - 515KB
+🔄 Procesando tile_0_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_7_0_0 - 355KB
+   ✅ tile_0_7_0_1 - 361KB
+   ✅ tile_0_7_1_0 - 372KB
+   ✅ tile_0_7_1_1 - 325KB
+🔄 Procesando tile_0_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_7000_0_0 - 559KB
+   ✅ tile_0_7000_0_1 - 558KB
+   ✅ tile_0_7000_1_0 - 585KB
+   ✅ tile_0_7000_1_1 - 574KB
+🔄 Procesando tile_0_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_8_0_0 - 367KB
+   ✅ tile_0_8_0_1 - 332KB
+   ✅ tile_0_8_1_0 - 358KB
+   ✅ tile_0_8_1_1 - 320KB
+🔄 Procesando tile_0_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_0_8000_0_0 - 595KB
+🔄 Procesando tile_0_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_0_9_0_0 - 344KB
+   ✅ tile_0_9_0_1 - 356KB
+   ✅ tile_0_9_1_0 - 356KB
+   ✅ tile_0_9_1_1 - 347KB
+🔄 Procesando tile_10000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_0_0_0 - 405KB
+   ✅ tile_10000_0_0_1 - 449KB
+   ✅ tile_10000_0_1_0 - 450KB
+   ✅ tile_10000_0_1_1 - 490KB
+🔄 Procesando tile_10000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_1000_0_0 - 421KB
+   ✅ tile_10000_1000_0_1 - 432KB
+   ✅ tile_10000_1000_1_0 - 457KB
+   ✅ tile_10000_1000_1_1 - 424KB
+🔄 Procesando tile_10000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_2000_0_0 - 475KB
+   ✅ tile_10000_2000_0_1 - 447KB
+   ✅ tile_10000_2000_1_0 - 169KB
+   ✅ tile_10000_2000_1_1 - 449KB
+🔄 Procesando tile_10000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_3000_0_0 - 65KB
+   ✅ tile_10000_3000_0_1 - 244KB
+   ✅ tile_10000_3000_1_0 - 160KB
+   ✅ tile_10000_3000_1_1 - 195KB
+🔄 Procesando tile_10000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_4000_0_0 - 215KB
+   ✅ tile_10000_4000_0_1 - 232KB
+   ✅ tile_10000_4000_1_0 - 269KB
+   ✅ tile_10000_4000_1_1 - 223KB
+🔄 Procesando tile_10000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_5000_0_0 - 272KB
+   ✅ tile_10000_5000_0_1 - 202KB
+   ✅ tile_10000_5000_1_0 - 172KB
+   ✅ tile_10000_5000_1_1 - 217KB
+🔄 Procesando tile_10000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_6000_0_0 - 217KB
+   ✅ tile_10000_6000_0_1 - 225KB
+   ✅ tile_10000_6000_1_0 - 320KB
+   ✅ tile_10000_6000_1_1 - 153KB
+🔄 Procesando tile_10000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10000_7000_0_0 - 374KB
+   ✅ tile_10000_7000_0_1 - 106KB
+   ✅ tile_10000_7000_1_0 - 329KB
+   ✅ tile_10000_7000_1_1 - 251KB
+🔄 Procesando tile_10000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_10000_8000_0_0 - 288KB
+🔄 Procesando tile_1000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_0_0_0 - 405KB
+   ✅ tile_1000_0_0_1 - 378KB
+   ✅ tile_1000_0_1_0 - 346KB
+   ✅ tile_1000_0_1_1 - 241KB
+🔄 Procesando tile_1000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_1000_0_0 - 371KB
+   ✅ tile_1000_1000_0_1 - 376KB
+   ✅ tile_1000_1000_1_0 - 428KB
+   ✅ tile_1000_1000_1_1 - 452KB
+🔄 Procesando tile_1000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_2000_0_0 - 435KB
+   ✅ tile_1000_2000_0_1 - 457KB
+   ✅ tile_1000_2000_1_0 - 448KB
+   ✅ tile_1000_2000_1_1 - 470KB
+🔄 Procesando tile_1000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_3000_0_0 - 553KB
+   ✅ tile_1000_3000_0_1 - 560KB
+   ✅ tile_1000_3000_1_0 - 570KB
+   ✅ tile_1000_3000_1_1 - 556KB
+🔄 Procesando tile_1000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_4000_0_0 - 510KB
+   ✅ tile_1000_4000_0_1 - 505KB
+   ✅ tile_1000_4000_1_0 - 468KB
+   ✅ tile_1000_4000_1_1 - 517KB
+🔄 Procesando tile_1000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_5000_0_0 - 532KB
+   ✅ tile_1000_5000_0_1 - 543KB
+   ✅ tile_1000_5000_1_0 - 521KB
+   ✅ tile_1000_5000_1_1 - 534KB
+🔄 Procesando tile_1000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_6000_0_0 - 512KB
+   ✅ tile_1000_6000_0_1 - 527KB
+   ✅ tile_1000_6000_1_0 - 511KB
+   ✅ tile_1000_6000_1_1 - 529KB
+🔄 Procesando tile_1000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1000_7000_0_0 - 550KB
+   ✅ tile_1000_7000_0_1 - 540KB
+   ✅ tile_1000_7000_1_0 - 558KB
+   ✅ tile_1000_7000_1_1 - 572KB
+🔄 Procesando tile_1000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_1000_8000_0_0 - 563KB
+🔄 Procesando tile_10_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_0_0_0 - 330KB
+   ✅ tile_10_0_0_1 - 300KB
+   ✅ tile_10_0_1_0 - 332KB
+   ✅ tile_10_0_1_1 - 295KB
+🔄 Procesando tile_10_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_1_0_0 - 332KB
+   ✅ tile_10_1_0_1 - 327KB
+   ✅ tile_10_1_1_0 - 330KB
+   ✅ tile_10_1_1_1 - 324KB
+🔄 Procesando tile_10_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_10_0_0 - 559KB
+   ✅ tile_10_10_0_1 - 554KB
+   ✅ tile_10_10_1_0 - 556KB
+   ✅ tile_10_10_1_1 - 570KB
+📦 Paquete creado: vegetation_ndvi_batch_01 (69.8MB)
+✅ Lote 1 completado: 191 sub-tiles
+
+🔄 Procesando lote 2/16 (50 tiles)
+🔄 Procesando tile_10_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_11_0_0 - 591KB
+   ✅ tile_10_11_0_1 - 583KB
+   ✅ tile_10_11_1_0 - 593KB
+   ✅ tile_10_11_1_1 - 568KB
+🔄 Procesando tile_10_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_12_0_0 - 521KB
+   ✅ tile_10_12_0_1 - 504KB
+   ✅ tile_10_12_1_0 - 580KB
+   ✅ tile_10_12_1_1 - 567KB
+🔄 Procesando tile_10_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_13_0_0 - 569KB
+   ✅ tile_10_13_0_1 - 550KB
+   ✅ tile_10_13_1_0 - 574KB
+   ✅ tile_10_13_1_1 - 567KB
+🔄 Procesando tile_10_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_14_0_0 - 562KB
+   ✅ tile_10_14_0_1 - 529KB
+   ✅ tile_10_14_1_0 - 568KB
+   ✅ tile_10_14_1_1 - 537KB
+🔄 Procesando tile_10_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_15_0_0 - 537KB
+   ✅ tile_10_15_0_1 - 536KB
+   ✅ tile_10_15_1_0 - 547KB
+   ✅ tile_10_15_1_1 - 548KB
+🔄 Procesando tile_10_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_16_0_0 - 526KB
+   ✅ tile_10_16_0_1 - 535KB
+   ✅ tile_10_16_1_0 - 512KB
+   ✅ tile_10_16_1_1 - 525KB
+🔄 Procesando tile_10_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_17_0_0 - 531KB
+   ✅ tile_10_17_0_1 - 586KB
+   ✅ tile_10_17_1_0 - 572KB
+   ✅ tile_10_17_1_1 - 575KB
+🔄 Procesando tile_10_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_18_0_0 - 566KB
+   ✅ tile_10_18_0_1 - 564KB
+   ✅ tile_10_18_1_0 - 570KB
+   ✅ tile_10_18_1_1 - 479KB
+🔄 Procesando tile_10_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_19_0_0 - 410KB
+   ✅ tile_10_19_0_1 - 329KB
+   ✅ tile_10_19_1_0 - 336KB
+   ✅ tile_10_19_1_1 - 353KB
+🔄 Procesando tile_10_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_2_0_0 - 535KB
+   ✅ tile_10_2_0_1 - 399KB
+   ✅ tile_10_2_1_0 - 567KB
+   ✅ tile_10_2_1_1 - 553KB
+🔄 Procesando tile_10_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_20_0_0 - 281KB
+   ✅ tile_10_20_0_1 - 278KB
+   ✅ tile_10_20_1_0 - 285KB
+   ✅ tile_10_20_1_1 - 284KB
+🔄 Procesando tile_10_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_3_0_0 - 567KB
+   ✅ tile_10_3_0_1 - 552KB
+   ✅ tile_10_3_1_0 - 548KB
+   ✅ tile_10_3_1_1 - 544KB
+🔄 Procesando tile_10_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_4_0_0 - 511KB
+   ✅ tile_10_4_0_1 - 532KB
+   ✅ tile_10_4_1_0 - 496KB
+   ✅ tile_10_4_1_1 - 503KB
+🔄 Procesando tile_10_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_5_0_0 - 514KB
+   ✅ tile_10_5_0_1 - 491KB
+   ✅ tile_10_5_1_0 - 532KB
+   ✅ tile_10_5_1_1 - 454KB
+🔄 Procesando tile_10_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_6_0_0 - 539KB
+   ✅ tile_10_6_0_1 - 453KB
+   ✅ tile_10_6_1_0 - 470KB
+   ✅ tile_10_6_1_1 - 536KB
+🔄 Procesando tile_10_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_7_0_0 - 504KB
+   ✅ tile_10_7_0_1 - 528KB
+   ✅ tile_10_7_1_0 - 492KB
+   ✅ tile_10_7_1_1 - 505KB
+🔄 Procesando tile_10_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_8_0_0 - 560KB
+   ✅ tile_10_8_0_1 - 540KB
+   ✅ tile_10_8_1_0 - 577KB
+   ✅ tile_10_8_1_1 - 575KB
+🔄 Procesando tile_10_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_10_9_0_0 - 507KB
+   ✅ tile_10_9_0_1 - 550KB
+   ✅ tile_10_9_1_0 - 532KB
+   ✅ tile_10_9_1_1 - 515KB
+🔄 Procesando tile_11000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_0_0_0 - 393KB
+   ✅ tile_11000_0_0_1 - 410KB
+   ✅ tile_11000_0_1_0 - 452KB
+   ✅ tile_11000_0_1_1 - 418KB
+🔄 Procesando tile_11000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_1000_0_0 - 451KB
+   ✅ tile_11000_1000_0_1 - 411KB
+   ✅ tile_11000_1000_1_0 - 442KB
+   ✅ tile_11000_1000_1_1 - 410KB
+🔄 Procesando tile_11000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_2000_0_0 - 420KB
+   ✅ tile_11000_2000_0_1 - 251KB
+   ✅ tile_11000_2000_1_0 - 184KB
+   ✅ tile_11000_2000_1_1 - 140KB
+🔄 Procesando tile_11000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_3000_0_0 - 159KB
+   ✅ tile_11000_3000_0_1 - 160KB
+   ✅ tile_11000_3000_1_0 - 121KB
+   ✅ tile_11000_3000_1_1 - 190KB
+🔄 Procesando tile_11000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_4000_0_0 - 213KB
+   ✅ tile_11000_4000_0_1 - 182KB
+   ✅ tile_11000_4000_1_0 - 231KB
+   ✅ tile_11000_4000_1_1 - 222KB
+🔄 Procesando tile_11000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_5000_0_0 - 187KB
+   ✅ tile_11000_5000_0_1 - 238KB
+   ✅ tile_11000_5000_1_0 - 198KB
+   ✅ tile_11000_5000_1_1 - 249KB
+🔄 Procesando tile_11000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_6000_0_0 - 178KB
+   ✅ tile_11000_6000_0_1 - 241KB
+   ✅ tile_11000_6000_1_0 - 113KB
+   ✅ tile_11000_6000_1_1 - 180KB
+🔄 Procesando tile_11000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11000_7000_0_0 - 52KB
+   ✅ tile_11000_7000_0_1 - 105KB
+   ✅ tile_11000_7000_1_0 - 106KB
+   ✅ tile_11000_7000_1_1 - 87KB
+🔄 Procesando tile_11000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_11000_8000_0_0 - 184KB
+🔄 Procesando tile_11_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_0_0_0 - 326KB
+   ✅ tile_11_0_0_1 - 294KB
+   ✅ tile_11_0_1_0 - 299KB
+   ✅ tile_11_0_1_1 - 318KB
+🔄 Procesando tile_11_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_1_0_0 - 313KB
+   ✅ tile_11_1_0_1 - 325KB
+   ✅ tile_11_1_1_0 - 343KB
+   ✅ tile_11_1_1_1 - 352KB
+🔄 Procesando tile_11_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_10_0_0 - 565KB
+   ✅ tile_11_10_0_1 - 566KB
+   ✅ tile_11_10_1_0 - 563KB
+   ✅ tile_11_10_1_1 - 564KB
+🔄 Procesando tile_11_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_11_0_0 - 570KB
+   ✅ tile_11_11_0_1 - 571KB
+   ✅ tile_11_11_1_0 - 583KB
+   ✅ tile_11_11_1_1 - 583KB
+🔄 Procesando tile_11_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_12_0_0 - 560KB
+   ✅ tile_11_12_0_1 - 567KB
+   ✅ tile_11_12_1_0 - 582KB
+   ✅ tile_11_12_1_1 - 574KB
+🔄 Procesando tile_11_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_13_0_0 - 567KB
+   ✅ tile_11_13_0_1 - 569KB
+   ✅ tile_11_13_1_0 - 540KB
+   ✅ tile_11_13_1_1 - 550KB
+🔄 Procesando tile_11_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_14_0_0 - 518KB
+   ✅ tile_11_14_0_1 - 541KB
+   ✅ tile_11_14_1_0 - 509KB
+   ✅ tile_11_14_1_1 - 517KB
+🔄 Procesando tile_11_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_15_0_0 - 528KB
+   ✅ tile_11_15_0_1 - 527KB
+   ✅ tile_11_15_1_0 - 552KB
+   ✅ tile_11_15_1_1 - 525KB
+🔄 Procesando tile_11_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_16_0_0 - 528KB
+   ✅ tile_11_16_0_1 - 522KB
+   ✅ tile_11_16_1_0 - 535KB
+   ✅ tile_11_16_1_1 - 529KB
+🔄 Procesando tile_11_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_17_0_0 - 581KB
+   ✅ tile_11_17_0_1 - 513KB
+   ✅ tile_11_17_1_0 - 589KB
+   ✅ tile_11_17_1_1 - 549KB
+🔄 Procesando tile_11_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_18_0_0 - 519KB
+   ✅ tile_11_18_0_1 - 477KB
+   ✅ tile_11_18_1_0 - 318KB
+   ✅ tile_11_18_1_1 - 330KB
+🔄 Procesando tile_11_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_19_0_0 - 291KB
+   ✅ tile_11_19_0_1 - 334KB
+   ✅ tile_11_19_1_0 - 370KB
+   ✅ tile_11_19_1_1 - 320KB
+🔄 Procesando tile_11_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_2_0_0 - 335KB
+   ✅ tile_11_2_0_1 - 342KB
+   ✅ tile_11_2_1_0 - 412KB
+   ✅ tile_11_2_1_1 - 332KB
+🔄 Procesando tile_11_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_20_0_0 - 270KB
+   ✅ tile_11_20_0_1 - 241KB
+   ✅ tile_11_20_1_0 - 291KB
+   ✅ tile_11_20_1_1 - 266KB
+🔄 Procesando tile_11_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_3_0_0 - 540KB
+   ✅ tile_11_3_0_1 - 507KB
+   ✅ tile_11_3_1_0 - 561KB
+   ✅ tile_11_3_1_1 - 515KB
+🔄 Procesando tile_11_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_4_0_0 - 552KB
+   ✅ tile_11_4_0_1 - 530KB
+   ✅ tile_11_4_1_0 - 533KB
+   ✅ tile_11_4_1_1 - 508KB
+🔄 Procesando tile_11_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_5_0_0 - 521KB
+   ✅ tile_11_5_0_1 - 521KB
+   ✅ tile_11_5_1_0 - 488KB
+   ✅ tile_11_5_1_1 - 533KB
+🔄 Procesando tile_11_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_6_0_0 - 532KB
+   ✅ tile_11_6_0_1 - 508KB
+   ✅ tile_11_6_1_0 - 580KB
+   ✅ tile_11_6_1_1 - 562KB
+🔄 Procesando tile_11_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_7_0_0 - 562KB
+   ✅ tile_11_7_0_1 - 586KB
+   ✅ tile_11_7_1_0 - 578KB
+   ✅ tile_11_7_1_1 - 592KB
+🔄 Procesando tile_11_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_8_0_0 - 538KB
+   ✅ tile_11_8_0_1 - 510KB
+   ✅ tile_11_8_1_0 - 555KB
+   ✅ tile_11_8_1_1 - 477KB
+🔄 Procesando tile_11_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_11_9_0_0 - 566KB
+   ✅ tile_11_9_0_1 - 557KB
+   ✅ tile_11_9_1_0 - 550KB
+   ✅ tile_11_9_1_1 - 570KB
+🔄 Procesando tile_12000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_0_0_0 - 452KB
+   ✅ tile_12000_0_0_1 - 436KB
+   ✅ tile_12000_0_1_0 - 456KB
+   ✅ tile_12000_0_1_1 - 465KB
+🔄 Procesando tile_12000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_1000_0_0 - 424KB
+   ✅ tile_12000_1000_0_1 - 416KB
+   ✅ tile_12000_1000_1_0 - 345KB
+   ✅ tile_12000_1000_1_1 - 390KB
+📦 Paquete creado: vegetation_ndvi_batch_02 (81.0MB)
+✅ Lote 2 completado: 197 sub-tiles
+
+🔄 Procesando lote 3/16 (50 tiles)
+🔄 Procesando tile_12000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_2000_0_0 - 200KB
+   ✅ tile_12000_2000_0_1 - 185KB
+   ✅ tile_12000_2000_1_0 - 161KB
+   ✅ tile_12000_2000_1_1 - 168KB
+🔄 Procesando tile_12000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_3000_0_0 - 156KB
+   ✅ tile_12000_3000_0_1 - 157KB
+   ✅ tile_12000_3000_1_0 - 205KB
+   ✅ tile_12000_3000_1_1 - 254KB
+🔄 Procesando tile_12000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_4000_0_0 - 262KB
+   ✅ tile_12000_4000_0_1 - 237KB
+   ✅ tile_12000_4000_1_0 - 257KB
+   ✅ tile_12000_4000_1_1 - 220KB
+🔄 Procesando tile_12000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_5000_0_0 - 297KB
+   ✅ tile_12000_5000_0_1 - 261KB
+   ✅ tile_12000_5000_1_0 - 342KB
+   ✅ tile_12000_5000_1_1 - 281KB
+🔄 Procesando tile_12000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_6000_0_0 - 312KB
+   ✅ tile_12000_6000_0_1 - 277KB
+   ✅ tile_12000_6000_1_0 - 242KB
+   ✅ tile_12000_6000_1_1 - 248KB
+🔄 Procesando tile_12000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12000_7000_0_0 - 188KB
+   ✅ tile_12000_7000_0_1 - 265KB
+   ✅ tile_12000_7000_1_0 - 135KB
+   ✅ tile_12000_7000_1_1 - 236KB
+🔄 Procesando tile_12000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_12000_8000_0_0 - 197KB
+🔄 Procesando tile_12_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_0_0_0 - 273KB
+   ✅ tile_12_0_0_1 - 274KB
+   ✅ tile_12_0_1_0 - 286KB
+   ✅ tile_12_0_1_1 - 281KB
+🔄 Procesando tile_12_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_1_0_0 - 321KB
+   ✅ tile_12_1_0_1 - 290KB
+   ✅ tile_12_1_1_0 - 366KB
+   ✅ tile_12_1_1_1 - 324KB
+🔄 Procesando tile_12_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_10_0_0 - 547KB
+   ✅ tile_12_10_0_1 - 545KB
+   ✅ tile_12_10_1_0 - 574KB
+   ✅ tile_12_10_1_1 - 547KB
+🔄 Procesando tile_12_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_11_0_0 - 571KB
+   ✅ tile_12_11_0_1 - 556KB
+   ✅ tile_12_11_1_0 - 571KB
+   ✅ tile_12_11_1_1 - 574KB
+🔄 Procesando tile_12_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_12_0_0 - 573KB
+   ✅ tile_12_12_0_1 - 573KB
+   ✅ tile_12_12_1_0 - 572KB
+   ✅ tile_12_12_1_1 - 566KB
+🔄 Procesando tile_12_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_13_0_0 - 563KB
+   ✅ tile_12_13_0_1 - 558KB
+   ✅ tile_12_13_1_0 - 575KB
+   ✅ tile_12_13_1_1 - 561KB
+🔄 Procesando tile_12_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_14_0_0 - 562KB
+   ✅ tile_12_14_0_1 - 571KB
+   ✅ tile_12_14_1_0 - 542KB
+   ✅ tile_12_14_1_1 - 545KB
+🔄 Procesando tile_12_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_15_0_0 - 526KB
+   ✅ tile_12_15_0_1 - 525KB
+   ✅ tile_12_15_1_0 - 500KB
+   ✅ tile_12_15_1_1 - 518KB
+🔄 Procesando tile_12_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_16_0_0 - 514KB
+   ✅ tile_12_16_0_1 - 543KB
+   ✅ tile_12_16_1_0 - 563KB
+   ✅ tile_12_16_1_1 - 545KB
+🔄 Procesando tile_12_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_17_0_0 - 576KB
+   ✅ tile_12_17_0_1 - 560KB
+   ✅ tile_12_17_1_0 - 469KB
+   ✅ tile_12_17_1_1 - 535KB
+🔄 Procesando tile_12_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_18_0_0 - 457KB
+   ✅ tile_12_18_0_1 - 368KB
+   ✅ tile_12_18_1_0 - 383KB
+   ✅ tile_12_18_1_1 - 385KB
+🔄 Procesando tile_12_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_19_0_0 - 354KB
+   ✅ tile_12_19_0_1 - 368KB
+   ✅ tile_12_19_1_0 - 340KB
+   ✅ tile_12_19_1_1 - 314KB
+🔄 Procesando tile_12_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_2_0_0 - 377KB
+   ✅ tile_12_2_0_1 - 376KB
+   ✅ tile_12_2_1_0 - 320KB
+   ✅ tile_12_2_1_1 - 391KB
+🔄 Procesando tile_12_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_20_0_0 - 187KB
+   ✅ tile_12_20_0_1 - 217KB
+   ✅ tile_12_20_1_0 - 235KB
+   ✅ tile_12_20_1_1 - 238KB
+🔄 Procesando tile_12_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_3_0_0 - 262KB
+   ✅ tile_12_3_0_1 - 353KB
+   ✅ tile_12_3_1_0 - 443KB
+   ✅ tile_12_3_1_1 - 167KB
+🔄 Procesando tile_12_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_4_0_0 - 509KB
+   ✅ tile_12_4_0_1 - 251KB
+   ✅ tile_12_4_1_0 - 508KB
+   ✅ tile_12_4_1_1 - 438KB
+🔄 Procesando tile_12_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_5_0_0 - 494KB
+   ✅ tile_12_5_0_1 - 503KB
+   ✅ tile_12_5_1_0 - 473KB
+   ✅ tile_12_5_1_1 - 460KB
+🔄 Procesando tile_12_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_6_0_0 - 539KB
+   ✅ tile_12_6_0_1 - 519KB
+   ✅ tile_12_6_1_0 - 493KB
+   ✅ tile_12_6_1_1 - 562KB
+🔄 Procesando tile_12_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_7_0_0 - 548KB
+   ✅ tile_12_7_0_1 - 538KB
+   ✅ tile_12_7_1_0 - 569KB
+   ✅ tile_12_7_1_1 - 562KB
+🔄 Procesando tile_12_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_8_0_0 - 552KB
+   ✅ tile_12_8_0_1 - 589KB
+   ✅ tile_12_8_1_0 - 547KB
+   ✅ tile_12_8_1_1 - 572KB
+🔄 Procesando tile_12_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_12_9_0_0 - 569KB
+   ✅ tile_12_9_0_1 - 561KB
+   ✅ tile_12_9_1_0 - 553KB
+   ✅ tile_12_9_1_1 - 544KB
+🔄 Procesando tile_13000_0 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_0_0_0 - 316KB
+   ✅ tile_13000_0_0_1 - 206KB
+   ✅ tile_13000_0_1_0 - 350KB
+   ✅ tile_13000_0_1_1 - 302KB
+🔄 Procesando tile_13000_1000 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_1000_0_0 - 310KB
+   ✅ tile_13000_1000_0_1 - 330KB
+   ✅ tile_13000_1000_1_0 - 356KB
+   ✅ tile_13000_1000_1_1 - 338KB
+🔄 Procesando tile_13000_2000 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_2000_0_0 - 284KB
+   ✅ tile_13000_2000_0_1 - 346KB
+   ✅ tile_13000_2000_1_0 - 150KB
+   ✅ tile_13000_2000_1_1 - 330KB
+🔄 Procesando tile_13000_3000 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_3000_0_0 - 152KB
+   ✅ tile_13000_3000_0_1 - 224KB
+   ✅ tile_13000_3000_1_0 - 138KB
+   ✅ tile_13000_3000_1_1 - 214KB
+🔄 Procesando tile_13000_4000 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_4000_0_0 - 192KB
+   ✅ tile_13000_4000_0_1 - 162KB
+   ✅ tile_13000_4000_1_0 - 182KB
+   ✅ tile_13000_4000_1_1 - 202KB
+🔄 Procesando tile_13000_5000 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_5000_0_0 - 165KB
+   ✅ tile_13000_5000_0_1 - 194KB
+   ✅ tile_13000_5000_1_0 - 190KB
+   ✅ tile_13000_5000_1_1 - 212KB
+🔄 Procesando tile_13000_6000 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_6000_0_0 - 202KB
+   ✅ tile_13000_6000_0_1 - 217KB
+   ✅ tile_13000_6000_1_0 - 208KB
+   ✅ tile_13000_6000_1_1 - 223KB
+🔄 Procesando tile_13000_7000 (1.5MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13000_7000_0_0 - 221KB
+   ✅ tile_13000_7000_0_1 - 209KB
+   ✅ tile_13000_7000_1_0 - 206KB
+   ✅ tile_13000_7000_1_1 - 186KB
+🔄 Procesando tile_13000_8000 (0.4MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_13000_8000_0_0 - 192KB
+🔄 Procesando tile_13_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_0_0_0 - 298KB
+   ✅ tile_13_0_0_1 - 301KB
+   ✅ tile_13_0_1_0 - 277KB
+   ✅ tile_13_0_1_1 - 260KB
+🔄 Procesando tile_13_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_1_0_0 - 304KB
+   ✅ tile_13_1_0_1 - 294KB
+   ✅ tile_13_1_1_0 - 364KB
+   ✅ tile_13_1_1_1 - 347KB
+🔄 Procesando tile_13_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_10_0_0 - 533KB
+   ✅ tile_13_10_0_1 - 523KB
+   ✅ tile_13_10_1_0 - 559KB
+   ✅ tile_13_10_1_1 - 550KB
+🔄 Procesando tile_13_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_11_0_0 - 531KB
+   ✅ tile_13_11_0_1 - 541KB
+   ✅ tile_13_11_1_0 - 568KB
+   ✅ tile_13_11_1_1 - 564KB
+🔄 Procesando tile_13_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_12_0_0 - 584KB
+   ✅ tile_13_12_0_1 - 569KB
+   ✅ tile_13_12_1_0 - 581KB
+   ✅ tile_13_12_1_1 - 571KB
+🔄 Procesando tile_13_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_13_0_0 - 569KB
+   ✅ tile_13_13_0_1 - 553KB
+   ✅ tile_13_13_1_0 - 557KB
+   ✅ tile_13_13_1_1 - 549KB
+🔄 Procesando tile_13_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_14_0_0 - 562KB
+   ✅ tile_13_14_0_1 - 574KB
+   ✅ tile_13_14_1_0 - 543KB
+   ✅ tile_13_14_1_1 - 564KB
+🔄 Procesando tile_13_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_15_0_0 - 538KB
+   ✅ tile_13_15_0_1 - 536KB
+   ✅ tile_13_15_1_0 - 535KB
+   ✅ tile_13_15_1_1 - 535KB
+🔄 Procesando tile_13_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_16_0_0 - 546KB
+   ✅ tile_13_16_0_1 - 547KB
+   ✅ tile_13_16_1_0 - 536KB
+   ✅ tile_13_16_1_1 - 536KB
+🔄 Procesando tile_13_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_17_0_0 - 524KB
+   ✅ tile_13_17_0_1 - 438KB
+   ✅ tile_13_17_1_0 - 496KB
+   ✅ tile_13_17_1_1 - 414KB
+🔄 Procesando tile_13_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_18_0_0 - 335KB
+   ✅ tile_13_18_0_1 - 378KB
+   ✅ tile_13_18_1_0 - 348KB
+   ✅ tile_13_18_1_1 - 407KB
+🔄 Procesando tile_13_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_19_0_0 - 357KB
+   ✅ tile_13_19_0_1 - 374KB
+   ✅ tile_13_19_1_0 - 275KB
+   ✅ tile_13_19_1_1 - 323KB
+🔄 Procesando tile_13_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_2_0_0 - 360KB
+   ✅ tile_13_2_0_1 - 396KB
+   ✅ tile_13_2_1_0 - 376KB
+   ✅ tile_13_2_1_1 - 377KB
+📦 Paquete creado: vegetation_ndvi_batch_03 (70.3MB)
+✅ Lote 3 completado: 194 sub-tiles
+
+🔄 Procesando lote 4/16 (50 tiles)
+🔄 Procesando tile_13_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_20_0_0 - 240KB
+   ✅ tile_13_20_0_1 - 263KB
+   ✅ tile_13_20_1_0 - 204KB
+   ✅ tile_13_20_1_1 - 256KB
+🔄 Procesando tile_13_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_3_0_0 - 381KB
+   ✅ tile_13_3_0_1 - 366KB
+   ✅ tile_13_3_1_0 - 344KB
+   ✅ tile_13_3_1_1 - 353KB
+🔄 Procesando tile_13_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_4_0_0 - 314KB
+   ✅ tile_13_4_0_1 - 323KB
+   ✅ tile_13_4_1_0 - 299KB
+   ✅ tile_13_4_1_1 - 284KB
+🔄 Procesando tile_13_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_5_0_0 - 400KB
+   ✅ tile_13_5_0_1 - 338KB
+   ✅ tile_13_5_1_0 - 463KB
+   ✅ tile_13_5_1_1 - 457KB
+🔄 Procesando tile_13_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_6_0_0 - 462KB
+   ✅ tile_13_6_0_1 - 470KB
+   ✅ tile_13_6_1_0 - 484KB
+   ✅ tile_13_6_1_1 - 439KB
+🔄 Procesando tile_13_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_7_0_0 - 541KB
+   ✅ tile_13_7_0_1 - 500KB
+   ✅ tile_13_7_1_0 - 562KB
+   ✅ tile_13_7_1_1 - 591KB
+🔄 Procesando tile_13_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_8_0_0 - 584KB
+   ✅ tile_13_8_0_1 - 524KB
+   ✅ tile_13_8_1_0 - 549KB
+   ✅ tile_13_8_1_1 - 471KB
+🔄 Procesando tile_13_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_13_9_0_0 - 553KB
+   ✅ tile_13_9_0_1 - 494KB
+   ✅ tile_13_9_1_0 - 531KB
+   ✅ tile_13_9_1_1 - 526KB
+🔄 Procesando tile_14_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_0_0_0 - 290KB
+   ✅ tile_14_0_0_1 - 328KB
+   ✅ tile_14_0_1_0 - 269KB
+   ✅ tile_14_0_1_1 - 315KB
+🔄 Procesando tile_14_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_1_0_0 - 294KB
+   ✅ tile_14_1_0_1 - 315KB
+   ✅ tile_14_1_1_0 - 337KB
+   ✅ tile_14_1_1_1 - 347KB
+🔄 Procesando tile_14_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_10_0_0 - 504KB
+   ✅ tile_14_10_0_1 - 504KB
+   ✅ tile_14_10_1_0 - 538KB
+   ✅ tile_14_10_1_1 - 538KB
+🔄 Procesando tile_14_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_11_0_0 - 551KB
+   ✅ tile_14_11_0_1 - 568KB
+   ✅ tile_14_11_1_0 - 573KB
+   ✅ tile_14_11_1_1 - 588KB
+🔄 Procesando tile_14_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_12_0_0 - 570KB
+   ✅ tile_14_12_0_1 - 575KB
+   ✅ tile_14_12_1_0 - 582KB
+   ✅ tile_14_12_1_1 - 561KB
+🔄 Procesando tile_14_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_13_0_0 - 565KB
+   ✅ tile_14_13_0_1 - 568KB
+   ✅ tile_14_13_1_0 - 567KB
+   ✅ tile_14_13_1_1 - 578KB
+🔄 Procesando tile_14_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_14_0_0 - 570KB
+   ✅ tile_14_14_0_1 - 580KB
+   ✅ tile_14_14_1_0 - 569KB
+   ✅ tile_14_14_1_1 - 576KB
+🔄 Procesando tile_14_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_15_0_0 - 540KB
+   ✅ tile_14_15_0_1 - 547KB
+   ✅ tile_14_15_1_0 - 521KB
+   ✅ tile_14_15_1_1 - 531KB
+🔄 Procesando tile_14_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_16_0_0 - 544KB
+   ✅ tile_14_16_0_1 - 532KB
+   ✅ tile_14_16_1_0 - 533KB
+   ✅ tile_14_16_1_1 - 542KB
+🔄 Procesando tile_14_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_17_0_0 - 518KB
+   ✅ tile_14_17_0_1 - 444KB
+   ✅ tile_14_17_1_0 - 370KB
+   ✅ tile_14_17_1_1 - 199KB
+🔄 Procesando tile_14_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_18_0_0 - 372KB
+   ✅ tile_14_18_0_1 - 326KB
+   ✅ tile_14_18_1_0 - 402KB
+   ✅ tile_14_18_1_1 - 364KB
+🔄 Procesando tile_14_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_19_0_0 - 414KB
+   ✅ tile_14_19_0_1 - 410KB
+   ✅ tile_14_19_1_0 - 351KB
+   ✅ tile_14_19_1_1 - 371KB
+🔄 Procesando tile_14_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_2_0_0 - 403KB
+   ✅ tile_14_2_0_1 - 380KB
+   ✅ tile_14_2_1_0 - 404KB
+   ✅ tile_14_2_1_1 - 368KB
+🔄 Procesando tile_14_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_20_0_0 - 205KB
+   ✅ tile_14_20_0_1 - 238KB
+   ✅ tile_14_20_1_0 - 243KB
+   ✅ tile_14_20_1_1 - 249KB
+🔄 Procesando tile_14_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_3_0_0 - 376KB
+   ✅ tile_14_3_0_1 - 407KB
+   ✅ tile_14_3_1_0 - 334KB
+   ✅ tile_14_3_1_1 - 387KB
+🔄 Procesando tile_14_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_4_0_0 - 323KB
+   ✅ tile_14_4_0_1 - 329KB
+   ✅ tile_14_4_1_0 - 299KB
+   ✅ tile_14_4_1_1 - 301KB
+🔄 Procesando tile_14_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_5_0_0 - 348KB
+   ✅ tile_14_5_0_1 - 329KB
+   ✅ tile_14_5_1_0 - 440KB
+   ✅ tile_14_5_1_1 - 408KB
+🔄 Procesando tile_14_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_6_0_0 - 448KB
+   ✅ tile_14_6_0_1 - 455KB
+   ✅ tile_14_6_1_0 - 457KB
+   ✅ tile_14_6_1_1 - 431KB
+🔄 Procesando tile_14_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_7_0_0 - 474KB
+   ✅ tile_14_7_0_1 - 470KB
+   ✅ tile_14_7_1_0 - 589KB
+   ✅ tile_14_7_1_1 - 584KB
+🔄 Procesando tile_14_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_8_0_0 - 490KB
+   ✅ tile_14_8_0_1 - 516KB
+   ✅ tile_14_8_1_0 - 477KB
+   ✅ tile_14_8_1_1 - 504KB
+🔄 Procesando tile_14_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_14_9_0_0 - 488KB
+   ✅ tile_14_9_0_1 - 522KB
+   ✅ tile_14_9_1_0 - 497KB
+   ✅ tile_14_9_1_1 - 515KB
+🔄 Procesando tile_15_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_0_0_0 - 306KB
+   ✅ tile_15_0_0_1 - 277KB
+   ✅ tile_15_0_1_0 - 325KB
+   ✅ tile_15_0_1_1 - 314KB
+🔄 Procesando tile_15_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_1_0_0 - 312KB
+   ✅ tile_15_1_0_1 - 334KB
+   ✅ tile_15_1_1_0 - 303KB
+   ✅ tile_15_1_1_1 - 349KB
+🔄 Procesando tile_15_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_10_0_0 - 510KB
+   ✅ tile_15_10_0_1 - 497KB
+   ✅ tile_15_10_1_0 - 514KB
+   ✅ tile_15_10_1_1 - 518KB
+🔄 Procesando tile_15_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_11_0_0 - 569KB
+   ✅ tile_15_11_0_1 - 561KB
+   ✅ tile_15_11_1_0 - 582KB
+   ✅ tile_15_11_1_1 - 575KB
+🔄 Procesando tile_15_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_12_0_0 - 584KB
+   ✅ tile_15_12_0_1 - 575KB
+   ✅ tile_15_12_1_0 - 574KB
+   ✅ tile_15_12_1_1 - 594KB
+🔄 Procesando tile_15_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_13_0_0 - 582KB
+   ✅ tile_15_13_0_1 - 583KB
+   ✅ tile_15_13_1_0 - 585KB
+   ✅ tile_15_13_1_1 - 573KB
+🔄 Procesando tile_15_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_14_0_0 - 588KB
+   ✅ tile_15_14_0_1 - 566KB
+   ✅ tile_15_14_1_0 - 575KB
+   ✅ tile_15_14_1_1 - 512KB
+🔄 Procesando tile_15_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_15_0_0 - 551KB
+   ✅ tile_15_15_0_1 - 375KB
+   ✅ tile_15_15_1_0 - 528KB
+   ✅ tile_15_15_1_1 - 335KB
+🔄 Procesando tile_15_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_16_0_0 - 475KB
+   ✅ tile_15_16_0_1 - 332KB
+   ✅ tile_15_16_1_0 - 406KB
+   ✅ tile_15_16_1_1 - 266KB
+🔄 Procesando tile_15_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_17_0_0 - 197KB
+   ✅ tile_15_17_0_1 - 309KB
+   ✅ tile_15_17_1_0 - 293KB
+   ✅ tile_15_17_1_1 - 348KB
+🔄 Procesando tile_15_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_18_0_0 - 208KB
+   ✅ tile_15_18_0_1 - 342KB
+   ✅ tile_15_18_1_0 - 221KB
+   ✅ tile_15_18_1_1 - 238KB
+🔄 Procesando tile_15_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_19_0_0 - 353KB
+   ✅ tile_15_19_0_1 - 243KB
+   ✅ tile_15_19_1_0 - 407KB
+   ✅ tile_15_19_1_1 - 255KB
+🔄 Procesando tile_15_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_2_0_0 - 338KB
+   ✅ tile_15_2_0_1 - 380KB
+   ✅ tile_15_2_1_0 - 387KB
+   ✅ tile_15_2_1_1 - 416KB
+🔄 Procesando tile_15_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_20_0_0 - 284KB
+   ✅ tile_15_20_0_1 - 178KB
+   ✅ tile_15_20_1_0 - 252KB
+   ✅ tile_15_20_1_1 - 226KB
+🔄 Procesando tile_15_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_3_0_0 - 397KB
+   ✅ tile_15_3_0_1 - 418KB
+   ✅ tile_15_3_1_0 - 398KB
+   ✅ tile_15_3_1_1 - 429KB
+🔄 Procesando tile_15_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_4_0_0 - 384KB
+   ✅ tile_15_4_0_1 - 390KB
+   ✅ tile_15_4_1_0 - 316KB
+   ✅ tile_15_4_1_1 - 325KB
+🔄 Procesando tile_15_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_5_0_0 - 312KB
+   ✅ tile_15_5_0_1 - 384KB
+   ✅ tile_15_5_1_0 - 407KB
+   ✅ tile_15_5_1_1 - 415KB
+🔄 Procesando tile_15_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_6_0_0 - 450KB
+   ✅ tile_15_6_0_1 - 443KB
+   ✅ tile_15_6_1_0 - 448KB
+   ✅ tile_15_6_1_1 - 439KB
+🔄 Procesando tile_15_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_7_0_0 - 488KB
+   ✅ tile_15_7_0_1 - 552KB
+   ✅ tile_15_7_1_0 - 583KB
+   ✅ tile_15_7_1_1 - 569KB
+🔄 Procesando tile_15_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_8_0_0 - 511KB
+   ✅ tile_15_8_0_1 - 521KB
+   ✅ tile_15_8_1_0 - 535KB
+   ✅ tile_15_8_1_1 - 488KB
+🔄 Procesando tile_15_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_15_9_0_0 - 532KB
+   ✅ tile_15_9_0_1 - 548KB
+   ✅ tile_15_9_1_0 - 528KB
+   ✅ tile_15_9_1_1 - 524KB
+📦 Paquete creado: vegetation_ndvi_batch_04 (79.3MB)
+✅ Lote 4 completado: 200 sub-tiles
+
+🔄 Procesando lote 5/16 (50 tiles)
+🔄 Procesando tile_16_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_0_0_0 - 330KB
+   ✅ tile_16_0_0_1 - 252KB
+   ✅ tile_16_0_1_0 - 297KB
+   ✅ tile_16_0_1_1 - 294KB
+🔄 Procesando tile_16_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_1_0_0 - 352KB
+   ✅ tile_16_1_0_1 - 339KB
+   ✅ tile_16_1_1_0 - 359KB
+   ✅ tile_16_1_1_1 - 369KB
+🔄 Procesando tile_16_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_10_0_0 - 515KB
+   ✅ tile_16_10_0_1 - 526KB
+   ✅ tile_16_10_1_0 - 516KB
+   ✅ tile_16_10_1_1 - 528KB
+🔄 Procesando tile_16_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_11_0_0 - 554KB
+   ✅ tile_16_11_0_1 - 552KB
+   ✅ tile_16_11_1_0 - 560KB
+   ✅ tile_16_11_1_1 - 550KB
+🔄 Procesando tile_16_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_12_0_0 - 583KB
+   ✅ tile_16_12_0_1 - 566KB
+   ✅ tile_16_12_1_0 - 572KB
+   ✅ tile_16_12_1_1 - 572KB
+🔄 Procesando tile_16_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_13_0_0 - 562KB
+   ✅ tile_16_13_0_1 - 544KB
+   ✅ tile_16_13_1_0 - 569KB
+   ✅ tile_16_13_1_1 - 549KB
+🔄 Procesando tile_16_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_14_0_0 - 473KB
+   ✅ tile_16_14_0_1 - 380KB
+   ✅ tile_16_14_1_0 - 212KB
+   ✅ tile_16_14_1_1 - 217KB
+🔄 Procesando tile_16_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_15_0_0 - 282KB
+   ✅ tile_16_15_0_1 - 308KB
+   ✅ tile_16_15_1_0 - 371KB
+   ✅ tile_16_15_1_1 - 298KB
+🔄 Procesando tile_16_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_16_0_0 - 340KB
+   ✅ tile_16_16_0_1 - 318KB
+   ✅ tile_16_16_1_0 - 288KB
+   ✅ tile_16_16_1_1 - 407KB
+🔄 Procesando tile_16_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_17_0_0 - 258KB
+   ✅ tile_16_17_0_1 - 224KB
+   ✅ tile_16_17_1_0 - 261KB
+   ✅ tile_16_17_1_1 - 217KB
+🔄 Procesando tile_16_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_18_0_0 - 264KB
+   ✅ tile_16_18_0_1 - 236KB
+   ✅ tile_16_18_1_0 - 260KB
+   ✅ tile_16_18_1_1 - 245KB
+🔄 Procesando tile_16_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_19_0_0 - 203KB
+   ✅ tile_16_19_0_1 - 232KB
+   ✅ tile_16_19_1_0 - 198KB
+   ✅ tile_16_19_1_1 - 252KB
+🔄 Procesando tile_16_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_2_0_0 - 370KB
+   ✅ tile_16_2_0_1 - 370KB
+   ✅ tile_16_2_1_0 - 418KB
+   ✅ tile_16_2_1_1 - 388KB
+🔄 Procesando tile_16_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_20_0_0 - 173KB
+   ✅ tile_16_20_0_1 - 206KB
+   ✅ tile_16_20_1_0 - 150KB
+   ✅ tile_16_20_1_1 - 198KB
+🔄 Procesando tile_16_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_3_0_0 - 404KB
+   ✅ tile_16_3_0_1 - 432KB
+   ✅ tile_16_3_1_0 - 389KB
+   ✅ tile_16_3_1_1 - 419KB
+🔄 Procesando tile_16_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_4_0_0 - 409KB
+   ✅ tile_16_4_0_1 - 308KB
+   ✅ tile_16_4_1_0 - 311KB
+   ✅ tile_16_4_1_1 - 186KB
+🔄 Procesando tile_16_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_5_0_0 - 393KB
+   ✅ tile_16_5_0_1 - 403KB
+   ✅ tile_16_5_1_0 - 446KB
+   ✅ tile_16_5_1_1 - 473KB
+🔄 Procesando tile_16_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_6_0_0 - 439KB
+   ✅ tile_16_6_0_1 - 461KB
+   ✅ tile_16_6_1_0 - 471KB
+   ✅ tile_16_6_1_1 - 478KB
+🔄 Procesando tile_16_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_7_0_0 - 570KB
+   ✅ tile_16_7_0_1 - 576KB
+   ✅ tile_16_7_1_0 - 549KB
+   ✅ tile_16_7_1_1 - 546KB
+🔄 Procesando tile_16_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_8_0_0 - 502KB
+   ✅ tile_16_8_0_1 - 512KB
+   ✅ tile_16_8_1_0 - 477KB
+   ✅ tile_16_8_1_1 - 539KB
+🔄 Procesando tile_16_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_16_9_0_0 - 524KB
+   ✅ tile_16_9_0_1 - 555KB
+   ✅ tile_16_9_1_0 - 524KB
+   ✅ tile_16_9_1_1 - 537KB
+🔄 Procesando tile_17_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_0_0_0 - 242KB
+   ✅ tile_17_0_0_1 - 315KB
+   ✅ tile_17_0_1_0 - 306KB
+   ✅ tile_17_0_1_1 - 324KB
+🔄 Procesando tile_17_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_1_0_0 - 312KB
+   ✅ tile_17_1_0_1 - 290KB
+   ✅ tile_17_1_1_0 - 358KB
+   ✅ tile_17_1_1_1 - 344KB
+🔄 Procesando tile_17_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_10_0_0 - 514KB
+   ✅ tile_17_10_0_1 - 514KB
+   ✅ tile_17_10_1_0 - 493KB
+   ✅ tile_17_10_1_1 - 490KB
+🔄 Procesando tile_17_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_11_0_0 - 509KB
+   ✅ tile_17_11_0_1 - 539KB
+   ✅ tile_17_11_1_0 - 535KB
+   ✅ tile_17_11_1_1 - 524KB
+🔄 Procesando tile_17_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_12_0_0 - 555KB
+   ✅ tile_17_12_0_1 - 547KB
+   ✅ tile_17_12_1_0 - 563KB
+   ✅ tile_17_12_1_1 - 554KB
+🔄 Procesando tile_17_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_13_0_0 - 556KB
+   ✅ tile_17_13_0_1 - 560KB
+   ✅ tile_17_13_1_0 - 550KB
+   ✅ tile_17_13_1_1 - 516KB
+🔄 Procesando tile_17_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_14_0_0 - 387KB
+   ✅ tile_17_14_0_1 - 300KB
+   ✅ tile_17_14_1_0 - 243KB
+   ✅ tile_17_14_1_1 - 370KB
+🔄 Procesando tile_17_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_15_0_0 - 347KB
+   ✅ tile_17_15_0_1 - 345KB
+   ✅ tile_17_15_1_0 - 332KB
+   ✅ tile_17_15_1_1 - 326KB
+🔄 Procesando tile_17_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_16_0_0 - 268KB
+   ✅ tile_17_16_0_1 - 359KB
+   ✅ tile_17_16_1_0 - 348KB
+   ✅ tile_17_16_1_1 - 371KB
+🔄 Procesando tile_17_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_17_0_0 - 253KB
+   ✅ tile_17_17_0_1 - 275KB
+   ✅ tile_17_17_1_0 - 312KB
+   ✅ tile_17_17_1_1 - 259KB
+🔄 Procesando tile_17_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_18_0_0 - 327KB
+   ✅ tile_17_18_0_1 - 342KB
+   ✅ tile_17_18_1_0 - 301KB
+   ✅ tile_17_18_1_1 - 372KB
+🔄 Procesando tile_17_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_19_0_0 - 286KB
+   ✅ tile_17_19_0_1 - 322KB
+   ✅ tile_17_19_1_0 - 270KB
+   ✅ tile_17_19_1_1 - 300KB
+🔄 Procesando tile_17_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_2_0_0 - 373KB
+   ✅ tile_17_2_0_1 - 349KB
+   ✅ tile_17_2_1_0 - 370KB
+   ✅ tile_17_2_1_1 - 342KB
+🔄 Procesando tile_17_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_20_0_0 - 166KB
+   ✅ tile_17_20_0_1 - 206KB
+   ✅ tile_17_20_1_0 - 184KB
+   ✅ tile_17_20_1_1 - 176KB
+🔄 Procesando tile_17_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_3_0_0 - 371KB
+   ✅ tile_17_3_0_1 - 317KB
+   ✅ tile_17_3_1_0 - 331KB
+   ✅ tile_17_3_1_1 - 327KB
+🔄 Procesando tile_17_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_4_0_0 - 220KB
+   ✅ tile_17_4_0_1 - 168KB
+   ✅ tile_17_4_1_0 - 154KB
+   ✅ tile_17_4_1_1 - 274KB
+🔄 Procesando tile_17_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_5_0_0 - 454KB
+   ✅ tile_17_5_0_1 - 517KB
+   ✅ tile_17_5_1_0 - 498KB
+   ✅ tile_17_5_1_1 - 484KB
+🔄 Procesando tile_17_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_6_0_0 - 486KB
+   ✅ tile_17_6_0_1 - 485KB
+   ✅ tile_17_6_1_0 - 476KB
+   ✅ tile_17_6_1_1 - 515KB
+🔄 Procesando tile_17_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_7_0_0 - 562KB
+   ✅ tile_17_7_0_1 - 530KB
+   ✅ tile_17_7_1_0 - 543KB
+   ✅ tile_17_7_1_1 - 531KB
+🔄 Procesando tile_17_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_8_0_0 - 540KB
+   ✅ tile_17_8_0_1 - 534KB
+   ✅ tile_17_8_1_0 - 528KB
+   ✅ tile_17_8_1_1 - 531KB
+🔄 Procesando tile_17_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_17_9_0_0 - 535KB
+   ✅ tile_17_9_0_1 - 529KB
+   ✅ tile_17_9_1_0 - 537KB
+   ✅ tile_17_9_1_1 - 537KB
+🔄 Procesando tile_18_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_0_0_0 - 329KB
+   ✅ tile_18_0_0_1 - 309KB
+   ✅ tile_18_0_1_0 - 325KB
+   ✅ tile_18_0_1_1 - 328KB
+🔄 Procesando tile_18_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_1_0_0 - 234KB
+   ✅ tile_18_1_0_1 - 236KB
+   ✅ tile_18_1_1_0 - 286KB
+   ✅ tile_18_1_1_1 - 199KB
+🔄 Procesando tile_18_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_10_0_0 - 484KB
+   ✅ tile_18_10_0_1 - 511KB
+   ✅ tile_18_10_1_0 - 503KB
+   ✅ tile_18_10_1_1 - 470KB
+🔄 Procesando tile_18_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_11_0_0 - 506KB
+   ✅ tile_18_11_0_1 - 503KB
+   ✅ tile_18_11_1_0 - 525KB
+   ✅ tile_18_11_1_1 - 514KB
+🔄 Procesando tile_18_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_12_0_0 - 540KB
+   ✅ tile_18_12_0_1 - 513KB
+   ✅ tile_18_12_1_0 - 551KB
+   ✅ tile_18_12_1_1 - 504KB
+🔄 Procesando tile_18_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_13_0_0 - 492KB
+   ✅ tile_18_13_0_1 - 263KB
+   ✅ tile_18_13_1_0 - 266KB
+   ✅ tile_18_13_1_1 - 264KB
+🔄 Procesando tile_18_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_14_0_0 - 341KB
+   ✅ tile_18_14_0_1 - 384KB
+   ✅ tile_18_14_1_0 - 367KB
+   ✅ tile_18_14_1_1 - 290KB
+🔄 Procesando tile_18_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_15_0_0 - 392KB
+   ✅ tile_18_15_0_1 - 275KB
+   ✅ tile_18_15_1_0 - 359KB
+   ✅ tile_18_15_1_1 - 340KB
+📦 Paquete creado: vegetation_ndvi_batch_05 (72.8MB)
+✅ Lote 5 completado: 200 sub-tiles
+
+🔄 Procesando lote 6/16 (50 tiles)
+🔄 Procesando tile_18_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_16_0_0 - 373KB
+   ✅ tile_18_16_0_1 - 362KB
+   ✅ tile_18_16_1_0 - 320KB
+   ✅ tile_18_16_1_1 - 353KB
+🔄 Procesando tile_18_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_17_0_0 - 300KB
+   ✅ tile_18_17_0_1 - 326KB
+   ✅ tile_18_17_1_0 - 304KB
+   ✅ tile_18_17_1_1 - 294KB
+🔄 Procesando tile_18_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_18_0_0 - 315KB
+   ✅ tile_18_18_0_1 - 298KB
+   ✅ tile_18_18_1_0 - 355KB
+   ✅ tile_18_18_1_1 - 304KB
+🔄 Procesando tile_18_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_19_0_0 - 326KB
+   ✅ tile_18_19_0_1 - 312KB
+   ✅ tile_18_19_1_0 - 324KB
+   ✅ tile_18_19_1_1 - 355KB
+🔄 Procesando tile_18_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_2_0_0 - 252KB
+   ✅ tile_18_2_0_1 - 222KB
+   ✅ tile_18_2_1_0 - 292KB
+   ✅ tile_18_2_1_1 - 195KB
+🔄 Procesando tile_18_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_20_0_0 - 190KB
+   ✅ tile_18_20_0_1 - 231KB
+   ✅ tile_18_20_1_0 - 241KB
+   ✅ tile_18_20_1_1 - 216KB
+🔄 Procesando tile_18_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_3_0_0 - 237KB
+   ✅ tile_18_3_0_1 - 190KB
+   ✅ tile_18_3_1_0 - 344KB
+   ✅ tile_18_3_1_1 - 249KB
+🔄 Procesando tile_18_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_4_0_0 - 222KB
+   ✅ tile_18_4_0_1 - 229KB
+   ✅ tile_18_4_1_0 - 321KB
+   ✅ tile_18_4_1_1 - 385KB
+🔄 Procesando tile_18_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_5_0_0 - 542KB
+   ✅ tile_18_5_0_1 - 544KB
+   ✅ tile_18_5_1_0 - 503KB
+   ✅ tile_18_5_1_1 - 464KB
+🔄 Procesando tile_18_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_6_0_0 - 478KB
+   ✅ tile_18_6_0_1 - 491KB
+   ✅ tile_18_6_1_0 - 502KB
+   ✅ tile_18_6_1_1 - 485KB
+🔄 Procesando tile_18_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_7_0_0 - 525KB
+   ✅ tile_18_7_0_1 - 501KB
+   ✅ tile_18_7_1_0 - 516KB
+   ✅ tile_18_7_1_1 - 512KB
+🔄 Procesando tile_18_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_8_0_0 - 508KB
+   ✅ tile_18_8_0_1 - 465KB
+   ✅ tile_18_8_1_0 - 541KB
+   ✅ tile_18_8_1_1 - 524KB
+🔄 Procesando tile_18_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_18_9_0_0 - 552KB
+   ✅ tile_18_9_0_1 - 561KB
+   ✅ tile_18_9_1_0 - 540KB
+   ✅ tile_18_9_1_1 - 538KB
+🔄 Procesando tile_19_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_0_0_0 - 226KB
+   ✅ tile_19_0_0_1 - 209KB
+   ✅ tile_19_0_1_0 - 316KB
+   ✅ tile_19_0_1_1 - 209KB
+🔄 Procesando tile_19_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_1_0_0 - 272KB
+   ✅ tile_19_1_0_1 - 200KB
+   ✅ tile_19_1_1_0 - 231KB
+   ✅ tile_19_1_1_1 - 274KB
+🔄 Procesando tile_19_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_10_0_0 - 542KB
+   ✅ tile_19_10_0_1 - 521KB
+   ✅ tile_19_10_1_0 - 507KB
+   ✅ tile_19_10_1_1 - 524KB
+🔄 Procesando tile_19_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_11_0_0 - 499KB
+   ✅ tile_19_11_0_1 - 507KB
+   ✅ tile_19_11_1_0 - 492KB
+   ✅ tile_19_11_1_1 - 500KB
+🔄 Procesando tile_19_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_12_0_0 - 475KB
+   ✅ tile_19_12_0_1 - 357KB
+   ✅ tile_19_12_1_0 - 269KB
+   ✅ tile_19_12_1_1 - 109KB
+🔄 Procesando tile_19_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_13_0_0 - 280KB
+   ✅ tile_19_13_0_1 - 193KB
+   ✅ tile_19_13_1_0 - 334KB
+   ✅ tile_19_13_1_1 - 304KB
+🔄 Procesando tile_19_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_14_0_0 - 373KB
+   ✅ tile_19_14_0_1 - 286KB
+   ✅ tile_19_14_1_0 - 253KB
+   ✅ tile_19_14_1_1 - 212KB
+🔄 Procesando tile_19_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_15_0_0 - 220KB
+   ✅ tile_19_15_0_1 - 126KB
+   ✅ tile_19_15_1_0 - 199KB
+   ✅ tile_19_15_1_1 - 89KB
+🔄 Procesando tile_19_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_16_0_0 - 237KB
+   ✅ tile_19_16_0_1 - 128KB
+   ✅ tile_19_16_1_0 - 294KB
+   ✅ tile_19_16_1_1 - 235KB
+🔄 Procesando tile_19_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_17_0_0 - 281KB
+   ✅ tile_19_17_0_1 - 185KB
+   ✅ tile_19_17_1_0 - 283KB
+   ✅ tile_19_17_1_1 - 304KB
+🔄 Procesando tile_19_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_18_0_0 - 309KB
+   ✅ tile_19_18_0_1 - 341KB
+   ✅ tile_19_18_1_0 - 276KB
+   ✅ tile_19_18_1_1 - 358KB
+🔄 Procesando tile_19_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_19_0_0 - 349KB
+   ✅ tile_19_19_0_1 - 370KB
+   ✅ tile_19_19_1_0 - 362KB
+   ✅ tile_19_19_1_1 - 324KB
+🔄 Procesando tile_19_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_2_0_0 - 191KB
+   ✅ tile_19_2_0_1 - 204KB
+   ✅ tile_19_2_1_0 - 163KB
+   ✅ tile_19_2_1_1 - 217KB
+🔄 Procesando tile_19_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_20_0_0 - 259KB
+   ✅ tile_19_20_0_1 - 238KB
+   ✅ tile_19_20_1_0 - 250KB
+   ✅ tile_19_20_1_1 - 229KB
+🔄 Procesando tile_19_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_3_0_0 - 271KB
+   ✅ tile_19_3_0_1 - 186KB
+   ✅ tile_19_3_1_0 - 184KB
+   ✅ tile_19_3_1_1 - 200KB
+🔄 Procesando tile_19_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_4_0_0 - 303KB
+   ✅ tile_19_4_0_1 - 199KB
+   ✅ tile_19_4_1_0 - 336KB
+   ✅ tile_19_4_1_1 - 436KB
+🔄 Procesando tile_19_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_5_0_0 - 555KB
+   ✅ tile_19_5_0_1 - 548KB
+   ✅ tile_19_5_1_0 - 510KB
+   ✅ tile_19_5_1_1 - 511KB
+🔄 Procesando tile_19_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_6_0_0 - 448KB
+   ✅ tile_19_6_0_1 - 452KB
+   ✅ tile_19_6_1_0 - 497KB
+   ✅ tile_19_6_1_1 - 489KB
+🔄 Procesando tile_19_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_7_0_0 - 513KB
+   ✅ tile_19_7_0_1 - 486KB
+   ✅ tile_19_7_1_0 - 491KB
+   ✅ tile_19_7_1_1 - 496KB
+🔄 Procesando tile_19_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_8_0_0 - 537KB
+   ✅ tile_19_8_0_1 - 535KB
+   ✅ tile_19_8_1_0 - 545KB
+   ✅ tile_19_8_1_1 - 548KB
+🔄 Procesando tile_19_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_19_9_0_0 - 547KB
+   ✅ tile_19_9_0_1 - 534KB
+   ✅ tile_19_9_1_0 - 560KB
+   ✅ tile_19_9_1_1 - 539KB
+🔄 Procesando tile_1_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_0_0_0 - 338KB
+   ✅ tile_1_0_0_1 - 396KB
+   ✅ tile_1_0_1_0 - 375KB
+   ✅ tile_1_0_1_1 - 363KB
+🔄 Procesando tile_1_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_1_0_0 - 382KB
+   ✅ tile_1_1_0_1 - 425KB
+   ✅ tile_1_1_1_0 - 339KB
+   ✅ tile_1_1_1_1 - 375KB
+🔄 Procesando tile_1_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_10_0_0 - 333KB
+   ✅ tile_1_10_0_1 - 367KB
+   ✅ tile_1_10_1_0 - 339KB
+   ✅ tile_1_10_1_1 - 290KB
+🔄 Procesando tile_1_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_11_0_0 - 238KB
+   ✅ tile_1_11_0_1 - 179KB
+   ✅ tile_1_11_1_0 - 349KB
+   ✅ tile_1_11_1_1 - 248KB
+🔄 Procesando tile_1_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_12_0_0 - 310KB
+   ✅ tile_1_12_0_1 - 235KB
+   ✅ tile_1_12_1_0 - 339KB
+   ✅ tile_1_12_1_1 - 312KB
+🔄 Procesando tile_1_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_13_0_0 - 357KB
+   ✅ tile_1_13_0_1 - 345KB
+   ✅ tile_1_13_1_0 - 370KB
+   ✅ tile_1_13_1_1 - 367KB
+🔄 Procesando tile_1_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_14_0_0 - 359KB
+   ✅ tile_1_14_0_1 - 375KB
+   ✅ tile_1_14_1_0 - 366KB
+   ✅ tile_1_14_1_1 - 377KB
+🔄 Procesando tile_1_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_15_0_0 - 321KB
+   ✅ tile_1_15_0_1 - 298KB
+   ✅ tile_1_15_1_0 - 256KB
+   ✅ tile_1_15_1_1 - 196KB
+🔄 Procesando tile_1_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_16_0_0 - 287KB
+   ✅ tile_1_16_0_1 - 243KB
+   ✅ tile_1_16_1_0 - 371KB
+   ✅ tile_1_16_1_1 - 302KB
+🔄 Procesando tile_1_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_17_0_0 - 364KB
+   ✅ tile_1_17_0_1 - 346KB
+   ✅ tile_1_17_1_0 - 388KB
+   ✅ tile_1_17_1_1 - 366KB
+🔄 Procesando tile_1_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_18_0_0 - 378KB
+   ✅ tile_1_18_0_1 - 413KB
+   ✅ tile_1_18_1_0 - 368KB
+   ✅ tile_1_18_1_1 - 370KB
+🔄 Procesando tile_1_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_19_0_0 - 374KB
+   ✅ tile_1_19_0_1 - 390KB
+   ✅ tile_1_19_1_0 - 360KB
+   ✅ tile_1_19_1_1 - 375KB
+🔄 Procesando tile_1_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_2_0_0 - 352KB
+   ✅ tile_1_2_0_1 - 324KB
+   ✅ tile_1_2_1_0 - 265KB
+   ✅ tile_1_2_1_1 - 313KB
+🔄 Procesando tile_1_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_20_0_0 - 267KB
+   ✅ tile_1_20_0_1 - 256KB
+   ✅ tile_1_20_1_0 - 275KB
+   ✅ tile_1_20_1_1 - 246KB
+🔄 Procesando tile_1_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_3_0_0 - 430KB
+   ✅ tile_1_3_0_1 - 530KB
+   ✅ tile_1_3_1_0 - 444KB
+   ✅ tile_1_3_1_1 - 576KB
+🔄 Procesando tile_1_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_4_0_0 - 574KB
+   ✅ tile_1_4_0_1 - 576KB
+   ✅ tile_1_4_1_0 - 510KB
+   ✅ tile_1_4_1_1 - 480KB
+📦 Paquete creado: vegetation_ndvi_batch_06 (66.1MB)
+✅ Lote 6 completado: 200 sub-tiles
+
+🔄 Procesando lote 7/16 (50 tiles)
+🔄 Procesando tile_1_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_5_0_0 - 542KB
+   ✅ tile_1_5_0_1 - 592KB
+   ✅ tile_1_5_1_0 - 549KB
+   ✅ tile_1_5_1_1 - 562KB
+🔄 Procesando tile_1_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_6_0_0 - 372KB
+   ✅ tile_1_6_0_1 - 560KB
+   ✅ tile_1_6_1_0 - 428KB
+   ✅ tile_1_6_1_1 - 555KB
+🔄 Procesando tile_1_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_7_0_0 - 349KB
+   ✅ tile_1_7_0_1 - 499KB
+   ✅ tile_1_7_1_0 - 373KB
+   ✅ tile_1_7_1_1 - 534KB
+🔄 Procesando tile_1_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_8_0_0 - 384KB
+   ✅ tile_1_8_0_1 - 554KB
+   ✅ tile_1_8_1_0 - 387KB
+   ✅ tile_1_8_1_1 - 528KB
+🔄 Procesando tile_1_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_1_9_0_0 - 427KB
+   ✅ tile_1_9_0_1 - 476KB
+   ✅ tile_1_9_1_0 - 323KB
+   ✅ tile_1_9_1_1 - 389KB
+🔄 Procesando tile_2000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_0_0_0 - 301KB
+   ✅ tile_2000_0_0_1 - 180KB
+   ✅ tile_2000_0_1_0 - 115KB
+   ✅ tile_2000_0_1_1 - 150KB
+🔄 Procesando tile_2000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_1000_0_0 - 394KB
+   ✅ tile_2000_1000_0_1 - 499KB
+   ✅ tile_2000_1000_1_0 - 483KB
+   ✅ tile_2000_1000_1_1 - 495KB
+🔄 Procesando tile_2000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_2000_0_0 - 488KB
+   ✅ tile_2000_2000_0_1 - 478KB
+   ✅ tile_2000_2000_1_0 - 474KB
+   ✅ tile_2000_2000_1_1 - 479KB
+🔄 Procesando tile_2000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_3000_0_0 - 574KB
+   ✅ tile_2000_3000_0_1 - 541KB
+   ✅ tile_2000_3000_1_0 - 540KB
+   ✅ tile_2000_3000_1_1 - 535KB
+🔄 Procesando tile_2000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_4000_0_0 - 534KB
+   ✅ tile_2000_4000_0_1 - 531KB
+   ✅ tile_2000_4000_1_0 - 528KB
+   ✅ tile_2000_4000_1_1 - 530KB
+🔄 Procesando tile_2000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_5000_0_0 - 549KB
+   ✅ tile_2000_5000_0_1 - 523KB
+   ✅ tile_2000_5000_1_0 - 537KB
+   ✅ tile_2000_5000_1_1 - 532KB
+🔄 Procesando tile_2000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_6000_0_0 - 521KB
+   ✅ tile_2000_6000_0_1 - 521KB
+   ✅ tile_2000_6000_1_0 - 512KB
+   ✅ tile_2000_6000_1_1 - 488KB
+🔄 Procesando tile_2000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2000_7000_0_0 - 507KB
+   ✅ tile_2000_7000_0_1 - 528KB
+   ✅ tile_2000_7000_1_0 - 537KB
+   ✅ tile_2000_7000_1_1 - 525KB
+🔄 Procesando tile_2000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_2000_8000_0_0 - 553KB
+🔄 Procesando tile_20_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_0_0_0 - 268KB
+   ✅ tile_20_0_0_1 - 340KB
+   ✅ tile_20_0_1_0 - 242KB
+   ✅ tile_20_0_1_1 - 264KB
+🔄 Procesando tile_20_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_1_0_0 - 188KB
+   ✅ tile_20_1_0_1 - 284KB
+   ✅ tile_20_1_1_0 - 292KB
+   ✅ tile_20_1_1_1 - 296KB
+🔄 Procesando tile_20_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_10_0_0 - 424KB
+   ✅ tile_20_10_0_1 - 541KB
+   ✅ tile_20_10_1_0 - 235KB
+   ✅ tile_20_10_1_1 - 295KB
+🔄 Procesando tile_20_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_11_0_0 - 305KB
+   ✅ tile_20_11_0_1 - 95KB
+   ✅ tile_20_11_1_0 - 306KB
+   ✅ tile_20_11_1_1 - 114KB
+🔄 Procesando tile_20_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_12_0_0 - 175KB
+   ✅ tile_20_12_0_1 - 176KB
+   ✅ tile_20_12_1_0 - 180KB
+   ✅ tile_20_12_1_1 - 235KB
+🔄 Procesando tile_20_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_13_0_0 - 221KB
+   ✅ tile_20_13_0_1 - 266KB
+   ✅ tile_20_13_1_0 - 202KB
+   ✅ tile_20_13_1_1 - 230KB
+🔄 Procesando tile_20_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_14_0_0 - 123KB
+   ✅ tile_20_14_0_1 - 223KB
+   ✅ tile_20_14_1_0 - 173KB
+   ✅ tile_20_14_1_1 - 120KB
+🔄 Procesando tile_20_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_15_0_0 - 192KB
+   ✅ tile_20_15_0_1 - 170KB
+   ✅ tile_20_15_1_0 - 179KB
+   ✅ tile_20_15_1_1 - 190KB
+🔄 Procesando tile_20_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_16_0_0 - 205KB
+   ✅ tile_20_16_0_1 - 178KB
+   ✅ tile_20_16_1_0 - 152KB
+   ✅ tile_20_16_1_1 - 203KB
+🔄 Procesando tile_20_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_17_0_0 - 227KB
+   ✅ tile_20_17_0_1 - 333KB
+   ✅ tile_20_17_1_0 - 183KB
+   ✅ tile_20_17_1_1 - 210KB
+🔄 Procesando tile_20_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_18_0_0 - 272KB
+   ✅ tile_20_18_0_1 - 145KB
+   ✅ tile_20_18_1_0 - 377KB
+   ✅ tile_20_18_1_1 - 351KB
+🔄 Procesando tile_20_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_19_0_0 - 383KB
+   ✅ tile_20_19_0_1 - 392KB
+   ✅ tile_20_19_1_0 - 348KB
+   ✅ tile_20_19_1_1 - 349KB
+🔄 Procesando tile_20_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_2_0_0 - 249KB
+   ✅ tile_20_2_0_1 - 289KB
+   ✅ tile_20_2_1_0 - 274KB
+   ✅ tile_20_2_1_1 - 297KB
+🔄 Procesando tile_20_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_20_0_0 - 239KB
+   ✅ tile_20_20_0_1 - 251KB
+   ✅ tile_20_20_1_0 - 258KB
+   ✅ tile_20_20_1_1 - 243KB
+🔄 Procesando tile_20_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_3_0_0 - 179KB
+   ✅ tile_20_3_0_1 - 269KB
+   ✅ tile_20_3_1_0 - 175KB
+   ✅ tile_20_3_1_1 - 183KB
+🔄 Procesando tile_20_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_4_0_0 - 161KB
+   ✅ tile_20_4_0_1 - 359KB
+   ✅ tile_20_4_1_0 - 518KB
+   ✅ tile_20_4_1_1 - 542KB
+🔄 Procesando tile_20_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_5_0_0 - 528KB
+   ✅ tile_20_5_0_1 - 519KB
+   ✅ tile_20_5_1_0 - 464KB
+   ✅ tile_20_5_1_1 - 468KB
+🔄 Procesando tile_20_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_6_0_0 - 467KB
+   ✅ tile_20_6_0_1 - 456KB
+   ✅ tile_20_6_1_0 - 453KB
+   ✅ tile_20_6_1_1 - 454KB
+🔄 Procesando tile_20_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_7_0_0 - 490KB
+   ✅ tile_20_7_0_1 - 496KB
+   ✅ tile_20_7_1_0 - 497KB
+   ✅ tile_20_7_1_1 - 482KB
+🔄 Procesando tile_20_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_8_0_0 - 536KB
+   ✅ tile_20_8_0_1 - 491KB
+   ✅ tile_20_8_1_0 - 538KB
+   ✅ tile_20_8_1_1 - 541KB
+🔄 Procesando tile_20_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_20_9_0_0 - 540KB
+   ✅ tile_20_9_0_1 - 545KB
+   ✅ tile_20_9_1_0 - 551KB
+   ✅ tile_20_9_1_1 - 536KB
+🔄 Procesando tile_21_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_0_0_0 - 290KB
+   ✅ tile_21_0_0_1 - 286KB
+   ✅ tile_21_0_1_0 - 320KB
+   ✅ tile_21_0_1_1 - 293KB
+🔄 Procesando tile_21_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_1_0_0 - 281KB
+   ✅ tile_21_1_0_1 - 301KB
+   ✅ tile_21_1_1_0 - 294KB
+   ✅ tile_21_1_1_1 - 248KB
+🔄 Procesando tile_21_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_10_0_0 - 554KB
+   ✅ tile_21_10_0_1 - 373KB
+   ✅ tile_21_10_1_0 - 375KB
+   ✅ tile_21_10_1_1 - 77KB
+🔄 Procesando tile_21_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_11_0_0 - 139KB
+   ✅ tile_21_11_0_1 - 57KB
+   ✅ tile_21_11_1_0 - 97KB
+   ✅ tile_21_11_1_1 - 54KB
+🔄 Procesando tile_21_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_12_0_0 - 195KB
+   ✅ tile_21_12_0_1 - 148KB
+   ✅ tile_21_12_1_0 - 109KB
+   ✅ tile_21_12_1_1 - 211KB
+🔄 Procesando tile_21_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_13_0_0 - 84KB
+   ✅ tile_21_13_0_1 - 210KB
+   ✅ tile_21_13_1_0 - 63KB
+   ✅ tile_21_13_1_1 - 248KB
+🔄 Procesando tile_21_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_14_0_0 - 91KB
+   ✅ tile_21_14_0_1 - 140KB
+   ✅ tile_21_14_1_0 - 148KB
+   ✅ tile_21_14_1_1 - 128KB
+🔄 Procesando tile_21_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_15_0_0 - 194KB
+   ✅ tile_21_15_0_1 - 266KB
+   ✅ tile_21_15_1_0 - 211KB
+   ✅ tile_21_15_1_1 - 233KB
+🔄 Procesando tile_21_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_16_0_0 - 268KB
+   ✅ tile_21_16_0_1 - 293KB
+   ✅ tile_21_16_1_0 - 304KB
+   ✅ tile_21_16_1_1 - 144KB
+🔄 Procesando tile_21_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_17_0_0 - 136KB
+   ✅ tile_21_17_0_1 - 104KB
+   ✅ tile_21_17_1_0 - 168KB
+   ✅ tile_21_17_1_1 - 315KB
+🔄 Procesando tile_21_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_18_0_0 - 292KB
+   ✅ tile_21_18_0_1 - 311KB
+   ✅ tile_21_18_1_0 - 351KB
+   ✅ tile_21_18_1_1 - 316KB
+🔄 Procesando tile_21_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_19_0_0 - 362KB
+   ✅ tile_21_19_0_1 - 323KB
+   ✅ tile_21_19_1_0 - 330KB
+   ✅ tile_21_19_1_1 - 304KB
+🔄 Procesando tile_21_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_2_0_0 - 288KB
+   ✅ tile_21_2_0_1 - 288KB
+   ✅ tile_21_2_1_0 - 318KB
+   ✅ tile_21_2_1_1 - 304KB
+🔄 Procesando tile_21_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_20_0_0 - 251KB
+   ✅ tile_21_20_0_1 - 246KB
+   ✅ tile_21_20_1_0 - 222KB
+   ✅ tile_21_20_1_1 - 225KB
+🔄 Procesando tile_21_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_3_0_0 - 317KB
+   ✅ tile_21_3_0_1 - 313KB
+   ✅ tile_21_3_1_0 - 244KB
+   ✅ tile_21_3_1_1 - 243KB
+📦 Paquete creado: vegetation_ndvi_batch_07 (61.0MB)
+✅ Lote 7 completado: 197 sub-tiles
+
+🔄 Procesando lote 8/16 (50 tiles)
+🔄 Procesando tile_21_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_4_0_0 - 529KB
+   ✅ tile_21_4_0_1 - 539KB
+   ✅ tile_21_4_1_0 - 564KB
+   ✅ tile_21_4_1_1 - 547KB
+🔄 Procesando tile_21_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_5_0_0 - 536KB
+   ✅ tile_21_5_0_1 - 532KB
+   ✅ tile_21_5_1_0 - 468KB
+   ✅ tile_21_5_1_1 - 466KB
+🔄 Procesando tile_21_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_6_0_0 - 460KB
+   ✅ tile_21_6_0_1 - 471KB
+   ✅ tile_21_6_1_0 - 477KB
+   ✅ tile_21_6_1_1 - 465KB
+🔄 Procesando tile_21_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_7_0_0 - 479KB
+   ✅ tile_21_7_0_1 - 479KB
+   ✅ tile_21_7_1_0 - 512KB
+   ✅ tile_21_7_1_1 - 493KB
+🔄 Procesando tile_21_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_8_0_0 - 450KB
+   ✅ tile_21_8_0_1 - 499KB
+   ✅ tile_21_8_1_0 - 509KB
+   ✅ tile_21_8_1_1 - 509KB
+🔄 Procesando tile_21_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_21_9_0_0 - 540KB
+   ✅ tile_21_9_0_1 - 523KB
+   ✅ tile_21_9_1_0 - 547KB
+   ✅ tile_21_9_1_1 - 466KB
+🔄 Procesando tile_22_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_0_0_0 - 278KB
+   ✅ tile_22_0_0_1 - 298KB
+   ✅ tile_22_0_1_0 - 336KB
+   ✅ tile_22_0_1_1 - 290KB
+🔄 Procesando tile_22_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_1_0_0 - 349KB
+   ✅ tile_22_1_0_1 - 334KB
+   ✅ tile_22_1_1_0 - 249KB
+   ✅ tile_22_1_1_1 - 288KB
+🔄 Procesando tile_22_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_10_0_0 - 129KB
+   ✅ tile_22_10_0_1 - 283KB
+   ✅ tile_22_10_1_0 - 132KB
+   ✅ tile_22_10_1_1 - 278KB
+🔄 Procesando tile_22_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_11_0_0 - 39KB
+   ✅ tile_22_11_0_1 - 216KB
+   ✅ tile_22_11_1_0 - 61KB
+   ✅ tile_22_11_1_1 - 103KB
+🔄 Procesando tile_22_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_12_0_0 - 209KB
+   ✅ tile_22_12_0_1 - 146KB
+   ✅ tile_22_12_1_0 - 308KB
+   ✅ tile_22_12_1_1 - 187KB
+🔄 Procesando tile_22_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_13_0_0 - 261KB
+   ✅ tile_22_13_0_1 - 206KB
+   ✅ tile_22_13_1_0 - 261KB
+   ✅ tile_22_13_1_1 - 145KB
+🔄 Procesando tile_22_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_14_0_0 - 310KB
+   ✅ tile_22_14_0_1 - 301KB
+   ✅ tile_22_14_1_0 - 275KB
+   ✅ tile_22_14_1_1 - 287KB
+🔄 Procesando tile_22_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_15_0_0 - 259KB
+   ✅ tile_22_15_0_1 - 228KB
+   ✅ tile_22_15_1_0 - 201KB
+   ✅ tile_22_15_1_1 - 245KB
+🔄 Procesando tile_22_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_16_0_0 - 181KB
+   ✅ tile_22_16_0_1 - 186KB
+   ✅ tile_22_16_1_0 - 110KB
+   ✅ tile_22_16_1_1 - 200KB
+🔄 Procesando tile_22_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_17_0_0 - 231KB
+   ✅ tile_22_17_0_1 - 256KB
+   ✅ tile_22_17_1_0 - 285KB
+   ✅ tile_22_17_1_1 - 230KB
+🔄 Procesando tile_22_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_18_0_0 - 274KB
+   ✅ tile_22_18_0_1 - 230KB
+   ✅ tile_22_18_1_0 - 326KB
+   ✅ tile_22_18_1_1 - 329KB
+🔄 Procesando tile_22_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_19_0_0 - 335KB
+   ✅ tile_22_19_0_1 - 316KB
+   ✅ tile_22_19_1_0 - 291KB
+   ✅ tile_22_19_1_1 - 311KB
+🔄 Procesando tile_22_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_2_0_0 - 261KB
+   ✅ tile_22_2_0_1 - 293KB
+   ✅ tile_22_2_1_0 - 299KB
+   ✅ tile_22_2_1_1 - 280KB
+🔄 Procesando tile_22_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_20_0_0 - 242KB
+   ✅ tile_22_20_0_1 - 261KB
+   ✅ tile_22_20_1_0 - 248KB
+   ✅ tile_22_20_1_1 - 245KB
+🔄 Procesando tile_22_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_3_0_0 - 294KB
+   ✅ tile_22_3_0_1 - 292KB
+   ✅ tile_22_3_1_0 - 293KB
+   ✅ tile_22_3_1_1 - 412KB
+🔄 Procesando tile_22_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_4_0_0 - 534KB
+   ✅ tile_22_4_0_1 - 548KB
+   ✅ tile_22_4_1_0 - 548KB
+   ✅ tile_22_4_1_1 - 545KB
+🔄 Procesando tile_22_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_5_0_0 - 499KB
+   ✅ tile_22_5_0_1 - 471KB
+   ✅ tile_22_5_1_0 - 420KB
+   ✅ tile_22_5_1_1 - 435KB
+🔄 Procesando tile_22_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_6_0_0 - 432KB
+   ✅ tile_22_6_0_1 - 437KB
+   ✅ tile_22_6_1_0 - 451KB
+   ✅ tile_22_6_1_1 - 436KB
+🔄 Procesando tile_22_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_7_0_0 - 479KB
+   ✅ tile_22_7_0_1 - 444KB
+   ✅ tile_22_7_1_0 - 472KB
+   ✅ tile_22_7_1_1 - 325KB
+🔄 Procesando tile_22_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_8_0_0 - 456KB
+   ✅ tile_22_8_0_1 - 384KB
+   ✅ tile_22_8_1_0 - 235KB
+   ✅ tile_22_8_1_1 - 200KB
+🔄 Procesando tile_22_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_22_9_0_0 - 154KB
+   ✅ tile_22_9_0_1 - 88KB
+   ✅ tile_22_9_1_0 - 79KB
+   ✅ tile_22_9_1_1 - 142KB
+🔄 Procesando tile_23_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_0_0_0 - 262KB
+   ✅ tile_23_0_0_1 - 294KB
+   ✅ tile_23_0_1_0 - 296KB
+   ✅ tile_23_0_1_1 - 287KB
+🔄 Procesando tile_23_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_1_0_0 - 291KB
+   ✅ tile_23_1_0_1 - 291KB
+   ✅ tile_23_1_1_0 - 321KB
+   ✅ tile_23_1_1_1 - 312KB
+🔄 Procesando tile_23_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_10_0_0 - 140KB
+   ✅ tile_23_10_0_1 - 57KB
+   ✅ tile_23_10_1_0 - 210KB
+   ✅ tile_23_10_1_1 - 140KB
+🔄 Procesando tile_23_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_11_0_0 - 187KB
+   ✅ tile_23_11_0_1 - 266KB
+   ✅ tile_23_11_1_0 - 172KB
+   ✅ tile_23_11_1_1 - 99KB
+🔄 Procesando tile_23_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_12_0_0 - 242KB
+   ✅ tile_23_12_0_1 - 279KB
+   ✅ tile_23_12_1_0 - 239KB
+   ✅ tile_23_12_1_1 - 273KB
+🔄 Procesando tile_23_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_13_0_0 - 181KB
+   ✅ tile_23_13_0_1 - 207KB
+   ✅ tile_23_13_1_0 - 226KB
+   ✅ tile_23_13_1_1 - 340KB
+🔄 Procesando tile_23_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_14_0_0 - 246KB
+   ✅ tile_23_14_0_1 - 343KB
+   ✅ tile_23_14_1_0 - 227KB
+   ✅ tile_23_14_1_1 - 238KB
+🔄 Procesando tile_23_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_15_0_0 - 292KB
+   ✅ tile_23_15_0_1 - 289KB
+   ✅ tile_23_15_1_0 - 85KB
+   ✅ tile_23_15_1_1 - 144KB
+🔄 Procesando tile_23_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_16_0_0 - 119KB
+   ✅ tile_23_16_0_1 - 87KB
+   ✅ tile_23_16_1_0 - 220KB
+   ✅ tile_23_16_1_1 - 118KB
+🔄 Procesando tile_23_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_17_0_0 - 185KB
+   ✅ tile_23_17_0_1 - 176KB
+   ✅ tile_23_17_1_0 - 229KB
+   ✅ tile_23_17_1_1 - 275KB
+🔄 Procesando tile_23_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_18_0_0 - 287KB
+   ✅ tile_23_18_0_1 - 302KB
+   ✅ tile_23_18_1_0 - 311KB
+   ✅ tile_23_18_1_1 - 259KB
+🔄 Procesando tile_23_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_19_0_0 - 300KB
+   ✅ tile_23_19_0_1 - 332KB
+   ✅ tile_23_19_1_0 - 284KB
+   ✅ tile_23_19_1_1 - 324KB
+🔄 Procesando tile_23_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_2_0_0 - 297KB
+   ✅ tile_23_2_0_1 - 296KB
+   ✅ tile_23_2_1_0 - 285KB
+   ✅ tile_23_2_1_1 - 291KB
+🔄 Procesando tile_23_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_20_0_0 - 202KB
+   ✅ tile_23_20_0_1 - 172KB
+   ✅ tile_23_20_1_0 - 209KB
+   ✅ tile_23_20_1_1 - 179KB
+🔄 Procesando tile_23_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_3_0_0 - 281KB
+   ✅ tile_23_3_0_1 - 289KB
+   ✅ tile_23_3_1_0 - 436KB
+   ✅ tile_23_3_1_1 - 381KB
+🔄 Procesando tile_23_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_4_0_0 - 448KB
+   ✅ tile_23_4_0_1 - 408KB
+   ✅ tile_23_4_1_0 - 543KB
+   ✅ tile_23_4_1_1 - 512KB
+🔄 Procesando tile_23_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_5_0_0 - 466KB
+   ✅ tile_23_5_0_1 - 481KB
+   ✅ tile_23_5_1_0 - 476KB
+   ✅ tile_23_5_1_1 - 480KB
+🔄 Procesando tile_23_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_6_0_0 - 455KB
+   ✅ tile_23_6_0_1 - 482KB
+   ✅ tile_23_6_1_0 - 446KB
+   ✅ tile_23_6_1_1 - 439KB
+🔄 Procesando tile_23_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_7_0_0 - 420KB
+   ✅ tile_23_7_0_1 - 407KB
+   ✅ tile_23_7_1_0 - 229KB
+   ✅ tile_23_7_1_1 - 166KB
+🔄 Procesando tile_23_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_8_0_0 - 240KB
+   ✅ tile_23_8_0_1 - 250KB
+   ✅ tile_23_8_1_0 - 216KB
+   ✅ tile_23_8_1_1 - 250KB
+🔄 Procesando tile_23_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_23_9_0_0 - 156KB
+   ✅ tile_23_9_0_1 - 217KB
+   ✅ tile_23_9_1_0 - 29KB
+   ✅ tile_23_9_1_1 - 97KB
+🔄 Procesando tile_24_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_0_0_0 - 329KB
+   ✅ tile_24_0_0_1 - 338KB
+   ✅ tile_24_0_1_0 - 321KB
+   ✅ tile_24_0_1_1 - 361KB
+🔄 Procesando tile_24_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_1_0_0 - 314KB
+   ✅ tile_24_1_0_1 - 349KB
+   ✅ tile_24_1_1_0 - 337KB
+   ✅ tile_24_1_1_1 - 314KB
+📦 Paquete creado: vegetation_ndvi_batch_08 (57.9MB)
+✅ Lote 8 completado: 200 sub-tiles
+
+🔄 Procesando lote 9/16 (50 tiles)
+🔄 Procesando tile_24_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_10_0_0 - 269KB
+   ✅ tile_24_10_0_1 - 287KB
+   ✅ tile_24_10_1_0 - 220KB
+   ✅ tile_24_10_1_1 - 323KB
+🔄 Procesando tile_24_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_11_0_0 - 244KB
+   ✅ tile_24_11_0_1 - 340KB
+   ✅ tile_24_11_1_0 - 134KB
+   ✅ tile_24_11_1_1 - 297KB
+🔄 Procesando tile_24_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_12_0_0 - 136KB
+   ✅ tile_24_12_0_1 - 301KB
+   ✅ tile_24_12_1_0 - 189KB
+   ✅ tile_24_12_1_1 - 290KB
+🔄 Procesando tile_24_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_13_0_0 - 183KB
+   ✅ tile_24_13_0_1 - 263KB
+   ✅ tile_24_13_1_0 - 254KB
+   ✅ tile_24_13_1_1 - 208KB
+🔄 Procesando tile_24_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_14_0_0 - 233KB
+   ✅ tile_24_14_0_1 - 239KB
+   ✅ tile_24_14_1_0 - 273KB
+   ✅ tile_24_14_1_1 - 338KB
+🔄 Procesando tile_24_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_15_0_0 - 256KB
+   ✅ tile_24_15_0_1 - 350KB
+   ✅ tile_24_15_1_0 - 258KB
+   ✅ tile_24_15_1_1 - 288KB
+🔄 Procesando tile_24_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_16_0_0 - 244KB
+   ✅ tile_24_16_0_1 - 283KB
+   ✅ tile_24_16_1_0 - 52KB
+   ✅ tile_24_16_1_1 - 260KB
+🔄 Procesando tile_24_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_17_0_0 - 212KB
+   ✅ tile_24_17_0_1 - 200KB
+   ✅ tile_24_17_1_0 - 232KB
+   ✅ tile_24_17_1_1 - 217KB
+🔄 Procesando tile_24_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_18_0_0 - 296KB
+   ✅ tile_24_18_0_1 - 303KB
+   ✅ tile_24_18_1_0 - 315KB
+   ✅ tile_24_18_1_1 - 319KB
+🔄 Procesando tile_24_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_19_0_0 - 315KB
+   ✅ tile_24_19_0_1 - 326KB
+   ✅ tile_24_19_1_0 - 326KB
+   ✅ tile_24_19_1_1 - 308KB
+🔄 Procesando tile_24_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_2_0_0 - 321KB
+   ✅ tile_24_2_0_1 - 312KB
+   ✅ tile_24_2_1_0 - 281KB
+   ✅ tile_24_2_1_1 - 219KB
+🔄 Procesando tile_24_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_20_0_0 - 198KB
+   ✅ tile_24_20_0_1 - 237KB
+   ✅ tile_24_20_1_0 - 182KB
+   ✅ tile_24_20_1_1 - 183KB
+🔄 Procesando tile_24_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_3_0_0 - 284KB
+   ✅ tile_24_3_0_1 - 277KB
+   ✅ tile_24_3_1_0 - 448KB
+   ✅ tile_24_3_1_1 - 478KB
+🔄 Procesando tile_24_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_4_0_0 - 459KB
+   ✅ tile_24_4_0_1 - 410KB
+   ✅ tile_24_4_1_0 - 468KB
+   ✅ tile_24_4_1_1 - 505KB
+🔄 Procesando tile_24_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_5_0_0 - 460KB
+   ✅ tile_24_5_0_1 - 401KB
+   ✅ tile_24_5_1_0 - 489KB
+   ✅ tile_24_5_1_1 - 476KB
+🔄 Procesando tile_24_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_6_0_0 - 483KB
+   ✅ tile_24_6_0_1 - 463KB
+   ✅ tile_24_6_1_0 - 471KB
+   ✅ tile_24_6_1_1 - 131KB
+🔄 Procesando tile_24_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_7_0_0 - 329KB
+   ✅ tile_24_7_0_1 - 66KB
+   ✅ tile_24_7_1_0 - 170KB
+   ✅ tile_24_7_1_1 - 185KB
+🔄 Procesando tile_24_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_8_0_0 - 123KB
+   ✅ tile_24_8_0_1 - 208KB
+   ✅ tile_24_8_1_0 - 177KB
+   ✅ tile_24_8_1_1 - 275KB
+🔄 Procesando tile_24_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_24_9_0_0 - 125KB
+   ✅ tile_24_9_0_1 - 198KB
+   ✅ tile_24_9_1_0 - 188KB
+   ✅ tile_24_9_1_1 - 118KB
+🔄 Procesando tile_25_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_0_0_0 - 315KB
+   ✅ tile_25_0_0_1 - 245KB
+   ✅ tile_25_0_1_0 - 337KB
+   ✅ tile_25_0_1_1 - 280KB
+🔄 Procesando tile_25_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_1_0_0 - 233KB
+   ✅ tile_25_1_0_1 - 297KB
+   ✅ tile_25_1_1_0 - 338KB
+   ✅ tile_25_1_1_1 - 321KB
+🔄 Procesando tile_25_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_10_0_0 - 239KB
+   ✅ tile_25_10_0_1 - 199KB
+   ✅ tile_25_10_1_0 - 294KB
+   ✅ tile_25_10_1_1 - 97KB
+🔄 Procesando tile_25_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_11_0_0 - 299KB
+   ✅ tile_25_11_0_1 - 90KB
+   ✅ tile_25_11_1_0 - 354KB
+   ✅ tile_25_11_1_1 - 178KB
+🔄 Procesando tile_25_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_12_0_0 - 352KB
+   ✅ tile_25_12_0_1 - 258KB
+   ✅ tile_25_12_1_0 - 334KB
+   ✅ tile_25_12_1_1 - 206KB
+🔄 Procesando tile_25_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_13_0_0 - 358KB
+   ✅ tile_25_13_0_1 - 256KB
+   ✅ tile_25_13_1_0 - 310KB
+   ✅ tile_25_13_1_1 - 327KB
+🔄 Procesando tile_25_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_14_0_0 - 367KB
+   ✅ tile_25_14_0_1 - 334KB
+   ✅ tile_25_14_1_0 - 366KB
+   ✅ tile_25_14_1_1 - 371KB
+🔄 Procesando tile_25_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_15_0_0 - 361KB
+   ✅ tile_25_15_0_1 - 360KB
+   ✅ tile_25_15_1_0 - 358KB
+   ✅ tile_25_15_1_1 - 345KB
+🔄 Procesando tile_25_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_16_0_0 - 340KB
+   ✅ tile_25_16_0_1 - 355KB
+   ✅ tile_25_16_1_0 - 335KB
+   ✅ tile_25_16_1_1 - 352KB
+🔄 Procesando tile_25_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_17_0_0 - 328KB
+   ✅ tile_25_17_0_1 - 336KB
+   ✅ tile_25_17_1_0 - 344KB
+   ✅ tile_25_17_1_1 - 339KB
+🔄 Procesando tile_25_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_18_0_0 - 338KB
+   ✅ tile_25_18_0_1 - 331KB
+   ✅ tile_25_18_1_0 - 332KB
+   ✅ tile_25_18_1_1 - 330KB
+🔄 Procesando tile_25_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_19_0_0 - 324KB
+   ✅ tile_25_19_0_1 - 299KB
+   ✅ tile_25_19_1_0 - 301KB
+   ✅ tile_25_19_1_1 - 283KB
+🔄 Procesando tile_25_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_2_0_0 - 316KB
+   ✅ tile_25_2_0_1 - 300KB
+   ✅ tile_25_2_1_0 - 225KB
+   ✅ tile_25_2_1_1 - 225KB
+🔄 Procesando tile_25_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_20_0_0 - 227KB
+   ✅ tile_25_20_0_1 - 210KB
+   ✅ tile_25_20_1_0 - 200KB
+   ✅ tile_25_20_1_1 - 197KB
+🔄 Procesando tile_25_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_3_0_0 - 299KB
+   ✅ tile_25_3_0_1 - 356KB
+   ✅ tile_25_3_1_0 - 388KB
+   ✅ tile_25_3_1_1 - 435KB
+🔄 Procesando tile_25_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_4_0_0 - 463KB
+   ✅ tile_25_4_0_1 - 426KB
+   ✅ tile_25_4_1_0 - 453KB
+   ✅ tile_25_4_1_1 - 467KB
+🔄 Procesando tile_25_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_5_0_0 - 420KB
+   ✅ tile_25_5_0_1 - 442KB
+   ✅ tile_25_5_1_0 - 460KB
+   ✅ tile_25_5_1_1 - 434KB
+🔄 Procesando tile_25_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_6_0_0 - 455KB
+   ✅ tile_25_6_0_1 - 425KB
+   ✅ tile_25_6_1_0 - 260KB
+   ✅ tile_25_6_1_1 - 394KB
+🔄 Procesando tile_25_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_7_0_0 - 110KB
+   ✅ tile_25_7_0_1 - 181KB
+   ✅ tile_25_7_1_0 - 189KB
+   ✅ tile_25_7_1_1 - 178KB
+🔄 Procesando tile_25_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_8_0_0 - 209KB
+   ✅ tile_25_8_0_1 - 237KB
+   ✅ tile_25_8_1_0 - 254KB
+   ✅ tile_25_8_1_1 - 234KB
+🔄 Procesando tile_25_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_25_9_0_0 - 261KB
+   ✅ tile_25_9_0_1 - 185KB
+   ✅ tile_25_9_1_0 - 215KB
+   ✅ tile_25_9_1_1 - 206KB
+🔄 Procesando tile_26_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_0_0_0 - 291KB
+   ✅ tile_26_0_0_1 - 316KB
+   ✅ tile_26_0_1_0 - 292KB
+   ✅ tile_26_0_1_1 - 305KB
+🔄 Procesando tile_26_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_1_0_0 - 337KB
+   ✅ tile_26_1_0_1 - 293KB
+   ✅ tile_26_1_1_0 - 327KB
+   ✅ tile_26_1_1_1 - 301KB
+🔄 Procesando tile_26_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_10_0_0 - 175KB
+   ✅ tile_26_10_0_1 - 208KB
+   ✅ tile_26_10_1_0 - 117KB
+   ✅ tile_26_10_1_1 - 183KB
+🔄 Procesando tile_26_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_11_0_0 - 48KB
+   ✅ tile_26_11_0_1 - 118KB
+   ✅ tile_26_11_1_0 - 88KB
+   ✅ tile_26_11_1_1 - 90KB
+🔄 Procesando tile_26_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_12_0_0 - 241KB
+   ✅ tile_26_12_0_1 - 114KB
+   ✅ tile_26_12_1_0 - 191KB
+   ✅ tile_26_12_1_1 - 295KB
+🔄 Procesando tile_26_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_13_0_0 - 73KB
+   ✅ tile_26_13_0_1 - 89KB
+   ✅ tile_26_13_1_0 - 148KB
+   ✅ tile_26_13_1_1 - 68KB
+🔄 Procesando tile_26_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_14_0_0 - 336KB
+   ✅ tile_26_14_0_1 - 75KB
+   ✅ tile_26_14_1_0 - 355KB
+   ✅ tile_26_14_1_1 - 238KB
+🔄 Procesando tile_26_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_15_0_0 - 329KB
+   ✅ tile_26_15_0_1 - 323KB
+   ✅ tile_26_15_1_0 - 315KB
+   ✅ tile_26_15_1_1 - 297KB
+🔄 Procesando tile_26_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_16_0_0 - 351KB
+   ✅ tile_26_16_0_1 - 325KB
+   ✅ tile_26_16_1_0 - 326KB
+   ✅ tile_26_16_1_1 - 332KB
+🔄 Procesando tile_26_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_17_0_0 - 355KB
+   ✅ tile_26_17_0_1 - 342KB
+   ✅ tile_26_17_1_0 - 331KB
+   ✅ tile_26_17_1_1 - 333KB
+📦 Paquete creado: vegetation_ndvi_batch_09 (53.5MB)
+✅ Lote 9 completado: 200 sub-tiles
+
+🔄 Procesando lote 10/16 (50 tiles)
+🔄 Procesando tile_26_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_18_0_0 - 311KB
+   ✅ tile_26_18_0_1 - 368KB
+   ✅ tile_26_18_1_0 - 309KB
+   ✅ tile_26_18_1_1 - 333KB
+🔄 Procesando tile_26_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_19_0_0 - 313KB
+   ✅ tile_26_19_0_1 - 328KB
+   ✅ tile_26_19_1_0 - 285KB
+   ✅ tile_26_19_1_1 - 270KB
+🔄 Procesando tile_26_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_2_0_0 - 285KB
+   ✅ tile_26_2_0_1 - 290KB
+   ✅ tile_26_2_1_0 - 237KB
+   ✅ tile_26_2_1_1 - 254KB
+🔄 Procesando tile_26_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_20_0_0 - 198KB
+   ✅ tile_26_20_0_1 - 176KB
+   ✅ tile_26_20_1_0 - 175KB
+   ✅ tile_26_20_1_1 - 146KB
+🔄 Procesando tile_26_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_3_0_0 - 394KB
+   ✅ tile_26_3_0_1 - 366KB
+   ✅ tile_26_3_1_0 - 398KB
+   ✅ tile_26_3_1_1 - 432KB
+🔄 Procesando tile_26_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_4_0_0 - 401KB
+   ✅ tile_26_4_0_1 - 434KB
+   ✅ tile_26_4_1_0 - 443KB
+   ✅ tile_26_4_1_1 - 427KB
+🔄 Procesando tile_26_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_5_0_0 - 440KB
+   ✅ tile_26_5_0_1 - 411KB
+   ✅ tile_26_5_1_0 - 429KB
+   ✅ tile_26_5_1_1 - 332KB
+🔄 Procesando tile_26_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_6_0_0 - 362KB
+   ✅ tile_26_6_0_1 - 147KB
+   ✅ tile_26_6_1_0 - 140KB
+   ✅ tile_26_6_1_1 - 149KB
+🔄 Procesando tile_26_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_7_0_0 - 162KB
+   ✅ tile_26_7_0_1 - 161KB
+   ✅ tile_26_7_1_0 - 142KB
+   ✅ tile_26_7_1_1 - 203KB
+🔄 Procesando tile_26_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_8_0_0 - 202KB
+   ✅ tile_26_8_0_1 - 211KB
+   ✅ tile_26_8_1_0 - 220KB
+   ✅ tile_26_8_1_1 - 247KB
+🔄 Procesando tile_26_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_26_9_0_0 - 183KB
+   ✅ tile_26_9_0_1 - 252KB
+   ✅ tile_26_9_1_0 - 207KB
+   ✅ tile_26_9_1_1 - 231KB
+🔄 Procesando tile_27_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_0_0_0 - 305KB
+   ✅ tile_27_0_0_1 - 287KB
+   ✅ tile_27_0_1_0 - 270KB
+   ✅ tile_27_0_1_1 - 258KB
+🔄 Procesando tile_27_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_1_0_0 - 220KB
+   ✅ tile_27_1_0_1 - 221KB
+   ✅ tile_27_1_1_0 - 270KB
+   ✅ tile_27_1_1_1 - 261KB
+🔄 Procesando tile_27_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_10_0_0 - 361KB
+   ✅ tile_27_10_0_1 - 241KB
+   ✅ tile_27_10_1_0 - 264KB
+   ✅ tile_27_10_1_1 - 259KB
+🔄 Procesando tile_27_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_11_0_0 - 229KB
+   ✅ tile_27_11_0_1 - 252KB
+   ✅ tile_27_11_1_0 - 211KB
+   ✅ tile_27_11_1_1 - 230KB
+🔄 Procesando tile_27_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_12_0_0 - 188KB
+   ✅ tile_27_12_0_1 - 272KB
+   ✅ tile_27_12_1_0 - 293KB
+   ✅ tile_27_12_1_1 - 269KB
+🔄 Procesando tile_27_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_13_0_0 - 141KB
+   ✅ tile_27_13_0_1 - 174KB
+   ✅ tile_27_13_1_0 - 117KB
+   ✅ tile_27_13_1_1 - 110KB
+🔄 Procesando tile_27_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_14_0_0 - 159KB
+   ✅ tile_27_14_0_1 - 177KB
+   ✅ tile_27_14_1_0 - 208KB
+   ✅ tile_27_14_1_1 - 207KB
+🔄 Procesando tile_27_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_15_0_0 - 325KB
+   ✅ tile_27_15_0_1 - 286KB
+   ✅ tile_27_15_1_0 - 369KB
+   ✅ tile_27_15_1_1 - 232KB
+🔄 Procesando tile_27_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_16_0_0 - 352KB
+   ✅ tile_27_16_0_1 - 332KB
+   ✅ tile_27_16_1_0 - 270KB
+   ✅ tile_27_16_1_1 - 207KB
+🔄 Procesando tile_27_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_17_0_0 - 377KB
+   ✅ tile_27_17_0_1 - 345KB
+   ✅ tile_27_17_1_0 - 392KB
+   ✅ tile_27_17_1_1 - 362KB
+🔄 Procesando tile_27_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_18_0_0 - 361KB
+   ✅ tile_27_18_0_1 - 319KB
+   ✅ tile_27_18_1_0 - 333KB
+   ✅ tile_27_18_1_1 - 301KB
+🔄 Procesando tile_27_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_19_0_0 - 322KB
+   ✅ tile_27_19_0_1 - 128KB
+   ✅ tile_27_19_1_0 - 234KB
+   ✅ tile_27_19_1_1 - 113KB
+🔄 Procesando tile_27_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_2_0_0 - 277KB
+   ✅ tile_27_2_0_1 - 282KB
+   ✅ tile_27_2_1_0 - 250KB
+   ✅ tile_27_2_1_1 - 260KB
+🔄 Procesando tile_27_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_20_0_0 - 149KB
+   ✅ tile_27_20_0_1 - 68KB
+   ✅ tile_27_20_1_0 - 148KB
+   ✅ tile_27_20_1_1 - 199KB
+🔄 Procesando tile_27_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_3_0_0 - 278KB
+   ✅ tile_27_3_0_1 - 175KB
+   ✅ tile_27_3_1_0 - 419KB
+   ✅ tile_27_3_1_1 - 372KB
+🔄 Procesando tile_27_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_4_0_0 - 462KB
+   ✅ tile_27_4_0_1 - 425KB
+   ✅ tile_27_4_1_0 - 465KB
+   ✅ tile_27_4_1_1 - 475KB
+🔄 Procesando tile_27_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_5_0_0 - 434KB
+   ✅ tile_27_5_0_1 - 366KB
+   ✅ tile_27_5_1_0 - 348KB
+   ✅ tile_27_5_1_1 - 399KB
+🔄 Procesando tile_27_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_6_0_0 - 195KB
+   ✅ tile_27_6_0_1 - 171KB
+   ✅ tile_27_6_1_0 - 159KB
+   ✅ tile_27_6_1_1 - 178KB
+🔄 Procesando tile_27_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_7_0_0 - 164KB
+   ✅ tile_27_7_0_1 - 173KB
+   ✅ tile_27_7_1_0 - 228KB
+   ✅ tile_27_7_1_1 - 232KB
+🔄 Procesando tile_27_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_8_0_0 - 280KB
+   ✅ tile_27_8_0_1 - 221KB
+   ✅ tile_27_8_1_0 - 246KB
+   ✅ tile_27_8_1_1 - 215KB
+🔄 Procesando tile_27_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_27_9_0_0 - 363KB
+   ✅ tile_27_9_0_1 - 205KB
+   ✅ tile_27_9_1_0 - 411KB
+   ✅ tile_27_9_1_1 - 235KB
+🔄 Procesando tile_28_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_0_0_0 - 275KB
+   ✅ tile_28_0_0_1 - 305KB
+   ✅ tile_28_0_1_0 - 263KB
+   ✅ tile_28_0_1_1 - 296KB
+🔄 Procesando tile_28_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_1_0_0 - 257KB
+   ✅ tile_28_1_0_1 - 332KB
+   ✅ tile_28_1_1_0 - 249KB
+   ✅ tile_28_1_1_1 - 334KB
+🔄 Procesando tile_28_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_10_0_0 - 272KB
+   ✅ tile_28_10_0_1 - 243KB
+   ✅ tile_28_10_1_0 - 274KB
+   ✅ tile_28_10_1_1 - 257KB
+🔄 Procesando tile_28_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_11_0_0 - 276KB
+   ✅ tile_28_11_0_1 - 248KB
+   ✅ tile_28_11_1_0 - 248KB
+   ✅ tile_28_11_1_1 - 215KB
+🔄 Procesando tile_28_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_12_0_0 - 283KB
+   ✅ tile_28_12_0_1 - 209KB
+   ✅ tile_28_12_1_0 - 309KB
+   ✅ tile_28_12_1_1 - 259KB
+🔄 Procesando tile_28_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_13_0_0 - 246KB
+   ✅ tile_28_13_0_1 - 309KB
+   ✅ tile_28_13_1_0 - 152KB
+   ✅ tile_28_13_1_1 - 227KB
+🔄 Procesando tile_28_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_14_0_0 - 231KB
+   ✅ tile_28_14_0_1 - 199KB
+   ✅ tile_28_14_1_0 - 230KB
+   ✅ tile_28_14_1_1 - 320KB
+🔄 Procesando tile_28_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_15_0_0 - 296KB
+   ✅ tile_28_15_0_1 - 337KB
+   ✅ tile_28_15_1_0 - 234KB
+   ✅ tile_28_15_1_1 - 271KB
+🔄 Procesando tile_28_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_16_0_0 - 277KB
+   ✅ tile_28_16_0_1 - 338KB
+   ✅ tile_28_16_1_0 - 311KB
+   ✅ tile_28_16_1_1 - 305KB
+🔄 Procesando tile_28_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_17_0_0 - 345KB
+   ✅ tile_28_17_0_1 - 306KB
+   ✅ tile_28_17_1_0 - 363KB
+   ✅ tile_28_17_1_1 - 343KB
+🔄 Procesando tile_28_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_18_0_0 - 314KB
+   ✅ tile_28_18_0_1 - 336KB
+   ✅ tile_28_18_1_0 - 246KB
+   ✅ tile_28_18_1_1 - 331KB
+🔄 Procesando tile_28_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_19_0_0 - 207KB
+   ✅ tile_28_19_0_1 - 345KB
+   ✅ tile_28_19_1_0 - 309KB
+   ✅ tile_28_19_1_1 - 351KB
+🔄 Procesando tile_28_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_2_0_0 - 289KB
+   ✅ tile_28_2_0_1 - 323KB
+   ✅ tile_28_2_1_0 - 289KB
+   ✅ tile_28_2_1_1 - 331KB
+🔄 Procesando tile_28_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_20_0_0 - 196KB
+   ✅ tile_28_20_0_1 - 239KB
+   ✅ tile_28_20_1_0 - 196KB
+   ✅ tile_28_20_1_1 - 234KB
+🔄 Procesando tile_28_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_3_0_0 - 206KB
+   ✅ tile_28_3_0_1 - 277KB
+   ✅ tile_28_3_1_0 - 214KB
+   ✅ tile_28_3_1_1 - 201KB
+🔄 Procesando tile_28_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_4_0_0 - 342KB
+   ✅ tile_28_4_0_1 - 232KB
+   ✅ tile_28_4_1_0 - 420KB
+   ✅ tile_28_4_1_1 - 249KB
+🔄 Procesando tile_28_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_5_0_0 - 404KB
+   ✅ tile_28_5_0_1 - 354KB
+   ✅ tile_28_5_1_0 - 442KB
+   ✅ tile_28_5_1_1 - 412KB
+🔄 Procesando tile_28_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_6_0_0 - 417KB
+   ✅ tile_28_6_0_1 - 404KB
+   ✅ tile_28_6_1_0 - 274KB
+   ✅ tile_28_6_1_1 - 357KB
+📦 Paquete creado: vegetation_ndvi_batch_10 (53.1MB)
+✅ Lote 10 completado: 200 sub-tiles
+
+🔄 Procesando lote 11/16 (50 tiles)
+🔄 Procesando tile_28_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_7_0_0 - 200KB
+   ✅ tile_28_7_0_1 - 245KB
+   ✅ tile_28_7_1_0 - 221KB
+   ✅ tile_28_7_1_1 - 283KB
+🔄 Procesando tile_28_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_8_0_0 - 215KB
+   ✅ tile_28_8_0_1 - 253KB
+   ✅ tile_28_8_1_0 - 246KB
+   ✅ tile_28_8_1_1 - 249KB
+🔄 Procesando tile_28_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_28_9_0_0 - 235KB
+   ✅ tile_28_9_0_1 - 244KB
+   ✅ tile_28_9_1_0 - 261KB
+   ✅ tile_28_9_1_1 - 249KB
+🔄 Procesando tile_29_0 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_0_0_0 - 250KB
+   ✅ tile_29_0_0_1 - 271KB
+   ✅ tile_29_0_1_0 - 282KB
+   ✅ tile_29_0_1_1 - 256KB
+🔄 Procesando tile_29_1 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_1_0_0 - 282KB
+   ✅ tile_29_1_0_1 - 243KB
+   ✅ tile_29_1_1_0 - 262KB
+   ✅ tile_29_1_1_1 - 199KB
+🔄 Procesando tile_29_10 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_10_0_0 - 187KB
+   ✅ tile_29_10_0_1 - 176KB
+   ✅ tile_29_10_1_0 - 168KB
+   ✅ tile_29_10_1_1 - 127KB
+🔄 Procesando tile_29_11 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_11_0_0 - 189KB
+   ✅ tile_29_11_0_1 - 113KB
+   ✅ tile_29_11_1_0 - 145KB
+   ✅ tile_29_11_1_1 - 161KB
+🔄 Procesando tile_29_12 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_12_0_0 - 177KB
+   ✅ tile_29_12_0_1 - 178KB
+   ✅ tile_29_12_1_0 - 219KB
+   ✅ tile_29_12_1_1 - 229KB
+🔄 Procesando tile_29_13 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_13_0_0 - 236KB
+   ✅ tile_29_13_0_1 - 266KB
+   ✅ tile_29_13_1_0 - 254KB
+   ✅ tile_29_13_1_1 - 279KB
+🔄 Procesando tile_29_14 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_14_0_0 - 242KB
+   ✅ tile_29_14_0_1 - 286KB
+   ✅ tile_29_14_1_0 - 290KB
+   ✅ tile_29_14_1_1 - 308KB
+🔄 Procesando tile_29_15 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_15_0_0 - 332KB
+   ✅ tile_29_15_0_1 - 339KB
+   ✅ tile_29_15_1_0 - 314KB
+   ✅ tile_29_15_1_1 - 271KB
+🔄 Procesando tile_29_16 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_16_0_0 - 284KB
+   ✅ tile_29_16_0_1 - 242KB
+   ✅ tile_29_16_1_0 - 261KB
+   ✅ tile_29_16_1_1 - 247KB
+🔄 Procesando tile_29_17 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_17_0_0 - 229KB
+   ✅ tile_29_17_0_1 - 210KB
+   ✅ tile_29_17_1_0 - 219KB
+   ✅ tile_29_17_1_1 - 223KB
+🔄 Procesando tile_29_18 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_18_0_0 - 295KB
+   ✅ tile_29_18_0_1 - 288KB
+   ✅ tile_29_18_1_0 - 293KB
+   ✅ tile_29_18_1_1 - 301KB
+🔄 Procesando tile_29_19 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_19_0_0 - 285KB
+   ✅ tile_29_19_0_1 - 295KB
+   ✅ tile_29_19_1_0 - 285KB
+   ✅ tile_29_19_1_1 - 293KB
+🔄 Procesando tile_29_2 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_2_0_0 - 260KB
+   ✅ tile_29_2_0_1 - 199KB
+   ✅ tile_29_2_1_0 - 256KB
+   ✅ tile_29_2_1_1 - 197KB
+🔄 Procesando tile_29_20 (1.2MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_20_0_0 - 179KB
+   ✅ tile_29_20_0_1 - 209KB
+   ✅ tile_29_20_1_0 - 185KB
+   ✅ tile_29_20_1_1 - 150KB
+🔄 Procesando tile_29_3 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_3_0_0 - 268KB
+   ✅ tile_29_3_0_1 - 216KB
+   ✅ tile_29_3_1_0 - 192KB
+   ✅ tile_29_3_1_1 - 214KB
+🔄 Procesando tile_29_4 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_4_0_0 - 200KB
+   ✅ tile_29_4_0_1 - 241KB
+   ✅ tile_29_4_1_0 - 251KB
+   ✅ tile_29_4_1_1 - 263KB
+🔄 Procesando tile_29_5 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_5_0_0 - 280KB
+   ✅ tile_29_5_0_1 - 270KB
+   ✅ tile_29_5_1_0 - 273KB
+   ✅ tile_29_5_1_1 - 255KB
+🔄 Procesando tile_29_6 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_6_0_0 - 250KB
+   ✅ tile_29_6_0_1 - 258KB
+   ✅ tile_29_6_1_0 - 233KB
+   ✅ tile_29_6_1_1 - 247KB
+🔄 Procesando tile_29_7 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_7_0_0 - 241KB
+   ✅ tile_29_7_0_1 - 257KB
+   ✅ tile_29_7_1_0 - 225KB
+   ✅ tile_29_7_1_1 - 239KB
+🔄 Procesando tile_29_8 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_8_0_0 - 229KB
+   ✅ tile_29_8_0_1 - 228KB
+   ✅ tile_29_8_1_0 - 243KB
+   ✅ tile_29_8_1_1 - 272KB
+🔄 Procesando tile_29_9 (1.6MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_29_9_0_0 - 204KB
+   ✅ tile_29_9_0_1 - 268KB
+   ✅ tile_29_9_1_0 - 198KB
+   ✅ tile_29_9_1_1 - 254KB
+🔄 Procesando tile_2_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_0_0_0 - 506KB
+   ✅ tile_2_0_0_1 - 399KB
+   ✅ tile_2_0_1_0 - 530KB
+   ✅ tile_2_0_1_1 - 477KB
+🔄 Procesando tile_2_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_1_0_0 - 473KB
+   ✅ tile_2_1_0_1 - 435KB
+   ✅ tile_2_1_1_0 - 421KB
+   ✅ tile_2_1_1_1 - 398KB
+🔄 Procesando tile_2_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_10_0_0 - 408KB
+   ✅ tile_2_10_0_1 - 418KB
+   ✅ tile_2_10_1_0 - 335KB
+   ✅ tile_2_10_1_1 - 372KB
+🔄 Procesando tile_2_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_11_0_0 - 297KB
+   ✅ tile_2_11_0_1 - 365KB
+   ✅ tile_2_11_1_0 - 335KB
+   ✅ tile_2_11_1_1 - 329KB
+🔄 Procesando tile_2_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_12_0_0 - 350KB
+   ✅ tile_2_12_0_1 - 353KB
+   ✅ tile_2_12_1_0 - 306KB
+   ✅ tile_2_12_1_1 - 305KB
+🔄 Procesando tile_2_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_13_0_0 - 344KB
+   ✅ tile_2_13_0_1 - 343KB
+   ✅ tile_2_13_1_0 - 393KB
+   ✅ tile_2_13_1_1 - 402KB
+🔄 Procesando tile_2_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_14_0_0 - 346KB
+   ✅ tile_2_14_0_1 - 379KB
+   ✅ tile_2_14_1_0 - 365KB
+   ✅ tile_2_14_1_1 - 362KB
+🔄 Procesando tile_2_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_15_0_0 - 322KB
+   ✅ tile_2_15_0_1 - 401KB
+   ✅ tile_2_15_1_0 - 352KB
+   ✅ tile_2_15_1_1 - 381KB
+🔄 Procesando tile_2_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_16_0_0 - 302KB
+   ✅ tile_2_16_0_1 - 376KB
+   ✅ tile_2_16_1_0 - 285KB
+   ✅ tile_2_16_1_1 - 410KB
+🔄 Procesando tile_2_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_17_0_0 - 345KB
+   ✅ tile_2_17_0_1 - 364KB
+   ✅ tile_2_17_1_0 - 356KB
+   ✅ tile_2_17_1_1 - 331KB
+🔄 Procesando tile_2_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_18_0_0 - 393KB
+   ✅ tile_2_18_0_1 - 361KB
+   ✅ tile_2_18_1_0 - 383KB
+   ✅ tile_2_18_1_1 - 319KB
+🔄 Procesando tile_2_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_19_0_0 - 374KB
+   ✅ tile_2_19_0_1 - 394KB
+   ✅ tile_2_19_1_0 - 408KB
+   ✅ tile_2_19_1_1 - 381KB
+🔄 Procesando tile_2_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_2_0_0 - 500KB
+   ✅ tile_2_2_0_1 - 531KB
+   ✅ tile_2_2_1_0 - 497KB
+   ✅ tile_2_2_1_1 - 512KB
+🔄 Procesando tile_2_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_20_0_0 - 295KB
+   ✅ tile_2_20_0_1 - 259KB
+   ✅ tile_2_20_1_0 - 290KB
+   ✅ tile_2_20_1_1 - 285KB
+🔄 Procesando tile_2_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_3_0_0 - 517KB
+   ✅ tile_2_3_0_1 - 516KB
+   ✅ tile_2_3_1_0 - 555KB
+   ✅ tile_2_3_1_1 - 563KB
+🔄 Procesando tile_2_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_4_0_0 - 566KB
+   ✅ tile_2_4_0_1 - 524KB
+   ✅ tile_2_4_1_0 - 571KB
+   ✅ tile_2_4_1_1 - 568KB
+🔄 Procesando tile_2_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_5_0_0 - 558KB
+   ✅ tile_2_5_0_1 - 584KB
+   ✅ tile_2_5_1_0 - 579KB
+   ✅ tile_2_5_1_1 - 578KB
+🔄 Procesando tile_2_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_6_0_0 - 574KB
+   ✅ tile_2_6_0_1 - 569KB
+   ✅ tile_2_6_1_0 - 572KB
+   ✅ tile_2_6_1_1 - 561KB
+🔄 Procesando tile_2_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_7_0_0 - 543KB
+   ✅ tile_2_7_0_1 - 540KB
+   ✅ tile_2_7_1_0 - 545KB
+   ✅ tile_2_7_1_1 - 539KB
+🔄 Procesando tile_2_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_8_0_0 - 561KB
+   ✅ tile_2_8_0_1 - 543KB
+   ✅ tile_2_8_1_0 - 567KB
+   ✅ tile_2_8_1_1 - 562KB
+🔄 Procesando tile_2_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_2_9_0_0 - 459KB
+   ✅ tile_2_9_0_1 - 531KB
+   ✅ tile_2_9_1_0 - 430KB
+   ✅ tile_2_9_1_1 - 548KB
+🔄 Procesando tile_3000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_0_0_0 - 251KB
+   ✅ tile_3000_0_0_1 - 263KB
+   ✅ tile_3000_0_1_0 - 208KB
+   ✅ tile_3000_0_1_1 - 338KB
+🔄 Procesando tile_3000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_1000_0_0 - 543KB
+   ✅ tile_3000_1000_0_1 - 557KB
+   ✅ tile_3000_1000_1_0 - 500KB
+   ✅ tile_3000_1000_1_1 - 485KB
+🔄 Procesando tile_3000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_2000_0_0 - 477KB
+   ✅ tile_3000_2000_0_1 - 478KB
+   ✅ tile_3000_2000_1_0 - 523KB
+   ✅ tile_3000_2000_1_1 - 478KB
+🔄 Procesando tile_3000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_3000_0_0 - 518KB
+   ✅ tile_3000_3000_0_1 - 506KB
+   ✅ tile_3000_3000_1_0 - 534KB
+   ✅ tile_3000_3000_1_1 - 516KB
+🔄 Procesando tile_3000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_4000_0_0 - 520KB
+   ✅ tile_3000_4000_0_1 - 477KB
+   ✅ tile_3000_4000_1_0 - 542KB
+   ✅ tile_3000_4000_1_1 - 485KB
+📦 Paquete creado: vegetation_ndvi_batch_11 (64.1MB)
+✅ Lote 11 completado: 200 sub-tiles
+
+🔄 Procesando lote 12/16 (50 tiles)
+🔄 Procesando tile_3000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_5000_0_0 - 539KB
+   ✅ tile_3000_5000_0_1 - 558KB
+   ✅ tile_3000_5000_1_0 - 546KB
+   ✅ tile_3000_5000_1_1 - 544KB
+🔄 Procesando tile_3000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_6000_0_0 - 500KB
+   ✅ tile_3000_6000_0_1 - 503KB
+   ✅ tile_3000_6000_1_0 - 495KB
+   ✅ tile_3000_6000_1_1 - 475KB
+🔄 Procesando tile_3000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3000_7000_0_0 - 530KB
+   ✅ tile_3000_7000_0_1 - 492KB
+   ✅ tile_3000_7000_1_0 - 521KB
+   ✅ tile_3000_7000_1_1 - 523KB
+🔄 Procesando tile_3000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_3000_8000_0_0 - 529KB
+🔄 Procesando tile_3_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_0_0_0 - 334KB
+   ✅ tile_3_0_0_1 - 368KB
+   ✅ tile_3_0_1_0 - 333KB
+   ✅ tile_3_0_1_1 - 350KB
+🔄 Procesando tile_3_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_1_0_0 - 346KB
+   ✅ tile_3_1_0_1 - 354KB
+   ✅ tile_3_1_1_0 - 376KB
+   ✅ tile_3_1_1_1 - 332KB
+🔄 Procesando tile_3_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_10_0_0 - 571KB
+   ✅ tile_3_10_0_1 - 536KB
+   ✅ tile_3_10_1_0 - 478KB
+   ✅ tile_3_10_1_1 - 540KB
+🔄 Procesando tile_3_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_11_0_0 - 390KB
+   ✅ tile_3_11_0_1 - 535KB
+   ✅ tile_3_11_1_0 - 288KB
+   ✅ tile_3_11_1_1 - 515KB
+🔄 Procesando tile_3_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_12_0_0 - 332KB
+   ✅ tile_3_12_0_1 - 506KB
+   ✅ tile_3_12_1_0 - 356KB
+   ✅ tile_3_12_1_1 - 453KB
+🔄 Procesando tile_3_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_13_0_0 - 404KB
+   ✅ tile_3_13_0_1 - 427KB
+   ✅ tile_3_13_1_0 - 398KB
+   ✅ tile_3_13_1_1 - 389KB
+🔄 Procesando tile_3_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_14_0_0 - 395KB
+   ✅ tile_3_14_0_1 - 401KB
+   ✅ tile_3_14_1_0 - 373KB
+   ✅ tile_3_14_1_1 - 383KB
+🔄 Procesando tile_3_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_15_0_0 - 392KB
+   ✅ tile_3_15_0_1 - 388KB
+   ✅ tile_3_15_1_0 - 373KB
+   ✅ tile_3_15_1_1 - 392KB
+🔄 Procesando tile_3_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_16_0_0 - 303KB
+   ✅ tile_3_16_0_1 - 354KB
+   ✅ tile_3_16_1_0 - 339KB
+   ✅ tile_3_16_1_1 - 361KB
+🔄 Procesando tile_3_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_17_0_0 - 394KB
+   ✅ tile_3_17_0_1 - 406KB
+   ✅ tile_3_17_1_0 - 357KB
+   ✅ tile_3_17_1_1 - 397KB
+🔄 Procesando tile_3_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_18_0_0 - 373KB
+   ✅ tile_3_18_0_1 - 418KB
+   ✅ tile_3_18_1_0 - 360KB
+   ✅ tile_3_18_1_1 - 398KB
+🔄 Procesando tile_3_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_19_0_0 - 396KB
+   ✅ tile_3_19_0_1 - 372KB
+   ✅ tile_3_19_1_0 - 384KB
+   ✅ tile_3_19_1_1 - 354KB
+🔄 Procesando tile_3_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_2_0_0 - 443KB
+   ✅ tile_3_2_0_1 - 443KB
+   ✅ tile_3_2_1_0 - 505KB
+   ✅ tile_3_2_1_1 - 532KB
+🔄 Procesando tile_3_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_20_0_0 - 279KB
+   ✅ tile_3_20_0_1 - 294KB
+   ✅ tile_3_20_1_0 - 283KB
+   ✅ tile_3_20_1_1 - 282KB
+🔄 Procesando tile_3_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_3_0_0 - 537KB
+   ✅ tile_3_3_0_1 - 531KB
+   ✅ tile_3_3_1_0 - 565KB
+   ✅ tile_3_3_1_1 - 550KB
+🔄 Procesando tile_3_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_4_0_0 - 539KB
+   ✅ tile_3_4_0_1 - 575KB
+   ✅ tile_3_4_1_0 - 563KB
+   ✅ tile_3_4_1_1 - 563KB
+🔄 Procesando tile_3_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_5_0_0 - 556KB
+   ✅ tile_3_5_0_1 - 578KB
+   ✅ tile_3_5_1_0 - 541KB
+   ✅ tile_3_5_1_1 - 588KB
+🔄 Procesando tile_3_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_6_0_0 - 572KB
+   ✅ tile_3_6_0_1 - 582KB
+   ✅ tile_3_6_1_0 - 556KB
+   ✅ tile_3_6_1_1 - 541KB
+🔄 Procesando tile_3_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_7_0_0 - 548KB
+   ✅ tile_3_7_0_1 - 531KB
+   ✅ tile_3_7_1_0 - 526KB
+   ✅ tile_3_7_1_1 - 526KB
+🔄 Procesando tile_3_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_8_0_0 - 552KB
+   ✅ tile_3_8_0_1 - 525KB
+   ✅ tile_3_8_1_0 - 545KB
+   ✅ tile_3_8_1_1 - 559KB
+🔄 Procesando tile_3_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_3_9_0_0 - 531KB
+   ✅ tile_3_9_0_1 - 573KB
+   ✅ tile_3_9_1_0 - 543KB
+   ✅ tile_3_9_1_1 - 542KB
+🔄 Procesando tile_4000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_0_0_0 - 291KB
+   ✅ tile_4000_0_0_1 - 249KB
+   ✅ tile_4000_0_1_0 - 256KB
+   ✅ tile_4000_0_1_1 - 346KB
+🔄 Procesando tile_4000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_1000_0_0 - 560KB
+   ✅ tile_4000_1000_0_1 - 563KB
+   ✅ tile_4000_1000_1_0 - 493KB
+   ✅ tile_4000_1000_1_1 - 520KB
+🔄 Procesando tile_4000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_2000_0_0 - 465KB
+   ✅ tile_4000_2000_0_1 - 459KB
+   ✅ tile_4000_2000_1_0 - 503KB
+   ✅ tile_4000_2000_1_1 - 495KB
+🔄 Procesando tile_4000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_3000_0_0 - 511KB
+   ✅ tile_4000_3000_0_1 - 494KB
+   ✅ tile_4000_3000_1_0 - 513KB
+   ✅ tile_4000_3000_1_1 - 485KB
+🔄 Procesando tile_4000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_4000_0_0 - 513KB
+   ✅ tile_4000_4000_0_1 - 528KB
+   ✅ tile_4000_4000_1_0 - 543KB
+   ✅ tile_4000_4000_1_1 - 542KB
+🔄 Procesando tile_4000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_5000_0_0 - 558KB
+   ✅ tile_4000_5000_0_1 - 527KB
+   ✅ tile_4000_5000_1_0 - 557KB
+   ✅ tile_4000_5000_1_1 - 538KB
+🔄 Procesando tile_4000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_6000_0_0 - 542KB
+   ✅ tile_4000_6000_0_1 - 535KB
+   ✅ tile_4000_6000_1_0 - 496KB
+   ✅ tile_4000_6000_1_1 - 526KB
+🔄 Procesando tile_4000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4000_7000_0_0 - 498KB
+   ✅ tile_4000_7000_0_1 - 503KB
+   ✅ tile_4000_7000_1_0 - 496KB
+   ✅ tile_4000_7000_1_1 - 492KB
+🔄 Procesando tile_4000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_4000_8000_0_0 - 525KB
+🔄 Procesando tile_4_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_0_0_0 - 387KB
+   ✅ tile_4_0_0_1 - 381KB
+   ✅ tile_4_0_1_0 - 370KB
+   ✅ tile_4_0_1_1 - 398KB
+🔄 Procesando tile_4_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_1_0_0 - 400KB
+   ✅ tile_4_1_0_1 - 398KB
+   ✅ tile_4_1_1_0 - 387KB
+   ✅ tile_4_1_1_1 - 430KB
+🔄 Procesando tile_4_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_10_0_0 - 522KB
+   ✅ tile_4_10_0_1 - 518KB
+   ✅ tile_4_10_1_0 - 526KB
+   ✅ tile_4_10_1_1 - 512KB
+🔄 Procesando tile_4_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_11_0_0 - 532KB
+   ✅ tile_4_11_0_1 - 512KB
+   ✅ tile_4_11_1_0 - 522KB
+   ✅ tile_4_11_1_1 - 514KB
+🔄 Procesando tile_4_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_12_0_0 - 508KB
+   ✅ tile_4_12_0_1 - 506KB
+   ✅ tile_4_12_1_0 - 531KB
+   ✅ tile_4_12_1_1 - 529KB
+🔄 Procesando tile_4_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_13_0_0 - 512KB
+   ✅ tile_4_13_0_1 - 529KB
+   ✅ tile_4_13_1_0 - 354KB
+   ✅ tile_4_13_1_1 - 343KB
+🔄 Procesando tile_4_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_14_0_0 - 400KB
+   ✅ tile_4_14_0_1 - 363KB
+   ✅ tile_4_14_1_0 - 327KB
+   ✅ tile_4_14_1_1 - 327KB
+🔄 Procesando tile_4_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_15_0_0 - 376KB
+   ✅ tile_4_15_0_1 - 369KB
+   ✅ tile_4_15_1_0 - 400KB
+   ✅ tile_4_15_1_1 - 390KB
+🔄 Procesando tile_4_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_16_0_0 - 364KB
+   ✅ tile_4_16_0_1 - 408KB
+   ✅ tile_4_16_1_0 - 379KB
+   ✅ tile_4_16_1_1 - 375KB
+🔄 Procesando tile_4_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_17_0_0 - 391KB
+   ✅ tile_4_17_0_1 - 400KB
+   ✅ tile_4_17_1_0 - 423KB
+   ✅ tile_4_17_1_1 - 379KB
+🔄 Procesando tile_4_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_18_0_0 - 406KB
+   ✅ tile_4_18_0_1 - 392KB
+   ✅ tile_4_18_1_0 - 399KB
+   ✅ tile_4_18_1_1 - 425KB
+🔄 Procesando tile_4_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_19_0_0 - 398KB
+   ✅ tile_4_19_0_1 - 409KB
+   ✅ tile_4_19_1_0 - 408KB
+   ✅ tile_4_19_1_1 - 414KB
+🔄 Procesando tile_4_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_2_0_0 - 431KB
+   ✅ tile_4_2_0_1 - 502KB
+   ✅ tile_4_2_1_0 - 530KB
+   ✅ tile_4_2_1_1 - 541KB
+🔄 Procesando tile_4_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_20_0_0 - 295KB
+   ✅ tile_4_20_0_1 - 302KB
+   ✅ tile_4_20_1_0 - 299KB
+   ✅ tile_4_20_1_1 - 306KB
+🔄 Procesando tile_4_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_3_0_0 - 572KB
+   ✅ tile_4_3_0_1 - 559KB
+   ✅ tile_4_3_1_0 - 555KB
+   ✅ tile_4_3_1_1 - 521KB
+🔄 Procesando tile_4_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_4_0_0 - 587KB
+   ✅ tile_4_4_0_1 - 574KB
+   ✅ tile_4_4_1_0 - 573KB
+   ✅ tile_4_4_1_1 - 567KB
+📦 Paquete creado: vegetation_ndvi_batch_12 (81.4MB)
+✅ Lote 12 completado: 194 sub-tiles
+
+🔄 Procesando lote 13/16 (50 tiles)
+🔄 Procesando tile_4_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_5_0_0 - 572KB
+   ✅ tile_4_5_0_1 - 548KB
+   ✅ tile_4_5_1_0 - 571KB
+   ✅ tile_4_5_1_1 - 560KB
+🔄 Procesando tile_4_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_6_0_0 - 575KB
+   ✅ tile_4_6_0_1 - 553KB
+   ✅ tile_4_6_1_0 - 555KB
+   ✅ tile_4_6_1_1 - 562KB
+🔄 Procesando tile_4_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_7_0_0 - 534KB
+   ✅ tile_4_7_0_1 - 492KB
+   ✅ tile_4_7_1_0 - 530KB
+   ✅ tile_4_7_1_1 - 526KB
+🔄 Procesando tile_4_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_8_0_0 - 503KB
+   ✅ tile_4_8_0_1 - 502KB
+   ✅ tile_4_8_1_0 - 534KB
+   ✅ tile_4_8_1_1 - 538KB
+🔄 Procesando tile_4_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_4_9_0_0 - 568KB
+   ✅ tile_4_9_0_1 - 570KB
+   ✅ tile_4_9_1_0 - 575KB
+   ✅ tile_4_9_1_1 - 570KB
+🔄 Procesando tile_5000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_0_0_0 - 146KB
+   ✅ tile_5000_0_0_1 - 214KB
+   ✅ tile_5000_0_1_0 - 428KB
+   ✅ tile_5000_0_1_1 - 535KB
+🔄 Procesando tile_5000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_1000_0_0 - 540KB
+   ✅ tile_5000_1000_0_1 - 520KB
+   ✅ tile_5000_1000_1_0 - 486KB
+   ✅ tile_5000_1000_1_1 - 474KB
+🔄 Procesando tile_5000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_2000_0_0 - 462KB
+   ✅ tile_5000_2000_0_1 - 473KB
+   ✅ tile_5000_2000_1_0 - 457KB
+   ✅ tile_5000_2000_1_1 - 459KB
+🔄 Procesando tile_5000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_3000_0_0 - 473KB
+   ✅ tile_5000_3000_0_1 - 497KB
+   ✅ tile_5000_3000_1_0 - 511KB
+   ✅ tile_5000_3000_1_1 - 486KB
+🔄 Procesando tile_5000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_4000_0_0 - 528KB
+   ✅ tile_5000_4000_0_1 - 511KB
+   ✅ tile_5000_4000_1_0 - 541KB
+   ✅ tile_5000_4000_1_1 - 536KB
+🔄 Procesando tile_5000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_5000_0_0 - 541KB
+   ✅ tile_5000_5000_0_1 - 543KB
+   ✅ tile_5000_5000_1_0 - 551KB
+   ✅ tile_5000_5000_1_1 - 546KB
+🔄 Procesando tile_5000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_6000_0_0 - 456KB
+   ✅ tile_5000_6000_0_1 - 542KB
+   ✅ tile_5000_6000_1_0 - 324KB
+   ✅ tile_5000_6000_1_1 - 304KB
+🔄 Procesando tile_5000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5000_7000_0_0 - 442KB
+   ✅ tile_5000_7000_0_1 - 109KB
+   ✅ tile_5000_7000_1_0 - 446KB
+   ✅ tile_5000_7000_1_1 - 110KB
+🔄 Procesando tile_5000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_5000_8000_0_0 - 269KB
+🔄 Procesando tile_5_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_0_0_0 - 359KB
+   ✅ tile_5_0_0_1 - 347KB
+   ✅ tile_5_0_1_0 - 401KB
+   ✅ tile_5_0_1_1 - 373KB
+🔄 Procesando tile_5_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_1_0_0 - 408KB
+   ✅ tile_5_1_0_1 - 468KB
+   ✅ tile_5_1_1_0 - 476KB
+   ✅ tile_5_1_1_1 - 517KB
+🔄 Procesando tile_5_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_10_0_0 - 508KB
+   ✅ tile_5_10_0_1 - 507KB
+   ✅ tile_5_10_1_0 - 507KB
+   ✅ tile_5_10_1_1 - 522KB
+🔄 Procesando tile_5_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_11_0_0 - 546KB
+   ✅ tile_5_11_0_1 - 531KB
+   ✅ tile_5_11_1_0 - 488KB
+   ✅ tile_5_11_1_1 - 514KB
+🔄 Procesando tile_5_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_12_0_0 - 496KB
+   ✅ tile_5_12_0_1 - 493KB
+   ✅ tile_5_12_1_0 - 524KB
+   ✅ tile_5_12_1_1 - 524KB
+🔄 Procesando tile_5_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_13_0_0 - 565KB
+   ✅ tile_5_13_0_1 - 521KB
+   ✅ tile_5_13_1_0 - 428KB
+   ✅ tile_5_13_1_1 - 497KB
+🔄 Procesando tile_5_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_14_0_0 - 310KB
+   ✅ tile_5_14_0_1 - 326KB
+   ✅ tile_5_14_1_0 - 390KB
+   ✅ tile_5_14_1_1 - 425KB
+🔄 Procesando tile_5_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_15_0_0 - 363KB
+   ✅ tile_5_15_0_1 - 411KB
+   ✅ tile_5_15_1_0 - 395KB
+   ✅ tile_5_15_1_1 - 392KB
+🔄 Procesando tile_5_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_16_0_0 - 401KB
+   ✅ tile_5_16_0_1 - 408KB
+   ✅ tile_5_16_1_0 - 378KB
+   ✅ tile_5_16_1_1 - 384KB
+🔄 Procesando tile_5_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_17_0_0 - 403KB
+   ✅ tile_5_17_0_1 - 405KB
+   ✅ tile_5_17_1_0 - 396KB
+   ✅ tile_5_17_1_1 - 392KB
+🔄 Procesando tile_5_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_18_0_0 - 399KB
+   ✅ tile_5_18_0_1 - 388KB
+   ✅ tile_5_18_1_0 - 429KB
+   ✅ tile_5_18_1_1 - 422KB
+🔄 Procesando tile_5_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_19_0_0 - 406KB
+   ✅ tile_5_19_0_1 - 414KB
+   ✅ tile_5_19_1_0 - 406KB
+   ✅ tile_5_19_1_1 - 402KB
+🔄 Procesando tile_5_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_2_0_0 - 533KB
+   ✅ tile_5_2_0_1 - 554KB
+   ✅ tile_5_2_1_0 - 547KB
+   ✅ tile_5_2_1_1 - 536KB
+🔄 Procesando tile_5_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_20_0_0 - 294KB
+   ✅ tile_5_20_0_1 - 282KB
+   ✅ tile_5_20_1_0 - 293KB
+   ✅ tile_5_20_1_1 - 279KB
+🔄 Procesando tile_5_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_3_0_0 - 536KB
+   ✅ tile_5_3_0_1 - 494KB
+   ✅ tile_5_3_1_0 - 523KB
+   ✅ tile_5_3_1_1 - 496KB
+🔄 Procesando tile_5_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_4_0_0 - 551KB
+   ✅ tile_5_4_0_1 - 553KB
+   ✅ tile_5_4_1_0 - 551KB
+   ✅ tile_5_4_1_1 - 559KB
+🔄 Procesando tile_5_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_5_0_0 - 540KB
+   ✅ tile_5_5_0_1 - 563KB
+   ✅ tile_5_5_1_0 - 567KB
+   ✅ tile_5_5_1_1 - 572KB
+🔄 Procesando tile_5_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_6_0_0 - 559KB
+   ✅ tile_5_6_0_1 - 576KB
+   ✅ tile_5_6_1_0 - 574KB
+   ✅ tile_5_6_1_1 - 555KB
+🔄 Procesando tile_5_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_7_0_0 - 554KB
+   ✅ tile_5_7_0_1 - 548KB
+   ✅ tile_5_7_1_0 - 526KB
+   ✅ tile_5_7_1_1 - 555KB
+🔄 Procesando tile_5_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_8_0_0 - 518KB
+   ✅ tile_5_8_0_1 - 577KB
+   ✅ tile_5_8_1_0 - 550KB
+   ✅ tile_5_8_1_1 - 560KB
+🔄 Procesando tile_5_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_5_9_0_0 - 556KB
+   ✅ tile_5_9_0_1 - 542KB
+   ✅ tile_5_9_1_0 - 508KB
+   ✅ tile_5_9_1_1 - 504KB
+🔄 Procesando tile_6000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_0_0_0 - 424KB
+   ✅ tile_6000_0_0_1 - 532KB
+   ✅ tile_6000_0_1_0 - 562KB
+   ✅ tile_6000_0_1_1 - 560KB
+🔄 Procesando tile_6000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_1000_0_0 - 536KB
+   ✅ tile_6000_1000_0_1 - 551KB
+   ✅ tile_6000_1000_1_0 - 471KB
+   ✅ tile_6000_1000_1_1 - 486KB
+🔄 Procesando tile_6000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_2000_0_0 - 453KB
+   ✅ tile_6000_2000_0_1 - 460KB
+   ✅ tile_6000_2000_1_0 - 465KB
+   ✅ tile_6000_2000_1_1 - 461KB
+🔄 Procesando tile_6000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_3000_0_0 - 481KB
+   ✅ tile_6000_3000_0_1 - 482KB
+   ✅ tile_6000_3000_1_0 - 505KB
+   ✅ tile_6000_3000_1_1 - 487KB
+🔄 Procesando tile_6000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_4000_0_0 - 461KB
+   ✅ tile_6000_4000_0_1 - 511KB
+   ✅ tile_6000_4000_1_0 - 491KB
+   ✅ tile_6000_4000_1_1 - 517KB
+🔄 Procesando tile_6000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_5000_0_0 - 543KB
+   ✅ tile_6000_5000_0_1 - 556KB
+   ✅ tile_6000_5000_1_0 - 529KB
+   ✅ tile_6000_5000_1_1 - 556KB
+🔄 Procesando tile_6000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_6000_0_0 - 542KB
+   ✅ tile_6000_6000_0_1 - 534KB
+   ✅ tile_6000_6000_1_0 - 493KB
+   ✅ tile_6000_6000_1_1 - 216KB
+🔄 Procesando tile_6000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6000_7000_0_0 - 133KB
+   ✅ tile_6000_7000_0_1 - 81KB
+   ✅ tile_6000_7000_1_0 - 80KB
+   ✅ tile_6000_7000_1_1 - 70KB
+🔄 Procesando tile_6000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_6000_8000_0_0 - 144KB
+🔄 Procesando tile_6_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_0_0_0 - 316KB
+   ✅ tile_6_0_0_1 - 359KB
+   ✅ tile_6_0_1_0 - 353KB
+   ✅ tile_6_0_1_1 - 338KB
+🔄 Procesando tile_6_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_1_0_0 - 479KB
+   ✅ tile_6_1_0_1 - 519KB
+   ✅ tile_6_1_1_0 - 565KB
+   ✅ tile_6_1_1_1 - 559KB
+🔄 Procesando tile_6_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_10_0_0 - 510KB
+   ✅ tile_6_10_0_1 - 541KB
+   ✅ tile_6_10_1_0 - 527KB
+   ✅ tile_6_10_1_1 - 554KB
+🔄 Procesando tile_6_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_11_0_0 - 533KB
+   ✅ tile_6_11_0_1 - 553KB
+   ✅ tile_6_11_1_0 - 531KB
+   ✅ tile_6_11_1_1 - 543KB
+🔄 Procesando tile_6_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_12_0_0 - 516KB
+   ✅ tile_6_12_0_1 - 515KB
+   ✅ tile_6_12_1_0 - 530KB
+   ✅ tile_6_12_1_1 - 555KB
+🔄 Procesando tile_6_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_13_0_0 - 533KB
+   ✅ tile_6_13_0_1 - 548KB
+   ✅ tile_6_13_1_0 - 555KB
+   ✅ tile_6_13_1_1 - 542KB
+📦 Paquete creado: vegetation_ndvi_batch_13 (83.3MB)
+✅ Lote 13 completado: 194 sub-tiles
+
+🔄 Procesando lote 14/16 (50 tiles)
+🔄 Procesando tile_6_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_14_0_0 - 543KB
+   ✅ tile_6_14_0_1 - 569KB
+   ✅ tile_6_14_1_0 - 536KB
+   ✅ tile_6_14_1_1 - 578KB
+🔄 Procesando tile_6_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_15_0_0 - 469KB
+   ✅ tile_6_15_0_1 - 589KB
+   ✅ tile_6_15_1_0 - 434KB
+   ✅ tile_6_15_1_1 - 551KB
+🔄 Procesando tile_6_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_16_0_0 - 388KB
+   ✅ tile_6_16_0_1 - 411KB
+   ✅ tile_6_16_1_0 - 398KB
+   ✅ tile_6_16_1_1 - 406KB
+🔄 Procesando tile_6_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_17_0_0 - 407KB
+   ✅ tile_6_17_0_1 - 301KB
+   ✅ tile_6_17_1_0 - 396KB
+   ✅ tile_6_17_1_1 - 381KB
+🔄 Procesando tile_6_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_18_0_0 - 380KB
+   ✅ tile_6_18_0_1 - 359KB
+   ✅ tile_6_18_1_0 - 394KB
+   ✅ tile_6_18_1_1 - 374KB
+🔄 Procesando tile_6_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_19_0_0 - 406KB
+   ✅ tile_6_19_0_1 - 410KB
+   ✅ tile_6_19_1_0 - 393KB
+   ✅ tile_6_19_1_1 - 389KB
+🔄 Procesando tile_6_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_2_0_0 - 523KB
+   ✅ tile_6_2_0_1 - 525KB
+   ✅ tile_6_2_1_0 - 538KB
+   ✅ tile_6_2_1_1 - 546KB
+🔄 Procesando tile_6_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_20_0_0 - 275KB
+   ✅ tile_6_20_0_1 - 266KB
+   ✅ tile_6_20_1_0 - 289KB
+   ✅ tile_6_20_1_1 - 282KB
+🔄 Procesando tile_6_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_3_0_0 - 506KB
+   ✅ tile_6_3_0_1 - 527KB
+   ✅ tile_6_3_1_0 - 511KB
+   ✅ tile_6_3_1_1 - 545KB
+🔄 Procesando tile_6_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_4_0_0 - 546KB
+   ✅ tile_6_4_0_1 - 548KB
+   ✅ tile_6_4_1_0 - 567KB
+   ✅ tile_6_4_1_1 - 572KB
+🔄 Procesando tile_6_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_5_0_0 - 560KB
+   ✅ tile_6_5_0_1 - 563KB
+   ✅ tile_6_5_1_0 - 569KB
+   ✅ tile_6_5_1_1 - 572KB
+🔄 Procesando tile_6_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_6_0_0 - 583KB
+   ✅ tile_6_6_0_1 - 571KB
+   ✅ tile_6_6_1_0 - 571KB
+   ✅ tile_6_6_1_1 - 565KB
+🔄 Procesando tile_6_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_7_0_0 - 562KB
+   ✅ tile_6_7_0_1 - 561KB
+   ✅ tile_6_7_1_0 - 556KB
+   ✅ tile_6_7_1_1 - 553KB
+🔄 Procesando tile_6_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_8_0_0 - 556KB
+   ✅ tile_6_8_0_1 - 536KB
+   ✅ tile_6_8_1_0 - 551KB
+   ✅ tile_6_8_1_1 - 539KB
+🔄 Procesando tile_6_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_6_9_0_0 - 532KB
+   ✅ tile_6_9_0_1 - 552KB
+   ✅ tile_6_9_1_0 - 523KB
+   ✅ tile_6_9_1_1 - 534KB
+🔄 Procesando tile_7000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_0_0_0 - 473KB
+   ✅ tile_7000_0_0_1 - 545KB
+   ✅ tile_7000_0_1_0 - 549KB
+   ✅ tile_7000_0_1_1 - 532KB
+🔄 Procesando tile_7000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_1000_0_0 - 531KB
+   ✅ tile_7000_1000_0_1 - 496KB
+   ✅ tile_7000_1000_1_0 - 436KB
+   ✅ tile_7000_1000_1_1 - 432KB
+🔄 Procesando tile_7000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_2000_0_0 - 457KB
+   ✅ tile_7000_2000_0_1 - 426KB
+   ✅ tile_7000_2000_1_0 - 456KB
+   ✅ tile_7000_2000_1_1 - 430KB
+🔄 Procesando tile_7000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_3000_0_0 - 479KB
+   ✅ tile_7000_3000_0_1 - 473KB
+   ✅ tile_7000_3000_1_0 - 469KB
+   ✅ tile_7000_3000_1_1 - 428KB
+🔄 Procesando tile_7000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_4000_0_0 - 469KB
+   ✅ tile_7000_4000_0_1 - 493KB
+   ✅ tile_7000_4000_1_0 - 351KB
+   ✅ tile_7000_4000_1_1 - 264KB
+🔄 Procesando tile_7000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_5000_0_0 - 309KB
+   ✅ tile_7000_5000_0_1 - 76KB
+   ✅ tile_7000_5000_1_0 - 173KB
+   ✅ tile_7000_5000_1_1 - 125KB
+🔄 Procesando tile_7000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_6000_0_0 - 106KB
+   ✅ tile_7000_6000_0_1 - 269KB
+   ✅ tile_7000_6000_1_0 - 61KB
+   ✅ tile_7000_6000_1_1 - 280KB
+🔄 Procesando tile_7000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7000_7000_0_0 - 40KB
+   ✅ tile_7000_7000_0_1 - 191KB
+   ✅ tile_7000_7000_1_0 - 41KB
+   ✅ tile_7000_7000_1_1 - 52KB
+🔄 Procesando tile_7000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_7000_8000_0_0 - 112KB
+🔄 Procesando tile_7_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_0_0_0 - 337KB
+   ✅ tile_7_0_0_1 - 345KB
+   ✅ tile_7_0_1_0 - 383KB
+   ✅ tile_7_0_1_1 - 447KB
+🔄 Procesando tile_7_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_1_0_0 - 507KB
+   ✅ tile_7_1_0_1 - 585KB
+   ✅ tile_7_1_1_0 - 589KB
+   ✅ tile_7_1_1_1 - 576KB
+🔄 Procesando tile_7_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_10_0_0 - 574KB
+   ✅ tile_7_10_0_1 - 536KB
+   ✅ tile_7_10_1_0 - 540KB
+   ✅ tile_7_10_1_1 - 532KB
+🔄 Procesando tile_7_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_11_0_0 - 514KB
+   ✅ tile_7_11_0_1 - 561KB
+   ✅ tile_7_11_1_0 - 569KB
+   ✅ tile_7_11_1_1 - 537KB
+🔄 Procesando tile_7_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_12_0_0 - 546KB
+   ✅ tile_7_12_0_1 - 522KB
+   ✅ tile_7_12_1_0 - 584KB
+   ✅ tile_7_12_1_1 - 536KB
+🔄 Procesando tile_7_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_13_0_0 - 579KB
+   ✅ tile_7_13_0_1 - 584KB
+   ✅ tile_7_13_1_0 - 580KB
+   ✅ tile_7_13_1_1 - 584KB
+🔄 Procesando tile_7_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_14_0_0 - 580KB
+   ✅ tile_7_14_0_1 - 593KB
+   ✅ tile_7_14_1_0 - 581KB
+   ✅ tile_7_14_1_1 - 592KB
+🔄 Procesando tile_7_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_15_0_0 - 584KB
+   ✅ tile_7_15_0_1 - 583KB
+   ✅ tile_7_15_1_0 - 586KB
+   ✅ tile_7_15_1_1 - 567KB
+🔄 Procesando tile_7_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_16_0_0 - 587KB
+   ✅ tile_7_16_0_1 - 577KB
+   ✅ tile_7_16_1_0 - 595KB
+   ✅ tile_7_16_1_1 - 593KB
+🔄 Procesando tile_7_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_17_0_0 - 583KB
+   ✅ tile_7_17_0_1 - 575KB
+   ✅ tile_7_17_1_0 - 570KB
+   ✅ tile_7_17_1_1 - 526KB
+🔄 Procesando tile_7_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_18_0_0 - 497KB
+   ✅ tile_7_18_0_1 - 550KB
+   ✅ tile_7_18_1_0 - 384KB
+   ✅ tile_7_18_1_1 - 529KB
+🔄 Procesando tile_7_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_19_0_0 - 402KB
+   ✅ tile_7_19_0_1 - 396KB
+   ✅ tile_7_19_1_0 - 399KB
+   ✅ tile_7_19_1_1 - 402KB
+🔄 Procesando tile_7_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_2_0_0 - 538KB
+   ✅ tile_7_2_0_1 - 537KB
+   ✅ tile_7_2_1_0 - 548KB
+   ✅ tile_7_2_1_1 - 549KB
+🔄 Procesando tile_7_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_20_0_0 - 277KB
+   ✅ tile_7_20_0_1 - 280KB
+   ✅ tile_7_20_1_0 - 275KB
+   ✅ tile_7_20_1_1 - 277KB
+🔄 Procesando tile_7_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_3_0_0 - 531KB
+   ✅ tile_7_3_0_1 - 532KB
+   ✅ tile_7_3_1_0 - 542KB
+   ✅ tile_7_3_1_1 - 543KB
+🔄 Procesando tile_7_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_4_0_0 - 552KB
+   ✅ tile_7_4_0_1 - 542KB
+   ✅ tile_7_4_1_0 - 561KB
+   ✅ tile_7_4_1_1 - 555KB
+🔄 Procesando tile_7_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_5_0_0 - 567KB
+   ✅ tile_7_5_0_1 - 538KB
+   ✅ tile_7_5_1_0 - 565KB
+   ✅ tile_7_5_1_1 - 559KB
+🔄 Procesando tile_7_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_6_0_0 - 577KB
+   ✅ tile_7_6_0_1 - 571KB
+   ✅ tile_7_6_1_0 - 557KB
+   ✅ tile_7_6_1_1 - 556KB
+🔄 Procesando tile_7_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_7_0_0 - 569KB
+   ✅ tile_7_7_0_1 - 561KB
+   ✅ tile_7_7_1_0 - 557KB
+   ✅ tile_7_7_1_1 - 550KB
+🔄 Procesando tile_7_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_8_0_0 - 523KB
+   ✅ tile_7_8_0_1 - 551KB
+   ✅ tile_7_8_1_0 - 555KB
+   ✅ tile_7_8_1_1 - 554KB
+🔄 Procesando tile_7_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_7_9_0_0 - 555KB
+   ✅ tile_7_9_0_1 - 560KB
+   ✅ tile_7_9_1_0 - 565KB
+   ✅ tile_7_9_1_1 - 549KB
+🔄 Procesando tile_8000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_0_0_0 - 481KB
+   ✅ tile_8000_0_0_1 - 410KB
+   ✅ tile_8000_0_1_0 - 537KB
+   ✅ tile_8000_0_1_1 - 496KB
+🔄 Procesando tile_8000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_1000_0_0 - 494KB
+   ✅ tile_8000_1000_0_1 - 497KB
+   ✅ tile_8000_1000_1_0 - 468KB
+   ✅ tile_8000_1000_1_1 - 471KB
+🔄 Procesando tile_8000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_2000_0_0 - 452KB
+   ✅ tile_8000_2000_0_1 - 482KB
+   ✅ tile_8000_2000_1_0 - 440KB
+   ✅ tile_8000_2000_1_1 - 456KB
+🔄 Procesando tile_8000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_3000_0_0 - 439KB
+   ✅ tile_8000_3000_0_1 - 431KB
+   ✅ tile_8000_3000_1_0 - 153KB
+   ✅ tile_8000_3000_1_1 - 280KB
+🔄 Procesando tile_8000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_4000_0_0 - 200KB
+   ✅ tile_8000_4000_0_1 - 312KB
+   ✅ tile_8000_4000_1_0 - 223KB
+   ✅ tile_8000_4000_1_1 - 258KB
+📦 Paquete creado: vegetation_ndvi_batch_14 (83.9MB)
+✅ Lote 14 completado: 197 sub-tiles
+
+🔄 Procesando lote 15/16 (50 tiles)
+🔄 Procesando tile_8000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_5000_0_0 - 168KB
+   ✅ tile_8000_5000_0_1 - 228KB
+   ✅ tile_8000_5000_1_0 - 25KB
+   ✅ tile_8000_5000_1_1 - 72KB
+🔄 Procesando tile_8000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_6000_0_0 - 179KB
+   ✅ tile_8000_6000_0_1 - 52KB
+   ✅ tile_8000_6000_1_0 - 261KB
+   ✅ tile_8000_6000_1_1 - 96KB
+🔄 Procesando tile_8000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8000_7000_0_0 - 250KB
+   ✅ tile_8000_7000_0_1 - 216KB
+   ✅ tile_8000_7000_1_0 - 187KB
+   ✅ tile_8000_7000_1_1 - 117KB
+🔄 Procesando tile_8000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_8000_8000_0_0 - 210KB
+🔄 Procesando tile_8_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_0_0_0 - 337KB
+   ✅ tile_8_0_0_1 - 343KB
+   ✅ tile_8_0_1_0 - 407KB
+   ✅ tile_8_0_1_1 - 364KB
+🔄 Procesando tile_8_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_1_0_0 - 559KB
+   ✅ tile_8_1_0_1 - 463KB
+   ✅ tile_8_1_1_0 - 598KB
+   ✅ tile_8_1_1_1 - 570KB
+🔄 Procesando tile_8_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_10_0_0 - 531KB
+   ✅ tile_8_10_0_1 - 545KB
+   ✅ tile_8_10_1_0 - 545KB
+   ✅ tile_8_10_1_1 - 562KB
+🔄 Procesando tile_8_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_11_0_0 - 543KB
+   ✅ tile_8_11_0_1 - 573KB
+   ✅ tile_8_11_1_0 - 535KB
+   ✅ tile_8_11_1_1 - 573KB
+🔄 Procesando tile_8_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_12_0_0 - 563KB
+   ✅ tile_8_12_0_1 - 560KB
+   ✅ tile_8_12_1_0 - 558KB
+   ✅ tile_8_12_1_1 - 572KB
+🔄 Procesando tile_8_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_13_0_0 - 579KB
+   ✅ tile_8_13_0_1 - 585KB
+   ✅ tile_8_13_1_0 - 588KB
+   ✅ tile_8_13_1_1 - 578KB
+🔄 Procesando tile_8_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_14_0_0 - 585KB
+   ✅ tile_8_14_0_1 - 592KB
+   ✅ tile_8_14_1_0 - 587KB
+   ✅ tile_8_14_1_1 - 584KB
+🔄 Procesando tile_8_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_15_0_0 - 579KB
+   ✅ tile_8_15_0_1 - 570KB
+   ✅ tile_8_15_1_0 - 566KB
+   ✅ tile_8_15_1_1 - 561KB
+🔄 Procesando tile_8_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_16_0_0 - 563KB
+   ✅ tile_8_16_0_1 - 552KB
+   ✅ tile_8_16_1_0 - 579KB
+   ✅ tile_8_16_1_1 - 524KB
+🔄 Procesando tile_8_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_17_0_0 - 553KB
+   ✅ tile_8_17_0_1 - 507KB
+   ✅ tile_8_17_1_0 - 531KB
+   ✅ tile_8_17_1_1 - 551KB
+🔄 Procesando tile_8_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_18_0_0 - 529KB
+   ✅ tile_8_18_0_1 - 548KB
+   ✅ tile_8_18_1_0 - 520KB
+   ✅ tile_8_18_1_1 - 524KB
+🔄 Procesando tile_8_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_19_0_0 - 536KB
+   ✅ tile_8_19_0_1 - 535KB
+   ✅ tile_8_19_1_0 - 534KB
+   ✅ tile_8_19_1_1 - 562KB
+🔄 Procesando tile_8_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_2_0_0 - 574KB
+   ✅ tile_8_2_0_1 - 588KB
+   ✅ tile_8_2_1_0 - 555KB
+   ✅ tile_8_2_1_1 - 578KB
+🔄 Procesando tile_8_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_20_0_0 - 272KB
+   ✅ tile_8_20_0_1 - 278KB
+   ✅ tile_8_20_1_0 - 278KB
+   ✅ tile_8_20_1_1 - 278KB
+🔄 Procesando tile_8_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_3_0_0 - 521KB
+   ✅ tile_8_3_0_1 - 512KB
+   ✅ tile_8_3_1_0 - 534KB
+   ✅ tile_8_3_1_1 - 505KB
+🔄 Procesando tile_8_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_4_0_0 - 519KB
+   ✅ tile_8_4_0_1 - 514KB
+   ✅ tile_8_4_1_0 - 538KB
+   ✅ tile_8_4_1_1 - 496KB
+🔄 Procesando tile_8_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_5_0_0 - 534KB
+   ✅ tile_8_5_0_1 - 527KB
+   ✅ tile_8_5_1_0 - 560KB
+   ✅ tile_8_5_1_1 - 531KB
+🔄 Procesando tile_8_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_6_0_0 - 579KB
+   ✅ tile_8_6_0_1 - 561KB
+   ✅ tile_8_6_1_0 - 566KB
+   ✅ tile_8_6_1_1 - 571KB
+🔄 Procesando tile_8_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_7_0_0 - 545KB
+   ✅ tile_8_7_0_1 - 539KB
+   ✅ tile_8_7_1_0 - 537KB
+   ✅ tile_8_7_1_1 - 527KB
+🔄 Procesando tile_8_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_8_0_0 - 544KB
+   ✅ tile_8_8_0_1 - 512KB
+   ✅ tile_8_8_1_0 - 543KB
+   ✅ tile_8_8_1_1 - 528KB
+🔄 Procesando tile_8_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_8_9_0_0 - 549KB
+   ✅ tile_8_9_0_1 - 541KB
+   ✅ tile_8_9_1_0 - 523KB
+   ✅ tile_8_9_1_1 - 535KB
+🔄 Procesando tile_9000_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_0_0_0 - 425KB
+   ✅ tile_9000_0_0_1 - 421KB
+   ✅ tile_9000_0_1_0 - 469KB
+   ✅ tile_9000_0_1_1 - 498KB
+🔄 Procesando tile_9000_1000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_1000_0_0 - 478KB
+   ✅ tile_9000_1000_0_1 - 425KB
+   ✅ tile_9000_1000_1_0 - 479KB
+   ✅ tile_9000_1000_1_1 - 476KB
+🔄 Procesando tile_9000_2000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_2000_0_0 - 481KB
+   ✅ tile_9000_2000_0_1 - 489KB
+   ✅ tile_9000_2000_1_0 - 463KB
+   ✅ tile_9000_2000_1_1 - 318KB
+🔄 Procesando tile_9000_3000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_3000_0_0 - 416KB
+   ✅ tile_9000_3000_0_1 - 163KB
+   ✅ tile_9000_3000_1_0 - 162KB
+   ✅ tile_9000_3000_1_1 - 159KB
+🔄 Procesando tile_9000_4000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_4000_0_0 - 104KB
+   ✅ tile_9000_4000_0_1 - 162KB
+   ✅ tile_9000_4000_1_0 - 185KB
+   ✅ tile_9000_4000_1_1 - 233KB
+🔄 Procesando tile_9000_5000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_5000_0_0 - 143KB
+   ✅ tile_9000_5000_0_1 - 188KB
+   ✅ tile_9000_5000_1_0 - 185KB
+   ✅ tile_9000_5000_1_1 - 93KB
+🔄 Procesando tile_9000_6000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_6000_0_0 - 205KB
+   ✅ tile_9000_6000_0_1 - 300KB
+   ✅ tile_9000_6000_1_0 - 129KB
+   ✅ tile_9000_6000_1_1 - 320KB
+🔄 Procesando tile_9000_7000 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9000_7000_0_0 - 303KB
+   ✅ tile_9000_7000_0_1 - 278KB
+   ✅ tile_9000_7000_1_0 - 101KB
+   ✅ tile_9000_7000_1_1 - 298KB
+🔄 Procesando tile_9000_8000 (0.5MB)
+   📐 Subdivisiones: 1x1
+   ✅ tile_9000_8000_0_0 - 154KB
+🔄 Procesando tile_9_0 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_0_0_0 - 348KB
+   ✅ tile_9_0_0_1 - 363KB
+   ✅ tile_9_0_1_0 - 374KB
+   ✅ tile_9_0_1_1 - 354KB
+🔄 Procesando tile_9_1 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_1_0_0 - 380KB
+   ✅ tile_9_1_0_1 - 369KB
+   ✅ tile_9_1_1_0 - 524KB
+   ✅ tile_9_1_1_1 - 406KB
+🔄 Procesando tile_9_10 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_10_0_0 - 493KB
+   ✅ tile_9_10_0_1 - 526KB
+   ✅ tile_9_10_1_0 - 510KB
+   ✅ tile_9_10_1_1 - 567KB
+🔄 Procesando tile_9_11 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_11_0_0 - 551KB
+   ✅ tile_9_11_0_1 - 559KB
+   ✅ tile_9_11_1_0 - 569KB
+   ✅ tile_9_11_1_1 - 594KB
+🔄 Procesando tile_9_12 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_12_0_0 - 563KB
+   ✅ tile_9_12_0_1 - 534KB
+   ✅ tile_9_12_1_0 - 559KB
+   ✅ tile_9_12_1_1 - 567KB
+🔄 Procesando tile_9_13 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_13_0_0 - 584KB
+   ✅ tile_9_13_0_1 - 579KB
+   ✅ tile_9_13_1_0 - 592KB
+   ✅ tile_9_13_1_1 - 583KB
+🔄 Procesando tile_9_14 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_14_0_0 - 582KB
+   ✅ tile_9_14_0_1 - 584KB
+   ✅ tile_9_14_1_0 - 581KB
+   ✅ tile_9_14_1_1 - 575KB
+🔄 Procesando tile_9_15 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_15_0_0 - 568KB
+   ✅ tile_9_15_0_1 - 545KB
+   ✅ tile_9_15_1_0 - 560KB
+   ✅ tile_9_15_1_1 - 557KB
+🔄 Procesando tile_9_16 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_16_0_0 - 546KB
+   ✅ tile_9_16_0_1 - 531KB
+   ✅ tile_9_16_1_0 - 521KB
+   ✅ tile_9_16_1_1 - 501KB
+🔄 Procesando tile_9_17 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_17_0_0 - 489KB
+   ✅ tile_9_17_0_1 - 498KB
+   ✅ tile_9_17_1_0 - 508KB
+   ✅ tile_9_17_1_1 - 519KB
+🔄 Procesando tile_9_18 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_18_0_0 - 527KB
+   ✅ tile_9_18_0_1 - 550KB
+   ✅ tile_9_18_1_0 - 545KB
+   ✅ tile_9_18_1_1 - 563KB
+🔄 Procesando tile_9_19 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_19_0_0 - 560KB
+   ✅ tile_9_19_0_1 - 540KB
+   ✅ tile_9_19_1_0 - 557KB
+   ✅ tile_9_19_1_1 - 441KB
+🔄 Procesando tile_9_2 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_2_0_0 - 573KB
+   ✅ tile_9_2_0_1 - 576KB
+   ✅ tile_9_2_1_0 - 561KB
+   ✅ tile_9_2_1_1 - 568KB
+🔄 Procesando tile_9_20 (1.4MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_20_0_0 - 283KB
+   ✅ tile_9_20_0_1 - 287KB
+   ✅ tile_9_20_1_0 - 283KB
+   ✅ tile_9_20_1_1 - 280KB
+🔄 Procesando tile_9_3 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_3_0_0 - 552KB
+   ✅ tile_9_3_0_1 - 567KB
+   ✅ tile_9_3_1_0 - 511KB
+   ✅ tile_9_3_1_1 - 495KB
+🔄 Procesando tile_9_4 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_4_0_0 - 529KB
+   ✅ tile_9_4_0_1 - 511KB
+   ✅ tile_9_4_1_0 - 510KB
+   ✅ tile_9_4_1_1 - 503KB
+📦 Paquete creado: vegetation_ndvi_batch_15 (80.3MB)
+✅ Lote 15 completado: 194 sub-tiles
+
+🔄 Procesando lote 16/16 (5 tiles)
+🔄 Procesando tile_9_5 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_5_0_0 - 560KB
+   ✅ tile_9_5_0_1 - 489KB
+   ✅ tile_9_5_1_0 - 525KB
+   ✅ tile_9_5_1_1 - 544KB
+🔄 Procesando tile_9_6 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_6_0_0 - 505KB
+   ✅ tile_9_6_0_1 - 563KB
+   ✅ tile_9_6_1_0 - 527KB
+   ✅ tile_9_6_1_1 - 542KB
+🔄 Procesando tile_9_7 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_7_0_0 - 528KB
+   ✅ tile_9_7_0_1 - 547KB
+   ✅ tile_9_7_1_0 - 532KB
+   ✅ tile_9_7_1_1 - 578KB
+🔄 Procesando tile_9_8 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_8_0_0 - 549KB
+   ✅ tile_9_8_0_1 - 577KB
+   ✅ tile_9_8_1_0 - 550KB
+   ✅ tile_9_8_1_1 - 562KB
+🔄 Procesando tile_9_9 (1.9MB)
+   📐 Subdivisiones: 2x2
+   ✅ tile_9_9_0_0 - 511KB
+   ✅ tile_9_9_0_1 - 532KB
+   ✅ tile_9_9_1_0 - 495KB
+   ✅ tile_9_9_1_1 - 529KB
+📦 Paquete creado: vegetation_ndvi_batch_16 (9.7MB)
+✅ Lote 16 completado: 20 sub-tiles
+
+🎉 ¡Procesamiento completo de 755 tiles terminado!
