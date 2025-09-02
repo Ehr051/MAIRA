@@ -1598,6 +1598,9 @@ todosJugadoresListos() {
         // Inicializar sistema de turnos
         this.gestorJuego?.gestorTurnos?.inicializarTurnos();
         
+        // Actualizar interfaz de combate
+        this.actualizarInterfazCombate();
+        
         // Actualizar interfaz
         this.actualizarBotonesFase();
     }
@@ -1854,6 +1857,24 @@ todosJugadoresListos() {
         }
 
         super.destruir();
+    }
+
+    actualizarInterfazCombate() {
+        console.log('[GestorFases] Actualizando interfaz para fase de combate');
+        
+        // Cambiar el menú radial al modo combate
+        if (window.miRadial && typeof window.miRadial.cambiarModo === 'function') {
+            window.miRadial.cambiarModo('combate');
+            console.log('[GestorFases] Menú radial cambiado a modo combate');
+        }
+        
+        // Actualizar panel de juego
+        if (this.gestorJuego?.gestorInterfaz?.actualizarPanelJuego) {
+            this.gestorJuego.gestorInterfaz.actualizarPanelJuego();
+        }
+        
+        // Ocultar botones de preparación y mostrar controles de combate
+        this.actualizarBotonesFase();
     }
 }
 

@@ -579,11 +579,13 @@ class GestorTurnos extends GestorBase {
             }
             
             // 9. Emitir evento para notificar el cambio
-            this.emitir('jugadorListo', {
-                jugador: jugadorActual,
-                todosListos: this.jugadores.every(j => j.listo),
-                timestamp: new Date().toISOString()
-            });
+            if (this.gestorComunicacion && this.gestorComunicacion.emitir) {
+                this.gestorComunicacion.emitir('jugadorListo', {
+                    jugador: jugadorActual,
+                    todosListos: this.jugadores.every(j => j.listo),
+                    timestamp: new Date().toISOString()
+                });
+            }
             
             return true;
         } catch (error) {

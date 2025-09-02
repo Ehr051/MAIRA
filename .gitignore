@@ -210,10 +210,10 @@ app_backup.py
 app_old.py
 app_complete.py
 
-# Archivos HTML temporales de testing
-gestionbatalla.html
-iniciarpartida.html
-inicioGB.html
-juegodeguerra.html
-planeamiento.html
+# Archivos HTML temporales de testing (NOTA: Los HTML principales están en static/ y son esenciales)
+# gestionbatalla.html - ESENCIAL: NO EXCLUIR
+# iniciarpartida.html - ESENCIAL: NO EXCLUIR  
+# inicioGB.html - ESENCIAL: NO EXCLUIR
+# juegodeguerra.html - ESENCIAL: NO EXCLUIR
+# planeamiento.html - ESENCIAL: NO EXCLUIR
 static-index.html

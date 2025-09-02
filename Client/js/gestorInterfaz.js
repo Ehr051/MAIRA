@@ -38,10 +38,10 @@ class GestorInterfaz extends GestorBase {
         mensajes.id = 'mensajes-container';
         mensajes.className = 'mensajes-container';
         
-        // Panel de estado del juego
+        // Panel de juego (reemplaza panel-estado)
         const panelEstado = document.createElement('div');
         panelEstado.id = 'estado-juego';
-        panelEstado.className = 'panel-estado';
+        panelEstado.className = 'panel-juego';
         
         interfaz.appendChild(mensajes);
         interfaz.appendChild(panelEstado);
@@ -99,16 +99,28 @@ class GestorInterfaz extends GestorBase {
                 background: rgba(255, 152, 0, 0.9);
             }
             
-            .panel-estado {
+            .panel-juego {
                 position: fixed;
                 top: 20px;
                 right: 20px;
                 background: white;
-                padding: 10px;
-                border-radius: 5px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                 pointer-events: auto;
-                min-width: 250px;
+                min-width: 280px;
+                z-index: 500;
+                border: 2px solid #007bff;
+            }
+
+            .panel-juego .header {
+                background: #007bff;
+                color: white;
+                padding: 8px 12px;
+                margin: -15px -15px 15px -15px;
+                border-radius: 6px 6px 0 0;
+                font-weight: bold;
+                text-align: center;
             }
 
             .fase-info, .subfase-info, .turno-info, .jugador-info {
@@ -245,6 +257,7 @@ class GestorInterfaz extends GestorBase {
         }
 
         this.contenedores.panelEstado.innerHTML = `
+            <div class="header">🎮 Panel de Juego</div>
             <div class="fase-info">Fase: ${estado.fase}</div>
             <div class="subfase-info">Subfase: ${estado.subfase}</div>
             ${estado.fase === 'combate' ? `<div class="turno-info">Turno: ${estado.turnoActual}</div>` : ''}
@@ -733,6 +746,22 @@ actualizarListaUnidadesDisponibles() {
             }
         } catch (error) {
             console.error('Error al centrar en zona de despliegue:', error);
+        }
+    }
+
+    actualizarPanelJuego() {
+        // Método para actualizar el panel cuando se cambia a fase de combate
+        console.log('[GestorInterfaz] Actualizando Panel de Juego para fase combate');
+        
+        if (this.gestorJuego?.gestorTurnos) {
+            const estadoActual = {
+                fase: this.gestorJuego.gestorTurnos.fase || 'combate',
+                subfase: this.gestorJuego.gestorTurnos.subfase || 'turno',
+                turnoActual: this.gestorJuego.gestorTurnos.turnoActual || 1,
+                jugadorActual: this.gestorJuego.gestorTurnos.obtenerJugadorActual?.() || null
+            };
+            
+            this.actualizarEstadoJuego(estadoActual);
         }
     }
 
