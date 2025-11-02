@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Sistema de Simulación Militar 3D</title>
+    <link rel="stylesheet" href="/maira-tasks/css/tasks.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet">
+</head>
+
+<body data-theme="dark">
+
+    <header class="main-header">
+        <div class="project-title-container">
+            <h1><i class="fa-solid fa-diagram-project"></i> <span id="project-name">Tablero de Tareas</span></h1>
+            <button id="editProjectNameBtn" class="header-btn" title="Editar nombre del proyecto"><i
+                    class="fa-solid fa-pencil"></i></button>
+        </div>
+        <div class="header-actions">
+            <button id="manageDevelopersBtn" class="header-btn" title="Gestionar Desarrolladores"><i
+                    class="fa-solid fa-users-gear"></i></button>
+            <button id="newProjectBtn" class="header-btn" title="Crear Nuevo Proyecto"><i
+                    class="fa-solid fa-folder-plus"></i></button>
+            <button id="messagingBtn" class="header-btn" title="Mensajería del Equipo"><i
+                    class="fa-solid fa-comments"></i><span id="messageNotificationDot" class="notification-dot"
+                    style="display: none;"></span></button>
+        </div>
+    </header>
+
+    <div class="project-overview">
+        <div class="project-stats">
+            <div class="stat-card">
+                <span id="totalTasksStat">0 Tareas</span>
+                <small>Total</small>
+            </div>
+            <div class="stat-card">
+                <span id="completedTasksStat">0 Completadas</span>
+                <small>Completadas</small>
+            </div>
+            <div class="progress-card">
+                <div class="progress-bar-container">
+                    <div id="projectProgressBar" class="progress-bar-fill"></div>
+                </div>
+                <span id="projectProgressPercentage">0%</span>
+            </div>
+        </div>
+        <div class="project-filters">
+            <div class="filter-group">
+                <span>Filtrar por prioridad:</span>
+                <button class="filter-priority-btn" data-priority="alta">Alta</button>
+                <button class="filter-priority-btn" data-priority="media">Media</button>
+                <button class="filter-priority-btn" data-priority="baja">Baja</button>
+            </div>
+            <div class="filter-group">
+                <span>Módulo:</span>
+                <select id="filterModuleSelect" class="filter-select">
+                    <option value="all">Todos</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <button id="sortDevOrderBtn" class="header-btn" title="Ordenar por orden de desarrollo"><i class="fa-solid fa-arrow-down-1-9"></i> Ordenar</button>
+            </div>
+            <div id="activeTagFilter" class="active-filter-container" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <main class="task-board">
+        <div class="board-column" data-status="planned">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-list-check"></i> Tareas Planeadas</h2>
+                <span class="task-count">0</span>
+                <button class="add-task-btn" id="addTaskBtn" title="Añadir nueva tarea"><i
+                        class="fa-solid fa-plus"></i></button>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+
+        <div class="board-column" data-status="in_progress">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-person-digging"></i> En Progreso</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+
+        <div class="board-column" data-status="completed">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-flag-checkered"></i> Terminadas</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+
+        <div class="board-column" data-status="undefined">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-circle-question"></i> Testing</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+
+        <div class="board-column" data-status="ready">
+            <div class="column-header">
+                <h2><i class="fa-solid fa-check-double"></i> Tarea Lista</h2>
+                <span class="task-count">0</span>
+            </div>
+            <div class="column-content">
+                <!-- Las tareas se insertarán aquí -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para Crear Tarea -->
+    <div id="createTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Crear Nueva Tarea</h2>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createTaskForm">
+                    <div class="form-group">
+                        <label for="taskTitle">Título de la Tarea</label>
+                        <input type="text" id="taskTitle" name="title" required
+                            placeholder="Ej: Diseñar la página de inicio">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDeveloper">Asignar a Desarrollador</label>
+                        <select id="taskDeveloper" name="developer">
+                            <!-- Opciones de desarrollador se insertarán aquí -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Prioridad</label>
+                        <select id="taskPriority" name="priority">
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDueDate">Fecha de Vencimiento</label>
+                        <input type="date" id="taskDueDate" name="dueDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskTags">Etiquetas</label>
+                        <input type="text" id="taskTags" name="tags" placeholder="Ej: diseño, frontend, urgente">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskModule">Módulo</label>
+                        <input type="text" id="taskModule" name="module"
+                            placeholder="Ej: Autenticación, Catálogo, Pagos">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDevOrder">Orden de Desarrollo</label>
+                        <input type="number" id="taskDevOrder" name="dev_order"
+                            placeholder="Ej: 1, 2, 3...">
+                    </div>
+                    <button type="submit" class="submit-btn">Crear Tarea</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Detalles de Tarea -->
+    <div id="taskDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailsTaskTitleHeader">Detalles de la Tarea</h2>
+                <button class="modal-close" id="closeDetailsModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskDetailsForm">
+                    <input type="hidden" id="detailsTaskId" name="taskId">
+                    <div class="form-group">
+                        <label for="detailsTaskTitle">Título de la Tarea</label>
+                        <input type="text" id="detailsTaskTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Asignar a Desarrolladores</label>
+                        <div id="detailsTaskDevelopers" class="checkbox-group">
+                            <!-- Las casillas de verificación para los desarrolladores se insertarán aquí -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="detailsTaskPriority">Prioridad</label>
+                        <select id="detailsTaskPriority" name="priority">
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="detailsTaskDueDate">Fecha de Vencimiento</label>
+                        <input type="date" id="detailsTaskDueDate" name="dueDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="detailsTaskTags">Etiquetas</label>
+                        <input type="text" id="detailsTaskTags" name="tags" placeholder="Ej: diseño, frontend, urgente">
+                    </div>
+                    <div class="form-group">
+                        <label for="detailsTaskModule">Módulo</label>
+                        <input type="text" id="detailsTaskModule" name="module"
+                            placeholder="Ej: Autenticación, Catálogo, Pagos">
+                    </div>
+                    <div class="form-group">
+                        <label for="detailsTaskDevOrder">Orden de Desarrollo</label>
+                        <input type="number" id="detailsTaskDevOrder" name="dev_order"
+                            placeholder="Ej: 1, 2, 3...">
+                    </div>
+                    <div class="form-group">
+                        <label for="taskNotes">Descripción / Observaciones</label>
+                        <textarea id="taskNotes" name="notes" rows="6"
+                            placeholder="Añade una descripción o notas para esta tarea..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subtareas</label>
+                        <div id="subtasksContainer">
+                            <!-- Las subtareas se insertarán aquí -->
+                        </div>
+                        <div class="add-subtask-form">
+                            <input type="text" id="newSubtaskTitle" placeholder="Nueva subtarea...">
+                            <button type="button" id="addSubtaskBtn">Añadir Subtarea</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Gestionar Desarrolladores -->
+    <div id="manageDevelopersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gestionar Desarrolladores</h2>
+                <button class="modal-close" id="closeDevelopersModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="developerListContainer">
+                    <!-- Lista de desarrolladores se insertará aquí -->
+                </div>
+                <form id="addDeveloperForm" class="add-developer-form">
+                    <input type="text" id="newDeveloperName" placeholder="Nombre del desarrollador" required>
+                    <button type="submit" class="submit-btn">Añadir Desarrollador</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Mensajería -->
+    <div id="messagingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-comments"></i> Mensajes del Equipo</h2>
+                <button class="modal-close" id="closeMessagingModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="messageListContainer" class="message-list-container">
+                    <!-- Los mensajes se insertarán aquí -->
+                </div>
+                <form id="postMessageForm" class="post-message-form">
+                    <div class="form-group">
+                        <label for="messageAuthor">Tu Nombre</label>
+                        <select id="messageAuthor" required>
+                            <!-- Opciones de desarrollador se insertarán aquí -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="newMessageContent">Mensaje</label>
+                        <textarea id="newMessageContent" placeholder="Escribe tu nota aquí..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Enviar Mensaje</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/maira-tasks/js/maira-tasks.js" defer></script>
+    <script>
+        // Debug: Forzar inicialización si no se ejecuta automáticamente
+        setTimeout(() => {
+            if (typeof init === 'function' && !window.mairaInitialized) {
+                console.log('🔧 Forzando inicialización de MAIRA...');
+                window.mairaInitialized = true;
+                init();
+            }
+        }, 1000);
+    </script>
+</body>
+
+</html>
