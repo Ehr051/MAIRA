@@ -14,7 +14,7 @@ let indiceCargado = false;
 // URLs de fallback para mini-tiles
 const MINI_TILES_FALLBACK_URLS = [
   '/api/proxy/github/',
-  '../Libs/datos_argentina/'
+  '../Client/Libs/datos_argentina/'
 ];
 
 // Cargar el índice de tiles al iniciar
@@ -35,8 +35,8 @@ const cargarIndiceTiles = new Promise((resolve, reject) => {
     // 🚀 PRIORIDAD 1: GitHub Release v4.0 (funciona en Render)
     '/api/proxy/github/master_mini_tiles_index.json',
     // 🏠 FALLBACK: Ruta relativa local (funciona en desarrollo)
-    '../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
-    '../Libs/datos_argentina/master_mini_tiles_index.json'
+    '../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json',
+    '../Client/Libs/datos_argentina/master_mini_tiles_index.json'
   ];
   
   // Intentar cargar desde cada URL secuencialmente
@@ -270,7 +270,7 @@ async function buscarTileEnProvincias(bounds) {
       let provincialUrl;
       
       // Intentar URL local primero
-      provincialUrl = `Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
+      provincialUrl = `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
       
       console.log(`📡 Cargando índice provincial desde: ${provincialUrl}`);
       
