@@ -93,8 +93,15 @@ function inicializarCuadroOrganizacion() {
       return;
     }
     
-    // Inicializar jsPlumb
-    window.jsPlumbInstance = jsPlumb.getInstance({
+    // ✅ Verificar que jsPlumb esté disponible
+    if (typeof jsPlumb === 'undefined') {
+        console.error('❌ jsPlumb no está disponible. Verifique que el script se esté cargando correctamente.');
+        // Continuar sin jsPlumb para evitar que el módulo falle completamente
+        window.jsPlumbInstance = null;
+        console.log('⚠️ Continuando sin jsPlumb - las conexiones no estarán disponibles');
+    } else {
+        // Inicializar jsPlumb
+        window.jsPlumbInstance = jsPlumb.getInstance({
       Connector: ["Flowchart", { cornerRadius: 5, stub: 10 }],
       Anchors: ["Bottom", "Top"],
       Endpoint: ["Dot", { radius: 2 }],
@@ -106,6 +113,7 @@ function inicializarCuadroOrganizacion() {
       ]
     });
     window.jsPlumbInstance.setContainer(canvas);
+    }
     
     // Inicializar símbolos
     inicializarSimbolos();
@@ -906,27 +914,6 @@ function configurarAtajosTeclado() {
 
 
 
-
-
-/* Seleccionar un elemento */
-function seleccionarElemento(el) {
-  // Deseleccionar elementos anteriores
-  deseleccionarElemento();
-  
-  // Marcar nuevo elemento como seleccionado
-  selectedElement = el;
-  if (selectedElement.classList) {
-    selectedElement.classList.add('selected');
-  }
-  
-  // Habilitar botón de eliminar en la barra de herramientas
-  var btnEliminar = document.getElementById('btnEliminar');
-  if (btnEliminar) {
-    btnEliminar.disabled = false;
-  }
-}
-
-
 function seleccionarElemento(elemento) {
     console.log('🎯 Seleccionando elemento:', elemento);
     
@@ -936,9 +923,12 @@ function seleccionarElemento(elemento) {
             return false;
         }
         
-        // ✅ VERIFICAR QUE EL ELEMENTO TENGA LAS PROPIEDADES NECESARIAS:
-        if (!elemento.setStyle || typeof elemento.setStyle !== 'function') {
-            console.warn('⚠️ Elemento no tiene método setStyle');
+        // ✅ MANEJAR ELEMENTOS DIV (SÍMBOLOS MILITARES) Y ELEMENTOS LEAFLET:
+        const esElementoDOM = elemento.nodeType === 1 || elemento.classList;
+        const esElementoLeaflet = elemento.setStyle && typeof elemento.setStyle === 'function';
+        
+        if (!esElementoDOM && !esElementoLeaflet) {
+            console.warn('⚠️ Elemento no es ni DIV ni objeto Leaflet válido');
             return false;
         }
         
@@ -950,7 +940,21 @@ function seleccionarElemento(elemento) {
         elementoSeleccionado = elemento;
         window.elementoSeleccionado = elemento; // ✅ TAMBIÉN GLOBAL
         
-        // Resto del código de selección...
+        // ✅ APLICAR ESTILOS DE SELECCIÓN SEGÚN EL TIPO:
+        if (esElementoDOM) {
+            // Para DIVs de símbolos militares
+            elemento.classList.add('selected');
+            elemento.style.border = '3px solid #ff6b35';
+            elemento.style.boxShadow = '0 0 15px rgba(255, 107, 53, 0.7)';
+        } else if (esElementoLeaflet) {
+            // Para elementos Leaflet
+            elemento.setStyle({
+                color: '#ff6b35',
+                weight: 5,
+                dashArray: '10, 5'
+            });
+        }
+        
         console.log('✅ Elemento seleccionado exitosamente');
         return true;
         
@@ -2138,11 +2142,11 @@ function agregarMarcador(sidc, nombre) {
         
         console.log("Clic en el canvas:", e.clientX, e.clientY);
         
-        // Obtener posición ajustada
+        // Obtener posición ajustada (MEJORADO - primera inserción)
         var rect = canvas.getBoundingClientRect();
-        var scale = getCurrentScale();
-        var x = (e.clientX - rect.left) / scale;
-        var y = (e.clientY - rect.top) / scale;
+        var scale = getCurrentScale() || 1; // Evitar división por 0
+        var x = (e.clientX - rect.left - canvas.offsetLeft) / scale;
+        var y = (e.clientY - rect.top - canvas.offsetTop) / scale;
         
         // Ajustar a la cuadrícula
         var left = Math.round(x / 10) * 10;
@@ -3215,4 +3219,32 @@ window.MAIRA.CuadroOrganizacion.notificaciones = {
     obtenerIcono: function(tipo) { /* iconos por tipo */ },
     agregarEstilos: function() { /* CSS automático */ }
 };
+
+/**
+ * Función global para seleccionar elementos en CO
+ */
+function seleccionarElemento(elemento) {
+    console.log('🎯 CO: Seleccionando elemento:', elemento);
+    
+    // Deseleccionar elemento anterior
+    if (selectedElement && selectedElement !== elemento) {
+        if (selectedElement.classList) {
+            selectedElement.classList.remove('selected');
+        }
+    }
+    
+    // Seleccionar nuevo elemento
+    selectedElement = elemento;
+    window.elementoSeleccionado = elemento;
+    
+    if (elemento && elemento.classList) {
+        elemento.classList.add('selected');
+    }
+    
+    console.log('✅ CO: Elemento seleccionado correctamente');
+}
+
+// Exportar función globalmente para compatibilidad
+window.seleccionarElemento = seleccionarElemento;
+
 console.log('✅ CO.js v2.1.0 - Mejoras integradas');

@@ -4,17 +4,63 @@ let partidaActual = null;
 let usuariosConectados = new Map();
 let listaAmigos = new Set();
 let modoSeleccionado = null;
+let socket = null;
+let userId = null;
+let userName = null;
 
+// 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
+console.log('🚀 Inicializando iniciarpartida (ejecución inmediata)');
 
-document.addEventListener('DOMContentLoaded', inicializarAplicacion);
+// Verificar si el DOM está listo, si no esperar
+if (document.readyState === 'loading') {
+    console.log("⏳ DOM aún cargando, esperando...");
+    document.addEventListener('DOMContentLoaded', inicializarAplicacion);
+} else {
+    console.log("✅ DOM ya cargado, inicializando iniciarpartida inmediatamente");
+    inicializarAplicacion();
+}
+
+// Función auxiliar para generar ID de usuario
+function generateUserId() {
+    return Math.floor(Math.random() * 10000) + 1;
+}
 
 function inicializarAplicacion() {
-    userId = localStorage.getItem('userId');
-    userName = localStorage.getItem('username');
+    console.log('🚀 Ejecutando inicialización de iniciarpartida');
+    
+    // Verificar si MAIRA.UserIdentity está disponible
+    if (!window.MAIRA || !window.MAIRA.UserIdentity) {
+        console.warn('⚠️ MAIRA.UserIdentity no disponible, usando datos de localStorage');
+        userId = localStorage.getItem('userId') || generateUserId();
+        userName = localStorage.getItem('username') || 'Usuario';
+        console.log('📝 Usuario fallback:', { userId, userName });
+        return;
+    }
+    
+    // Usar UserIdentity como fuente principal (coherencia en todo MAIRA)
+    const userData = MAIRA.UserIdentity.getUserData();
+    
+    if (userData && userData.id) {
+        userId = userData.id;
+        userName = userData.nombre || userData.username;
+        
+        // Sincronizar con localStorage
+        localStorage.setItem('userId', userId);
+        localStorage.setItem('username', userName);
+        
+        console.log('📊 Usuario cargado desde UserIdentity:', { id: userId, nombre: userName });
+    } else {
+        // Fallback a localStorage
+        userId = localStorage.getItem('userId');
+        userName = localStorage.getItem('username');
+    }
+    
     if (!userId || !userName) {
+        console.error('❌ No se pudieron obtener datos de usuario');
         window.location.href = 'index.html';
         return;
     }
+    
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();
@@ -219,91 +265,49 @@ function continuarConfiguracionJugadores() {
     }
 }
 
-function volverConfiguracionGeneral() {
-    document.getElementById('configuracionJugadoresLocal').style.display = 'none';
-    document.getElementById('configuracionGeneralLocal').style.display = 'block';
-}
-
-function iniciarJuegoLocalDesdeUI() {
-    if (validarConfiguracionJugadores()) {
-        const configuracion = recopilarConfiguracionPartida();
-        localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
-        window.location.href = 'juegodeguerra.html';
-    }
-}
-
 function validarConfiguracionGeneral() {
     const nombrePartida = document.getElementById('nombrePartidaLocal').value.trim();
     const duracionPartida = parseInt(document.getElementById('duracionPartidaLocal').value);
     const duracionTurno = parseInt(document.getElementById('duracionTurnoLocal').value);
-    const objetivo = document.getElementById('objetivoPartidaLocal').value.trim();
+    const objetivoPartida = document.getElementById('objetivoPartidaLocal').value.trim();
+    const cantidadJugadores = parseInt(document.getElementById('cantidadJugadoresLocal').value);
 
-    if (!nombrePartida) {
-        mostrarError('Por favor, ingrese un nombre para la partida.');
+    // Validar nombre de partida
+    if (!nombrePartida || nombrePartida.length < 3) {
+        mostrarError('El nombre de la partida debe tener al menos 3 caracteres');
         return false;
     }
 
-    if (isNaN(duracionPartida) || duracionPartida < 30 || duracionPartida > 240) {
-        mostrarError('La duración de la partida debe ser entre 30 y 240 minutos.');
+    // Validar duración de partida
+    if (!duracionPartida || duracionPartida < 10 || duracionPartida > 480) {
+        mostrarError('La duración de la partida debe estar entre 10 y 480 minutos');
         return false;
     }
 
-    if (isNaN(duracionTurno) || duracionTurno < 1 || duracionTurno > 30) {
-        mostrarError('La duración del turno debe ser entre 1 y 30 minutos.');
+    // Validar duración del turno
+    if (!duracionTurno || duracionTurno < 1 || duracionTurno > 60) {
+        mostrarError('La duración del turno debe estar entre 1 y 60 minutos');
         return false;
     }
 
-    if (!objetivo) {
-        mostrarError('Por favor, ingrese un objetivo para la partida.');
+    // Validar objetivo de partida
+    if (!objetivoPartida || objetivoPartida.length < 5) {
+        mostrarError('El objetivo de la partida debe tener al menos 5 caracteres');
+        return false;
+    }
+
+    // Validar cantidad de jugadores
+    if (!cantidadJugadores || cantidadJugadores < 2 || cantidadJugadores > 6) {
+        mostrarError('La cantidad de jugadores debe estar entre 2 y 6');
         return false;
     }
 
     return true;
 }
 
-function validarConfiguracionJugadores() {
-    const jugadores = document.querySelectorAll('#jugadoresLocal tbody tr');
-    const nombresJugadores = new Set();
-
-    for (let i = 0; i < jugadores.length; i++) {
-        const nombreJugador = jugadores[i].querySelector('input[type="text"]').value.trim();
-        if (!nombreJugador) {
-            mostrarError(`Por favor, ingrese un nombre para el Jugador ${i + 1}.`);
-            return false;
-        }
-        if (nombresJugadores.has(nombreJugador)) {
-            mostrarError(`El nombre "${nombreJugador}" está duplicado. Por favor, use nombres únicos.`);
-            return false;
-        }
-        nombresJugadores.add(nombreJugador);
-    }
-
-    return true;
-}
-
-function recopilarConfiguracionPartida() {
-    const configuracion = {
-        nombrePartida: document.getElementById('nombrePartidaLocal').value.trim(),
-        duracionPartida: parseInt(document.getElementById('duracionPartidaLocal').value),
-        duracionTurno: parseInt(document.getElementById('duracionTurnoLocal').value),
-        objetivoPartida: document.getElementById('objetivoPartidaLocal').value.trim(),
-        cantidadJugadores: parseInt(document.getElementById('cantidadJugadoresLocal').value),
-        jugadores: []
-    };
-
-    const jugadoresElements = document.querySelectorAll('#jugadoresLocal tbody tr');
-    jugadoresElements.forEach((jugadorElement, index) => {
-        configuracion.jugadores.push({
-            id: `local_player_${index + 1}`, // ✅ ASIGNAR ID ÚNICO PARA MODO LOCAL
-            nombre: jugadorElement.querySelector('input[type="text"]').value.trim(),
-            username: jugadorElement.querySelector('input[type="text"]').value.trim(), // Alias para compatibilidad
-            equipo: jugadorElement.querySelector('select').value,
-            ia: jugadorElement.querySelector('input[type="checkbox"]').checked,
-            esLocal: true // ✅ MARCAR COMO JUGADOR LOCAL
-        });
-    });
-
-    return configuracion;
+function volverConfiguracionGeneral() {
+    document.getElementById('configuracionJugadoresLocal').style.display = 'none';
+    document.getElementById('configuracionGeneralLocal').style.display = 'block';
 }
 
 function actualizarListaJugadoresLocal() {
@@ -334,7 +338,97 @@ function manejarInvitacionRecibida(data) {
     }
 }
 
+function unirseAPartida(codigo) {
+    console.log('🎯 Función unirseAPartida llamada con código:', codigo);
+    
+    // Si no se proporciona código, obtenerlo del formulario
+    if (!codigo) {
+        codigo = document.getElementById('codigoPartida')?.value?.trim();
+    }
+    
+    if (typeof codigo !== 'string' || codigo.length === 0) {
+        console.error('❌ El código de partida no es válido:', codigo);
+        mostrarError('Código de partida no válido');
+        return;
+    }
 
+    console.log('✅ Intentando unirse a la partida con código:', codigo);
+    mostrarIndicadorCarga();
+
+    // Si ya estamos en la partida con el mismo código, redirigimos a la sala de espera
+    if (partidaActual && partidaActual.codigo === codigo) {
+        console.log('ℹ️ Ya estás en esta partida, mostrando sala de espera');
+        mostrarSalaEspera(partidaActual);
+        ocultarIndicadorCarga();
+        return;
+    }
+
+    // Si ya estamos en otra partida, salimos de la partida actual antes de unirnos a otra
+    if (partidaActual) {
+        console.log('🔄 Ya estás en una partida. Saliendo de la partida actual antes de unirse a otra.');
+        socket.emit('salirPartida', { codigo: partidaActual.codigo }, () => {
+            partidaActual = null; // Limpiar la partida actual antes de unirse a la nueva
+            emitirUnirseAPartida(codigo);
+        });
+    } else {
+        emitirUnirseAPartida(codigo);
+    }
+}
+
+function emitirUnirseAPartida(codigo) {
+    console.log('Emitiendo evento unirseAPartida con:', {
+        codigo: codigo,
+        userId: userId, 
+        userName: userName
+    });
+    
+    socket.emit('unirseAPartida', { 
+        codigo: codigo,
+        userId: userId,
+        userName: userName
+    });
+
+    // Configurar listeners para manejar respuestas
+    socket.once('unidoAPartida', function(datosPartida) {
+        ocultarIndicadorCarga();
+        console.log("Unido a la partida con éxito:", datosPartida);
+        
+        // Guardar datos para transición a juegodeguerra.html
+        partidaActual = datosPartida;
+        
+        // ✅ GUARDAR EN LOCALSTORAGE PARA GESTORJUEGO.JS
+        if (datosPartida && datosPartida.configuracion) {
+            localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
+            console.log('💾 Configuración guardada en localStorage al unirse:', datosPartida.configuracion);
+        }
+        
+        // Encontrar el equipo del jugador
+        const miJugador = datosPartida.jugadores.find(j => j.id === userId);
+        const equipoJugador = miJugador ? miJugador.equipo : null;
+        
+        // Guardar en sessionStorage para mantener durante navegación
+        sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+            partidaActual: datosPartida,
+            userId: userId,
+            userName: userName,
+            equipoJugador: equipoJugador
+        }));
+        
+        // Mostrar sala de espera
+        mostrarSalaEspera(datosPartida);
+        
+        // Cambiar de sala para el chat
+        if (window.cambiarSalaChat) {
+            window.cambiarSalaChat(codigo);
+        }
+    });
+
+    socket.once('errorUnirseAPartida', function(error) {
+        ocultarIndicadorCarga();
+        console.error('Error al unirse a la partida:', error);
+        mostrarError(error.mensaje || 'Error al unirse a la partida');
+    });
+}
 
 function limpiarFormularioCrearPartida() {
     document.getElementById('nombrePartida').value = '';
@@ -360,9 +454,127 @@ function iniciarJuego(data) {
     }
 }
 
+/**
+ * Inicia un juego local guardando la configuración temporalmente
+ */
+function iniciarJuegoLocal() {
+    try {
+        console.log('🎮 Iniciando juego local...');
+
+        // Recopilar configuración de la interfaz
+        const configuracion = recopilarConfiguracionPartida();
+
+        if (!validarConfiguracionGeneralObjeto(configuracion)) {
+            return;
+        }
+
+        // Guardar configuración temporal en localStorage
+        localStorage.setItem('configuracionPartidaTemporal', JSON.stringify(configuracion));
+        console.log('💾 Configuración guardada temporalmente:', configuracion);
+
+        // Crear datos de partida local simulados
+        const datosPartidaLocal = {
+            codigo: 'LOCAL_' + Date.now(),
+            configuracion: configuracion,
+            jugadores: [],
+            creadorId: userId,
+            modo: 'local'
+        };
+
+        // Guardar datos de partida en sessionStorage
+        sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+            partidaActual: datosPartidaLocal,
+            userId: userId,
+            userName: userName,
+            modo: 'local'
+        }));
+
+        // Redirigir a juegodeguerra.html
+        window.location.href = 'juegodeguerra.html?modo=local';
+
+    } catch (error) {
+        console.error('❌ Error al iniciar juego local:', error);
+        mostrarError('Error al iniciar el juego local');
+    }
+}
+
+/**
+ * Recopila la configuración de la partida desde la interfaz
+ */
+function recopilarConfiguracionPartida() {
+    const duracionPartida = parseInt(document.getElementById('duracionPartida')?.value) || 30;
+    const duracionTurno = parseInt(document.getElementById('duracionTurno')?.value) || 1;
+    const nombrePartida = document.getElementById('nombrePartida')?.value || 'Partida Local';
+    const objetivoPartida = document.getElementById('objetivoPartida')?.value || 'Objetivo no especificado';
+
+    return {
+        nombrePartida,
+        duracionPartida,
+        duracionTurno,
+        objetivoPartida,
+        modo: 'local',
+        fechaCreacion: new Date().toISOString()
+    };
+}
+
+/**
+ * Valida la configuración general de la partida desde un objeto
+ */
+function validarConfiguracionGeneralObjeto(config) {
+    if (!config.nombrePartida || config.nombrePartida.trim() === '') {
+        mostrarError('El nombre de la partida es obligatorio');
+        return false;
+    }
+
+    if (config.duracionTurno < 1 || config.duracionTurno > 60) {
+        mostrarError('La duración del turno debe estar entre 1 y 60 minutos');
+        return false;
+    }
+
+    if (config.duracionPartida < 10 || config.duracionPartida > 480) {
+        mostrarError('La duración de la partida debe estar entre 10 y 480 minutos');
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Maneja el clic en el botón "Iniciar Juego Local" desde la UI
+ */
+function iniciarJuegoLocalDesdeUI() {
+    console.log('🎮 Iniciando juego local desde UI...');
+
+    // Validar configuración de jugadores
+    if (!validarConfiguracionJugadores()) {
+        return;
+    }
+
+    // Iniciar juego local
+    iniciarJuegoLocal();
+}
+
+/**
+ * Valida la configuración de jugadores para partida local
+ */
+function validarConfiguracionJugadores() {
+    const cantidadJugadores = parseInt(document.getElementById('cantidadJugadoresLocal')?.value) || 2;
+
+    if (cantidadJugadores < 2 || cantidadJugadores > 8) {
+        mostrarError('La cantidad de jugadores debe estar entre 2 y 8');
+        return false;
+    }
+
+    // Aquí se pueden agregar más validaciones según sea necesario
+
+    return true;
+}
+
 
 async function inicializarSocket() {
-    console.log('Conectando al servidor:', SERVER_URL);
+    // Verificar que SERVER_URL esté disponible
+    const serverUrl = window.SERVER_URL || 'http://localhost:5000';
+    console.log('Conectando al servidor:', serverUrl);
     
     try {
         // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
@@ -370,14 +582,12 @@ async function inicializarSocket() {
         let token = null;
         
         // Intentar obtener desde UserIdentity primero
-        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
-            const userId = MAIRA.UserIdentity.getUserId();
-            const username = MAIRA.UserIdentity.getUsername();
-            const userData = MAIRA.UserIdentity.getUserData();
+        if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.estaAutenticado()) {
+            const userData = MAIRA.UserIdentity.obtenerUsuario();
             userInfo = {
-                id: userId,
-                username: username,
-                token: userData.token || localStorage.getItem('authToken')
+                id: userData.id,
+                username: userData.nombre,
+                token: localStorage.getItem('authToken')
             };
             token = userInfo.token;
             console.log('🔧 Usando datos de UserIdentity:', userInfo);
@@ -388,11 +598,18 @@ async function inicializarSocket() {
             console.log('🔧 Usando datos de localStorage:', userInfo);
         }
         
+        // ✅ Verificar que socket.io esté disponible
+        if (typeof io === 'undefined') {
+            console.error('❌ Socket.IO no está disponible. Verifique que el script se esté cargando correctamente.');
+            mostrarError('Error de conexión: Socket.IO no disponible');
+            return;
+        }
+        
         socket = io(SERVER_URL, {
-            transports: ['polling'],  // Solo polling para Render
+            transports: ['websocket', 'polling'],  // ✅ Habilitar websockets + polling fallback
             timeout: 30000,
             forceNew: true,
-            upgrade: false,  // No intentar upgrade a websocket
+            upgrade: true,  // ✅ Permitir upgrade a websocket para mejor rendimiento
             auth: {
                 token: token,
                 userId: userInfo.id,
@@ -407,12 +624,11 @@ async function inicializarSocket() {
             // ✅ ENVIAR AUTENTICACIÓN INMEDIATAMENTE DESPUÉS DE CONECTAR
             // Re-obtener datos más actualizados en caso de que hayan cambiado
             let currentUserInfo = userInfo;
-            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
-                const userId = MAIRA.UserIdentity.getUserId();
-                const username = MAIRA.UserIdentity.getUsername();
+            if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.estaAutenticado()) {
+                const userData = MAIRA.UserIdentity.obtenerUsuario();
                 currentUserInfo = {
-                    id: userId,
-                    username: username
+                    id: userData.id,
+                    username: userData.nombre
                 };
             }
             
@@ -597,7 +813,7 @@ async function inicializarSocket() {
 
 function manejarConexion() {
     console.log('Conectado al servidor');
-    socket.emit('login', { userId, username: userName });
+    socket.emit('login', { user_id: userId, username: userName });
 
     // Solicitar listas después de conectarse al servidor
     console.log('Solicitando listas después de conectarse');
@@ -633,6 +849,72 @@ function obtenerPartidasDisponibles() {
         socket.emit('obtenerPartidasDisponibles');
     } else {
         console.error('El socket no está conectado. No se puede solicitar la lista de partidas disponibles.');
+    }
+}
+
+function crearPartida(e) {
+    e.preventDefault();
+    
+    console.log('🎮 Validando antes de crear partida...');
+    
+    // Verificar conexión de socket
+    if (!socket || !socket.connected) {
+        console.error('❌ Socket no conectado');
+        mostrarError('Error: No hay conexión con el servidor. Intentar reconectar.');
+        return;
+    }
+    
+    // Verificar datos de usuario usando UserIdentity
+    let currentUserId, currentUserName;
+    
+    if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+        currentUserId = MAIRA.UserIdentity.getUserId();
+        currentUserName = MAIRA.UserIdentity.getUsername();
+    } else {
+        // Fallback a variables globales
+        currentUserId = userId;
+        currentUserName = userName;
+    }
+    
+    if (!currentUserId || !currentUserName) {
+        console.error('❌ Datos de usuario no configurados');
+        mostrarError('Error: Datos de usuario no configurados. Redirigir a inicio.');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    console.log(`✅ Usuario validado: ${currentUserName} (${currentUserId})`);
+    
+    // Asegurar variables globales para compatibilidad
+    window.userId = currentUserId;
+    window.userName = currentUserName;
+    
+    console.log('✅ Validaciones pasadas, continuando...');
+    
+    const nombrePartida = document.getElementById('nombrePartida').value;
+    const duracionPartida = document.getElementById('duracionPartida').value;
+    const duracionTurno = document.getElementById('duracionTurno').value;
+    const objetivoPartida = document.getElementById('objetivoPartida').value;
+    
+    if (!nombrePartida || !duracionPartida || !duracionTurno || !objetivoPartida) {
+        mostrarError('Por favor, complete todos los campos');
+        return;
+    }
+    
+    const configuracion = {
+        nombrePartida,
+        duracionPartida,
+        duracionTurno,
+        objetivoPartida,
+        modo: modoSeleccionado,
+        creadorId: currentUserId
+    };
+
+    if (modoSeleccionado === 'local') {
+        iniciarJuegoLocal(configuracion);
+    } else {
+        console.log('🚀 Enviando crear partida al servidor...');
+        socket.emit('crearPartida', { configuracion });
     }
 }
 
@@ -694,11 +976,30 @@ function crearPartidaOnline() {
     };
     
     console.log('🚀 Enviando crear partida al servidor...');
+    console.log('🔍 DEBUG - Socket conectado:', socket.connected);
+    console.log('🔍 DEBUG - Socket ID:', socket.id);
+    console.log('🔍 DEBUG - Configuración a enviar:', configuracion);
     
     // Configurar listeners para respuesta del servidor
     socket.once('partidaCreada', function(datosPartida) {
+        clearTimeout(timeoutId); // ✅ Limpiar timeout al recibir respuesta
         console.log('✅ Partida creada exitosamente:', datosPartida);
         partidaActual = datosPartida;
+        
+        // ✅ GUARDAR CONFIGURACIÓN EN LOCALSTORAGE PARA GESTORJUEGO.JS
+        if (datosPartida && datosPartida.configuracion) {
+            localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
+            console.log('💾 Configuración guardada en localStorage:', datosPartida.configuracion);
+            
+            // ✅ TAMBIÉN GUARDAR EN SESSIONSTORAGE PARA CONSISTENCIA
+            sessionStorage.setItem('datosPartidaActual', JSON.stringify({
+                partidaActual: datosPartida,
+                userId: userId,
+                userName: userName,
+                equipoJugador: 'sin_equipo'  // Valor por defecto para partida nueva
+            }));
+            console.log('💾 Datos completos guardados en sessionStorage');
+        }
         
         // Limpiar formulario
         limpiarFormularioCrearPartida();
@@ -713,12 +1014,28 @@ function crearPartidaOnline() {
     });
     
     socket.once('errorCrearPartida', function(error) {
+        clearTimeout(timeoutId); // ✅ Limpiar timeout al recibir error
         console.error('❌ Error al crear partida:', error);
         alert(error.mensaje || 'Error al crear la partida');
     });
     
+    // ✅ TIMEOUT DE SEGURIDAD para detectar si servidor no responde
+    const timeoutId = setTimeout(() => {
+        console.warn('⏰ TIMEOUT: El servidor no respondió en 10 segundos');
+        console.log('🔍 DEBUG - Estado del socket después de timeout:', {
+            connected: socket.connected,
+            id: socket.id,
+            readyState: socket.io?.readyState
+        });
+        alert('El servidor está tardando en responder. Por favor, inténtalo de nuevo.');
+    }, 10000);
+    
+    // ✅ TIMEOUT MANEJADO EN EL LISTENER PRINCIPAL - NO DUPLICAR LISTENERS
+    
     // Emitir evento para crear partida
+    console.log('📤 Emitiendo evento crearPartida...');
     socket.emit('crearPartida', { configuracion });
+    console.log('📤 Evento emitido, esperando respuesta...');
 }
 
 function mostrarSalaEspera(datosPartida) {
@@ -735,9 +1052,13 @@ function mostrarSalaEspera(datosPartida) {
         // Actualizar información de la partida
         const nombrePartidaSala = document.getElementById('nombrePartidaSala');
         const codigoPartidaSala = document.getElementById('codigoPartidaSala');
-        
-        if (nombrePartidaSala) nombrePartidaSala.textContent = datosPartida.configuracion.nombrePartida;
-        if (codigoPartidaSala) codigoPartidaSala.textContent = datosPartida.codigo;
+
+        if (nombrePartidaSala && datosPartida?.configuracion?.nombrePartida) {
+            nombrePartidaSala.textContent = datosPartida.configuracion.nombrePartida;
+        }
+        if (codigoPartidaSala && datosPartida?.codigo) {
+            codigoPartidaSala.textContent = datosPartida.codigo;
+        }
         
         // Actualizar lista de jugadores
         if (datosPartida.jugadores) {
@@ -791,6 +1112,27 @@ window.manejarReconexion = manejarReconexion;
 window.manejarErrorConexion = manejarErrorConexion;
 window.inicializarEventListeners = inicializarEventListeners;
 window.inicializarInterfazUsuario = inicializarInterfazUsuario;
+// ✅ FUNCIONES AUXILIARES FALTANTES
+function mostrarIndicadorCarga() {
+    const indicador = document.getElementById('indicadorCarga');
+    if (indicador) {
+        indicador.style.display = 'block';
+    }
+}
+
+function ocultarIndicadorCarga() {
+    const indicador = document.getElementById('indicadorCarga');
+    if (indicador) {
+        indicador.style.display = 'none';
+    }
+}
+
+function mostrarError(mensaje) {
+    console.error('❌ Error:', mensaje);
+    alert(mensaje); // Por ahora usar alert, después se puede mejorar con modal
+}
+
+// ✅ EXPORTACIONES GLOBALES
 window.actualizarInfoUsuario = actualizarInfoUsuario;
 window.cambiarModoJuego = cambiarModoJuego;
 window.mostrarFormularioCrearPartida = mostrarFormularioCrearPartida;
@@ -817,9 +1159,40 @@ window.recopilarConfiguracionPartida = recopilarConfiguracionPartida;
 window.actualizarListaJugadoresLocal = actualizarListaJugadoresLocal;
 window.manejarConexion = manejarConexion;
 window.unirseAPartida = unirseAPartida;
+window.crearPartida = crearPartida;
 window.crearPartidaOnline = crearPartidaOnline;
+window.iniciarJuegoLocal = iniciarJuegoLocal;
 window.mostrarSalaEspera = mostrarSalaEspera;
 window.actualizarListaJugadoresSala = actualizarListaJugadoresSala;
+
+// Función para inicializar el chat
+window.inicializarChat = function(socketInstance) {
+    try {
+        console.log('💬 Inicializando chat en iniciarpartida...');
+        
+        if (typeof MAIRAChat !== 'undefined') {
+            const exito = MAIRAChat.inicializar({
+                socket: socketInstance,
+                usuario: userName || 'Usuario',
+                modulo: 'iniciarpartida'
+            });
+            
+            if (exito) {
+                console.log('✅ Chat inicializado correctamente en iniciarpartida');
+                return true;
+            } else {
+                console.warn('⚠️ Falló inicialización del chat en iniciarpartida');
+                return false;
+            }
+        } else {
+            console.error('❌ MAIRAChat no disponible en iniciarpartida');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Error al inicializar chat en iniciarpartida:', error);
+        return false;
+    }
+};
 
 // Inicialización cuando se carga la página
 window.onload = function() {
