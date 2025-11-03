@@ -1,0 +1,2699 @@
+networkConfig.js:24 URLs configuradas: Object
+index.html:438 Live reload enabled.
+M.A.I.R.A..gif:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+config.js:44 🚀 MAIRA Frontend configurado para: production
+config.js:45 📡 Servidor: http://127.0.0.1:5500
+landing3d.js:11 Inicializando landing page 3D
+landing3d.js:159 Configurando enlaces del menú lateral
+landing3d.js:129 Configurando botón 'Conocer más'
+landing3d.js:195 Inicializando smooth scroll
+landing3d.js:198 Verificando secciones:
+landing3d.js:201 - Sección #sobre-maira: EXISTE
+landing3d.js:201 - Sección #origen: EXISTE
+landing3d.js:201 - Sección #caracteristicas: EXISTE
+landing3d.js:201 - Sección #modos: EXISTE
+landing3d.js:201 - Sección #aplicaciones: EXISTE
+landing3d.js:201 - Sección #estado-actual: EXISTE
+landing3d.js:201 - Sección #contacto: EXISTE
+validacion.js:6 DOM fully loaded
+validacion.js:57 Event listeners added
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"contrasena" name=​"contrasena" required>​
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"nuevaContrasena" name=​"nuevaContrasena" required>​
+:5500/health:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+config.js:55 ⚠️ Servidor no disponible: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anónimo) @ config.js:55
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/planeamiento.html.
+planeamiento.html:15 A preload for 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.
+planeamiento.html:1 Refused to apply style from 'http://127.0.0.1:5500/MAIRA-4.0/node_modules/bootstrap/dist/css/bootstrap.min.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+planeamiento.html:1 Refused to apply style from 'http://127.0.0.1:5500/MAIRA-4.0/Client/css/modules/juegodeguerra/hexgrid.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+planeamiento.html:1 Refused to apply style from 'http://127.0.0.1:5500/MAIRA-4.0/Client/css/common/mairaRadialMenu.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+planeamiento.html:120  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/elementoModelo3DMapper.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:121  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sidcModelo3DBridge.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:122  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaJerarquicoSIDC.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:123  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaFormacionesMilitares.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:124  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/tactico3dIntegration.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:125  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/visorMapa3DMejorado.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:126  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaTerrenoRealista.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:134  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/paneles.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:139  GET http://127.0.0.1:5500/node_modules/socket.io/client-dist/socket.io.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:143  GET http://127.0.0.1:5500/node_modules/pako/dist/pako.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:149  GET http://127.0.0.1:5500/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:150  GET http://127.0.0.1:5500/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:151  GET http://127.0.0.1:5500/node_modules/leaflet-measure/dist/leaflet-measure.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:152  GET http://127.0.0.1:5500/node_modules/leaflet-easybutton/src/easy-button.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:153  GET http://127.0.0.1:5500/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:154  GET http://127.0.0.1:5500/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:155  GET http://127.0.0.1:5500/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:156  GET http://127.0.0.1:5500/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:157  GET http://127.0.0.1:5500/node_modules/leaflet-search/dist/leaflet-search.src.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:158  GET http://127.0.0.1:5500/node_modules/file-saver/dist/FileSaver.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:159  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/leaflet-pattern/dist/leaflet.pattern.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:163  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/core/UserIdentity.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:164  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/utils/sessionManager.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:174  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/adapters/VegetationAdapter.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:178  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/servicesManager.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:179  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/transitabilityService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:180  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/slopeAnalysisService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:181  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/elevationProfileService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:183  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/shared/sistemaZoomMultiNivel.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:191  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/utils/geometryUtils.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:192  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/mobileOptimizationHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:193  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/mapInteractionHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:194  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/measurementHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:199  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/EventBus.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:200  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/pendienteHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:201  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/transitabilidadHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:202  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/searchHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:203  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/testHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:233  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/testPlaneamiento.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:234  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/autoTest.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:235  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/visualizadorTests.js net::ERR_ABORTED 404 (Not Found)
+networkConfig.js:24 URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+milsymbol.js:27 milsymbol.js 2.0.0 - Copyright (c) 2018 Måns Beckman  http://www.spatialillusions.com
+planeamiento.html:64 🔄 Cargando THREE.js...
+modelos3DManager.js:11 ⏳ THREE.js aún no disponible - Modelos3DManager esperará...
+Modelos3DManager @ modelos3DManager.js:11
+(anónimo) @ modelos3DManager.js:1014
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+planeamiento.js:832 ✅ Sistema de Planeamiento modular cargado
+terrainAdapter.js:22 🔄 Intentando cargar master_mini_tiles_index.json...
+terrainAdapter.js:48 📡 Intentando cargar desde: /api/proxy/github/master_mini_tiles_index.json
+terrainAdapter.js:788 🚀 Inicializando terrainAdapter (ejecución inmediata)
+terrainAdapter.js:792 ⏳ DOM aún cargando, esperando...
+geospatialInit.js:23 🌍 Inicializando servicios geoespaciales optimizados...
+geospatialInit.js:51 ❌ VegetationAdapter no cargado
+initializeGeospatialServices @ geospatialInit.js:51
+(anónimo) @ geospatialInit.js:188
+elevationHandler.js:76 🔄 Cargando master_mini_tiles_index.json desde archivos locales...
+elevationHandler.js:94 📡 Intentando cargar desde: ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+elevationHandler.js:1320 ✅ window.elevationHandler definido con getElevationBatch: function
+vegetacionhandler.js:33 🌍 VegetacionHandler entorno: LOCAL
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+vegetacionhandler.js:651 🌿 VegetationHandler inicializado automáticamente con métodos extendidos
+performanceOptimizer.js:44 🚀 PerformanceOptimizer inicializado
+performanceOptimizer.js:714 🚀 PerformanceOptimizer cargado y funciones exportadas al scope global
+mapaP.js:447 🔍 DetectorZoom3D no disponible aún - se inicializará automáticamente
+calcosP.js:681 🔍 Calcos inicializados correctamente
+herramientasP.js:3149 ✅ Perfil de elevación con D3.js restaurado
+herramientasP.js:3150 ✅ Todas las funciones de herramientasP exportadas al scope global
+herramientasP.js:3151 ✅ Funciones de gráfico agregadas al scope global
+fontAwesomeTest.js:153 📦 Font Awesome Test & Fix cargado
+toolsInitializer.js:3 toolsInitializer.js loaded
+atajosP.js:453 MAIRA Atajos inicializado para macOS - 27 atajos disponibles
+mairaRadialMenu.js:8 🎯 Inicializando MAIRA Radial Menu System
+indexP.js:9 🚀 Inicializando indexP (ejecución inmediata)
+indexP.js:13 ⏳ DOM aún cargando, esperando...
+  GET http://127.0.0.1:5500/api/proxy/github/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ js/infrastructure/terrainAdapter.js:26
+(anónimo) @ js/infrastructure/terrainAdapter.js:49
+(anónimo) @ js/infrastructure/terrainAdapter.js:91
+(anónimo) @ js/infrastructure/terrainAdapter.js:21
+terrainAdapter.js:82 ⚠️ Error cargando desde /api/proxy/github/master_mini_tiles_index.json: HTTP 404 para /api/proxy/github/master_mini_tiles_index.json
+(anónimo) @ terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:48 📡 Intentando cargar desde: ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+elevationHandler.js:80  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: ../Libs/datos_argentina/master_mini_tiles_index.json
+vegetacionhandler.js:54  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ vegetacionhandler.js:54
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: ./Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+planeamiento.html:1074 ⚠️ Socket.IO no disponible
+(anónimo) @ planeamiento.html:1074
+planeamiento.html:146  GET http://127.0.0.1:5500/node_modules/mgrs/mgrs.js net::ERR_ABORTED 404 (Not Found)
+terrainAdapter.js:26  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ terrainAdapter.js:26
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:82 ⚠️ Error cargando desde ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:48 📡 Intentando cargar desde: ../Libs/datos_argentina/master_mini_tiles_index.json
+elevationHandler.js:80  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+vegetacionhandler.js:54  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: ../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+elevationHandler.js:1692 🔄 Elevation Handler cargado, esperando MAIRA...
+elevationHandler.js:1615 🔍 DEBUG initializeMAIRAElevation: elevationHandler tiene getElevationBatch? function
+elevationHandler.js:1678 ✅ MAIRA.Elevacion definido correctamente
+elevationHandler.js:1682 ✅ Funciones globales de tiles expuestas
+performanceOptimizer.js:252 🔧 Service Worker deshabilitado temporalmente
+performanceOptimizer.js:378 📊 Monitor FPS deshabilitado (modo desarrollo)
+performanceOptimizer.js:73 ✅ PerformanceOptimizer inicializado correctamente
+mapaP.js:709 DOM completamente cargado. Iniciando configuración del map...
+mapaP.js:672 🎮 Integrando funcionalidades 3D en map base...
+mapaP.js:694 ⚠️ Clases 3D no disponibles - funcionalidades limitadas
+inicializarFuncionalidades3D @ mapaP.js:694
+inicializarMapa @ mapaP.js:256
+(anónimo) @ mapaP.js:712
+mapaP.js:265 ⚠️ Sistema Zoom Multi-Nivel no disponible
+inicializarMapa @ mapaP.js:265
+(anónimo) @ mapaP.js:712
+mapaP.js:315 map inicializado correctamente
+mapaP.js:624 Consolidando event listeners del map...
+mapaP.js:643 ✅ Event listener configurado: opacitySlider -> input
+mapaP.js:643 ✅ Event listener configurado: colorSelector -> input
+mapaP.js:643 ✅ Event listener configurado: gridWidthSlider -> input
+mapaP.js:643 ✅ Event listener configurado: coordenadasCheckbox -> change
+mapaP.js:667 Event listeners consolidados correctamente
+mapaP.js:717 Configuración del map completada
+calcosP.js:1329 Inicializando funcionalidades de calcos
+simbolosP.js:622 Inicializando funcionalidades de símbolos
+herramientasP.js:793 Inicializando herramientas del mapa
+herramientasP.js:1783 🔍 Inicializando buscarLugar desde herramientasP...
+herramientasP.js:1815 ⚠️ Intento 1/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1661 🎮 Inicializando control de gestos
+herramientasP.js:1666 📱 No es dispositivo móvil, gestos táctiles omitidos
+toolsInitializer.js:7 Tools initialized
+panelMarcha.js:17 Panel inicializado
+mairaRadialMenu.js:74 ✅ MAIRA Radial Menu inicializado
+planeamiento.js:20 🎯 PlaneamientoManager inicializado (OPTIMIZADO)
+planeamiento.js:24 🎯 Inicializando módulo de Planeamiento (OPTIMIZADO)
+planeamiento.js:94 ⚠️ Socket no disponible - trabajando en modo local
+configurarSocket @ planeamiento.js:94
+inicializar @ planeamiento.js:25
+(anónimo) @ planeamiento.js:410
+planeamiento.js:289 📦 Procesando 0 elementos...
+planeamiento.js:312 ✅ Procesados 0 elementos en 0 chunks
+planeamiento.js:258 💾 Cargados 0 elementos desde localStorage
+indexP.js:22 DOM completamente cargado y parseado
+indexP.js:30 Índice de tiles cargado correctamente, inicializando elevación.
+indexP.js:93 📦 indexP.js - Inicialización de map delegada a mapaP.js
+indexP.js:139 Inicializando controles...
+indexP.js:154 🎯 Inicializando MiRadial en planeamiento...
+indexP.js:722 DOM completamente cargado y parseado
+indexP.js:729 📦 indexP.js - Inicialización de map delegada a mapaP.js
+indexP.js:139 Inicializando controles...
+indexP.js:154 🎯 Inicializando MiRadial en planeamiento...
+indexP.js:155 Uncaught TypeError: window.MiRadial.inicializar is not a function
+    at inicializarControles (indexP.js:155:25)
+    at HTMLDocument.<anonymous> (indexP.js:730:5)
+inicializarControles @ indexP.js:155
+(anónimo) @ indexP.js:730
+planeamiento.html:1084 🚀 MAIRA 4.0 - Inicialización modular
+terrainAdapter.js:26  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ terrainAdapter.js:26
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:82 ⚠️ Error cargando desde ../Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:88 ❌ Error cargando desde todas las URLs: Error: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+    at intentarCarga (terrainAdapter.js:28:13)
+    at async terrainAdapter.js:49:22
+(anónimo) @ terrainAdapter.js:88
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+elevationHandler.js:142 Generando un nuevo índice de tiles debido a una estructura incorrecta.
+generarIndiceNuevo @ elevationHandler.js:142
+(anónimo) @ terrainAdapter.js:89
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+elevationHandler.js:80  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: ../Client/Libs/datos_argentina/master_mini_tiles_index.json
+vegetacionhandler.js:54  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: /Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+indexP.js:155 Uncaught (in promise) TypeError: window.MiRadial.inicializar is not a function
+    at inicializarControles (indexP.js:155:25)
+    at HTMLDocument.initializeIndexP (indexP.js:94:13)
+inicializarControles @ indexP.js:155
+initializeIndexP @ indexP.js:94
+terrainAdapter.js:28 Uncaught (in promise) Error: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+    at intentarCarga (terrainAdapter.js:28:13)
+    at async terrainAdapter.js:49:22
+intentarCarga @ terrainAdapter.js:28
+await in intentarCarga
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Client/Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Client/Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: /api/proxy/github/master_mini_tiles_index.json
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:67 ⚠️ No se pudo cargar el índice de vegetación desde ninguna fuente
+loadVegetationIndex @ vegetacionhandler.js:67
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+herramientasP.js:1815 ⚠️ Intento 2/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+planeamiento.html:97 ✅ THREE.js cargado desde CDN
+simbolosP.js:670 No se encontró el menú MCC para añadir opciones de puntos
+(anónimo) @ simbolosP.js:670
+setTimeout
+(anónimo) @ simbolosP.js:642
+graficoMarcha.js:1185 🎯 Símbolos militares PI/PT listos para usar en gráficos
+planeamiento.js:27 🎯 Inicializando Sistema de Planeamiento...
+planeamiento.js:33 ✅ Sistema de Planeamiento inicializado
+planeamiento.html:1092 ✅ Sistema de Planeamiento inicializado
+planeamiento.html:1100 ⚠️ Sistema 3D no disponible - threeDMapService no cargado
+(anónimo) @ planeamiento.html:1100
+setTimeout
+(anónimo) @ planeamiento.html:1087
+planeamiento.html:1160 ✅ Eventos de planeamiento configurados
+planeamiento.html:1179 📊 Funciones heredadas: 4/5
+calcosP.js:1434 🔍 Verificando funciones críticas:
+calcosP.js:1435   - editarElementoSeleccionado: function
+calcosP.js:1436   - mostrarMenuContextual: function
+calcosP.js:1437   - seleccionarElemento: function
+calcosP.js:1441   - map inicializado correctamente
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+modelos3DManager.js:24 ✅ THREE.js disponible - Inicializando Modelos3DManager
+modelos3DManager.js:39 ⚠️ THREE.GLTFLoader no disponible - se cargará dinámicamente
+_initialize @ modelos3DManager.js:39
+(anónimo) @ modelos3DManager.js:25
+setInterval
+_initWhenReady @ modelos3DManager.js:21
+Modelos3DManager @ modelos3DManager.js:13
+(anónimo) @ modelos3DManager.js:1014
+modelos3DManager.js:610 ⏳ Esperando sistema de formaciones...
+modelos3DManager.js:47 🎮 Gestor de Modelos 3D inicializado
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/api/proxy/github/master_mini_tiles_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde /api/proxy/github/master_mini_tiles_index.json: HTTP 404 para /api/proxy/github/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: /api/proxy/github/master_index.json
+planeamiento.html:78  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/mythree/GLTFLoader.js net::ERR_ABORTED 404 (Not Found)
+loadThreeDependencies @ planeamiento.html:78
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+planeamiento.html:90  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/mythree/OrbitControlsBrowser.js net::ERR_ABORTED 404 (Not Found)
+loadThreeDependencies @ planeamiento.html:90
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+maira3DMaster.js:122 Uncaught ReferenceError: SIDCToModel3D is not defined
+    at new MAIRA3DMaster (maira3DMaster.js:122:31)
+    at initializeWhenReady (maira3DMaster.js:2329:36)
+MAIRA3DMaster @ maira3DMaster.js:122
+initializeWhenReady @ maira3DMaster.js:2329
+setTimeout
+initializeWhenReady @ maira3DMaster.js:2335
+setTimeout
+initializeWhenReady @ maira3DMaster.js:2335
+setTimeout
+initializeWhenReady @ maira3DMaster.js:2335
+(anónimo) @ maira3DMaster.js:2340
+(anónimo) @ maira3DMaster.js:2341
+planeamiento.html:76 ❌ Error cargando GLTFLoader
+gltfScript.onerror @ planeamiento.html:76
+script
+loadThreeDependencies @ planeamiento.html:70
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+planeamiento.html:88 ❌ Error cargando OrbitControls
+orbitScript.onerror @ planeamiento.html:88
+script
+loadThreeDependencies @ planeamiento.html:82
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/api/proxy/github/master_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde /api/proxy/github/master_index.json: HTTP 404 para /api/proxy/github/master_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:134 ❌ Error cargando desde todas las URLs: Error: HTTP 404 para /api/proxy/github/master_index.json
+    at intentarCarga (elevationHandler.js:82:13)
+    at async elevationHandler.js:95:22
+(anónimo) @ elevationHandler.js:134
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:142 Generando un nuevo índice de tiles debido a una estructura incorrecta.
+generarIndiceNuevo @ elevationHandler.js:142
+(anónimo) @ elevationHandler.js:135
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:1503 ⚠️ Error inicializando MAIRA.Elevacion: Error: HTTP 404 para /api/proxy/github/master_index.json
+    at intentarCarga (elevationHandler.js:82:13)
+    at async elevationHandler.js:95:22
+inicializar @ elevationHandler.js:1503
+await in inicializar
+initializeTerrainAdapter @ terrainAdapter.js:801
+content.js:5770 Obtener ha terminado de cargar: GET "chrome-extension://ofpnmcalabcbjgholdjcjblkibolbppb/content.css".
+getRenderRoot @ content.js:5770
+initContentRoot @ content.js:5770
+(anónimo) @ content.js:5770
+onDOMReady @ content.js:2521
+init @ content.js:5770
+await in init
+(anónimo) @ content.js:5770
+Promise.then
+PBt @ content.js:5770
+(anónimo) @ content.js:5770
+(anónimo) @ content.js:5770
+herramientasP.js:1815 ⚠️ Intento 3/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 4/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+elevationHandler.js:1635 🔗 Conectando Elevation con Vegetación...
+elevationHandler.js:1639 ⚠️ Vegetación no disponible para conexión
+herramientasP.js:1815 ⚠️ Intento 5/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+miradial.js:288 Cambiando fase a: preparacion
+miradial.js:151 MiRadial inicializado
+planeamiento.html:1186 ✅ Menú radial inicializado
+herramientasP.js:1815 ⚠️ Intento 6/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 7/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 8/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 9/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 10/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1820 ❌ Mapa no se inicializó después de múltiples intentos
+intentarInicializar @ herramientasP.js:1820
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' mostrado
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' ocultado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:244 ⚠️ PROBLEMA: Menú 'ver-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:244
+setTimeout
+toggleMenu @ indexP.js:241
+(anónimo) @ indexP.js:170
+modelos3DManager.js:617 ⚠️ No se pudo integrar sistema de formaciones: Error: Sistema de formaciones no disponible
+    at Modelos3DManager.esperarSistemaFormaciones (modelos3DManager.js:628:15)
+    at async Modelos3DManager.inicializarSistemaFormaciones (modelos3DManager.js:611:17)
+inicializarSistemaFormaciones @ modelos3DManager.js:617
+await in inicializarSistemaFormaciones
+_initialize @ modelos3DManager.js:45
+(anónimo) @ modelos3DManager.js:25
+setInterval
+_initWhenReady @ modelos3DManager.js:21
+Modelos3DManager @ modelos3DManager.js:13
+(anónimo) @ modelos3DManager.js:1014
+mapaP.js:722 Cambiando tipo de map a: satelite
+mapaP.js:722 Cambiando tipo de map a: satelite
+mapaP.js:722 Cambiando tipo de map a: satelite
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' ocultado
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' mostrado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:244 ⚠️ PROBLEMA: Menú 'ver-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:244
+setTimeout
+toggleMenu @ indexP.js:241
+(anónimo) @ indexP.js:170
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' mostrado
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' ocultado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:244 ⚠️ PROBLEMA: Menú 'ver-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:244
+setTimeout
+toggleMenu @ indexP.js:241
+(anónimo) @ indexP.js:170
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+performanceOptimizer.js:589 Input changed: coordenadasCheckbox
+mapaP.js:127 Uncaught TypeError: this.clearAllTiles is not a function
+    at e.redraw (mapaP.js:127:14)
+    at actualizarEstiloCuadricula (mapaP.js:1093:23)
+    at cambiarCuadricula (mapaP.js:833:5)
+    at HTMLButtonElement.onclick (planeamiento.html:267:82)
+redraw @ mapaP.js:127
+actualizarEstiloCuadricula @ mapaP.js:1093
+cambiarCuadricula @ mapaP.js:833
+onclick @ planeamiento.html:267
+indexP.js:225 🔧 Intentando alternar menú: tipoCuadricula
+indexP.js:229 ⚠️ Menú 'tipoCuadricula' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+indexP.js:225 🔧 Intentando alternar menú: tipoCuadricula
+indexP.js:229 ⚠️ Menú 'tipoCuadricula' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+indexP.js:225 🔧 Intentando alternar menú: cuadriculas
+indexP.js:229 ⚠️ Menú 'cuadriculas' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+indexP.js:225 🔧 Intentando alternar menú: cuadriculas
+indexP.js:229 ⚠️ Menú 'cuadriculas' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+performanceOptimizer.js:589 Input changed: coordenadasCheckbox
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' ocultado
+indexP.js:225 🔧 Intentando alternar menú: ver-menu
+indexP.js:237 ✅ Menú 'ver-menu' mostrado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:244 ⚠️ PROBLEMA: Menú 'ver-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:244
+setTimeout
+toggleMenu @ indexP.js:241
+(anónimo) @ indexP.js:170
+indexP.js:225 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:237 ✅ Menú 'herramientas-menu' mostrado
+indexP.js:225 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:237 ✅ Menú 'herramientas-menu' ocultado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:244 ⚠️ PROBLEMA: Menú 'herramientas-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:244
+setTimeout
+toggleMenu @ indexP.js:241
+(anónimo) @ indexP.js:170
+herramientasP.js:816 🔄 Iniciando medición optimizada para táctil
+herramientasP.js:838 Uncaught ReferenceError: mapa is not defined
+    at HTMLAnchorElement.medirDistancia (herramientasP.js:838:13)
+medirDistancia @ herramientasP.js:838
+herramientasP.js:816 🔄 Iniciando medición optimizada para táctil
+herramientasP.js:958 🏁 Finalizando medición
+herramientasP.js:961 Uncaught ReferenceError: mapa is not defined
+    at finalizarMedicion (herramientasP.js:961:5)
+    at medirDistancia (herramientasP.js:831:9)
+    at HTMLAnchorElement.<anonymous> (indexP.js:422:17)
+finalizarMedicion @ herramientasP.js:961
+medirDistancia @ herramientasP.js:831
+(anónimo) @ indexP.js:422
+herramientasP.js:816 🔄 Iniciando medición optimizada para táctil
+herramientasP.js:838 Uncaught ReferenceError: mapa is not defined
+    at medirDistancia (herramientasP.js:838:13)
+    at HTMLAnchorElement.<anonymous> (indexP.js:422:17)
+medirDistancia @ herramientasP.js:838
+(anónimo) @ indexP.js:422
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+herramientasP.js:1922 🔄 Deseleccionando elemento actual
+herramientasP.js:1925 ⚠️ No hay elemento seleccionado para deseleccionar
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+herramientasP.js:1922 🔄 Deseleccionando elemento actual
+herramientasP.js:1925 ⚠️ No hay elemento seleccionado para deseleccionar
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:225 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:237 ✅ Menú 'herramientas-menu' ocultado
+indexP.js:225 🔧 Intentando alternar menú: herramientas-menu
+indexP.js:237 ✅ Menú 'herramientas-menu' mostrado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:244 ⚠️ PROBLEMA: Menú 'herramientas-menu' se cerró automáticamente después de 100ms
+(anónimo) @ indexP.js:244
+setTimeout
+toggleMenu @ indexP.js:241
+(anónimo) @ indexP.js:170
+indexP.js:225 🔧 Intentando alternar menú: agregar-menu
+indexP.js:237 ✅ Menú 'agregar-menu' mostrado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:246 ✅ Menú 'agregar-menu' sigue abierto correctamente
+simbolosP.js:61 Actualizando SIDC con carácter: F
+simbolosP.js:61 Actualizando SIDC con carácter: F
+simbolosP.js:61 Actualizando SIDC con carácter: F
+simbolosP.js:61 Actualizando SIDC con carácter: F
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+simbolosP.js:145 Uncaught TypeError: Cannot read properties of undefined (reading 'once')
+    at window.agregarMarcador (simbolosP.js:145:17)
+    at HTMLAnchorElement.onclick (VM286 planeamiento.html:1:1)
+window.agregarMarcador @ simbolosP.js:145
+onclick @ VM286 planeamiento.html:1
+indexP.js:225 🔧 Intentando alternar menú: infanteria
+indexP.js:229 ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+indexP.js:225 🔧 Intentando alternar menú: infanteria
+indexP.js:229 ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+herramientasP.js:1922 🔄 Deseleccionando elemento actual
+herramientasP.js:1925 ⚠️ No hay elemento seleccionado para deseleccionar
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+simbolosP.js:145 Uncaught TypeError: Cannot read properties of undefined (reading 'once')
+    at window.agregarMarcador (simbolosP.js:145:17)
+    at HTMLAnchorElement.onclick (planeamiento.html:1:1)
+window.agregarMarcador @ simbolosP.js:145
+onclick @ planeamiento.html:1
+indexP.js:225 🔧 Intentando alternar menú: infanteria
+indexP.js:229 ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+indexP.js:225 🔧 Intentando alternar menú: infanteria
+indexP.js:229 ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+herramientasP.js:1922 🔄 Deseleccionando elemento actual
+herramientasP.js:1925 ⚠️ No hay elemento seleccionado para deseleccionar
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+simbolosP.js:61 Actualizando SIDC con carácter: J
+simbolosP.js:61 Actualizando SIDC con carácter: J
+simbolosP.js:61 Actualizando SIDC con carácter: J
+simbolosP.js:61 Actualizando SIDC con carácter: J
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+planeamiento.js:370 🧹 PlaneamientoManager limpiado
+performanceOptimizer.js:490 ⚠️ elevationHandler.clearCache no disponible
+limpiarCaches @ performanceOptimizer.js:490
+limpiarTodo @ performanceOptimizer.js:515
+(anónimo) @ performanceOptimizer.js:425
+socket.onmessage @ planeamiento.html:1379
+vegetacionhandler.js:390 🧹 Cache de vegetación limpiado
+performanceOptimizer.js:508 🗑️ Caches limpiados
+performanceOptimizer.js:518 🧹 Limpieza completa realizada
+planeamiento.html#:15 A preload for 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.
+planeamiento.html#:1 Refused to apply style from 'http://127.0.0.1:5500/MAIRA-4.0/node_modules/bootstrap/dist/css/bootstrap.min.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+planeamiento.html#:1 Refused to apply style from 'http://127.0.0.1:5500/MAIRA-4.0/Client/css/modules/juegodeguerra/hexgrid.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+planeamiento.html#:1 Refused to apply style from 'http://127.0.0.1:5500/MAIRA-4.0/Client/css/common/mairaRadialMenu.css' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+planeamiento.html:120  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/elementoModelo3DMapper.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:121  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sidcModelo3DBridge.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:122  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaJerarquicoSIDC.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:124  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/tactico3dIntegration.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:125  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/visorMapa3DMejorado.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:123  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaFormacionesMilitares.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:126  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaTerrenoRealista.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:139  GET http://127.0.0.1:5500/node_modules/socket.io/client-dist/socket.io.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:134  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/paneles.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:143  GET http://127.0.0.1:5500/node_modules/pako/dist/pako.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:149  GET http://127.0.0.1:5500/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:150  GET http://127.0.0.1:5500/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js net::ERR_ABORTED 404 (Not Found)
+networkConfig.js:24 URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/planeamiento.html.
+ milsymbol.js 2.0.0 - Copyright (c) 2018 Måns Beckman  http://www.spatialillusions.com
+ 🔄 Cargando THREE.js...
+ ⏳ THREE.js aún no disponible - Modelos3DManager esperará...
+Modelos3DManager @ js/modules/gaming/modelos3DManager.js:11
+(anónimo) @ js/modules/gaming/mo…os3DManager.js:1014
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+planeamiento.html:151  GET http://127.0.0.1:5500/node_modules/leaflet-measure/dist/leaflet-measure.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:152  GET http://127.0.0.1:5500/node_modules/leaflet-easybutton/src/easy-button.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:153  GET http://127.0.0.1:5500/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:154  GET http://127.0.0.1:5500/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:155  GET http://127.0.0.1:5500/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:156  GET http://127.0.0.1:5500/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:157  GET http://127.0.0.1:5500/node_modules/leaflet-search/dist/leaflet-search.src.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:158  GET http://127.0.0.1:5500/node_modules/file-saver/dist/FileSaver.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:159  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/leaflet-pattern/dist/leaflet.pattern.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:163  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/core/UserIdentity.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:164  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/utils/sessionManager.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:174  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/adapters/VegetationAdapter.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:178  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/servicesManager.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:179  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/transitabilityService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:180  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/slopeAnalysisService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:181  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/elevationProfileService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:183  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/shared/sistemaZoomMultiNivel.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:191  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/utils/geometryUtils.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:192  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/mobileOptimizationHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:193  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/mapInteractionHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:194  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/measurementHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:199  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/EventBus.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:200  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/pendienteHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:201  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/transitabilidadHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:202  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/searchHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:203  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/testHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:233  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/testPlaneamiento.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:234  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/autoTest.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:235  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/visualizadorTests.js net::ERR_ABORTED 404 (Not Found)
+ ✅ THREE.js cargado desde CDN
+ ✅ Sistema de Planeamiento modular cargado
+ 🔄 Intentando cargar master_mini_tiles_index.json...
+ 📡 Intentando cargar desde: /api/proxy/github/master_mini_tiles_index.json
+ 🚀 Inicializando terrainAdapter (ejecución inmediata)
+ ⏳ DOM aún cargando, esperando...
+ 🌍 Inicializando servicios geoespaciales optimizados...
+ ❌ VegetationAdapter no cargado
+initializeGeospatialServices @ js/init/geospatialInit.js:51
+(anónimo) @ js/init/geospatialInit.js:188
+ 🔄 Cargando master_mini_tiles_index.json desde archivos locales...
+ 📡 Intentando cargar desde: ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+ ✅ window.elevationHandler definido con getElevationBatch: function
+ 🌍 VegetacionHandler entorno: LOCAL
+ 🌿 Intentando cargar índice de vegetación desde: Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+ 🌿 VegetationHandler inicializado automáticamente con métodos extendidos
+ 🚀 PerformanceOptimizer inicializado
+ 🚀 PerformanceOptimizer cargado y funciones exportadas al scope global
+ 🔍 DetectorZoom3D no disponible aún - se inicializará automáticamente
+ 🔍 Calcos inicializados correctamente
+ ✅ Perfil de elevación con D3.js restaurado
+ ✅ Todas las funciones de herramientasP exportadas al scope global
+ ✅ Funciones de gráfico agregadas al scope global
+ 📦 Font Awesome Test & Fix cargado
+ toolsInitializer.js loaded
+ MAIRA Atajos inicializado para macOS - 27 atajos disponibles
+ 🎯 Inicializando MAIRA Radial Menu System
+ 🚀 Inicializando indexP (ejecución inmediata)
+ ⏳ DOM aún cargando, esperando...
+  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/mythree/GLTFLoader.js net::ERR_ABORTED 404 (Not Found)
+loadThreeDependencies @ planeamiento.html:78
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/mythree/OrbitControlsBrowser.js net::ERR_ABORTED 404 (Not Found)
+loadThreeDependencies @ planeamiento.html:90
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+  GET http://127.0.0.1:5500/api/proxy/github/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ js/infrastructure/terrainAdapter.js:26
+(anónimo) @ js/infrastructure/terrainAdapter.js:49
+(anónimo) @ js/infrastructure/terrainAdapter.js:91
+(anónimo) @ js/infrastructure/terrainAdapter.js:21
+ ⚠️ Error cargando desde /api/proxy/github/master_mini_tiles_index.json: HTTP 404 para /api/proxy/github/master_mini_tiles_index.json
+(anónimo) @ js/infrastructure/terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ js/infrastructure/terrainAdapter.js:91
+(anónimo) @ js/infrastructure/terrainAdapter.js:21
+ 📡 Intentando cargar desde: ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ js/handlers/elevationHandler.js:80
+(anónimo) @ js/handlers/elevationHandler.js:95
+(anónimo) @ js/handlers/elevationHandler.js:137
+(anónimo) @ js/handlers/elevationHandler.js:75
+ ⚠️ Error cargando desde ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ js/handlers/elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ js/handlers/elevationHandler.js:137
+(anónimo) @ js/handlers/elevationHandler.js:75
+ 📡 Intentando cargar desde: ../Libs/datos_argentina/master_mini_tiles_index.json
+  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ js/handlers/vegetacionhandler.js:54
+VegetacionHandler @ js/handlers/vegetacionhandler.js:21
+(anónimo) @ js/handlers/vegetacionhandler.js:643
+ 🌿 Intentando cargar índice de vegetación desde: ./Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+planeamiento.html:1074 ⚠️ Socket.IO no disponible
+(anónimo) @ planeamiento.html:1074
+modelos3DManager.js:24 ✅ THREE.js disponible - Inicializando Modelos3DManager
+modelos3DManager.js:39 ⚠️ THREE.GLTFLoader no disponible - se cargará dinámicamente
+_initialize @ modelos3DManager.js:39
+(anónimo) @ modelos3DManager.js:25
+setInterval
+_initWhenReady @ modelos3DManager.js:21
+Modelos3DManager @ modelos3DManager.js:13
+(anónimo) @ modelos3DManager.js:1014
+modelos3DManager.js:610 ⏳ Esperando sistema de formaciones...
+modelos3DManager.js:47 🎮 Gestor de Modelos 3D inicializado
+maira3DMaster.js:122 Uncaught ReferenceError: SIDCToModel3D is not defined
+    at new MAIRA3DMaster (maira3DMaster.js:122:31)
+    at initializeWhenReady (maira3DMaster.js:2329:36)
+MAIRA3DMaster @ maira3DMaster.js:122
+initializeWhenReady @ maira3DMaster.js:2329
+setTimeout
+initializeWhenReady @ maira3DMaster.js:2335
+(anónimo) @ maira3DMaster.js:2340
+(anónimo) @ maira3DMaster.js:2341
+planeamiento.html:76 ❌ Error cargando GLTFLoader
+gltfScript.onerror @ planeamiento.html:76
+script
+loadThreeDependencies @ planeamiento.html:70
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+planeamiento.html:88 ❌ Error cargando OrbitControls
+orbitScript.onerror @ planeamiento.html:88
+script
+loadThreeDependencies @ planeamiento.html:82
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+terrainAdapter.js:26  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ terrainAdapter.js:26
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:82 ⚠️ Error cargando desde ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:48 📡 Intentando cargar desde: ../Libs/datos_argentina/master_mini_tiles_index.json
+elevationHandler.js:80  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+vegetacionhandler.js:54  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: ../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+planeamiento.html#:146  GET http://127.0.0.1:5500/node_modules/mgrs/mgrs.js net::ERR_ABORTED 404 (Not Found)
+elevationHandler.js:1692 🔄 Elevation Handler cargado, esperando MAIRA...
+elevationHandler.js:1615 🔍 DEBUG initializeMAIRAElevation: elevationHandler tiene getElevationBatch? function
+elevationHandler.js:1678 ✅ MAIRA.Elevacion definido correctamente
+elevationHandler.js:1682 ✅ Funciones globales de tiles expuestas
+performanceOptimizer.js:252 🔧 Service Worker deshabilitado temporalmente
+performanceOptimizer.js:378 📊 Monitor FPS deshabilitado (modo desarrollo)
+performanceOptimizer.js:73 ✅ PerformanceOptimizer inicializado correctamente
+mapaP.js:709 DOM completamente cargado. Iniciando configuración del map...
+mapaP.js:672 🎮 Integrando funcionalidades 3D en map base...
+mapaP.js:694 ⚠️ Clases 3D no disponibles - funcionalidades limitadas
+inicializarFuncionalidades3D @ mapaP.js:694
+inicializarMapa @ mapaP.js:256
+(anónimo) @ mapaP.js:712
+mapaP.js:265 ⚠️ Sistema Zoom Multi-Nivel no disponible
+inicializarMapa @ mapaP.js:265
+(anónimo) @ mapaP.js:712
+mapaP.js:315 map inicializado correctamente
+mapaP.js:624 Consolidando event listeners del map...
+mapaP.js:643 ✅ Event listener configurado: opacitySlider -> input
+mapaP.js:643 ✅ Event listener configurado: colorSelector -> input
+mapaP.js:643 ✅ Event listener configurado: gridWidthSlider -> input
+mapaP.js:643 ✅ Event listener configurado: coordenadasCheckbox -> change
+mapaP.js:667 Event listeners consolidados correctamente
+mapaP.js:717 Configuración del map completada
+calcosP.js:1329 Inicializando funcionalidades de calcos
+simbolosP.js:622 Inicializando funcionalidades de símbolos
+herramientasP.js:793 Inicializando herramientas del mapa
+herramientasP.js:1783 🔍 Inicializando buscarLugar desde herramientasP...
+herramientasP.js:1815 ⚠️ Intento 1/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1661 🎮 Inicializando control de gestos
+herramientasP.js:1666 📱 No es dispositivo móvil, gestos táctiles omitidos
+toolsInitializer.js:7 Tools initialized
+panelMarcha.js:17 Panel inicializado
+mairaRadialMenu.js:74 ✅ MAIRA Radial Menu inicializado
+planeamiento.js:20 🎯 PlaneamientoManager inicializado (OPTIMIZADO)
+planeamiento.js:24 🎯 Inicializando módulo de Planeamiento (OPTIMIZADO)
+planeamiento.js:94 ⚠️ Socket no disponible - trabajando en modo local
+configurarSocket @ planeamiento.js:94
+inicializar @ planeamiento.js:25
+(anónimo) @ planeamiento.js:410
+planeamiento.js:289 📦 Procesando 0 elementos...
+planeamiento.js:312 ✅ Procesados 0 elementos en 0 chunks
+planeamiento.js:258 💾 Cargados 0 elementos desde localStorage
+indexP.js:22 DOM completamente cargado y parseado
+indexP.js:30 Índice de tiles cargado correctamente, inicializando elevación.
+indexP.js:93 📦 indexP.js - Inicialización de map delegada a mapaP.js
+indexP.js:139 Inicializando controles...
+indexP.js:154 🎯 Inicializando MiRadial en planeamiento...
+indexP.js:722 DOM completamente cargado y parseado
+indexP.js:729 📦 indexP.js - Inicialización de map delegada a mapaP.js
+indexP.js:139 Inicializando controles...
+indexP.js:154 🎯 Inicializando MiRadial en planeamiento...
+indexP.js:155 Uncaught TypeError: window.MiRadial.inicializar is not a function
+    at inicializarControles (indexP.js:155:25)
+    at HTMLDocument.<anonymous> (indexP.js:730:5)
+inicializarControles @ indexP.js:155
+(anónimo) @ indexP.js:730
+planeamiento.html:1084 🚀 MAIRA 4.0 - Inicialización modular
+vegetacionhandler.js:54  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: /Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+elevationHandler.js:80  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: ../Client/Libs/datos_argentina/master_mini_tiles_index.json
+terrainAdapter.js:26  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ terrainAdapter.js:26
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:82 ⚠️ Error cargando desde ../Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:88 ❌ Error cargando desde todas las URLs: Error: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+    at intentarCarga (terrainAdapter.js:28:13)
+    at async terrainAdapter.js:49:22
+(anónimo) @ terrainAdapter.js:88
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+elevationHandler.js:142 Generando un nuevo índice de tiles debido a una estructura incorrecta.
+generarIndiceNuevo @ elevationHandler.js:142
+(anónimo) @ terrainAdapter.js:89
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+indexP.js:155 Uncaught (in promise) TypeError: window.MiRadial.inicializar is not a function
+    at inicializarControles (indexP.js:155:25)
+    at HTMLDocument.initializeIndexP (indexP.js:94:13)
+inicializarControles @ indexP.js:155
+initializeIndexP @ indexP.js:94
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:67 ⚠️ No se pudo cargar el índice de vegetación desde ninguna fuente
+loadVegetationIndex @ vegetacionhandler.js:67
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+terrainAdapter.js:28 Uncaught (in promise) Error: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+    at intentarCarga (terrainAdapter.js:28:13)
+    at async terrainAdapter.js:49:22
+intentarCarga @ terrainAdapter.js:28
+await in intentarCarga
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Client/Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Client/Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: /api/proxy/github/master_mini_tiles_index.json
+herramientasP.js:1815 ⚠️ Intento 2/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+simbolosP.js:670 No se encontró el menú MCC para añadir opciones de puntos
+(anónimo) @ simbolosP.js:670
+setTimeout
+(anónimo) @ simbolosP.js:642
+graficoMarcha.js:1185 🎯 Símbolos militares PI/PT listos para usar en gráficos
+planeamiento.js:27 🎯 Inicializando Sistema de Planeamiento...
+planeamiento.js:33 ✅ Sistema de Planeamiento inicializado
+planeamiento.html:1092 ✅ Sistema de Planeamiento inicializado
+planeamiento.html:1100 ⚠️ Sistema 3D no disponible - threeDMapService no cargado
+(anónimo) @ planeamiento.html:1100
+setTimeout
+(anónimo) @ planeamiento.html:1087
+planeamiento.html:1160 ✅ Eventos de planeamiento configurados
+planeamiento.html:1179 📊 Funciones heredadas: 4/5
+calcosP.js:1434 🔍 Verificando funciones críticas:
+calcosP.js:1435   - editarElementoSeleccionado: function
+calcosP.js:1436   - mostrarMenuContextual: function
+calcosP.js:1437   - seleccionarElemento: function
+calcosP.js:1441   - map inicializado correctamente
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/api/proxy/github/master_mini_tiles_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde /api/proxy/github/master_mini_tiles_index.json: HTTP 404 para /api/proxy/github/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: /api/proxy/github/master_index.json
+ 🧹 PlaneamientoManager limpiado
+ ⚠️ elevationHandler.clearCache no disponible
+limpiarCaches @ performanceOptimizer.js:490
+limpiarTodo @ performanceOptimizer.js:515
+(anónimo) @ performanceOptimizer.js:425
+socket.onmessage @ planeamiento.html:1379
+ 🧹 Cache de vegetación limpiado
+ 🗑️ Caches limpiados
+ 🧹 Limpieza completa realizada
+ ⚠️ Error cargando desde /api/proxy/github/master_index.json: Failed to fetch
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+ ❌ Error cargando desde todas las URLs: TypeError: Failed to fetch
+    at performanceOptimizer.js:282:20
+    at intentarCarga (elevationHandler.js:80:28)
+    at elevationHandler.js:95:28
+(anónimo) @ elevationHandler.js:134
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+ Generando un nuevo índice de tiles debido a una estructura incorrecta.
+generarIndiceNuevo @ elevationHandler.js:142
+(anónimo) @ elevationHandler.js:135
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+ ⚠️ Error inicializando MAIRA.Elevacion: TypeError: Failed to fetch
+    at performanceOptimizer.js:282:20
+    at intentarCarga (elevationHandler.js:80:28)
+    at elevationHandler.js:95:28
+inicializar @ elevationHandler.js:1503
+await in inicializar
+initializeTerrainAdapter @ terrainAdapter.js:801
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Refused to apply style from '<URL>' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+Refused to apply style from '<URL>' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+Refused to apply style from '<URL>' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+Refused to apply style from '<URL>' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+Refused to apply style from '<URL>' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+Refused to apply style from '<URL>' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled.
+planeamiento.html#:15 A preload for 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.
+planeamiento.html:120  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/elementoModelo3DMapper.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:121  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sidcModelo3DBridge.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:122  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaJerarquicoSIDC.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:123  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaFormacionesMilitares.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:124  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/tactico3dIntegration.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:125  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/visorMapa3DMejorado.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:126  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/gaming/sistemaTerrenoRealista.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:134  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/paneles.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:139  GET http://127.0.0.1:5500/node_modules/socket.io/client-dist/socket.io.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:143  GET http://127.0.0.1:5500/node_modules/pako/dist/pako.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:149  GET http://127.0.0.1:5500/node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:150  GET http://127.0.0.1:5500/node_modules/leaflet.markercluster/dist/leaflet.markercluster.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:151  GET http://127.0.0.1:5500/node_modules/leaflet-measure/dist/leaflet-measure.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:152  GET http://127.0.0.1:5500/node_modules/leaflet-easybutton/src/easy-button.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:153  GET http://127.0.0.1:5500/node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:154  GET http://127.0.0.1:5500/node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:155  GET http://127.0.0.1:5500/node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:156  GET http://127.0.0.1:5500/node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:157  GET http://127.0.0.1:5500/node_modules/leaflet-search/dist/leaflet-search.src.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:158  GET http://127.0.0.1:5500/node_modules/file-saver/dist/FileSaver.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:159  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/leaflet-pattern/dist/leaflet.pattern.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:163  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/core/UserIdentity.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:164  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/utils/sessionManager.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:174  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/adapters/VegetationAdapter.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:179  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/transitabilityService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:180  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/slopeAnalysisService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:181  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/elevationProfileService.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:183  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/modules/shared/sistemaZoomMultiNivel.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:178  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/services/servicesManager.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:191  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/utils/geometryUtils.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:192  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/mobileOptimizationHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:193  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/mapInteractionHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:194  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/measurementHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:199  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/EventBus.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:200  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/pendienteHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:201  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/transitabilidadHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:202  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/searchHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:203  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/handlers/testHandler.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:233  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/testPlaneamiento.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:234  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/autoTest.js net::ERR_ABORTED 404 (Not Found)
+planeamiento.html:235  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/Test/visualizadorTests.js net::ERR_ABORTED 404 (Not Found)
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/planeamiento.html.
+ URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+ milsymbol.js 2.0.0 - Copyright (c) 2018 Måns Beckman  http://www.spatialillusions.com
+ 🔄 Cargando THREE.js...
+ ⏳ THREE.js aún no disponible - Modelos3DManager esperará...
+Modelos3DManager @ js/modules/gaming/modelos3DManager.js:11
+(anónimo) @ js/modules/gaming/mo…os3DManager.js:1014
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+Refused to execute script from '<URL>' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+ ✅ Sistema de Planeamiento modular cargado
+ 🔄 Intentando cargar master_mini_tiles_index.json...
+ 📡 Intentando cargar desde: /api/proxy/github/master_mini_tiles_index.json
+ 🚀 Inicializando terrainAdapter (ejecución inmediata)
+ ⏳ DOM aún cargando, esperando...
+ 🌍 Inicializando servicios geoespaciales optimizados...
+ ❌ VegetationAdapter no cargado
+initializeGeospatialServices @ js/init/geospatialInit.js:51
+(anónimo) @ js/init/geospatialInit.js:188
+ 🔄 Cargando master_mini_tiles_index.json desde archivos locales...
+ 📡 Intentando cargar desde: ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+ ✅ window.elevationHandler definido con getElevationBatch: function
+ 🌍 VegetacionHandler entorno: LOCAL
+ 🌿 Intentando cargar índice de vegetación desde: Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+ 🌿 VegetationHandler inicializado automáticamente con métodos extendidos
+ 🚀 PerformanceOptimizer inicializado
+ 🚀 PerformanceOptimizer cargado y funciones exportadas al scope global
+ 🔍 DetectorZoom3D no disponible aún - se inicializará automáticamente
+ 🔍 Calcos inicializados correctamente
+ ✅ Perfil de elevación con D3.js restaurado
+ ✅ Todas las funciones de herramientasP exportadas al scope global
+ ✅ Funciones de gráfico agregadas al scope global
+ 📦 Font Awesome Test & Fix cargado
+ toolsInitializer.js loaded
+ MAIRA Atajos inicializado para macOS - 27 atajos disponibles
+ 🎯 Inicializando MAIRA Radial Menu System
+ 🚀 Inicializando indexP (ejecución inmediata)
+ ⏳ DOM aún cargando, esperando...
+ ✅ THREE.js cargado desde CDN
+  GET http://127.0.0.1:5500/api/proxy/github/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ js/infrastructure/terrainAdapter.js:26
+(anónimo) @ js/infrastructure/terrainAdapter.js:49
+(anónimo) @ js/infrastructure/terrainAdapter.js:91
+(anónimo) @ js/infrastructure/terrainAdapter.js:21
+ ⚠️ Error cargando desde /api/proxy/github/master_mini_tiles_index.json: HTTP 404 para /api/proxy/github/master_mini_tiles_index.json
+(anónimo) @ js/infrastructure/terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ js/infrastructure/terrainAdapter.js:91
+(anónimo) @ js/infrastructure/terrainAdapter.js:21
+ 📡 Intentando cargar desde: ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ js/handlers/elevationHandler.js:80
+(anónimo) @ js/handlers/elevationHandler.js:95
+(anónimo) @ js/handlers/elevationHandler.js:137
+(anónimo) @ js/handlers/elevationHandler.js:75
+ ⚠️ Error cargando desde ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ js/handlers/elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ js/handlers/elevationHandler.js:137
+(anónimo) @ js/handlers/elevationHandler.js:75
+ 📡 Intentando cargar desde: ../Libs/datos_argentina/master_mini_tiles_index.json
+  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ js/handlers/vegetacionhandler.js:54
+VegetacionHandler @ js/handlers/vegetacionhandler.js:21
+(anónimo) @ js/handlers/vegetacionhandler.js:643
+ 🌿 Intentando cargar índice de vegetación desde: ./Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+ ⚠️ Socket.IO no disponible
+(anónimo) @ planeamiento.html:1074
+ ✅ THREE.js disponible - Inicializando Modelos3DManager
+modelos3DManager.js:39 ⚠️ THREE.GLTFLoader no disponible - se cargará dinámicamente
+_initialize @ modelos3DManager.js:39
+(anónimo) @ modelos3DManager.js:25
+setInterval
+_initWhenReady @ modelos3DManager.js:21
+Modelos3DManager @ modelos3DManager.js:13
+(anónimo) @ modelos3DManager.js:1014
+modelos3DManager.js:610 ⏳ Esperando sistema de formaciones...
+modelos3DManager.js:47 🎮 Gestor de Modelos 3D inicializado
+maira3DMaster.js:122 Uncaught ReferenceError: SIDCToModel3D is not defined
+    at new MAIRA3DMaster (maira3DMaster.js:122:31)
+    at initializeWhenReady (maira3DMaster.js:2329:36)
+MAIRA3DMaster @ maira3DMaster.js:122
+initializeWhenReady @ maira3DMaster.js:2329
+setTimeout
+initializeWhenReady @ maira3DMaster.js:2335
+(anónimo) @ maira3DMaster.js:2340
+(anónimo) @ maira3DMaster.js:2341
+planeamiento.html:78  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/mythree/GLTFLoader.js net::ERR_ABORTED 404 (Not Found)
+loadThreeDependencies @ planeamiento.html:78
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+planeamiento.html:90  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/mythree/OrbitControlsBrowser.js net::ERR_ABORTED 404 (Not Found)
+loadThreeDependencies @ planeamiento.html:90
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+planeamiento.html#:146  GET http://127.0.0.1:5500/node_modules/mgrs/mgrs.js net::ERR_ABORTED 404 (Not Found)
+terrainAdapter.js:26  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ terrainAdapter.js:26
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:82 ⚠️ Error cargando desde ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:48 📡 Intentando cargar desde: ../Libs/datos_argentina/master_mini_tiles_index.json
+elevationHandler.js:80  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+vegetacionhandler.js:54  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: ../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+planeamiento.html:76 ❌ Error cargando GLTFLoader
+gltfScript.onerror @ planeamiento.html:76
+script
+loadThreeDependencies @ planeamiento.html:70
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+planeamiento.html:88 ❌ Error cargando OrbitControls
+orbitScript.onerror @ planeamiento.html:88
+script
+loadThreeDependencies @ planeamiento.html:82
+threeScript.onload @ planeamiento.html:98
+script
+(anónimo) @ planeamiento.html:94
+(anónimo) @ planeamiento.html:115
+elevationHandler.js:1692 🔄 Elevation Handler cargado, esperando MAIRA...
+elevationHandler.js:1615 🔍 DEBUG initializeMAIRAElevation: elevationHandler tiene getElevationBatch? function
+elevationHandler.js:1678 ✅ MAIRA.Elevacion definido correctamente
+elevationHandler.js:1682 ✅ Funciones globales de tiles expuestas
+performanceOptimizer.js:252 🔧 Service Worker deshabilitado temporalmente
+performanceOptimizer.js:378 📊 Monitor FPS deshabilitado (modo desarrollo)
+performanceOptimizer.js:73 ✅ PerformanceOptimizer inicializado correctamente
+mapaP.js:709 DOM completamente cargado. Iniciando configuración del map...
+mapaP.js:672 🎮 Integrando funcionalidades 3D en map base...
+mapaP.js:694 ⚠️ Clases 3D no disponibles - funcionalidades limitadas
+inicializarFuncionalidades3D @ mapaP.js:694
+inicializarMapa @ mapaP.js:256
+(anónimo) @ mapaP.js:712
+mapaP.js:265 ⚠️ Sistema Zoom Multi-Nivel no disponible
+inicializarMapa @ mapaP.js:265
+(anónimo) @ mapaP.js:712
+mapaP.js:315 map inicializado correctamente
+mapaP.js:624 Consolidando event listeners del map...
+mapaP.js:643 ✅ Event listener configurado: opacitySlider -> input
+mapaP.js:643 ✅ Event listener configurado: colorSelector -> input
+mapaP.js:643 ✅ Event listener configurado: gridWidthSlider -> input
+mapaP.js:643 ✅ Event listener configurado: coordenadasCheckbox -> change
+mapaP.js:667 Event listeners consolidados correctamente
+mapaP.js:717 Configuración del map completada
+calcosP.js:1329 Inicializando funcionalidades de calcos
+simbolosP.js:622 Inicializando funcionalidades de símbolos
+herramientasP.js:793 Inicializando herramientas del mapa
+herramientasP.js:1783 🔍 Inicializando buscarLugar desde herramientasP...
+herramientasP.js:1815 ⚠️ Intento 1/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1661 🎮 Inicializando control de gestos
+herramientasP.js:1666 📱 No es dispositivo móvil, gestos táctiles omitidos
+toolsInitializer.js:7 Tools initialized
+panelMarcha.js:17 Panel inicializado
+mairaRadialMenu.js:74 ✅ MAIRA Radial Menu inicializado
+planeamiento.js:20 🎯 PlaneamientoManager inicializado (OPTIMIZADO)
+planeamiento.js:24 🎯 Inicializando módulo de Planeamiento (OPTIMIZADO)
+planeamiento.js:94 ⚠️ Socket no disponible - trabajando en modo local
+configurarSocket @ planeamiento.js:94
+inicializar @ planeamiento.js:25
+(anónimo) @ planeamiento.js:410
+planeamiento.js:289 📦 Procesando 0 elementos...
+planeamiento.js:312 ✅ Procesados 0 elementos en 0 chunks
+planeamiento.js:258 💾 Cargados 0 elementos desde localStorage
+indexP.js:22 DOM completamente cargado y parseado
+indexP.js:30 Índice de tiles cargado correctamente, inicializando elevación.
+indexP.js:93 📦 indexP.js - Inicialización de map delegada a mapaP.js
+indexP.js:139 Inicializando controles...
+indexP.js:154 🎯 Inicializando MiRadial en planeamiento...
+indexP.js:722 DOM completamente cargado y parseado
+indexP.js:729 📦 indexP.js - Inicialización de map delegada a mapaP.js
+indexP.js:139 Inicializando controles...
+indexP.js:154 🎯 Inicializando MiRadial en planeamiento...
+indexP.js:155 Uncaught TypeError: window.MiRadial.inicializar is not a function
+    at inicializarControles (indexP.js:155:25)
+    at HTMLDocument.<anonymous> (indexP.js:730:5)
+inicializarControles @ indexP.js:155
+(anónimo) @ indexP.js:730
+planeamiento.html:1084 🚀 MAIRA 4.0 - Inicialización modular
+terrainAdapter.js:26  GET http://127.0.0.1:5500/MAIRA-4.0/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+intentarCarga @ terrainAdapter.js:26
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:82 ⚠️ Error cargando desde ../Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ terrainAdapter.js:82
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+terrainAdapter.js:88 ❌ Error cargando desde todas las URLs: Error: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+    at intentarCarga (terrainAdapter.js:28:13)
+    at async terrainAdapter.js:49:22
+(anónimo) @ terrainAdapter.js:88
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+elevationHandler.js:142 Generando un nuevo índice de tiles debido a una estructura incorrecta.
+generarIndiceNuevo @ elevationHandler.js:142
+(anónimo) @ terrainAdapter.js:89
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+elevationHandler.js:80  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json 404 (Not Found)
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json: HTTP 404 para ../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/master_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: ../Client/Libs/datos_argentina/master_mini_tiles_index.json
+vegetacionhandler.js:54  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:53 🌿 Intentando cargar índice de vegetación desde: /Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json
+indexP.js:155 Uncaught (in promise) TypeError: window.MiRadial.inicializar is not a function
+    at inicializarControles (indexP.js:155:25)
+    at HTMLDocument.initializeIndexP (indexP.js:94:13)
+inicializarControles @ indexP.js:155
+initializeIndexP @ indexP.js:94
+terrainAdapter.js:28 Uncaught (in promise) Error: HTTP 404 para ../Libs/datos_argentina/master_mini_tiles_index.json
+    at intentarCarga (terrainAdapter.js:28:13)
+    at async terrainAdapter.js:49:22
+intentarCarga @ terrainAdapter.js:28
+await in intentarCarga
+(anónimo) @ terrainAdapter.js:49
+await in (anónimo)
+(anónimo) @ terrainAdapter.js:91
+(anónimo) @ terrainAdapter.js:21
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+Obtener no ha podido cargar: GET "<URL>".
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/datos_argentina/master_mini_tiles_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde ../Client/Libs/datos_argentina/master_mini_tiles_index.json: HTTP 404 para ../Client/Libs/datos_argentina/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: /api/proxy/github/master_mini_tiles_index.json
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+loadVegetationIndex @ vegetacionhandler.js:54
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+vegetacionhandler.js:67 ⚠️ No se pudo cargar el índice de vegetación desde ninguna fuente
+loadVegetationIndex @ vegetacionhandler.js:67
+await in loadVegetationIndex
+VegetacionHandler @ vegetacionhandler.js:21
+(anónimo) @ vegetacionhandler.js:643
+herramientasP.js:1815 ⚠️ Intento 2/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+simbolosP.js:670 No se encontró el menú MCC para añadir opciones de puntos
+(anónimo) @ simbolosP.js:670
+setTimeout
+(anónimo) @ simbolosP.js:642
+graficoMarcha.js:1185 🎯 Símbolos militares PI/PT listos para usar en gráficos
+planeamiento.js:27 🎯 Inicializando Sistema de Planeamiento...
+planeamiento.js:33 ✅ Sistema de Planeamiento inicializado
+planeamiento.html:1092 ✅ Sistema de Planeamiento inicializado
+planeamiento.html:1100 ⚠️ Sistema 3D no disponible - threeDMapService no cargado
+(anónimo) @ planeamiento.html:1100
+setTimeout
+(anónimo) @ planeamiento.html:1087
+planeamiento.html:1160 ✅ Eventos de planeamiento configurados
+planeamiento.html:1179 📊 Funciones heredadas: 4/5
+calcosP.js:1434 🔍 Verificando funciones críticas:
+calcosP.js:1435   - editarElementoSeleccionado: function
+calcosP.js:1436   - mostrarMenuContextual: function
+calcosP.js:1437   - seleccionarElemento: function
+calcosP.js:1441   - map inicializado correctamente
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/api/proxy/github/master_mini_tiles_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde /api/proxy/github/master_mini_tiles_index.json: HTTP 404 para /api/proxy/github/master_mini_tiles_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:94 📡 Intentando cargar desde: /api/proxy/github/master_index.json
+performanceOptimizer.js:282  GET http://127.0.0.1:5500/api/proxy/github/master_index.json 404 (Not Found)
+(anónimo) @ performanceOptimizer.js:282
+intentarCarga @ elevationHandler.js:80
+(anónimo) @ elevationHandler.js:95
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:128 ⚠️ Error cargando desde /api/proxy/github/master_index.json: HTTP 404 para /api/proxy/github/master_index.json
+(anónimo) @ elevationHandler.js:128
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:134 ❌ Error cargando desde todas las URLs: Error: HTTP 404 para /api/proxy/github/master_index.json
+    at intentarCarga (elevationHandler.js:82:13)
+    at async elevationHandler.js:95:22
+(anónimo) @ elevationHandler.js:134
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:142 Generando un nuevo índice de tiles debido a una estructura incorrecta.
+generarIndiceNuevo @ elevationHandler.js:142
+(anónimo) @ elevationHandler.js:135
+await in (anónimo)
+(anónimo) @ elevationHandler.js:137
+(anónimo) @ elevationHandler.js:75
+elevationHandler.js:1503 ⚠️ Error inicializando MAIRA.Elevacion: Error: HTTP 404 para /api/proxy/github/master_index.json
+    at intentarCarga (elevationHandler.js:82:13)
+    at async elevationHandler.js:95:22
+inicializar @ elevationHandler.js:1503
+await in inicializar
+initializeTerrainAdapter @ terrainAdapter.js:801
+content.js:5770 Obtener ha terminado de cargar: GET "chrome-extension://ofpnmcalabcbjgholdjcjblkibolbppb/content.css".
+getRenderRoot @ content.js:5770
+initContentRoot @ content.js:5770
+(anónimo) @ content.js:5770
+onDOMReady @ content.js:2521
+init @ content.js:5770
+await in init
+(anónimo) @ content.js:5770
+Promise.then
+PBt @ content.js:5770
+(anónimo) @ content.js:5770
+(anónimo) @ content.js:5770
+herramientasP.js:1815 ⚠️ Intento 3/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 4/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 5/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+elevationHandler.js:1635 🔗 Conectando Elevation con Vegetación...
+elevationHandler.js:1639 ⚠️ Vegetación no disponible para conexión
+miradial.js:288 Cambiando fase a: preparacion
+miradial.js:151 MiRadial inicializado
+planeamiento.html:1186 ✅ Menú radial inicializado
+herramientasP.js:1815 ⚠️ Intento 6/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+herramientasP.js:1815 ⚠️ Intento 7/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 8/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 9/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1815 ⚠️ Intento 10/10: Mapa no disponible
+intentarInicializar @ herramientasP.js:1815
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+herramientasP.js:1820 ❌ Mapa no se inicializó después de múltiples intentos
+intentarInicializar @ herramientasP.js:1820
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+setTimeout
+intentarInicializar @ herramientasP.js:1817
+(anónimo) @ herramientasP.js:1834
+(anónimo) @ herramientasP.js:794
+modelos3DManager.js:617 ⚠️ No se pudo integrar sistema de formaciones: Error: Sistema de formaciones no disponible
+    at Modelos3DManager.esperarSistemaFormaciones (modelos3DManager.js:628:15)
+    at async Modelos3DManager.inicializarSistemaFormaciones (modelos3DManager.js:611:17)
+inicializarSistemaFormaciones @ modelos3DManager.js:617
+await in inicializarSistemaFormaciones
+_initialize @ modelos3DManager.js:45
+(anónimo) @ modelos3DManager.js:25
+setInterval
+_initWhenReady @ modelos3DManager.js:21
+Modelos3DManager @ modelos3DManager.js:13
+(anónimo) @ modelos3DManager.js:1014
+indexP.js:225 🔧 Intentando alternar menú: agregar-menu
+indexP.js:237 ✅ Menú 'agregar-menu' mostrado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:246 ✅ Menú 'agregar-menu' sigue abierto correctamente
+simbolosP.js:61 Actualizando SIDC con carácter: F
+simbolosP.js:61 Actualizando SIDC con carácter: F
+simbolosP.js:61 Actualizando SIDC con carácter: F
+simbolosP.js:61 Actualizando SIDC con carácter: F
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+simbolosP.js:145 Uncaught TypeError: Cannot read properties of undefined (reading 'once')
+    at window.agregarMarcador (simbolosP.js:145:17)
+    at HTMLAnchorElement.onclick (planeamiento.html:1:1)
+window.agregarMarcador @ simbolosP.js:145
+onclick @ planeamiento.html:1
+indexP.js:225 🔧 Intentando alternar menú: infanteria
+indexP.js:229 ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+indexP.js:225 🔧 Intentando alternar menú: infanteria
+indexP.js:229 ⚠️ Menú 'infanteria' no encontrado
+toggleMenu @ indexP.js:229
+(anónimo) @ indexP.js:216
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+herramientasP.js:1922 🔄 Deseleccionando elemento actual
+herramientasP.js:1925 ⚠️ No hay elemento seleccionado para deseleccionar
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+indexP.js:225 🔧 Intentando alternar menú: agregar-menu
+indexP.js:237 ✅ Menú 'agregar-menu' ocultado
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+planeamiento.js:489 🗂️ Paneles de propiedades cerrados
+planeamiento.js:370 🧹 PlaneamientoManager limpiado
+performanceOptimizer.js:490 ⚠️ elevationHandler.clearCache no disponible
+limpiarCaches @ performanceOptimizer.js:490
+limpiarTodo @ performanceOptimizer.js:515
+(anónimo) @ performanceOptimizer.js:425
+vegetacionhandler.js:390 🧹 Cache de vegetación limpiado
+performanceOptimizer.js:508 🗑️ Caches limpiados
+performanceOptimizer.js:518 🧹 Limpieza completa realizada
+networkConfig.js:24 URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+style.css:1  GET http://127.0.0.1:5500/Client/image/M.A.I.R.A..gif 404 (Not Found)
+config.js:44 🚀 MAIRA Frontend configurado para: production
+config.js:45 📡 Servidor: http://127.0.0.1:5500
+landing3d.js:11 Inicializando landing page 3D
+landing3d.js:159 Configurando enlaces del menú lateral
+landing3d.js:129 Configurando botón 'Conocer más'
+landing3d.js:195 Inicializando smooth scroll
+landing3d.js:198 Verificando secciones:
+landing3d.js:201 - Sección #sobre-maira: EXISTE
+landing3d.js:201 - Sección #origen: EXISTE
+landing3d.js:201 - Sección #caracteristicas: EXISTE
+landing3d.js:201 - Sección #modos: EXISTE
+landing3d.js:201 - Sección #aplicaciones: EXISTE
+landing3d.js:201 - Sección #estado-actual: EXISTE
+landing3d.js:201 - Sección #contacto: EXISTE
+validacion.js:6 DOM fully loaded
+validacion.js:57 Event listeners added
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"contrasena" name=​"contrasena" required>​
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"nuevaContrasena" name=​"nuevaContrasena" required>​
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/index.html.
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+config.js:49  GET http://127.0.0.1:5500/health 404 (Not Found)
+(anónimo) @ config.js:49
+config.js:55 ⚠️ Servidor no disponible: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anónimo) @ config.js:55
+Promise.catch
+(anónimo) @ config.js:54
+config.js:49 Obtener no ha podido cargar: GET "http://127.0.0.1:5500/health".
+(anónimo) @ config.js:49
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/CO.html.
+milsymbol.js:27 milsymbol.js 2.0.0 - Copyright (c) 2018 Måns Beckman  http://www.spatialillusions.com
+Class.js:130 Deprecated include of L.Mixin.Events: this property will be removed in future releases, please inherit from L.Evented instead. Error
+    at et.extend (http://127.0.0.1:5500/MAIRA-4.0/node_modules/leaflet/dist/leaflet.js:5:3233)
+    at http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js:6:34
+    at http://127.0.0.1:5500/MAIRA-4.0/Client/Libs/Leaflet.pattern-master/dist/leaflet.pattern.js:6:7077
+(anónimo) @ Class.js:130
+(anónimo) @ leaflet.pattern.js:6
+(anónimo) @ leaflet.pattern.js:6
+CO.js:3218 ✅ CO.js v2.1.0 - Mejoras integradas
+CO.js:47 Actualizando SIDC con carácter: F
+CO.js:47 Actualizando SIDC con carácter: F
+conexionesCO.js:20 Inicializando sistema de conexiones
+CO.js:83 [Violation] 'DOMContentLoaded' handler took 176ms
+CO.js:47 Actualizando SIDC con carácter: F
+CO.js:47 Actualizando SIDC con carácter: F
+CO.js:47 Actualizando SIDC con carácter: F
+CO.html:52 ✅ Todas las dependencias cargadas correctamente
+CO.js:47 Actualizando SIDC con carácter: F
+CO.js:47 Actualizando SIDC con carácter: F
+CO.js:47 Actualizando SIDC con carácter: F
+CO.js:47 Actualizando SIDC con carácter: F
+CO.html:69 ✅ Cuadro de Organización inicializado
+CO.html:76 ✅ MAIRA.CuadroOrganizacion disponible
+CO.html:66 [Violation] 'setTimeout' handler took 77ms
+content.js:5770 Obtener ha terminado de cargar: GET "chrome-extension://ofpnmcalabcbjgholdjcjblkibolbppb/content.css".
+getRenderRoot @ content.js:5770
+initContentRoot @ content.js:5770
+(anónimo) @ content.js:5770
+onDOMReady @ content.js:2521
+init @ content.js:5770
+await in init
+(anónimo) @ content.js:5770
+Promise.then
+PBt @ content.js:5770
+(anónimo) @ content.js:5770
+(anónimo) @ content.js:5770
+CO.js:416 Toggle menu: agregar-menu
+CO.js:416 Toggle menu: infanteriaBtn
+CO.js:2139 Clic en el canvas: 629 345
+CO.js:931 🎯 Seleccionando elemento: <div id=​"symbol-1" class=​"military-symbol jtk-managed jtk-draggable jtk-droppable" data-sidc=​"SFGPUCI---" style=​"left:​ 2080px;​ top:​ 680px;​">​…​</div>​flex
+CO.js:941 ⚠️ Elemento no tiene método setStyle
+seleccionarElemento @ CO.js:941
+handleCanvasClick @ CO.js:2259
+CO.js:931 🎯 Seleccionando elemento: <div id=​"symbol-1" class=​"military-symbol jtk-managed jtk-draggable jtk-droppable" data-sidc=​"SFGPUCI---" style=​"left:​ 740px;​ top:​ 340px;​">​…​</div>​flex
+CO.js:941 ⚠️ Elemento no tiene método setStyle
+seleccionarElemento @ CO.js:941
+(anónimo) @ CO.js:1273
+CO.js:931 🎯 Seleccionando elemento: <div id=​"symbol-1" class=​"military-symbol jtk-managed jtk-draggable jtk-droppable" data-sidc=​"SFGPUCI---" style=​"left:​ 740px;​ top:​ 340px;​">​…​</div>​flex
+CO.js:941 ⚠️ Elemento no tiene método setStyle
+seleccionarElemento @ CO.js:941
+(anónimo) @ CO.js:1273
+CO.js:416 Toggle menu: agregar-menu
+CO.js:416 Toggle menu: ver-menu
+CO.js:416 Toggle menu: textosBtn
+CO.js:2508 Uncaught ReferenceError: registrarAccion is not defined
+    at agregarTexto (CO.js:2508:5)
+    at HTMLAnchorElement.<anonymous> (CO.js:797:13)
+agregarTexto @ CO.js:2508
+(anónimo) @ CO.js:797
+CO.js:2508 Uncaught ReferenceError: registrarAccion is not defined
+    at agregarTexto (CO.js:2508:5)
+    at HTMLAnchorElement.<anonymous> (CO.js:797:13)
+agregarTexto @ CO.js:2508
+(anónimo) @ CO.js:797
+CO.js:2508 Uncaught ReferenceError: registrarAccion is not defined
+    at agregarTexto (CO.js:2508:5)
+    at HTMLAnchorElement.<anonymous> (CO.js:797:13)
+agregarTexto @ CO.js:2508
+(anónimo) @ CO.js:797
+CO.js:931 🎯 Seleccionando elemento: <div id=​"text-4" class=​"military-symbol text-element jtk-managed jtk-draggable" data-texto-original=​"Texto" style=​"left:​ 120px;​ top:​ 50px;​">​…​</div>​flex
+CO.js:941 ⚠️ Elemento no tiene método setStyle
+seleccionarElemento @ CO.js:941
+(anónimo) @ CO.js:2453
+CO.js:931 🎯 Seleccionando elemento: <div id=​"text-4" class=​"military-symbol text-element jtk-managed jtk-draggable" data-texto-original=​"Texto" style=​"left:​ 120px;​ top:​ 50px;​">​…​</div>​flex
+CO.js:941 ⚠️ Elemento no tiene método setStyle
+seleccionarElemento @ CO.js:941
+(anónimo) @ CO.js:2453
+CO.js:2373 Uncaught ReferenceError: registrarAccion is not defined
+    at HTMLDivElement.<anonymous> (CO.js:2373:9)
+(anónimo) @ CO.js:2373
+CO.js:2373 Uncaught ReferenceError: registrarAccion is not defined
+    at HTMLDivElement.<anonymous> (CO.js:2373:9)
+(anónimo) @ CO.js:2373
+CO.js:416 Toggle menu: ver-menu
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/index.html.
+networkConfig.js:24 URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+style.css:1  GET http://127.0.0.1:5500/Client/image/M.A.I.R.A..gif 404 (Not Found)
+config.js:44 🚀 MAIRA Frontend configurado para: production
+config.js:45 📡 Servidor: http://127.0.0.1:5500
+landing3d.js:11 Inicializando landing page 3D
+landing3d.js:159 Configurando enlaces del menú lateral
+landing3d.js:129 Configurando botón 'Conocer más'
+landing3d.js:195 Inicializando smooth scroll
+landing3d.js:198 Verificando secciones:
+landing3d.js:201 - Sección #sobre-maira: EXISTE
+landing3d.js:201 - Sección #origen: EXISTE
+landing3d.js:201 - Sección #caracteristicas: EXISTE
+landing3d.js:201 - Sección #modos: EXISTE
+landing3d.js:201 - Sección #aplicaciones: EXISTE
+landing3d.js:201 - Sección #estado-actual: EXISTE
+landing3d.js:201 - Sección #contacto: EXISTE
+validacion.js:6 DOM fully loaded
+validacion.js:57 Event listeners added
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"contrasena" name=​"contrasena" required>​
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"nuevaContrasena" name=​"nuevaContrasena" required>​
+config.js:49  GET http://127.0.0.1:5500/health 404 (Not Found)
+(anónimo) @ config.js:49
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+config.js:55 ⚠️ Servidor no disponible: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anónimo) @ config.js:55
+Promise.catch
+(anónimo) @ config.js:54
+config.js:49 Obtener no ha podido cargar: GET "http://127.0.0.1:5500/health".
+(anónimo) @ config.js:49
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/iniciarpartida.html.
+networkConfig.js:24 URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+iniciarpartida.html:18  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/MAIRAChat.js net::ERR_ABORTED 404 (Not Found)
+iniciarpartida.html:19  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/partidas.js net::ERR_ABORTED 404 (Not Found)
+iniciarpartida.html:1 Refused to execute script from 'http://127.0.0.1:5500/MAIRA-4.0/Client/js/MAIRAChat.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+iniciarpartida.html:1 Refused to execute script from 'http://127.0.0.1:5500/MAIRA-4.0/Client/js/partidas.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+iniciarpartida.js:819 Uncaught ReferenceError: unirseAPartida is not defined
+    at js/iniciarpartida.js:819:25
+(anónimo) @ iniciarpartida.js:819
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/index.html.
+networkConfig.js:24 URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+config.js:44 🚀 MAIRA Frontend configurado para: production
+config.js:45 📡 Servidor: http://127.0.0.1:5500
+landing3d.js:11 Inicializando landing page 3D
+landing3d.js:159 Configurando enlaces del menú lateral
+landing3d.js:129 Configurando botón 'Conocer más'
+landing3d.js:195 Inicializando smooth scroll
+landing3d.js:198 Verificando secciones:
+landing3d.js:201 - Sección #sobre-maira: EXISTE
+landing3d.js:201 - Sección #origen: EXISTE
+landing3d.js:201 - Sección #caracteristicas: EXISTE
+landing3d.js:201 - Sección #modos: EXISTE
+landing3d.js:201 - Sección #aplicaciones: EXISTE
+landing3d.js:201 - Sección #estado-actual: EXISTE
+landing3d.js:201 - Sección #contacto: EXISTE
+validacion.js:6 DOM fully loaded
+validacion.js:57 Event listeners added
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"contrasena" name=​"contrasena" required>​
+index.html:1 [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) <input type=​"password" id=​"nuevaContrasena" name=​"nuevaContrasena" required>​
+config.js:49  GET http://127.0.0.1:5500/health 404 (Not Found)
+(anónimo) @ config.js:49
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+Obtener ha terminado de cargar: GET "<URL>".
+config.js:55 ⚠️ Servidor no disponible: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anónimo) @ config.js:55
+Promise.catch
+(anónimo) @ config.js:54
+config.js:49 Obtener no ha podido cargar: GET "http://127.0.0.1:5500/health".
+(anónimo) @ config.js:49
+Se ha abierto http://127.0.0.1:5500/MAIRA-4.0/Client/inicioGB.html.
+networkConfig.js:24 URLs configuradas: {SERVER_URL: 'http://127.0.0.1:5000', CLIENT_URL: 'http://127.0.0.1:8080'}
+milsymbol.js:27 milsymbol.js 2.0.0 - Copyright (c) 2018 Måns Beckman  http://www.spatialillusions.com
+inicioGB.html:19  GET http://127.0.0.1:5500/MAIRA-4.0/Client/js/MAIRAChat.js net::ERR_ABORTED 404 (Not Found)
+inicioGB.html:1 Refused to execute script from 'http://127.0.0.1:5500/MAIRA-4.0/Client/js/MAIRAChat.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.
+inicioGBhandler.js:11 Inicializando sala de espera para Gestión de Batalla
+inicioGBhandler.js:361 Inicializando preview SIDC con elemento básico
+polling-xhr.js:139  GET http://127.0.0.1:5000/socket.io/?EIO=4&transport=polling&t=95h8wayd net::ERR_CONNECTION_REFUSED
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+n @ manager.js:39
+$t @ index.js:29
+iniciarConexion @ inicioGBhandler.js:877
+(anónimo) @ inicioGBhandler.js:14
+XHR no ha podido cargar: GET "<URL>".
+XHR no ha podido cargar: GET "<URL>".
+XHR no ha podido cargar: GET "<URL>".
+XHR no ha podido cargar: GET "<URL>".
+XHR no ha podido cargar: GET "<URL>".
+XHR no ha podido cargar: GET "<URL>".
+content.js:5770 Obtener ha terminado de cargar: GET "chrome-extension://ofpnmcalabcbjgholdjcjblkibolbppb/content.css".
+getRenderRoot @ content.js:5770
+initContentRoot @ content.js:5770
+(anónimo) @ content.js:5770
+onDOMReady @ content.js:2521
+init @ content.js:5770
+await in init
+(anónimo) @ content.js:5770
+Promise.then
+PBt @ content.js:5770
+(anónimo) @ content.js:5770
+(anónimo) @ content.js:5770
+polling-xhr.js:139  GET http://127.0.0.1:5000/socket.io/?EIO=4&transport=polling&t=95iq04dq net::ERR_CONNECTION_REFUSED
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+i.maybeReconnectOnOpen @ manager.js:98
+o @ manager.js:130
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+n @ manager.js:39
+$t @ index.js:29
+iniciarConexion @ inicioGBhandler.js:877
+(anónimo) @ inicioGBhandler.js:14
+polling-xhr.js:139  GET http://127.0.0.1:5000/socket.io/?EIO=4&transport=polling&t=95jyiix1 net::ERR_CONNECTION_REFUSED
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+i.maybeReconnectOnOpen @ manager.js:98
+o @ manager.js:130
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+n @ manager.js:39
+$t @ index.js:29
+iniciarConexion @ inicioGBhandler.js:877
+(anónimo) @ inicioGBhandler.js:14
+polling-xhr.js:139  GET http://127.0.0.1:5000/socket.io/?EIO=4&transport=polling&t=95ntiowv net::ERR_CONNECTION_REFUSED
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+i.maybeReconnectOnOpen @ manager.js:98
+o @ manager.js:130
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+n @ manager.js:39
+$t @ index.js:29
+iniciarConexion @ inicioGBhandler.js:877
+(anónimo) @ inicioGBhandler.js:14
+inicioGBhandler.js:315 Enviando solicitud de creación: {nombre: 'pista PROCOM', descripcion: '', creador: 'Usuario', fechaCreacion: '2025-11-03T14:45:49.885Z'}
+polling-xhr.js:139  GET http://127.0.0.1:5000/socket.io/?EIO=4&transport=polling&t=95roklz0 net::ERR_CONNECTION_REFUSED
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+i.maybeReconnectOnOpen @ manager.js:98
+o @ manager.js:130
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+n @ manager.js:39
+$t @ index.js:29
+iniciarConexion @ inicioGBhandler.js:877
+(anónimo) @ inicioGBhandler.js:14
+polling-xhr.js:139  GET http://127.0.0.1:5000/socket.io/?EIO=4&transport=polling&t=95vjlg25 net::ERR_CONNECTION_REFUSED
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+(anónimo) @ manager.js:340
+o @ manager.js:126
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+(anónimo) @ manager.js:337
+setTimeout
+i.reconnect @ manager.js:330
+i.maybeReconnectOnOpen @ manager.js:98
+o @ manager.js:130
+I.emit @ index.js:136
+i.B @ socket.js:495
+I.emit @ index.js:136
+i.onError @ transport.js:39
+(anónimo) @ polling-xhr.js:55
+I.emit @ index.js:136
+i.B @ polling-xhr.js:161
+(anónimo) @ polling-xhr.js:135
+setTimeout
+e.onreadystatechange @ polling-xhr.js:134
+XMLHttpRequest.send
+i.A @ polling-xhr.js:139
+n @ polling-xhr.js:75
+n.request @ polling-xhr.js:253
+i.doPoll @ polling-xhr.js:52
+r.v @ polling.js:59
+r.doOpen @ polling.js:19
+i.open @ transport.js:47
+i.q @ socket.js:197
+n @ socket.js:150
+n @ socket.js:565
+n @ socket.js:725
+i.open @ manager.js:111
+n @ manager.js:39
+$t @ index.js:29
+iniciarConexion @ inicioGBhandler.js:877
+(anónimo) @ inicioGBhandler.js:14
