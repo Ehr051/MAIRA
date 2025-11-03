@@ -6,39 +6,15 @@
 
 class Modelos3DManager {
     constructor() {
-        // ⏳ Diferir inicialización hasta que THREE.js esté disponible
+        // Verificar que THREE.js esté disponible
         if (typeof THREE === 'undefined') {
-            console.warn('⏳ THREE.js aún no disponible - Modelos3DManager esperará...');
-            this._waitingForThree = true;
-            this._initWhenReady();
+            console.error('❌ THREE.js no está disponible - Modelos3DManager no puede inicializarse');
             return;
         }
 
-        this._initialize();
-    }
-
-    _initWhenReady() {
-        const checkInterval = setInterval(() => {
-            if (typeof THREE !== 'undefined') {
-                clearInterval(checkInterval);
-                console.log('✅ THREE.js disponible - Inicializando Modelos3DManager');
-                this._initialize();
-            }
-        }, 100);
-    }
-
-    _initialize() {
-        this._waitingForThree = false;
         this.catalogoModelos = this.crearCatalogoModelos();
         this.modelosCache = new Map(); // Cache de modelos cargados
-        
-        // Verificar que GLTFLoader esté disponible
-        if (typeof THREE.GLTFLoader !== 'undefined') {
-            this.loader = new THREE.GLTFLoader();
-        } else {
-            console.warn('⚠️ THREE.GLTFLoader no disponible - se cargará dinámicamente');
-            this.loader = null;
-        }
+        this.loader = new THREE.GLTFLoader();
         
         // Integración con sistema de formaciones jerárquicas
         this.sistemaFormaciones = null;
