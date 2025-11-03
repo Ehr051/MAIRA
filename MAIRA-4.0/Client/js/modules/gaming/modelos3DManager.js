@@ -26,33 +26,34 @@ class Modelos3DManager {
     /**
      * CATÁLOGO DE MODELOS 3D
      * Relaciona cada tipo de elemento con su modelo correspondiente
+     * RUTAS CORREGIDAS - Relativas desde Client/
      */
     crearCatalogoModelos() {
         return {
             // ============ TANQUES Y BLINDADOS ARGENTINOS ============
             "TAM": {
-                modelo: "/Client/assets/models/tam_tank.glb",
+                modelo: "assets/models/vehicles/tam_tank.glb",
                 backup: "procedural_tank",
                 escala: 1.0,
                 categoria: "MBT",
                 descripcion: "Tanque Argentino Mediano (105mm L7A1)"
             },
             "TAM_2C": {
-                modelo: "/Client/assets/models/tam_2c_tank.glb",
+                modelo: "assets/models/vehicles/tam_2c_tank.glb",
                 backup: "procedural_tank_modern",
                 escala: 1.0,
                 categoria: "MBT",
                 descripcion: "TAM 2C Modernizado (120mm L/44)"
             },
             "M113": {
-                modelo: "/Client/assets/models/m113_apc.glb", 
+                modelo: "assets/models/vehicles/m113_apc.glb",
                 backup: "procedural_apc",
                 escala: 0.8,
                 categoria: "APC",
                 descripcion: "Transporte Blindado de Personal M113"
             },
             "SK105": {
-                modelo: "/Client/assets/models/sk105.glb",
+                modelo: "assets/models/vehicles/sk105.glb",
                 backup: "procedural_tank_light",
                 escala: 0.9,
                 categoria: "LIGHT_TANK",
@@ -61,21 +62,21 @@ class Modelos3DManager {
 
             // ============ ARTILLERÍA Y MORTEROS ============
             "ARTILLERY_CANNON": {
-                modelo: "/Client/assets/models/artillery_cannon.glb",
+                modelo: "assets/models/vehicles/artillery_cannon.glb",
                 backup: "procedural_cannon",
                 escala: 1.0,
                 categoria: "CANNON",
                 descripcion: "Cañón de Artillería 12 libras"
             },
             "ARTILLERY_HOWITZER": {
-                modelo: "/Client/assets/models/artillery_howitzer.glb",
+                modelo: "assets/models/vehicles/artillery_howitzer.glb",
                 backup: "procedural_howitzer",
                 escala: 1.2,
                 categoria: "HOWITZER",
                 descripcion: "Obús Palmaria Thunder 155mm"
             },
             "MORTAR_81MM": {
-                modelo: "/Client/assets/models/mortar_81mm.glb",
+                modelo: "assets/models/vehicles/mortar_81mm.glb",
                 backup: "procedural_mortar",
                 escala: 0.8,
                 categoria: "MORTAR",
@@ -84,35 +85,35 @@ class Modelos3DManager {
 
             // ============ VEHÍCULOS TÁCTICOS Y LOGÍSTICOS ============
             "COMMAND_VEHICLE": {
-                modelo: "/Client/assets/models/command_vehicle.glb",
+                modelo: "assets/models/vehicles/command_vehicle.glb",
                 backup: "procedural_command_vehicle",
                 escala: 0.9,
                 categoria: "COMMAND",
                 descripcion: "Vehículo de Comando HUMVEE"
             },
             "HUMVEE": {
-                modelo: "/Client/assets/models/humvee.glb",
+                modelo: "assets/models/vehicles/humvee.glb",
                 backup: "procedural_jeep",
                 escala: 0.7,
-                categoria: "LIGHT_VEHICLE", 
+                categoria: "LIGHT_VEHICLE",
                 descripcion: "Vehículo Táctico Ligero HUMVEE"
             },
             "MILITARY_JEEP": {
-                modelo: "/Client/assets/models/military_jeep.glb",
+                modelo: "assets/models/vehicles/military_jeep.glb",
                 backup: "procedural_jeep",
                 escala: 0.7,
                 categoria: "LIGHT_VEHICLE",
                 descripcion: "Jeep Militar de Reconocimiento"
             },
             "SUPPLY_TRUCK": {
-                modelo: "/Client/assets/models/supply_truck.glb",
+                modelo: "assets/models/vehicles/supply_truck.glb",
                 backup: "procedural_truck",
                 escala: 1.0,
                 categoria: "LOGISTICS",
                 descripcion: "Camión Logístico 4320"
             },
             "LOGISTICS_TRUCK": {
-                modelo: "/Client/assets/models/logistics_truck.glb",
+                modelo: "assets/models/vehicles/logistics_truck.glb",
                 backup: "procedural_truck",
                 escala: 1.0,
                 categoria: "LOGISTICS",
@@ -121,7 +122,7 @@ class Modelos3DManager {
 
             // ============ VEHÍCULOS MÉDICOS Y APOYO ============
             "AMBULANCE": {
-                modelo: "/Client/assets/models/ambulance.glb",
+                modelo: "assets/models/vehicles/ambulance.glb",
                 backup: "procedural_ambulance",
                 escala: 0.9,
                 categoria: "MEDICAL",
@@ -130,7 +131,7 @@ class Modelos3DManager {
 
             // ============ ESTRUCTURAS Y INSTALACIONES ============
             "COMMAND_TENT": {
-                modelo: "/Client/assets/models/command_tent.glb",
+                modelo: "assets/models/structures/command_tent.glb",
                 backup: "procedural_tent",
                 escala: 1.2,
                 categoria: "STRUCTURE",
@@ -139,69 +140,69 @@ class Modelos3DManager {
 
             // ============ INFANTERÍA Y PERSONAL ============
             "SOLDADO_RIFLE": {
-                modelo: "/Client/assets/models/soldier_rifle.glb",
+                modelo: "assets/models/infantry/soldier_rifle.glb",
                 backup: "procedural_soldier",
                 escala: 0.3,
                 categoria: "INFANTRY",
                 descripcion: "Soldado con Fusil FAL"
             },
             "SOLDADO_ENGINEER": {
-                modelo: "/Client/assets/models/soldier_engineer.glb",
+                modelo: "assets/models/infantry/soldier_engineer.glb",
                 backup: "procedural_soldier_engineer",
                 escala: 0.3,
                 categoria: "ENGINEER",
                 descripcion: "Soldado de Ingenieros (NBQ)"
             },
             "SOLDADO_ANTITANK": {
-                modelo: "/Client/assets/models/soldier_antitank.glb", 
+                modelo: "assets/models/infantry/soldier_antitank.glb",
                 backup: "procedural_soldier_antitank",
                 escala: 0.3,
                 categoria: "INFANTRY_AT",
                 descripcion: "Operador Javelin Antitanque"
             },
             "SOLDADO_MOUNTAIN": {
-                modelo: "/Client/assets/models/soldier_mountain.glb",
+                modelo: "assets/models/infantry/soldier_mountain.glb",
                 backup: "procedural_soldier_mountain",
                 escala: 0.3,
                 categoria: "MOUNTAIN",
                 descripcion: "Soldado de Montaña (Bosque)"
             },
             "SOLDADO_DESERT": {
-                modelo: "/Client/assets/models/soldier_desert.glb",
+                modelo: "assets/models/infantry/soldier_desert.glb",
                 backup: "procedural_soldier_desert",
                 escala: 0.3,
-                categoria: "DESERT",  
+                categoria: "DESERT",
                 descripcion: "Soldado del Desierto (Arena)"
             },
 
             // ============ ELEMENTOS POR ESPECIALIDAD ============
             // Mapeo por tipo de elemento (usado por el mapper)
             "INFANTRY": {
-                modelo: "/Client/assets/models/soldier_rifle.glb",
+                modelo: "assets/models/infantry/soldier_rifle.glb",
                 backup: "procedural_soldier",
                 escala: 0.3,
                 categoria: "INFANTRY"
             },
             "TANK": {
-                modelo: "/Client/assets/models/tam_tank.glb",
+                modelo: "assets/models/vehicles/tam_tank.glb",
                 backup: "procedural_tank",
                 escala: 1.0,
                 categoria: "MBT"
             },
             "ARTILLERY": {
-                modelo: "/Client/assets/models/artillery_howitzer.glb",
+                modelo: "assets/models/vehicles/artillery_howitzer.glb",
                 backup: "procedural_artillery",
                 escala: 1.2,
                 categoria: "HOWITZER"
             },
             "ENGINEER": {
-                modelo: "/Client/assets/models/soldier_engineer.glb",
+                modelo: "assets/models/infantry/soldier_engineer.glb",
                 backup: "procedural_soldier_engineer",
                 escala: 0.3,
                 categoria: "ENGINEER"
             },
             "LOGISTICS": {
-                modelo: "/Client/assets/models/supply_truck.glb",
+                modelo: "assets/models/vehicles/supply_truck.glb",
                 backup: "procedural_truck",
                 escala: 1.0,
                 categoria: "LOGISTICS"

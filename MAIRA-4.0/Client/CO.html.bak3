@@ -26,7 +26,7 @@
     <!-- Military Symbol Libraries -->
     <script src="../node_modules/milsymbol/dist/milsymbol.js"></script>
     <script src="Libs/Leaflet.pattern-master/dist/leaflet.pattern.js"></script>
-    <script src="../node_modules/jsplumb/dist/js/jsplumb.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.15.6/js/jsplumb.min.js"></script>
     
     <!-- ✅ ORDEN CORRECTO DE SCRIPTS CO -->
     <script>
@@ -667,10 +667,10 @@
                     <option value="D">Sección</option>
                     <option value="E">Compañía/Escuadrón/Batería</option>
                     <option value="F">Regimiento/Batallón/Grupo</option>
-                    <option value="H">Brigada</option>
-                    <option value="I">División</option>
-                    <option value="J">Cuerpo/MEF</option>
-                    <option value="K">Ejército</option>
+                    <option value="G">Brigada</option>
+                    <option value="H">División</option>
+                    <option value="I">Cuerpo/MEF</option>
+                    <option value="J">Ejército</option>
                 </select>
             </div>
         </div>

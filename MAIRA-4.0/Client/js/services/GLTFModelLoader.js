@@ -14,10 +14,18 @@ class GLTFModelLoader {
         this.loader = null;
         this.cache = new Map();
         this.loadingPromises = new Map();
-        
-        // Path a modelos GLB directos
-        this.basePath = 'Client/assets/models/gbl_new/';
-        
+
+        // Path a modelos GLB directos (CORREGIDO)
+        this.basePath = 'assets/models/';
+
+        // Inicializar generador procedural como fallback
+        this.proceduralGenerator = window.ProceduralModelGenerator ?
+            new window.ProceduralModelGenerator() : null;
+
+        if (!this.proceduralGenerator) {
+            console.warn('⚠️ ProceduralModelGenerator no disponible - sin fallbacks');
+        }
+
         // Mapeo de tipos de vegetación a archivos GLB
         // 🌳 TODOS LOS MODELOS DISPONIBLES - Sin variaciones, modelos directos
         this.vegetationModels = {
@@ -311,8 +319,16 @@ class GLTFModelLoader {
      * @returns {THREE.Group}
      */
     createFallbackModel(modelName) {
+        // Si tenemos el generador procedural, usarlo
+        if (this.proceduralGenerator) {
+            console.log(`🔨 Generando modelo procedural para: ${modelName}`);
+            return this.proceduralGenerator.getModel(modelName);
+        }
+
+        // Fallback simple si no hay generador procedural
+        console.warn(`⚠️ Creando fallback básico para: ${modelName}`);
         const group = new THREE.Group();
-        
+
         switch(modelName) {
             case 'grass':
                 // Pasto - cilindro verde claro

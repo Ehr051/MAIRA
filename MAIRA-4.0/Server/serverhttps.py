@@ -150,8 +150,112 @@ def serve_index():
 def serve_client_files(path):
     return send_from_directory(CLIENT_DIR, path)
 
+# ✅ ENDPOINT CRÍTICO: Servir modelos 3D GLB/GLTF
+@app.route('/Client/assets/models/<path:filename>')
+@app.route('/assets/models/<path:filename>')  # Ruta adicional sin Client/
+def serve_models(filename):
+    """Servir archivos de modelos 3D GLB/GLTF con content-type correcto"""
+    try:
+        models_dir = os.path.join(CLIENT_DIR, 'assets', 'models')
 
- 
+        print(f"🎮 Sirviendo modelo 3D: {filename}")
+        print(f"🔍 Directorio modelos: {models_dir}")
+        print(f"🔍 ¿Existe archivo?: {os.path.exists(os.path.join(models_dir, filename))}")
+
+        if not os.path.exists(models_dir):
+            print(f"❌ Directorio de modelos no encontrado: {models_dir}")
+            return "Directorio de modelos no encontrado", 404
+
+        file_path = os.path.join(models_dir, filename)
+        if not os.path.exists(file_path):
+            print(f"❌ Modelo no encontrado: {file_path}")
+            return "Modelo no encontrado", 404
+
+        # Configurar content-type correcto para archivos GLB/GLTF
+        if filename.endswith('.glb'):
+            content_type = 'model/gltf-binary'
+        elif filename.endswith('.gltf'):
+            content_type = 'model/gltf+json'
+        else:
+            content_type = 'application/octet-stream'
+
+        response = send_from_directory(models_dir, filename)
+        response.headers['Content-Type'] = content_type
+        response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache por 1 hora
+
+        print(f"✅ Modelo servido correctamente: {filename} ({content_type})")
+        return response
+
+    except Exception as e:
+        print(f"❌ Error sirviendo modelo {filename}: {e}")
+        return f"Error cargando modelo: {str(e)}", 500
+
+# ✅ ENDPOINT: Servir assets generales
+@app.route('/Client/assets/<path:filename>')
+def serve_assets(filename):
+    """Servir archivos de assets (imágenes, sonidos, etc.)"""
+    try:
+        assets_dir = os.path.join(CLIENT_DIR, 'assets')
+
+        print(f"📁 Sirviendo asset: {filename}")
+
+        if not os.path.exists(assets_dir):
+            print(f"❌ Directorio de assets no encontrado: {assets_dir}")
+            return "Directorio de assets no encontrado", 404
+
+        response = send_from_directory(assets_dir, filename)
+        response.headers['Cache-Control'] = 'public, max-age=1800'  # Cache por 30 minutos
+
+        return response
+
+    except Exception as e:
+        print(f"❌ Error sirviendo asset {filename}: {e}")
+        return f"Error cargando asset: {str(e)}", 500
+
+# ✅ ENDPOINT: Servir node_modules
+@app.route('/node_modules/<path:filename>')
+def serve_node_modules(filename):
+    """Servir archivos de node_modules con content-type correcto"""
+    try:
+        node_modules_dir = os.path.join(BASE_DIR, 'node_modules')
+
+        print(f"📦 Sirviendo node_modules: {filename}")
+        print(f"🔍 Directorio: {node_modules_dir}")
+        print(f"🔍 ¿Existe?: {os.path.exists(node_modules_dir)}")
+
+        if not os.path.exists(node_modules_dir):
+            print(f"❌ node_modules no encontrado en: {node_modules_dir}")
+            return "node_modules no encontrado", 404
+
+        file_path = os.path.join(node_modules_dir, filename)
+        if not os.path.exists(file_path):
+            print(f"❌ Archivo no encontrado: {file_path}")
+            return "Archivo no encontrado", 404
+
+        # Content-type apropiado por extensión
+        content_type = None
+        if filename.endswith('.js'):
+            content_type = 'application/javascript'
+        elif filename.endswith('.css'):
+            content_type = 'text/css'
+        elif filename.endswith('.json'):
+            content_type = 'application/json'
+        elif filename.endswith('.wasm'):
+            content_type = 'application/wasm'
+
+        response = send_from_directory(node_modules_dir, filename)
+        if content_type:
+            response.headers['Content-Type'] = content_type
+        response.headers['Cache-Control'] = 'public, max-age=3600'
+
+        print(f"✅ Servido: {filename}")
+        return response
+
+    except Exception as e:
+        print(f"❌ Error sirviendo {filename}: {e}")
+        return f"Error: {str(e)}", 500
+
+
 @app.route('/<path:path>')
 def serve_static(path):
     # Intenta servir el archivo directamente

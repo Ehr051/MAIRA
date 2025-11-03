@@ -63,21 +63,22 @@ class MAIRA3DMaster {
         // === CONFIGURACIÓN ===
         this.config = {
             models: {
-                // Modelos reales GLTF disponibles
-                'tank_tam': '/backup_gltf_models/gltf_new/tam2c_3d_model/scene.gltf',
-                'tank_tam_war': '/backup_gltf_models/gltf_new/tam_war_thunder/scene.gltf',
-                'humvee': '/backup_gltf_models/gltf_new/humvee/scene.gltf',
-                'm113': '/backup_gltf_models/gltf_new/m113/scene.gltf',
-                'ural': '/backup_gltf_models/gltf_new/ural_4320/scene.gltf',
-                'soldier': '/backup_gltf_models/gltf_new/soldier/scene.gltf',
-                'russian_soldier': '/backup_gltf_models/gltf_new/russian_soldier/scene.gltf',
-                'tent_military': '/backup_gltf_models/gltf_new/tent_military/scene.gltf',
-                'medical_tent': '/backup_gltf_models/gltf_new/medical_tent/scene.gltf',
+                // Modelos GLTF/GLB (RUTAS CORREGIDAS)
+                // Nota: Si no existen, se usarán modelos procedurales automáticamente
+                'tank_tam': 'assets/models/vehicles/tam2c.glb',
+                'tank_tam_war': 'assets/models/vehicles/tam_war.glb',
+                'humvee': 'assets/models/vehicles/humvee.glb',
+                'm113': 'assets/models/vehicles/m113.glb',
+                'ural': 'assets/models/vehicles/ural_4320.glb',
+                'soldier': 'assets/models/infantry/soldier.glb',
+                'russian_soldier': 'assets/models/infantry/russian_soldier.glb',
+                'tent_military': 'assets/models/structures/tent_military.glb',
+                'medical_tent': 'assets/models/structures/medical_tent.glb',
                 // Modelos de vegetación
-                'grass': '/backup_gltf_models/gltf_new/vegetation/grass/scene.gltf',
-                'tree_tall': '/backup_gltf_models/gltf_new/vegetation/tree_tall/scene.gltf',
-                'tree_medium': '/backup_gltf_models/gltf_new/vegetation/tree_medium/scene.gltf',
-                'bush': '/backup_gltf_models/gltf_new/vegetation/bush/scene.gltf'
+                'grass': 'assets/models/vegetation/grass.glb',
+                'tree_tall': 'assets/models/vegetation/tree_tall.glb',
+                'tree_medium': 'assets/models/vegetation/tree_medium.glb',
+                'bush': 'assets/models/vegetation/bush.glb'
             },
             terrain: {
                 size: 2000,

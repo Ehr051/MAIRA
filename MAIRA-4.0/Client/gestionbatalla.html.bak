@@ -12,30 +12,30 @@
   
   <!-- Estilos CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="../node_modules/leaflet-draw/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <link rel="stylesheet" href="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-measure/dist/leaflet-measure.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-easybutton/src/easy-button.css" />
-  <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/planeamiento.css">
   <link rel="stylesheet" href="css/GBatalla.css">
   <link rel="stylesheet" href="css/CYGMarcha.css">
   
   <!-- Scripts JavaScript -->
-  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-  <script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
-  <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
-  <script src="../node_modules/html2canvas/dist/html2canvas.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/milsymbol@2.1.1/dist/milsymbol.js"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
-  <script src="../node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
   <script src="https://unpkg.com/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
   <script src="https://unpkg.com/leaflet-geosearch/dist/bundle.min.js"></script>
   <script src="https://unpkg.com/geotiff/dist-browser/geotiff.js"></script>
@@ -823,18 +823,18 @@
             </div>
             <div>
                 <label for="magnitud">Magnitud:</label>
-                </select><select id="magnitud">
+                <select id="magnitud">
                     <option value="-">No especificado</option>
                     <option value="A">Equipo/Tripulación</option>
-                    <option value="B">Pelotón</option>
-                    <option value="C">Grupo</option>
+                    <option value="B">peloton</option>
+                    <option value="C">grupo</option>
                     <option value="D">Sección</option>
                     <option value="E">Compañía/Escuadrón/Batería</option>
                     <option value="F">Regimiento/Batallón/Grupo</option>
-                    <option value="H">Brigada</option>
-                    <option value="I">División</option>
-                    <option value="J">Cuerpo/MEF</option>
-                    <option value="K">Ejército</option>
+                    <option value="G">Brigada</option>
+                    <option value="H">División</option>
+                    <option value="I">Cuerpo/MEF</option>
+                    <option value="J">Ejército</option>
                 </select>
             </div>
         </div>
