@@ -269,7 +269,7 @@ function inicializarMapa() {
     if (typeof agregarCalcoALista === 'function') {
         agregarCalcoALista('Calco1');
     } else {
-        console.warn("La función agregarCalcoALista no está definida. Asegúrate de cargar calcos.js antes que mapa2.js");
+        console.warn("La función agregarCalcoALista no está definida. Asegúrate de cargar calcos.js antes que map2.js");
     }
 
     capaOSM = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {

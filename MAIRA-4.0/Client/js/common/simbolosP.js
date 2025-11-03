@@ -142,7 +142,7 @@ window.agregarMarcador = function(sidc, nombre) {
     }
 
     // 2. Handler para click en mapa
-    window.mapa.once('click', function(event) {
+    window.map.once('click', function(event) {
         const latlng = event.latlng;
 
         // 3. Validación zona despliegue
@@ -234,7 +234,7 @@ window.agregarMarcador = function(sidc, nombre) {
                 if (window.MiRadial) {
                     window.MiRadial.selectedUnit = this;
                     window.MiRadial.selectedHex = null;
-                    const point = window.mapa.latLngToContainerPoint(e.latlng);
+                    const point = window.map.latLngToContainerPoint(e.latlng);
                     window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
                 }
             });
@@ -271,7 +271,7 @@ window.agregarMarcador = function(sidc, nombre) {
             marcador.on('contextmenu', window.mostrarMenuContextual);
         }
 
-        // 7. Agregar al mapa y notificar
+        // 7. Agregar al map y notificar
         window.calcoActivo.addLayer(marcador);
 
         if (nombre === 'Punto Inicial' || nombre === 'PI') {
@@ -296,7 +296,7 @@ window.agregarMarcador = function(sidc, nombre) {
 
 window.agregarPuntoControl = function(tipo) {
     // Handler para click en mapa
-    window.mapa.once('click', function(event) {
+    window.map.once('click', function(event) {
         const latlng = event.latlng;
         let pcNumero = '';
         let pcTipo = tipo || 'PC';

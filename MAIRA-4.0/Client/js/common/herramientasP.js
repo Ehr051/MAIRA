@@ -62,7 +62,7 @@ function configurarGestosTactiles() {
         const touch = e.touches[0];
         touchStartPos = { x: touch.clientX, y: touch.clientY };
         
-        // Si es en el mapa y hay herramienta activa
+        // Si es en el map y hay herramienta activa
         if (e.target.closest('.leaflet-container') && window.herramientaActiva) {
             e.preventDefault(); // Prevenir scroll en mediciones
         }
@@ -215,7 +215,7 @@ if (document.readyState === 'loading') {
  * Configurar eventos táctiles específicos para medición
  */
 function configurarEventosTactilesMedicion() {
-    const mapContainer = mapa.getContainer();
+    const mapContainer = map.getContainer();
     
     // Variables para tracking de touch en medición
     let touchStartPos = null;
@@ -277,7 +277,7 @@ function configurarEventosTactilesMedicion() {
 
             // Convertir posición de touch a coordenadas del mapa
             const containerPoint = L.point(touchStartPos.x, touchStartPos.y);
-            const latlng = mapa.containerPointToLatLng(containerPoint);
+            const latlng = map.containerPointToLatLng(containerPoint);
             
             // Feedback visual táctil
             mostrarFeedbackTactil(touchStartPos.x, touchStartPos.y);
@@ -649,8 +649,8 @@ function actualizarMedicion(id) {
 function stopMeasuring() {
     console.log("Deteniendo medición de distancia");
     measuringDistance = false;
-    mapa.off('click', addDistancePoint);
-    mapa.off('dblclick', stopMeasuring);
+    map.off('click', addDistancePoint);
+    map.off('dblclick', stopMeasuring);
     if (lineaActual) {
         ocultarMarcadores(lineaActual);
         lineaActual = null;
@@ -719,7 +719,7 @@ function initializeBuscarLugar() {
         return;
     }
 
-    if (!window.mapa) {
+    if (!window.map) {
         console.error('❌ Mapa no disponible para búsqueda de lugar');
         return;
     }
@@ -752,7 +752,7 @@ function initializeBuscarLugar() {
                         li.style.cursor = 'pointer';
                         li.style.padding = '5px';
                         li.addEventListener('click', function() {
-                            window.mapa.setView(result.center, 13);
+                            window.map.setView(result.center, 13);
                             console.log('🎯 Mapa centrado en:', result.center);
                             busquedaLugarInput.value = '';
                             resultadosBusquedaLugar.innerHTML = '';
@@ -790,7 +790,7 @@ function initializeBuscarLugar() {
 
 // Inicialización cuando el DOM está completamente cargado
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Inicializando herramientas del mapa");
+    console.log("Inicializando herramientas del map");
     initializeBuscarLugar();
     
     var btnMedirDistancia = document.getElementById('btnMedirDistancia');
@@ -835,24 +835,24 @@ function medirDistancia() {
         // Configurar cursor solo para dispositivos no táctiles
         const deviceInfo = detectarDispositivoMovil();
         if (!deviceInfo.hasTouch) {
-            mapa.getContainer().style.cursor = 'crosshair';
+            map.getContainer().style.cursor = 'crosshair';
         }
         
         lineaActual = crearLinea();
         
         // ✅ REMOVER LISTENERS EXISTENTES PARA EVITAR CONFLICTOS:
-        mapa.off('click', addDistancePoint);
-        mapa.off('mousemove', actualizarDistanciaProvisional);
-        mapa.off('dblclick', finalizarMedicion);
+        map.off('click', addDistancePoint);
+        map.off('mousemove', actualizarDistanciaProvisional);
+        map.off('dblclick', finalizarMedicion);
         
         // ✅ CONFIGURAR EVENTOS SEGÚN DISPOSITIVO:
         if (deviceInfo.hasTouch) {
             configurarEventosTactilesMedicion();
         } else {
             // Desktop - eventos estándar
-            mapa.on('click', addDistancePoint);
-            mapa.on('mousemove', actualizarDistanciaProvisional);
-            mapa.once('dblclick', finalizarMedicion);
+            map.on('click', addDistancePoint);
+            map.on('mousemove', actualizarDistanciaProvisional);
+            map.once('dblclick', finalizarMedicion);
         }
         
         // Mostrar el display de medición con mensaje optimizado
@@ -958,16 +958,16 @@ function finalizarMedicion(e) {
     console.log('🏁 Finalizando medición');
     
     measuringDistance = false;
-    mapa.getContainer().style.cursor = '';
+    map.getContainer().style.cursor = '';
     
     // Limpiar eventos estándar
-    mapa.off('click', addDistancePoint);
-    mapa.off('mousemove', actualizarDistanciaProvisional);
-    mapa.off('dblclick', finalizarMedicion);
+    map.off('click', addDistancePoint);
+    map.off('mousemove', actualizarDistanciaProvisional);
+    map.off('dblclick', finalizarMedicion);
     
     // Limpiar eventos táctiles si existen
     if (window.touchEventHandlersMedicion) {
-        const mapContainer = mapa.getContainer();
+        const mapContainer = map.getContainer();
         mapContainer.removeEventListener('touchstart', window.touchEventHandlersMedicion.touchstart);
         mapContainer.removeEventListener('touchmove', window.touchEventHandlersMedicion.touchmove);
         mapContainer.removeEventListener('touchend', window.touchEventHandlersMedicion.touchend);
@@ -1364,7 +1364,7 @@ function agregarTextoPoligono(poligono, texto) {
     textoMarcador.on('drag', function(e) {
         // Mantener el texto dentro del polígono
         let punto = poligono.closestLayerPoint(e.target.getLatLng());
-        e.target.setLatLng(mapa.layerPointToLatLng(punto));
+        e.target.setLatLng(map.layerPointToLatLng(punto));
     });
 }
 
@@ -1536,8 +1536,8 @@ function dibujarElemento(tipo, sidc = null, nombre = '') {
     let puntos = [];
     let elemento;
 
-    mapa.on('click', agregarPunto);
-    mapa.once('dblclick', finalizarDibujo);
+    map.on('click', agregarPunto);
+    map.once('dblclick', finalizarDibujo);
 
     function agregarPunto(e) {
         puntos.push(e.latlng);
@@ -1563,8 +1563,8 @@ function dibujarElemento(tipo, sidc = null, nombre = '') {
     }
 
     function finalizarDibujo(e) {
-        mapa.off('click', agregarPunto);
-        mapa.off('dblclick', finalizarDibujo);
+        map.off('click', agregarPunto);
+        map.off('dblclick', finalizarDibujo);
     
         if (tipo === 'linea' || tipo === 'lineaConTexto') {
             elemento.options.nombre = nombre || 'Línea sin nombre';
@@ -1581,7 +1581,7 @@ function dibujarElemento(tipo, sidc = null, nombre = '') {
     
             // Mantener el texto en la línea
             textoMarcador.on('drag', function(e) {
-                let closestPoint = L.GeometryUtil.closest(mapa, elemento.getLatLngs(), e.latlng);
+                let closestPoint = L.GeometryUtil.closest(map, elemento.getLatLngs(), e.latlng);
                 this.setLatLng(closestPoint);
             });
         }
@@ -1601,7 +1601,7 @@ function dibujarElemento(tipo, sidc = null, nombre = '') {
         if (tipo === 'lineaSIDC' && sidc) {
             let puntos = elemento.getLatLngs();
             for (let i = 0; i < puntos.length - 1; i++) {
-                let punto = L.GeometryUtil.interpolateOnLine(mapa, [puntos[i], puntos[i+1]], 0.5);
+                let punto = L.GeometryUtil.interpolateOnLine(map, [puntos[i], puntos[i+1]], 0.5);
                 let sym = new ms.Symbol(sidc, {size: 30});
                 let marcadorSIDC = L.marker(punto.latLng, {
                     icon: L.divIcon({
@@ -1668,9 +1668,9 @@ function inicializarControlGestos() {
     }
     
     // Detectar elemento del mapa
-    const mapaElement = document.getElementById('mapa') || document.querySelector('.leaflet-container');
+    const mapaElement = document.getElementById('map') || document.querySelector('.leaflet-container');
     if (!mapaElement) {
-        console.warn('⚠️ Elemento del mapa no encontrado para gestos');
+        console.warn('⚠️ Elemento del map no encontrado para gestos');
         return;
     }
     
@@ -1758,9 +1758,9 @@ function inicializarControlGestos() {
                 console.log('👆👆 Double tap detectado');
                 
                 // Zoom in en la posición
-                if (window.mapa) {
-                    const latlng = window.mapa.containerPointToLatLng(L.point(touchEndX, touchEndY));
-                    window.mapa.setView(latlng, window.mapa.getZoom() + 1);
+                if (window.map) {
+                    const latlng = window.map.containerPointToLatLng(L.point(touchEndX, touchEndY));
+                    window.map.setView(latlng, window.map.getZoom() + 1);
                 }
             } else {
                 // Primer tap, esperar segundo
@@ -1810,8 +1810,8 @@ window.initializeBuscarLugar = function() {
             return;
         }
         
-        // Verificar que el mapa esté disponible
-        if (!window.mapa) {
+        // Verificar que el map esté disponible
+        if (!window.map) {
             console.warn(`⚠️ Intento ${intentos}/${maxIntentos}: Mapa no disponible`);
             if (intentos < maxIntentos) {
                 setTimeout(intentarInicializar, 500);
