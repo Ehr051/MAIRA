@@ -399,10 +399,10 @@ class TerrainGenerator3D {
         const realDimensions = this.calculateRealWorldDimensions(bounds);
         console.log(`📏 Dimensiones reales: ${realDimensions.widthMeters.toFixed(0)}m x ${realDimensions.heightMeters.toFixed(0)}m`);
         
-        // 🎯 CALCULAR FACTOR DE ESCALA BASADO EN ZOOM DEL map
+        // 🎯 CALCULAR FACTOR DE ESCALA BASADO EN ZOOM DEL MAPA
         const mapZoom = options.mapZoom || 15; // Zoom por defecto si no se pasa
         const zoomScaleFactor = this.calculateZoomScaleFactor(mapZoom);
-        console.log(`🔍 Zoom del map: ${mapZoom}, Factor de escala: ${zoomScaleFactor.toFixed(2)}x`);
+        console.log(`🔍 Zoom del mapa: ${mapZoom}, Factor de escala: ${zoomScaleFactor.toFixed(2)}x`);
         
         // 🔥 Aplicar factor de escala a las dimensiones
         const scaledWidth = realDimensions.widthMeters * zoomScaleFactor;
@@ -422,22 +422,22 @@ class TerrainGenerator3D {
         } else {
             // 🎯 Resolución optimizada para vistas tácticas (6km ≈ zoom 15)
             if (mapZoom < 13) {
-                resolution = 32; // 32×32 = 1,024 puntos - Vista estratégica (aumentado de 20)
-                console.log('⚡ Resolución MEDIA (zoom <13, estratégica): 32×32 = 1,024 puntos');
+                resolution = 20; // 20×20 = 400 puntos - Vista estratégica
+                console.log('⚡ Resolución BAJA (zoom <13, estratégica): 20×20 = 400 puntos (9x velocidad)');
             } else if (mapZoom >= 13 && mapZoom < 15) {
-                resolution = 128; // 128×128 = 16,384 puntos - DETALLE ULTRA ✅ (era 64)
-                console.log('⚡ Resolución ULTRA-ALTA (zoom 13-14): 128×128 = 16,384 puntos (terreno ultra-suave) 🏔️');
+                resolution = 22; // 22×22 = 484 puntos - Transición (reducido de 25)
+                console.log('⚡ Resolución MEDIA-BAJA (zoom 13-14): 22×22 = 484 puntos (7x velocidad)');
             } else if (mapZoom >= 15 && mapZoom < 17) {
-                resolution = 128; // 128×128 = 16,384 puntos - Máximo detalle (era 64)
-                console.log('⚡ Resolución TÁCTICA ULTRA (zoom 15-16): 128×128 = 16,384 puntos (detalle máximo) ⚔️');
+                resolution = 25; // 25×25 = 625 puntos - Vista táctica 6km (REDUCIDO para estabilidad)
+                console.log('⚡ Resolución TÁCTICA (zoom 15-16, 6km): 25×25 = 625 puntos (prioridad: estabilidad + FPS) ⚔️');
             } else if (mapZoom >= 17 && mapZoom < 19) {
-                resolution = 64; // 64×64 = 4,096 puntos - Alta calidad (antes 28)
-                console.log('⚡ Resolución ALTA (zoom 17-18): 64×64 = 4,096 puntos (equilibrio)');
+                resolution = 28; // 28×28 = 784 puntos - Alta calidad (REDUCIDO para evitar sobremuestreo y lag)
+                console.log('⚡ Resolución ALTA (zoom 17-18): 28×28 = 784 puntos (equilibrio: detalle vs rendimiento)');
             } else {
-                // 🚨 Zoom demasiado alto: mantener calidad decente
-                resolution = 32; // 32×32 = 1,024 puntos (antes 20)
-                console.warn('⚠️ Resolución MEDIA (zoom 19+): 32×32 = 1,024 puntos');
-                console.warn('💡 Sugerencia: Zoom 19+ puede tener menor detalle. Para mejor calidad, mantenga zoom 13-18');
+                // 🚨 Zoom demasiado alto: reducir aún más para evitar colapso
+                resolution = 20; // 20×20 = 400 puntos - Forzar baja resolución
+                console.warn('⚠️ Resolución FORZADA BAJA (zoom 19+): 20×20 = 400 puntos (prevenir colapso por sobremuestreo extremo)');
+                console.warn('💡 Sugerencia: Zoom 19+ puede tener calidad reducida. Para mejor detalle, mantenga zoom 15-18');
             }
         }
         
@@ -658,61 +658,24 @@ class TerrainGenerator3D {
             }
         }
 
-        // 🎨 PASO CRÍTICO: Calcular normales ANTES de crear material
-        // Esto asegura que el smooth shading funcione correctamente
+        // Calcular normales para iluminación correcta
         geometry.computeVertexNormals();
-        
-        // 🔧 Normalizar las normales (asegurar vectores unitarios)
-        geometry.normalizeNormals();
 
         // Crear material con textura procedural o básica
         let material;
-        
-        // 🔍 DEBUG: Verificar estado del satelliteAnalyzer
-        console.log('🔍 DEBUG Textura:', {
-            hasSatelliteAnalyzer: !!this.satelliteAnalyzer,
-            hasGetTexture: this.satelliteAnalyzer && typeof this.satelliteAnalyzer.getTexture === 'function',
-            hasCanvas: this.satelliteAnalyzer && !!this.satelliteAnalyzer.canvas,
-            hasImageData: this.satelliteAnalyzer && !!this.satelliteAnalyzer.imageData
-        });
-        
         if (this.satelliteAnalyzer && this.satelliteAnalyzer.getTexture) {
             // Usar textura del satellite analyzer si está disponible
             const texture = this.satelliteAnalyzer.getTexture();
-            
-            if (texture) {
-                console.log('✅ Usando textura satelital real');
-                material = new THREE.MeshPhongMaterial({
-                    map: texture,
-                    transparent: false,
-                    flatShading: false, // ✅ CRÍTICO: false para smooth shading
-                    shininess: 10,
-                    // 🔧 Agregar smooth shading explícito
-                    side: THREE.FrontSide
-                });
-            } else {
-                console.warn('⚠️ getTexture() devolvió null, usando color procedural');
-                // Fallback a material procedural
-                material = new THREE.MeshPhongMaterial({
-                    color: 0x4a7c59, // Verde terreno
-                    transparent: false,
-                    side: THREE.DoubleSide,
-                    flatShading: false,
-                    shininess: 5,
-                    specular: 0x222222
-                });
-            }
+            material = new THREE.MeshLambertMaterial({
+                map: texture,
+                transparent: false
+            });
         } else {
-            console.warn('⚠️ SatelliteAnalyzer no disponible o sin getTexture(), usando color procedural');
             // Material procedural básico
-            material = new THREE.MeshPhongMaterial({
+            material = new THREE.MeshLambertMaterial({
                 color: 0x4a7c59, // Verde terreno
                 transparent: false,
-                side: THREE.DoubleSide,
-                flatShading: false, // ✅ CRÍTICO: false para terreno suave (no "piña")
-                shininess: 5,
-                // 🔧 Especular para mejor visualización de relieve
-                specular: 0x222222
+                side: THREE.DoubleSide
             });
         }
 
@@ -733,7 +696,7 @@ class TerrainGenerator3D {
 
     /**
      * Generar terreno virtual sin coordenadas geográficas
-     * Útil para demos y testing sin map
+     * Útil para demos y testing sin mapa
      */
     async generateVirtualTerrain(options = {}) {
         if (!this.initialized) {
@@ -800,45 +763,25 @@ class TerrainGenerator3D {
         const startTime = performance.now();
         console.log(`🔄 Enriqueciendo ${points.length} puntos con muestreo inteligente (1/${samplingRate})...`);
         
-        // � DEBUG: Mostrar coordenadas geográficas del terreno
-        if (points.length > 0) {
-            const lats = points.map(p => p.lat).filter(v => v !== undefined);
-            const lons = points.map(p => p.lon).filter(v => v !== undefined);
-            if (lats.length > 0 && lons.length > 0) {
-                const latMin = Math.min(...lats);
-                const latMax = Math.max(...lats);
-                const lonMin = Math.min(...lons);
-                const lonMax = Math.max(...lons);
-                console.log(`%c📍 BOUNDS GEOGRÁFICOS DEL TERRENO`, 'background: #4ec9b0; color: #000; padding: 4px 8px; font-weight: bold;');
-                console.log(`   Latitud:  ${latMin.toFixed(6)} a ${latMax.toFixed(6)}`);
-                console.log(`   Longitud: ${lonMin.toFixed(6)} a ${lonMax.toFixed(6)}`);
-                console.log(`   Centro: ${((latMin + latMax) / 2).toFixed(6)}, ${((lonMin + lonMax) / 2).toFixed(6)}`);
-            }
-        }
-        
-        // �🚀 OPTIMIZACIÓN: Caché de elevaciones (reduce llamadas redundantes a TIF)
+        // 🚀 OPTIMIZACIÓN: Caché de elevaciones (reduce llamadas redundantes a TIF)
         const elevationCache = new Map();
         const vegetationCache = new Map();
         const cacheKey = (lat, lon) => `${lat.toFixed(5)}_${lon.toFixed(5)}`; // Precisión 5 decimales (~1m)
         
         // Calcular resolución del grid (asumiendo cuadrado)
-        // Si tenemos (resolution+1)² puntos, gridSize = resolution+1
-        const gridSize = Math.sqrt(points.length); // Tamaño del grid (ej: 129 para resolution=128)
-        const gridResolution = gridSize - 1; // Resolution original (ej: 128)
-        
-        console.log(`📐 Grid: ${gridSize}×${gridSize} puntos (resolution=${gridResolution})`);
+        const gridResolution = Math.sqrt(points.length);
         
         // 🎯 PASO 1: Muestrear solo algunos puntos de los TIF
         const sampledPoints = [];
         const sampledIndices = new Set();
         
         for (let i = 0; i < points.length; i++) {
-            const row = Math.floor(i / gridSize);
-            const col = i % gridSize;
+            const row = Math.floor(i / gridResolution);
+            const col = i % gridResolution;
             
             // Muestrear cada N puntos + siempre los bordes
             if (row % samplingRate === 0 || col % samplingRate === 0 || 
-                row === gridSize - 1 || col === gridSize - 1) {
+                row === gridResolution - 1 || col === gridResolution - 1) {
                 sampledPoints.push({ ...points[i], originalIndex: i });
                 sampledIndices.add(i);
             }
@@ -847,47 +790,84 @@ class TerrainGenerator3D {
         console.log(`� Muestreando ${sampledPoints.length}/${points.length} puntos de los TIF (${Math.round(sampledPoints.length/points.length*100)}%)`);
         
         // 🎯 PASO 2: Obtener datos REALES solo para puntos muestreados (en paralelo)
+        // 🚀 OPTIMIZACIÓN: Batch reducido para evitar lag
+        const batchSize = 50; // ⚡ Reducido de 200 a 50 para velocidad sin lag
+        const sampledData = new Map(); // originalIndex -> {elevation, ndvi}
+        
         const samplingStart = performance.now();
-        const sampledData = new Map(); // Almacenar datos de puntos muestreados
+        // ELIMINADO LOG: console.log(`⚡ Procesando ${sampledPoints.length} puntos en batches de ${batchSize}...`);
         
-        // � DEBUG: Verificar disponibilidad de batch API
-        console.log(`🔍 DEBUG heightmapHandler:`, {
-            exists: !!this.heightmapHandler,
-            type: typeof this.heightmapHandler,
-            hasBatch: this.heightmapHandler && typeof this.heightmapHandler.getElevationBatch === 'function',
-            constructor: this.heightmapHandler ? this.heightmapHandler.constructor.name : 'N/A'
-        });
-        
-        // �🚀 OPTIMIZACIÓN: Batch reducido para evitar lag
-        // 🚀 Usar batch API si está disponible
-        if (this.heightmapHandler && typeof this.heightmapHandler.getElevationBatch === 'function') {
-            console.log(`🚀 Batch API: ${sampledPoints.length} puntos`);
+        for (let i = 0; i < sampledPoints.length; i += batchSize) {
+            const batch = sampledPoints.slice(i, i + batchSize);
             
-            try {
-                const elevations = await this.heightmapHandler.getElevationBatch(sampledPoints);
+            const batchPromises = batch.map(async (point) => {
+                let elevation = 0;
+                let ndvi = 0;
+
+                // � CACHÉ: Verificar si ya tenemos este punto
+                const key = cacheKey(point.lat, point.lon);
                 
-                if (elevations && elevations.length === sampledPoints.length) {
-                    sampledPoints.forEach((point, i) => {
-                        let elevation = elevations[i];
-                        
-                        if (elevation === null || elevation === undefined || isNaN(elevation) || !isFinite(elevation)) {
+                // �🗻 Obtener elevación REAL de TIF (con caché)
+                if (elevationCache.has(key)) {
+                    elevation = elevationCache.get(key);
+                } else if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
+                    try {
+                        elevation = await this.heightmapHandler.getElevation(point.lat, point.lon);
+                        // 🛡️ Validación robusta de NaN/null/undefined/Infinity
+                        if (isNaN(elevation) || elevation === null || elevation === undefined || !isFinite(elevation)) {
+                            console.warn(`⚠️ Elevación inválida en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]: ${elevation} → usando procedimental`);
                             elevation = this.generateProceduralHeight(point.lat, point.lon);
+                        } else {
+                            // 🔍 LOG: Detectar valores extremos sospechosos
+                            if (Math.abs(elevation) > 5000) {
+                                console.error(`🚨 ELEVACIÓN EXTREMA DETECTADA: ${elevation.toFixed(1)}m en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]`);
+                            }
                         }
-                        
-                        const key = cacheKey(point.lat, point.lon);
+                        // Guardar en caché
                         elevationCache.set(key, elevation);
-                        
-                        let ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
-                        vegetationCache.set(key, ndvi);
-                        
-                        sampledData.set(point.originalIndex, { elevation, ndvi });
-                    });
-                    
-                    console.log(`✅ Batch completado`);
+                    } catch (error) {
+                        console.warn(`❌ Error obteniendo elevación en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]:`, error.message);
+                        elevation = this.generateProceduralHeight(point.lat, point.lon);
+                        elevationCache.set(key, elevation);
+                    }
+                } else {
+                    elevation = this.generateProceduralHeight(point.lat, point.lon);
+                    elevationCache.set(key, elevation);
                 }
-            } catch (error) {
-                console.error(`❌ Batch falló:`, error);
-            }
+
+                // 🌿 Obtener NDVI REAL de TIF (con caché)
+                if (vegetationCache.has(key)) {
+                    ndvi = vegetationCache.get(key);
+                } else if (this.vegetationHandler && typeof this.vegetationHandler.getNDVI === 'function') {
+                    try {
+                        ndvi = await this.vegetationHandler.getNDVI(point.lat, point.lon, point.normX, point.normY);
+                        // 🛡️ Validación robusta de NaN/null/undefined/Infinity
+                        if (isNaN(ndvi) || ndvi === null || ndvi === undefined || !isFinite(ndvi)) {
+                            ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
+                        }
+                        vegetationCache.set(key, ndvi);
+                    } catch (error) {
+                        ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
+                        vegetationCache.set(key, ndvi);
+                    }
+                } else {
+                    ndvi = this.generateProceduralNDVI(point.lat, point.lon, elevation);
+                    vegetationCache.set(key, ndvi);
+                }
+
+                return { index: point.originalIndex, elevation, ndvi };
+            });
+            
+            const batchResults = await Promise.all(batchPromises);
+            batchResults.forEach(result => {
+                sampledData.set(result.index, { 
+                    elevation: result.elevation, 
+                    ndvi: result.ndvi 
+                });
+            });
+            
+            // 🚀 Log solo progreso significativo (evitar spam)
+            // ELIMINADO: console.log en cada batch
         }
         
         const samplingTime = ((performance.now() - samplingStart) / 1000).toFixed(2);
@@ -910,11 +890,10 @@ class TerrainGenerator3D {
                 elevation = data.elevation;
                 ndvi = data.ndvi;
             } else {
-                // Punto intermedio: interpolar BILINEALMENTE (simple y predecible) 📐
-                const row = Math.floor(index / gridSize);
-                const col = index % gridSize;
+                // Punto intermedio: interpolar bilinealmente
+                const row = Math.floor(index / gridResolution);
+                const col = index % gridResolution;
                 
-                // 🔥 INTERPOLACIÓN BILINEAR con gridSize correcto
                 const interpolated = this.bilinearInterpolate(
                     row, col, gridResolution, samplingRate, sampledData
                 );
@@ -931,9 +910,9 @@ class TerrainGenerator3D {
                 }
                 
                 // 🔧 CORRECCIÓN: Interpolar con vecinos válidos
-                const row = Math.floor(index / gridSize);
-                const col = index % gridSize;
-                elevation = this.fixNaNElevation(row, col, gridSize, sampledData, samplingRate);
+                const row = Math.floor(index / gridResolution);
+                const col = index % gridResolution;
+                elevation = this.fixNaNElevation(row, col, gridResolution, sampledData, samplingRate);
                 
                 // Si aún es NaN (todos vecinos inválidos), usar nivel del mar
                 if (isNaN(elevation) || !isFinite(elevation)) {
@@ -961,52 +940,12 @@ class TerrainGenerator3D {
         console.log(`✅ ${enrichedPoints.length} puntos enriquecidos en ${totalTime}s (muestreo: ${samplingTime}s, interpolación: ${interpolationTime}s)`);
         console.log(`📊 Desglose: ${sampledPoints.length} muestreados, ${enrichedPoints.length - sampledPoints.length} interpolados`);
         
-        // 🔍 DEBUG: Exportar TODOS los puntos con coordenadas y elevaciones a JSON
-        console.log(`%c📦 EXPORTANDO DATOS COMPLETOS`, 'background: #f48771; color: #000; padding: 4px 8px; font-weight: bold;');
-        const exportData = {
-            metadata: {
-                total_points: enrichedPoints.length,
-                sampled_points: sampledPoints.length,
-                interpolated_points: enrichedPoints.length - sampledPoints.length,
-                generation_time: totalTime + 's',
-                timestamp: new Date().toISOString()
-            },
-            bounds: {
-                lat_min: Math.min(...enrichedPoints.map(p => p.lat)),
-                lat_max: Math.max(...enrichedPoints.map(p => p.lat)),
-                lon_min: Math.min(...enrichedPoints.map(p => p.lon)),
-                lon_max: Math.max(...enrichedPoints.map(p => p.lon))
-            },
-            points: enrichedPoints.map((p, idx) => ({
-                index: idx,
-                lat: p.lat,
-                lon: p.lon,
-                elevation: p.elevation,
-                ndvi: p.ndvi,
-                x: p.x,
-                y: p.y,
-                z: p.z,
-                normX: p.normX,
-                normY: p.normY
-            }))
-        };
-        
-        // Guardar en variable global para acceso desde consola
-        window.TERRAIN_DATA_EXPORT = exportData;
-        
-        console.log(`✅ Datos exportados a window.TERRAIN_DATA_EXPORT`);
-        console.log(`💾 Para descargar como JSON, ejecuta en consola:`);
-        console.log(`   const blob = new Blob([JSON.stringify(window.TERRAIN_DATA_EXPORT, null, 2)], {type: 'application/json'});`);
-        console.log(`   const url = URL.createObjectURL(blob);`);
-        console.log(`   const a = document.createElement('a'); a.href = url; a.download = 'terrain_data.json'; a.click();`);
-        console.log(`📊 Primeros 10 puntos:`, exportData.points.slice(0, 10));
-        
-        // Reportar eficiencia del caché
+        // � Reportar eficiencia del caché
         const cacheHits = sampledPoints.length - elevationCache.size; // Hits = puntos que ya estaban en caché
         const cacheEfficiency = elevationCache.size > 0 ? ((cacheHits / sampledPoints.length) * 100).toFixed(1) : 0;
         console.log(`⚡ Caché de elevaciones: ${elevationCache.size} únicos, ${cacheHits} hits (${cacheEfficiency}% eficiencia)`);
         
-        // Reportar NaN detectados y corregidos
+        // �🛡️ Reportar NaN detectados y corregidos
         if (nanCount > 0) {
             console.warn(`⚠️ NaN detectados y corregidos: ${nanCount} puntos (${(nanCount/enrichedPoints.length*100).toFixed(2)}%)`);
             if (nanLocations.length > 0) {
@@ -1017,7 +956,7 @@ class TerrainGenerator3D {
             }
         }
         
-        // ANÁLISIS ESTADÍSTICO (SOLO REPORTE - SIN CLAMP)
+        // 🔥 NUEVO: ANÁLISIS ESTADÍSTICO Y CLAMP DE OUTLIERS
         const elevations = enrichedPoints.map(p => p.elevation).filter(e => isFinite(e));
         if (elevations.length > 0) {
             const mean = elevations.reduce((a, b) => a + b) / elevations.length;
@@ -1026,21 +965,52 @@ class TerrainGenerator3D {
             const min = Math.min(...elevations);
             const max = Math.max(...elevations);
             
-            console.log(`📊 ESTADÍSTICAS DE ELEVACIÓN (TIF REAL - SIN FILTROS):`);
+            console.log(`📊 ESTADÍSTICAS DE ELEVACIÓN:`);
             console.log(`   📈 Media: ${mean.toFixed(2)}m | Desv. Estándar: ${stdDev.toFixed(2)}m`);
             console.log(`   📉 Mín: ${min.toFixed(2)}m | Máx: ${max.toFixed(2)}m | Rango: ${(max - min).toFixed(2)}m`);
-            console.log(`   ✅ USANDO ELEVACIONES REALES DEL TIF (sin clamp ni normalización)`);
             
-            // ℹ️ Solo detectar variaciones extremas para información (NO modificar datos)
+            // 🚨 Detectar outliers extremos (±3 desviaciones estándar)
             const lowerBound = mean - (3 * stdDev);
             const upperBound = mean + (3 * stdDev);
-            const extremeCount = enrichedPoints.filter(p => 
-                p.elevation < lowerBound || p.elevation > upperBound
-            ).length;
+            let outlierCount = 0;
+            const outlierLocations = [];
             
-            if (extremeCount > 0) {
-                console.log(`   ℹ️ Variaciones naturales detectadas: ${extremeCount} puntos fuera de ±3σ (${(extremeCount/enrichedPoints.length*100).toFixed(2)}%)`);
-                console.log(`   🏔️ Esto es NORMAL en terrenos montañosos - datos preservados sin modificar`);
+            enrichedPoints.forEach((point, index) => {
+                if (point.elevation < lowerBound || point.elevation > upperBound) {
+                    outlierCount++;
+                    if (outlierLocations.length < 5) {
+                        outlierLocations.push({
+                            lat: point.lat,
+                            lon: point.lon,
+                            elevation: point.elevation,
+                            expected: `${lowerBound.toFixed(1)}m a ${upperBound.toFixed(1)}m`
+                        });
+                    }
+                    
+                    // 🔧 CLAMP: Limitar a ±3σ
+                    const oldElevation = point.elevation;
+                    if (point.elevation < lowerBound) {
+                        point.elevation = lowerBound;
+                    } else if (point.elevation > upperBound) {
+                        point.elevation = upperBound;
+                    }
+                    
+                    // Recalcular coordenadas Y
+                    point.y = point.elevation * this.config.verticalScale;
+                }
+            });
+            
+            if (outlierCount > 0) {
+                console.warn(`🚨 OUTLIERS DETECTADOS Y CLAMPEADOS: ${outlierCount} puntos (${(outlierCount/enrichedPoints.length*100).toFixed(2)}%)`);
+                console.warn(`   🔧 Rango válido: ${lowerBound.toFixed(1)}m a ${upperBound.toFixed(1)}m (Media ±3σ)`);
+                if (outlierLocations.length > 0) {
+                    console.warn(`   📍 Primeros ${outlierLocations.length} outliers:`);
+                    outlierLocations.forEach(loc => {
+                        console.warn(`      - [${loc.lat.toFixed(6)}, ${loc.lon.toFixed(6)}] ${loc.elevation.toFixed(1)}m (esperado: ${loc.expected})`);
+                    });
+                }
+            } else {
+                console.log(`✅ No se detectaron outliers extremos (±3σ)`);
             }
         }
         
@@ -1105,154 +1075,38 @@ class TerrainGenerator3D {
     /**
      * Interpolación bilineal para puntos intermedios
      */
-    /**
-     * 🎨 Interpolación BICÚBICA (Catmull-Rom) para superficies ultra-suaves
-     * Usa 16 puntos vecinos (4×4) en lugar de 4 (2×2) de bilinear
-     * Elimina el efecto "piña" y "escalones"
-     * @param {number} row - Fila del punto a interpolar
-     * @param {number} col - Columna del punto a interpolar
-     * @param {number} gridResolution - Resolución total del grid
-     * @param {number} samplingRate - Cada cuántos puntos se muestreó
-     * @param {Map} sampledData - Mapa de datos muestreados
-     * @returns {Object} { elevation, ndvi }
-     */
-    bicubicInterpolate(row, col, gridResolution, samplingRate, sampledData) {
-        // Encontrar los 16 puntos muestreados más cercanos (4×4 grid)
-        const row0 = Math.floor(row / samplingRate) * samplingRate;
-        const col0 = Math.floor(col / samplingRate) * samplingRate;
-        
-        // Grid 4×4: [-1, 0, 1, 2] relativo a row0/col0
-        const points = [];
-        for (let i = -1; i <= 2; i++) {
-            for (let j = -1; j <= 2; j++) {
-                const r = Math.max(0, Math.min(gridResolution - 1, row0 + i * samplingRate));
-                const c = Math.max(0, Math.min(gridResolution - 1, col0 + j * samplingRate));
-                const idx = r * gridResolution + c;
-                points.push(sampledData.get(idx) || { elevation: 0, ndvi: 0 });
-            }
-        }
-        
-        // Factores de interpolación (0-1)
-        const tx = (row - row0) / samplingRate;
-        const ty = (col - col0) / samplingRate;
-        
-        // Función de interpolación Catmull-Rom (cúbica suave)
-        const catmullRom = (t, p0, p1, p2, p3) => {
-            const t2 = t * t;
-            const t3 = t2 * t;
-            return 0.5 * (
-                (2 * p1) +
-                (-p0 + p2) * t +
-                (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
-                (-p0 + 3 * p1 - 3 * p2 + p3) * t3
-            );
-        };
-        
-        // Interpolar elevación en 4 filas
-        const elevRows = [];
-        for (let i = 0; i < 4; i++) {
-            const row = catmullRom(
-                ty,
-                points[i * 4 + 0].elevation,
-                points[i * 4 + 1].elevation,
-                points[i * 4 + 2].elevation,
-                points[i * 4 + 3].elevation
-            );
-            elevRows.push(row);
-        }
-        
-        // Interpolar entre las 4 filas
-        const elevation = catmullRom(tx, elevRows[0], elevRows[1], elevRows[2], elevRows[3]);
-        
-        // Interpolar NDVI en 4 filas
-        const ndviRows = [];
-        for (let i = 0; i < 4; i++) {
-            const row = catmullRom(
-                ty,
-                points[i * 4 + 0].ndvi,
-                points[i * 4 + 1].ndvi,
-                points[i * 4 + 2].ndvi,
-                points[i * 4 + 3].ndvi
-            );
-            ndviRows.push(row);
-        }
-        
-        // Interpolar entre las 4 filas
-        const ndvi = catmullRom(tx, ndviRows[0], ndviRows[1], ndviRows[2], ndviRows[3]);
-        
-        return { elevation, ndvi };
-    }
-    
-    /**
-     * 🔧 INTERPOLACIÓN BILINEAR CLAMPEADA (sin overshooting)
-     * Garantiza que los valores interpolados NUNCA excedan los límites de los puntos vecinos
-     * @param {number} row - Fila del punto (0 a gridSize-1)
-     * @param {number} col - Columna del punto (0 a gridSize-1)
-     * @param {number} resolution - Resolución original del grid (gridSize - 1)
-     * @param {number} samplingRate - Cada cuántos puntos se muestreó
-     * @param {Map} sampledData - Mapa de índice → {elevation, ndvi}
-     */
-    bilinearInterpolate(row, col, resolution, samplingRate, sampledData) {
-        const gridSize = resolution + 1; // Tamaño real del grid
-        
+    bilinearInterpolate(row, col, gridResolution, samplingRate, sampledData) {
         // Encontrar los 4 puntos muestreados más cercanos
         const row0 = Math.floor(row / samplingRate) * samplingRate;
-        const row1 = Math.min(row0 + samplingRate, resolution);
+        const row1 = Math.min(row0 + samplingRate, gridResolution - 1);
         const col0 = Math.floor(col / samplingRate) * samplingRate;
-        const col1 = Math.min(col0 + samplingRate, resolution);
+        const col1 = Math.min(col0 + samplingRate, gridResolution - 1);
         
-        // Índices de los 4 puntos en el grid lineal
-        const idx00 = row0 * gridSize + col0;
-        const idx01 = row0 * gridSize + col1;
-        const idx10 = row1 * gridSize + col0;
-        const idx11 = row1 * gridSize + col1;
+        // Índices de los 4 puntos
+        const idx00 = row0 * gridResolution + col0;
+        const idx01 = row0 * gridResolution + col1;
+        const idx10 = row1 * gridResolution + col0;
+        const idx11 = row1 * gridResolution + col1;
         
-        // Obtener datos (con fallback)
-        const data00 = sampledData.get(idx00);
-        const data01 = sampledData.get(idx01);
-        const data10 = sampledData.get(idx10);
-        const data11 = sampledData.get(idx11);
+        // Obtener datos (con fallback a 0 si no existe)
+        const data00 = sampledData.get(idx00) || { elevation: 0, ndvi: 0 };
+        const data01 = sampledData.get(idx01) || data00;
+        const data10 = sampledData.get(idx10) || data00;
+        const data11 = sampledData.get(idx11) || data00;
         
-        // Si faltan datos, usar interpolación simple con los disponibles
-        if (!data00 && !data01 && !data10 && !data11) {
-            // Sin datos, retornar valores por defecto
-            return { elevation: 0, ndvi: 0.3 };
-        }
-        
-        // Usar el primer dato disponible como fallback
-        const fallback = data00 || data01 || data10 || data11;
-        const d00 = data00 || fallback;
-        const d01 = data01 || fallback;
-        const d10 = data10 || fallback;
-        const d11 = data11 || fallback;
-        
-        // Factores de interpolación (0-1) con smoothstep para transiciones más suaves
+        // Factores de interpolación
         const tx = row1 > row0 ? (row - row0) / (row1 - row0) : 0;
         const ty = col1 > col0 ? (col - col0) / (col1 - col0) : 0;
         
-        // 🎨 Smoothstep para curvas más naturales (opcional, desactivado por defecto)
-        // const txSmooth = tx * tx * (3 - 2 * tx);
-        // const tySmooth = ty * ty * (3 - 2 * ty);
-        
-        // Interpolar elevación - FÓRMULA ESTÁNDAR BILINEAR
-        const elev0 = d00.elevation * (1 - ty) + d01.elevation * ty;
-        const elev1 = d10.elevation * (1 - ty) + d11.elevation * ty;
-        let elevation = elev0 * (1 - tx) + elev1 * tx;
-        
-        // 🛡️ CLAMPEAR: asegurar que el valor interpolado esté dentro del rango de los 4 puntos
-        const elevMin = Math.min(d00.elevation, d01.elevation, d10.elevation, d11.elevation);
-        const elevMax = Math.max(d00.elevation, d01.elevation, d10.elevation, d11.elevation);
-        elevation = Math.max(elevMin, Math.min(elevMax, elevation));
+        // Interpolar elevación
+        const elev0 = data00.elevation * (1 - ty) + data01.elevation * ty;
+        const elev1 = data10.elevation * (1 - ty) + data11.elevation * ty;
+        const elevation = elev0 * (1 - tx) + elev1 * tx;
         
         // Interpolar NDVI
-        const ndvi0 = d00.ndvi * (1 - ty) + d01.ndvi * ty;
-        const ndvi1 = d10.ndvi * (1 - ty) + d11.ndvi * ty;
-        let ndvi = ndvi0 * (1 - tx) + ndvi1 * tx;
-        
-        // Clampear NDVI también
-        const ndviMin = Math.min(d00.ndvi, d01.ndvi, d10.ndvi, d11.ndvi);
-        const ndviMax = Math.max(d00.ndvi, d01.ndvi, d10.ndvi, d11.ndvi);
-        ndvi = Math.max(ndviMin, Math.min(ndviMax, ndvi));
+        const ndvi0 = data00.ndvi * (1 - ty) + data01.ndvi * ty;
+        const ndvi1 = data10.ndvi * (1 - ty) + data11.ndvi * ty;
+        const ndvi = ndvi0 * (1 - tx) + ndvi1 * tx;
         
         return { elevation, ndvi };
     }
@@ -1479,66 +1333,27 @@ class TerrainGenerator3D {
                 return [];
             }
             
-            // 🔥 AJUSTAR ALTURA Y con elevación PRECISA del terreno
-            console.log('📏 Ajustando altura de árboles según terreno...');
-            
-            instances.forEach((inst, idx) => {
-                // 🎯 MÉTODO 1: Usar elevationHandler si está disponible
-                let terrainY = 0;
-                let method = 'fallback';
-                
-                if (this.elevationHandler && typeof this.elevationHandler.getHeightAt === 'function') {
-                    try {
-                        // Convertir posición 3D a lat/lng
-                        const worldPos = inst.position;
-                        
-                        // Usar elevationHandler para obtener altura EXACTA
-                        const elevation = this.elevationHandler.getHeightAt(worldPos.x, worldPos.z);
-                        
-                        if (elevation !== null && elevation !== undefined) {
-                            terrainY = (elevation - (this.terrainMinElevation || 0)) * this.config.verticalScale;
-                            method = 'elevationHandler';
-                        }
-                    } catch (e) {
-                        // Silenciar error, usar fallback
-                    }
-                }
-                
-                // 🎯 MÉTODO 2: Usar enrichedPoints (punto más cercano con elevación)
-                if (method === 'fallback' && enrichedPoints && enrichedPoints.length > 0) {
+            // 🔥 NUEVO: Ajustar altura Y con elevación del terreno
+            instances.forEach(inst => {
+                if (enrichedPoints && enrichedPoints.length > 0) {
+                    // Buscar punto más cercano con elevación
                     const closest = enrichedPoints.reduce((prev, curr) => {
                         const distPrev = Math.hypot(prev.x - inst.position.x, prev.z - inst.position.z);
                         const distCurr = Math.hypot(curr.x - inst.position.x, curr.z - inst.position.z);
                         return distCurr < distPrev ? curr : prev;
                     });
                     
-                    terrainY = (closest.elevation - (this.terrainMinElevation || 0)) * this.config.verticalScale;
-                    method = 'enrichedPoints';
-                }
-                
-                // 🎯 CRÍTICO: Agregar offset mínimo para que troncos NO se entierren
-                // Árboles necesitan estar SOBRE el piso, no hundidos
-                const yOffset = 0.5; // Offset pequeño (antes era 3.0, demasiado alto)
-                inst.position.y = terrainY + yOffset;
-                
-                // Debug primeros 5
-                if (idx < 5) {
-                    console.log(`🌳 Árbol ${idx}: terrainY=${terrainY.toFixed(2)}, offset=+${yOffset}, final Y=${inst.position.y.toFixed(2)} (método: ${method})`);
+                    // ✅ Ajustar Y relativo al mínimo del terreno
+                    inst.position.y = (closest.elevation - (this.terrainMinElevation || 0)) * this.config.verticalScale;
+                } else {
+                    inst.position.y = 0;
                 }
             });
-            
-            console.log('✅ Alturas ajustadas para todos los árboles');
             
             // Convertir instancias a objetos 3D
-            console.log(`🔨 Convirtiendo ${instances.length} instancias a objetos 3D...`);
             const vegetationObjects = await this.createVegetationFromInstances(instances);
             
-            console.log(`✅ ${vegetationObjects.length} objetos 3D creados y listos para renderizar`);
-            
-            // 🔍 Debug: Mostrar primeros 3 objetos
-            vegetationObjects.slice(0, 3).forEach((obj, idx) => {
-                console.log(`🌲 Objeto ${idx}: pos=(${obj.position.x.toFixed(1)}, ${obj.position.y.toFixed(1)}, ${obj.position.z.toFixed(1)}), visible=${obj.visible}`);
-            });
+            console.log(`✅ ${vegetationObjects.length} objetos 3D creados`);
             
             return vegetationObjects;
             
@@ -1575,52 +1390,51 @@ class TerrainGenerator3D {
         console.log(`🎨 createInstancesFromFeatures - imageData: ${width}×${height}`);
         
         // 🌳 CONFIGURACIÓN DE VEGETACIÓN ADAPTATIVA
-        // FILOSOFÍA: BAJA densidad para evitar sobrecarga visual
-        // - FOREST (verde oscuro): BAJA densidad (bosque ralo)
-        // - VEGETATION (verde medio): MUY BAJA densidad (vegetación dispersa)
-        // - GRASS (verde claro): DESACTIVADO
+        // Para vistas aéreas (3km altura): DENSIDAD ALTA para ver arboledas
+        // Para vistas cercanas: DENSIDAD BAJA (menos árboles, más visibles)
         //
-        // 🔥 DENSIDADES REDUCIDAS DRAMÁTICAMENTE para evitar sobrecarga
+        // FILOSOFÍA: Desde lejos necesitas MÁS árboles para ver bosque completo
+        //           Desde cerca necesitas MENOS árboles (ya son grandes visualmente)
         const densityConfig = {
             'vegetation': { 
-                density: 0.02,          // 🔥 2% densidad - REDUCIDO DRAMÁTICAMENTE (antes 30%)
+                density: 0.35,          // ✅ 35% densidad (aumentado de 10% para vista aérea)
                 models: [
                     // trees_low.glb - PRINCIPAL (50% árboles bajos)
-                    { type: 'trees_low', weight: 5, scale: [0.2, 0.3] }, // REDUCIDO 10x
+                    { type: 'trees_low', weight: 5, scale: [0.02, 0.03] },
                     
                     // trees_low.glb - MEDIANOS (30% escalados más grandes)
-                    { type: 'trees_low', weight: 3, scale: [0.35, 0.45] }, // REDUCIDO 10x
+                    { type: 'trees_low', weight: 3, scale: [0.035, 0.045] },
                     
                     // arbol.glb - ALTOS (20% árboles grandes)
-                    { type: 'arbol', weight: 2, scale: [0.8, 1.2] } // REDUCIDO 10x
+                    { type: 'arbol', weight: 2, scale: [0.08, 0.12] }
                 ],
                 priority: 2
             },
             'forest': { 
-                density: 0.03,          // 🔥 3% densidad - REDUCIDO DRAMÁTICAMENTE (antes 40%)
+                density: 0.50,          // ✅ 50% densidad (aumentado de 15% para vista aérea)
                 models: [
                     // trees_low.glb - BAJO (40%)
-                    { type: 'trees_low', weight: 4, scale: [0.25, 0.35] }, // REDUCIDO 10x
+                    { type: 'trees_low', weight: 4, scale: [0.025, 0.035] },
                     
                     // trees_low.glb - MEDIANO (30%)  
-                    { type: 'trees_low', weight: 3, scale: [0.4, 0.55] }, // REDUCIDO 10x
+                    { type: 'trees_low', weight: 3, scale: [0.04, 0.055] },
                     
                     // arbol.glb - ALTO (30%)
-                    { type: 'arbol', weight: 3, scale: [1.0, 1.5] } // REDUCIDO 10x
+                    { type: 'arbol', weight: 3, scale: [0.10, 0.15] }
                 ],
                 priority: 1
             },
             'grass': { 
                 density: 0.00,          // ❌ DESACTIVADO (solo árboles)
                 models: [
-                    { type: 'grass', weight: 1, scale: [0.00005, 0.0001] } // REDUCIDO 10x
+                    { type: 'grass', weight: 1, scale: [0.0005, 0.001] }
                 ],
                 priority: 3
             },
             'crops': { 
                 density: 0.00,          // ❌ DESACTIVADO (solo árboles)
                 models: [
-                    { type: 'trees_low', weight: 1, scale: [0.15, 0.2] }   // REDUCIDO 10x
+                    { type: 'trees_low', weight: 1, scale: [0.015, 0.020] }
                 ],
                 priority: 2
             }
@@ -1730,57 +1544,17 @@ class TerrainGenerator3D {
             }
         }
         
-        // 🚀 OPTIMIZADO: Crear meshes individuales en LOTES PARALELOS
-        console.log('📍 Creando meshes individuales (sistema optimizado)');
-        console.time('⏱️ Creación vegetación');
+        // Fallback: crear meshes individuales
+        console.log('📍 Fallback: creando meshes individuales');
         const objects = [];
         
-        let successCount = 0;
-        let errorCount = 0;
-        
-        // 🔥 PROCESAR EN LOTES DE 50 (balance entre memoria y velocidad)
-        const BATCH_SIZE = 50;
-        const batches = [];
-        for (let i = 0; i < instancesWith3D.length; i += BATCH_SIZE) {
-            batches.push(instancesWith3D.slice(i, i + BATCH_SIZE));
-        }
-        
-        console.log(`🎯 Procesando ${instancesWith3D.length} instancias en ${batches.length} lotes de ${BATCH_SIZE}`);
-        
-        for (let b = 0; b < batches.length; b++) {
-            const batch = batches[b];
-            
-            console.log(`⏳ Lote ${b + 1}/${batches.length} (${batch.length} instancias)...`);
-            
-            // ✅ PARALELO: Crear todos los objetos del lote simultáneamente
-            const batchPromises = batch.map(async (inst) => {
-                try {
-                    const obj = await this.createVegetationObject(inst, inst.type);
-                    if (obj) {
-                        successCount++;
-                        return obj;
-                    } else {
-                        errorCount++;
-                        return null;
-                    }
-                } catch (error) {
-                    console.error(`❌ Error en instancia tipo ${inst.type}:`, error);
-                    errorCount++;
-                    return null;
-                }
-            });
-            
-            const batchResults = await Promise.all(batchPromises);
-            objects.push(...batchResults.filter(obj => obj !== null));
-            
-            // Pequeña pausa entre lotes para no bloquear UI
-            if (b < batches.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 10));
+        for (const inst of instancesWith3D) {
+            const obj = await this.createVegetationObject(inst, inst.type);
+            if (obj) {
+                objects.push(obj);
             }
         }
         
-        console.timeEnd('⏱️ Creación vegetación');
-        console.log(`✅ Vegetación completada: ${successCount} objetos creados, ${errorCount} errores`);
         this.vegetationObjects = objects;
         return objects;
     }
@@ -1809,7 +1583,7 @@ class TerrainGenerator3D {
 
             // 🚫 DESACTIVAR VegetationInstancer temporalmente (problema con texturas)
             // Usar meshes individuales que cargan texturas correctamente
-            const forceIndividualMeshes = false;
+            const forceIndividualMeshes = true;
             
             if (this.vegetationInstancer && this.useInstancing && !forceIndividualMeshes) {
                 const instances = await this.vegetationInstancer.addInstances([{
@@ -1835,11 +1609,9 @@ class TerrainGenerator3D {
 
             // Fallback: crear mesh individual usando modelLoader
             if (this.modelLoader) {
-                console.log(`🔍 Cargando modelo ${type}...`);
                 const mesh = await this.modelLoader.loadModel(type);
 
                 if (mesh) {
-                    console.log(`✅ Modelo ${type} cargado correctamente`);
                     // Configurar posición
                     mesh.position.set(point.x, point.y, point.z);
 
@@ -1857,27 +1629,17 @@ class TerrainGenerator3D {
                     // Agregar a escena si tenemos acceso
                     if (this.maira3DSystem && this.maira3DSystem.scene) {
                         this.maira3DSystem.scene.add(mesh);
-                        // Log solo primeros 5 para no saturar consola
-                        console.log(`➕ Mesh ${type} agregado a escena en pos=(${point.x.toFixed(1)}, ${point.y.toFixed(1)}, ${point.z.toFixed(1)})`);
-                    } else {
-                        console.warn(`⚠️ No hay escena disponible para agregar ${type}`);
                     }
 
-                    // ✅ SIMPLIFICADO: Retornar mesh directamente (como test-terrain-from-map-OPTIMIZADO.html)
-                    // Ya no necesitamos wrapper object
-                    mesh.userData = {
+                    return {
                         id,
                         type: 'vegetation',
                         vegetationType: type,
+                        mesh,
+                        position: new THREE.Vector3(point.x, point.y, point.z),
                         isInstanced: false
                     };
-                    
-                    return mesh;  // ✅ Retorno directo del mesh THREE.Object3D
-                } else {
-                    console.warn(`⚠️ modelLoader.loadModel(${type}) devolvió null`);
                 }
-            } else {
-                console.warn(`⚠️ No hay modelLoader disponible`);
             }
 
             // Último fallback: geometría procedural básica
@@ -1894,15 +1656,14 @@ class TerrainGenerator3D {
      * Obtener escala apropiada para tipo de vegetación
      */
     getVegetationScale(type) {
-        // 🔧 ESCALAS AJUSTADAS PARA VegetationInstancer - Más razonables con escala base 0.00001 en modelos
         const scales = {
-            grass: 50 + Math.random() * 20,         // 50-70 (tamaño pasto) - REDUCIDO 10x
-            bush: 60 + Math.random() * 20,          // 60-80 (tamaño arbusto) - REDUCIDO 10x
-            tree_medium: 80 + Math.random() * 30,   // 80-110 (árbol mediano) - REDUCIDO 10x
-            tree_tall: 100 + Math.random() * 40     // 100-140 (árbol alto) - REDUCIDO 10x
+            grass: 0.5 + Math.random() * 0.5,      // 0.5-1.0
+            bush: 0.8 + Math.random() * 0.4,       // 0.8-1.2
+            tree_medium: 1.0 + Math.random() * 0.5, // 1.0-1.5
+            tree_tall: 1.2 + Math.random() * 0.8    // 1.2-2.0
         };
 
-        return scales[type] || 80; // Fallback
+        return scales[type] || 1.0;
     }
 
     /**
@@ -1914,14 +1675,14 @@ class TerrainGenerator3D {
         switch (type) {
             case 'grass':
                 // Crear pasto simple (cilindro delgado)
-                geometry = new THREE.CylinderGeometry(0.0005, 0.0005, 0.003, 6);
+                geometry = new THREE.CylinderGeometry(0.05, 0.05, 0.3, 6);
                 material = new THREE.MeshLambertMaterial({ color: 0x4a7c59 });
                 mesh = new THREE.Mesh(geometry, material);
                 break;
 
             case 'bush':
                 // Crear arbusto (esfera achatada)
-                geometry = new THREE.SphereGeometry(0.004, 8, 6);
+                geometry = new THREE.SphereGeometry(0.4, 8, 6);
                 geometry.scale(1, 0.6, 1); // Achatado
                 material = new THREE.MeshLambertMaterial({ color: 0x2d5016 });
                 mesh = new THREE.Mesh(geometry, material);
@@ -1930,14 +1691,14 @@ class TerrainGenerator3D {
             case 'tree_medium':
             case 'tree_tall':
                 // Crear árbol simple (tronco + copa)
-                const trunkGeometry = new THREE.CylinderGeometry(0.001, 0.0015, 0.02, 8);
+                const trunkGeometry = new THREE.CylinderGeometry(0.1, 0.15, 2, 8);
                 const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
                 const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
 
-                const crownGeometry = new THREE.SphereGeometry(0.012, 8, 6);
+                const crownGeometry = new THREE.SphereGeometry(1.2, 8, 6);
                 const crownMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
                 const crown = new THREE.Mesh(crownGeometry, crownMaterial);
-                crown.position.y = 0.015;
+                crown.position.y = 1.5;
 
                 mesh = new THREE.Group();
                 mesh.add(trunk);
@@ -2171,7 +1932,7 @@ class TerrainGenerator3D {
     }
 
     /**
-     * 🔍 Calcular factor de escala basado en zoom del map
+     * 🔍 Calcular factor de escala basado en zoom del mapa
      */
     calculateZoomScaleFactor(zoom) {
         // Zoom 10 = 1x (escala real)
@@ -2292,3 +2053,4 @@ if (typeof window !== 'undefined') {
     window.TerrainGenerator3D = TerrainGenerator3D;
     console.log('✅ TerrainGenerator3D registrado globalmente');
 }
+

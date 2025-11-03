@@ -82,28 +82,6 @@ class ElevationAdapter {
     }
     
     /**
-     * 🚀 NUEVO: Batch API para múltiples puntos
-     * Usado en: TerrainGenerator3D.js para optimizar carga
-     * Intenta usar el elevationHandler original si tiene batch, sino usa service
-     */
-    async getElevationBatch(points) {
-        // Si el elevationHandler original tiene batch, usarlo
-        if (window.MAIRA && window.MAIRA.Elevacion && window.MAIRA.Elevacion.handlers && 
-            window.MAIRA.Elevacion.handlers.elevationHandler && 
-            typeof window.MAIRA.Elevacion.handlers.elevationHandler.getElevationBatch === 'function') {
-            
-            console.log(`🚀 ElevationAdapter: Delegando a elevationHandler.getElevationBatch (${points.length} puntos)`);
-            return await window.MAIRA.Elevacion.handlers.elevationHandler.getElevationBatch(points);
-        }
-        
-        // Fallback: Usar service con batch optimizado
-        console.log(`🚀 ElevationAdapter: Usando ElevationService.getElevationsBatch (${points.length} puntos)`);
-        const coords = points.map(p => ({ lat: p.lat, lon: p.lon }));
-        const results = await this.service.getElevationsBatch(coords);
-        return results.map(r => r.elevation);
-    }
-    
-    /**
      * ✅ LEGACY API: Calcular perfil de elevación para ruta
      * Usado en: elevationHandler.js línea 944+, múltiples archivos
      */

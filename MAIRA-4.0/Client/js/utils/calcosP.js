@@ -1,5 +1,5 @@
 // calcos.js
-// Este archivo maneja la creación, gestión y guardado de calcos (capas) en el map
+// Este archivo maneja la creación, gestión y guardado de calcos (capas) en el mapa
 
 // Objeto para almacenar los calcos
 var calcos = {};
@@ -13,7 +13,7 @@ function crearNuevoCalco() {
     var nuevoCalco = L.layerGroup();
     calcos[nombreCalco] = nuevoCalco;
   
-    nuevoCalco.addTo(map); 
+    nuevoCalco.addTo(mapa); 
   
     setCalcoActivo(nombreCalco);
     agregarCalcoALista(nombreCalco);
@@ -24,46 +24,10 @@ function crearNuevoCalco() {
 function setCalcoActivo(nombreCalco) {
     console.log("Estableciendo calco activo:", nombreCalco);
     if (window.calcoActivo) {
-        // Limpiar event listeners del calco anterior
-        window.calcoActivo.off('layeradd');
-        window.calcoActivo.off('layerremove');
-        map.removeLayer(window.calcoActivo);
+        mapa.removeLayer(window.calcoActivo);
     }
     window.calcoActivo = calcos[nombreCalco];
-    map.addLayer(window.calcoActivo);
-
-    // Agregar event listeners para actualización en tiempo real del sistema 3D
-    if (window.calcoActivo && window.maira3DSystem && window.maira3DSystem.syncCalcoActivo) {
-        console.log('🔄 Configurando actualización en tiempo real para calco:', nombreCalco);
-
-        // Event listener para cuando se agrega un layer
-        window.calcoActivo.on('layeradd', function(e) {
-            console.log('📍 Layer agregado al calco activo, sincronizando 3D:', e.layer.constructor.name);
-            setTimeout(() => {
-                if (window.maira3DSystem && window.maira3DSystem.syncCalcoActivo) {
-                    window.maira3DSystem.syncCalcoActivo();
-                }
-            }, 100); // Pequeño delay para asegurar que el layer esté completamente agregado
-        });
-
-        // Event listener para cuando se remueve un layer
-        window.calcoActivo.on('layerremove', function(e) {
-            console.log('🗑️ Layer removido del calco activo, sincronizando 3D:', e.layer.constructor.name);
-            setTimeout(() => {
-                if (window.maira3DSystem && window.maira3DSystem.syncCalcoActivo) {
-                    window.maira3DSystem.syncCalcoActivo();
-                }
-            }, 100); // Pequeño delay para asegurar que el layer esté completamente removido
-        });
-
-        // Sincronización inicial cuando se establece el calco activo
-        setTimeout(() => {
-            if (window.maira3DSystem && window.maira3DSystem.syncCalcoActivo) {
-                window.maira3DSystem.syncCalcoActivo();
-            }
-        }, 500); // Delay mayor para asegurar que todo esté inicializado
-    }
-
+    mapa.addLayer(window.calcoActivo);
     actualizarInterfazCalcos();
 }
   
@@ -130,7 +94,7 @@ function actualizarElementosList(nombreCalco) {
             `;
             
             item.addEventListener('click', function() {
-                map.setView(layer.getLatLng ? layer.getLatLng() : layer.getBounds().getCenter());
+                mapa.setView(layer.getLatLng ? layer.getLatLng() : layer.getBounds().getCenter());
                 seleccionarElemento(layer);
             });
             lista.appendChild(item);
@@ -191,10 +155,10 @@ function toggleCalcoVisibility(nombreCalco) {
     console.log("Alternando visibilidad del calco:", nombreCalco);
     var calco = calcos[nombreCalco];
     if (calco) {
-        if (map.hasLayer(calco)) {
-            map.removeLayer(calco);
+        if (mapa.hasLayer(calco)) {
+            mapa.removeLayer(calco);
         } else {
-            calco.addTo(map);
+            calco.addTo(mapa);
         }
     } else {
         console.error("El calco '" + nombreCalco + "' no existe.");
@@ -225,7 +189,7 @@ function renameCalco(nombreCalco) {
 // Función para eliminar un calco
 function eliminarCalco(nombreCalco) {
     if (confirm("¿Estás seguro de que quieres eliminar el calco \"" + nombreCalco + "\"?")) {
-        map.removeLayer(calcos[nombreCalco]);
+        mapa.removeLayer(calcos[nombreCalco]);
         delete calcos[nombreCalco];
         if (window.calcoActivo === calcos[nombreCalco]) {
             window.calcoActivo = null;
@@ -379,7 +343,7 @@ function aplicarPatronRelleno(elemento, tipoRelleno, color) {
         }
         
         if (patron) {
-            patron.addTo(window.map);
+            patron.addTo(window.mapa);
             elemento.setStyle({ fillPattern: patron });
             console.log(`✅ Patrón ${tipoRelleno} aplicado correctamente`);
         }
@@ -413,68 +377,93 @@ function guardarCalco() {
         filtrados: 0
     };
 
-    // ✅ PROCESAR ELEMENTOS - GUARDAR TODO SIN FILTROS:
+    // ✅ PROCESAR ELEMENTOS:
     calcoActivo.eachLayer(function(feature) {
         if (feature instanceof L.Marker) {
-            console.log('� Guardando marcador:', {
+            console.log('🔍 Analizando marcador completo:', {
                 sidc: feature.options.sidc,
                 nombre: feature.options.nombre,
                 tipo: feature.options.tipo,
-                lat: feature.getLatLng().lat,
-                lng: feature.getLatLng().lng
+                numero: feature.options.numero,
+                color: feature.options.color,
+                id: feature.options.id,
+                designacion: feature.options.designacion,
+                dependencia: feature.options.dependencia
             });
 
-            // ✅ FIX #16: NO GUARDAR textoMarcador como elementos separados
-            // Los textoMarcador ya se guardan como propiedades de sus líneas/polígonos padre
-            
-            // Debug: ver estructura del icono
-            if (feature.options.icon) {
-                console.log('🔍 Analizando icono del marcador:', {
-                    tieneOptions: !!feature.options.icon.options,
-                    className: feature.options.icon.options?.className,
-                    estructuraIcon: feature.options.icon
-                });
-            }
-            
-            const esTextoMarcador = feature.options.icon && 
-                                   feature.options.icon.options && 
-                                   (feature.options.icon.options.className === 'texto-linea' || 
-                                    feature.options.icon.options.className === 'texto-poligono');
-            
-            if (esTextoMarcador) {
-                console.log('⏭️ SALTANDO textoMarcador (ya guardado en propiedades de línea/polígono)');
-                return; // NO guardar como elemento separado
-            }
+                
+                    // ✅ CLASIFICAR TIPOS DE MARCADORES:
+                    const esSimboloMilitar = feature.options.sidc && feature.options.sidc.trim() !== '';
+                    const esPuntoControl = feature.options.tipo && ['PC', 'PI', 'PT', 'PD', 'PE', 'PP'].includes(feature.options.tipo);
+                    const esVertice = feature.esVerticeEvidente || feature.esVerticeExplicito;
+                    
+                    // ✅ FILTRO MEJORADO PARA DETECTAR VÉRTICES:
+                    const esProbablementeVertice = (
+                        !esSimboloMilitar && 
+                        !esPuntoControl && 
+                        (
+                            // Condición 1: Nombre genérico
+                            (!feature.options.nombre || 
+                             feature.options.nombre === 'Marcador sin nombre' || 
+                             feature.options.nombre === 'Sin nombre') &&
+                            // Condición 2: Sin propiedades específicas
+                            (!feature.options.tipo && !feature.options.id && !feature.options.designacion)
+                        )
+                    );
+        
+                    let elementoData = null;
+        
+                    if (esVertice || esProbablementeVertice) {
+                        // ✅ FILTRAR VÉRTICES:
+                        console.log(`🗑️ FILTRADO VÉRTICE: ${feature.options.nombre || 'Sin nombre'}`);
+                        contadores.filtrados++;
+                        return; // No guardar vértices
+                        
+                    } else if (esPuntoControl) {
+                        // ✅ GUARDAR PUNTOS DE CONTROL - PRIORIDAD MÁXIMA:
+                        elementoData = {
+                            tipo: "puntoControl",
+                            subtipo: feature.options.tipo,
+                            numero: feature.options.numero,
+                            color: feature.options.color,
+                            id: feature.options.id,
+                            sidc: feature.options.sidc || null,
+                            nombre: feature.options.nombre || `${feature.options.tipo}${feature.options.numero ? ' #' + feature.options.numero : ''}`,
+                            lat: feature.getLatLng().lat,
+                            lng: feature.getLatLng().lng
+                        };
+                        console.log(`💾 ✅ GUARDANDO PUNTO DE CONTROL: ${elementoData.nombre} (Tipo: ${elementoData.subtipo})`);
+                        
+                    } else if (esSimboloMilitar) {
+                        // ✅ GUARDAR SÍMBOLOS MILITARES:
+                        elementoData = {
+                            tipo: "marcador",
+                            sidc: feature.options.sidc,
+                            nombre: feature.options.nombre || '',
+                            designacion: feature.options.designacion || '',
+                            dependencia: feature.options.dependencia || '',
+                            lat: feature.getLatLng().lat,
+                            lng: feature.getLatLng().lng
+                        };
+                        console.log(`💾 ✅ GUARDANDO SÍMBOLO: ${elementoData.nombre} (SIDC: ${elementoData.sidc})`);
+                        
+                    } else {
+                        // ✅ MARCADOR GENÉRICO:
+                        elementoData = {
+                            tipo: "marcador",
+                            nombre: feature.options.nombre || 'Marcador sin nombre',
+                            lat: feature.getLatLng().lat,
+                            lng: feature.getLatLng().lng,
+                            color: feature.options.color,
+                            icon: feature.options.icon ? 'custom' : 'default'
+                        };
+                        console.log(`💾 ✅ GUARDANDO MARCADOR GENÉRICO: ${elementoData.nombre}`);
+                    }
 
-            // ✅ GUARDAR MARCADOR CON TODAS SUS PROPIEDADES - SIN FILTROS
-            const elementoData = {
-                tipo: "marcador",
-                sidc: feature.options.sidc || null,
-                nombre: feature.options.nombre || '',
-                designacion: feature.options.designacion || '',
-                dependencia: feature.options.dependencia || '',
-                // Propiedades de símbolos militares
-                tipo: feature.options.tipo || null,
-                magnitud: feature.options.magnitud || null,
-                tipoVehiculo: feature.options.tipoVehiculo || null,
-                caracteristica: feature.options.caracteristica || null,
-                equipo: feature.options.equipo || null,
-                jugador: feature.options.jugador || null,
-                id: feature.options.id || null,
-                // Propiedades de puntos de control
-                subtipo: feature.options.subtipo || null,
-                numero: feature.options.numero || null,
-                color: feature.options.color || null,
-                // Propiedades genéricas
-                icon: feature.options.icon || null,
-                // Coordenadas
-                lat: feature.getLatLng().lat,
-                lng: feature.getLatLng().lng
-            };
-            
-            escenarioData.elementos.push(elementoData);
-            contadores.marcadores++;
-            console.log(`✅ Marcador guardado: ${elementoData.nombre || 'Sin nombre'}`)
+            if (elementoData) {
+                escenarioData.elementos.push(elementoData); // ✅ USAR escenarioData CORRECTAMENTE
+                contadores.marcadores++;
+            }
 
         } else if (feature instanceof L.Polyline) {
             // ✅ GUARDAR LÍNEAS Y POLÍGONOS:
@@ -571,22 +560,10 @@ function guardarCalco() {
                     interactive: feature.options.interactive !== undefined ? feature.options.interactive : true,
                     className: feature.options.className || null,
                     
-                    // ✅ PROPIEDADES DE DISTANCIA (líneas de medición):
+                    // ✅ PROPIEDADES DE DISTANCIA:
                     distancia: feature.distancia || feature.options.distancia || null,
                     distanciaTotal: feature.distanciaTotal || feature.options.distanciaTotal || null,
-                    distanciaAcumulada: feature.distanciaAcumulada || feature.options.distanciaAcumulada || null,
-                    
-                    // ✅ PROPIEDADES MCC/MCCF (medidas de control):
-                    tipoMCC: feature.options.tipoMCC || null,
-                    subtipoMCC: feature.options.subtipoMCC || null,
-                    designacion: feature.options.designacion || null,
-                    dependencia: feature.options.dependencia || null,
-                    sidc: feature.options.sidc || null,
-                    
-                    // ✅ CUALQUIER OTRA PROPIEDAD CUSTOM:
-                    id: feature.options.id || null,
-                    equipo: feature.options.equipo || null,
-                    jugador: feature.options.jugador || null
+                    distanciaAcumulada: feature.distanciaAcumulada || feature.options.distanciaAcumulada || null
                 };
                 
                 console.log(`💾 Guardando ${elementoData.tipo}: ${elementoData.nombre}`);
@@ -760,11 +737,11 @@ function cargarCalco() {
                     contador++;
                 }
                 
-                var nuevoCalco = L.layerGroup().addTo(map);
+                var nuevoCalco = L.layerGroup().addTo(mapa);
                 calcos[nombreCalco] = nuevoCalco;
                 
                 if (escenario.vista) {
-                    map.setView(escenario.vista.centro, escenario.vista.zoom);
+                    mapa.setView(escenario.vista.centro, escenario.vista.zoom);
                 }
 
                 var contadoresCarga = {
@@ -781,8 +758,6 @@ function cargarCalco() {
                             tipo: elemento.tipo,
                             nombre: elemento.nombre,
                             tieneLatLngs: !!elemento.latlngs,
-                            tieneLat: !!elemento.lat,
-                            tieneLng: !!elemento.lng,
                             cantidadPuntos: elemento.latlngs ? 
                                 (Array.isArray(elemento.latlngs[0]) ? 
                                  elemento.latlngs.reduce((total, ring) => total + ring.length, 0) : 
@@ -795,22 +770,7 @@ function cargarCalco() {
                             }
                         });
 
-                        // ✅ FIX #13b: PROCESAMIENTO UNIVERSAL DE MARCADORES
-                        // DETECTAR marcadores por PRESENCIA de lat/lng (NO por tipo)
-                        // tipo puede ser: "marcador", "puntoControl", null (textoMarcador), undefined
-                        const esMarcador = elemento.lat !== undefined && 
-                                          elemento.lng !== undefined && 
-                                          !elemento.latlngs;
-
-                        if (esMarcador) {
-                            console.log('🎯 DETECTADO MARCADOR (lat/lng presente):', {
-                                tipo: elemento.tipo,
-                                nombre: elemento.nombre,
-                                lat: elemento.lat,
-                                lng: elemento.lng,
-                                tieneIcon: !!elemento.icon
-                            });
-                            
+                        if (elemento.tipo === "marcador" || elemento.tipo === "puntoControl") {
                             let marker;
 
                             if (elemento.tipo === "puntoControl") {
@@ -875,29 +835,10 @@ function cargarCalco() {
                             } else if (elemento.sidc) {
                                 // ✅ RECREAR SÍMBOLOS MILITARES:
                                 try {
-                                    // ✅ FIX #15: Usar nombre completo (formato designacion/dependencia)
-                                    // Si elemento.nombre existe, usarlo directamente (respeta formato guardado)
-                                    // Si no, construir desde designacion y dependencia individuales
-                                    let textoCompleto = '';
-                                    if (elemento.nombre && elemento.nombre.trim() !== '') {
-                                        // Usar nombre guardado (ya tiene formato designacion/dependencia)
-                                        textoCompleto = elemento.nombre;
-                                    } else {
-                                        // Construir desde campos individuales (fallback)
-                                        textoCompleto = `${elemento.designacion || ''}${elemento.dependencia ? '/' + elemento.dependencia : ''}`;
-                                    }
-                                    
-                                    console.log('🏷️ Recreando símbolo militar:', {
-                                        nombre: elemento.nombre,
-                                        designacion: elemento.designacion,
-                                        dependencia: elemento.dependencia,
-                                        textoFinal: textoCompleto
-                                    });
-                                    
                                     const simbolo = new ms.Symbol(elemento.sidc, {
                                         size: 35,
-                                        uniqueDesignation: '',              // ✅ Vacío 
-                                        higherFormation: textoCompleto      // ✅ Nombre completo va AQUÍ
+                                        uniqueDesignation: elemento.designacion || '',
+                                        higherFormation: elemento.dependencia || ''
                                     });
 
                                     const icono = L.divIcon({
@@ -912,120 +853,62 @@ function cargarCalco() {
                                         icon: icono,
                                         draggable: true,
                                         sidc: elemento.sidc,
-                                        // ✅ CRÍTICO: Cargar nombre completo si existe
-                                        nombre: elemento.nombre || `${elemento.designacion || ''}${elemento.dependencia ? '/' + elemento.dependencia : ''}`,
-                                        // ✅ CRÍTICO: Cargar designacion y dependencia por separado
-                                        designacion: elemento.designacion || '',
-                                        dependencia: elemento.dependencia || '',
-                                        // ✅ CRÍTICO: Cargar TODAS las propiedades guardadas
-                                        tipo: elemento.tipo || null,
-                                        magnitud: elemento.magnitud || null,
-                                        tipoVehiculo: elemento.tipoVehiculo || null,
-                                        equipo: elemento.equipo || null,
-                                        jugador: elemento.jugador || null,
-                                        id: elemento.id || null
-                                    });
-                                    
-                                    // ✅ CRÍTICO: Agregar event listeners para selección Y edición
-                                    marker.on('click', function() { 
-                                        console.log('🎯 Marcador cargado desde calco - seleccionando');
-                                        if (typeof window.seleccionarElemento === 'function') {
-                                            window.seleccionarElemento(this);
-                                        } else {
-                                            window.elementoSeleccionado = this;
-                                        }
-                                    });
-                                    
-                                    marker.on('dblclick', function() {
-                                        console.log('🎯 Marcador cargado desde calco - editando');
-                                        window.elementoSeleccionado = this;
-                                        if (typeof editarElementoSeleccionado === 'function') {
-                                            editarElementoSeleccionado();
-                                        }
-                                    });
-                                    
-                                    console.log(`✅ Símbolo militar recreado: ${elemento.nombre || elemento.designacion}`, {
-                                        sidc: elemento.sidc,
+                                        nombre: elemento.nombre,
                                         designacion: elemento.designacion,
-                                        dependencia: elemento.dependencia,
-                                        tipoVehiculo: elemento.tipoVehiculo
+                                        dependencia: elemento.dependencia
                                     });
+                                    
+                                    console.log(`✅ Símbolo militar recreado: ${elemento.nombre}`);
                                 } catch (simboloError) {
                                     console.error('❌ Error creando símbolo militar:', simboloError);
                                     contadoresCarga.errores++;
                                     return;
                                 }
                             } else {
-                                // ✅ FIX #13: ELIMINAR FILTRO - CARGAR TODO SIN DISCRIMINAR
-                                // ANTES: había filtro que eliminaba marcadores sin nombre/sidc/tipo
-                                // AHORA: Se carga TODO lo guardado (incluye textoMarcador de líneas)
+                                // ✅ VERIFICAR SI ES UN VÉRTICE:
+                                const esProbablementeVertice = (
+                                    (!elemento.nombre || elemento.nombre === 'Marcador sin nombre') &&
+                                    !elemento.sidc &&
+                                    !elemento.tipo
+                                );
                                 
-                                console.log('🔧 Creando marcador (cualquier tipo)...', {
-                                    nombre: elemento.nombre,
-                                    tipo: elemento.tipo,
-                                    icon: elemento.icon ? 'presente' : 'ausente'
-                                });
-                                
-                                // ✅ Si tiene icono custom guardado, usarlo
-                                let iconoAUsar;
-                                if (elemento.icon && elemento.icon.options) {
-                                    iconoAUsar = L.divIcon({
-                                        className: elemento.icon.options.className || 'marcador-generico',
-                                        html: elemento.icon.options.html || '',
-                                        iconSize: elemento.icon.options.iconSize || [25, 41],
-                                        iconAnchor: elemento.icon.options.iconAnchor || [12, 41],
-                                        popupAnchor: elemento.icon.options.popupAnchor || [1, -34]
-                                    });
-                                    console.log('� Usando icono custom guardado (textoMarcador)');
-                                } else {
-                                    // Icono genérico por defecto
-                                    iconoAUsar = L.divIcon({
-                                        className: 'marcador-generico',
-                                        html: `<div style="
-                                            width: 25px;
-                                            height: 25px;
-                                            background: #ff6b6b;
-                                            border: 2px solid white;
-                                            border-radius: 50% 50% 50% 0;
-                                            transform: rotate(-45deg);
-                                            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                                        "></div>`,
-                                        iconSize: [25, 41],
-                                        iconAnchor: [12, 41],
-                                        popupAnchor: [1, -34]
-                                    });
+                                if (esProbablementeVertice) {
+                                    console.log('🗑️ FILTRADO: Probable vértice detectado en carga:', elemento);
+                                    contadoresCarga.errores++;
+                                    return;
                                 }
+                                
+                                // ✅ MARCADORES GENÉRICO:
+                                console.log('🔧 Creando marcador genérico legítimo...', elemento);
+                                
+                                const iconoGenerico = L.divIcon({
+                                    className: 'marcador-generico',
+                                    html: `<div style="
+                                        width: 25px;
+                                        height: 25px;
+                                        background: #ff6b6b;
+                                        border: 2px solid white;
+                                        border-radius: 50% 50% 50% 0;
+                                        transform: rotate(-45deg);
+                                        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                                    "></div>`,
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34]
+                                });
 
                                 marker = L.marker([elemento.lat, elemento.lng], {
-                                    icon: iconoAUsar,
+                                    icon: iconoGenerico,
                                     draggable: true,
-                                    nombre: elemento.nombre || '',
-                                    tipo: elemento.tipo || null,
-                                    subtipo: elemento.subtipo || null,
-                                    numero: elemento.numero || null,
-                                    color: elemento.color || null
+                                    nombre: elemento.nombre || 'Marcador genérico'
                                 });
                                 
-                                console.log(`✅ Marcador recreado: ${elemento.nombre || 'sin nombre'}`);
+                                console.log(`✅ Marcador genérico recreado: ${elemento.nombre}`);
                             }
 
                             if (marker) {
-                                // ✅ CRÍTICO: Agregar event listeners para TODOS los marcadores
                                 marker.on('click', function() { 
-                                    console.log('🎯 Marcador cargado desde calco - seleccionando');
-                                    if (typeof window.seleccionarElemento === 'function') {
-                                        window.seleccionarElemento(this);
-                                    } else {
-                                        window.elementoSeleccionado = this;
-                                    }
-                                });
-                                
-                                marker.on('dblclick', function() {
-                                    console.log('🎯 Marcador cargado desde calco - editando');
-                                    window.elementoSeleccionado = this;
-                                    if (typeof editarElementoSeleccionado === 'function') {
-                                        editarElementoSeleccionado();
-                                    }
+                                    seleccionarElemento(this);
                                 });
                                 
                                 marker.addTo(nuevoCalco);
@@ -1294,20 +1177,20 @@ function eliminarElementoSeleccionado() {
         if (window.elementoSeleccionado.textoMarcador) {
             if (window.calcoActivo && window.calcoActivo.hasLayer(window.elementoSeleccionado.textoMarcador)) {
                 window.calcoActivo.removeLayer(window.elementoSeleccionado.textoMarcador);
-            } else if (map.hasLayer(window.elementoSeleccionado.textoMarcador)) {
-                map.removeLayer(window.elementoSeleccionado.textoMarcador);
+            } else if (mapa.hasLayer(window.elementoSeleccionado.textoMarcador)) {
+                mapa.removeLayer(window.elementoSeleccionado.textoMarcador);
             }
             console.log('🗑️ textoMarcador eliminado');
         }
         
-        // Remover elemento principal del map y del calco
+        // Remover elemento principal del mapa y del calco
         if (window.calcoActivo && window.calcoActivo.hasLayer(window.elementoSeleccionado)) {
             window.calcoActivo.removeLayer(window.elementoSeleccionado);
-        } else if (map.hasLayer(window.elementoSeleccionado)) {
-            map.removeLayer(window.elementoSeleccionado);
+        } else if (mapa.hasLayer(window.elementoSeleccionado)) {
+            mapa.removeLayer(window.elementoSeleccionado);
         }
         
-        console.log('🗑️ Elemento eliminado del map');
+        console.log('🗑️ Elemento eliminado del mapa');
         mostrarNotificacion('Elemento eliminado', 'success');
         
         // Limpiar selección
@@ -1436,11 +1319,11 @@ window.addEventListener('DOMContentLoaded', function() {
         console.log('  - mostrarMenuContextual:', typeof mostrarMenuContextual);
         console.log('  - seleccionarElemento:', typeof seleccionarElemento);
         
-        // ✅ VERIFICAR map SOLO SI EXISTE:
-        if (typeof map !== 'undefined' && map && map.getContainer) {
-            console.log('  - map inicializado correctamente');
+        // ✅ VERIFICAR MAPA SOLO SI EXISTE:
+        if (typeof mapa !== 'undefined' && mapa && mapa.getContainer) {
+            console.log('  - Mapa inicializado correctamente');
         } else {
-            console.log('  - map aún no inicializado');
+            console.log('  - Mapa aún no inicializado');
         }
         
         if (typeof editarElementoSeleccionado !== 'function') {

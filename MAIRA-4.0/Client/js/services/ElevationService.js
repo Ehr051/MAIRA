@@ -263,27 +263,13 @@ class ElevationService extends GeospatialDataService {
         // 🏠 MODO LOCAL: Intentar con TIF handler si disponible
         if (this.useTIF && this.elevationHandler) {
             try {
-                console.log(`%c🔍 LLAMANDO elevationHandler`, 'background: #ff6b6b; color: white; padding: 2px 6px;');
-                console.log(`   Coordenadas: lat=${lat.toFixed(6)}, lon=${lon.toFixed(6)}`);
-                
                 elevation = await this.elevationHandler.obtenerElevacion(lat, lon);
                 
-                console.log(`%c📊 RESULTADO elevationHandler`, 'background: #51cf66; color: white; padding: 2px 6px;');
-                console.log(`   Elevación devuelta: ${elevation}`);
-                
                 if (elevation !== null && !isNaN(elevation)) {
-                    console.log(`   ✅ Usando elevación del TIF: ${elevation}m`);
                     this._setCache(cacheKey, elevation);
                     return elevation;
-                } else {
-                    console.warn(`   ⚠️ Elevación inválida (null o NaN), usando procedural`);
                 }
             } catch (error) {
-                console.error(`%c❌ ERROR elevationHandler`, 'background: #ff0000; color: white; padding: 2px 6px;');
-                console.error(`   lat=${lat.toFixed(4)}, lon=${lon.toFixed(4)}`);
-                console.error(`   Error: ${error.message}`);
-                console.error(error);
-                
                 // 🚀 NUEVO: Marcar coordenada como fallida
                 this.failedCoordsCache.set(errorKey, {
                     timestamp: Date.now(),
@@ -292,16 +278,10 @@ class ElevationService extends GeospatialDataService {
                 
                 this._log('debug', `Error TIF lat:${lat.toFixed(4)}, lon:${lon.toFixed(4)}: ${error.message}`);
             }
-        } else {
-            console.warn(`%c⚠️ TIF HANDLER NO DISPONIBLE`, 'background: #ff922b; color: white; padding: 2px 6px;');
-            console.warn(`   useTIF: ${this.useTIF}, elevationHandler: ${!!this.elevationHandler}`);
         }
         
         // Fallback a procedural
-        console.warn(`%c🎲 USANDO PROCEDURAL FALLBACK`, 'background: #ff6b6b; color: white; padding: 2px 6px; font-weight: bold;');
-        console.warn(`   lat=${lat.toFixed(6)}, lon=${lon.toFixed(6)}`);
         elevation = this.getProceduralElevation(lat, lon);
-        console.warn(`   Elevación procedural: ${elevation.toFixed(2)}m`);
         this._setCache(cacheKey, elevation);
         
         return elevation;

@@ -72,7 +72,12 @@ class MAIRA3DMaster {
                 'soldier': '/backup_gltf_models/gltf_new/soldier/scene.gltf',
                 'russian_soldier': '/backup_gltf_models/gltf_new/russian_soldier/scene.gltf',
                 'tent_military': '/backup_gltf_models/gltf_new/tent_military/scene.gltf',
-                'medical_tent': '/backup_gltf_models/gltf_new/medical_tent/scene.gltf'
+                'medical_tent': '/backup_gltf_models/gltf_new/medical_tent/scene.gltf',
+                // Modelos de vegetación
+                'grass': '/backup_gltf_models/gltf_new/vegetation/grass/scene.gltf',
+                'tree_tall': '/backup_gltf_models/gltf_new/vegetation/tree_tall/scene.gltf',
+                'tree_medium': '/backup_gltf_models/gltf_new/vegetation/tree_medium/scene.gltf',
+                'bush': '/backup_gltf_models/gltf_new/vegetation/bush/scene.gltf'
             },
             terrain: {
                 size: 2000,
@@ -117,9 +122,6 @@ class MAIRA3DMaster {
         this.clock = new THREE.Clock();
         this.animationId = null;
         this.loadingManager = new THREE.LoadingManager();
-
-        // === SISTEMA SIDC→3D ===
-        this.sidcMapper = new SIDCToModel3D();
     }
 
     /**
@@ -322,7 +324,7 @@ class MAIRA3DMaster {
     async loadThreeJS() {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = '/libs/mythree/three.min.js';
+            script.src = '/node_modules/three/build/three.min.js';
             script.onload = resolve;
             script.onerror = () => reject(new Error('Failed to load Three.js'));
             document.head.appendChild(script);
@@ -332,7 +334,7 @@ class MAIRA3DMaster {
     async loadGLTFLoader() {
         return new Promise((resolve) => {
             const script = document.createElement('script');
-            script.src = '/libs/mythree/GLTFLoader.js';
+            script.src = '/node_modules/three/examples/js/loaders/GLTFLoader.js';
             script.onload = resolve;
             script.onerror = resolve; // Continuar aunque falle
             document.head.appendChild(script);
@@ -342,7 +344,7 @@ class MAIRA3DMaster {
     async loadOrbitControls() {
         return new Promise((resolve) => {
             const script = document.createElement('script');
-            script.src = '/libs/mythree/OrbitControls.js';
+            script.src = '/node_modules/three/examples/js/controls/OrbitControls.js';
             script.onload = resolve;
             script.onerror = resolve;
             document.head.appendChild(script);
@@ -545,11 +547,14 @@ class MAIRA3DMaster {
             <div class="panel-controls">
                 <label><input type="checkbox" id="show-units" checked> 👥 Unidades</label>
                 <label><input type="checkbox" id="show-buildings"> 🏢 Edificios</label>
+                <label><input type="checkbox" id="show-vegetation" checked> 🌳 Vegetación</label>
                 <label><input type="checkbox" id="show-terrain" checked> 🌍 Terreno</label>
                 <label><input type="checkbox" id="real-models" checked> 🎨 Modelos Reales</label>
             </div>
             <div class="panel-actions">
                 <button id="sync-2d">🔄 Sincronizar 2D</button>
+                <button id="add-test-vegetation">🌱 Agregar Vegetación</button>
+                <button id="clear-vegetation">🧹 Limpiar Vegetación</button>
                 <button id="reset-view">📷 Reset Vista</button>
                 <button id="export-3d">💾 Exportar</button>
             </div>
@@ -614,6 +619,8 @@ class MAIRA3DMaster {
 
         // Acciones
         this.uiPanel.querySelector('#sync-2d').addEventListener('click', () => this.syncWith2DMap());
+        this.uiPanel.querySelector('#add-test-vegetation').addEventListener('click', () => this.addTestVegetation());
+        this.uiPanel.querySelector('#clear-vegetation').addEventListener('click', () => this.clearVegetation());
         this.uiPanel.querySelector('#reset-view').addEventListener('click', () => this.resetView());
         this.uiPanel.querySelector('#export-3d').addEventListener('click', () => this.exportScene());
     }
@@ -712,6 +719,97 @@ class MAIRA3DMaster {
     }
 
     /**
+     * AGREGAR ELEMENTO DE VEGETACIÓN
+     */
+    async addVegetation(vegetationData) {
+        try {
+            const { id, type, lat, lng, scale = 1, rotation = 0 } = vegetationData;
+
+            // Validar tipo de vegetación
+            const validTypes = ['grass', 'tree_tall', 'tree_medium', 'bush'];
+            if (!validTypes.includes(type)) {
+                console.warn(`⚠️ Tipo de vegetación inválido: ${type}`);
+                return null;
+            }
+
+            // Convertir coordenadas geográficas a posición 3D
+            const position = this.latLngToPosition(lat, lng);
+
+            // Cargar modelo de vegetación
+            const vegetationMesh = await this.loadModel(type, position);
+
+            if (vegetationMesh) {
+                // Configurar propiedades
+                vegetationMesh.userData = {
+                    id,
+                    type: 'vegetation',
+                    vegetationType: type,
+                    lat,
+                    lng,
+                    scale,
+                    rotation,
+                    selectable: false // La vegetación generalmente no es seleccionable
+                };
+
+                // Aplicar escala y rotación personalizadas
+                vegetationMesh.scale.multiplyScalar(scale);
+                vegetationMesh.rotation.y = rotation;
+
+                // Configurar físicas
+                vegetationMesh.castShadow = true;
+                vegetationMesh.receiveShadow = true;
+
+                // Ajustar posición Y para que toque el terreno
+                vegetationMesh.position.y = this.getTerrainHeightAt(position.x, position.z);
+
+                this.scene.add(vegetationMesh);
+                this.vegetation.set(id, vegetationMesh);
+
+                console.log(`✅ Elemento de vegetación agregado: ${type} (ID: ${id})`);
+                return vegetationMesh;
+            }
+
+        } catch (error) {
+            console.error('❌ Error agregando elemento de vegetación:', error);
+            // Fallback: crear geometría básica de vegetación
+            return this.createFallbackVegetation(vegetationData);
+        }
+    }
+
+    /**
+     * LIMPIAR TODA LA VEGETACIÓN
+     */
+    clearVegetation() {
+        this.vegetation.forEach(veg => {
+            this.scene.remove(veg);
+        });
+        this.vegetation.clear();
+        console.log('🧹 Vegetación limpiada');
+    }
+
+    /**
+     * AGREGAR VEGETACIÓN DE PRUEBA
+     */
+    async addTestVegetation() {
+        const testVegetation = [
+            { id: 'grass_1', type: 'grass', lat: -34.6037, lng: -58.3816, scale: 1, rotation: 0 },
+            { id: 'tree_tall_1', type: 'tree_tall', lat: -34.6038, lng: -58.3817, scale: 1.2, rotation: Math.PI/4 },
+            { id: 'tree_medium_1', type: 'tree_medium', lat: -34.6039, lng: -58.3818, scale: 0.9, rotation: Math.PI/2 },
+            { id: 'bush_1', type: 'bush', lat: -34.6040, lng: -58.3819, scale: 1.5, rotation: Math.PI/3 },
+            { id: 'grass_2', type: 'grass', lat: -34.6041, lng: -58.3820, scale: 0.8, rotation: Math.PI/6 },
+            { id: 'tree_tall_2', type: 'tree_tall', lat: -34.6042, lng: -58.3821, scale: 1, rotation: 0 }
+        ];
+
+        console.log('🌱 Agregando vegetación de prueba...');
+
+        for (const vegData of testVegetation) {
+            await this.addVegetation(vegData);
+        }
+
+        console.log(`✅ Agregadas ${testVegetation.length} elementos de vegetación de prueba`);
+    }
+
+    /**
      * CARGAR MODELO GLTF
      */
     async loadModel(modelType, position = { x: 0, y: 0, z: 0 }) {
@@ -784,55 +882,38 @@ class MAIRA3DMaster {
 
     /**
      * DETERMINAR TIPO DE MODELO DESDE SIDC
-     * Usa el sistema SIDCToModel3D completo para mapeo preciso
      */
     getModelTypeFromSIDC(sidc) {
         if (!sidc) return 'soldier';
 
-        try {
-            // Usar el sistema SIDCToModel3D para obtener el modelo completo
-            const modelData = this.sidcMapper.getModelForSIDC(sidc);
+        const sidcStr = sidc.toString().toUpperCase();
 
-            if (modelData && modelData.modelType) {
-                console.log(`🎯 SIDC ${sidc} → Modelo: ${modelData.modelType} (Escala: ${modelData.scale})`);
-                return modelData.modelType;
-            }
-
-            // Fallback: lógica básica si el sistema SIDC falla
-            console.warn(`⚠️ SIDC ${sidc} no encontrado en sistema SIDCToModel3D, usando fallback`);
-            const sidcStr = sidc.toString().toUpperCase();
-
-            // Tanques y vehículos blindados
-            if (sidcStr.includes('T') || sidcStr.includes('TANK') || sidcStr.includes('TAM')) {
-                return 'tank_tam';
-            }
-
-            // Vehículos de combate
-            if (sidcStr.includes('W') || sidcStr.includes('APC') || sidcStr.includes('M113')) {
-                return 'm113';
-            }
-
-            // Vehículos logísticos
-            if (sidcStr.includes('M') || sidcStr.includes('TRUCK') || sidcStr.includes('LOG')) {
-                return 'ural';
-            }
-
-            // Vehículos ligeros
-            if (sidcStr.includes('H') || sidcStr.includes('HUMVEE')) {
-                return 'humvee';
-            }
-
-            // Infantería
-            if (sidcStr.includes('I') || sidcStr.includes('INF')) {
-                return Math.random() > 0.5 ? 'soldier' : 'russian_soldier';
-            }
-
-            return 'soldier'; // Default
-
-        } catch (error) {
-            console.error('❌ Error en getModelTypeFromSIDC:', error);
-            return 'soldier'; // Fallback seguro
+        // Tanques y vehículos blindados
+        if (sidcStr.includes('T') || sidcStr.includes('TANK') || sidcStr.includes('TAM')) {
+            return 'tank_tam';
         }
+
+        // Vehículos de combate
+        if (sidcStr.includes('W') || sidcStr.includes('APC') || sidcStr.includes('M113')) {
+            return 'm113';
+        }
+
+        // Vehículos logísticos
+        if (sidcStr.includes('M') || sidcStr.includes('TRUCK') || sidcStr.includes('LOG')) {
+            return 'ural';
+        }
+
+        // Vehículos ligeros
+        if (sidcStr.includes('H') || sidcStr.includes('HUMVEE')) {
+            return 'humvee';
+        }
+
+        // Infantería
+        if (sidcStr.includes('I') || sidcStr.includes('INF')) {
+            return Math.random() > 0.5 ? 'soldier' : 'russian_soldier';
+        }
+
+        return 'soldier'; // Default
     }
 
     /**
@@ -848,10 +929,20 @@ class MAIRA3DMaster {
             'soldier': 'SHGPUCII------',        // Infantería amiga
             'russian_soldier': 'SFGPUCII------', // Infantería enemiga (usando tanque como ejemplo)
             'tent_military': 'GHGPGPA-------',  // Tienda militar
-            'medical_tent': 'GHGPGPA-------'    // Tienda médica
+            'medical_tent': 'GHGPGPA-------',   // Tienda médica
+            // Modelos de vegetación (no requieren SIDC militar)
+            'grass': null,                      // Pasto
+            'tree_tall': null,                  // Árbol alto
+            'tree_medium': null,                // Árbol mediano
+            'bush': null                         // Arbusto
         };
 
-        return sidcMap[modelType] || 'SHGPUCII------'; // Default: infantería amiga
+        // Para modelos de vegetación, devolver null explícitamente
+        if (modelType in sidcMap) {
+            return sidcMap[modelType];
+        }
+
+        return 'SHGPUCII------'; // Default: infantería amiga
     }
 
     /**
@@ -930,6 +1021,86 @@ class MAIRA3DMaster {
 
         this.scene.add(mesh);
         this.militaryUnits.set(id, mesh);
+
+        return mesh;
+    }
+
+    /**
+     * VEGETACIÓN FALLBACK (GEOMETRÍA BÁSICA)
+     */
+    createFallbackVegetation(vegetationData) {
+        const { id, type, scale = 1, rotation = 0 } = vegetationData;
+
+        // Geometría básica según tipo de vegetación
+        let geometry, material;
+
+        switch (type) {
+            case 'grass':
+                // Pasto: plano con textura verde
+                geometry = new THREE.PlaneGeometry(2 * scale, 2 * scale);
+                material = new THREE.MeshLambertMaterial({
+                    color: 0x228B22,
+                    transparent: true,
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
+                });
+                break;
+
+            case 'tree_tall':
+                // Árbol alto: cilindro verde con esfera en la copa
+                geometry = new THREE.CylinderGeometry(0.5 * scale, 0.8 * scale, 8 * scale, 8);
+                material = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); // Marrón para el tronco
+                break;
+
+            case 'tree_medium':
+                // Árbol mediano: cilindro más pequeño
+                geometry = new THREE.CylinderGeometry(0.4 * scale, 0.6 * scale, 6 * scale, 8);
+                material = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                break;
+
+            case 'bush':
+                // Arbusto: esfera verde
+                geometry = new THREE.SphereGeometry(1.5 * scale, 8, 6);
+                material = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
+                break;
+
+            default:
+                // Default: esfera verde pequeña
+                geometry = new THREE.SphereGeometry(1 * scale, 8, 6);
+                material = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+        }
+
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.rotation.y = rotation;
+
+        // Para árboles, agregar copa
+        if (type === 'tree_tall' || type === 'tree_medium') {
+            const crownGeometry = new THREE.SphereGeometry(
+                type === 'tree_tall' ? 3 * scale : 2.5 * scale,
+                8, 6
+            );
+            const crownMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            const crown = new THREE.Mesh(crownGeometry, crownMaterial);
+            crown.position.y = (type === 'tree_tall' ? 4 : 3) * scale;
+            crown.castShadow = true;
+            crown.receiveShadow = true;
+            mesh.add(crown);
+        }
+
+        mesh.userData = {
+            id,
+            type: 'vegetation',
+            vegetationType: type,
+            scale,
+            rotation,
+            selectable: false,
+            isFallback: true
+        };
+
+        this.scene.add(mesh);
+        this.vegetation.set(id, mesh);
 
         return mesh;
     }
@@ -1117,6 +1288,11 @@ class MAIRA3DMaster {
             case 'show-buildings':
                 this.buildings.forEach(building => {
                     building.visible = visible;
+                });
+                break;
+            case 'show-vegetation':
+                this.vegetation.forEach(veg => {
+                    veg.visible = visible;
                 });
                 break;
             case 'show-terrain':
@@ -2319,23 +2495,11 @@ class MAIRA3DMaster {
 
 /**
  * INICIALIZACIÓN GLOBAL DEL SISTEMA 3D MAIRA
- * Se inicializa solo cuando Three.js está disponible
  */
 (function() {
-    // Esperar a que Three.js esté disponible antes de inicializar
-    function initializeWhenReady() {
-        if (typeof THREE !== 'undefined') {
-            // Crear instancia global del sistema 3D
-            window.maira3DSystem = new MAIRA3DMaster();
-            window.maira3DMaster = window.maira3DSystem; // Alias para compatibilidad
-
-            console.log('🎮 Sistema 3D MAIRA Master inicializado globalmente');
-        } else {
-            // Reintentar en 100ms
-            setTimeout(initializeWhenReady, 100);
-        }
-    }
-
-    // Iniciar verificación
-    initializeWhenReady();
+    // Crear instancia global del sistema 3D
+    window.maira3DSystem = new MAIRA3DMaster();
+    window.maira3DMaster = window.maira3DSystem; // Alias para compatibilidad
+    
+    console.log('🎮 Sistema 3D MAIRA Master inicializado globalmente');
 })();

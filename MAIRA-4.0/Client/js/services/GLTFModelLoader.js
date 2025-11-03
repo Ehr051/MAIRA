@@ -15,28 +15,28 @@ class GLTFModelLoader {
         this.cache = new Map();
         this.loadingPromises = new Map();
         
-        // Path a modelos GLB (ruta RELATIVA desde planeamiento_integrado.html)
-        this.basePath = 'assets/models/gbl_new/';
+        // Path a modelos GLB directos
+        this.basePath = 'Client/assets/models/gbl_new/';
         
         // Mapeo de tipos de vegetación a archivos GLB
-        // 🌳 SOLO MODELOS QUE EXISTEN REALMENTE EN /gbl_new/
+        // 🌳 TODOS LOS MODELOS DISPONIBLES - Sin variaciones, modelos directos
         this.vegetationModels = {
-            // ÁRBOLES PRINCIPALES ✅ (SIN trees_low.glb - usar arbol.glb)
-            'trees_low': 'arbol.glb',              // 8.9MB - Árbol genérico EXISTE ✅
-            'arbol': 'arbol.glb',                  // 8.9MB - Árbol genérico EXISTE ✅
-            'tree_oak': 'AnimatedOak.glb',         // 85MB - Roble animado EXISTE ✅
+            // ÁRBOLES PRINCIPALES ✅
+            'trees_low': 'trees_low.glb',          // 2.4MB - Árboles principales ✅
+            'arbol': 'arbol.glb',                  // 8.9MB - Árbol alto genérico ✅
+            'tree_oak': 'AnimatedOak.glb',         // Roble animado MUY DIFERENTE ✅
             
-            // ÁRBOLES FALLBACK (todos apuntan a arbol.glb que existe)
-            'tree_tall': 'arbol.glb',              // Fallback → arbol.glb ✅
-            'tree_medium': 'arbol.glb',            // Fallback → arbol.glb ✅
-            'tree': 'arbol.glb',                   // Fallback → arbol.glb ✅
+            // ÁRBOLES ADICIONALES (pueden estar corruptos, fallback a válidos)
+            'tree_tall': 'tree_tall.glb',          // 1.2KB - Si falla → trees_low
+            'tree_medium': 'tree_medium.glb',      // 1.1KB - Si falla → arbol
+            'tree': 'trees_low.glb',               // Genérico
             
             // ARBUSTOS ✅
-            'bush': 'arbusto.glb',                 // 46MB - Arbusto principal EXISTE ✅
-            'bush_alt': 'bush.glb',                // 976B - Alternativo EXISTE ✅
+            'bush': 'arbusto.glb',                 // Arbusto principal
+            'bush_alt': 'bush.glb',                // Arbusto alternativo
             
             // PASTO ✅
-            'grass': 'grass.glb'                   // 980B - EXISTE ✅
+            'grass': 'grass.glb'                   // Pasto bajo
         };
         
         // ✅ Estadísticas de carga para debugging
@@ -403,25 +403,13 @@ class GLTFModelLoader {
      */
     async preloadVegetation() {
         console.log('🌳 Precargando modelos de vegetación...');
-        console.time('⏱️ Precarga vegetación');
         
-        // ✅ Cargar los 3 modelos que realmente usamos
-        const models = ['arbol', 'trees_low', 'arbusto'];
-        const promises = models.map(async (name) => {
-            try {
-                const model = await this.loadModel(name, 'vegetation');
-                console.log(`  ✅ ${name}: Precargado (${model ? 'OK' : 'FALLBACK'})`);
-                return model;
-            } catch (error) {
-                console.error(`  ❌ ${name}: Error precargando`, error);
-                return null;
-            }
-        });
+        const models = ['grass', 'bush', 'tree_medium', 'tree_tall'];
+        const promises = models.map(name => this.loadModel(name, 'vegetation'));
         
         await Promise.all(promises);
         
-        console.timeEnd('⏱️ Precarga vegetación');
-        console.log(`✅ ${models.length} modelos precargados y en caché para clonación rápida`);
+        console.log('✅ Modelos de vegetación precargados');
     }
 
     /**

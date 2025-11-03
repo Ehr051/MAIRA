@@ -87,8 +87,8 @@ class GestorComunicacion extends GestorBase {
                     reconnectionDelayMax: 5000,
                     reconnectionAttempts: 10,
                     timeout: 30000,
-                    transports: ['websocket', 'polling'],  // ✅ WEBSOCKET habilitado con fallback a polling
-                    upgrade: true,  // ✅ Permitir upgrade a websocket
+                    transports: ['polling'],  // Solo polling para Render
+                    upgrade: false,  // No intentar upgrade a websocket
                     query: {
                         userId: window.userId,
                         partidaCodigo: this.codigoPartida // Usar consistentemente partidaCodigo

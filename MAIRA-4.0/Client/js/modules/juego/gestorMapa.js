@@ -1,23 +1,23 @@
 
 
-// Contenido completo del archivo gestorMapa.js ajustado para depender de map inicializado
+// Contenido completo del archivo gestorMapa.js ajustado para depender de mapa inicializado
 class GestorMapa extends GestorBase {
     constructor() {
         super();
-            // Verificar que el map global existe y está inicializado
-            if (!window.map) {
-                console.error('[GestorMapa] window.map no existe');
-                throw new Error('El map debe estar inicializado antes de usar GestorMapa');
+            // Verificar que el mapa global existe y está inicializado
+            if (!window.mapa) {
+                console.error('[GestorMapa] window.mapa no existe');
+                throw new Error('El mapa debe estar inicializado antes de usar GestorMapa');
             }
             
-            // Verificar que el map tiene métodos básicos (está inicializado)
-            if (!window.map.getCenter || typeof window.map.getCenter !== 'function') {
-                console.error('[GestorMapa] window.map existe pero no está inicializado completamente');
-                console.log('[GestorMapa] Tipo de map:', typeof window.map);
-                console.log('[GestorMapa] Propiedades disponibles:', Object.keys(window.map || {}));
-                throw new Error('El map debe estar completamente inicializado antes de usar GestorMapa');
+            // Verificar que el mapa tiene métodos básicos (está inicializado)
+            if (!window.mapa.getCenter || typeof window.mapa.getCenter !== 'function') {
+                console.error('[GestorMapa] window.mapa existe pero no está inicializado completamente');
+                console.log('[GestorMapa] Tipo de mapa:', typeof window.mapa);
+                console.log('[GestorMapa] Propiedades disponibles:', Object.keys(window.mapa || {}));
+                throw new Error('El mapa debe estar completamente inicializado antes de usar GestorMapa');
             }
-            this.map = window.map;
+            this.mapa = window.mapa;
             this.calcoGlobal = null;
             this.calcoActivo = null;
             this.hexGrid = null;
@@ -56,7 +56,7 @@ class GestorMapa extends GestorBase {
                     }
         
                     // Código de inicialización del hexgrid
-                    window.HexGrid.initialize(this.map);
+                    window.HexGrid.initialize(this.mapa);
                     window.hexGridInitialized = true;
         
                     console.log('Grid hexagonal inicializado correctamente');
@@ -69,38 +69,27 @@ class GestorMapa extends GestorBase {
         }
     
         configurarEventosMapa() {
-            this.map.on('dblclick contextmenu', (e) => {
+            this.mapa.on('dblclick contextmenu', (e) => {
                 L.DomEvent.stopPropagation(e);
                 L.DomEvent.preventDefault(e);
                 // Reemplazar menú contextual por menú radial
                 if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
                     window.MiRadial.selectedUnit = null;
                     window.MiRadial.selectedHex = null;
-                    window.MiRadial.mostrarMenu(e.containerPoint.x, e.containerPoint.y, 'map', e.latlng);
+                    window.MiRadial.mostrarMenu(e.containerPoint.x, e.containerPoint.y, 'mapa', e.latlng);
                 } else {
-                    console.warn('❌ MiRadial no disponible para menú contextual del map');
+                    console.warn('❌ MiRadial no disponible para menú contextual del mapa');
                 }
             });
 
-            this.map.on('click', (e) => {
-                const gestorFases = this.gestorJuego?.gestorFases;
-                
-                // SI está dibujando sector o zona, NO mostrar menú radial
-                // (L.Draw maneja automáticamente los clicks durante el dibujo)
-                if (gestorFases && (gestorFases.dibujandoSector || gestorFases.dibujandoZona)) {
-                    console.log('🎨 Modo dibujo activo - L.Draw manejando clicks');
-                    return; // Dejar que L.Draw procese el click sin interferir
-                }
-                
-                // SI NO está en modo dibujo, mostrar menú radial con click izquierdo
-                if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
-                    const point = this.map.latLngToContainerPoint(e.latlng);
-                    window.MiRadial.mostrarMenu(point.x, point.y, 'map', e.latlng);
+            this.mapa.on('click', (e) => {
+                if (this.dibujandoSector || this.dibujandoZona) {
+                    this.gestorJuego?.gestorFases?.manejarClickMapa(e);
                 }
             });
         }
     crearCalcoGlobal() {
-        this.calcoGlobal = L.layerGroup().addTo(this.map);
+        this.calcoGlobal = L.layerGroup().addTo(this.mapa);
         this.calcoActivo = this.calcoGlobal;
         window.calcoGlobal = this.calcoGlobal;
         window.calcoActivo = this.calcoActivo;
@@ -120,7 +109,7 @@ class GestorMapa extends GestorBase {
             }
 
             // Corrección del método initialize
-            window.HexGrid.initialize(this.map);  // Cambio de initalize a initialize
+            window.HexGrid.initialize(this.mapa);  // Cambio de initalize a initialize
             window.hexGridInitialized = true;
 
             console.log('Grid hexagonal inicializado correctamente');
@@ -162,14 +151,14 @@ class GestorMapa extends GestorBase {
     }
 
     destruir() {
-        this.map.off();
+        this.mapa.off();
 
         if (this.calcoGlobal) {
             this.calcoGlobal.clearLayers();
         }
 
         if (this.herramientasDibujo) {
-            this.map.removeControl(this.herramientasDibujo);
+            this.mapa.removeControl(this.herramientasDibujo);
         }
 
         if (this.hexGrid) {

@@ -150,9 +150,9 @@ class MAIRACore {
             const { TileLoaderService } = await import('../utils/mini_tiles_loader.js');
             this.registerService('tileLoader', new TileLoaderService(this));
             
-            // 3D Map Service - DESHABILITADO (sistema obsoleto)
-            // const { ThreeDMapService } = await import('../services/threeDMapService.js');
-            // this.registerService('threeD', new ThreeDMapService(this));
+            // 3D Map Service
+            const { ThreeDMapService } = await import('../services/threeDMapService.js');
+            this.registerService('threeD', new ThreeDMapService(this));
             
             // Transitability Service
             const { TransitabilityService } = await import('../services/transitabilityService.js');

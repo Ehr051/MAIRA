@@ -136,17 +136,36 @@ class GestorTurnos extends GestorBase {
         this.subfase = subfase;
         
         if (fase === 'preparacion') {
-            if (subfase === 'despliegue') {
-                // ✅ Usar función específica para despliegue (sin timer)
-                this.inicializarTurnosDespliegue();
+            if (subfase === 'despliegue' && this.modoJuego === MODOS_JUEGO.LOCAL) {
+                // ✅ MODO LOCAL: Iniciar turnos para despliegue SIN RELOJ
+                console.log('🎮 Modo local: iniciando turnos para despliegue sin límite de tiempo');
+                this.modoDespliegue = true;
+                this.turnoActual = 1;
+                this.jugadorActualIndex = 0;
+                // ❌ NO INICIAR RELOJ EN DESPLIEGUE
+                this.detenerReloj();
+                
+                // Emitir evento de inicio de turnos
+                this.eventos.emit('inicioTurnos', {
+                    turnoActual: this.turnoActual,
+                    jugadorActual: this.obtenerJugadorActual(),
+                    timestamp: new Date().toISOString()
+                });
             } else {
                 // Durante otras fases de preparación no hay turnos activos
                 this.detenerReloj();
                 this.turnoActual = 0; // Indicar que no hay turno activo
+                
+                if (subfase === 'despliegue') {
+                    // En despliegue online todos pueden actuar simultáneamente
+                    this.modoDespliegue = true;
+                }
             }
         } else if (fase === 'combate') {
-            // ✅ Usar función específica para combate (con timer)
-            this.inicializarTurnosCombate();
+            // Iniciar sistema de turnos para fase de combate
+            this.modoDespliegue = false;
+            this.turnoActual = 1;
+            this.iniciarReloj();
         }
         
         this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
@@ -181,73 +200,23 @@ class GestorTurnos extends GestorBase {
         }
     }
 
-    /**
-     * Inicializar turnos para fase de DESPLIEGUE (modo LOCAL)
-     * Sin reloj, solo rotación de equipos
-     */
-    inicializarTurnosDespliegue() {
-        console.log('🎮 Iniciando turnos de DESPLIEGUE (sin reloj)...');
+    inicializarTurnos() {
+        console.log('🎮 Iniciando sistema de turnos...');
         console.log('🔍 Modo de juego:', this.modoJuego);
-        console.log('🔍 Jugadores:', this.jugadores.map(j => ({
-            id: j.id, 
-            nombre: j.nombre, 
-            equipo: j.equipo
-        })));
-        
-        this.turnoActual = 1;
-        this.jugadorActualIndex = 0;
-        this.modoDespliegue = true;
-        
-        const jugadorActual = this.obtenerJugadorActual();
-        
-        // Establecer jugador inicial en modo LOCAL
-        if (this.configuracion.modoJuego === MODOS_JUEGO.LOCAL && jugadorActual) {
-            window.userId = jugadorActual.id;
-            window.equipoJugador = jugadorActual.equipo;
-            console.log('🎯 DESPLIEGUE - Turno de equipo:', jugadorActual.equipo);
-        }
-        
-        // ✅ NO iniciar reloj en despliegue
-        this.detenerReloj();
-        
-        this.eventos.emit('inicioTurnos', {
-            turnoActual: this.turnoActual,
-            jugadorActual: jugadorActual,
-            fase: 'despliegue',
-            timestamp: new Date().toISOString()
-        });
-        
-        this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
-        
-        // Actualizar modal de estado
-        this.actualizarModalEstado();
-    }
-
-    /**
-     * Inicializar turnos para fase de COMBATE
-     * Con reloj y rotación de jugadores
-     */
-    inicializarTurnosCombate() {
-        console.log('🎮 Iniciando turnos de COMBATE (con reloj)...');
-        console.log('🔍 Modo de juego:', this.modoJuego);
-        console.log('🔍 Jugadores:', this.jugadores.map(j => ({
-            id: j.id, 
-            nombre: j.nombre, 
-            equipo: j.equipo
-        })));
+        console.log('🔍 Cantidad de jugadores:', this.jugadores.length);
+        console.log('🔍 Jugadores:', this.jugadores.map(j => ({id: j.id, nombre: j.nombre, equipo: j.equipo})));
         
         this.turnoActual = 1;
         this.jugadorActualIndex = 0;
         this.tiempoRestante = this.duracionTurno;
-        this.modoDespliegue = false;
         
         const jugadorActual = this.obtenerJugadorActual();
         
-        // Establecer jugador inicial en modo LOCAL
+        // ✅ MODO LOCAL: Establecer jugador inicial
         if (this.configuracion.modoJuego === MODOS_JUEGO.LOCAL && jugadorActual) {
             window.userId = jugadorActual.id;
             window.equipoJugador = jugadorActual.equipo;
-            console.log('🎯 COMBATE - Jugador inicial:', {
+            console.log('🎯 MODO LOCAL - Jugador inicial establecido:', {
                 nombre: jugadorActual.nombre,
                 userId: window.userId,
                 equipo: window.equipoJugador
@@ -256,30 +225,15 @@ class GestorTurnos extends GestorBase {
         
         console.log('🎯 Jugador actual inicial:', jugadorActual);
         
-        // ✅ INICIAR RELOJ en combate
+        // Iniciar reloj
         this.iniciarReloj();
         
+        // Emitir evento de inicio de turnos
         this.eventos.emit('inicioTurnos', {
             turnoActual: this.turnoActual,
-            jugadorActual: jugadorActual,
-            fase: 'combate',
+            jugadorActual: this.obtenerJugadorActual(),
             timestamp: new Date().toISOString()
         });
-        
-        this.gestorJuego?.gestorInterfaz?.actualizarInterfazCompleta();
-    }
-
-    inicializarTurnos() {
-        // ✅ Delegar según la fase
-        console.warn('[gestorTurnos] inicializarTurnos() llamado - delegando según fase');
-        
-        if (this.modoDespliegue) {
-            console.log('→ Delegando a inicializarTurnosDespliegue()');
-            this.inicializarTurnosDespliegue();
-        } else {
-            console.log('→ Delegando a inicializarTurnosCombate()');
-            this.inicializarTurnosCombate();
-        }
     }
     reiniciarTurnos() {
         this.jugadorActualIndex = 0;
@@ -687,9 +641,9 @@ class GestorTurnos extends GestorBase {
         }
         
         console.group(`[Diagnóstico] Elementos para jugador ${jugadorId} antes de marcar como listo`);
-        console.log(`Total elementos en map: ${todosLosElementos.length}`);
+        console.log(`Total elementos en mapa: ${todosLosElementos.length}`);
         console.log(`Elementos del jugador: ${elementos.length}`);
-        console.log('Todos los elementos en el map:', todosLosElementos);
+        console.log('Todos los elementos en el mapa:', todosLosElementos);
         
         elementos.forEach((elem, i) => {
             const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
@@ -1046,11 +1000,11 @@ class GestorTurnos extends GestorBase {
     // ✅ MÉTODO FALTANTE: validarElementosJugador()
     validarElementosJugador(jugadorId) {
         try {
-            // Buscar elementos del jugador en el map
+            // Buscar elementos del jugador en el mapa
             const elementos = [];
             
-            if (window.map && window.map.eachLayer) {
-                window.map.eachLayer(layer => {
+            if (window.mapa && window.mapa.eachLayer) {
+                window.mapa.eachLayer(layer => {
                     if (layer.options && (
                         layer.options.jugadorId === jugadorId ||
                         layer.options.propietario === jugadorId ||
@@ -1150,160 +1104,6 @@ class GestorTurnos extends GestorBase {
     finalizarTurno(forzado = false) {
         console.log('[GestorTurnos] 🔗 Alias finalizarTurno() llamando a finalizarTurnoActual()');
         return this.finalizarTurnoActual(forzado);
-    }
-
-    /**
-     * Generar HTML para modal de estado de jugadores
-     * Muestra quién está listo y quién está desplegando
-     */
-    mostrarEstadoJugadores() {
-        if (!this.jugadores || this.jugadores.length === 0) {
-            return '';
-        }
-        
-        const jugadorActual = this.obtenerJugadorActual();
-        
-        const html = `
-            <div class="modal-estado-jugadores" style="
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: rgba(0, 0, 0, 0.95);
-                border: 2px solid #00ff41;
-                border-radius: 8px;
-                padding: 15px;
-                z-index: 10000;
-                min-width: 280px;
-                max-width: 350px;
-                color: #00ff41;
-                font-family: 'Courier New', monospace;
-                box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
-            ">
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 12px;
-                    padding-bottom: 10px;
-                    border-bottom: 1px solid #00ff41;
-                ">
-                    <h3 style="
-                        margin: 0;
-                        color: #00ff41;
-                        font-size: 14px;
-                        font-weight: bold;
-                        letter-spacing: 1px;
-                    ">
-                        📊 ESTADO JUGADORES
-                    </h3>
-                    <button onclick="document.querySelector('.modal-estado-jugadores').remove()" style="
-                        background: none;
-                        border: 1px solid #00ff41;
-                        color: #00ff41;
-                        cursor: pointer;
-                        padding: 2px 8px;
-                        border-radius: 3px;
-                        font-size: 12px;
-                    ">✕</button>
-                </div>
-                
-                <div class="lista-jugadores" style="margin-bottom: 10px;">
-                    ${this.jugadores.map(jugador => {
-                        const esActual = jugadorActual && jugadorActual.id === jugador.id;
-                        const listo = jugador.listo || false;
-                        
-                        return `
-                            <div style="
-                                padding: 8px;
-                                margin: 6px 0;
-                                background: ${esActual ? 'rgba(0, 255, 65, 0.2)' : 'rgba(0, 255, 65, 0.05)'};
-                                border-left: 3px solid ${listo ? '#00ff41' : '#ffaa00'};
-                                border-radius: 4px;
-                                ${esActual ? 'box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);' : ''}
-                            ">
-                                <div style="
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                ">
-                                    <div>
-                                        <strong style="color: ${esActual ? '#00ff41' : '#88ff88'};">
-                                            ${jugador.nombre || `Jugador ${jugador.id}`}
-                                        </strong>
-                                        <span style="
-                                            color: ${jugador.equipo === 'rojo' ? '#ff4444' : '#4444ff'};
-                                            font-size: 11px;
-                                            margin-left: 5px;
-                                        ">
-                                            (${jugador.equipo})
-                                        </span>
-                                    </div>
-                                    <div style="font-size: 11px; color: ${listo ? '#00ff41' : '#ffaa00'};">
-                                        ${listo ? '✅ LISTO' : '⏳ DESPLEGANDO'}
-                                    </div>
-                                </div>
-                                ${esActual ? '<div style="font-size: 10px; color: #00ff41; margin-top: 3px;">▶ TURNO ACTUAL</div>' : ''}
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                
-                ${this.modoDespliegue ? `
-                    <div style="
-                        margin-top: 10px;
-                        padding-top: 10px;
-                        border-top: 1px solid rgba(0, 255, 65, 0.3);
-                        font-size: 11px;
-                        color: #88ff88;
-                    ">
-                        <div style="margin-bottom: 4px;">
-                            <strong>Fase:</strong> ${this.subfase === 'despliegue' ? 'Despliegue' : 'Preparación'}
-                        </div>
-                        ${this.modoJuego === MODOS_JUEGO.LOCAL ? `
-                            <div>
-                                <strong>Modo:</strong> Local (por turnos)
-                            </div>
-                            <div>
-                                <strong>Turno:</strong> Equipo ${jugadorActual?.equipo || 'N/A'}
-                            </div>
-                        ` : `
-                            <div>
-                                <strong>Modo:</strong> Online (simultáneo)
-                            </div>
-                        `}
-                    </div>
-                ` : ''}
-                
-                <div style="
-                    margin-top: 10px;
-                    padding-top: 8px;
-                    border-top: 1px solid rgba(0, 255, 65, 0.3);
-                    font-size: 10px;
-                    color: #88ff88;
-                    text-align: center;
-                ">
-                    Actualizado: ${new Date().toLocaleTimeString()}
-                </div>
-            </div>
-        `;
-        
-        return html;
-    }
-
-    /**
-     * Actualizar modal de estado en el DOM
-     */
-    actualizarModalEstado() {
-        // Remover modal existente
-        const existente = document.querySelector('.modal-estado-jugadores');
-        if (existente) {
-            existente.remove();
-        }
-        
-        // Mostrar modal solo en despliegue
-        if (this.modoDespliegue && this.jugadores && this.jugadores.length > 0) {
-            document.body.insertAdjacentHTML('beforeend', this.mostrarEstadoJugadores());
-        }
     }
 }
 

@@ -4,7 +4,7 @@
  * - LOD (Level of Detail) - No procesar todos los píxeles
  * - Detección de features: caminos, edificios, vegetación, agua
  * - Texturizado del terreno 3D
- * - map de colores para renderizado
+ * - Mapa de colores para renderizado
  * 
  * NO CALCULA ALTURA - Solo features visuales
  * 
@@ -23,12 +23,12 @@ class SatelliteImageAnalyzer {
             
             // Umbrales de detección de colores (RGB)
             thresholds: {
-                // Vegetación (verde) - AMPLIADO para verdes MÁS OSCUROS
+                // Vegetación (verde) - AJUSTADO para césped/árboles
                 vegetation: {
-                    minR: 20, maxR: 120,   // 🔥 AMPLIADO: Más tolerancia en rojo
-                    minG: 25, maxG: 150,   // 🔥 AMPLIADO: Verdes más oscuros (25-150)
-                    minB: 15, maxB: 100,   // 🔥 AMPLIADO: Más tolerancia en azul
-                    minRatio: 1.02         // 🔥 REDUCIDO: Menos estricto (1.02 vs 1.05)
+                    minR: 40, maxR: 180,
+                    minG: 60, maxG: 220,
+                    minB: 30, maxB: 150,
+                    minRatio: 1.05
                 },
                 
                 // Caminos (gris/marrón claro) - MÁS RESTRICTIVO
@@ -109,7 +109,7 @@ class SatelliteImageAnalyzer {
     /**
      * 🌿 Configurar VegetationService para usar datos TIF
      * @param {VegetationService} vegetationService - Servicio con datos TIF
-     * @param {L.LatLngBounds} bounds - Bounds del map
+     * @param {L.LatLngBounds} bounds - Bounds del mapa
      */
     setVegetationService(vegetationService, bounds) {
         this.vegetationService = vegetationService;
@@ -149,35 +149,6 @@ class SatelliteImageAnalyzer {
             };
             
             img.src = source;
-        });
-    }
-    
-    /**
-     * 📸 Cargar imagen desde canvas existente (mapa Leaflet)
-     * @param {HTMLCanvasElement} sourceCanvas - Canvas con imagen del mapa
-     */
-    async loadImageFromCanvas(sourceCanvas) {
-        return new Promise((resolve, reject) => {
-            try {
-                // Crear canvas para análisis
-                this.canvas = document.createElement('canvas');
-                this.canvas.width = sourceCanvas.width;
-                this.canvas.height = sourceCanvas.height;
-                // ✅ willReadFrequently para múltiples lecturas con getImageData
-                this.context = this.canvas.getContext('2d', { willReadFrequently: true });
-                
-                // Copiar contenido del canvas fuente
-                this.context.drawImage(sourceCanvas, 0, 0);
-                
-                // Obtener datos de píxeles
-                this.imageData = this.context.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
-                
-                console.log(`✅ Imagen satelital cargada desde canvas: ${sourceCanvas.width}x${sourceCanvas.height}`);
-                resolve(this.imageData);
-            } catch (error) {
-                console.error('❌ Error cargando canvas:', error);
-                reject(error);
-            }
         });
     }
     
@@ -568,47 +539,27 @@ class SatelliteImageAnalyzer {
      * ⚡ Clasificar píxel SÍNCRONO - SIMPLIFICADO SOLO ÁRBOLES
      */
     classifyPixelSync(r, g, b, x = null, y = null) {
-        // 🌳 DETECTOR ESPECÍFICO PARA MAPAS OSCUROS (OpenStreetMap con bajo brillo)
-        // Basado en análisis real: RGB(5,25,22), RGB(7,28,23), RGB(29,49,46), RGB(45,65,62)
-        //
-        // ⚠️ CARACTERÍSTICAS de vegetación en tu mapa:
-        //    - Verde LIGERAMENTE mayor que R/B (dominancia 2-5 puntos)
-        //    - Brillo TOTAL muy bajo (30-180)
-        //    - Tonos muy oscuros, casi negros
+        // 🌳 ULTRA SIMPLIFICADO: Solo detectar árboles como 'forest'
+        // Usar la misma lógica que classifyVegetationType pero síncrono
         
-        // 🎯 ESTRATEGIA: Detectar CUALQUIER píxel donde G sea mayor que R y B
-        // aunque la diferencia sea mínima (>= 2 puntos)
-        const isGreen = g >= r && g >= b;
+        // Verificar que sea verde
+        const isGreen = g > r && g > b;
         if (!isGreen) return null;
         
-        // Calcular dominancia de verde (puede ser muy pequeña)
-        const greenDominance = g - Math.max(r, b);
+        // Calcular dominancia de verde MUY permisiva
+        const hasStrongGreenDominance = (g - r) >= 1 && (g - b) >= 0; // MUY permisivo
         const totalBrightness = r + g + b;
         
-        // 🌲 BOSQUE DENSO (forest) - Verde MUY oscuro (casi negro) - AMPLIADO
-        // Ejemplos reales: RGB(5,25,22), RGB(7,28,23), RGB(19,43,45)
+        // 🌲 SOLO BOSQUE (forest) - Verde MUY MUY oscuro (ultra-restrictivo)
+        // Solo árboles en las zonas más oscuras posibles
         if (
-            g >= 3 && g <= 90 &&       // 🔥 AMPLIADO: Verde hasta 90 (era 70)
-            r >= 1 && r <= 80 &&       // 🔥 AMPLIADO: Rojo hasta 80 (era 50)
-            b >= 1 && b <= 80 &&       // 🔥 AMPLIADO: Azul hasta 80 (era 50)
-            greenDominance >= 1 &&     // 🔥 REDUCIDO: Dominancia mínima 1 (era 2)
-            totalBrightness >= 8 &&    // 🔥 REDUCIDO: Brillo mínimo 8 (era 10)
-            totalBrightness <= 250     // 🔥 AMPLIADO: Brillo máximo 250 (era 180)
+            g >= 4 && g <= 70 &&        // 🔥 Verde MUY restrictivo (reducido de 120 a 70)
+            r >= 0 && r <= 50 &&        // 🔥 Rojo ultra-restrictivo (reducido de 80 a 50)
+            b >= 0 && b <= 40 &&        // 🔥 Azul ultra-restrictivo (reducido de 60 a 40)
+            hasStrongGreenDominance &&  // Verde MUY dominante
+            totalBrightness <= 160      // 🔥 Brillo ultra-restrictivo (reducido de 300 a 160)
         ) {
-            return 'forest';
-        }
-        
-        // 🌿 VEGETACIÓN MEDIA (vegetation) - Verde oscuro a medio - AMPLIADO
-        // Ejemplos reales: RGB(29,49,46), RGB(45,65,62), RGB(30,52,49)
-        if (
-            g >= 20 && g <= 120 &&     // 🔥 AMPLIADO: Verde desde 20 hasta 120 (era 25-90)
-            r >= 8 && r <= 100 &&      // 🔥 AMPLIADO: Rojo desde 8 hasta 100 (era 10-70)
-            b >= 8 && b <= 100 &&      // 🔥 AMPLIADO: Azul desde 8 hasta 100 (era 10-70)
-            greenDominance >= 1 &&     // 🔥 REDUCIDO: Dominancia mínima 1 (era 2)
-            totalBrightness >= 40 &&   // 🔥 REDUCIDO: Brillo mínimo 40 (era 50)
-            totalBrightness <= 280     // 🔥 AMPLIADO: Brillo máximo 280 (era 230)
-        ) {
-            return 'vegetation';
+            return 'forest'; // ✅ FOREST en lugar de vegetation
         }
         
         return null; // No clasificado como árbol
@@ -640,51 +591,39 @@ class SatelliteImageAnalyzer {
      * @returns {'forest'|'vegetation'|null}
      */
     async classifyVegetationType(r, g, b, threshold, x = null, y = null) {
-        // 🌳 DETECTOR ESPECÍFICO PARA MAPAS OSCUROS - VERSIÓN ASYNC
-        // Basado en análisis real: RGB(5,25,22), RGB(7,28,23), RGB(29,49,46), RGB(45,65,62)
-        // IDÉNTICO a classifyPixelSync() pero async
+        // 🌳 ULTRA SIMPLIFICADO: Solo árboles en verde MUY oscuro
+        // Eliminamos vegetation, grass y crops completamente
         
-        // Verificar que sea verde (g debe ser mayor que r y b)
-        const isGreen = g >= r && g >= b;
+        // Verificar que sea verde
+        const isGreen = g > r && g > b;
         if (!isGreen) return null;
         
-        // Calcular dominancia de verde y brillo total
-        const greenDominance = g - Math.max(r, b);
+        // Calcular dominancia de verde MUY permisiva
+        const hasStrongGreenDominance = (g - r) >= 1 && (g - b) >= 0; // MUY permisivo
         const totalBrightness = r + g + b;
         
-        // 🌲 BOSQUE DENSO (forest) - Verde MUY oscuro (casi negro) - AMPLIADO
-        // Captura RGB como (5,25,22), (7,28,23), (29,49,46)
+        // � TIPO 1: BOSQUE (forest) - Verde oscuro
+        // Solo árboles en las zonas más oscuras
         if (
-            g >= 3 && g <= 90 &&       // 🔥 AMPLIADO: Verde hasta 90 (era 70)
-            r >= 1 && r <= 80 &&       // 🔥 AMPLIADO: Rojo hasta 80 (era 50)
-            b >= 1 && b <= 80 &&       // 🔥 AMPLIADO: Azul hasta 80 (era 50)
-            greenDominance >= 1 &&     // 🔥 REDUCIDO: Dominancia mínima 1 (era 2)
-            totalBrightness >= 8 &&    // 🔥 REDUCIDO: Brillo mínimo 8 (era 10)
-            totalBrightness <= 250     // 🔥 AMPLIADO: Brillo máximo 250 (era 180)
+            g >= 4 && g <= 70 &&        // 🔥 Verde MUY restrictivo (reducido de 120 a 70)
+            r >= 0 && r <= 50 &&        // 🔥 Rojo ultra-restrictivo (reducido de 80 a 50)
+            b >= 0 && b <= 40 &&        // 🔥 Azul ultra-restrictivo (reducido de 60 a 40)
+            hasStrongGreenDominance &&  // Verde MUY dominante
+            totalBrightness <= 160      // 🔥 Brillo ultra-restrictivo (reducido de 300 a 160)
         ) {
             return 'forest';
         }
         
-        // 🌿 VEGETACIÓN MEDIA (vegetation) - Verde oscuro-medio - AMPLIADO
-        // Captura RGB como (45,65,62) y verdes un poco más brillantes
-        if (
-            g >= 20 && g <= 120 &&     // 🔥 AMPLIADO: Verde desde 20 hasta 120 (era 25-90)
-            r >= 8 && r <= 100 &&      // 🔥 AMPLIADO: Rojo desde 8 hasta 100 (era 10-70)
-            b >= 8 && b <= 100 &&      // 🔥 AMPLIADO: Azul desde 8 hasta 100 (era 10-70)
-            greenDominance >= 1 &&     // 🔥 REDUCIDO: Dominancia mínima 1 (era 2)
-            totalBrightness >= 40 &&   // 🔥 REDUCIDO: Brillo mínimo 40 (era 50)
-            totalBrightness <= 280     // 🔥 AMPLIADO: Brillo máximo 280 (era 230)
-        ) {
-            return 'vegetation';
-        }
-        
-        return null;
+        return null; // No es vegetación detectable (solo forest ahora)
     }
     
     /**
-     * Detectar vegetación (verde predominante)
-     * ✅ MEJORADO: Detecta césped (verde pálido) y árboles (verde oscuro)
+     * Detectar vegetación (verde predominante) - DEPRECATED, usar classifyVegetationType
      */
+/**
+ * Detectar vegetación (verde predominante)
+ * ✅ MEJORADO: Detecta césped (verde pálido) y árboles (verde oscuro)
+ */
     isVegetation(r, g, b, threshold) {
         // DEBUG temporal
         if (!this._vegCheckCount) this._vegCheckCount = 0;
@@ -872,7 +811,7 @@ class SatelliteImageAnalyzer {
     }
     
     /**
-     * Obtener map de densidad de features
+     * Obtener mapa de densidad de features
      */
     getFeatureDensityMap(featureType, gridResolution = 20) {
         const features = this.features[featureType];

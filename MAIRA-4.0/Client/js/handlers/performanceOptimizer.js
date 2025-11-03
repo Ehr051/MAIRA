@@ -371,14 +371,6 @@ class PerformanceOptimizer {
      * Monitorear FPS
      */
     monitorearFPS() {
-        // ⚠️ MONITOR DESHABILITADO TEMPORALMENTE
-        // Causaba optimizaciones agresivas durante la carga inicial
-        // que limpiaban caches prematuramente y generaban spam en consola
-        
-        console.log('📊 Monitor FPS deshabilitado (modo desarrollo)');
-        return;
-        
-        /* CÓDIGO ORIGINAL COMENTADO:
         let lastTime = performance.now();
         let frames = 0;
         
@@ -408,7 +400,6 @@ class PerformanceOptimizer {
         };
         
         requestAnimationFrame(measureFPS);
-        */
     }
     
     /**

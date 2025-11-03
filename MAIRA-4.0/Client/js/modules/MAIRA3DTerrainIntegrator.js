@@ -32,7 +32,7 @@ class MAIRA3DTerrainIntegrator {
     async waitForServices() {
         return new Promise((resolve) => {
             const check = () => {
-                if (window.TerrainGenerator3D && window.SatelliteImageAnalyzer && window.L && window.map) {
+                if (window.TerrainGenerator3D && window.SatelliteImageAnalyzer && window.L && window.mapa) {
                     resolve();
                 } else {
                     setTimeout(check, 100);
@@ -111,7 +111,7 @@ class MAIRA3DTerrainIntegrator {
         console.log('🏗️ Iniciando generación de terreno 3D:', config);
         
         try {
-            // 1. Capturar vista actual del map
+            // 1. Capturar vista actual del mapa
             const mapCapture = await this.captureCurrentMapView();
             
             // 2. Analizar imagen satelital
@@ -132,26 +132,26 @@ class MAIRA3DTerrainIntegrator {
     }
     
     /**
-     * Capturar vista actual del map
+     * Capturar vista actual del mapa
      */
     async captureCurrentMapView() {
-        if (!window.map) {
-            throw new Error('map no disponible');
+        if (!window.mapa) {
+            throw new Error('Mapa no disponible');
         }
         
-        const bounds = window.map.getBounds();
-        const zoom = window.map.getZoom();
-        const center = window.map.getCenter();
+        const bounds = window.mapa.getBounds();
+        const zoom = window.mapa.getZoom();
+        const center = window.mapa.getCenter();
         
         this.currentBounds = bounds;
         this.currentZoom = zoom;
         
-        console.log('📸 Capturando map - Zoom:', zoom, 'Centro:', center);
+        console.log('📸 Capturando mapa - Zoom:', zoom, 'Centro:', center);
         
         // Usar leaflet-image si está disponible
         if (window.leafletImage) {
             return new Promise((resolve, reject) => {
-                leafletImage(window.map, (err, canvas) => {
+                leafletImage(window.mapa, (err, canvas) => {
                     if (err) reject(err);
                     else resolve({
                         canvas: canvas,
@@ -168,7 +168,7 @@ class MAIRA3DTerrainIntegrator {
     }
     
     /**
-     * Analizar captura del map
+     * Analizar captura del mapa
      */
     async analyzeMapCapture(mapCapture, config) {
         console.log('🔍 Analizando imagen satelital...');
@@ -210,7 +210,7 @@ class MAIRA3DTerrainIntegrator {
         this.terrainGenerator.terrainSize = config.terrainSize;
         this.terrainGenerator.vegetationDensity = config.vegetationDensity;
         
-        // Generar terreno usando bounds del map
+        // Generar terreno usando bounds del mapa
         const terrain = await this.terrainGenerator.generateTerrain(
             this.currentBounds,
             {

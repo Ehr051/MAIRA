@@ -533,7 +533,7 @@ class PanelInferiorUnificado {
                 break;
 
             case 'combate':
-                // Solo terminar turno - órdenes se dan desde map/menú radial
+                // Solo terminar turno - órdenes se dan desde mapa/menú radial
                 botones = [
                     { id: 'btnTerminarTurno', icon: 'fa-check', text: 'Terminar Turno', action: () => this.terminarTurno() }
                 ];
@@ -703,7 +703,7 @@ class PanelInferiorUnificado {
             elemento.classList.add('seleccionado');
             console.log(`🎯 Elemento seleccionado: ${elementoId}`);
             
-            // Comunicar selección al map
+            // Comunicar selección al mapa
             if (window.map && window.gestorElementos) {
                 window.gestorElementos.seleccionarEnMapa(elementoId);
             }
@@ -731,7 +731,7 @@ class PanelInferiorUnificado {
         const minimapa = document.querySelector('.minimapa');
         if (!minimapa) return;
 
-        // El minimapa solo refleja la vista actual del map principal
+        // El minimapa solo refleja la vista actual del mapa principal
         // Los controles de vista están en el menú principal (no duplicados)
         console.log('🗺️ Minimapa inicializado - sin controles duplicados');
     }
@@ -748,7 +748,7 @@ class PanelInferiorUnificado {
         if (window.gestorFases && window.gestorFases.iniciarDefinicionSector) {
             window.gestorFases.iniciarDefinicionSector();
         }
-        this.mostrarMensajeTemporary('Haz clic en el map para delimitar el sector', 'info');
+        this.mostrarMensajeTemporary('Haz clic en el mapa para delimitar el sector', 'info');
     }
 
     confirmarSector() {
