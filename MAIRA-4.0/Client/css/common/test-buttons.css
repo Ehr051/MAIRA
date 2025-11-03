@@ -1,0 +1,35 @@
+/* test-buttons.css - Estilos para botones de prueba */
+/* Archivo básico para evitar errores 404 */
+
+.test-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.test-button:hover {
+    background-color: #0056b3;
+}
+
+.test-button.danger {
+    background-color: #dc3545;
+}
+
+.test-button.danger:hover {
+    background-color: #c82333;
+}
+
+.test-panel {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 1000;
+}

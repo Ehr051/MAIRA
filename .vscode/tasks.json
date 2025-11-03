@@ -1,0 +1,181 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "run-server",
+      "type": "shell",
+      "command": "python3",
+      "args": ["app.py"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "detail": "Iniciar servidor Flask MAIRA con SocketIO"
+    },
+    {
+      "label": "install-dependencies",
+      "type": "shell",
+      "command": "pip",
+      "args": ["install", "-r", "requirements.txt"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Instalar dependencias Python del proyecto"
+    },
+    {
+      "label": "test-system",
+      "type": "shell",
+      "command": "python3",
+      "args": ["-m", "pytest", "--tb=short"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Ejecutar pruebas del sistema MAIRA"
+    },
+    {
+      "label": "check-3d-models",
+      "type": "shell",
+      "command": "python3",
+      "args": ["-c", "import os; models = [f for f in os.listdir('static/models') if f.endswith('.glb')]; print(f'Encontrados {len(models)} modelos GLB:', models)"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Verificar modelos 3D GLB disponibles"
+    },
+    {
+      "label": "validate-database",
+      "type": "shell",
+      "command": "python3",
+      "args": ["-c", "from app import get_db_connection; conn = get_db_connection(); print('✅ Base de datos conectada' if conn else '❌ Error de conexión'); conn.close() if conn else None"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Validar conexión a base de datos PostgreSQL"
+    },
+    {
+      "label": "convert-models",
+      "type": "shell",
+      "command": "bash",
+      "args": ["convert_all_gltf_to_glb.sh"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Convertir modelos GLTF a GLB optimizados"
+    },
+    {
+      "label": "process-vegetation",
+      "type": "shell",
+      "command": "bash",
+      "args": ["process_vegetation.sh"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Procesar sistema de vegetación procedural"
+    },
+    {
+      "label": "backup-database",
+      "type": "shell",
+      "command": "bash",
+      "args": ["crear_backup_completo.sh"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Crear backup completo de base de datos"
+    },
+    {
+      "label": "monitor-production",
+      "type": "shell",
+      "command": "python3",
+      "args": ["scripts/monitor_produccion.py"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Monitorear estado del sistema en producción"
+    },
+    {
+      "label": "clean-cache",
+      "type": "shell",
+      "command": "rm",
+      "args": ["-rf", "__pycache__", "*.pyc", ".pytest_cache"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "detail": "Limpiar archivos de cache Python"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "serverPort",
+      "description": "Puerto del servidor",
+      "default": "5000",
+      "type": "promptString"
+    },
+    {
+      "id": "dbHost",
+      "description": "Host de base de datos",
+      "default": "localhost",
+      "type": "promptString"
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Python: MAIRA Server",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/app.py",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "FLASK_ENV": "development"
+      }
+    },
+    {
+      "name": "Python: Debug Tests",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-v"],
+      "console": "integratedTerminal"
+    }
+  ]
+}

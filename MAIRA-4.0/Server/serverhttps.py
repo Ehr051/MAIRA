@@ -41,7 +41,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-# Detectar si estamos usando ngrok
+# Detectar flags
 is_ngrok = 'ngrok' in request.headers.get('Host', '') if request else any('ngrok' in arg for arg in sys.argv)
 
 # Configuración optimizada para Socket.IO
@@ -218,7 +218,109 @@ def obtener_adjunto_api(informe_id):
         print(f"Error al obtener adjunto API: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+def cargar_adjunto_desde_filesystem(adjunto_info):
+    """
+    Carga un archivo adjunto desde el sistema de archivos
     
+    Args:
+        adjunto_info (dict): Información del adjunto
+        
+    Returns:
+        str: Datos del archivo en formato base64
+    """
+    try:
+        # Determinar ruta del archivo
+        if not adjunto_info or 'ruta' not in adjunto_info:
+            print("Información de adjunto inválida o sin ruta")
+            return None
+            
+        # Convertir ruta relativa a absoluta
+        ruta_relativa = adjunto_info['ruta']
+        ruta_absoluta = os.path.join(CLIENT_DIR, ruta_relativa)
+        
+        # Verificar que el archivo exista
+        if not os.path.exists(ruta_absoluta):
+            print(f"Archivo adjunto no encontrado: {ruta_absoluta}")
+            
+            # Intentar búsqueda alternativa si falla
+            nombre_seguro = adjunto_info.get('nombre_seguro')
+            tipo_base = adjunto_info.get('tipo_base', '').lower()
+            
+            if nombre_seguro and tipo_base:
+                # Buscar en estructura alternativa
+                posibles_rutas = [
+                    os.path.join(INFORMES_DIR, 'imagenes' if tipo_base == 'image' else tipo_base, nombre_seguro),
+                    os.path.join(CHAT_DIR, 'imagenes' if tipo_base == 'image' else tipo_base, nombre_seguro),
+                ]
+                
+                for ruta in posibles_rutas:
+                    if os.path.exists(ruta):
+                        ruta_absoluta = ruta
+                        print(f"Archivo encontrado en ruta alternativa: {ruta}")
+                        break
+                else:
+                    print("No se encontró el archivo en rutas alternativas")
+                    return None
+            else:
+                return None
+        
+        # Leer archivo
+        with open(ruta_absoluta, 'rb') as f:
+            datos_binarios = f.read()
+        
+        # Convertir a base64
+        import base64
+        datos_base64 = base64.b64encode(datos_binarios).decode('utf-8')
+        
+        # Añadir prefijo según tipo MIME
+        tipo_mime = adjunto_info.get('tipo', 'application/octet-stream')
+        prefijo = f"data:{tipo_mime};base64,"
+        datos_completos = prefijo + datos_base64
+        
+        return datos_completos
+    except Exception as e:
+        print(f"Error al cargar adjunto: {e}")
+        traceback.print_exc()
+        return None
+
+def obtener_informe_por_id(informe_id):
+    """Obtiene un informe por su ID y carga su adjunto si existe"""
+    try:
+        # Obtener informe base
+        informe = informes_db.get(informe_id)
+        if not informe:
+            return None
+            
+        # Si tiene adjunto, cargar el contenido
+        if informe and informe.get('tieneAdjunto') and informe.get('adjunto'):
+            adjunto_info = informe['adjunto']
+            
+            # Verificar si el adjunto tiene ruta
+            if 'ruta' in adjunto_info:
+                try:
+                    # Cargar datos del archivo
+                    with open(adjunto_info['ruta'], 'rb') as f:
+                        datos_binarios = f.read()
+                    
+                    # Convertir a base64
+                    import base64
+                    datos_base64 = base64.b64encode(datos_binarios).decode('utf-8')
+                    
+                    # Añadir prefijo según tipo MIME
+                    prefijo = f"data:{adjunto_info['tipo']};base64,"
+                    datos_completos = prefijo + datos_base64
+                    
+                    # Añadir datos al adjunto
+                    informe['adjunto']['datos'] = datos_completos
+                except Exception as e:
+                    print(f"Error al cargar adjunto del informe {informe_id}: {e}")
+        
+        return informe
+    except Exception as e:
+        print(f"Error al obtener informe: {e}")
+        traceback.print_exc()
+        return None
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -399,7 +501,79 @@ def handle_disconnect_improved():
         # Limpiar partidas o operaciones huérfanas
         limpiar_recursos_inactivos()
 
-@socketio.on('login')
+def limpiar_recursos_inactivos():
+    """
+    Limpia recursos inactivos del servidor:
+    - Usuarios desconectados
+    - Partidas abandonadas
+    - Elementos huérfanos
+    """
+    try:
+        tiempo_actual = datetime.now()
+        tiempo_limite = timedelta(minutes=30)  # 30 minutos de inactividad
+        
+        # 1. Limpiar usuarios inactivos
+        usuarios_eliminar = []
+        for user_id, user_data in usuarios_conectados.items():
+            ultima_actividad = user_data.get('ultima_actividad')
+            if ultima_actividad and (tiempo_actual - ultima_actividad) > tiempo_limite:
+                usuarios_eliminar.append(user_id)
+        
+        for user_id in usuarios_eliminar:
+            if user_id in usuarios_conectados:
+                del usuarios_conectados[user_id]
+                print(f"Usuario inactivo eliminado: {user_id}")
+        
+        # 2. Limpiar partidas abandonadas
+        conn = get_db_connection()
+        if conn:
+            try:
+                with conn.cursor() as cursor:
+                    # Marcar partidas sin jugadores como finalizadas
+                    cursor.execute("""
+                        UPDATE partidas p
+                        SET estado = 'finalizada'
+                        WHERE estado IN ('esperando', 'en_curso')
+                        AND (
+                            SELECT COUNT(*) 
+                            FROM usuarios_partida up 
+                            WHERE up.partida_id = p.id
+                        ) = 0
+                    """)
+                    
+                    # Limpiar registros de usuarios_partida huérfanos
+                    cursor.execute("""
+                        DELETE FROM usuarios_partida
+                        WHERE partida_id NOT IN (
+                            SELECT id FROM partidas
+                            WHERE estado IN ('esperando', 'en_curso')
+                        )
+                    """)
+                    
+                conn.commit()
+            except Exception as e:
+                print(f"Error al limpiar partidas: {e}")
+            finally:
+                conn.close()
+        
+        # 3. Limpiar elementos sin usuario asociado
+        for operacion in operaciones_batalla.values():
+            elementos_eliminar = []
+            for elemento_id, elemento in operacion['elementos'].items():
+                if elemento_id not in usuarios_conectados:
+                    elementos_eliminar.append(elemento_id)
+            
+            for elemento_id in elementos_eliminar:
+                del operacion['elementos'][elemento_id]
+                print(f"Elemento huérfano eliminado: {elemento_id}")
+        
+        print("Limpieza de recursos completada")
+        
+    except Exception as e:
+        print(f"Error en limpieza de recursos: {e}")
+        import traceback
+        traceback.print_exc()
+
 
 @socketio.on('actualizarEstadoGB')
 def handle_actualizar_estado_gb(data):
@@ -2680,3 +2854,56 @@ def actualizar_adjunto_en_db(informe_id, adjunto_db):
     except Exception as e:
         print(f"Error al actualizar adjunto en DB: {e}")
         return False
+
+
+
+
+if __name__ == '__main__': 
+    import sys
+    
+    # Verificar argumentos de línea de comandos
+    https_mode = "--https" in sys.argv
+    
+    # Configurar host y puerto
+    host = "127.0.0.1"  # localhost para desarrollo seguro
+    port = 5001
+    
+    print("🚀 Iniciando servidor MAIRA...")
+    print(f"📍 Host: {host}:{port}")
+    print(f"🔒 Modo HTTPS: {'Activado' if https_mode else 'Desactivado'}")
+    
+    try:
+        if https_mode:
+            # Verificar certificados SSL
+            cert_file = os.path.join(BASE_DIR, "ssl", "cert.pem")
+            key_file = os.path.join(BASE_DIR, "ssl", "key.pem")
+            
+            if not os.path.exists(cert_file) or not os.path.exists(key_file):
+                print("❌ Error: Certificados SSL no encontrados. Ejecuta sin --https para modo HTTP.")
+                sys.exit(1)
+            
+            # Iniciar servidor con SSL
+            print("🔐 Iniciando servidor HTTPS...")
+            socketio.run(
+                app,
+                host=host,
+                port=port,
+                certfile=cert_file,
+                keyfile=key_file,
+                debug=True
+            )
+        else:
+            # Iniciar servidor HTTP normal
+            print("🌐 Iniciando servidor HTTP...")
+            socketio.run(
+                app,
+                host=host,
+                port=port,
+                debug=True
+            )
+            
+    except Exception as e:
+        print(f"❌ Error al iniciar el servidor: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
