@@ -53,8 +53,9 @@ GraficoMarchaController.prototype.inicializar = function(containerId) {
     
     displayContent.innerHTML = '';
 
-    this.state.width = displayContent.clientWidth - this.config.margin.left - this.config.margin.right;
-    this.state.height = displayContent.clientHeight - this.config.margin.top - this.config.margin.bottom;
+    // Asegurar dimensiones mínimas positivas
+    this.state.width = Math.max(400, displayContent.clientWidth - this.config.margin.left - this.config.margin.right);
+    this.state.height = Math.max(300, displayContent.clientHeight - this.config.margin.top - this.config.margin.bottom);
 
     this.state.svg = d3.select(displayContent)
         .append('svg')
@@ -185,8 +186,9 @@ GraficoMarchaController.prototype.handleResize = function() {
     const content = container.querySelector('.display-content');
     
     // Actualizar dimensiones
-    this.state.width = content.clientWidth - this.config.margin.left - this.config.margin.right;
-    this.state.height = content.clientHeight - this.config.margin.top - this.config.margin.bottom;
+    // Asegurar dimensiones mínimas positivas en resize
+    this.state.width = Math.max(400, content.clientWidth - this.config.margin.left - this.config.margin.right);
+    this.state.height = Math.max(300, content.clientHeight - this.config.margin.top - this.config.margin.bottom);
 
     // Actualizar el SVG principal
     const svg = this.state.svg.node().parentNode;
