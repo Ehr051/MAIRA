@@ -282,3 +282,92 @@ table td {
         height: 33.33vh;
     }
 }
+
+/* 📜 Custom Scrollbars mejorados */
+.display-content::-webkit-scrollbar,
+#panelMarchaContainer .contenido::-webkit-scrollbar,
+#calculoMarchaPanel .display-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.display-content::-webkit-scrollbar-track,
+#panelMarchaContainer .contenido::-webkit-scrollbar-track,
+#calculoMarchaPanel .display-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.display-content::-webkit-scrollbar-thumb,
+#panelMarchaContainer .contenido::-webkit-scrollbar-thumb,
+#calculoMarchaPanel .display-content::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.display-content::-webkit-scrollbar-thumb:hover,
+#panelMarchaContainer .contenido::-webkit-scrollbar-thumb:hover,
+#calculoMarchaPanel .display-content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-secondary);
+}
+
+/* Firefox scrollbar */
+.display-content,
+#panelMarchaContainer .contenido,
+#calculoMarchaPanel .display-content {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) rgba(0, 0, 0, 0.2);
+}
+
+/* 🎨 Mejoras en botones */
+.panel-marcha button,
+#panelMarchaContainer button,
+#calculoMarchaPanel button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.panel-marcha button:hover,
+#panelMarchaContainer button:hover,
+#calculoMarchaPanel button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(2, 129, 168, 0.4);
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+}
+
+.panel-marcha button:active,
+#panelMarchaContainer button:active,
+#calculoMarchaPanel button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Inputs mejorados */
+.panel-marcha input[type="number"],
+.panel-marcha input[type="text"],
+#panelMarchaContainer input,
+#calculoMarchaPanel input {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(2, 129, 168, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.panel-marcha input:focus,
+#panelMarchaContainer input:focus,
+#calculoMarchaPanel input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(2, 129, 168, 0.2);
+}

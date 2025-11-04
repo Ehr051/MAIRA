@@ -325,6 +325,11 @@ class VegetacionHandler {
         };
     }
 
+    // Método alias para compatibilidad con código legacy
+    async obtenerVegetacionEnPunto(lat, lng) {
+        return await this.getVegetationInfo(lat, lng);
+    }
+
     getVegetationDensity(ndvi) {
         if (ndvi === null) return 0;
         
