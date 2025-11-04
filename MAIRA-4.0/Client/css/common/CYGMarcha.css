@@ -15,16 +15,16 @@
 }
 
 /* ===========================
-   PANEL FLOTANTE DERECHO
+   PANEL FLOTANTE DERECHO - AJUSTADO A 30%
    =========================== */
 #panelMarchaContainer {
     position: fixed;
     right: 10px;
     top: 80px;
-    width: 20%;
-    max-width: 320px;
-    min-width: 250px;
-    max-height: calc(100vh - 460px); /* Deja espacio para paneles bottom */
+    width: 30%;
+    max-width: 500px;
+    min-width: 320px;
+    max-height: calc(100vh - 460px);
     background: var(--color-bg-panel);
     border: 2px solid var(--color-border);
     border-radius: var(--radius-medium);
@@ -61,13 +61,14 @@
 #panelMarchaContainer .contenido {
     padding: 14px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     flex: 1;
+    min-height: 0;
     color: var(--color-text);
 }
 
 /* ===========================
-   PANELES INFERIORES 3x33%
+   PANELES INFERIORES 3x33% - SCROLL COMPLETO
    =========================== */
 #perfilElevacionDisplay,
 #graficoMarchaPanel,
@@ -135,45 +136,57 @@
 .panel-marcha .display-content {
     padding: 14px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     flex: 1;
+    min-height: 0;
     color: var(--color-text);
-    min-height: 0; /* CRÍTICO para flex scroll */
 }
 
-/* Canvas para gráficos */
+/* Canvas para gráficos - SCROLL HABILITADO */
 #perfilCanvas,
 #graficoMarchaCanvas {
-    width: 100% !important;
-    height: 100% !important;
+    min-width: 100%;
+    min-height: 100%;
     display: block;
 }
 
+/* Contenedores de canvas con scroll */
+#perfilElevacionDisplay .display-content,
+#graficoMarchaPanel .display-content {
+    overflow: auto !important;
+}
+
 /* ===========================
-   SCROLLBARS CUSTOM
+   SCROLLBARS CUSTOM - HORIZONTALES Y VERTICALES
    =========================== */
 .display-content::-webkit-scrollbar,
 #panelMarchaContainer .contenido::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
 }
 
 .display-content::-webkit-scrollbar-track,
 #panelMarchaContainer .contenido::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
+    border-radius: 5px;
 }
 
 .display-content::-webkit-scrollbar-thumb,
 #panelMarchaContainer .contenido::-webkit-scrollbar-thumb {
     background: var(--color-primary);
-    border-radius: 4px;
+    border-radius: 5px;
     transition: background 0.2s ease;
 }
 
 .display-content::-webkit-scrollbar-thumb:hover,
 #panelMarchaContainer .contenido::-webkit-scrollbar-thumb:hover {
     background: var(--color-secondary);
+}
+
+/* Corner cuando hay scroll horizontal y vertical */
+.display-content::-webkit-scrollbar-corner,
+#panelMarchaContainer .contenido::-webkit-scrollbar-corner {
+    background: rgba(0, 0, 0, 0.3);
 }
 
 /* Firefox */
@@ -236,7 +249,6 @@
     transform: none;
 }
 
-/* Botón fullscreen especial */
 .btn-fullscreen {
     padding: 4px 8px;
     font-size: 16px;
@@ -270,10 +282,11 @@
 }
 
 /* ===========================
-   TABLAS COHERENTES
+   TABLAS COHERENTES CON SCROLL
    =========================== */
 .panel-marcha table {
     width: 100%;
+    min-width: 400px;
     border-collapse: collapse;
     font-size: 11px;
     margin: 10px 0;
@@ -288,6 +301,7 @@
     font-weight: 600;
     position: sticky;
     top: 0;
+    z-index: 10;
 }
 
 .panel-marcha table td {
@@ -318,19 +332,30 @@
 }
 
 /* ===========================
+   FORZAR SCROLL EN TODOS LOS CONTENEDORES
+   =========================== */
+#calculoMarchaPanel .display-content,
+#graficoMarchaPanel .display-content,
+#perfilElevacionDisplay .display-content,
+#panelMarchaContainer .contenido {
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ===========================
    RESPONSIVE
    =========================== */
 @media screen and (max-width: 1400px) {
     #panelMarchaContainer { 
-        width: 22%; 
-        max-width: 300px;
+        width: 32%; 
+        max-width: 450px;
     }
 }
 
 @media screen and (max-width: 1200px) {
     #panelMarchaContainer { 
-        width: 25%; 
-        max-width: 280px; 
+        width: 35%; 
+        max-width: 400px; 
     }
     #perfilElevacionDisplay,
     #graficoMarchaPanel,
@@ -342,8 +367,8 @@
 
 @media screen and (max-width: 900px) {
     #panelMarchaContainer {
-        width: 30%;
-        max-width: 260px;
+        width: 40%;
+        max-width: 350px;
     }
     #perfilElevacionDisplay,
     #graficoMarchaPanel,
