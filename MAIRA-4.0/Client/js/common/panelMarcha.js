@@ -25,55 +25,98 @@
             }
 
             panelContainer.innerHTML = [
-                '<div class="titulo">',
-                '    <span>Cálculo y Gráfico de Marcha</span>',
-                '    <button id="cerrarPanelMarcha" class="btn-cerrar" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 8px;">×</button>',
-                '</div>',
-                '<div class="contenido">',
-                '    <div class="panel-control">',
-                '        <h4 style="color: var(--color-text); margin: 10px 0;">Ruta de Marcha</h4>',
-                '        <button id="btnDibujarRuta" class="btn-action">Dibujar Camino de Marcha</button>',
+                '<div class="panel1">',
+                '    <div class="header">',
+                '        <h2>Cálculo y Gráfico de Marcha</h2>',
+                '        <button id="cerrarPanelMarcha" class="btn-cerrar">×</button>',
                 '    </div>',
+                
+                '        <div class="panel-control">',
+                '            <div class="panel-header">',
+                '                <h3>Control de Marcha</h3>',
+                '            </div>',
                 '',
-                '    <div id="puntosControlSection">',
-                '        <h4 style="color: var(--color-text); margin: 15px 0 8px 0;">Puntos de Control</h4>',
-                '        <button id="btnAgregarPuntoControl" class="btn-action">Agregar Punto de Control</button>',
-                '        <div id="puntosControlList" class="puntos-list" style="margin-top: 10px;"></div>',
-                '    </div>',
+                '            <div id="rutaControl">',
+                '                <h4>Ruta de Marcha</h4>',
+                '                <button id="btnDibujarRuta" class="btn-action">',
+                '                    Dibujar Camino de Marcha',
+                '                </button>',
+                '            </div>',
                 '',
-                '    <div class="panel-series" style="margin-top: 20px;">',
-                '        <h4 style="color: var(--color-text); margin: 10px 0; display: flex; justify-content: space-between; align-items: center;">',
-                '            Series de Marcha',
-                '            <button id="btnAgregarSerie" class="btn-agregar" style="font-size: 11px; padding: 5px 10px;">+ Serie</button>',
-                '        </h4>',
-                '        <div id="seriesContainer" class="series-list"></div>',
-                '    </div>',
-                '',
-                '    <div class="panel-control" style="margin-top: 20px;">',
-                '        <h4 style="color: var(--color-text); margin: 10px 0;">Configuración de Altos</h4>',
-                '        <div class="campo-config">',
-                '            <label>Intervalo entre altos (min):</label>',
-                '            <input type="number" id="intervaloAltos" value="45" min="1">',
+                '            <div id="puntosControlSection">',
+                '                <h4>Puntos de Control</h4>',
+                '                <button id="btnAgregarPuntoControl" class="btn-action">',
+                '                    Agregar Punto de Control',
+                '                </button>',
+                '                <div id="puntosControlList" class="puntos-list">',
+                '                </div>',
+                '            </div>',
                 '        </div>',
-                '        <div class="campo-config">',
-                '            <label>Duración del alto (min):</label>',
-                '            <input type="number" id="duracionAltos" value="10" min="1">',
+                '',
+                '    <div id="panelSeriesContent" class="content">',
+                '        <div class="panel-series">',
+                '            <div class="panel-header">',
+                '                <h3>Series de Marcha</h3>',
+                '                <button id="btnAgregarSerie" class="btn-agregar">+ Serie</button>',
+                '            </div>',
+                '            <div id="seriesContainer" class="series-list">',
+                '            </div>',
                 '        </div>',
-                '        <div class="campo-config">',
-                '            <label>Inicio desde H (min):</label>',
-                '            <input type="number" id="inicioAltos" value="0" min="0">',
+                '',
+                '           <div class="panel-control">',
+                '            <div class="panel-header">',
+                '                <h3>Control de Marcha</h3>',
+                '            </div>',
+                '            <div id="configAltos">',
+                '                <h4>Configuración de Altos</h4>',
+                '                <div class="campo-config">',
+                '                    <label>Intervalo entre altos (min):</label>',
+                '                    <input type="number" id="intervaloAltos" value="45" min="1">',
+                '                </div>',
+                '                <div class="campo-config">',
+                '                    <label>Duración del alto (min):</label>',
+                '                    <input type="number" id="duracionAltos" value="10" min="1">',
+                '                </div>',
+                '                <div class="campo-config">',
+                '                    <label>Inicio desde H (min):</label>',
+                '                    <input type="number" id="inicioAltos" value="0" min="0">',
+                '                </div>',
+                '            </div>',
+                '',
+                '            <div id="botonCalculo">',
+                '                <button id="btnCalcularMarcha" class="btn-primary">',
+                '                    Calcular Marcha',
+                '                </button>',
+                '            </div>',
+                '            <div id="botonGrafico">',
+                '                <button id="btnGraficoMarcha" class="btn-primary">',
+                '                    Ver Grafico de Marcha',
+                '                </button>',
+                '            </div>',
+                '            <div id="botonPerfil">',
+                '                <button id="btnPerfilElevacion" class="btn-primary">',
+                '                    Ver Perfil de elevacion',
+                '                </button>',
+                '            </div>',
                 '        </div>',
                 '    </div>',
                 '',
-                '    <div id="botonCalculo" style="margin-top: 15px;">',
-                '        <button id="btnCalcularMarcha" class="btn-primary" style="width: 100%;">Calcular Marcha</button>',
+                '    <!-- Panel de Resultados de Cálculo -->',
+                '    <div id="calculoMarchaPanel" class="sub-panel" style="display: none;">',
+                '        <div class="panel-header">',
+                '            <h3>Resultados del Cálculo de Marcha</h3>',
+                '            <div class="header-buttons">',
+                '                <button id="btnFullscreenCalculo" class="btn-icon">⛶</button>',
+                '                <button id="btnSaveCalculo" class="btn-icon">💾</button>',
+                '                <button id="btnPrintCalculo" class="btn-icon">🖨</button>',
+                '                <button id="cerrarPanelCalculo" class="btn-cerrar">×</button>',
+                '            </div>',
+                '        </div>',
+                '        <div id="calculoMarchaContent" class="display-content">',
+                '            <!-- Los resultados del cálculo se insertarán aquí -->',
+                '        </div>',
                 '    </div>',
-                '    <div id="botonGrafico" style="margin-top: 10px;">',
-                '        <button id="btnGraficoMarcha" class="btn-primary" style="width: 100%;">Ver Gráfico de Marcha</button>',
-                '    </div>',
-                '    <div id="botonPerfil" style="margin-top: 10px;">',
-                '        <button id="btnPerfilElevacion" class="btn-primary" style="width: 100%;">Ver Perfil de Elevación</button>',
-                '    </div>',
+                '',
                 '</div>'
             ].join('\n');
         },
@@ -606,6 +649,7 @@
             return marker;
 
         // ✅ NUEVA FUNCIÓN: Agregar PI/PT a lista de puntos de control automáticamente
+        },
         agregarPuntoControlAutomatico: function(lat, lng, tipo) {
             var puntosControlList = document.getElementById('puntosControlList');
             if (!puntosControlList) {
@@ -637,40 +681,8 @@
             
             console.log("✅ Punto de control", tipo, "agregado automáticamente a la lista");
         },
-        },
+        
 
-        // ✅ NUEVA FUNCIÓN: Agregar PI/PT a lista de puntos de control automáticamente
-        agregarPuntoControlAutomatico: function(lat, lng, tipo) {
-            var puntosControlList = document.getElementById('puntosControlList');
-            if (!puntosControlList) {
-                console.warn("Lista de puntos de control no encontrada");
-                return;
-            }
-            
-            // Crear elemento de punto de control especial para PI/PT
-            var puntoHTML = [
-                '<div class="punto-control pc ' + tipo.toLowerCase() + '" data-distancia="0">',
-                '    <span class="tipo-punto">' + tipo + '</span>',
-                '    <span class="coord-info">(' + lat.toFixed(6) + ', ' + lng.toFixed(6) + ')</span>',
-                '    <input type="text" class="pc-descripcion" placeholder="' + (tipo === 'PI' ? 'Punto Inicial' : 'Punto Terminal') + '">',
-                '    <input type="color" class="color-pc" value="' + (tipo === 'PI' ? '#FF0000' : '#0000FF') + '">',
-                '</div>'
-            ].join('\n');
-            
-            var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = puntoHTML;
-            var puntoElement = tempDiv.firstElementChild;
-            
-            if (tipo === 'PI') {
-                // PI va al principio
-                puntosControlList.insertBefore(puntoElement, puntosControlList.firstChild);
-            } else {
-                // PT va al final
-                puntosControlList.appendChild(puntoElement);
-            }
-            
-            console.log("✅ Punto de control", tipo, "agregado automáticamente a la lista");
-        },
 
         agregarSerie: function() {
             var container = document.getElementById('seriesContainer');
