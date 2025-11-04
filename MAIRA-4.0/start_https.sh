@@ -114,6 +114,32 @@ else
 fi
 echo ""
 
+# Verificar si el puerto 5001 está en uso y limpiar
+echo "🧹 Verificando puerto 5001..."
+if lsof -Pi :5001 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "⚠️  Puerto 5001 en uso, deteniendo procesos existentes..."
+
+    # Matar procesos Python que estén usando el puerto 5001
+    lsof -ti:5001 | xargs kill -9 2>/dev/null
+
+    # Matar cualquier instancia de serverhttps.py
+    pkill -9 -f "serverhttps.py" 2>/dev/null
+
+    sleep 2
+
+    # Verificar nuevamente
+    if lsof -Pi :5001 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        echo "❌ No se pudo liberar el puerto 5001"
+        echo "   Ejecuta manualmente: lsof -ti:5001 | xargs kill -9"
+        exit 1
+    else
+        echo "✅ Puerto 5001 liberado"
+    fi
+else
+    echo "✅ Puerto 5001 disponible"
+fi
+echo ""
+
 echo "🔐 Iniciando servidor HTTPS con certificados SSL..."
 echo "   🏠 URL Local: https://localhost:5001"
 echo "   🏠 URL alternativa: https://127.0.0.1:5001"
