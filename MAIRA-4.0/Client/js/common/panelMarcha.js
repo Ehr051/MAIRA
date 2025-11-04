@@ -4,6 +4,12 @@
 (function(window) {
     'use strict';
 
+    // ✅ Inicializar modoMarcha en false por defecto
+    if (typeof window.modoMarcha === 'undefined') {
+        window.modoMarcha = false;
+        console.log("🎖️ modoMarcha inicializado en false");
+    }
+
     // Constantes para SIDC
     var SIDC = {
         PI: 'GFGPGPP---',  // Punto Inicial
@@ -546,14 +552,16 @@
                     originalAddDistancePoint(e);
                 }
                 
-                // Agregar símbolos PI/PT según el contexto
-                window.contadorPuntosMarcha++;
-                var latlng = e.latlng;
-                
-                if (window.contadorPuntosMarcha === 1) {
-                    // Primer punto: crear PI
-                    console.log("🎖️ Creando símbolo PI en primer punto de marcha");
-                    self.crearSimboloPIPT(latlng, 'PI');
+                // ✅ SOLO agregar símbolos PI/PT si estamos en modo marcha
+                if (window.modoMarcha === true) {
+                    window.contadorPuntosMarcha++;
+                    var latlng = e.latlng;
+                    
+                    if (window.contadorPuntosMarcha === 1) {
+                        // Primer punto: crear PI
+                        console.log("🎖️ Creando símbolo PI en primer punto de marcha");
+                        self.crearSimboloPIPT(latlng, 'PI');
+                    }
                 }
                 
                 // El PT se crea al finalizar la medición
@@ -562,8 +570,8 @@
             // ✅ ESCUCHAR EVENTO DE MEDICIÓN FINALIZADA PARA CREAR PT
             var originalFinalizarMedicion = window.finalizarMedicion;
             window.finalizarMedicion = function() {
-                // Crear PT en el último punto si hay puntos (fallback legacy)
-                if (window.contadorPuntosMarcha > 0 && window.measurementHandler) {
+                // ✅ SOLO crear PT si estamos en modo marcha
+                if (window.modoMarcha === true && window.contadorPuntosMarcha > 0 && window.measurementHandler) {
                     var lineas = window.measurementHandler.lineas;
                     var ultimaLineaId = Object.keys(lineas)[Object.keys(lineas).length - 1];
                     var linea = lineas[ultimaLineaId];
@@ -582,10 +590,12 @@
                     originalFinalizarMedicion();
                 }
 
-                // Limpiar modo marcha
-                window.modoMarcha = false;
-                window.contadorPuntosMarcha = 0;
-                console.log("🎖️ Modo marcha finalizado (legacy)");
+                // ✅ Limpiar modo marcha solo si estaba activo
+                if (window.modoMarcha === true) {
+                    window.modoMarcha = false;
+                    window.contadorPuntosMarcha = 0;
+                    console.log("🎖️ Modo marcha finalizado (legacy)");
+                }
             };
         },
 
@@ -1007,30 +1017,35 @@ console.log("🎖️ [INICIO MÓDULO] Registrando event listener para medicionFi
 window.addEventListener('medicionFinalizada', function(event) {
     console.log("📡 Evento 'medicionFinalizada' recibido en panelMarcha");
     console.log("   - event.detail:", event.detail);
+    console.log("   - modoMarcha:", window.modoMarcha);
     
-    // ✅ CREAR PT SIEMPRE si hay puntos (no depender de modoMarcha)
-    const puntos = event.detail?.puntos;
-    if (puntos && puntos.length > 1) {
-        var ultimoPunto = puntos[puntos.length - 1];
-        var primerPunto = puntos[0];
-        
-        console.log("🎖️ Creando símbolos PI/PT:");
-        console.log("   - Primer punto (PI):", primerPunto);
-        console.log("   - Último punto (PT):", ultimoPunto);
-        
-        // Crear PI en primer punto
-        if (window.PanelMarcha && window.PanelMarcha.crearSimboloPIPT) {
-            window.PanelMarcha.crearSimboloPIPT(primerPunto, 'PI');
-            console.log("✅ PI creado");
+    // ✅ SOLO crear PI/PT si estamos en modo marcha
+    if (window.modoMarcha === true) {
+        const puntos = event.detail?.puntos;
+        if (puntos && puntos.length > 1) {
+            var ultimoPunto = puntos[puntos.length - 1];
+            var primerPunto = puntos[0];
             
-            // Crear PT en último punto
-            window.PanelMarcha.crearSimboloPIPT(ultimoPunto, 'PT');
-            console.log("✅ PT creado");
+            console.log("🎖️ Creando símbolos PI/PT:");
+            console.log("   - Primer punto (PI):", primerPunto);
+            console.log("   - Último punto (PT):", ultimoPunto);
+            
+            // Crear PI en primer punto
+            if (window.PanelMarcha && window.PanelMarcha.crearSimboloPIPT) {
+                window.PanelMarcha.crearSimboloPIPT(primerPunto, 'PI');
+                console.log("✅ PI creado");
+                
+                // Crear PT en último punto
+                window.PanelMarcha.crearSimboloPIPT(ultimoPunto, 'PT');
+                console.log("✅ PT creado");
+            } else {
+                console.error("❌ PanelMarcha.crearSimboloPIPT no disponible");
+            }
         } else {
-            console.error("❌ PanelMarcha.crearSimboloPIPT no disponible");
+            console.warn("⚠️ No hay suficientes puntos en event.detail:", puntos);
         }
     } else {
-        console.warn("⚠️ No hay suficientes puntos en event.detail:", puntos);
+        console.log("ℹ️ Medición finalizada pero NO en modo marcha - no se crean PI/PT");
     }
 });
 console.log("✅ Event listener para medicionFinalizada registrado globalmente");
