@@ -505,8 +505,8 @@
             } else {
                 // Iniciar medición
                 window.measuringDistance = true;
-                if (window.mapa) {
-                    window.mapa.getContainer().style.cursor = 'crosshair';
+                if (window.map) {
+                    window.map.getContainer().style.cursor = 'crosshair';
                     console.log("🎯 Cursor cambiado a crosshair");
                     
                     // Verificar si tenemos función crearLinea
@@ -520,10 +520,10 @@
                     
                     // Configurar event listeners
                     if (typeof window.addDistancePoint === 'function') {
-                        window.mapa.on('click', window.addDistancePoint);
+                        window.map.on('click', window.addDistancePoint);
                     }
                     if (typeof window.actualizarDistanciaProvisional === 'function') {
-                        window.mapa.on('mousemove', window.actualizarDistanciaProvisional);
+                        window.map.on('mousemove', window.actualizarDistanciaProvisional);
                     }
                 } else {
                     console.error("❌ No hay mapa disponible");
@@ -604,8 +604,8 @@
                     })
                 });
                 
-                if (window.mapa) {
-                    marker.addTo(window.mapa);
+                if (window.map) {
+                    marker.addTo(window.map);
                 }
                 return marker;
             }
@@ -638,8 +638,8 @@
             });
             
             // ✅ AGREGAR AL MAPA Y A LA LISTA DE PUNTOS DE CONTROL
-            if (window.mapa) {
-                marker.addTo(window.mapa);
+            if (window.map) {
+                marker.addTo(window.map);
             }
             
             // Agregar automáticamente a la lista de puntos de control
@@ -647,6 +647,39 @@
             
             console.log("✅ Símbolo", tipo, "creado correctamente");
             return marker;
+
+        // ✅ NUEVA FUNCIÓN: Agregar PI/PT a lista de puntos de control automáticamente
+        agregarPuntoControlAutomatico: function(lat, lng, tipo) {
+            var puntosControlList = document.getElementById('puntosControlList');
+            if (!puntosControlList) {
+                console.warn("Lista de puntos de control no encontrada");
+                return;
+            }
+            
+            // Crear elemento de punto de control especial para PI/PT
+            var puntoHTML = [
+                '<div class="punto-control pc ' + tipo.toLowerCase() + '" data-distancia="0">',
+                '    <span class="tipo-punto">' + tipo + '</span>',
+                '    <span class="coord-info">(' + lat.toFixed(6) + ', ' + lng.toFixed(6) + ')</span>',
+                '    <input type="text" class="pc-descripcion" placeholder="' + (tipo === 'PI' ? 'Punto Inicial' : 'Punto Terminal') + '">',
+                '    <input type="color" class="color-pc" value="' + (tipo === 'PI' ? '#FF0000' : '#0000FF') + '">',
+                '</div>'
+            ].join('\n');
+            
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = puntoHTML;
+            var puntoElement = tempDiv.firstElementChild;
+            
+            if (tipo === 'PI') {
+                // PI va al principio
+                puntosControlList.insertBefore(puntoElement, puntosControlList.firstChild);
+            } else {
+                // PT va al final
+                puntosControlList.appendChild(puntoElement);
+            }
+            
+            console.log("✅ Punto de control", tipo, "agregado automáticamente a la lista");
+        },
         },
 
         // ✅ NUEVA FUNCIÓN: Agregar PI/PT a lista de puntos de control automáticamente
