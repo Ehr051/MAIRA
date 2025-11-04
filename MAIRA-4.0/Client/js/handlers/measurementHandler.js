@@ -471,12 +471,16 @@ function finalizarMedicion() {
         handler.mapa.off('dblclick', finalizarMedicion);
     }
 
+    // ✅ GUARDAR REFERENCIA A LA LÍNEA ACTUAL ANTES DE LIMPIAR
+    let lineaFinalizada = null;
+
     if (handler.lineaActual && handler.lineas[handler.lineaActual]) {
-        const distanciaFinal = handler.lineas[handler.lineaActual].distancia;
+        lineaFinalizada = handler.lineas[handler.lineaActual];
+        const distanciaFinal = lineaFinalizada.distancia;
         console.log(`✅ Medición finalizada: ${distanciaFinal.toFixed(2)} metros`);
 
         // ✅ CAMBIAR ESTILO DE LÍNEA A DEFINITIVO (COMPATIBLE CON MARCHA):
-        handler.lineas[handler.lineaActual].polyline.setStyle({
+        lineaFinalizada.polyline.setStyle({
             dashArray: null,
             color: 'blue',
             opacity: 1,
@@ -485,20 +489,22 @@ function finalizarMedicion() {
 
         // ✅ ASEGURAR PROPIEDADES FINALES:
         handler.actualizarLinea(handler.lineaActual);
+
+        // ✅ DISPARAR EVENTO PERSONALIZADO PARA PT (ANTES DE LIMPIAR)
+        const puntos = lineaFinalizada.polyline.getLatLngs();
+        const event = new CustomEvent('medicionFinalizada', {
+            detail: {
+                distancia: distanciaFinal,
+                puntos: puntos,
+                lineaId: handler.lineaActual
+            }
+        });
+        window.dispatchEvent(event);
+        console.log("📡 Evento 'medicionFinalizada' disparado con", puntos.length, "puntos");
     }
 
     handler.lineaActual = null;
     handler.ocultarDisplayMedicion();
-
-    // ✅ DISPARAR EVENTO PERSONALIZADO PARA PT
-    const event = new CustomEvent('medicionFinalizada', {
-        detail: {
-            distancia: handler.lineas[Object.keys(handler.lineas)[Object.keys(handler.lineas).length - 1]]?.distancia,
-            puntos: handler.lineas[Object.keys(handler.lineas)[Object.keys(handler.lineas).length - 1]]?.polyline?.getLatLngs()
-        }
-    });
-    window.dispatchEvent(event);
-    console.log("📡 Evento 'medicionFinalizada' disparado");
 
     // ✅ LIMPIAR VARIABLES DE DEBUG
     window.funcionMedicionActiva = null;
