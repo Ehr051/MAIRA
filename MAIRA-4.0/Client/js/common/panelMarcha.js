@@ -1016,3 +1016,73 @@
 
 })(window);
 
+
+// ========================================
+// 🎖️ EVENT LISTENER GLOBAL PARA PT
+// ========================================
+console.log("🎖️ [INICIO MÓDULO] Registrando event listener para medicionFinalizada...");
+window.addEventListener('medicionFinalizada', function(event) {
+    console.log("📡 Evento 'medicionFinalizada' recibido en panelMarcha");
+    console.log("   - window.modoMarcha:", window.modoMarcha);
+    console.log("   - window.contadorPuntosMarcha:", window.contadorPuntosMarcha);
+    console.log("   - event.detail:", event.detail);
+    
+    if (window.modoMarcha && window.contadorPuntosMarcha > 0) {
+        const puntos = event.detail?.puntos;
+        if (puntos && puntos.length > 0) {
+            var ultimoPunto = puntos[puntos.length - 1];
+            console.log("🎖️ Creando símbolo PT en último punto de marcha:", ultimoPunto);
+            
+            // Usar la función de PanelMarcha
+            if (window.PanelMarcha && window.PanelMarcha.crearSimboloPIPT) {
+                window.PanelMarcha.crearSimboloPIPT(ultimoPunto, 'PT');
+                console.log("✅ PT creado exitosamente");
+            } else {
+                console.error("❌ PanelMarcha.crearSimboloPIPT no disponible");
+            }
+        } else {
+            console.warn("⚠️ No hay puntos en event.detail");
+        }
+    } else {
+        console.log("⚠️ No se cumplieron condiciones para crear PT");
+        console.log("   - modoMarcha requerido: true, actual:", window.modoMarcha);
+        console.log("   - contadorPuntos > 0 requerido, actual:", window.contadorPuntosMarcha);
+    }
+});
+console.log("✅ Event listener para medicionFinalizada registrado globalmente");
+
+
+// ========================================
+// 🎖️ EVENT LISTENER GLOBAL PARA PT
+// ========================================
+console.log("🎖️ [INICIO MÓDULO] Registrando event listener para medicionFinalizada...");
+window.addEventListener('medicionFinalizada', function(event) {
+    console.log("📡 Evento 'medicionFinalizada' recibido en panelMarcha");
+    console.log("   - window.modoMarcha:", window.modoMarcha);
+    console.log("   - window.contadorPuntosMarcha:", window.contadorPuntosMarcha);
+    console.log("   - event.detail:", event.detail);
+    
+    if (window.modoMarcha && window.contadorPuntosMarcha > 0) {
+        const puntos = event.detail?.puntos;
+        if (puntos && puntos.length > 0) {
+            var ultimoPunto = puntos[puntos.length - 1];
+            console.log("🎖️ Creando símbolo PT en último punto de marcha:", ultimoPunto);
+            
+            // Usar la función de PanelMarcha
+            if (window.PanelMarcha && window.PanelMarcha.crearSimboloPIPT) {
+                window.PanelMarcha.crearSimboloPIPT(ultimoPunto, 'PT');
+                console.log("✅ PT creado exitosamente");
+            } else {
+                console.error("❌ PanelMarcha.crearSimboloPIPT no disponible");
+            }
+        } else {
+            console.warn("⚠️ No hay puntos en event.detail");
+        }
+    } else {
+        console.log("⚠️ No se cumplieron condiciones para crear PT");
+        console.log("   - modoMarcha requerido: true, actual:", window.modoMarcha);
+        console.log("   - contadorPuntos > 0 requerido, actual:", window.contadorPuntosMarcha);
+    }
+});
+console.log("✅ Event listener para medicionFinalizada registrado globalmente");
+
