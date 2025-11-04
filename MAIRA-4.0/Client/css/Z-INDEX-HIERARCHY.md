@@ -79,9 +79,25 @@ Este documento define la jerarquía de z-index utilizada en toda la aplicación 
 - `.menu`: 10/1000 → **2100**
 - `.menu.show`: 1000 → **2100**
 
+### GBatalla.css (✅ Corregido - 4 Nov 2025)
+- `.context-menu`: 1500 → **2300**
+- `.boton-panel` (2x): 1500 → **550**
+- `.loading-container`: 9999 → **3100**
+- `.media-lightbox`: 1500 (correcto) ✅
+- `.miradial-container`: 1500 → **2300**
+- `.panel-toggle-btn`: 999 → **550**
+- `.boton-test`: 998 → **550**
+- `.menu-test-flotante`: 997 → **900**
+
+### CO.css (✅ Corregido - 4 Nov 2025)
+- `.sidebar`: 900 → **1000**
+- Botón sidebar: 901 → **1001**
+- `.zoom-controls`: 900 → **600**
+- `.loading-indicator` (2x): 9999 → **3100**
+- `.menu-contextual`: 9999 → **2300**
+- `.modal-overlay`: 9998 → **1500**
+
 ### Pendientes de Revisión
-- [ ] GBatalla.css (z-index: 1500, 999, 998, 997, 9999)
-- [ ] CO.css (z-index: 900, 901, 9999, 9998)
 - [ ] graficomarcha.css
 - [ ] style.css (z-index: 999)
 
@@ -131,7 +147,19 @@ Este documento define la jerarquía de z-index utilizada en toda la aplicación 
 - Serie 4: #FFC107 (Amarillo/Naranja)
 - Serie 5: #9C27B0 (Púrpura)
 
+## Cambios Adicionales (4 Nov 2025)
+
+### Menús Contextuales → MiRadial
+- **Archivo:** `Client/js/common/mapaP.js`
+- **Cambio:** Eliminados menús contextuales tradicionales, usar solo MiRadial
+- **Líneas:** 422, 561, 763-785, 1201
+
+### Font Awesome
+- **Archivo:** `Client/planeamiento.html`
+- **Cambio:** Versión 6.5.1 → 6.4.0 (versión estable)
+- **Razón:** Problemas con integrity check en 6.5.1
+
 ## Última Actualización
 **Fecha:** 2025-11-04
 **Responsable:** Claude Code
-**Cambios:** Corrección de jerarquía z-index en CYGMarcha.css y planeamiento.css
+**Cambios:** Corrección completa de jerarquía z-index en 4 archivos CSS + eliminación menús contextuales + Font Awesome 6.4.0

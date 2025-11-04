@@ -419,8 +419,7 @@ function habilitarDobleClicEnElementos() {
                         window.MiRadial.mostrarMenu(punto.x, punto.y, tipo);
                     }
                 } else {
-                    console.warn('⚠️ MiRadial no disponible, usando menú contextual de respaldo');
-                    mostrarMenuContextual(e);
+                    console.error('❌ MiRadial no disponible - NO se usa menú contextual');
                 }
             });
         }
@@ -558,8 +557,8 @@ function desactivarClickDerecho() {
 
             window.MAIRARadialMenu.show(x, y, context, element);
         } else {
-            // Fallback al menú contextual tradicional si no está disponible
-            mostrarMenuContextual(e);
+            // MiRadial debe estar siempre disponible - NO usar menú contextual
+            console.error('❌ MAIRARadialMenu no disponible');
         }
     });
 }
@@ -761,7 +760,10 @@ function toggleCursorCoordinates() {
     }
 }
 
-// Función para mostrar el menú contextual
+// ❌ DEPRECADO: Menú contextual antiguo - NO USAR
+// Se reemplazó completamente por MiRadial (menú radial)
+// Mantener código comentado solo por referencia histórica
+/*
 function mostrarMenuContextual(e) {
     L.DomEvent.preventDefault(e);
     var menuContextual = L.DomUtil.create('div', 'menu-contextual', document.body);
@@ -772,7 +774,7 @@ function mostrarMenuContextual(e) {
     menuContextual.style.position = 'absolute';
     menuContextual.style.left = e.containerPoint.x + 'px';
     menuContextual.style.top = e.containerPoint.y + 'px';
-    
+
     document.addEventListener('click', function cerrarMenu() {
         if (document.body.contains(menuContextual)) {
             document.body.removeChild(menuContextual);
@@ -780,6 +782,7 @@ function mostrarMenuContextual(e) {
         document.removeEventListener('click', cerrarMenu);
     });
 }
+*/
 
 function cambiarCuadricula(tipo) {
     if (gridLayer) {
@@ -1195,7 +1198,7 @@ function getCurrentMapType() {
     return currentMapType;
 }
 
-window.mostrarMenuContextual = mostrarMenuContextual;
+// window.mostrarMenuContextual = mostrarMenuContextual; // ❌ ELIMINADO - usar MiRadial
 window.actualizarEstiloCuadricula = actualizarEstiloCuadricula;
 window.cambiarCuadricula = cambiarCuadricula;
 window.habilitarDobleClicEnElementos = habilitarDobleClicEnElementos;
