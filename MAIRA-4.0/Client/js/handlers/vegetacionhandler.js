@@ -39,7 +39,7 @@ class VegetacionHandler {
             // 🌍 Seleccionar URLs según entorno
             const indexUrls = this.isLocal ? [
                 // 🏠 LOCAL: Priorizar rutas compatibles con Live Server
-                'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
+                '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 './Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '../Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json',
                 '/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/vegetation_master_index.json'
@@ -139,8 +139,8 @@ class VegetacionHandler {
         
         if (!batchIndex) {
             try {
-                const indexUrl = this.isLocal 
-                    ? `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${batchName}/${batchName}_index.json`
+                const indexUrl = this.isLocal
+                    ? `/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${batchName}/${batchName}_index.json`
                     : `/api/proxy/github/Vegetacion_Mini_Tiles/${batchName}/${batchName}_index.json`;
                 
                 console.log(`🔍 Cargando índice de batch: ${indexUrl}`);
@@ -229,7 +229,7 @@ class VegetacionHandler {
             const tarGzFilename = `${batchName}.tar.gz`;
             
             // Ruta al tar.gz local
-            const tarGzPath = `Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${batchName}/${tarGzFilename}`;
+            const tarGzPath = `/Client/Libs/datos_argentina/Vegetacion_Mini_Tiles/${batchName}/${tarGzFilename}`;
             
             console.log(`📦 Extrayendo ${tileInfo.filename} de ${tarGzFilename}`);
             

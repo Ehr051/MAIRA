@@ -1,6 +1,6 @@
 // Configuración de la URL base de la API
 const isLocalDevelopment = false; // Cambia esto a true para desarrollo local
-const API_BASE_URL = window.getServerUrl ? window.getServerUrl() : (SERVER_URL || 'http://localhost:5000');
+const API_BASE_URL = window.getServerUrl ? window.getServerUrl() : (SERVER_URL || `${window.location.protocol}//localhost:5001`);
 
 // 🎯 EJECUTAR INMEDIATAMENTE - El DOM ya está cargado cuando el bootstrap llega aquí
 console.log('🚀 Inicializando validación (ejecución inmediata)');

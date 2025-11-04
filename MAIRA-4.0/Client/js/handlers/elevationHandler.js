@@ -1,7 +1,7 @@
 // elevationHandler.js - Adaptado para manejar el nuevo sistema de tiles v4.0
 
 // 🎯 NUEVA ESTRATEGIA: Usar archivos tar.gz locales tanto en desarrollo como en Render
-const ELEVATION_LOCAL_BASE = 'Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
+const ELEVATION_LOCAL_BASE = '/Client/Libs/datos_argentina/Altimetria_Mini_Tiles';
 
 // 🚀 BASE URL PROXY para GitHub Release v4.0 - CONFIRMADO FUNCIONANDO
 const ELEVATION_HANDLERS_GITHUB_BASE = '/api/proxy/github';
@@ -69,7 +69,7 @@ const ELEVATION_RELEASE_ASSETS = {
 const ELEVATION_TILES_FALLBACK_URLS = [ELEVATION_HANDLERS_GITHUB_BASE];
 
 // Ruta para tiles clásicos (legacy) - ELEVATION HANDLER
-const ELEVATION_TILE_FOLDER_PATH = 'Client/Libs/datos_argentina/Altimetria_Legacy';
+const ELEVATION_TILE_FOLDER_PATH = '/Client/Libs/datos_argentina/Altimetria_Legacy';
 
 // Índice de tiles - variables ya declaradas arriba
 
@@ -222,10 +222,9 @@ async function extractTileDirectFromRelease(tileInfo) {
 
     // 🏠 PRIORIDAD 1: Intentar cargar desde archivos locales
     const localPaths = [
-      `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
+      `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
       `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
-      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`,
-      `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`
+      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${tileInfo.provincia}/${tileInfo.filename}`
     ];
 
     for (const localPath of localPaths) {
@@ -518,10 +517,9 @@ async function cargarTileEspecifica(tileFilename, provincia) {
 
     // 🏠 Intentar cargar desde archivos locales primero
     const localPaths = [
-      `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
+      `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
       `./Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
-      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`,
-      `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`
+      `../Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provincia}/${tileFilename}`
     ];
 
     for (const localPath of localPaths) {
@@ -681,8 +679,8 @@ async function buscarTileEnProvincias(bounds) {
       let provincialUrl;
       
       // Intentar URL local primero
-      provincialUrl = `Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
-      
+      provincialUrl = `/Client/Libs/datos_argentina/Altimetria_Mini_Tiles/${provinciaTarget}/${provinciaTarget}_mini_tiles_index.json`;
+
       console.log(`📡 Cargando índice provincial desde: ${provincialUrl}`);
       
       try {

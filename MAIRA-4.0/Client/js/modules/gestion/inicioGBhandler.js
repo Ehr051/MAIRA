@@ -32,11 +32,13 @@ function obtenerURLServidor() {
     if (window.SERVER_URL) {
         return window.SERVER_URL;
     }
-    
+
+    // Fallback: usar el mismo protocolo que la página actual
     const currentHost = window.location.hostname;
-    const probablePort = "5000";
-    
-    return `http://${currentHost}:${probablePort}`;
+    const currentProtocol = window.location.protocol;
+    const probablePort = "5001"; // Puerto local HTTPS
+
+    return `${currentProtocol}//${currentHost}:${probablePort}`;
 }
 
 /**
@@ -107,27 +109,32 @@ function actualizarInfoUsuario() {
     
     // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
     if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
-        const userInfo = MAIRA.UserIdentity.getCurrentUser();
-        currentUserId = userInfo.id;
-        currentUserName = userInfo.username;
-        console.log('✅ Usuario obtenido desde UserIdentity:', userInfo);
+        currentUserId = MAIRA.UserIdentity.getUserId();
+        currentUserName = MAIRA.UserIdentity.getUsername();
+        console.log('✅ Usuario obtenido desde UserIdentity:', { id: currentUserId, username: currentUserName });
     } else {
         // Fallback a localStorage
         currentUserId = localStorage.getItem('userId');
         currentUserName = localStorage.getItem('username');
-        console.log('⚠️ Usuario obtenido desde localStorage:', { currentUserId, currentUserName });
+        console.log('⚠️ Usuario obtenido desde localStorage (UserIdentity no disponible):', { currentUserId, currentUserName });
     }
     
     // Actualizar elementos de la interfaz
     const nombreElement = document.getElementById('nombreJugadorActual');
     const idElement = document.getElementById('idJugadorActual');
-    
+    const idUsuarioElement = document.getElementById('idUsuarioActual');  // ✅ Para inicioGB.html
+
     if (nombreElement && currentUserName) {
         nombreElement.textContent = currentUserName;
     }
-    
+
     if (idElement && currentUserId) {
         idElement.textContent = currentUserId;
+    }
+
+    // ✅ Actualizar también el elemento de inicioGB.html
+    if (idUsuarioElement) {
+        idUsuarioElement.textContent = `${currentUserId} (${currentUserName})`;
     }
     
     // También actualizar el campo del formulario si existe
@@ -940,7 +947,7 @@ function unirseOperacionExistente() {
         
         // Redirigir a página de batalla
         // IMPORTANTE: Verificar la ruta correcta en tu entorno
-        window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
+        window.location.href = `/client/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
     });
     
     // Si después de 5 segundos no hay respuesta, asumir éxito y redireccionar
@@ -948,7 +955,7 @@ function unirseOperacionExistente() {
     setTimeout(() => {
         if (botonSubmit && botonSubmit.disabled) {
             console.log("No se recibió callback, redireccionando de todos modos");
-            window.location.href = `/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
+            window.location.href = `/client/gestionbatalla.html?operacion=${encodeURIComponent(operacionSeleccionada.nombre)}`;
         }
     }, 5000);
 }
@@ -962,10 +969,13 @@ async function iniciarConexion() {
         // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
         let userInfo = null;
         let token = null;
-        
+
         // Intentar obtener desde UserIdentity primero
         if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
-            userInfo = MAIRA.UserIdentity.getCurrentUser();
+            userInfo = {
+                id: MAIRA.UserIdentity.getUserId(),
+                username: MAIRA.UserIdentity.getUsername()
+            };
             token = MAIRA.UserIdentity.getToken();
             console.log('✅ Usuario obtenido desde UserIdentity para conexión:', userInfo);
         } else {

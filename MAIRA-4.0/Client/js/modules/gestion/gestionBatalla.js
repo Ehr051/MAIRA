@@ -1826,7 +1826,7 @@ function configurarEventosChat() {
             console.log('🌐 Detectado servicio en la nube');
         } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
             // Desarrollo local
-            serverURL = `${protocol}//${hostname}:5000`;
+            serverURL = `${protocol}//${hostname}:5001`;
             console.log('💻 Detectado desarrollo local');
         } else {
             // Producción o red local

@@ -16,7 +16,7 @@ if (currentHost.includes('ngrok') || currentHost.includes('trycloudflare.com') |
 
 } else {
     // URLs locales con puertos específicos
-    SERVER_URL = `${currentProtocol}//${currentHost}:5000`;
+    SERVER_URL = `${currentProtocol}//${currentHost}:5001`;
     CLIENT_URL = `${currentProtocol}//${currentHost}:8080`;
 }
 

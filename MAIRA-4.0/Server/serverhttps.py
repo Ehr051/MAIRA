@@ -146,8 +146,30 @@ def serve_audio(filename):
 def serve_index():
     return send_from_directory(BASE_DIR, 'index.html')
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint para verificar estado del servidor y base de datos"""
+    try:
+        conn = get_db_connection()
+        if conn:
+            conn.close()
+            return jsonify({"status": "healthy", "database": "connected", "success": True})
+        return jsonify({"status": "unhealthy", "database": "disconnected", "success": False}), 500
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e), "success": False}), 500
+
+@app.route('/favicon.ico')
+def favicon():
+    """Servir favicon"""
+    try:
+        return send_from_directory(os.path.join(CLIENT_DIR, 'image', 'favicon_logoai'), 'favicon-32x32.png', mimetype='image/png')
+    except:
+        return '', 204  # No Content si no existe
+
+@app.route('/client/<path:path>')
 @app.route('/Client/<path:path>')
 def serve_client_files(path):
+    """Servir archivos desde el directorio Client/"""
     return send_from_directory(CLIENT_DIR, path)
 
 # ✅ ENDPOINT CRÍTICO: Servir modelos 3D GLB/GLTF
@@ -538,11 +560,12 @@ def handle_connect():
 
 @socketio.on('login')
 def handle_login(data):
-    user_id = data.get('userId')
+    user_id = data.get('userId') or data.get('user_id')
     username = data.get('username')
     if user_id and username:
         usuarios_conectados[user_id] = {'id': user_id, 'username': username, 'is_online': True}
         user_sid_map[request.sid] = user_id
+        user_id_sid_map[user_id] = request.sid
 
         # Marcar al usuario como en línea
         connection = get_db_connection()
@@ -552,8 +575,10 @@ def handle_login(data):
             connection.commit()
             connection.close()
 
-        # Emitir confirmación de login al cliente
+        # Emitir múltiples eventos para compatibilidad con diferentes clientes
         emit('loginExitoso', {'userId': user_id, 'username': username}, room=request.sid)
+        emit('loginResponse', {'success': True, 'user': {'id': user_id, 'username': username}}, room=request.sid)
+        emit('login_success', {'userId': user_id, 'username': username}, room=request.sid)
 
         # Emitir la lista de usuarios conectados a todos
         emit('usuariosConectados', list(usuarios_conectados.values()), broadcast=True)
@@ -2943,6 +2968,282 @@ def extraer_tile_vegetacion():
     except Exception as e:
         print(f"❌ Error extrayendo tile de vegetación: {str(e)}")
         return jsonify({"success": False, "message": f"Error extrayendo tile de vegetación: {str(e)}"}), 500
+
+# 🚀 ENDPOINT BATCH ELEVATION - Procesa múltiples coordenadas en una sola request
+@app.route('/api/elevation/batch', methods=['POST'])
+def get_elevation_batch():
+    """
+    Recibe un array de coordenadas y devuelve todas las elevaciones de una vez.
+    Esto evita hacer miles de requests individuales.
+    """
+    import time
+    import json
+    start_time = time.time()
+
+    try:
+        # Importar rasterio
+        try:
+            import rasterio
+            import numpy as np
+        except ImportError:
+            return jsonify({
+                'error': 'rasterio no instalado',
+                'message': 'pip install rasterio'
+            }), 500
+
+        data = request.get_json()
+        if not data or 'points' not in data:
+            return jsonify({'error': 'Se requiere points'}), 400
+
+        points = data['points']
+        print(f'📊 Batch: {len(points)} puntos')
+
+        # Calcular bounds
+        lats = [p['lat'] for p in points]
+        lons = [p['lon'] for p in points]
+        bounds = {
+            'north': max(lats),
+            'south': min(lats),
+            'east': max(lons),
+            'west': min(lons)
+        }
+        center_lat = (bounds['north'] + bounds['south']) / 2
+        center_lon = (bounds['east'] + bounds['west']) / 2
+
+        # Path base
+        tiles_base = os.path.join(BASE_DIR, 'Client', 'Libs', 'datos_argentina', 'Altimetria_Mini_Tiles')
+
+        # Determinar provincia según latitud
+        provincia = None
+        if center_lat >= -28:
+            provincia = 'norte'
+        elif center_lat >= -34:
+            provincia = 'centro_norte'
+        elif center_lat >= -40:
+            provincia = 'centro'
+        elif center_lat >= -46:
+            provincia = 'sur'
+        else:
+            provincia = 'patagonia'
+
+        print(f'📁 Usando provincia: {provincia}')
+
+        # Cargar índice provincial
+        provincial_index_path = os.path.join(tiles_base, provincia, f'{provincia}_mini_tiles_index.json')
+
+        if not os.path.exists(provincial_index_path):
+            return jsonify({'error': f'Índice provincial no existe: {provincial_index_path}'}), 404
+
+        with open(provincial_index_path, 'r', encoding='utf-8') as f:
+            provincial_index = json.load(f)
+
+        # Filtrar tiles relevantes
+        relevant_tiles = []
+        tiles_dict = provincial_index.get('tiles', {})
+
+        for tile_id, tile_info in tiles_dict.items():
+            tile_bounds = tile_info.get('bounds', {})
+            if not tile_bounds:
+                continue
+
+            if (tile_bounds['north'] >= bounds['south'] and
+                tile_bounds['south'] <= bounds['north'] and
+                tile_bounds['east'] >= bounds['west'] and
+                tile_bounds['west'] <= bounds['east']):
+                relevant_tiles.append(tile_info)
+
+        print(f'🎯 {len(relevant_tiles)} tiles relevantes')
+
+        # Cargar tiles
+        tile_cache = {}
+        for tile_info in relevant_tiles:
+            filename = tile_info.get('filename')
+            if not filename:
+                continue
+
+            tile_path = os.path.join(tiles_base, provincia, filename)
+            if os.path.exists(tile_path):
+                try:
+                    src = rasterio.open(tile_path)
+                    tile_cache[filename] = {
+                        'src': src,
+                        'bounds': src.bounds,
+                        'info': tile_info
+                    }
+                except Exception as e:
+                    print(f'⚠️ Error: {filename}: {e}')
+
+        # Procesar puntos
+        elevations = [None] * len(points)
+
+        for point in points:
+            lat = point['lat']
+            lon = point['lon']
+            idx = point.get('index', 0)
+
+            for tile_name, tile_info in tile_cache.items():
+                src = tile_info['src']
+                bounds = tile_info['bounds']
+
+                if bounds.left <= lon <= bounds.right and bounds.bottom <= lat <= bounds.top:
+                    try:
+                        py, px = src.index(lon, lat)
+                        if 0 <= py < src.height and 0 <= px < src.width:
+                            elevation = float(src.read(1)[py, px])
+                            if elevation != -9999:
+                                elevations[idx] = elevation
+                                break
+                    except:
+                        pass
+
+        # Cerrar tiles
+        for tile_info in tile_cache.values():
+            tile_info['src'].close()
+
+        processing_time = time.time() - start_time
+        valid_count = sum(1 for e in elevations if e is not None)
+
+        print(f'✅ {valid_count}/{len(points)} en {processing_time:.2f}s')
+
+        return jsonify({
+            'elevations': elevations,
+            'count': len(elevations),
+            'valid_count': valid_count,
+            'tiles_loaded': len(tile_cache),
+            'processing_time': processing_time
+        })
+
+    except Exception as e:
+        print(f'❌ Error batch: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+# 🌿 ENDPOINT BATCH VEGETATION
+@app.route('/api/vegetation/batch', methods=['POST'])
+def get_vegetation_batch():
+    """Procesa múltiples coordenadas para obtener valores NDVI"""
+    import time
+    import json
+    start_time = time.time()
+
+    try:
+        try:
+            import rasterio
+        except ImportError:
+            return jsonify({'error': 'rasterio no instalado'}), 500
+
+        data = request.get_json()
+        if not data or 'points' not in data:
+            return jsonify({'error': 'Se requiere points'}), 400
+
+        points = data['points']
+        print(f'📊 Batch vegetation: {len(points)} puntos')
+
+        # Calcular bounds
+        lats = [p['lat'] for p in points]
+        lons = [p['lon'] for p in points]
+        bounds = {
+            'north': max(lats),
+            'south': min(lats),
+            'east': max(lons),
+            'west': min(lons)
+        }
+
+        tiles_base = os.path.join(BASE_DIR, 'Client', 'Libs', 'datos_argentina', 'Vegetacion_Mini_Tiles')
+        master_index_path = os.path.join(tiles_base, 'vegetation_master_index.json')
+
+        if not os.path.exists(master_index_path):
+            return jsonify({'error': f'Master index no existe'}), 404
+
+        with open(master_index_path, 'r', encoding='utf-8') as f:
+            master_index = json.load(f)
+
+        # Filtrar tiles relevantes
+        relevant_tiles = []
+        tiles_dict = master_index.get('tiles', {})
+
+        for tile_id, tile_info in tiles_dict.items():
+            tile_bounds = tile_info.get('bounds', {})
+            if not tile_bounds:
+                continue
+
+            if (tile_bounds['north'] >= bounds['south'] and
+                tile_bounds['south'] <= bounds['north'] and
+                tile_bounds['east'] >= bounds['west'] and
+                tile_bounds['west'] <= bounds['east']):
+                relevant_tiles.append(tile_info)
+
+        # Cargar tiles
+        tile_cache = {}
+        for tile_info in relevant_tiles:
+            filename = tile_info.get('filename')
+            package = tile_info.get('package')
+
+            if not filename or not package:
+                continue
+
+            tile_path = os.path.join(tiles_base, package, filename)
+
+            if os.path.exists(tile_path):
+                try:
+                    src = rasterio.open(tile_path)
+                    tile_cache[filename] = {
+                        'src': src,
+                        'bounds': src.bounds,
+                        'info': tile_info
+                    }
+                except Exception as e:
+                    print(f'⚠️ Error: {filename}: {e}')
+
+        # Procesar puntos
+        ndvi_values = [None] * len(points)
+
+        for point in points:
+            lat = point['lat']
+            lon = point['lon']
+            idx = point.get('index', 0)
+
+            for tile_name, tile_info in tile_cache.items():
+                src = tile_info['src']
+                bounds = tile_info['bounds']
+
+                if bounds.left <= lon <= bounds.right and bounds.bottom <= lat <= bounds.top:
+                    try:
+                        py, px = src.index(lon, lat)
+                        if 0 <= py < src.height and 0 <= px < src.width:
+                            ndvi_value = float(src.read(1)[py, px])
+                            if ndvi_value != -9999:
+                                if ndvi_value > 1:
+                                    ndvi_value = ndvi_value / 255.0
+                                ndvi_values[idx] = ndvi_value
+                                break
+                    except:
+                        pass
+
+        # Cerrar tiles
+        for tile_info in tile_cache.values():
+            tile_info['src'].close()
+
+        processing_time = time.time() - start_time
+        valid_count = sum(1 for v in ndvi_values if v is not None)
+
+        print(f'✅ {valid_count}/{len(points)} en {processing_time:.2f}s')
+
+        return jsonify({
+            'ndvi_values': ndvi_values,
+            'count': len(ndvi_values),
+            'valid_count': valid_count,
+            'tiles_loaded': len(tile_cache),
+            'processing_time': processing_time
+        })
+
+    except Exception as e:
+        print(f'❌ Error batch vegetation: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 # Definir la carpeta de subida
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -2975,17 +3276,29 @@ if __name__ == '__main__':
     print("🚀 Iniciando servidor MAIRA...")
     print(f"📍 Host: {host}:{port}")
     print(f"🔒 Modo HTTPS: {'Activado' if https_mode else 'Desactivado'}")
-    
+
+    protocol = "https" if https_mode else "http"
+    print("\n" + "="*60)
+    print("✅ URLs DISPONIBLES:")
+    print("="*60)
+    print(f"🏠 Página Principal:        {protocol}://{host}:{port}/client/index.html")
+    print(f"🎮 Iniciar Partida:         {protocol}://{host}:{port}/client/iniciarpartida.html")
+    print(f"⚔️  Gestión de Batalla:      {protocol}://{host}:{port}/client/inicioGB.html")
+    print(f"📊 Cuadro de Organización:  {protocol}://{host}:{port}/client/CO.html")
+    print(f"🗺️  Planeamiento:            {protocol}://{host}:{port}/client/planeamiento.html")
+    print(f"💚 Health Check:            {protocol}://{host}:{port}/health")
+    print("="*60 + "\n")
+
     try:
         if https_mode:
             # Verificar certificados SSL
             cert_file = os.path.join(BASE_DIR, "ssl", "cert.pem")
             key_file = os.path.join(BASE_DIR, "ssl", "key.pem")
-            
+
             if not os.path.exists(cert_file) or not os.path.exists(key_file):
                 print("❌ Error: Certificados SSL no encontrados. Ejecuta sin --https para modo HTTP.")
                 sys.exit(1)
-            
+
             # Iniciar servidor con SSL
             print("🔐 Iniciando servidor HTTPS...")
             socketio.run(

@@ -18,7 +18,18 @@ var historial = { acciones: [], indice: -1 };
 /* Inicialización */
 document.addEventListener('DOMContentLoaded', inicializarCuadroOrganizacion);
 
-
+/**
+ * Función de registro de acciones para historial (undo/redo)
+ * Por ahora es un placeholder que no rompe el código
+ */
+function registrarAccion(accion) {
+    // TODO: Implementar sistema de undo/redo completo
+    // Por ahora solo guardamos en el historial sin funcionalidad
+    if (historial && historial.acciones) {
+        historial.acciones.push(accion);
+        historial.indice++;
+    }
+}
 
 /* Inicializar símbolos en la paleta */
 function inicializarSimbolos() {
@@ -1083,15 +1094,37 @@ function guardarCuadroOrganizacion() {
             conexiones: []
         };
 
-        // Guardar elementos
+        // Guardar elementos (símbolos militares y elementos de texto)
         document.querySelectorAll('.military-symbol').forEach(el => {
-            datos.elementos.push({
+            const elementData = {
                 id: el.id,
                 sidc: el.getAttribute('data-sidc'),
                 posX: parseInt(el.style.left),
                 posY: parseInt(el.style.top),
                 texto: el.getAttribute('data-texto') || ''
-            });
+            };
+
+            // Si es un elemento de texto, guardar su contenido y estilos
+            if (el.classList.contains('text-element')) {
+                const textContent = el.querySelector('.text-content');
+                if (textContent) {
+                    elementData.textoContenido = textContent.textContent;
+                    elementData.textoOriginal = el.getAttribute('data-texto-original');
+                    elementData.estiloTexto = {
+                        color: textContent.style.color,
+                        fontSize: textContent.style.fontSize,
+                        fontWeight: textContent.style.fontWeight,
+                        fontStyle: textContent.style.fontStyle,
+                        textDecoration: textContent.style.textDecoration
+                    };
+                }
+                // Marcar como elemento de texto
+                elementData.tipoElemento = 'texto';
+            } else {
+                elementData.tipoElemento = 'simbolo';
+            }
+
+            datos.elementos.push(elementData);
         });
 
         // Guardar conexiones
@@ -1369,38 +1402,75 @@ async function crearElemento(datos) {
         // Usar el ID existente o crear uno nuevo
         const elemento = document.createElement('div');
         elemento.id = datos.id || `symbol-${++window.symbolCounter}`;
-       
+
         elemento.className = 'military-symbol';
         elemento.style.left = `${datos.posX}px`;
         elemento.style.top = `${datos.posY}px`;
 
-        // Agregar atributos necesarios 
-        elemento.setAttribute('data-sidc', datos.sidc);
-        elemento.setAttribute('data-texto', datos.texto || '');
-        
-        // Crear estructura del símbolo
-        const symbolContainer = document.createElement('div');
-        symbolContainer.className = 'symbol-container';
-        
-        try {
-            const symbol = new ms.Symbol(datos.sidc, {
-                size: 45,
-                standard: 'APP6',
-                fill: true
-            });
-            symbolContainer.innerHTML = symbol.asSVG();
-        } catch (e) {
-            console.error("Error al crear símbolo:", e);
-            symbolContainer.textContent = "Error: Símbolo inválido";
-        }
-        
-        elemento.appendChild(symbolContainer);
+        // ✅ VERIFICAR SI ES ELEMENTO DE TEXTO
+        if (datos.tipoElemento === 'texto' || datos.id.startsWith('text-')) {
+            elemento.classList.add('text-element');
 
-        // Agregar etiqueta
-        const etiqueta = document.createElement('div');
-        etiqueta.className = 'symbol-label';
-        etiqueta.textContent = datos.texto || '';
-        elemento.appendChild(etiqueta);
+            // Crear contenido de texto editable
+            const textContent = document.createElement('div');
+            textContent.className = 'text-content';
+            textContent.contentEditable = true;
+            textContent.textContent = datos.textoContenido || datos.textoOriginal || datos.texto || 'Texto';
+
+            // Aplicar estilos guardados si existen
+            if (datos.estiloTexto) {
+                textContent.style.color = datos.estiloTexto.color || '#ffffff';
+                textContent.style.fontSize = datos.estiloTexto.fontSize || '16px';
+                textContent.style.fontWeight = datos.estiloTexto.fontWeight || 'normal';
+                textContent.style.fontStyle = datos.estiloTexto.fontStyle || 'normal';
+                textContent.style.textDecoration = datos.estiloTexto.textDecoration || 'none';
+            }
+
+            // Guardar texto original
+            elemento.setAttribute('data-texto-original', textContent.textContent);
+
+            // Event listener para guardar cambios
+            textContent.addEventListener('blur', function() {
+                registrarAccion({
+                    tipo: 'editar',
+                    id: elemento.id,
+                    valorAnterior: { texto: elemento.getAttribute('data-texto-original') },
+                    valorNuevo: { texto: textContent.textContent }
+                });
+                elemento.setAttribute('data-texto-original', textContent.textContent);
+            });
+
+            elemento.appendChild(textContent);
+        } else {
+            // ES UN SÍMBOLO MILITAR
+            // Agregar atributos necesarios
+            elemento.setAttribute('data-sidc', datos.sidc);
+            elemento.setAttribute('data-texto', datos.texto || '');
+
+            // Crear estructura del símbolo
+            const symbolContainer = document.createElement('div');
+            symbolContainer.className = 'symbol-container';
+
+            try {
+                const symbol = new ms.Symbol(datos.sidc, {
+                    size: 45,
+                    standard: 'APP6',
+                    fill: true
+                });
+                symbolContainer.innerHTML = symbol.asSVG();
+            } catch (e) {
+                console.error("Error al crear símbolo:", e);
+                symbolContainer.textContent = "Error: Símbolo inválido";
+            }
+
+            elemento.appendChild(symbolContainer);
+
+            // Agregar etiqueta
+            const etiqueta = document.createElement('div');
+            etiqueta.className = 'symbol-label';
+            etiqueta.textContent = datos.texto || '';
+            elemento.appendChild(etiqueta);
+        }
 
         // Agregar al canvas
         const canvas = document.getElementById('org-canvas');
