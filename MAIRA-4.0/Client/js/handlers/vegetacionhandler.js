@@ -661,3 +661,7 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = VegetacionHandler;
 }
+
+        // ✅ AGREGAR MÉTODO ALIAS AL HANDLER GLOBAL
+        window.vegetationHandler.obtenerVegetacionEnPunto = VegetacionHandler.prototype.obtenerVegetacionEnPunto.bind(window.vegetationHandler);
+        window.vegetacionHandler.obtenerVegetacionEnPunto = window.vegetationHandler.obtenerVegetacionEnPunto; // Alias español
