@@ -3380,14 +3380,18 @@ if __name__ == '__main__':
                 print("❌ Error: Certificados SSL no encontrados. Ejecuta sin --https para modo HTTP.")
                 sys.exit(1)
 
+            # Crear contexto SSL
+            import ssl
+            ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            ssl_context.load_cert_chain(cert_file, key_file)
+
             # Iniciar servidor con SSL
             print("🔐 Iniciando servidor HTTPS...")
             socketio.run(
                 app,
                 host=host,
                 port=port,
-                certfile=cert_file,
-                keyfile=key_file,
+                ssl_context=ssl_context,
                 debug=True,
                 allow_unsafe_werkzeug=True
             )
