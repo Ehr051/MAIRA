@@ -560,26 +560,6 @@
             };
             
             // ✅ ESCUCHAR EVENTO DE MEDICIÓN FINALIZADA PARA CREAR PT
-            window.addEventListener('medicionFinalizada', function(event) {
-                console.log("📡 Evento 'medicionFinalizada' recibido en panelMarcha");
-
-                // Crear PT en el último punto si hay puntos y estamos en modo marcha
-                if (window.modoMarcha && window.contadorPuntosMarcha > 0) {
-                    const puntos = event.detail?.puntos;
-                    if (puntos && puntos.length > 0) {
-                        var ultimoPunto = puntos[puntos.length - 1];
-                        console.log("🎖️ Creando símbolo PT en último punto de marcha:", ultimoPunto);
-                        self.crearSimboloPIPT(ultimoPunto, 'PT');
-                    }
-
-                    // Limpiar modo marcha
-                    window.modoMarcha = false;
-                    window.contadorPuntosMarcha = 0;
-                    console.log("🎖️ Modo marcha finalizado");
-                }
-            });
-
-            // ⚠️ MANTENER COMPATIBILIDAD: Interceptar finalización para otros casos
             var originalFinalizarMedicion = window.finalizarMedicion;
             window.finalizarMedicion = function() {
                 // Crear PT en el último punto si hay puntos (fallback legacy)
@@ -1020,34 +1000,37 @@
 // ========================================
 // 🎖️ EVENT LISTENER GLOBAL PARA PT
 // ========================================
+// ========================================
+// 🎖️ EVENT LISTENER GLOBAL PARA PT
+// ========================================
 console.log("🎖️ [INICIO MÓDULO] Registrando event listener para medicionFinalizada...");
 window.addEventListener('medicionFinalizada', function(event) {
     console.log("📡 Evento 'medicionFinalizada' recibido en panelMarcha");
-    console.log("   - window.modoMarcha:", window.modoMarcha);
-    console.log("   - window.contadorPuntosMarcha:", window.contadorPuntosMarcha);
     console.log("   - event.detail:", event.detail);
     
-    if (window.modoMarcha && window.contadorPuntosMarcha > 0) {
-        const puntos = event.detail?.puntos;
-        if (puntos && puntos.length > 0) {
-            var ultimoPunto = puntos[puntos.length - 1];
-            console.log("🎖️ Creando símbolo PT en último punto de marcha:", ultimoPunto);
+    // ✅ CREAR PT SIEMPRE si hay puntos (no depender de modoMarcha)
+    const puntos = event.detail?.puntos;
+    if (puntos && puntos.length > 1) {
+        var ultimoPunto = puntos[puntos.length - 1];
+        var primerPunto = puntos[0];
+        
+        console.log("🎖️ Creando símbolos PI/PT:");
+        console.log("   - Primer punto (PI):", primerPunto);
+        console.log("   - Último punto (PT):", ultimoPunto);
+        
+        // Crear PI en primer punto
+        if (window.PanelMarcha && window.PanelMarcha.crearSimboloPIPT) {
+            window.PanelMarcha.crearSimboloPIPT(primerPunto, 'PI');
+            console.log("✅ PI creado");
             
-            // Usar la función de PanelMarcha
-            if (window.PanelMarcha && window.PanelMarcha.crearSimboloPIPT) {
-                window.PanelMarcha.crearSimboloPIPT(ultimoPunto, 'PT');
-                console.log("✅ PT creado exitosamente");
-            } else {
-                console.error("❌ PanelMarcha.crearSimboloPIPT no disponible");
-            }
+            // Crear PT en último punto
+            window.PanelMarcha.crearSimboloPIPT(ultimoPunto, 'PT');
+            console.log("✅ PT creado");
         } else {
-            console.warn("⚠️ No hay puntos en event.detail");
+            console.error("❌ PanelMarcha.crearSimboloPIPT no disponible");
         }
     } else {
-        console.log("⚠️ No se cumplieron condiciones para crear PT");
-        console.log("   - modoMarcha requerido: true, actual:", window.modoMarcha);
-        console.log("   - contadorPuntos > 0 requerido, actual:", window.contadorPuntosMarcha);
+        console.warn("⚠️ No hay suficientes puntos en event.detail:", puntos);
     }
 });
 console.log("✅ Event listener para medicionFinalizada registrado globalmente");
-
