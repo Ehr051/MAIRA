@@ -35,7 +35,8 @@ header {
     color: #eee;
     /* Light gray for text */
     padding: 1px;
-    z-index: 10;
+    z-index: 2000; /* Por encima de paneles laterales (1200) */
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -51,18 +52,15 @@ header {
     /* Make buttons occupy full width */
     padding: 1px;
     /* Add padding to the container */
-    z-index: 1;
-    /* Set a higher z-index than the map container */
-    ;
+    z-index: 2001; /* Por encima del header */
+    position: relative;
 }
 
 .menu-btn {
     position: relative;
     flex: 1;
     /* Distribute buttons evenly */
-    z-index: 10;
-    /* Set a higher z-index than the map container */
-    ;
+    z-index: 2002; /* Por encima de botones principales */
 }
 
 .menu-btn button {
@@ -80,9 +78,8 @@ header {
     /* Bold text for emphasis */
     width: 100%;
     /* Make buttons occupy full width */
-    z-index: 10;
-    /* Set a higher z-index than the map container */
-    ;
+    position: relative;
+    z-index: 2003; /* Por encima de menu-btn */
 }
 
 .menu-btn button:hover {
@@ -100,21 +97,18 @@ header {
     /* Dark gray for menus */
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
     border-radius: 5px;
     padding: 10px;
     transition: opacity 0.3s ease;
     /* Smooth transition for opacity */
     left: 0;
     /* Align with the top button */
-    z-index: 10;
-    /* Set a higher z-index than the map container */
-    ;
+    z-index: 2100; /* Menus desplegables por encima de botones */
 }
 
 .menu.show{
     display: block;
-    z-index: 1000;
+    z-index: 2100; /* Igual que .menu */
 }
 
 .leaflet-interactive {
@@ -1151,197 +1145,72 @@ main {
   }
 
   /* Estilo general del panel */
-/* Panel de Turnos y Fases - Responsive Optimizado */
 #panelTurnos {
-  position: fixed;
-  top: 50px;
-  left: 0;
-  right: 0;
-  width: 100%;
-  max-width: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
-  color: white;
-  padding: 15px 20px;
-  font-family: 'Arial', sans-serif;
-  z-index: 1000;
-  border-bottom: 2px solid #0281a8;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Contenido del panel organizado en grid responsive */
-#panelTurnos > div {
-  display: grid;
-  grid-template-columns: 1fr auto auto 150px;
-  gap: 20px;
-  align-items: center;
-  margin: 0;
-}
-
-/* Información de fase y turno más legible */
-#faseActual,
-#turnoActual,
-#jugadorActual {
-  font-weight: 600;
-  font-size: 16px;
-  white-space: nowrap;
-}
-
-#faseActual {
-  color: #4CAF50;
-  font-size: 18px;
-}
-
-#turnoActual {
-  color: #2196F3;
-}
-
-#jugadorActual {
-  color: #FFC107;
-}
-
-/* Reloj de turno mejorado */
-#relojTurno {
-  font-size: 18px;
-  font-weight: bold;
-  padding: 8px 16px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #FF5722, #E64A19);
-  color: white;
-  text-align: center;
-  min-width: 80px;
-  box-shadow: 0 3px 10px rgba(255, 87, 34, 0.4);
-}
-
-/* Botón finalizar turno optimizado */
-#btnFinalizarTurno {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-  min-height: 44px;
-  min-width: 140px;
-}
-
-#btnFinalizarTurno:hover {
-  background: linear-gradient(135deg, #45a049, #3d8b40);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-}
-
-#btnFinalizarTurno:active {
-  transform: translateY(0);
-}
-
-#btnFinalizarTurno:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Botón preparación */
-#btnFinalizarPreparacion {
-  background: linear-gradient(135deg, #2196F3, #1976D2);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
-  min-height: 44px;
-  min-width: 140px;
-}
-
-#btnFinalizarPreparacion:hover {
-  background: linear-gradient(135deg, #1976D2, #1565C0);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
-}
-
-/* RESPONSIVE: Móviles */
-@media (max-width: 768px) {
-  #panelTurnos {
-    padding: 12px 15px;
+    position: absolute;
+    top: 20px;
+    left: 0;
+    padding: 10px;
+    width: 200px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid #444;
+    border-radius: 5px;
+    color: white;
+    font-family: Arial, sans-serif;
     font-size: 14px;
-  }
-  
-  #panelTurnos > div {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
-    gap: 12px;
     text-align: center;
   }
   
+  /* Estilo para los elementos internos */
+  #panelTurnos > div {
+    margin-bottom: 10px;
+  }
+  
   #faseActual,
   #turnoActual,
   #jugadorActual {
-    font-size: 14px;
+    font-weight: bold;
   }
   
-  #faseActual {
-    font-size: 16px;
-  }
-  
+  /* Estilo del reloj */
   #relojTurno {
     font-size: 16px;
-    padding: 6px 12px;
-    justify-self: center;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: transparent;
   }
   
-  #btnFinalizarTurno,
-  #btnFinalizarPreparacion {
+  /* Botones */
+  #btnFinalizarPreparacion,
+  #btnFinalizarTurno {
     width: 100%;
-    max-width: 200px;
-    justify-self: center;
-    padding: 14px 24px;
-    font-size: 15px;
+    margin: 5px 0;
+    padding: 8px;
+    background-color: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
   }
-}
+  
+  #btnFinalizarPreparacion:hover,
+  #btnFinalizarTurno:hover {
+    background-color: #555;
+  }
+  
+  /* Color del reloj según el turno */
+  #relojTurno.azul {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  #relojTurno.rojo {
+    background-color: #dc3545;
+    color: white;
+  }
+  
 
-/* RESPONSIVE: Tablets */
-@media (min-width: 769px) and (max-width: 1024px) {
-  #panelTurnos > div {
-    grid-template-columns: 1fr 1fr auto 130px;
-    gap: 15px;
-  }
-  
-  #btnFinalizarTurno,
-  #btnFinalizarPreparacion {
-    min-width: 120px;
-  }
-}
-
-/* RESPONSIVE: Pantallas muy pequeñas */
-@media (max-width: 480px) {
-  #panelTurnos {
-    padding: 10px 12px;
-  }
-  
-  #panelTurnos > div {
-    gap: 8px;
-  }
-  
-  #faseActual,
-  #turnoActual,
-  #jugadorActual {
-    font-size: 13px;
-  }
-  
-  #relojTurno {
-    font-size: 14px;
-    padding: 5px 10px;
-  }
-}
 /* Contenedor de botones */
 #botonesContainer {
     display: flex;

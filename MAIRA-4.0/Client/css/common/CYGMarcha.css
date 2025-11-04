@@ -122,7 +122,7 @@
     height: 60vh;
     background: var(--panel-bg);
     border-left: 1px solid var(--border-color);
-    z-index: 1900;
+    z-index: 1200; /* Debajo del menú principal (2000) */
     overflow-y: auto;
     box-shadow: -2px 0 10px rgba(0,0,0,0.2);
 }
@@ -531,7 +531,7 @@
     right: var(--panel-width); /* Posiciona en el centro */
     bottom: 0;
     background: var(--color-bg);
-    z-index: 1900;
+    z-index: 1200; /* Debajo del menú principal (2000) */
 }
 
 /* Contenedor del gráfico */
@@ -843,7 +843,7 @@
     right: 0;
     bottom: 0;
     background: var(--color-bg);
-    z-index: 1900;
+    z-index: 1200; /* Debajo del menú principal (2000) */
 }
 
 /* Contenedor de cálculos */
@@ -1046,7 +1046,7 @@
     height: 100vh !important;
     top: 0 !important;
     left: 0 !important;
-    z-index: 9999 !important;
+    z-index: 3000 !important; /* Por encima de todo cuando está en fullscreen */
     margin: 0 !important;
     background: var(--color-bg) !important;
 }
