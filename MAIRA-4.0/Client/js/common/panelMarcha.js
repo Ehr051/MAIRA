@@ -782,7 +782,7 @@
             console.log("Modo para agregar punto de control activado");
             var self = this;
             // No deseleccionar la ruta al agregar puntos de control
-            window.mapa.once('click', function(e) {
+            window.map.once('click', function(e) {
                 self.agregarPuntoControl(e.latlng.lat, e.latlng.lng);
             });
         },

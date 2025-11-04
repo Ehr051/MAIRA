@@ -1,6 +1,6 @@
-/* ===========================
-   VARIABLES CSS COHERENTES
-   =========================== */
+/* =============================================
+   VARIABLES GLOBALES
+   ============================================= */
 :root {
     --color-primary: #0281a8;
     --color-secondary: #00a8cc;
@@ -9,14 +9,145 @@
     --color-border: rgba(2, 129, 168, 0.5);
     --color-text: #e8e8e8;
     --color-text-muted: #a8b2b8;
+    --header-height: 40px;
+    --panel-width: 33.33333%;
+    --panel-height: 33vh;
     --radius-small: 4px;
     --radius-medium: 6px;
     --shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* ===========================
-   PANEL FLOTANTE DERECHO - AJUSTADO A 30%
-   =========================== */
+/* =============================================
+   ESTRUCTURA BASE - SUB-PANELS (3 PANELES INFERIORES)
+   ============================================= */
+.sub-panel {
+    position: fixed;
+    background: var(--color-bg-dark);
+    border: 2px solid var(--color-border);
+    border-bottom: none;
+    border-radius: var(--radius-medium) var(--radius-medium) 0 0;
+    box-shadow: var(--shadow-panel);
+    height: var(--panel-height);
+    width: var(--panel-width);
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Posicionamiento específico de cada panel */
+#perfilElevacionDisplay {
+    left: 0;
+    border-left: none;
+}
+
+#graficoMarchaPanel {
+    left: 33.33%;
+}
+
+#calculoMarchaPanel {
+    right: 0;
+    border-right: none;
+}
+
+/* Fullscreen state para sub-panels */
+.sub-panel.fullscreen {
+    left: 5vw !important;
+    right: 5vw !important;
+    top: 5vh !important;
+    bottom: 5vh !important;
+    width: 90vw !important;
+    height: 90vh !important;
+    z-index: 2000;
+    border: 2px solid var(--color-border);
+}
+
+/* =============================================
+   HEADER COMÚN PARA TODOS LOS PANELES
+   ============================================= */
+.display-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #2a4a5a, var(--color-primary));
+    border-bottom: 2px solid var(--color-primary);
+    height: var(--header-height);
+    min-height: var(--header-height);
+    flex-shrink: 0;
+}
+
+.display-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =============================================
+   CONTROLES DEL HEADER (BOTONES)
+   ============================================= */
+.display-controls {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.display-controls button {
+    padding: 5px 10px;
+    margin: 0;
+    background: linear-gradient(180deg, #2a4a5a 0%, #1a3a4a 100%);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    font-size: 14px;
+    color: #fff;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.display-controls button:hover {
+    background: linear-gradient(180deg, var(--color-primary) 0%, #016a8a 100%);
+    border-color: var(--color-secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(2, 129, 168, 0.4);
+}
+
+.display-controls button:active {
+    transform: translateY(0);
+}
+
+/* =============================================
+   CONTENIDO - ÁREA SCROLLEABLE CRÍTICA
+   ============================================= */
+.display-content {
+    flex: 1;
+    min-height: 0; /* CRÍTICO para flex scroll */
+    overflow: auto !important;
+    padding: 14px;
+    color: var(--color-text);
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Canvas específicos para gráficos */
+#perfilCanvas,
+#graficoMarchaCanvas {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100%;
+    min-height: 100%;
+    display: block;
+}
+
+/* =============================================
+   PANEL MARCHA PRINCIPAL (DERECHO)
+   ============================================= */
 #panelMarchaContainer {
     position: fixed;
     right: 10px;
@@ -56,109 +187,21 @@
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
+    min-height: var(--header-height);
 }
 
 #panelMarchaContainer .contenido {
-    padding: 14px;
-    overflow-y: auto;
-    overflow-x: auto;
     flex: 1;
-    min-height: 0;
-    color: var(--color-text);
-}
-
-/* ===========================
-   PANELES INFERIORES 3x33% - SCROLL COMPLETO
-   =========================== */
-#perfilElevacionDisplay,
-#graficoMarchaPanel,
-#calculoMarchaPanel {
-    position: fixed;
-    bottom: 0;
-    height: 35vh;
-    min-height: 300px;
-    background: var(--color-bg-dark);
-    border: 2px solid var(--color-border);
-    border-bottom: none;
-    border-radius: var(--radius-medium) var(--radius-medium) 0 0;
-    box-shadow: var(--shadow-panel);
-    z-index: 900;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-#perfilElevacionDisplay {
-    left: 0;
-    width: 33.33%;
-    border-left: none;
-}
-
-#graficoMarchaPanel {
-    left: 33.33%;
-    width: 33.33%;
-}
-
-#calculoMarchaPanel {
-    right: 0;
-    width: 33.34%;
-    border-right: none;
-}
-
-/* Fullscreen states */
-#perfilElevacionDisplay.fullscreen,
-#graficoMarchaPanel.fullscreen,
-#calculoMarchaPanel.fullscreen {
-    left: 5vw !important;
-    right: 5vw !important;
-    top: 5vh !important;
-    bottom: 5vh !important;
-    width: 90vw !important;
-    height: 90vh !important;
-    z-index: 2000;
-    border: 2px solid var(--color-border);
-}
-
-.panel-marcha .titulo-panel {
-    background: linear-gradient(135deg, #2a4a5a, var(--color-primary));
-    color: white;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: var(--radius-medium) var(--radius-medium) 0 0;
-    border-bottom: 2px solid var(--color-primary);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.panel-marcha .display-content {
-    padding: 14px;
-    overflow-y: auto;
-    overflow-x: auto;
-    flex: 1;
-    min-height: 0;
-    color: var(--color-text);
-}
-
-/* Canvas para gráficos - SCROLL HABILITADO */
-#perfilCanvas,
-#graficoMarchaCanvas {
-    min-width: 100%;
-    min-height: 100%;
-    display: block;
-}
-
-/* Contenedores de canvas con scroll */
-#perfilElevacionDisplay .display-content,
-#graficoMarchaPanel .display-content {
+    min-height: 0; /* CRÍTICO para flex scroll */
     overflow: auto !important;
+    padding: 14px;
+    color: var(--color-text);
+    -webkit-overflow-scrolling: touch;
 }
 
-/* ===========================
-   SCROLLBARS CUSTOM - HORIZONTALES Y VERTICALES
-   =========================== */
+/* =============================================
+   SCROLLBARS PERSONALIZADOS
+   ============================================= */
 .display-content::-webkit-scrollbar,
 #panelMarchaContainer .contenido::-webkit-scrollbar {
     width: 10px;
@@ -183,7 +226,6 @@
     background: var(--color-secondary);
 }
 
-/* Corner cuando hay scroll horizontal y vertical */
 .display-content::-webkit-scrollbar-corner,
 #panelMarchaContainer .contenido::-webkit-scrollbar-corner {
     background: rgba(0, 0, 0, 0.3);
@@ -196,11 +238,11 @@
     scrollbar-color: var(--color-primary) rgba(0, 0, 0, 0.3);
 }
 
-/* ===========================
-   BOTONES COHERENTES
-   =========================== */
-.panel-marcha button,
-#panelMarchaContainer button,
+/* =============================================
+   BOTONES GENERALES EN PANELES
+   ============================================= */
+.sub-panel button:not(.display-controls button),
+#panelMarchaContainer button:not(.display-controls button),
 #calculoMarchaPanel button,
 #graficoMarchaPanel button,
 #perfilElevacionDisplay button {
@@ -218,48 +260,39 @@
     white-space: nowrap;
 }
 
-.panel-marcha button:hover,
-#panelMarchaContainer button:hover,
-#calculoMarchaPanel button:hover,
-#graficoMarchaPanel button:hover,
-#perfilElevacionDisplay button:hover {
+.sub-panel button:not(.display-controls button):hover,
+#panelMarchaContainer button:not(.display-controls button):hover {
     background: linear-gradient(180deg, var(--color-primary) 0%, #016a8a 100%);
     border-color: var(--color-secondary);
     transform: translateY(-1px);
     box-shadow: 0 3px 8px rgba(2, 129, 168, 0.4);
 }
 
-.panel-marcha button:active {
+.sub-panel button:active {
     transform: translateY(0);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.panel-marcha button.btn-primary {
-    background: linear-gradient(180deg, var(--color-primary) 0%, #016a8a 100%);
+.btn-primary {
+    background: linear-gradient(180deg, var(--color-primary) 0%, #016a8a 100%) !important;
 }
 
-.panel-marcha button.btn-danger {
-    background: linear-gradient(180deg, #c62828 0%, #9a0000 100%);
-    border-color: #d32f2f;
+.btn-danger {
+    background: linear-gradient(180deg, #c62828 0%, #9a0000 100%) !important;
+    border-color: #d32f2f !important;
 }
 
-.panel-marcha button:disabled {
+button:disabled {
     opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
+    cursor: not-allowed !important;
+    transform: none !important;
 }
 
-.btn-fullscreen {
-    padding: 4px 8px;
-    font-size: 16px;
-    line-height: 1;
-}
-
-/* ===========================
-   INPUTS COHERENTES
-   =========================== */
-.panel-marcha input[type="number"],
-.panel-marcha input[type="text"],
+/* =============================================
+   INPUTS
+   ============================================= */
+.sub-panel input[type="number"],
+.sub-panel input[type="text"],
 #panelMarchaContainer input,
 #calculoMarchaPanel input {
     padding: 6px 10px;
@@ -274,17 +307,19 @@
     box-sizing: border-box;
 }
 
-.panel-marcha input:focus {
+.sub-panel input:focus,
+#panelMarchaContainer input:focus {
     outline: none;
     border-color: var(--color-primary);
     background: rgba(20, 30, 40, 0.9);
     box-shadow: 0 0 0 2px rgba(2, 129, 168, 0.3);
 }
 
-/* ===========================
-   TABLAS COHERENTES CON SCROLL
-   =========================== */
-.panel-marcha table {
+/* =============================================
+   TABLAS
+   ============================================= */
+.sub-panel table,
+#panelMarchaContainer table {
     width: 100%;
     min-width: 400px;
     border-collapse: collapse;
@@ -292,7 +327,8 @@
     margin: 10px 0;
 }
 
-.panel-marcha table th {
+.sub-panel table th,
+#panelMarchaContainer table th {
     background: rgba(2, 129, 168, 0.25);
     color: var(--color-text);
     padding: 7px 10px;
@@ -304,20 +340,23 @@
     z-index: 10;
 }
 
-.panel-marcha table td {
+.sub-panel table td,
+#panelMarchaContainer table td {
     padding: 6px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--color-text-muted);
 }
 
-.panel-marcha table tr:hover {
+.sub-panel table tr:hover,
+#panelMarchaContainer table tr:hover {
     background: rgba(2, 129, 168, 0.15);
 }
 
-/* ===========================
+/* =============================================
    LABELS Y TEXTOS
-   =========================== */
-.panel-marcha label {
+   ============================================= */
+.sub-panel label,
+#panelMarchaContainer label {
     display: block;
     margin: 8px 0 4px 0;
     font-size: 12px;
@@ -325,26 +364,15 @@
     font-weight: 500;
 }
 
-.panel-marcha .info-text {
+.info-text {
     font-size: 11px;
     color: var(--color-text-muted);
     margin: 6px 0;
 }
 
-/* ===========================
-   FORZAR SCROLL EN TODOS LOS CONTENEDORES
-   =========================== */
-#calculoMarchaPanel .display-content,
-#graficoMarchaPanel .display-content,
-#perfilElevacionDisplay .display-content,
-#panelMarchaContainer .contenido {
-    overflow: auto !important;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* ===========================
+/* =============================================
    RESPONSIVE
-   =========================== */
+   ============================================= */
 @media screen and (max-width: 1400px) {
     #panelMarchaContainer { 
         width: 32%; 
@@ -357,11 +385,8 @@
         width: 35%; 
         max-width: 400px; 
     }
-    #perfilElevacionDisplay,
-    #graficoMarchaPanel,
-    #calculoMarchaPanel { 
-        height: 32vh;
-        min-height: 250px;
+    .sub-panel {
+        height: 30vh;
     }
 }
 
@@ -370,11 +395,8 @@
         width: 40%;
         max-width: 350px;
     }
-    #perfilElevacionDisplay,
-    #graficoMarchaPanel,
-    #calculoMarchaPanel {
-        height: 30vh;
-        min-height: 220px;
+    .sub-panel {
+        height: 28vh;
     }
 }
 
@@ -385,14 +407,11 @@
         top: 60px;
         max-height: 50vh;
     }
-    #perfilElevacionDisplay,
-    #graficoMarchaPanel,
-    #calculoMarchaPanel {
+    .sub-panel {
         position: relative;
         width: 100% !important;
         left: 0 !important;
         right: 0 !important;
         height: 40vh;
-        min-height: 200px;
     }
 }
