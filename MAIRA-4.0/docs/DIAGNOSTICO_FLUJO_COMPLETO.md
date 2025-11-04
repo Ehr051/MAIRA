@@ -41,11 +41,11 @@ http://127.0.0.1:5000/Client/planeamiento_integrado.html
 ⏱️ Tiempo total workflow: timer started
 
 // PASO 1: CAPTURA
-📸 [WORKFLOW] PASO 1/4: Capturando mapa...
-⏱️ Captura mapa: timer started
+📸 [WORKFLOW] PASO 1/4: Capturando map...
+⏱️ Captura map: timer started
 // ... logs de leaflet-image ...
-⏱️ Captura mapa: XXXms
-✅ [WORKFLOW] Mapa capturado
+⏱️ Captura map: XXXms
+✅ [WORKFLOW] map capturado
 
 // PASO 2: ANÁLISIS
 🔍 [WORKFLOW] PASO 2/4: Analizando imagen...

@@ -185,12 +185,12 @@ class RefactoringTest {
             this.resultados.push('ℹ️ btnMedirDistancia no encontrado (normal en algunas páginas)');
         }
 
-        // Verificar mapa de migración
+        // Verificar map de migración
         if (window.HERRAMIENTAS_P_MIGRATION_MAP) {
-            this.resultados.push('✅ Mapa de migración: Cargado');
+            this.resultados.push('✅ map de migración: Cargado');
             this.resultados.push(`ℹ️ Módulos creados: ${window.HERRAMIENTAS_P_MIGRATION_MAP.refactorization_info.total_modules_created}`);
         } else {
-            this.errores.push('❌ Mapa de migración: No disponible');
+            this.errores.push('❌ map de migración: No disponible');
         }
     }
 

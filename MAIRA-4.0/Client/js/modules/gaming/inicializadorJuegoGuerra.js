@@ -208,10 +208,10 @@ class InicializadorJuegoGuerra {
     
     async configurarVista3D() {
         try {
-            // Inicializar mapa base primero (requerido por GestorMapa)
+            // Inicializar map base primero (requerido por GestorMapa)
             if (typeof inicializarMapa === 'function') {
                 inicializarMapa();
-                console.log('✅ Mapa base inicializado');
+                console.log('✅ map base inicializado');
             } else {
                 console.warn('⚠️ Función inicializarMapa no disponible');
             }
@@ -222,10 +222,10 @@ class InicializadorJuegoGuerra {
                 console.log('✅ Sistema 3D integrado configurado');
             }
             
-            // Inicializar Visor Mapa 3D Mejorado (basado en test_mapa3d.html)
+            // Inicializar Visor map 3D Mejorado (basado en test_mapa3d.html)
             if (typeof VisorMapa3DMejorado !== 'undefined') {
                 window.visorMapa3DMejorado = new VisorMapa3DMejorado('map');
-                console.log('✅ Visor Mapa 3D Mejorado configurado');
+                console.log('✅ Visor map 3D Mejorado configurado');
             }
             
             // Configurar funcionalidades mejoradas
@@ -246,7 +246,7 @@ class InicializadorJuegoGuerra {
     activarSistema3DOptimo() {
         // Priorizar el visor mejorado si está disponible
         if (window.visorMapa3DMejorado) {
-            console.log('🗺️ Activando Visor Mapa 3D Mejorado');
+            console.log('🗺️ Activando Visor map 3D Mejorado');
             window.visorMapa3DMejorado.cambiarAVista3D();
         } else if (window.sistema3DIntegrado) {
             console.log('🎮 Activando Sistema 3D Integrado');

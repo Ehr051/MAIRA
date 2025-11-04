@@ -17,7 +17,7 @@
  *
  * CARACTERÍSTICAS FINALES:
  * ✅ Modelos GLTF reales (tanques, soldados, vehículos)
- * ✅ Sincronización perfecta con mapa 2D
+ * ✅ Sincronización perfecta con map 2D
  * ✅ Terreno procedural con elevación
  * ✅ Iluminación profesional (sombras, ambiente)
  * ✅ Controles intuitivos (órbita, zoom, pan)
@@ -49,7 +49,7 @@ class MAIRA3DMaster {
         this.mouse = new THREE.Vector2();
 
         // === CONTENEDORES DOM ===
-        this.container2D = null; // Mapa Leaflet
+        this.container2D = null; // map Leaflet
         this.container3D = null; // Canvas Three.js
         this.uiPanel = null; // Panel de control
 
@@ -162,7 +162,7 @@ class MAIRA3DMaster {
             // Crear UI unificada
             this.createUI();
 
-            // Configurar sincronización con mapa 2D
+            // Configurar sincronización con map 2D
             this.setupMapSync();
 
             this.initialized = true;
@@ -627,10 +627,10 @@ class MAIRA3DMaster {
     }
 
     /**
-     * SINCRONIZACIÓN CON MAPA 2D
+     * SINCRONIZACIÓN CON map 2D
      */
     setupMapSync() {
-        // Escuchar eventos del mapa 2D
+        // Escuchar eventos del map 2D
         document.addEventListener('maira-unit-added', (event) => {
             this.addMilitaryUnit(event.detail);
         });
@@ -1305,14 +1305,14 @@ class MAIRA3DMaster {
     }
 
     /**
-     * SINCRONIZACIÓN CON MAPA 2D
+     * SINCRONIZACIÓN CON map 2D
      */
     syncWith2DMap() {
         try {
-            // Obtener elementos del mapa 2D
+            // Obtener elementos del map 2D
             let mapElements = [];
 
-            // Intentar diferentes formas de acceder al mapa
+            // Intentar diferentes formas de acceder al map
             if (window.map && window.map.eachLayer) {
                 window.map.eachLayer((layer) => {
                     if (layer.options && layer.options.sidc) {
@@ -1331,29 +1331,29 @@ class MAIRA3DMaster {
             // Limpiar unidades existentes
             this.clearMilitaryUnits();
 
-            // Agregar unidades del mapa 2D
+            // Agregar unidades del map 2D
             mapElements.forEach(element => {
                 this.addMilitaryUnit(element);
             });
 
-            console.log(`🔄 Sincronizadas ${mapElements.length} unidades del mapa 2D`);
+            console.log(`🔄 Sincronizadas ${mapElements.length} unidades del map 2D`);
 
         } catch (error) {
-            console.error('❌ Error sincronizando con mapa 2D:', error);
+            console.error('❌ Error sincronizando con map 2D:', error);
         }
     }
 
-    // 🗺️ SINCRONIZACIÓN CON MAPA 2D
+    // 🗺️ SINCRONIZACIÓN CON map 2D
     sincronizarConMapa2D(elementosMapa = []) {
         if (!this.escena) {
             console.warn('⚠️ Escena 3D no inicializada');
             return;
         }
 
-        console.log('🔄 Sincronizando mapa 2D con vista 3D...');
+        console.log('🔄 Sincronizando map 2D con vista 3D...');
 
         try {
-            // Actualizar terreno basado en bounds del mapa
+            // Actualizar terreno basado en bounds del map
             if (this.sistemaTerreno && window.map) {
                 const bounds = window.map.getBounds();
                 const geoBounds = {
@@ -1366,16 +1366,16 @@ class MAIRA3DMaster {
                 this.sistemaTerreno.actualizarTerreno(geoBounds);
             }
 
-            // Sincronizar elementos del mapa (unidades, marcadores, etc.)
+            // Sincronizar elementos del map (unidades, marcadores, etc.)
             this.sincronizarElementosMapa(elementosMapa);
 
             // Actualizar posiciones de unidades en 3D
             this.actualizarPosicionesUnidades3D();
 
-            console.log('✅ Sincronización mapa 2D↔3D completada');
+            console.log('✅ Sincronización map 2D↔3D completada');
 
         } catch (error) {
-            console.error('❌ Error en sincronización mapa 2D:', error);
+            console.error('❌ Error en sincronización map 2D:', error);
         }
     }
 
@@ -1677,7 +1677,7 @@ class MAIRA3DMaster {
 
         console.log('🔄 Cambiando a vista 3D...');
 
-        // Ocultar mapa 2D
+        // Ocultar map 2D
         if (this.container2D) {
             this.container2D.style.display = 'none';
         }
@@ -1719,7 +1719,7 @@ class MAIRA3DMaster {
             this.container3D.style.display = 'none';
         }
 
-        // Mostrar mapa 2D
+        // Mostrar map 2D
         if (this.container2D) {
             this.container2D.style.display = 'block';
         }
@@ -1740,7 +1740,7 @@ class MAIRA3DMaster {
         this.container3D.id = 'vista3DContainer';
         
         if (isJuegoGuerra) {
-            // En juegodeguerra: contenedor sobre el mapa, dejando panel inferior visible
+            // En juegodeguerra: contenedor sobre el map, dejando panel inferior visible
             this.container3D.style.cssText = `
                 position: absolute;
                 top: 0;
@@ -1769,12 +1769,12 @@ class MAIRA3DMaster {
 
         this.container3D.innerHTML = `
             <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; gap: 10px; align-items: center;">
-                <h4 style="color: #00ff00; margin: 0; font-family: 'Courier New', monospace; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">🎮 Vista 3D - Representación del Mapa</h4>
+                <h4 style="color: #00ff00; margin: 0; font-family: 'Courier New', monospace; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">🎮 Vista 3D - Representación del map</h4>
                 <button onclick="window.maira3DMaster.cambiarAVista2D()" style="background: rgba(255,0,0,0.8); border: 1px solid #ff6666; color: #fff; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">✕ Salir del 3D</button>
             </div>
             <canvas id="canvas-3d-maestro" width="100%" height="100%" style="width: 100%; height: 100%; background: #87CEEB;"></canvas>
             <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #00ff00; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10001;">
-                <span>🔄 Arrastrar para rotar • 🔍 Scroll para zoom • ESC para salir • Esta vista representa el área donde está viendo el usuario en el mapa</span>
+                <span>🔄 Arrastrar para rotar • 🔍 Scroll para zoom • ESC para salir • Esta vista representa el área donde está viendo el usuario en el map</span>
             </div>
         `;
 
@@ -2326,16 +2326,16 @@ class MAIRA3DMaster {
             elementData.element3D.parent.remove(elementData.element3D);
         }
 
-        // Remover de mapa de elementos
+        // Remover de map de elementos
         this.calco3DElements.delete(layerId);
     }
 
     /**
      * CONVERSIÓN MEJORADA DE COORDENADAS LAT/LNG A POSICIÓN 3D
-     * Considera el centro del mapa actual para mejor precisión
+     * Considera el centro del map actual para mejor precisión
      */
     latLngToPosition(lat, lng) {
-        // Usar centro del mapa si está disponible
+        // Usar centro del map si está disponible
         const centerLat = this.centerLat || (window.map && window.map.getCenter ? window.map.getCenter().lat : 0);
         const centerLng = this.centerLng || (window.map && window.map.getCenter ? window.map.getCenter().lng : 0);
 

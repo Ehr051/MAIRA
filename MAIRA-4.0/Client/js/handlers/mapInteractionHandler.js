@@ -1,7 +1,7 @@
 /**
- * @fileoverview Manejador de interacciones del mapa - VERSIÓN LEAFLET
+ * @fileoverview Manejador de interacciones del map - VERSIÓN LEAFLET
  * @version 2.0.0
- * @description Módulo especializado para selección y manipulación de elementos del mapa con Leaflet
+ * @description Módulo especializado para selección y manipulación de elementos del map con Leaflet
  * Convertido de OpenLayers a Leaflet para compatibilidad con el sistema original
  */
 
@@ -16,7 +16,7 @@ class MapInteractionHandler {
     }
 
     /**
-     * Selecciona un elemento en el mapa
+     * Selecciona un elemento en el map
      */
     seleccionarElemento(elemento) {
         console.log('🎯 Seleccionando elemento:', elemento);
@@ -203,8 +203,8 @@ class MapInteractionHandler {
                 fillOpacity: 0.3
             });
             
-            if (window.mapa) {
-                this.circuloSeleccion.addTo(window.mapa);
+            if (window.map) {
+                this.circuloSeleccion.addTo(window.map);
             }
         }
     }
@@ -583,22 +583,22 @@ class MapInteractionHandler {
     }
 
     /**
-     * Inicializa los event listeners para interacciones del mapa
+     * Inicializa los event listeners para interacciones del map
      */
     inicializarEventListeners() {
-        // Buscar mapa Leaflet
-        const mapa = window.mapa || window.map || null;
-        if (!mapa) {
-            console.warn('⚠️ Mapa Leaflet no disponible para inicializar event listeners');
+        // Buscar map Leaflet
+        const map = window.map || window.map || null;
+        if (!map) {
+            console.warn('⚠️ map Leaflet no disponible para inicializar event listeners');
             return;
         }
 
-        // Event listener para click en el mapa usando Leaflet
-        mapa.on('click', (evt) => {
+        // Event listener para click en el map usando Leaflet
+        map.on('click', (evt) => {
             const layers = [];
             
             // Buscar layers en el punto clickeado
-            mapa.eachLayer((layer) => {
+            map.eachLayer((layer) => {
                 if (layer.feature || layer._layers) {
                     layers.push(layer);
                 }

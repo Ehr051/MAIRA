@@ -171,7 +171,7 @@ async inicializarGestores(config) {
         },
         
         { 
-            nombre: 'Inicializando mapa...', 
+            nombre: 'Inicializando map...', 
             gestor: 'GestorMapa',
             configExtra: {
                 centro: config.centro,
@@ -263,13 +263,13 @@ verificarEstadoJuego() {
         const estadoValido = 
             this.gestorFases?.fase &&
             this.gestorTurnos?.jugadorActual &&
-            this.gestorMapa?.mapa;
+            this.gestorMapa?.map;
             
         if (!estadoValido) {
             console.error('Estado del juego inválido', {
                 fase: this.gestorFases?.fase,
                 jugadorActual: this.gestorTurnos?.jugadorActual,
-                mapa: !!this.gestorMapa?.mapa
+                map: !!this.gestorMapa?.map
             });
             throw new Error('Estado del juego inválido');
         }
@@ -314,7 +314,7 @@ configurarEventos() {
                     });
                 }
         
-                // Eventos del mapa
+                // Eventos del map
                 if (this.gestorMapa?.emisorEventos) {
                     this.gestorMapa.emisorEventos.on('elementoCreado', (elemento) => {
                         this.manejarElementoCreado(elemento);
@@ -632,7 +632,7 @@ configurarEventos() {
             // Detener todos los procesos activos
             this.gestorTurnos.detenerReloj();
             
-            // Limpiar el mapa
+            // Limpiar el map
             this.gestorMapa.limpiarCalco();
             
             // Notificar al servidor en modo online

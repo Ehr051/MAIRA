@@ -147,12 +147,12 @@ class MAIRAServicesManager {
             console.log('🔗 Integrando transitabilidad con análisis de pendientes');
         }
 
-        // Integrar mapa 3D con sistema de combate
+        // Integrar map 3D con sistema de combate
         const threeDMap = this.getService('threeDMap');
         const combatSystem3D = this.getService('combatSystem3D');
         
         if (threeDMap && combatSystem3D) {
-            console.log('🔗 Integrando mapa 3D con sistema de combate');
+            console.log('🔗 Integrando map 3D con sistema de combate');
         }
 
         console.log('✅ Integraciones configuradas');

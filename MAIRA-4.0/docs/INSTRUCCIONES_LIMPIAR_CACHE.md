@@ -36,7 +36,7 @@ console.log("Cache limpiado - listo para ver logs nuevos");
 
 ### 4. Genera el terreno 3D
 
-1. En el mapa, navega a las sierras: **-38.07°, -62.00°**
+1. En el map, navega a las sierras: **-38.07°, -62.00°**
 2. Genera el terreno 3D
 3. **INMEDIATAMENTE mira la consola del navegador**
 

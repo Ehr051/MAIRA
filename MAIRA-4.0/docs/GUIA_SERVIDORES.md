@@ -214,7 +214,7 @@ curl -k https://localhost:5001/assets/models/vegetation/tree.glb
 
 1. Abre: https://localhost:5001/Client/planeamiento_integrado.html
 2. Acepta advertencia certificado
-3. Haz zoom >= 15 en el mapa
+3. Haz zoom >= 15 en el map
 4. Click en "Generar Vista 3D"
 5. **Espera** a que cargue THREE.js (ver consola)
 6. Verifica que aparece canvas 3D con terreno

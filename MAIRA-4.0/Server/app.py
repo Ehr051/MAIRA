@@ -3776,7 +3776,7 @@ def fix_json_configuracion():
                         "nombre": f"Partida {codigo}",
                         "max_jugadores": 8,
                         "tipo_juego": "estrategia",
-                        "mapa": "default",
+                        "map": "default",
                         "duracion_turno": 60
                     })
                     
@@ -4399,7 +4399,7 @@ def manejar_accion_juego(data):
 
 @socketio.on('moverElemento')
 def manejar_mover_elemento(data):
-    """Maneja movimiento de elementos en el mapa"""
+    """Maneja movimiento de elementos en el map"""
     try:
         codigo_partida = data.get('codigo')
         elemento_id = data.get('elementoId')

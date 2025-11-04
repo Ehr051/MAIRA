@@ -2236,9 +2236,9 @@ async function generateTerrainDirect() {
         showLoadingModal('📸 Capturando imágenes satelitales de alta calidad...', 0);
     }
     
-    // Validar que el mapa existe
+    // Validar que el map existe
     if (!map) {
-        throw new Error('Mapa no inicializado');
+        throw new Error('map no inicializado');
     }
     
     console.log('🗺️ Objeto map:', map);
@@ -2269,7 +2269,7 @@ async function generateTerrainDirect() {
             }
         }
         
-        throw new Error('No se pudieron obtener bounds válidos del mapa');
+        throw new Error('No se pudieron obtener bounds válidos del map');
     }
     
     return await generateTerrainDirectWithBounds(capturedBounds);
@@ -2388,7 +2388,7 @@ async function generateTerrainDirectWithBounds(capturedBounds) {
                 } else {
                     console.log('📸 Capturando imagen satelital con leaflet-image...');
                     
-                    // 🎯 CRÍTICO: Ajustar mapa para capturar TODA el área en zoom máximo
+                    // 🎯 CRÍTICO: Ajustar map para capturar TODA el área en zoom máximo
                     const originalZoom = window.map.getZoom();
                     const originalCenter = window.map.getCenter();
                     const originalBounds = window.map.getBounds();
@@ -2402,12 +2402,12 @@ async function generateTerrainDirectWithBounds(capturedBounds) {
                     });
                     
                     // 🎯 ESTRATEGIA MEJORADA: Captura MÚLTIPLE de tiles en zoom máximo
-                    // � CAPTURA SIMPLE: 1 tile, zoom actual del mapa (rápido)
+                    // � CAPTURA SIMPLE: 1 tile, zoom actual del map (rápido)
                     console.log('📸 Capturando imagen satelital en zoom actual...');
                     
-                    // Usar el zoom ACTUAL del mapa (18-19 cerca, 14-16 lejos)
+                    // Usar el zoom ACTUAL del map (18-19 cerca, 14-16 lejos)
                     const captureZoom = originalZoom;
-                    console.log(`🎯 Zoom de captura: ${captureZoom} (mismo que el mapa)`);
+                    console.log(`🎯 Zoom de captura: ${captureZoom} (mismo que el map)`);
                     
                     // Capturar 1 solo tile del centro
                     const centerLat = capturedBounds.getCenter().lat;
@@ -2432,10 +2432,10 @@ async function generateTerrainDirectWithBounds(capturedBounds) {
                     });
                     console.log(`🧹 ${tempRemovedLayers.length} layers temporalmente removidos para captura`);
                     
-                    // Esperar que carguen los tiles del mapa
+                    // Esperar que carguen los tiles del map
                     await new Promise(resolve => setTimeout(resolve, 1500));
                     
-                    // Capturar el canvas del mapa (SOLO tiles, sin marcadores)
+                    // Capturar el canvas del map (SOLO tiles, sin marcadores)
                     const capturedCanvas = await new Promise((resolve) => {
                         leafletImage(window.map, function(err, canvas) {
                             if (err) {
@@ -2467,7 +2467,7 @@ async function generateTerrainDirectWithBounds(capturedBounds) {
                     
                     // Crear analyzer con el canvas capturado
                     try {
-                        // 🎯 SAMPLING RATE ADAPTATIVO según zoom del mapa
+                        // 🎯 SAMPLING RATE ADAPTATIVO según zoom del map
                         // ⚠️ CRÍTICO: samplingRate = "1 de cada N píxeles"
                         //    samplingRate=1 = TODOS los píxeles (máximo detalle, lento)
                         //    samplingRate=2 = 1 de cada 2 (50% píxeles)
@@ -2990,14 +2990,14 @@ function ejecutarPruebasIntegracionSIDC3D() {
     }, 6000);
 }
 
-// Función para agregar marcador de prueba en el mapa
+// Función para agregar marcador de prueba en el map
 function agregarMarcadorPruebaSIDC(sidc, lat = null, lng = null) {
     if (!window.map) {
-        console.error('❌ Mapa no disponible');
+        console.error('❌ map no disponible');
         return;
     }
     
-    // Usar coordenadas centrales del mapa si no se especifican
+    // Usar coordenadas centrales del map si no se especifican
     if (lat === null || lng === null) {
         const center = window.map.getCenter();
         lat = center.lat + (Math.random() - 0.5) * 0.01; // Pequeña variación aleatoria
@@ -3016,11 +3016,11 @@ function agregarMarcadorPruebaSIDC(sidc, lat = null, lng = null) {
     // Usar la función agregarMarcador existente si está disponible
     if (typeof agregarMarcador === 'function') {
         agregarMarcador(sidc, `Prueba ${sidc}`, markerOptions);
-        console.log(`✅ Marcador SIDC ${sidc} agregado en mapa`);
+        console.log(`✅ Marcador SIDC ${sidc} agregado en map`);
     } else {
         // Fallback: crear marcador básico
         const marker = L.marker([lat, lng], markerOptions).addTo(window.map);
-        console.log(`✅ Marcador básico SIDC ${sidc} agregado en mapa`);
+        console.log(`✅ Marcador básico SIDC ${sidc} agregado en map`);
     }
     
     // Probar integración 3D
@@ -3123,7 +3123,7 @@ function testSIDC3DMarker(sidc) {
             return;
         }
 
-        // Crear marcador en el centro del mapa con variación aleatoria
+        // Crear marcador en el centro del map con variación aleatoria
         const center = window.map.getCenter();
         const latlng = [center.lat + (Math.random() - 0.5) * 0.01, center.lng + (Math.random() - 0.5) * 0.01];
 
@@ -3161,7 +3161,7 @@ function testMCC3DMarker(mccCode) {
     }
 
     try {
-        // Crear elemento MCC en el centro del mapa
+        // Crear elemento MCC en el centro del map
         const center = window.map.getCenter();
         const latlng = [center.lat + (Math.random() - 0.5) * 0.01, center.lng + (Math.random() - 0.5) * 0.01];
 

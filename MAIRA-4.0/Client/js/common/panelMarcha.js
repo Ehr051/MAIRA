@@ -516,7 +516,7 @@
                         window.lineaActual = window.measurementHandler.crearLinea();
                     }
                     
-                    console.log("✅ Medición iniciada - haz clic en el mapa para comenzar");
+                    console.log("✅ Medición iniciada - haz clic en el map para comenzar");
                     
                     // Configurar event listeners
                     if (typeof window.addDistancePoint === 'function') {
@@ -526,7 +526,7 @@
                         window.map.on('mousemove', window.actualizarDistanciaProvisional);
                     }
                 } else {
-                    console.error("❌ No hay mapa disponible");
+                    console.error("❌ No hay map disponible");
                 }
             }
         },
@@ -639,7 +639,7 @@
                 sidc: sidc
             });
             
-            // ✅ AGREGAR AL MAPA Y A LA LISTA DE PUNTOS DE CONTROL
+            // ✅ AGREGAR AL map Y A LA LISTA DE PUNTOS DE CONTROL
             if (window.map) {
                 marker.addTo(window.map);
             }

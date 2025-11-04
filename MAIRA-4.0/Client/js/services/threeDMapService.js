@@ -667,7 +667,7 @@ function toggleVista3D() {
 }
 
 /**
- * Sincronizar elementos del mapa 2D con la vista 3D
+ * Sincronizar elementos del map 2D con la vista 3D
  */
 function sincronizarElementosMapa() {
     if (!threeDMapInstance || !threeDMapInstance.isInitialized) {
@@ -679,7 +679,7 @@ function sincronizarElementosMapa() {
         // Limpiar unidades existentes
         threeDMapInstance.clearMilitaryUnits();
 
-        // Obtener elementos del mapa 2D
+        // Obtener elementos del map 2D
         const elementos = obtenerElementosDelMapa();
 
         let unidadesAgregadas = 0;
@@ -708,7 +708,7 @@ function sincronizarElementosMapa() {
 }
 
 /**
- * Obtener elementos del mapa 2D (adaptable según el sistema)
+ * Obtener elementos del map 2D (adaptable según el sistema)
  */
 function obtenerElementosDelMapa() {
     const elementos = [];
@@ -720,8 +720,8 @@ function obtenerElementosDelMapa() {
         }
 
         // Método 2: Buscar en capas de Leaflet
-        if (window.mapa && window.mapa.eachLayer) {
-            window.mapa.eachLayer(layer => {
+        if (window.map && window.map.eachLayer) {
+            window.map.eachLayer(layer => {
                 if (layer.elemento && layer.elemento.lat && layer.elemento.lng) {
                     elementos.push(layer.elemento);
                 } else if (layer.getLatLng && layer.options && layer.options.sidc) {
@@ -748,7 +748,7 @@ function obtenerElementosDelMapa() {
         return elementos;
 
     } catch (error) {
-        console.error('❌ Error obteniendo elementos del mapa:', error);
+        console.error('❌ Error obteniendo elementos del map:', error);
         return [];
     }
 }
@@ -863,7 +863,7 @@ function activarVista3D() {
                 threeDMapInstance.render();
 
                 // ✅ SINCRONIZAR SÍMBOLOS MILITARES AUTOMÁTICAMENTE
-                console.log('🎖️ Sincronizando símbolos militares del mapa...');
+                console.log('🎖️ Sincronizando símbolos militares del map...');
                 sincronizarElementosMapa();
             }, 500);
             
@@ -904,7 +904,7 @@ async function generateRealTerrain() {
     const data = new Float32Array(size * size);
 
     try {
-        // Obtener bounds del mapa actual
+        // Obtener bounds del map actual
         const mapBounds = window.map ? window.map.getBounds() : null;
         let bounds;
 

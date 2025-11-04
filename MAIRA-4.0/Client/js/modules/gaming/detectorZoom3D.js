@@ -16,7 +16,7 @@ class DetectorZoom3D {
     
     inicializar() {
         if (!this.map) {
-            console.warn('⚠️ DetectorZoom3D: Mapa no disponible');
+            console.warn('⚠️ DetectorZoom3D: map no disponible');
             return;
         }
         
@@ -232,14 +232,14 @@ class DetectorZoom3D {
             }
         }
         
-        // Prioridad 2: Visor Mapa 3D Mejorado instanciado
+        // Prioridad 2: Visor map 3D Mejorado instanciado
         if (window.visorMapa3DMejorado && typeof window.visorMapa3DMejorado.cambiarAVista3D === 'function') {
             try {
                 window.visorMapa3DMejorado.cambiarAVista3D();
-                console.log('✅ Visor Mapa 3D Mejorado activado');
+                console.log('✅ Visor map 3D Mejorado activado');
                 return;
             } catch (error) {
-                console.warn('⚠️ Error activando Visor Mapa 3D Mejorado:', error);
+                console.warn('⚠️ Error activando Visor map 3D Mejorado:', error);
             }
         }
         
@@ -337,20 +337,20 @@ class DetectorZoom3D {
 // Exportar para uso global
 window.DetectorZoom3D = DetectorZoom3D;
 
-// Auto-inicialización si hay mapa disponible
+// Auto-inicialización si hay map disponible
 document.addEventListener('DOMContentLoaded', () => {
-    // Esperar a que el mapa esté disponible
+    // Esperar a que el map esté disponible
     const esperarMapa = () => {
-        // Verificar tanto window.mapa como window.map para compatibilidad
-        const mapaInstance = window.mapa || window.map;
+        // Verificar tanto window.map como window.map para compatibilidad
+        const mapaInstance = window.map || window.map;
         if (mapaInstance) {
             window.detectorZoom3D = new DetectorZoom3D(mapaInstance);
-            console.log('✅ DetectorZoom3D auto-inicializado con mapa:', mapaInstance ? 'encontrado' : 'no encontrado');
+            console.log('✅ DetectorZoom3D auto-inicializado con map:', mapaInstance ? 'encontrado' : 'no encontrado');
         } else {
-            console.log('🔍 Esperando mapa... intento en 1s');
+            console.log('🔍 Esperando map... intento en 1s');
             setTimeout(esperarMapa, 1000);
         }
     };
     
-    setTimeout(esperarMapa, 2000); // Dar tiempo a que se cargue el mapa
+    setTimeout(esperarMapa, 2000); // Dar tiempo a que se cargue el map
 });

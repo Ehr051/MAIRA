@@ -16,7 +16,7 @@ const HexGrid = {
 
         this.createInitialGrid();
 
-        // Eventos del mapa
+        // Eventos del map
         map.on('moveend', this.updateVisibleHexagons.bind(this));
         map.on('zoomend', this.handleZoomChange.bind(this));
 

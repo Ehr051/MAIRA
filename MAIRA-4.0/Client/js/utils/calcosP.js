@@ -1,5 +1,5 @@
 // calcos.js
-// Este archivo maneja la creación, gestión y guardado de calcos (capas) en el mapa
+// Este archivo maneja la creación, gestión y guardado de calcos (capas) en el map
 
 // Objeto para almacenar los calcos
 var calcos = {};
@@ -13,7 +13,7 @@ function crearNuevoCalco() {
     var nuevoCalco = L.layerGroup();
     calcos[nombreCalco] = nuevoCalco;
   
-    nuevoCalco.addTo(mapa); 
+    nuevoCalco.addTo(map); 
   
     setCalcoActivo(nombreCalco);
     agregarCalcoALista(nombreCalco);
@@ -24,10 +24,10 @@ function crearNuevoCalco() {
 function setCalcoActivo(nombreCalco) {
     console.log("Estableciendo calco activo:", nombreCalco);
     if (window.calcoActivo) {
-        mapa.removeLayer(window.calcoActivo);
+        map.removeLayer(window.calcoActivo);
     }
     window.calcoActivo = calcos[nombreCalco];
-    mapa.addLayer(window.calcoActivo);
+    map.addLayer(window.calcoActivo);
     actualizarInterfazCalcos();
 }
   
@@ -94,7 +94,7 @@ function actualizarElementosList(nombreCalco) {
             `;
             
             item.addEventListener('click', function() {
-                mapa.setView(layer.getLatLng ? layer.getLatLng() : layer.getBounds().getCenter());
+                map.setView(layer.getLatLng ? layer.getLatLng() : layer.getBounds().getCenter());
                 seleccionarElemento(layer);
             });
             lista.appendChild(item);
@@ -155,10 +155,10 @@ function toggleCalcoVisibility(nombreCalco) {
     console.log("Alternando visibilidad del calco:", nombreCalco);
     var calco = calcos[nombreCalco];
     if (calco) {
-        if (mapa.hasLayer(calco)) {
-            mapa.removeLayer(calco);
+        if (map.hasLayer(calco)) {
+            map.removeLayer(calco);
         } else {
-            calco.addTo(mapa);
+            calco.addTo(map);
         }
     } else {
         console.error("El calco '" + nombreCalco + "' no existe.");
@@ -189,7 +189,7 @@ function renameCalco(nombreCalco) {
 // Función para eliminar un calco
 function eliminarCalco(nombreCalco) {
     if (confirm("¿Estás seguro de que quieres eliminar el calco \"" + nombreCalco + "\"?")) {
-        mapa.removeLayer(calcos[nombreCalco]);
+        map.removeLayer(calcos[nombreCalco]);
         delete calcos[nombreCalco];
         if (window.calcoActivo === calcos[nombreCalco]) {
             window.calcoActivo = null;
@@ -343,7 +343,7 @@ function aplicarPatronRelleno(elemento, tipoRelleno, color) {
         }
         
         if (patron) {
-            patron.addTo(window.mapa);
+            patron.addTo(window.map);
             elemento.setStyle({ fillPattern: patron });
             console.log(`✅ Patrón ${tipoRelleno} aplicado correctamente`);
         }
@@ -737,11 +737,11 @@ function cargarCalco() {
                     contador++;
                 }
                 
-                var nuevoCalco = L.layerGroup().addTo(mapa);
+                var nuevoCalco = L.layerGroup().addTo(map);
                 calcos[nombreCalco] = nuevoCalco;
                 
                 if (escenario.vista) {
-                    mapa.setView(escenario.vista.centro, escenario.vista.zoom);
+                    map.setView(escenario.vista.centro, escenario.vista.zoom);
                 }
 
                 var contadoresCarga = {
@@ -1177,20 +1177,20 @@ function eliminarElementoSeleccionado() {
         if (window.elementoSeleccionado.textoMarcador) {
             if (window.calcoActivo && window.calcoActivo.hasLayer(window.elementoSeleccionado.textoMarcador)) {
                 window.calcoActivo.removeLayer(window.elementoSeleccionado.textoMarcador);
-            } else if (mapa.hasLayer(window.elementoSeleccionado.textoMarcador)) {
-                mapa.removeLayer(window.elementoSeleccionado.textoMarcador);
+            } else if (map.hasLayer(window.elementoSeleccionado.textoMarcador)) {
+                map.removeLayer(window.elementoSeleccionado.textoMarcador);
             }
             console.log('🗑️ textoMarcador eliminado');
         }
         
-        // Remover elemento principal del mapa y del calco
+        // Remover elemento principal del map y del calco
         if (window.calcoActivo && window.calcoActivo.hasLayer(window.elementoSeleccionado)) {
             window.calcoActivo.removeLayer(window.elementoSeleccionado);
-        } else if (mapa.hasLayer(window.elementoSeleccionado)) {
-            mapa.removeLayer(window.elementoSeleccionado);
+        } else if (map.hasLayer(window.elementoSeleccionado)) {
+            map.removeLayer(window.elementoSeleccionado);
         }
         
-        console.log('🗑️ Elemento eliminado del mapa');
+        console.log('🗑️ Elemento eliminado del map');
         mostrarNotificacion('Elemento eliminado', 'success');
         
         // Limpiar selección
@@ -1319,11 +1319,11 @@ window.addEventListener('DOMContentLoaded', function() {
         console.log('  - mostrarMenuContextual:', typeof mostrarMenuContextual);
         console.log('  - seleccionarElemento:', typeof seleccionarElemento);
         
-        // ✅ VERIFICAR MAPA SOLO SI EXISTE:
-        if (typeof mapa !== 'undefined' && mapa && mapa.getContainer) {
-            console.log('  - Mapa inicializado correctamente');
+        // ✅ VERIFICAR map SOLO SI EXISTE:
+        if (typeof map !== 'undefined' && map && map.getContainer) {
+            console.log('  - map inicializado correctamente');
         } else {
-            console.log('  - Mapa aún no inicializado');
+            console.log('  - map aún no inicializado');
         }
         
         if (typeof editarElementoSeleccionado !== 'function') {

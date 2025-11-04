@@ -18,7 +18,7 @@ F12 → Pestaña "Console"
 ```
 
 ### 3️⃣ **Genera un Terreno 3D**
-- Haz clic derecho en el mapa → "🎮 Generar Terreno 3D"
+- Haz clic derecho en el map → "🎮 Generar Terreno 3D"
 - Selecciona una zona con **VEGETACIÓN VERDE OSCURA**
 - Espera a que termine de generar
 

@@ -35,7 +35,7 @@
                 { title: 'Convertir', action: 'convertirPoligono', icon: 'fas fa-exchange-alt', tooltip: 'Convertir a otro tipo' },
                 { title: 'Eliminar', action: 'eliminarPoligono', icon: 'fas fa-trash-alt', tooltip: 'Eliminar polígono' }
             ],
-            mapa: [
+            map: [
                 { title: 'Agregar Símbolo', action: 'agregarSimbolo', icon: 'fas fa-plus-circle', tooltip: 'Agregar símbolo militar' },
                 { title: 'Dibujar Línea', action: 'dibujarLinea', icon: 'fas fa-minus', tooltip: 'Dibujar línea' },
                 { title: 'Dibujar Área', action: 'dibujarArea', icon: 'fas fa-draw-polygon', tooltip: 'Dibujar polígono' },
@@ -85,7 +85,7 @@
                 { title: 'Reportes', action: 'generarReporte', icon: 'fas fa-chart-bar', tooltip: 'Generar reportes' },
                 { title: 'Eliminar', action: 'eliminarCO', icon: 'fas fa-trash-alt', tooltip: 'Eliminar elemento' }
             ],
-            mapa: [
+            map: [
                 { title: 'Crear Unidad', action: 'crearUnidadCO', icon: 'fas fa-plus-square', tooltip: 'Crear nueva unidad' },
                 { title: 'Organigrama', action: 'mostrarOrganigrama', icon: 'fas fa-project-diagram', tooltip: 'Mostrar organigrama' },
                 { title: 'Análisis', action: 'analizarArea', icon: 'fas fa-search', tooltip: 'Análisis del área' }
@@ -159,7 +159,7 @@
          * Muestra el menú contextual
          * @param {number} x - Posición X del menú
          * @param {number} y - Posición Y del menú
-         * @param {string} tipo - Tipo de menú ('simbolo', 'linea', 'poligono', 'mapa', etc.)
+         * @param {string} tipo - Tipo de menú ('simbolo', 'linea', 'poligono', 'map', etc.)
          * @param {Object} elemento - Elemento seleccionado (opcional)
          */
         mostrarMenu: function(x, y, tipo, elemento = null) {

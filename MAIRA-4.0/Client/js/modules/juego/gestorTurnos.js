@@ -641,9 +641,9 @@ class GestorTurnos extends GestorBase {
         }
         
         console.group(`[Diagnóstico] Elementos para jugador ${jugadorId} antes de marcar como listo`);
-        console.log(`Total elementos en mapa: ${todosLosElementos.length}`);
+        console.log(`Total elementos en map: ${todosLosElementos.length}`);
         console.log(`Elementos del jugador: ${elementos.length}`);
-        console.log('Todos los elementos en el mapa:', todosLosElementos);
+        console.log('Todos los elementos en el map:', todosLosElementos);
         
         elementos.forEach((elem, i) => {
             const esEquipo = elem.options?.sidc?.charAt(4) === 'E';
@@ -1000,11 +1000,11 @@ class GestorTurnos extends GestorBase {
     // ✅ MÉTODO FALTANTE: validarElementosJugador()
     validarElementosJugador(jugadorId) {
         try {
-            // Buscar elementos del jugador en el mapa
+            // Buscar elementos del jugador en el map
             const elementos = [];
             
-            if (window.mapa && window.mapa.eachLayer) {
-                window.mapa.eachLayer(layer => {
+            if (window.map && window.map.eachLayer) {
+                window.map.eachLayer(layer => {
                     if (layer.options && (
                         layer.options.jugadorId === jugadorId ||
                         layer.options.propietario === jugadorId ||

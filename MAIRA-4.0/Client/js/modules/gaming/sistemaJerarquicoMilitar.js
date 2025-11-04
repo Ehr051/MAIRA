@@ -86,7 +86,7 @@ class SistemaJerarquicoMilitar {
     }
 
     /**
-     * DESPLEGAR FORMACIÓN EN EL MAPA
+     * DESPLEGAR FORMACIÓN EN EL map
      */
     desplegarFormacion(tipoFormacion, posicionCentral, orientacion = 0) {
         const estructura = this.estructuras.get(tipoFormacion);
@@ -158,7 +158,7 @@ class SistemaJerarquicoMilitar {
         let offsetX = 0;
         let offsetY = 0;
         
-        // Distancia entre elementos (en coordenadas del mapa)
+        // Distancia entre elementos (en coordenadas del map)
         const separacion = 0.001; // ~100 metros
 
         componentes.forEach((componente) => {

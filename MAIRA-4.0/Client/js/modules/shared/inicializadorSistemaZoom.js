@@ -19,7 +19,7 @@ class InicializadorSistemaZoom {
     /**
      * Inicialización completa del sistema
      */
-    async inicializar(mapa) {
+    async inicializar(map) {
         console.log('🚀 Inicializando sistema zoom y formaciones...');
 
         try {
@@ -33,7 +33,7 @@ class InicializadorSistemaZoom {
             this.inicializarSistemaFormaciones();
 
             // 4. Inicializar sistema de zoom
-            this.inicializarSistemaZoom(mapa);
+            this.inicializarSistemaZoom(map);
 
             console.log('✅ Sistema zoom y formaciones inicializado completamente');
             return true;
@@ -104,12 +104,12 @@ class InicializadorSistemaZoom {
     /**
      * Inicializar sistema de zoom multi-nivel
      */
-    inicializarSistemaZoom(mapa) {
+    inicializarSistemaZoom(map) {
         if (this.sistemas.zoom) return;
 
         try {
             if (window.inicializarSistemaZoom) {
-                const sistemaZoom = window.inicializarSistemaZoom(mapa);
+                const sistemaZoom = window.inicializarSistemaZoom(map);
                 this.sistemas.zoom = true;
                 console.log('✅ Sistema zoom multi-nivel inicializado');
                 return sistemaZoom;
@@ -148,12 +148,12 @@ class InicializadorSistemaZoom {
 let inicializadorSistemaZoom;
 
 // Función de inicialización global
-window.inicializarSistemaZoomCompleto = async (mapa) => {
+window.inicializarSistemaZoomCompleto = async (map) => {
     if (!inicializadorSistemaZoom) {
         inicializadorSistemaZoom = new InicializadorSistemaZoom();
     }
 
-    return await inicializadorSistemaZoom.inicializar(mapa);
+    return await inicializadorSistemaZoom.inicializar(map);
 };
 
 // Función para verificar estado

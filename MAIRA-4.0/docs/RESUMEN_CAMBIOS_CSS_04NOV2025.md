@@ -119,8 +119,8 @@
 ## 📊 Jerarquía Z-Index Definida
 
 ```
-1-99: Mapa Base
-100-499: Elementos del Mapa
+1-99: map Base
+100-499: Elementos del map
 500-599: Botones flotantes (550 estándar)
 600-699: Controles de zoom, escala
 700-799: Leaflet Draw toolbar

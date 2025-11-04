@@ -27,12 +27,12 @@ async function toggleVista3DModular() {
                 
                 container.innerHTML = `
                     <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; gap: 10px; align-items: center;">
-                        <h4 style="color: #00ff00; margin: 0; font-family: 'Courier New', monospace; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">🎮 Vista 3D - Representación del Mapa</h4>
+                        <h4 style="color: #00ff00; margin: 0; font-family: 'Courier New', monospace; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">🎮 Vista 3D - Representación del map</h4>
                         <button onclick="cerrarVista3DModular()" style="background: rgba(255,0,0,0.8); border: 1px solid #ff6666; color: #fff; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">✕ Salir del 3D</button>
                     </div>
                     <canvas id="canvas-3d-flotante" width="100%" height="100%" style="width: 100%; height: 100%; background: #87CEEB;"></canvas>
                     <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #00ff00; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10001;">
-                        <span>🔄 Arrastrar para rotar • 🔍 Scroll para zoom • ESC para salir • Esta vista representa el área donde está viendo el usuario en el mapa</span>
+                        <span>🔄 Arrastrar para rotar • 🔍 Scroll para zoom • ESC para salir • Esta vista representa el área donde está viendo el usuario en el map</span>
                     </div>
                 `;
                 
@@ -47,7 +47,7 @@ async function toggleVista3DModular() {
             }
             
             // Inicializar sistema 3D modular
-            // Calcular terreno basado en la vista actual del mapa 2D
+            // Calcular terreno basado en la vista actual del map 2D
             const terrenoOpciones = calcularTerrenoDesdeMapa();
             await inicializarSistema3D('canvas-3d-flotante', {
                 iluminacion: {
@@ -159,20 +159,20 @@ window.cerrarVista3DModular = function() {
         window.limpiarPanelesFlotantes3D();
     }
     
-    console.log('🔒 Vista 3D modular cerrada completamente - Regreso al mapa 2D');
+    console.log('🔒 Vista 3D modular cerrada completamente - Regreso al map 2D');
 };
 
-// Función para calcular opciones de terreno basadas en la vista actual del mapa 2D
+// Función para calcular opciones de terreno basadas en la vista actual del map 2D
 function calcularTerrenoDesdeMapa() {
     try {
-        if (!window.mapa) {
-            console.warn('Mapa no disponible, usando terreno por defecto');
+        if (!window.map) {
+            console.warn('map no disponible, usando terreno por defecto');
             return { width: 1000, height: 1000 };
         }
 
-        const bounds = window.mapa.getBounds();
-        const zoom = window.mapa.getZoom();
-        const center = window.mapa.getCenter();
+        const bounds = window.map.getBounds();
+        const zoom = window.map.getZoom();
+        const center = window.map.getCenter();
 
         // Calcular el tamaño del terreno basado en el zoom
         // A mayor zoom, menor área visible, por lo tanto menor terreno
@@ -190,7 +190,7 @@ function calcularTerrenoDesdeMapa() {
             bounds: bounds
         };
     } catch (error) {
-        console.error('Error calculando terreno desde mapa:', error);
+        console.error('Error calculando terreno desde map:', error);
         return { width: 1000, height: 1000 };
     }
 }

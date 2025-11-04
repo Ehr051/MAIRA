@@ -8,7 +8,7 @@ function diagnosticarSistema() {
     
     const diagnostico = {
         timestamp: new Date().toISOString(),
-        mapa: false,
+        map: false,
         gestorJuego: false,
         gestorFases: false,
         gestorTurnos: false,
@@ -19,16 +19,16 @@ function diagnosticarSistema() {
         sugerencias: []
     };
     
-    // 1. Verificar Mapa
-    console.group('🗺️ Verificando Mapa');
-    if (typeof window.mapa !== 'undefined' && window.mapa) {
-        diagnostico.mapa = true;
-        console.log('✅ Mapa inicializado:', window.mapa.getCenter());
+    // 1. Verificar map
+    console.group('🗺️ Verificando map');
+    if (typeof window.map !== 'undefined' && window.map) {
+        diagnostico.map = true;
+        console.log('✅ map inicializado:', window.map.getCenter());
     } else {
-        diagnostico.mapa = false;
-        diagnostico.problemas.push('Mapa no inicializado');
+        diagnostico.map = false;
+        diagnostico.problemas.push('map no inicializado');
         diagnostico.sugerencias.push('Verificar la carga de Leaflet y inicializarMapaBase()');
-        console.error('❌ Mapa no disponible');
+        console.error('❌ map no disponible');
     }
     console.groupEnd();
     
@@ -160,10 +160,10 @@ function forzarInicializacionSistema() {
         }
     }
     
-    // 2. Inicializar HexGrid si no existe y hay mapa
-    if (typeof HexGrid !== 'undefined' && window.mapa && !HexGrid.initialized) {
+    // 2. Inicializar HexGrid si no existe y hay map
+    if (typeof HexGrid !== 'undefined' && window.map && !HexGrid.initialized) {
         try {
-            HexGrid.initialize(window.mapa);
+            HexGrid.initialize(window.map);
             console.log('✅ HexGrid inicializado manualmente');
         } catch (error) {
             console.error('❌ Error inicializando HexGrid:', error);

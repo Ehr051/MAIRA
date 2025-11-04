@@ -1143,7 +1143,7 @@ function configurarEventosChat() {
                         timestamp: new Date()
                     };
                     
-                    // Actualizar interfaz con retardo para asegurar que el mapa está listo
+                    // Actualizar interfaz con retardo para asegurar que el map está listo
                     setTimeout(() => {
                         actualizarMarcadorUsuario(
                             posicion.coords.latitude, 
@@ -1151,9 +1151,9 @@ function configurarEventosChat() {
                             posicion.coords.heading || 0
                         );
                         
-                        // Centrar mapa en la posición obtenida
-                        if (window.mapa) {
-                            window.mapa.setView([posicion.coords.latitude, posicion.coords.longitude], 15);
+                        // Centrar map en la posición obtenida
+                        if (window.map) {
+                            window.map.setView([posicion.coords.latitude, posicion.coords.longitude], 15);
                         }
                     }, 1000);
                 },
@@ -1297,8 +1297,8 @@ function configurarEventosChat() {
                 };
                 
                 actualizarMarcadorUsuario(lat, lng, 0);
-                if (window.mapa) {
-                    window.mapa.setView([lat, lng], 15);
+                if (window.map) {
+                    window.map.setView([lat, lng], 15);
                 }
                 
                 document.body.removeChild(modal);
@@ -1360,16 +1360,16 @@ function configurarEventosChat() {
      * @param {number} heading - Rumbo en grados
      */
     function actualizarMarcadorUsuario(lat, lng, heading) {
-        if (!window.mapa) {
-            console.error("Mapa no disponible para actualizar marcador");
+        if (!window.map) {
+            console.error("map no disponible para actualizar marcador");
             return;
         }
         
         const nuevaPosicion = L.latLng(lat, lng);
         console.log(`Actualizando marcador de usuario en: ${lat}, ${lng}`);
         
-        // Si el marcador no existe o no está en el mapa, lo creamos
-        if (!marcadorUsuario || !window.mapa.hasLayer(marcadorUsuario)) {
+        // Si el marcador no existe o no está en el map, lo creamos
+        if (!marcadorUsuario || !window.map.hasLayer(marcadorUsuario)) {
             console.log("Creando nuevo marcador de usuario");
             
             // Verificar si existe función constructora para símbolos militares
@@ -1409,14 +1409,14 @@ function configurarEventosChat() {
                             dependencia: elementoTrabajo.dependencia
                         });
                         
-                        // Asegurarse de que se añada al calco activo o al mapa
+                        // Asegurarse de que se añada al calco activo o al map
                         if (window.calcoActivo) {
                             marcadorUsuario.addTo(window.calcoActivo);
                         } else {
-                            marcadorUsuario.addTo(window.mapa);
+                            marcadorUsuario.addTo(window.map);
                         }
                         
-                        console.log("Marcador de usuario añadido al mapa");
+                        console.log("Marcador de usuario añadido al map");
                         
                         // Reemplazar menú contextual por menú radial
                         marcadorUsuario.on('contextmenu', function(e) {
@@ -1425,7 +1425,7 @@ function configurarEventosChat() {
                             if (window.MiRadial) {
                                 window.MiRadial.selectedUnit = this;
                                 window.MiRadial.selectedHex = null;
-                                const point = window.mapa.latLngToContainerPoint(e.latlng);
+                                const point = window.map.latLngToContainerPoint(e.latlng);
                                 window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
                             }
                             return false;
@@ -1468,9 +1468,9 @@ function configurarEventosChat() {
             }
         }
         
-        // Centrar mapa si el seguimiento está activo
-        if (seguimientoActivo && window.mapa) {
-            window.mapa.setView(nuevaPosicion);
+        // Centrar map si el seguimiento está activo
+        if (seguimientoActivo && window.map) {
+            window.map.setView(nuevaPosicion);
         }
     }
     
@@ -1492,10 +1492,10 @@ function configurarEventosChat() {
         if (window.calcoActivo) {
             marcadorUsuario.addTo(window.calcoActivo);
         } else {
-            marcadorUsuario.addTo(window.mapa);
+            marcadorUsuario.addTo(window.map);
         }
         
-        console.log("Marcador simple añadido al mapa");
+        console.log("Marcador simple añadido al map");
     }
     
     /**
@@ -1624,7 +1624,7 @@ function configurarEventosChat() {
         // Guardar en localStorage
         localStorage.setItem('ultima_posicion', JSON.stringify(ultimaPosicion));
         
-        // Actualizar posición en el mapa
+        // Actualizar posición en el map
         actualizarMarcadorUsuario(latitude, longitude, heading);
         
         // Enviar posición al servidor si estamos conectados
@@ -1686,21 +1686,21 @@ function configurarEventosChat() {
     }
     
     /**
-     * Centra el mapa en la posición actual
+     * Centra el map en la posición actual
      */
     function centrarEnPosicion() {
-        console.log("Centrando mapa en posición actual");
+        console.log("Centrando map en posición actual");
         
-        if (marcadorUsuario && window.mapa && window.mapa.hasLayer(marcadorUsuario)) {
-            window.mapa.setView(marcadorUsuario.getLatLng(), 15);
-            mostrarNotificacion("Mapa centrado en tu posición", "info", 2000);
+        if (marcadorUsuario && window.map && window.map.hasLayer(marcadorUsuario)) {
+            window.map.setView(marcadorUsuario.getLatLng(), 15);
+            mostrarNotificacion("map centrado en tu posición", "info", 2000);
         } else {
             // Si no hay marcador, intentar obtener posición actual
             try {
                 if (ultimaPosicion) {
-                    if (window.mapa) {
-                        window.mapa.setView([ultimaPosicion.lat, ultimaPosicion.lng], 15);
-                        mostrarNotificacion("Mapa centrado en tu última posición", "info", 2000);
+                    if (window.map) {
+                        window.map.setView([ultimaPosicion.lat, ultimaPosicion.lng], 15);
+                        mostrarNotificacion("map centrado en tu última posición", "info", 2000);
                     }
                 } else {
                     obtenerPosicionInicial();
@@ -1714,13 +1714,13 @@ function configurarEventosChat() {
     }
     
     /**
-     * Muestra todos los elementos en el mapa
+     * Muestra todos los elementos en el map
      */
     function mostrarTodosElementos() {
-        console.log("Mostrando todos los elementos en el mapa");
+        console.log("Mostrando todos los elementos en el map");
         
-        if (!window.mapa) {
-            console.error("Mapa no disponible");
+        if (!window.map) {
+            console.error("map no disponible");
             return;
         }
         
@@ -1728,7 +1728,7 @@ function configurarEventosChat() {
         const grupo = new L.featureGroup();
         
         // Añadir marcador del usuario
-        if (marcadorUsuario && window.mapa.hasLayer(marcadorUsuario)) {
+        if (marcadorUsuario && window.map.hasLayer(marcadorUsuario)) {
             grupo.addLayer(marcadorUsuario);
             console.log("Marcador del usuario añadido al grupo");
         } else if (ultimaPosicion) {
@@ -1763,28 +1763,28 @@ function configurarEventosChat() {
         
         console.log(`Total de elementos añadidos al grupo: ${elementosAñadidos}`);
         
-        // Si hay elementos, ajustar el mapa para mostrarlos todos
+        // Si hay elementos, ajustar el map para mostrarlos todos
         if (grupo.getLayers().length > 0) {
             try {
                 const bounds = grupo.getBounds();
                 console.log("Ajustando vista a los límites:", bounds);
-                window.mapa.fitBounds(bounds, { 
+                window.map.fitBounds(bounds, { 
                     padding: [50, 50],
                     maxZoom: 15
                 });
-                mostrarNotificacion(`Mostrando ${grupo.getLayers().length} elementos en el mapa`, "success", 3000);
+                mostrarNotificacion(`Mostrando ${grupo.getLayers().length} elementos en el map`, "success", 3000);
             } catch (error) {
                 console.error("Error al ajustar vista:", error);
                 
                 // Si hay un error con los límites, intentar centrar en el primer elemento
                 if (marcadorUsuario) {
-                    window.mapa.setView(marcadorUsuario.getLatLng(), 13);
+                    window.map.setView(marcadorUsuario.getLatLng(), 13);
                 } else if (Object.values(elementosConectados).length > 0) {
                     const primerElemento = Object.values(elementosConectados)[0];
                     if (primerElemento.marcador) {
-                        window.mapa.setView(primerElemento.marcador.getLatLng(), 13);
+                        window.map.setView(primerElemento.marcador.getLatLng(), 13);
                     } else if (primerElemento.datos && primerElemento.datos.posicion) {
-                        window.mapa.setView([
+                        window.map.setView([
                             primerElemento.datos.posicion.lat,
                             primerElemento.datos.posicion.lng
                         ], 13);
@@ -1792,8 +1792,8 @@ function configurarEventosChat() {
                 }
             }
         } else {
-            console.log("No hay elementos para mostrar en el mapa");
-            agregarMensajeChat("Sistema", "No hay elementos para mostrar en el mapa", "sistema");
+            console.log("No hay elementos para mostrar en el map");
+            agregarMensajeChat("Sistema", "No hay elementos para mostrar en el map", "sistema");
             mostrarNotificacion("No hay elementos para mostrar", "info");
         }
     }
@@ -2047,7 +2047,7 @@ function actualizarPosicionActual(lat, lng, heading) {
         timestamp: new Date().toISOString()
     };
 
-    // Actualizar marcador en el mapa
+    // Actualizar marcador en el map
     actualizarMarcadorUsuario(lat, lng, heading);
 
     // Enviar al servidor usando la función enviarPosicion
@@ -2641,18 +2641,18 @@ function recibirMensajeChat(mensaje) {
         });
     }
     /**
-     * Elimina un elemento de la lista y del mapa
+     * Elimina un elemento de la lista y del map
      * @param {string} id - ID del elemento a eliminar
      */
     function eliminarElementoLista(id) {
         if (!id) return;
         
-        // Eliminar marcador del mapa
-        if (elementosConectados[id]?.marcador && window.mapa) {
+        // Eliminar marcador del map
+        if (elementosConectados[id]?.marcador && window.map) {
             try {
-                window.mapa.removeLayer(elementosConectados[id].marcador);
+                window.map.removeLayer(elementosConectados[id].marcador);
             } catch (e) {
-                console.warn("Error al eliminar marcador del mapa:", e);
+                console.warn("Error al eliminar marcador del map:", e);
             }
         }
         
@@ -2687,7 +2687,7 @@ function recibirMensajeChat(mensaje) {
         // Añadir a la lista visual
         agregarElementoALista(elemento);
         
-        // Crear marcador en el mapa
+        // Crear marcador en el map
         crearMarcadorElemento(elemento);
         
         // Actualizar lista de destinatarios para mensajes privados
@@ -2790,7 +2790,7 @@ function recibirMensajeChat(mensaje) {
             }
         }
         
-        // Configurar el botón para centrar en el mapa
+        // Configurar el botón para centrar en el map
         const btnCentrar = document.getElementById('btn-centrar-elemento');
         if (btnCentrar) {
             btnCentrar.onclick = function() {
@@ -2804,7 +2804,7 @@ function recibirMensajeChat(mensaje) {
     }
     
     /**
-     * Centra el mapa en un elemento específico
+     * Centra el map en un elemento específico
      * @param {string} elementoId - ID del elemento a centrar
      */
     function centrarEnElemento(elementoId) {
@@ -2814,10 +2814,10 @@ function recibirMensajeChat(mensaje) {
         }
         
         const posicion = elementosConectados[elementoId].marcador.getLatLng();
-        if (window.mapa) {
-            window.mapa.setView(posicion, 15);
+        if (window.map) {
+            window.map.setView(posicion, 15);
             elementosConectados[elementoId].marcador.openPopup();
-            mostrarNotificacion("Mapa centrado en el elemento seleccionado", "info", 2000);
+            mostrarNotificacion("map centrado en el elemento seleccionado", "info", 2000);
         }
     }
     
@@ -3009,7 +3009,7 @@ function recibirMensajeChat(mensaje) {
             mostrarNotificacion("Función de agregar marcador no disponible", "error");
             
             // Implementación alternativa
-            window.mapa.once('click', function(event) {
+            window.map.once('click', function(event) {
                 const latlng = event.latlng;
                 crearMarcadorPersonalizado(latlng, sidc, nombre);
             });
@@ -3073,17 +3073,17 @@ function recibirMensajeChat(mensaje) {
                     if (window.MiRadial) {
                         window.MiRadial.selectedUnit = this;
                         window.MiRadial.selectedHex = null;
-                        const point = window.mapa.latLngToContainerPoint(e.latlng);
+                        const point = window.map.latLngToContainerPoint(e.latlng);
                         window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
                     }
                     return false;
                 });
                 
-                // Agregar al mapa
+                // Agregar al map
                 if (window.calcoActivo) {
                     window.calcoActivo.addLayer(marcador);
-                } else if (window.mapa) {
-                    window.mapa.addLayer(marcador);
+                } else if (window.map) {
+                    window.map.addLayer(marcador);
                 }
                 
                 // Notificar a otros usuarios
@@ -3121,7 +3121,7 @@ function recibirMensajeChat(mensaje) {
     }
     
     /**
-     * Selecciona un elemento en el mapa para interacción
+     * Selecciona un elemento en el map para interacción
      * @param {Object} marcador - Marcador de Leaflet seleccionado
      */
     function seleccionarElemento(marcador) {
@@ -4021,8 +4021,8 @@ function configurarEventosInforme(informeId) {
                 return;
             }
             
-            if (window.mapa) {
-                window.mapa.setView([lat, lng], 15);
+            if (window.map) {
+                window.map.setView([lat, lng], 15);
                 
                 // Crear un marcador temporal
                 const tempMarker = L.marker([lat, lng], {
@@ -4032,15 +4032,15 @@ function configurarEventosInforme(informeId) {
                         iconSize: [24, 24],
                         iconAnchor: [12, 12]
                     })
-                }).addTo(window.mapa);
+                }).addTo(window.map);
                 
                 // Añadir popup con información
                 tempMarker.bindPopup(`<strong>Ubicación del informe</strong><br>${document.querySelector(`.informe[data-id="${informeId}"] .informe-titulo strong`).textContent}`).openPopup();
                 
                 // Eliminar el marcador después de 30 segundos
                 setTimeout(() => {
-                    if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-                        window.mapa.removeLayer(tempMarker);
+                    if (window.map && window.map.hasLayer(tempMarker)) {
+                        window.map.removeLayer(tempMarker);
                     }
                 }, 30000);
             }
@@ -4721,7 +4721,7 @@ function configurarParaDispositivosMoviles() {
                 padding: 12px 0;
             }
             
-            /* Ajustes para el mapa */
+            /* Ajustes para el map */
             .leaflet-touch .leaflet-control-zoom a {
                 width: 44px;
                 height: 44px;
@@ -4759,8 +4759,8 @@ function configurarParaDispositivosMoviles() {
  * Configura gestos táctiles optimizados para la aplicación
  */
 function configurarGestosTactiles() {
-    // Detectar elemento del mapa
-    const mapaElement = document.getElementById('mapa') || document.querySelector('.leaflet-container');
+    // Detectar elemento del map
+    const mapaElement = document.getElementById('map') || document.querySelector('.leaflet-container');
     if (!mapaElement) return;
     
     // Variables para tracking de gestos
@@ -4778,7 +4778,7 @@ function configurarGestosTactiles() {
             touchStartTime = Date.now();
             isGesturing = false;
         } else if (e.touches.length === 2) {
-            // Para evitar conflictos con gestos de zoom del mapa
+            // Para evitar conflictos con gestos de zoom del map
             isGesturing = true;
         }
     }, { passive: true });
@@ -4875,7 +4875,7 @@ function aplicarAhorroDeDatos() {
         videoMaxAncho: 480,
         desactivarAutoplay: true,
         
-        // Carga de mapa
+        // Carga de map
         simplificarSimbolos: true,
         reducirDetallesMapa: true,
         desactivarTerreno3D: true,

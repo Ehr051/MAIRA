@@ -8,8 +8,8 @@
  */
 
 class SistemaZoomMultiNivel {
-    constructor(mapa) {
-        this.mapa = mapa;
+    constructor(map) {
+        this.map = map;
         this.nivelActual = 'estrategico';
         this.niveles = {
             estrategico: { min: 5, max: 8, icono: 'flag', escala: 1.0 },    // Zoom 3 - Más lejos
@@ -17,7 +17,7 @@ class SistemaZoomMultiNivel {
             tactico: { min: 13, max: 18, icono: 'cube', escala: 0.6 }       // Zoom 1 - Más cerca
         };
         
-        this.elementos = new Map(); // Almacena todos los elementos del mapa
+        this.elementos = new Map(); // Almacena todos los elementos del map
         this.capasRenderizado = {
             estandartes: null,
             unidades: null,
@@ -38,7 +38,7 @@ class SistemaZoomMultiNivel {
         this.crearCapas();
         
         // Escuchar cambios de zoom
-        this.mapa.on('zoomend', () => {
+        this.map.on('zoomend', () => {
             this.actualizarNivelZoom();
         });
         
@@ -48,17 +48,17 @@ class SistemaZoomMultiNivel {
 
     crearCapas() {
         // Capa de estandartes (nivel estratégico)
-        this.capasRenderizado.estandartes = L.layerGroup().addTo(this.mapa);
+        this.capasRenderizado.estandartes = L.layerGroup().addTo(this.map);
         
         // Capa de unidades (nivel táctico)
-        this.capasRenderizado.unidades = L.layerGroup().addTo(this.mapa);
+        this.capasRenderizado.unidades = L.layerGroup().addTo(this.map);
         
         // Capa de elementos 3D (nivel operacional)
-        this.capasRenderizado.elementos3d = L.layerGroup().addTo(this.mapa);
+        this.capasRenderizado.elementos3d = L.layerGroup().addTo(this.map);
     }
 
     actualizarNivelZoom() {
-        const zoomActual = this.mapa.getZoom();
+        const zoomActual = this.map.getZoom();
         const nivelAnterior = this.nivelActual;
         
         // Determinar nivel actual
@@ -93,7 +93,7 @@ class SistemaZoomMultiNivel {
             detail: { 
                 nivelAnterior, 
                 nivelNuevo, 
-                zoom: this.mapa.getZoom() 
+                zoom: this.map.getZoom() 
             }
         }));
     }
@@ -381,7 +381,7 @@ class SistemaZoomMultiNivel {
         
         // ✨ NUEVO: Crear formación militar si es aplicable
         let modelo3D;
-        const zoomActual = this.mapa.getZoom();
+        const zoomActual = this.map.getZoom();
         
         // Verificar si debe generar formación militar
         if (this.esElementoFormacion(elemento) && this.modelos3DManager.sistemaFormaciones) {
@@ -449,7 +449,7 @@ class SistemaZoomMultiNivel {
             this.mostrarDetallesElemento3D(elemento, infoElemento);
         });
         
-        // Configurar renderizado 3D cuando se añada al mapa
+        // Configurar renderizado 3D cuando se añada al map
         marcador3D.on('add', () => {
             setTimeout(() => {
                 this.configurarRenderizadoModelo3D(marcador3D, modelo3D, elemento, infoElemento);
@@ -496,7 +496,7 @@ class SistemaZoomMultiNivel {
             const modelo3D = window.generadorModelos3D.obtenerModelo(unidad.tipo);
             
             // Posicionar el modelo en el mundo 3D
-            const coordenadas = this.mapa.latLngToContainerPoint([unidad.posicion.lat, unidad.posicion.lng]);
+            const coordenadas = this.map.latLngToContainerPoint([unidad.posicion.lat, unidad.posicion.lng]);
             
             // Crear marcador Leaflet con canvas 3D embebido
             const marcador3D = L.marker([unidad.posicion.lat, unidad.posicion.lng], {
@@ -839,7 +839,7 @@ class SistemaZoomMultiNivel {
         if (this.niveles[nivel]) {
             const rango = this.niveles[nivel];
             const zoomTarget = Math.floor((rango.min + rango.max) / 2);
-            this.mapa.setZoom(zoomTarget);
+            this.map.setZoom(zoomTarget);
         }
     }
 
@@ -934,7 +934,7 @@ class SistemaZoomMultiNivel {
             document.dispatchEvent(new CustomEvent('vista3DActivadaAutomatica', {
                 detail: { 
                     nivel: 'tactico', 
-                    zoom: this.mapa.getZoom(),
+                    zoom: this.map.getZoom(),
                     automatico: true
                 }
             }));
@@ -976,7 +976,7 @@ class SistemaZoomMultiNivel {
                 detail: { 
                     nivelAnterior: 'tactico',
                     nivelActual: this.nivelActual,
-                    zoom: this.mapa.getZoom(),
+                    zoom: this.map.getZoom(),
                     automatico: true
                 }
             }));
@@ -991,8 +991,8 @@ class SistemaZoomMultiNivel {
 let sistemaZoom;
 
 // Función de inicialización
-window.inicializarSistemaZoom = (mapa) => {
-    sistemaZoom = new SistemaZoomMultiNivel(mapa);
+window.inicializarSistemaZoom = (map) => {
+    sistemaZoom = new SistemaZoomMultiNivel(map);
     window.sistemaZoom = sistemaZoom;
     window.sistemaZoomMultiNivel = sistemaZoom; // Alias para compatibilidad
     return sistemaZoom;

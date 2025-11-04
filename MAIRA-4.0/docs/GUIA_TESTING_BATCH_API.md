@@ -26,9 +26,9 @@ http://127.0.0.1:5000/Client/planeamiento_integrado.html
 ```
 
 **Espera a que cargue completamente. Deberías ver:**
-- ✅ Mapa Leaflet visible con tiles
+- ✅ map Leaflet visible con tiles
 - ✅ Sidebar izquierdo con menú
-- ✅ NO hay canvas 3D tapando el mapa
+- ✅ NO hay canvas 3D tapando el map
 
 ---
 
@@ -67,14 +67,14 @@ http://127.0.0.1:5000/Client/planeamiento_integrado.html
 
 // INICIALIZACIÓN (primera vez)
 🚀 Primera vez: Inicializando sistema 3D...
-🗺️ Inicializando mapa...
-♻️ Reutilizando mapa Leaflet existente
-🛰️ Agregando capa satelital al mapa existente
+🗺️ Inicializando map...
+♻️ Reutilizando map Leaflet existente
+🛰️ Agregando capa satelital al map existente
 ✅ Sistema inicializado correctamente
 
 // CAPTURA
-📸 Capturando mapa...
-✅ mapa capturado correctamente
+📸 Capturando map...
+✅ map capturado correctamente
 📍 Dimensiones: 512x512
 📍 Zoom: 13, Bounds: -34.XXXX, -58.XXXX
 
@@ -108,7 +108,7 @@ http://127.0.0.1:5000/Client/planeamiento_integrado.html
 2. **Canvas 3D activándose** (fondo negro/celeste)
 
 3. **Terreno 3D apareciendo** con:
-   - 🗺️ Textura del mapa satelital
+   - 🗺️ Textura del map satelital
    - 🏔️ Elevación (montañas/valles)
    - 🎨 Material con iluminación
 
@@ -136,7 +136,7 @@ http://127.0.0.1:5000/Client/planeamiento_integrado.html
 - [ ] Consola muestra "Solicitando 4225 elevaciones"
 - [ ] Terreno aparece en **~2-3 segundos** (máximo 5s)
 - [ ] Mesh 3D es visible
-- [ ] Tiene textura del mapa satelital
+- [ ] Tiene textura del map satelital
 - [ ] Tiene elevación (NO es plano)
 
 ### Rendimiento
@@ -167,7 +167,7 @@ cd /Users/mac/Documents/GitHub/MAIRA-WORKSPACE/MAIRA-4.0
 python3 app.py
 ```
 
-### Error: "Primero captura el mapa"
+### Error: "Primero captura el map"
 **Causa:** Workflow interrumpido  
 **Solución:** Recargar página (F5) e intentar de nuevo
 
@@ -189,7 +189,7 @@ python3 app.py
 
 ### Tiempos (aprox.)
 ```
-Captura mapa:     ~1.0s
+Captura map:     ~1.0s
 Análisis imagen:  ~0.5s
 Grid 64x64:       ~0.1s
 Batch API:        ~0.3s  ← CRÍTICO: Debe ser < 1s
@@ -214,7 +214,7 @@ Total: ~15-30 requests (antes: 4000+)
 Resolución: 64x64
 Vértices: 4,225 (65 × 65)
 Triángulos: 8,192 (64 × 64 × 2)
-Textura: 512×512 px (del mapa)
+Textura: 512×512 px (del map)
 ```
 
 ---
@@ -233,7 +233,7 @@ Textura: 512×512 px (del mapa)
 - [ ] Edge
 
 ### ¿En qué paso falló?
-- [ ] No carga el mapa inicial
+- [ ] No carga el map inicial
 - [ ] Click en botón no hace nada
 - [ ] Modal aparece pero se queda tildado
 - [ ] Batch API falla

@@ -64,7 +64,7 @@ class GeneradorModelos3D {
         marca.position.set(0, 3, 2.1);
         grupo.add(marca);
         
-        // Escala apropiada para el mapa
+        // Escala apropiada para el map
         grupo.scale.set(0.3, 0.3, 0.3);
         
         return grupo;

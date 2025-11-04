@@ -216,11 +216,11 @@ window.MAIRATestSuite = {
     testPlaneamientoMode: function() {
         this.addResult('info', '🗺️ Testing Modo Planeamiento...');
         
-        // Verificar mapa
+        // Verificar map
         if (window.map) {
-            this.addResult('success', '✅ Mapa inicializado');
+            this.addResult('success', '✅ map inicializado');
         } else {
-            this.addResult('error', '❌ Mapa no inicializado');
+            this.addResult('error', '❌ map no inicializado');
         }
         
         // Verificar herramientas de dibujo

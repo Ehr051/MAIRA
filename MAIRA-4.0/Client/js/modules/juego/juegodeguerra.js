@@ -8,7 +8,7 @@ class JuegoDeGuerra {
         this.partida = null;
         this.jugadores = new Map();
         this.turnos = null;
-        this.mapa = null;
+        this.map = null;
         this.estado = 'esperando';
         this.inicializado = false;
     }
@@ -61,9 +61,9 @@ class JuegoDeGuerra {
             this.gestorUnidades = new GestorUnidades();
         }
         
-        // Inicializar mapa si está disponible
+        // Inicializar map si está disponible
         if (window.map) {
-            this.mapa = window.map;
+            this.map = window.map;
         }
     }
 

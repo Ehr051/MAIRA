@@ -1,5 +1,5 @@
 /**
- * MiRadial - Sistema de menú radial para interacción con el mapa
+ * MiRadial - Sistema de menú radial para interacción con el map
  * Maneja la interacción con hexágonos y unidades, proporcionando menús contextuales
  * según la fase del juego y el tipo de elemento seleccionado.
  */
@@ -20,7 +20,7 @@
             normal: 'rgba(128, 128, 128, 0.8)', // gris
             hover: 'rgba(169, 169, 169, 0.9)'   // gris más claro
         },
-        mapa: {
+        map: {
             normal: 'rgba(0, 128, 255, 0.8)',   // azul
             hover: 'rgba(64, 160, 255, 0.9)'    // azul más claro
         }
@@ -75,7 +75,7 @@
                         tooltip: 'Chat privado'
                     }
                 ],
-                mapa: [
+                map: [
                     {
                         title: 'Agregar',
                         action: 'agregarGB',
@@ -86,7 +86,7 @@
                         title: 'Centrar',
                         action: 'centrarGB',
                         icon: 'fas fa-crosshairs',
-                        tooltip: 'Centrar mapa'
+                        tooltip: 'Centrar map'
                     }
                 ]
             }
@@ -96,7 +96,7 @@
     const MiRadial = {
         // Propiedades del sistema
         menuElement: null,           // Elemento DOM del menú actual
-        map: null,                   // Referencia al mapa
+        map: null,                   // Referencia al map
         selectedHex: null,           // Hexágono seleccionado actualmente
         faseJuego: 'preparacion',    // Fase actual del juego
         previousHighlight: null,     // Referencia al último hexágono resaltado
@@ -105,12 +105,12 @@
 
         /**
          * Inicializa el sistema de menú radial
-         * @param {L.Map} map - Instancia del mapa de Leaflet
+         * @param {L.Map} map - Instancia del map de Leaflet
          */
         // En miradial.js, modifica el método init
         init: function(map) {
             if (!map) {
-                console.error('Se requiere un mapa válido para inicializar MiRadial');
+                console.error('Se requiere un map válido para inicializar MiRadial');
                 return;
             }
             
@@ -144,7 +144,7 @@
                 }
             });
 
-            // Limpiar el menú al hacer clic en el mapa
+            // Limpiar el menú al hacer clic en el map
             this.map.on('click', () => this.hideMenu());
 
             this.initStyles();
@@ -216,7 +216,7 @@
         },
 
         /**
-         * Maneja el evento de doble clic en el mapa
+         * Maneja el evento de doble clic en el map
          * @param {L.MouseEvent} e - Evento de doble clic
          */
         onDoubleClick: function(e) {
@@ -419,8 +419,8 @@
             if (window.MAIRA?.modoGB) {
                 if (tipo === 'elemento') {
                     return MENU_ITEMS.gb.elemento || [];
-                } else if (tipo === 'mapa') {
-                    return MENU_ITEMS.gb.mapa || [];
+                } else if (tipo === 'map') {
+                    return MENU_ITEMS.gb.map || [];
                 }
             }
 
@@ -929,7 +929,7 @@ processElevationInfo: async function (corners, popup) {
         },
 
         configurarModoGB: function() {
-            // Prevenir menú contextual del sistema en todo el mapa
+            // Prevenir menú contextual del sistema en todo el map
             this.map.getContainer().addEventListener('contextmenu', function(e) {
                 e.preventDefault();
                 e.stopPropagation();

@@ -122,17 +122,17 @@ class MAIRA3DTerrainModule {
     }
     
     /**
-     * Configurar eventos del mapa
+     * Configurar eventos del map
      */
     setupMapEvents() {
-        if (typeof L === 'undefined' || !window.mapa) {
-            console.warn('⚠️ Leaflet o mapa no disponible');
+        if (typeof L === 'undefined' || !window.map) {
+            console.warn('⚠️ Leaflet o map no disponible');
             return;
         }
         
         // Activar botón según zoom
-        window.mapa.on('zoomend', () => {
-            const zoom = window.mapa.getZoom();
+        window.map.on('zoomend', () => {
+            const zoom = window.map.getZoom();
             if (zoom >= this.config.autoActivateZoom) {
                 this.showButton();
             } else {

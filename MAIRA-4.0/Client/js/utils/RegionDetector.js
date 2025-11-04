@@ -28,7 +28,7 @@ class RegionDetector {
         this.height = imageData.height;
         this.features = features; // Features del SatelliteAnalyzer
         
-        // Mapa de píxeles visitados (para flood fill)
+        // map de píxeles visitados (para flood fill)
         this.visited = new Set();
         
         // Regiones detectadas

@@ -18,9 +18,9 @@ class SearchHandler {
         try {
             console.log('🔍 Inicializando búsqueda de lugares...');
             
-            // Verificar que el mapa esté disponible
-            if (!window.mapa) {
-                console.error('❌ Mapa no disponible para búsqueda');
+            // Verificar que el map esté disponible
+            if (!window.map) {
+                console.error('❌ map no disponible para búsqueda');
                 return false;
             }
 
@@ -146,19 +146,19 @@ class SearchHandler {
                         
                         console.log(`📍 Lugar seleccionado: ${lat}, ${lon}`);
                         
-                        // Centrar mapa
-                        window.mapa.setView([lat, lon], 15);
+                        // Centrar map
+                        window.map.setView([lat, lon], 15);
                         
                         // Agregar marcador temporal
                         const marker = L.marker([lat, lon])
-                            .addTo(window.mapa)
+                            .addTo(window.map)
                             .bindPopup(`📍 ${item.textContent.replace('📍 ', '')}`)
                             .openPopup();
                         
                         // Remover marcador después de 10 segundos
                         setTimeout(() => {
-                            if (window.mapa.hasLayer(marker)) {
-                                window.mapa.removeLayer(marker);
+                            if (window.map.hasLayer(marker)) {
+                                window.map.removeLayer(marker);
                             }
                         }, 10000);
                         

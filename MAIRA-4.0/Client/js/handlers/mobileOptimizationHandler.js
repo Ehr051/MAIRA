@@ -86,7 +86,7 @@ class MobileOptimizationHandler {
         // Agregar estilos móviles dinámicos
         this.agregarEstilosMoviles();
         
-        // Optimizar controles del mapa
+        // Optimizar controles del map
         this.optimizarControlesMapa();
         
         // Ajustar tamaños de botones
@@ -174,27 +174,27 @@ class MobileOptimizationHandler {
     }
 
     /**
-     * Optimiza controles del mapa para móvil (Leaflet)
+     * Optimiza controles del map para móvil (Leaflet)
      */
     optimizarControlesMapa() {
-        const mapa = window.mapa || window.map || null;
-        if (!mapa) return;
+        const map = window.map || window.map || null;
+        if (!map) return;
         
         // Ajustar zoom por defecto para móvil usando Leaflet
-        const currentZoom = mapa.getZoom();
+        const currentZoom = map.getZoom();
         if (currentZoom > 15) {
-            mapa.setZoom(Math.min(currentZoom, 15));
+            map.setZoom(Math.min(currentZoom, 15));
         }
         
         // Configurar opciones touch optimizadas para Leaflet
-        if (mapa.touchZoom) {
-            mapa.touchZoom.disable();
-            mapa.touchZoom.enable();
+        if (map.touchZoom) {
+            map.touchZoom.disable();
+            map.touchZoom.enable();
         }
         
-        if (mapa.doubleClickZoom) {
-            mapa.doubleClickZoom.disable();
-            mapa.doubleClickZoom.enable();
+        if (map.doubleClickZoom) {
+            map.doubleClickZoom.disable();
+            map.doubleClickZoom.enable();
         }
     }
 
@@ -223,10 +223,10 @@ class MobileOptimizationHandler {
      * Configura eventos táctiles específicos (Leaflet)
      */
     configurarEventosTactiles() {
-        // Prevenir zoom doble tap en el mapa Leaflet
-        const mapa = window.mapa || window.map || null;
-        if (mapa && mapa.getContainer) {
-            const viewport = mapa.getContainer();
+        // Prevenir zoom doble tap en el map Leaflet
+        const map = window.map || window.map || null;
+        if (map && map.getContainer) {
+            const viewport = map.getContainer();
             
             let ultimoTap = 0;
             viewport.addEventListener('touchend', (e) => {
@@ -344,7 +344,7 @@ class MobileOptimizationHandler {
             console.log(`📐 Cambio de orientación: ${this.orientacion} → ${nuevaOrientacion}`);
             this.orientacion = nuevaOrientacion;
             
-            // Reajustar mapa
+            // Reajustar map
             if (window.map) {
                 setTimeout(() => {
                     window.map.updateSize();
@@ -394,12 +394,12 @@ class MobileOptimizationHandler {
      * Aplica optimizaciones de rendimiento (Leaflet)
      */
     aplicarOptimizacionesRendimiento() {
-        // Optimizaciones para mapa Leaflet
-        const mapa = window.mapa || window.map || null;
-        if (mapa) {
+        // Optimizaciones para map Leaflet
+        const map = window.map || window.map || null;
+        if (map) {
             // Configurar opciones de rendimiento para Leaflet
-            if (mapa.options) {
-                mapa.options.preferCanvas = true; // Usar Canvas en lugar de SVG para mejor rendimiento
+            if (map.options) {
+                map.options.preferCanvas = true; // Usar Canvas en lugar de SVG para mejor rendimiento
             }
         }
         
@@ -408,8 +408,8 @@ class MobileOptimizationHandler {
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                if (mapa && mapa.invalidateSize) {
-                    mapa.invalidateSize(); // Método correcto para Leaflet
+                if (map && map.invalidateSize) {
+                    map.invalidateSize(); // Método correcto para Leaflet
                 }
             }, 250);
         });

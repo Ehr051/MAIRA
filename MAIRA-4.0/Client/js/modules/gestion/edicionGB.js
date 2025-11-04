@@ -559,8 +559,8 @@ function actualizarEtiquetaUnidad(elemento) {
     elemento.off('add'); // Remover eventos previos
     elemento.on('add', actualizarPosicionEtiqueta);
     
-    window.mapa.off('zoomend', actualizarPosicionEtiqueta);
-    window.mapa.on('zoomend', actualizarPosicionEtiqueta);
+    window.map.off('zoomend', actualizarPosicionEtiqueta);
+    window.map.on('zoomend', actualizarPosicionEtiqueta);
 }
 
 function actualizarEtiquetaEquipo(elemento) {
@@ -781,15 +781,15 @@ function guardarCambiosUnidadGB() {
         }
         
         // 2. Buscar y eliminar cualquier otro marcador con el mismo ID en otras capas
-        if (window.mapa) {
-            window.mapa.eachLayer(function(layer) {
+        if (window.map) {
+            window.map.eachLayer(function(layer) {
                 // Verificar si es un marcador con el mismo ID o con ID relacionado
                 if (layer instanceof L.Marker && 
                     ((layer.options && layer.options.id === idUsuarioFinal) || 
                      (idUsuarioBase && layer.options && layer.options.id && 
                       layer.options.id.includes(idUsuarioBase)))) {
                     console.log(`Eliminando marcador adicional con ID: ${layer.options.id}`);
-                    window.mapa.removeLayer(layer);
+                    window.map.removeLayer(layer);
                 }
             });
         }
@@ -799,9 +799,9 @@ function guardarCambiosUnidadGB() {
             for (const id in window.elementosConectados) {
                 if (id !== idUsuarioFinal && idUsuarioBase && 
                     id.includes(idUsuarioBase) && id.startsWith('elemento_')) {
-                    if (window.elementosConectados[id].marcador && window.mapa) {
+                    if (window.elementosConectados[id].marcador && window.map) {
                         console.log(`Eliminando marcador de elemento duplicado: ${id}`);
-                        window.mapa.removeLayer(window.elementosConectados[id].marcador);
+                        window.map.removeLayer(window.elementosConectados[id].marcador);
                     }
                     console.log(`Eliminando elemento duplicado: ${id}`);
                     delete window.elementosConectados[id];
@@ -1632,12 +1632,12 @@ function actualizarElementoConectadoLocal(datosElemento, marcador) {
         
         // Si el marcador es diferente, reemplazarlo
         if (window.elementosConectados[datosElemento.id].marcador !== marcador && marcador) {
-            // Eliminar marcador anterior del mapa
+            // Eliminar marcador anterior del map
             const marcadorAnterior = window.elementosConectados[datosElemento.id].marcador;
-            if (marcadorAnterior && window.mapa) {
-                if (window.mapa.hasLayer(marcadorAnterior)) {
-                    window.mapa.removeLayer(marcadorAnterior);
-                    console.log(`🔄 Marcador anterior eliminado del mapa`);
+            if (marcadorAnterior && window.map) {
+                if (window.map.hasLayer(marcadorAnterior)) {
+                    window.map.removeLayer(marcadorAnterior);
+                    console.log(`🔄 Marcador anterior eliminado del map`);
                 }
             }
             
@@ -2068,7 +2068,7 @@ function crearTextoMarcador(elemento, texto) {
         const latlngs = elemento.getLatLngs();
         posicion = latlngs[Math.floor(latlngs.length / 2)];
     } else {
-        posicion = window.mapa.getCenter();
+        posicion = window.map.getCenter();
     }
     
     // Determinar la clase CSS correcta
@@ -2086,7 +2086,7 @@ function crearTextoMarcador(elemento, texto) {
         }),
         draggable: true,
         interactive: true
-    }).addTo(calcoActivo || window.mapa);
+    }).addTo(calcoActivo || window.map);
     
     // Asignar al elemento
     elemento.textoMarcador = textoMarcador;
@@ -2149,7 +2149,7 @@ function actualizarTextoElemento(elemento, nuevoTexto, tipo) {
             elemento.textoAsociado.on('drag', function(e) {
                 if (dragConstraint) {
                     let closestPoint = dragConstraint(e.latlng);
-                    e.target.setLatLng(mapa.layerPointToLatLng(closestPoint));
+                    e.target.setLatLng(map.layerPointToLatLng(closestPoint));
                 }
             });
         }
@@ -2281,8 +2281,8 @@ function aplicarRelleno(elemento, tipoRelleno, color) {
         elemento._capasSecundarias.forEach(capa => {
             if (window.calcoActivo && window.calcoActivo.hasLayer(capa)) {
                 window.calcoActivo.removeLayer(capa);
-            } else if (window.mapa && window.mapa.hasLayer(capa)) {
-                window.mapa.removeLayer(capa);
+            } else if (window.map && window.map.hasLayer(capa)) {
+                window.map.removeLayer(capa);
             }
         });
         elemento._capasSecundarias = null;
@@ -2290,7 +2290,7 @@ function aplicarRelleno(elemento, tipoRelleno, color) {
     
     // Si hay algún patrón aplicado al elemento, eliminarlo
     if (elemento.options.fillPattern && elemento.options.fillPattern._removeShapes) {
-        window.mapa.removePattern(elemento.options.fillPattern);
+        window.map.removePattern(elemento.options.fillPattern);
     }
     
     switch(tipoRelleno) {
@@ -2310,9 +2310,9 @@ function aplicarRelleno(elemento, tipoRelleno, color) {
         case 'cuadros':
             const patronCompuesto = obtenerPatronRelleno(tipoRelleno, color);
             if (patronCompuesto && patronCompuesto.tipo === 'compuesto') {
-                // Añadir patrones al mapa
+                // Añadir patrones al map
                 patronCompuesto.patrones.forEach(patron => {
-                    patron.addTo(window.mapa);
+                    patron.addTo(window.map);
                 });
                 
                 // Aplicar el primer patrón al elemento principal
@@ -2328,7 +2328,7 @@ function aplicarRelleno(elemento, tipoRelleno, color) {
                     fillOpacity: 0.7,
                     color: 'transparent', // Sin borde
                     weight: 0
-                }).addTo(window.calcoActivo || window.mapa);
+                }).addTo(window.calcoActivo || window.map);
                 
                 // Guardar referencia para poder eliminarlo después
                 elemento._capasSecundarias = [segundaLayer];
@@ -2338,8 +2338,8 @@ function aplicarRelleno(elemento, tipoRelleno, color) {
         case 'puntos':
             const patronPuntos = obtenerPatronRelleno(tipoRelleno, color);
             if (patronPuntos) {
-                // Añadir el patrón al mapa
-                patronPuntos.addTo(window.mapa);
+                // Añadir el patrón al map
+                patronPuntos.addTo(window.map);
                 
                 // Aplicar el patrón directamente al elemento
                 elemento.setStyle({
@@ -2353,7 +2353,7 @@ function aplicarRelleno(elemento, tipoRelleno, color) {
             // Para diagonal y otros patrones simples
             let patron = obtenerPatronRelleno(tipoRelleno, color);
             if (patron && patron.addTo) {
-                patron.addTo(window.mapa);
+                patron.addTo(window.map);
                 elemento.setStyle({
                     fillPattern: patron,
                     fillOpacity: 1

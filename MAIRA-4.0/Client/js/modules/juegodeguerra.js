@@ -129,7 +129,7 @@ class SistemaJuegoGuerra {
                 console.log('✅ Sistema de paneles configurado para juego de guerra');
                 
                 // Activar panel por defecto
-                this.gestores.paneles.activarPanel('mapa');
+                this.gestores.paneles.activarPanel('map');
                 
             } catch (error) {
                 console.warn('⚠️ Error configurando sistema de paneles:', error);

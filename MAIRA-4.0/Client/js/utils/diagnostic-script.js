@@ -11,7 +11,7 @@ function diagnosticoCompleto() {
     // 1. VERIFICAR MÓDULOS PRINCIPALES
     console.log('\n📦 1. MÓDULOS PRINCIPALES:');
     const modulosPrincipales = {
-        'window.mapa': window.mapa,
+        'window.map': window.map,
         'window.calcoActivo': window.calcoActivo,
         'window.L (Leaflet)': window.L,
         'window.measurementHandler': window.measurementHandler,
@@ -48,7 +48,7 @@ function diagnosticoCompleto() {
         'btnMedirDistancia': document.getElementById('btnMedirDistancia'),
         'calculoMarchaPanel': document.getElementById('calculoMarchaPanel'),
         'search-container': document.getElementById('search-container'),
-        'mapa': document.getElementById('mapa')
+        'map': document.getElementById('map')
     };
     
     Object.entries(elementosHTML).forEach(([id, elemento]) => {
@@ -58,24 +58,24 @@ function diagnosticoCompleto() {
         }
     });
     
-    // 4. VERIFICAR EVENTOS DE MAPA
-    console.log('\n🗺️ 4. ESTADO DEL MAPA:');
-    if (window.mapa) {
-        console.log('✅ Mapa inicializado');
-        console.log('📍 Centro:', window.mapa.getCenter());
-        console.log('🔍 Zoom:', window.mapa.getZoom());
-        console.log('🎛️ Eventos registrados:', Object.keys(window.mapa._events || {}));
+    // 4. VERIFICAR EVENTOS DE map
+    console.log('\n🗺️ 4. ESTADO DEL map:');
+    if (window.map) {
+        console.log('✅ map inicializado');
+        console.log('📍 Centro:', window.map.getCenter());
+        console.log('🔍 Zoom:', window.map.getZoom());
+        console.log('🎛️ Eventos registrados:', Object.keys(window.map._events || {}));
         
         // Verificar capas
-        const capas = window.mapa._layers ? Object.keys(window.mapa._layers).length : 0;
+        const capas = window.map._layers ? Object.keys(window.map._layers).length : 0;
         console.log('🗂️ Capas activas:', capas);
         
         // Verificar controles
-        const controles = window.mapa._controlContainer ? 
-            window.mapa._controlContainer.children.length : 0;
+        const controles = window.map._controlContainer ? 
+            window.map._controlContainer.children.length : 0;
         console.log('🎮 Controles activos:', controles);
     } else {
-        console.log('❌ Mapa no inicializado');
+        console.log('❌ map no inicializado');
     }
     
     // 5. VERIFICAR CSS CRÍTICOS
@@ -108,12 +108,12 @@ function diagnosticoCompleto() {
     
     // Ejecutar pruebas rápidas
     try {
-        if (window.mapa) {
-            window.mapa.getZoom();
+        if (window.map) {
+            window.map.getZoom();
         }
-        console.log('✅ Mapa funcional');
+        console.log('✅ map funcional');
     } catch (e) {
-        console.log('❌ Error en mapa:', e.message);
+        console.log('❌ Error en map:', e.message);
     }
     
     try {
@@ -136,7 +136,7 @@ function diagnosticoCompleto() {
         console.log('🔧 Ejecutar: await MAIRABootstrap.loadForModule("planeamiento")');
     }
     
-    if (!window.mapa) {
+    if (!window.map) {
         console.log('🔧 Ejecutar: inicializarMapa()');
     }
     
@@ -164,10 +164,10 @@ function diagnosticoCompleto() {
         modulos: modulosPrincipales,
         funciones: funcionesCriticas.map(f => ({ [f]: typeof window[f] === 'function' })),
         elementos: elementosHTML,
-        mapa: window.mapa ? 'OK' : 'ERROR',
+        map: window.map ? 'OK' : 'ERROR',
         sugerencias: [
             !window.measurementHandler && 'Cargar measurementHandler',
-            !window.mapa && 'Inicializar mapa',
+            !window.map && 'Inicializar map',
             !document.getElementById('btnMedirDistancia') && 'Verificar HTML'
         ].filter(Boolean)
     };
@@ -177,8 +177,8 @@ function diagnosticoCompleto() {
 function probarMedicion() {
     console.log('🧪 PROBANDO SISTEMA DE MEDICIÓN...');
     
-    if (!window.mapa) {
-        console.error('❌ Mapa no disponible');
+    if (!window.map) {
+        console.error('❌ map no disponible');
         return false;
     }
     
@@ -257,9 +257,9 @@ function verificarCuadriculas() {
     console.log(`${mgrsDisponible ? '✅' : '❌'} MGRS:`, mgrsDisponible ? 'DISPONIBLE' : 'NO ENCONTRADO');
     console.log(`${utmDisponible ? '✅' : '❌'} UTM:`, utmDisponible ? 'DISPONIBLE' : 'NO ENCONTRADO');
     
-    // Verificar si las cuadrículas están en el mapa
-    if (window.mapa) {
-        const capasConCuadricula = Object.values(window.mapa._layers || {})
+    // Verificar si las cuadrículas están en el map
+    if (window.map) {
+        const capasConCuadricula = Object.values(window.map._layers || {})
             .filter(capa => capa.options?.className?.includes('grid') || 
                            capa.options?.pane === 'gridPane');
         

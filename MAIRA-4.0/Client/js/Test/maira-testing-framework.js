@@ -293,7 +293,7 @@ class MAIRATester {
         await this.checkFunctionExists('ejecutarComando');
 
         // Simular edición
-        await this.clickElement('.elemento-mapa', 'Seleccionar elemento');
+        await this.clickElement('.elemento-map', 'Seleccionar elemento');
         await this.clickElement('#btnEditar', 'Editar elemento');
 
         // Verificar que se abre panel de edición

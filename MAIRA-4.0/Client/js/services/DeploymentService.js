@@ -36,7 +36,7 @@ class DeploymentService {
                 throw new Error(`No se puede desplegar ${elementData.name}: Sin componentes definidos`);
             }
 
-            // 3. Crear elementos hijos en el mapa
+            // 3. Crear elementos hijos en el map
             const childElements = await this.createChildElements(elementData, deployment);
 
             // 4. Registrar relación padre-hijos
@@ -74,7 +74,7 @@ class DeploymentService {
 
             const childIds = this.parentChildRelations.get(parentId);
             
-            // 2. Eliminar elementos hijos del mapa
+            // 2. Eliminar elementos hijos del map
             await this.removeChildElements(childIds);
 
             // 3. Restaurar elemento padre
@@ -170,7 +170,7 @@ class DeploymentService {
                 created: new Date().toISOString()
             };
 
-            // Agregar al mapa del juego
+            // Agregar al map del juego
             await this.addElementToMap(childElement);
             
             childElements.push(childElement);
@@ -289,7 +289,7 @@ class DeploymentService {
     }
 
     /**
-     * 🗺️ Integración con mapa del juego
+     * 🗺️ Integración con map del juego
      */
     async addElementToMap(element) {
         try {
@@ -303,10 +303,10 @@ class DeploymentService {
                 await window.unitHandler.createUnit(element);
             }
             
-            this.log(`📍 Elemento ${element.name} añadido al mapa`);
+            this.log(`📍 Elemento ${element.name} añadido al map`);
             
         } catch (error) {
-            console.error('❌ Error añadiendo elemento al mapa:', error);
+            console.error('❌ Error añadiendo elemento al map:', error);
         }
     }
 

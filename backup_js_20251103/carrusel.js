@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: 'planeamiento',
             nombre: 'Modo Planeamiento',
             icono: 'planning-icon.png',
-            descripcion: 'Planifica operaciones, crea calcos y elementos en el mapa con libertad total.',
+            descripcion: 'Planifica operaciones, crea calcos y elementos en el map con libertad total.',
             url: 'planeamiento.html'
         },
         {

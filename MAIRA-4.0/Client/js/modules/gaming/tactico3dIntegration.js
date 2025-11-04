@@ -90,8 +90,8 @@ class Tactico3DIntegration {
         };
 
         // Recopilar elementos militares desplegados
-        if (window.mapa) {
-            window.mapa.eachLayer((layer) => {
+        if (window.map) {
+            window.map.eachLayer((layer) => {
                 if (layer.options && layer.options.sidc && layer.options.tipo === 'elemento') {
                     datos.elementos.push({
                         id: layer.options.id,
@@ -219,9 +219,9 @@ class Tactico3DIntegration {
     }
 
     actualizarPosicionEnMapa2D(elementoId, nuevaPosicion) {
-        // Actualizar posición en el mapa 2D
-        if (window.mapa) {
-            window.mapa.eachLayer((layer) => {
+        // Actualizar posición en el map 2D
+        if (window.map) {
+            window.map.eachLayer((layer) => {
                 if (layer.options && layer.options.id === elementoId) {
                     layer.setLatLng(nuevaPosicion);
                 }
@@ -240,7 +240,7 @@ class Tactico3DIntegration {
         // Aplicar orden específica al sistema principal
         console.log(`📋 Aplicando orden: ${orden.tipo} para ${orden.elementoId}`);
         
-        // Aquí se pueden implementar efectos en el mapa 2D
+        // Aquí se pueden implementar efectos en el map 2D
         // como mostrar rutas de movimiento, indicadores de estado, etc.
     }
 
@@ -258,12 +258,12 @@ class Tactico3DIntegration {
     }
 }
 
-// Inicializar automáticamente DESHABILITADO - Para evitar conflictos con el mapa principal
+// Inicializar automáticamente DESHABILITADO - Para evitar conflictos con el map principal
 // if (typeof window !== 'undefined' && window.document) {
 //     window.addEventListener('DOMContentLoaded', () => {
 //         // Verificar que estamos en el contexto correcto
 //         if (document.title.includes('Juego de Guerra') || 
-//             document.querySelector('#mapa') || 
+//             document.querySelector('#map') || 
 //             window.gestorJuego) {
 //             
 //             window.tactico3DIntegration = new Tactico3DIntegration();

@@ -118,7 +118,7 @@ Después de hacer los cambios:
 
 1. Reiniciar servidor Flask (`python app.py`)
 2. Recargar navegador (Cmd+Shift+R)
-3. El mapa debería cargar en Sierras (-38.07, -62.00)
+3. El map debería cargar en Sierras (-38.07, -62.00)
 4. Al generar terreno 3D:
    - Debería ver: `🚀 Llamando a API batch con XXXX puntos...`
    - Debería ver: `✅ Batch: XXX/XXX en X.XXs`

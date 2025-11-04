@@ -1,8 +1,8 @@
-# 🔍 DIAGNÓSTICO: Mapa No Se Ve (Fondo Celeste)
+# 🔍 DIAGNÓSTICO: map No Se Ve (Fondo Celeste)
 
 **Fecha:** 19 oct 2025
 **Archivo afectado:** `planeamiento_integrado.html`
-**Síntoma:** Fondo celeste visible, mapa Leaflet no se renderiza
+**Síntoma:** Fondo celeste visible, map Leaflet no se renderiza
 
 ---
 
@@ -52,14 +52,14 @@ MAIRA-4.0/
 🌍 MAIRA Terrain 3D cargado
 🚀 Iniciando sistema de terreno 3D...
 🗺️ Inicializando map...
-♻️ Reutilizando mapa Leaflet existente
-🛰️ Agregando capa satelital al mapa existente
+♻️ Reutilizando map Leaflet existente
+🛰️ Agregando capa satelital al map existente
 ✅ map satelital inicializado
 ```
 
-**Análisis:** El sistema modular 3D se auto-inicia y **agrega una capa satelital al mapa** antes de que el usuario haga clic.
+**Análisis:** El sistema modular 3D se auto-inicia y **agrega una capa satelital al map** antes de que el usuario haga clic.
 
-**Posible conflicto:** Si `window.map` no existe aún (porque `mapaP.js` no terminó de inicializar), el sistema modular podría estar intentando usar un mapa inexistente.
+**Posible conflicto:** Si `window.map` no existe aún (porque `mapaP.js` no terminó de inicializar), el sistema modular podría estar intentando usar un map inexistente.
 
 ---
 
@@ -69,14 +69,14 @@ MAIRA-4.0/
 ```
 1. "DOM completamente cargado. Iniciando configuración del map..." (mapaP.js)
 2. "🌍 MAIRA Terrain 3D cargado" (terrain3d-init.js)
-3. "♻️ Reutilizando mapa Leaflet existente" (TerrainController3D.js)
+3. "♻️ Reutilizando map Leaflet existente" (TerrainController3D.js)
 ```
 
 **Timeline sospechoso:**
-- `mapaP.js` inicia configuración del mapa
+- `mapaP.js` inicia configuración del map
 - Antes de que termine, `terrain3d-init.js` se ejecuta
 - `TerrainController3D` encuentra `window.map` y lo "reutiliza"
-- ¿Pero el mapa original se completó correctamente?
+- ¿Pero el map original se completó correctamente?
 
 ---
 
@@ -98,7 +98,7 @@ console.log('map _layers:', window.map ? Object.keys(window.map._layers) : 'NO M
 
 ---
 
-### Verificación #2: ¿Se está renderizando el mapa?
+### Verificación #2: ¿Se está renderizando el map?
 
 Verificar en DevTools → Elements:
 ```html
@@ -185,7 +185,7 @@ async function initTerrainSystem() {
     }
     
     if (!window.map || !window.map._loaded) {
-        console.error('❌ Timeout esperando mapa Leaflet');
+        console.error('❌ Timeout esperando map Leaflet');
         return;
     }
     
@@ -214,10 +214,10 @@ cd MAIRA-4.0/Client
 # Verificar consola: NO debe haber 404s de node_modules
 ```
 
-### Test #2: Mapa visible
+### Test #2: map visible
 ```bash
 # Abrir planeamiento_integrado.html
-# Resultado esperado: Mapa Leaflet visible con tiles
+# Resultado esperado: map Leaflet visible con tiles
 # NO debe verse solo fondo celeste
 ```
 

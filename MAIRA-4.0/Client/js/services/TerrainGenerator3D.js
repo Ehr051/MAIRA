@@ -399,10 +399,10 @@ class TerrainGenerator3D {
         const realDimensions = this.calculateRealWorldDimensions(bounds);
         console.log(`📏 Dimensiones reales: ${realDimensions.widthMeters.toFixed(0)}m x ${realDimensions.heightMeters.toFixed(0)}m`);
         
-        // 🎯 CALCULAR FACTOR DE ESCALA BASADO EN ZOOM DEL MAPA
+        // 🎯 CALCULAR FACTOR DE ESCALA BASADO EN ZOOM DEL map
         const mapZoom = options.mapZoom || 15; // Zoom por defecto si no se pasa
         const zoomScaleFactor = this.calculateZoomScaleFactor(mapZoom);
-        console.log(`🔍 Zoom del mapa: ${mapZoom}, Factor de escala: ${zoomScaleFactor.toFixed(2)}x`);
+        console.log(`🔍 Zoom del map: ${mapZoom}, Factor de escala: ${zoomScaleFactor.toFixed(2)}x`);
         
         // 🔥 Aplicar factor de escala a las dimensiones
         const scaledWidth = realDimensions.widthMeters * zoomScaleFactor;
@@ -696,7 +696,7 @@ class TerrainGenerator3D {
 
     /**
      * Generar terreno virtual sin coordenadas geográficas
-     * Útil para demos y testing sin mapa
+     * Útil para demos y testing sin map
      */
     async generateVirtualTerrain(options = {}) {
         if (!this.initialized) {
@@ -1932,7 +1932,7 @@ class TerrainGenerator3D {
     }
 
     /**
-     * 🔍 Calcular factor de escala basado en zoom del mapa
+     * 🔍 Calcular factor de escala basado en zoom del map
      */
     calculateZoomScaleFactor(zoom) {
         // Zoom 10 = 1x (escala real)

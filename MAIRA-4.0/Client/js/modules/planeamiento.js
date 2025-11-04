@@ -209,7 +209,7 @@ class SistemaPlaneamiento {
             return;
         }
 
-        // Esperar click en mapa para posicionar
+        // Esperar click en map para posicionar
         this.esperarPosicionamiento(datos);
         this.cerrarPanelTemporal();
     }
@@ -259,7 +259,7 @@ class SistemaPlaneamiento {
     }
 
     /**
-     * Renderiza una unidad en el mapa
+     * Renderiza una unidad en el map
      */
     renderizarUnidad(unidad) {
         const elemento = document.createElement('div');
@@ -284,8 +284,8 @@ class SistemaPlaneamiento {
         // Hacer la unidad arrastrable
         this.hacerArrastrable(elemento);
         
-        // Agregar al contenedor del mapa
-        const contenedorMapa = document.getElementById('mapa-canvas') || document.body;
+        // Agregar al contenedor del map
+        const contenedorMapa = document.getElementById('map-canvas') || document.body;
         contenedorMapa.appendChild(elemento);
     }
 
@@ -439,7 +439,7 @@ class SistemaPlaneamiento {
     }
 
     /**
-     * Selecciona un elemento del mapa
+     * Selecciona un elemento del map
      */
     seleccionarElemento(elemento) {
         // Deseleccionar elementos anteriores

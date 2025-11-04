@@ -20,7 +20,7 @@ class TestHandler {
             console.log('🧪 Ejecutando test de planeamiento...');
             this.testsRunning = true;
 
-            // Test 1: Verificar mapa
+            // Test 1: Verificar map
             const test1 = this.testMapa();
             
             // Test 2: Verificar herramientas
@@ -33,7 +33,7 @@ class TestHandler {
             const test4 = this.testElevacion();
 
             const results = {
-                mapa: test1,
+                map: test1,
                 herramientas: test2,
                 simbolos: test3,
                 elevacion: test4,
@@ -58,14 +58,14 @@ class TestHandler {
     }
 
     /**
-     * Test del mapa
+     * Test del map
      */
     testMapa() {
         const tests = [];
         
         // Test: ¿Existe window.map?
         tests.push({
-            name: 'Mapa disponible',
+            name: 'map disponible',
             result: !!window.map,
             details: window.map ? `Tipo: ${typeof window.map}` : 'No disponible'
         });
@@ -73,7 +73,7 @@ class TestHandler {
         // Test: ¿Está inicializado?
         if (window.map) {
             tests.push({
-                name: 'Mapa inicializado',
+                name: 'map inicializado',
                 result: window.map._loaded || false,
                 details: window.map._loaded ? 'Cargado' : 'No cargado'
             });
@@ -81,7 +81,7 @@ class TestHandler {
             // Test: ¿Tiene capas?
             const layerCount = Object.keys(window.map._layers || {}).length;
             tests.push({
-                name: 'Capas del mapa',
+                name: 'Capas del map',
                 result: layerCount > 0,
                 details: `${layerCount} capas`
             });

@@ -302,7 +302,7 @@ class PlaneamientoManager {
                 this.cacheElementos.set(elemento.id, elemento);
             });
 
-            // Mostrar en mapa (lazy rendering)
+            // Mostrar en map (lazy rendering)
             this.mostrarElementosEnMapa(chunk);
 
             // Pequeño delay para no bloquear UI
@@ -327,12 +327,12 @@ class PlaneamientoManager {
     }
 
     mostrarElementoEnMapa(elemento) {
-        // Integración con el mapa principal usando agregarMarcador con coordenadas
+        // Integración con el map principal usando agregarMarcador con coordenadas
         if (window.agregarMarcador && elemento.propiedades?.sidc) {
             const latlng = L.latLng(elemento.posicion.lat, elemento.posicion.lng);
             window.agregarMarcador(elemento.propiedades.sidc, elemento.propiedades.nombre || elemento.tipo, latlng);
         } else {
-            console.warn('⚠️ No se puede mostrar elemento en mapa - faltan funciones o datos');
+            console.warn('⚠️ No se puede mostrar elemento en map - faltan funciones o datos');
         }
     }
 

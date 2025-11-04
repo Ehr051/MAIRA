@@ -273,8 +273,8 @@ class SistemaPanelesUnificado {
     
     contarElementosDesplegados() {
         let elementos = 0;
-        if (window.mapa && window.mapa.eachLayer) {
-            window.mapa.eachLayer((layer) => {
+        if (window.map && window.map.eachLayer) {
+            window.map.eachLayer((layer) => {
                 if (layer.options && layer.options.tipo === 'elemento') {
                     elementos++;
                 }
@@ -434,7 +434,7 @@ class SistemaPanelesUnificado {
         const contenedor = document.getElementById('elementosJugadores');
         if (!contenedor) return;
         
-        // Obtener elementos del mapa
+        // Obtener elementos del map
         this.obtenerElementosDelMapa();
         
         let html = '';
@@ -475,10 +475,10 @@ class SistemaPanelesUnificado {
     obtenerElementosDelMapa() {
         this.estado.elementos = {};
         
-        if (window.mapa || window.map) {
-            const mapa = window.mapa || window.map;
+        if (window.map || window.map) {
+            const map = window.map || window.map;
             
-            mapa.eachLayer(layer => {
+            map.eachLayer(layer => {
                 if (layer.options && (layer.options.tipo || layer.options.id)) {
                     this.estado.elementos[layer.options.id || Date.now()] = {
                         id: layer.options.id,

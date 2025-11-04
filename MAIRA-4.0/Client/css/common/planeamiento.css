@@ -1126,17 +1126,17 @@ main {
 
 /* Estilos para impresión */
 @media print {
-    /* Ocultar todo excepto el mapa */
+    /* Ocultar todo excepto el map */
     body * {
       visibility: hidden; /* Oculta todo */
     }
     
     #map, #map * {
-      visibility: visible; /* Mostrar el mapa */
+      visibility: visible; /* Mostrar el map */
     }
     
     #map {
-      position: absolute; /* Asegurarse de que el mapa esté en su posición correcta */
+      position: absolute; /* Asegurarse de que el map esté en su posición correcta */
       top: 0;
       left: 0;
       width: 100%;

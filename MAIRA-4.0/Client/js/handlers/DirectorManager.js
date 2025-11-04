@@ -167,14 +167,14 @@ class DirectorManager {
         });
     }
 
-    // ===== INTEGRACIÓN CON MAPA =====
+    // ===== INTEGRACIÓN CON map =====
     iniciarDefinicionSector() {
         if (!window.map) {
-            alert('❌ Mapa no disponible');
+            alert('❌ map no disponible');
             return;
         }
 
-        alert('📍 Haga clic en el mapa para definir esquinas del sector trabajo');
+        alert('📍 Haga clic en el map para definir esquinas del sector trabajo');
         this.modoDefinicionSector = true;
         this.puntosSelector = [];
 
@@ -529,11 +529,11 @@ class DirectorManager {
     // ===== DEFINICIÓN DE ZONAS =====
     iniciarDefinicionZonaAzul() {
         if (!window.map) {
-            alert('❌ Mapa no disponible');
+            alert('❌ map no disponible');
             return;
         }
 
-        alert('🔵 Haga clic en el mapa para definir la zona azul');
+        alert('🔵 Haga clic en el map para definir la zona azul');
         this.modoDefinicionZona = 'azul';
         this.puntosZona = [];
 
@@ -548,11 +548,11 @@ class DirectorManager {
 
     iniciarDefinicionZonaRojo() {
         if (!window.map) {
-            alert('❌ Mapa no disponible');
+            alert('❌ map no disponible');
             return;
         }
 
-        alert('🔴 Haga clic en el mapa para definir la zona roja');
+        alert('🔴 Haga clic en el map para definir la zona roja');
         this.modoDefinicionZona = 'roja';
         this.puntosZona = [];
 

@@ -22,7 +22,7 @@ class Sistema3DIntegrado {
 
     async inicializar() {
         console.log('🚫 Sistema3DIntegrado DESACTIVADO - Funcionalidades integradas en mapaP.js');
-        return true; // ❌ NO INICIALIZAR - Evitar conflictos con mapa único
+        return true; // ❌ NO INICIALIZAR - Evitar conflictos con map único
         
         
         console.log('🎮 Inicializando Sistema 3D Integrado...');
@@ -103,7 +103,7 @@ class Sistema3DIntegrado {
 
         console.log('🎮 Cambiando a vista 3D...');
         
-        // Ocultar mapa 2D
+        // Ocultar map 2D
         const map2D = document.getElementById('map');
         if (map2D) {
             map2D.style.display = 'none';
@@ -134,13 +134,13 @@ class Sistema3DIntegrado {
         // Ocultar vista 3D
         this.vista3DContainer.style.display = 'none';
         
-        // Mostrar mapa 2D
+        // Mostrar map 2D
         const map2D = document.getElementById('map');
         if (map2D) {
             map2D.style.display = 'block';
         }
         
-        // Redimensionar mapa si es necesario
+        // Redimensionar map si es necesario
         if (window.map) {
             setTimeout(() => {
                 window.map.invalidateSize();
@@ -298,7 +298,7 @@ class JuegoGuerra3DIntegrado {
                 <div class="panel-header">🎯 Vista Táctica 3D</div>
                 <div class="panel-content">
                     <div class="controles-vista">
-                        <button class="btn-control" onclick="window.sistema3DIntegrado.cambiarAVista2D()">📋 Volver a Mapa 2D</button>
+                        <button class="btn-control" onclick="window.sistema3DIntegrado.cambiarAVista2D()">📋 Volver a map 2D</button>
                         <button class="btn-control" onclick="this.resetearCamara()">📷 Reset Cámara</button>
                         <button class="btn-control" onclick="this.toggleWireframe()">🕸️ Wireframe</button>
                     </div>
@@ -433,7 +433,7 @@ class JuegoGuerra3DIntegrado {
 // Inicialización global
 window.sistema3DIntegrado = new Sistema3DIntegrado();
 
-// Auto-inicializar DESHABILITADO - Para evitar conflictos con el mapa principal
+// Auto-inicializar DESHABILITADO - Para evitar conflictos con el map principal
 // document.addEventListener('DOMContentLoaded', () => {
 //     window.sistema3DIntegrado.inicializar().then(() => {
 //         // Verificar si debe activar vista 3D automáticamente

@@ -11,18 +11,18 @@ Este documento define la jerarquía de z-index utilizada en toda la aplicación 
 
 ## Rangos Definidos
 
-### 1-99: Mapa Base
-- `1-49`: Capas base del mapa (terreno, satelital)
-- `50-99`: Overlays del mapa (tiles, vectores)
+### 1-99: map Base
+- `1-49`: Capas base del map (terreno, satelital)
+- `50-99`: Overlays del map (tiles, vectores)
 
-### 100-499: Elementos del Mapa
+### 100-499: Elementos del map
 - `100-199`: Marcadores estándar
 - `200-299`: Líneas y polígonos
-- `300-399`: Etiquetas y tooltips del mapa
-- `400-499`: Controles auxiliares del mapa
+- `300-399`: Etiquetas y tooltips del map
+- `400-499`: Controles auxiliares del map
 
 ### 500-999: Herramientas Secundarias
-- `500-599`: Botones flotantes del mapa
+- `500-599`: Botones flotantes del map
 - `600-699`: Controles de zoom, escala
 - `700-799`: Leaflet Draw toolbar
 - `800-899`: Sidebar secundarios

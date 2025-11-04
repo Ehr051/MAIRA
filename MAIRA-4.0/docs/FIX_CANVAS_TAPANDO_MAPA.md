@@ -1,16 +1,16 @@
-# 🎯 FIX APLICADO: Canvas Tapando Mapa
+# 🎯 FIX APLICADO: Canvas Tapando map
 
 **Fecha:** 19 oct 2025  
-**Problema reportado:** "tal vez si esta cargando el mapa.. pero se esta iniciando el canvas encima y lo esta tapando sin que haya nada que generar.."
+**Problema reportado:** "tal vez si esta cargando el map.. pero se esta iniciando el canvas encima y lo esta tapando sin que haya nada que generar.."
 
 ---
 
 ## 🔍 DIAGNÓSTICO
 
 ### Síntoma
-- Mapa Leaflet SÍ se cargaba correctamente
+- map Leaflet SÍ se cargaba correctamente
 - Canvas 3D se creaba automáticamente al cargar la página
-- Canvas tapaba el mapa (z-index superior)
+- Canvas tapaba el map (z-index superior)
 - Usuario veía "fondo celeste" sin interacción posible
 
 ### Causa Raíz
@@ -31,11 +31,11 @@ window.addEventListener('load', () => {
 
 **Flujo problemático:**
 1. Usuario carga `planeamiento_integrado.html`
-2. `mapaP.js` inicializa mapa Leaflet → ✅ OK
+2. `mapaP.js` inicializa map Leaflet → ✅ OK
 3. `terrain3d-init.js` ejecuta `window.load` → ❌ Auto-inicia
 4. `inicializarSistema()` crea `TerrainController3D`
 5. `TerrainController3D.init()` crea canvas 3D
-6. Canvas se posiciona encima del mapa
+6. Canvas se posiciona encima del map
 7. Usuario ve fondo celeste (color por defecto de Three.js)
 
 ---
@@ -60,7 +60,7 @@ window.addEventListener('load', () => {
 ```
 
 **Beneficios:**
-- ✅ Mapa Leaflet visible al cargar
+- ✅ map Leaflet visible al cargar
 - ✅ No se crean recursos 3D innecesarios
 - ✅ Mejor rendimiento inicial
 - ✅ Inicialización bajo demanda (lazy loading)
@@ -113,7 +113,7 @@ btnVista3D.addEventListener('click', async function(e) {
 
 ### Test #1: Carga inicial
 ```
-✅ ESPERADO: Mapa Leaflet visible con tiles
+✅ ESPERADO: map Leaflet visible con tiles
 ✅ ESPERADO: No hay canvas 3D creado
 ✅ ESPERADO: Consola muestra "Sistema 3D listo - esperando clic"
 ```
@@ -142,7 +142,7 @@ btnVista3D.addEventListener('click', async function(e) {
 ### ANTES (Problemático)
 ```
 Tiempo de carga: 2.5s
-├── Mapa Leaflet: 1.2s ✅
+├── map Leaflet: 1.2s ✅
 ├── Sistema 3D (auto): 0.8s ❌ innecesario
 └── Canvas tapando: ❌ problema
 
@@ -155,7 +155,7 @@ Recursos iniciales:
 ### DESPUÉS (Optimizado)
 ```
 Tiempo de carga: 1.3s (-48%)
-├── Mapa Leaflet: 1.2s ✅
+├── map Leaflet: 1.2s ✅
 └── Sistema 3D: 0ms ✅ (bajo demanda)
 
 Recursos iniciales:
@@ -203,7 +203,7 @@ function getSystem() {
 
 **HTML siempre funcional:**
 ```html
-<!-- ✅ Funcionalidad base: Mapa 2D -->
+<!-- ✅ Funcionalidad base: map 2D -->
 <div id="map"></div>
 
 <!-- ✅ Mejora progresiva: Canvas 3D (opcional) -->
@@ -211,10 +211,10 @@ function getSystem() {
 ```
 
 **JavaScript mejora gradualmente:**
-1. Página carga → Mapa 2D funcional
+1. Página carga → map 2D funcional
 2. Usuario interesado → Clic en botón 3D
 3. Sistema 3D carga → Canvas aparece
-4. Mapa 2D sigue accesible
+4. map 2D sigue accesible
 
 ---
 
@@ -248,7 +248,7 @@ if (canUse3D()) {
 ## ✅ VERIFICACIÓN FINAL
 
 **Checklist de funcionalidad:**
-- [x] Mapa Leaflet visible al cargar
+- [x] map Leaflet visible al cargar
 - [x] Canvas 3D NO se crea automáticamente
 - [x] Botón "Generar Vista 3D" funcional
 - [x] Inicialización bajo demanda
@@ -259,7 +259,7 @@ if (canUse3D()) {
 
 **Usuario debe hacer:**
 1. Cargar `planeamiento_integrado.html`
-2. Verificar que ve el mapa Leaflet normalmente
+2. Verificar que ve el map Leaflet normalmente
 3. Hacer clic en "Generar Vista 3D"
 4. Esperar que termine el workflow
 5. Confirmar que aparece terreno 3D

@@ -569,7 +569,7 @@ class ControladorHUD {
         
         if (this.hudOculto) {
             document.body.classList.add('hud-oculto');
-            console.log('🎮 HUD oculto - Vista completa del mapa');
+            console.log('🎮 HUD oculto - Vista completa del map');
         } else {
             document.body.classList.remove('hud-oculto');
             console.log('🎮 HUD visible - Controles disponibles');

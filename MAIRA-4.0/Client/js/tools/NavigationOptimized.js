@@ -4,8 +4,8 @@
  */
 
 class NavigationOptimized {
-    constructor(mapa) {
-        this.mapa = mapa;
+    constructor(map) {
+        this.map = map;
         this.optimizaciones = {
             panSmoothing: true,
             zoomOptimization: true,
@@ -27,8 +27,8 @@ class NavigationOptimized {
     configurarPanSmoothing() {
         if (!this.optimizaciones.panSmoothing) return;
 
-        // Suavizar el paneo del mapa
-        this.mapa.on('move', () => {
+        // Suavizar el paneo del map
+        this.map.on('move', () => {
             // Optimizaciones de paneo
             if (window.performanceOptimizer) {
                 window.performanceOptimizer.optimizarRenderizado();
@@ -40,12 +40,12 @@ class NavigationOptimized {
         if (!this.optimizaciones.zoomOptimization) return;
 
         // Optimizar cambios de zoom
-        this.mapa.on('zoomstart', () => {
+        this.map.on('zoomstart', () => {
             // Preparar para cambio de zoom
             this.zoomStartTime = Date.now();
         });
 
-        this.mapa.on('zoomend', () => {
+        this.map.on('zoomend', () => {
             const zoomTime = Date.now() - this.zoomStartTime;
             console.log(`🔍 Zoom completado en ${zoomTime}ms`);
 
@@ -60,14 +60,14 @@ class NavigationOptimized {
         if (!this.optimizaciones.gestureHandling) return;
 
         // Manejar gestos táctiles
-        this.mapa.on('touchstart', (e) => {
+        this.map.on('touchstart', (e) => {
             this.touchStartTime = Date.now();
             this.touchStartPoint = e.latlng;
         });
 
-        this.mapa.on('touchend', (e) => {
+        this.map.on('touchend', (e) => {
             const touchTime = Date.now() - this.touchStartTime;
-            const distance = this.mapa.distance(this.touchStartPoint, e.latlng);
+            const distance = this.map.distance(this.touchStartPoint, e.latlng);
 
             if (touchTime < 300 && distance < 10) {
                 // Tap rápido - seleccionar elemento
@@ -86,7 +86,7 @@ class NavigationOptimized {
     }
 
     handleTap(latlng) {
-        // Manejar taps en el mapa
+        // Manejar taps en el map
         console.log('👆 Tap detectado en:', latlng);
 
         // Buscar elementos cercanos
@@ -107,7 +107,7 @@ class NavigationOptimized {
         if (window.sistemaZoomMultiNivel && window.sistemaZoomMultiNivel.elementos) {
             window.sistemaZoomMultiNivel.elementos.forEach((elemento, id) => {
                 if (elemento.posicion) {
-                    const distancia = this.mapa.distance(latlng, elemento.posicion);
+                    const distancia = this.map.distance(latlng, elemento.posicion);
                     if (distancia <= radio) {
                         elementos.push({ elemento, distancia });
                     }

@@ -473,11 +473,11 @@
                 window.finalizarMedicion();
             } else {
                 window.measuringDistance = true;
-                window.mapa.getContainer().style.cursor = 'crosshair';
+                window.map.getContainer().style.cursor = 'crosshair';
                 window.lineaActual = window.crearLinea();
         
                 // Agregar PI al primer punto
-                window.mapa.once('click', function(event) {
+                window.map.once('click', function(event) {
                     var latLng = event.latlng;
                     var simboloPI = new ms.Symbol(
                         SIDC.PI,
@@ -512,11 +512,11 @@
                     }
                 });
         
-                window.mapa.on('click', window.addDistancePoint);
-                window.mapa.on('mousemove', window.actualizarDistanciaProvisional);
+                window.map.on('click', window.addDistancePoint);
+                window.map.on('mousemove', window.actualizarDistanciaProvisional);
         
                 // Agregar PT al finalizar
-                window.mapa.once('dblclick', function(event) {
+                window.map.once('dblclick', function(event) {
                     var latLng = event.latlng;
                     var simboloPT = new ms.Symbol(
                         SIDC.PI,
@@ -664,7 +664,7 @@
             console.log("Modo para agregar punto de control activado");
             var self = this;
             // No deseleccionar la ruta al agregar puntos de control
-            window.mapa.once('click', function(e) {
+            window.map.once('click', function(e) {
                 self.agregarPuntoControl(e.latlng.lat, e.latlng.lng);
             });
         },

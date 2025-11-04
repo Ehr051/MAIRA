@@ -1,199 +1,213 @@
 /* =============================================
-   GRÁFICO MARCHA - CSS MEJORADO
-   Basado en el estilo del Perfil de Elevación
+   GRÁFICO MARCHA - CSS IDÉNTICO A PERFIL DE ELEVACIÓN
+   Copiado exactamente de CYGMarcha.css
    Fecha: 4 de noviembre de 2025
    ============================================= */
 
 /* ==========================================
-   CANVAS PRINCIPAL
+   PANEL GRÁFICO DE MARCHA (CENTRO)
    ========================================== */
+
+/* Posicionamiento y estructura base - IDÉNTICO A PERFIL */
+#graficoMarchaPanel {
+    width: var(--panel-width);
+    height: var(--panel-height);
+    left: 33.33%;
+    bottom: 0;
+    background: var(--color-bg);
+    position: fixed;
+    z-index: 1200;
+    border: 2px solid var(--color-primary);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Contenedor principal */
+#graficoMarchaPanel .display-content {
+    position: relative;
+    height: calc(100% - var(--header-height));
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+/* Contenedor del gráfico de marcha - IDÉNTICO A PERFIL */
+#graficoMarchaPanel .svg-container,
 #graficoMarchaCanvas {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 80px);
     min-height: 300px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
     position: relative;
     overflow: hidden;
 }
 
-#graficoMarchaCanvas svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
 /* ==========================================
-   EJES Y TEXTO
+   ELEMENTOS SVG - IDÉNTICOS A PERFIL
    ========================================== */
 
-/* Ejes principales */
-.x-axis path,
-.x-axis line,
-.y-axis path,
-.y-axis line,
-.axis path,
-.axis line {
-    stroke: #ffffff;
-    stroke-opacity: 0.7;
-    stroke-width: 1.5;
-    shape-rendering: crispEdges;
+/* Ejes */
+.axis-x path,
+.axis-x line,
+.axis-y path,
+.axis-y line,
+#graficoMarchaCanvas .axis path,
+#graficoMarchaCanvas .axis line {
+    stroke: #ffffff !important;
+    stroke-opacity: 0.7 !important;
+    stroke-width: 1.5 !important;
+    shape-rendering: crispEdges !important;
 }
 
-/* Texto de los ejes */
-.x-axis text,
-.y-axis text,
-.axis text {
+.axis-x text,
+.axis-y text,
+#graficoMarchaCanvas .axis text,
+#graficoMarchaCanvas .x-axis text,
+#graficoMarchaCanvas .y-axis text {
     fill: #ffffff !important;
     font-size: 12px !important;
     font-weight: 500 !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
-/* Ticks (marcas) de los ejes */
-.x-axis .tick line,
-.y-axis .tick line,
-.axis .tick line {
-    stroke: rgba(255, 255, 255, 0.3);
-    stroke-width: 1;
-}
-
-/* Dominio (línea principal) de los ejes */
-.x-axis .domain,
-.y-axis .domain,
-.axis .domain {
-    stroke: rgba(255, 255, 255, 0.7);
-    stroke-width: 2;
-}
-
-/* ==========================================
-   GRILLA (GRID)
-   ========================================== */
-.grid line,
+/* Grilla - IDÉNTICA A PERFIL */
 .grid-line,
-.x-grid line,
-.y-grid line {
-    stroke: rgba(255, 255, 255, 0.1);
-    stroke-width: 1;
-    stroke-dasharray: 3, 3;
-    shape-rendering: crispEdges;
+#graficoMarchaCanvas .grid line,
+#graficoMarchaCanvas .x-grid line,
+#graficoMarchaCanvas .y-grid line {
+    stroke: rgba(255, 255, 255, 0.1) !important;
+    stroke-width: 1 !important;
+    shape-rendering: crispEdges !important;
 }
 
-.grid path,
-.x-grid path,
-.y-grid path {
-    stroke-width: 0;
+#graficoMarchaCanvas .grid path,
+#graficoMarchaCanvas .x-grid path,
+#graficoMarchaCanvas .y-grid path {
+    stroke-width: 0 !important;
 }
 
-.grid .domain {
-    display: none;
+#graficoMarchaCanvas .grid .domain {
+    display: none !important;
 }
 
-/* ==========================================
-   LÍNEAS DEL GRÁFICO
-   ========================================== */
-
-/* Línea de marcha principal */
-.marcha-line,
-.march-line {
-    fill: none;
-    stroke: var(--color-primary, #0281a8);
-    stroke-width: 2.5;
-    transition: stroke-width 0.3s ease;
-}
-
-.marcha-line:hover,
-.march-line:hover {
-    stroke-width: 3.5;
-}
-
-/* Área bajo la línea */
+/* Área del gráfico - IDÉNTICA A PERFIL */
 .marcha-area,
-.march-area {
-    fill: rgba(2, 129, 168, 0.3);
+.march-area,
+#graficoMarchaCanvas .area {
+    fill: rgba(2, 129, 168, 0.3) !important;
     transition: fill-opacity 0.3s ease;
 }
 
 .marcha-area:hover,
 .march-area:hover {
-    fill-opacity: 0.5;
+    fill-opacity: 0.5 !important;
 }
 
-/* Línea de velocidad */
-.velocity-line {
-    fill: none;
-    stroke: #00ff88;
-    stroke-width: 2;
-    stroke-dasharray: 5, 5;
+/* Línea principal - IDÉNTICA A PERFIL */
+.marcha-line,
+.march-line,
+#graficoMarchaCanvas .line {
+    fill: none !important;
+    stroke: var(--color-primary, #0281a8) !important;
+    stroke-width: 2.5 !important;
+    transition: stroke-width 0.3s ease;
 }
 
-/* Línea de elevación */
-.elevation-line-marcha {
-    fill: none;
-    stroke: #ff8800;
-    stroke-width: 2;
+.marcha-line:hover,
+.march-line:hover {
+    stroke-width: 3.5 !important;
 }
 
-/* Línea de pendiente */
-.slope-line {
-    fill: none;
-    stroke: #ff0088;
-    stroke-width: 2;
-    stroke-dasharray: 3, 3;
+/* Guías del mouse - IDÉNTICAS A PERFIL */
+.mouse-guide-horizontal,
+.mouse-guide-vertical,
+#graficoMarchaCanvas .mouse-guide-horizontal,
+#graficoMarchaCanvas .mouse-guide-vertical {
+    stroke: rgba(255, 255, 255, 0.4) !important;
+    stroke-width: 1 !important;
+    stroke-dasharray: 4, 4 !important;
+    pointer-events: none !important;
+}
+
+/* Área de selección - IDÉNTICA A PERFIL */
+.selection-area,
+#graficoMarchaCanvas .selection-area {
+    fill: rgba(255, 255, 255, 0.1) !important;
+    stroke: rgba(255, 255, 255, 0.5) !important;
+    stroke-width: 1 !important;
+    stroke-dasharray: 4, 4 !important;
+    pointer-events: none !important;
 }
 
 /* ==========================================
-   PUNTOS DE CONTROL (PC, MCC, PI, PT)
+   TOOLTIPS - IDÉNTICOS A PERFIL
    ========================================== */
 
-/* Líneas de referencia de puntos de control */
+.marcha-tooltip,
+.tooltip-marcha,
+#graficoMarchaCanvas .tooltip {
+    position: absolute !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid var(--color-primary, #0281a8) !important;
+    border-radius: 4px !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    pointer-events: none !important;
+    z-index: 1000 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+    transform: translate(-50%, -100%) !important;
+    margin-top: -10px !important;
+}
+
+/* ==========================================
+   PUNTOS DE CONTROL - CON COLORES
+   ========================================== */
+
+/* Líneas de referencia para PC */
 .pc-line,
 .pc-line-PI,
 .pc-line-PT,
 .pc-line-PC,
-.pc-line-MCC {
-    stroke: rgba(255, 255, 255, 0.4);
-    stroke-width: 1.5;
-    stroke-dasharray: 5, 5;
+.pc-line-MCC,
+#graficoMarchaCanvas .pc-line {
+    stroke: rgba(255, 255, 255, 0.4) !important;
+    stroke-width: 1.5 !important;
+    stroke-dasharray: 5, 5 !important;
 }
 
 .pc-line-PI {
-    stroke: #4CAF50;
-    stroke-width: 2;
+    stroke: #4CAF50 !important;
+    stroke-width: 2 !important;
 }
 
 .pc-line-PT {
-    stroke: #F44336;
-    stroke-width: 2;
+    stroke: #F44336 !important;
+    stroke-width: 2 !important;
 }
 
 .pc-line-MCC {
-    stroke: #FFC107;
-    stroke-width: 2;
+    stroke: #FFC107 !important;
+    stroke-width: 2 !important;
 }
 
 /* Círculos de puntos de control */
 .pc-circle,
-.control-point {
-    fill: var(--color-primary, #0281a8);
-    stroke: #ffffff;
-    stroke-width: 2;
-    transition: r 0.2s ease, fill 0.2s ease;
+.control-point,
+#graficoMarchaCanvas .pc-circle {
+    fill: var(--color-primary, #0281a8) !important;
+    stroke: #ffffff !important;
+    stroke-width: 2 !important;
 }
 
-.pc-circle:hover,
-.control-point:hover {
-    r: 6;
-    fill: #00d4ff;
-    cursor: pointer;
-}
-
-/* Etiquetas de puntos de control */
+/* Etiquetas de PC */
 .pc-label,
 .pc-label-PI,
 .pc-label-PT,
 .pc-label-PC,
-.pc-label-MCC {
+.pc-label-MCC,
+#graficoMarchaCanvas .pc-label {
     font-size: 11px !important;
     font-weight: bold !important;
     fill: #ffffff !important;
@@ -201,8 +215,8 @@
         -1px -1px 0 #000,
         1px -1px 0 #000,
         -1px 1px 0 #000,
-        1px 1px 0 #000;
-    pointer-events: none;
+        1px 1px 0 #000 !important;
+    pointer-events: none !important;
 }
 
 .pc-label-PI {
@@ -217,77 +231,150 @@
     fill: #FFC107 !important;
 }
 
-/* Fondo de etiquetas para mejor legibilidad */
-.pc-label-bg {
-    fill: rgba(0, 0, 0, 0.7);
-    rx: 3;
-    ry: 3;
+/* ==========================================
+   PANEL DE ESTADÍSTICAS - IDÉNTICO A PERFIL
+   ========================================== */
+
+.marcha-stats,
+#graficoMarchaPanel .stats-panel {
+    height: 80px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--color-primary, #0281a8);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
 }
 
-/* Símbolos militares en el gráfico */
-.pc-symbol,
-.pc-symbol-PI,
-.pc-symbol-PT {
-    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+.stat-item {
+    background: rgba(2, 129, 168, 0.1) !important;
+    border: 1px solid rgba(2, 129, 168, 0.3) !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+    text-align: center !important;
+}
+
+.stat-item .stat-label {
+    font-size: 0.8em !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin-bottom: 4px !important;
+    text-transform: uppercase !important;
+}
+
+.stat-item .stat-value {
+    font-size: 1.2em !important;
+    color: #fff !important;
+    font-weight: 600 !important;
 }
 
 /* ==========================================
-   COLUMNAS (BARRAS VERTICALES)
+   MODO FULLSCREEN - IDÉNTICO A PERFIL
    ========================================== */
-.column-bar {
-    fill: rgba(2, 129, 168, 0.2);
-    stroke: rgba(2, 129, 168, 0.5);
-    stroke-width: 1;
-    transition: fill 0.2s ease;
+
+.fullscreen#graficoMarchaPanel {
+    width: 100vw !important;
+    height: 100vh !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 3000 !important;
 }
 
-.column-bar:hover {
-    fill: rgba(2, 129, 168, 0.4);
+.fullscreen#graficoMarchaPanel .display-content {
+    height: calc(100vh - var(--header-height, 50px)) !important;
+    padding: 20px !important;
 }
 
-.column-label {
-    font-size: 10px !important;
+.fullscreen#graficoMarchaPanel .svg-container,
+.fullscreen#graficoMarchaPanel #graficoMarchaCanvas {
+    height: calc(100vh - var(--header-height, 50px) - 100px) !important;
+    flex: 1 !important;
+    margin-bottom: 20px !important;
+}
+
+.fullscreen#graficoMarchaPanel svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.fullscreen#graficoMarchaPanel .axis text,
+.fullscreen#graficoMarchaPanel .x-axis text,
+.fullscreen#graficoMarchaPanel .y-axis text {
+    font-size: 14px !important;
+}
+
+.fullscreen#graficoMarchaPanel .marcha-line,
+.fullscreen#graficoMarchaPanel .march-line {
+    stroke-width: 3 !important;
+}
+
+.fullscreen#graficoMarchaPanel .marcha-stats {
+    position: relative !important;
+    height: auto !important;
+    min-height: 80px !important;
+    margin-top: auto !important;
+}
+
+/* ==========================================
+   RESPONSIVE - IDÉNTICO A PERFIL
+   ========================================== */
+
+@media (max-width: 768px) {
+    #graficoMarchaPanel {
+        width: 100% !important;
+        height: 50vh !important;
+        left: 0 !important;
+    }
+
+    .marcha-stats {
+        height: auto !important;
+        min-height: 120px !important;
+    }
+
+    .marcha-tooltip,
+    .tooltip-marcha {
+        font-size: 11px !important;
+        padding: 6px 10px !important;
+    }
+
+    .axis text,
+    .x-axis text,
+    .y-axis text {
+        font-size: 10px !important;
+    }
+
+    .fullscreen .axis text {
+        font-size: 12px !important;
+    }
+
+    .fullscreen .marcha-stats {
+        height: 100px !important;
+    }
+}
+
+/* ==========================================
+   ASEGURAR VISIBILIDAD DE TODO EL TEXTO SVG
+   ========================================== */
+
+#graficoMarchaCanvas svg text,
+#graficoMarchaPanel svg text {
     fill: #ffffff !important;
-    text-anchor: middle;
-    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+#graficoMarchaCanvas svg line {
+    shape-rendering: crispEdges !important;
+}
+
+#graficoMarchaCanvas svg path {
+    vector-effect: non-scaling-stroke !important;
 }
 
 /* ==========================================
-   TOOLTIPS Y ELEMENTOS INTERACTIVOS
+   CONTROLES Y LEYENDA
    ========================================== */
-.tooltip-marcha {
-    position: absolute;
-    padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-    font-size: 12px;
-    pointer-events: none;
-    z-index: 1000;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
 
-.mouse-guide-horizontal,
-.mouse-guide-vertical {
-    stroke: rgba(255, 255, 255, 0.4);
-    stroke-width: 1;
-    stroke-dasharray: 4, 4;
-    pointer-events: none;
-}
-
-/* Área de selección */
-.selection-area {
-    fill: rgba(255, 255, 255, 0.1);
-    stroke: rgba(255, 255, 255, 0.5);
-    stroke-width: 1;
-    stroke-dasharray: 4, 4;
-    pointer-events: none;
-}
-
-/* ==========================================
-   CONTROLES
-   ========================================== */
 .grafico-controls {
     display: flex;
     gap: 10px;
@@ -298,33 +385,6 @@
     border-radius: 4px;
 }
 
-.grafico-controls .control-item {
-    flex: 1;
-    min-width: 120px;
-}
-
-.grafico-controls label {
-    display: block;
-    color: #fff;
-    font-size: 0.85em;
-    margin-bottom: 4px;
-    font-weight: 500;
-}
-
-.grafico-controls select,
-.grafico-controls input {
-    width: 100%;
-    padding: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.3);
-    color: #fff;
-    font-size: 0.85em;
-}
-
-/* ==========================================
-   LEYENDA
-   ========================================== */
 .grafico-leyenda {
     display: flex;
     gap: 15px;
@@ -342,12 +402,6 @@
     gap: 6px;
     font-size: 0.85em;
     color: #fff;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-}
-
-.leyenda-item:hover {
-    opacity: 0.7;
 }
 
 .leyenda-color {
@@ -360,211 +414,4 @@
 .leyenda-color.velocidad { background: #00ff88; }
 .leyenda-color.elevacion { background: #ff8800; }
 .leyenda-color.pendiente { background: #ff0088; }
-.leyenda-color.distancia { background: #00aaff; }
 .leyenda-color.marcha { background: var(--color-primary, #0281a8); }
-
-/* ==========================================
-   ESTADÍSTICAS
-   ========================================== */
-.grafico-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-}
-
-.stat-item {
-    background: rgba(2, 129, 168, 0.1);
-    border: 1px solid rgba(2, 129, 168, 0.3);
-    border-radius: 4px;
-    padding: 10px;
-    text-align: center;
-    transition: all 0.2s ease;
-}
-
-.stat-item:hover {
-    background: rgba(2, 129, 168, 0.2);
-    border-color: rgba(2, 129, 168, 0.5);
-    transform: translateY(-2px);
-}
-
-.stat-item .stat-label {
-    font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 4px;
-    text-transform: uppercase;
-}
-
-.stat-item .stat-value {
-    font-size: 1.2em;
-    color: #fff;
-    font-weight: 600;
-}
-
-/* ==========================================
-   MODO FULLSCREEN
-   ========================================== */
-.fullscreen#graficoMarchaPanel {
-    width: 100vw !important;
-    height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.fullscreen#graficoMarchaPanel .display-content {
-    height: calc(100vh - 50px) !important;
-    padding: 20px;
-}
-
-.fullscreen#graficoMarchaPanel #graficoMarchaCanvas {
-    height: calc(100vh - 200px) !important;
-    min-height: 500px;
-}
-
-.fullscreen#graficoMarchaPanel .axis text {
-    font-size: 14px !important;
-}
-
-.fullscreen#graficoMarchaPanel .marcha-line,
-.fullscreen#graficoMarchaPanel .march-line {
-    stroke-width: 3;
-}
-
-.fullscreen#graficoMarchaPanel .pc-label {
-    font-size: 13px !important;
-}
-
-/* ==========================================
-   ANIMACIONES
-   ========================================== */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
-}
-
-.loading .marcha-line,
-.loading .march-line {
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* ==========================================
-   RESPONSIVE
-   ========================================== */
-@media screen and (max-width: 768px) {
-    .grafico-controls {
-        flex-direction: column;
-    }
-
-    .grafico-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .axis text {
-        font-size: 10px !important;
-    }
-
-    .pc-label {
-        font-size: 9px !important;
-    }
-
-    .fullscreen .axis text {
-        font-size: 12px !important;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .grafico-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .leyenda-item {
-        font-size: 0.75em;
-    }
-}
-
-/* ==========================================
-   ACCESIBILIDAD
-   ========================================== */
-.axis text,
-.pc-label,
-.column-label {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-/* Foco para teclado */
-.pc-circle:focus,
-.control-point:focus,
-.column-bar:focus {
-    outline: 2px solid #00d4ff;
-    outline-offset: 2px;
-}
-
-/* ==========================================
-   ESTILOS ADICIONALES PARA ELEMENTOS SVG
-   ========================================== */
-
-/* Asegurar que todos los textos SVG sean visibles */
-svg text {
-    fill: #ffffff !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-}
-
-/* Líneas de referencia */
-svg line {
-    shape-rendering: crispEdges;
-}
-
-/* Paths (trazados) */
-svg path {
-    vector-effect: non-scaling-stroke;
-}
-
-/* Grupos transformados */
-svg g {
-    pointer-events: all;
-}
-
-/* ==========================================
-   CLASES DE UTILIDAD
-   ========================================== */
-.hidden {
-    display: none !important;
-}
-
-.visible {
-    display: block !important;
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.fade-out {
-    animation: fadeOut 0.3s ease-out;
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}

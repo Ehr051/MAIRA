@@ -90,14 +90,14 @@ const MAIRA_LIFECYCLE_ANALYSIS = {
         workflow: [
             "1. Usuario accede desde index o directamente",
             "2. Bootstrap carga módulo 'planeamiento'",
-            "3. Se inicializa mapa con herramientas completas",
+            "3. Se inicializa map con herramientas completas",
             "4. Usuario utiliza herramientas de planificación",
             "5. Puede guardar/exportar/imprimir planeamiento",
             "6. Usuario puede regresar a index o ir a otro módulo"
         ],
         criticalFunctions: [
             "indexP.js - Inicialización principal",
-            "mapaP.js - Gestión del mapa",
+            "mapaP.js - Gestión del map",
             "simbolosP.js - Símbolos militares",
             "herramientasP.js - Herramientas de dibujo"
         ]
@@ -110,7 +110,7 @@ const MAIRA_LIFECYCLE_ANALYSIS = {
         purpose: "Editor de cuadros de organización militar",
         bootstrapModule: "organizacion",
         expectedFiles: [
-            // Core mínimo (sin herramientas de mapa)
+            // Core mínimo (sin herramientas de map)
             "./modules/organizacion/conexionesCO.js",
             "./modules/organizacion/CO.js",
             "./modules/organizacion/paneledicionCO.js"
@@ -191,7 +191,7 @@ const MAIRA_LIFECYCLE_ANALYSIS = {
             "1. Usuario llega desde iniciarpartida.html",
             "2. Bootstrap carga módulo 'juegodeguerra'",
             "3. Se inicializan gestores en orden",
-            "4. Se carga mapa y unidades",
+            "4. Se carga map y unidades",
             "5. Simulación interactiva comienza",
             "6. Gestión de turnos y acciones",
             "7. Usuario puede pausar/guardar/salir",

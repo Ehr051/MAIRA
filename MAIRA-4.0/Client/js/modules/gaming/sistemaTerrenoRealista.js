@@ -1103,22 +1103,22 @@ class SistemaTerrenoRealista {
     }
 
     crearMaterialTerreno(datosTerreno) {
-        // Obtener tipo de mapa actual para texturas
+        // Obtener tipo de map actual para texturas
         const mapType = this.obtenerTipoMapaActual();
 
-        // Crear material con texturas basadas en tipo de mapa
+        // Crear material con texturas basadas en tipo de map
         const material = new THREE.MeshLambertMaterial({
             transparent: false
         });
 
-        // Aplicar textura según tipo de mapa
+        // Aplicar textura según tipo de map
         material.map = this.generarTexturaMapaBase(mapType, datosTerreno);
 
         return material;
     }
 
     obtenerTipoMapaActual() {
-        // Obtener tipo de mapa desde mapaP.js
+        // Obtener tipo de map desde mapaP.js
         if (typeof window.getCurrentMapType === 'function') {
             return window.getCurrentMapType();
         }
@@ -1136,7 +1136,7 @@ class SistemaTerrenoRealista {
             canvas.height = height;
             const ctx = canvas.getContext('2d');
 
-            // Colores base según tipo de mapa
+            // Colores base según tipo de map
             let baseColor, secondaryColor;
 
             switch (mapType) {
@@ -1202,7 +1202,7 @@ class SistemaTerrenoRealista {
             return texture;
 
         } catch (error) {
-            console.warn('⚠️ Error generando textura mapa base:', error);
+            console.warn('⚠️ Error generando textura map base:', error);
             // Retornar textura por defecto
             const canvas = document.createElement('canvas');
             canvas.width = 256;
@@ -1429,7 +1429,7 @@ class SistemaTerrenoRealista {
     }
 
     /**
-     * Actualiza el terreno cuando cambian los bounds del mapa
+     * Actualiza el terreno cuando cambian los bounds del map
      */
     actualizarTerreno(bounds) {
         // Limpiar terreno anterior

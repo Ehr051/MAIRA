@@ -141,7 +141,7 @@ window.agregarMarcador = function(sidc, nombre) {
         }
     }
 
-    // 2. Handler para click en mapa
+    // 2. Handler para click en map
     window.map.once('click', function(event) {
         const latlng = event.latlng;
 
@@ -295,7 +295,7 @@ window.agregarMarcador = function(sidc, nombre) {
 
 
 window.agregarPuntoControl = function(tipo) {
-    // Handler para click en mapa
+    // Handler para click en map
     window.map.once('click', function(event) {
         const latlng = event.latlng;
         let pcNumero = '';

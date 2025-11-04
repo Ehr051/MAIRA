@@ -69,14 +69,14 @@ class IntegracionSistemaHub {
             }
         });
 
-        // Clicks en elementos del mapa para mostrar HUB de unidad
+        // Clicks en elementos del map para mostrar HUB de unidad
         document.addEventListener('unidadSeleccionada', (e) => {
             this.mostrarHubUnidad(e.detail);
         });
 
         // Click derecho para HUB de comandos
         document.addEventListener('contextmenu', (e) => {
-            if (e.target.closest('#mapa')) {
+            if (e.target.closest('#map')) {
                 e.preventDefault();
                 this.mostrarHubComandos(e.clientX, e.clientY);
             }
@@ -123,7 +123,7 @@ class IntegracionSistemaHub {
                 top: 50%;
                 right: 20px;
                 transform: translateY(-50%);
-                z-index: var(--z-controles-mapa, 500);
+                z-index: var(--z-controles-map, 500);
                 display: flex;
                 flex-direction: column;
                 gap: 8px;

@@ -348,7 +348,7 @@ async getBatchElevations(coordinates, bounds) {
 async generateTerrain(autoActivateFullscreen = true) {
     try {
         if (!this.capturedBounds) {
-            throw new Error('Primero captura el mapa');
+            throw new Error('Primero captura el map');
         }
         
         showLoadingModal('Generando terreno 3D...', 0);

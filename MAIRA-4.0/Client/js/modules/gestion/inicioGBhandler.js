@@ -506,7 +506,7 @@ function inicializarPreviewSIDC() {
             const notaDiv = document.createElement('div');
             notaDiv.className = 'alert alert-info mt-2';
             notaDiv.style.fontSize = '12px';
-            notaDiv.innerHTML = 'Podrás editar completamente este elemento una vez estés en el mapa.';
+            notaDiv.innerHTML = 'Podrás editar completamente este elemento una vez estés en el map.';
             previewDiv.appendChild(notaDiv);
         } catch (error) {
             console.error("Error al generar símbolo:", error);

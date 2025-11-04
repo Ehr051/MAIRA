@@ -2724,8 +2724,8 @@ function configurarEventosDocumento(documentoId) {
                 return;
             }
             
-            if (window.mapa) {
-                window.mapa.setView([lat, lng], 15);
+            if (window.map) {
+                window.map.setView([lat, lng], 15);
                 
                 // Crear un marcador temporal
                 const tempMarker = L.marker([lat, lng], {
@@ -2735,15 +2735,15 @@ function configurarEventosDocumento(documentoId) {
                         iconSize: [24, 24],
                         iconAnchor: [12, 12]
                     })
-                }).addTo(window.mapa);
+                }).addTo(window.map);
                 
                 // Añadir popup con información
                 tempMarker.bindPopup(`<strong>Ubicación del documento</strong><br>${document.querySelector(`.informe[data-id="${documentoId}"] .informe-titulo strong`).textContent}`).openPopup();
                 
                 // Eliminar el marcador después de 30 segundos
                 setTimeout(() => {
-                    if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-                        window.mapa.removeLayer(tempMarker);
+                    if (window.map && window.map.hasLayer(tempMarker)) {
+                        window.map.removeLayer(tempMarker);
                     }
                 }, 30000);
             }
@@ -2968,7 +2968,7 @@ function mostrarDetallesDocumento(documentoId) {
                 <div class="card-body">
                     <p>El documento incluye una ubicación geográfica.</p>
                     <button class="btn btn-info" onclick="MAIRA.Informes.centrarEnPosicionDocumento('${documento.id}')">
-                        <i class="fas fa-map-marker-alt"></i> Ver en el mapa
+                        <i class="fas fa-map-marker-alt"></i> Ver en el map
                     </button>
                 </div>
             </div>
@@ -3370,7 +3370,7 @@ function descargarAdjunto(adjunto) {
 }
 
 /**
- * Centra el mapa en la posición de un documento
+ * Centra el map en la posición de un documento
  * @param {string} documentoId - ID del documento
  */
 function centrarEnPosicionDocumento(documentoId) {
@@ -3381,14 +3381,14 @@ function centrarEnPosicionDocumento(documentoId) {
         return;
     }
     
-    // Verificar que existe el mapa
-    if (!window.mapa) {
-        MAIRA.Utils.mostrarNotificacion("El mapa no está disponible", "error");
+    // Verificar que existe el map
+    if (!window.map) {
+        MAIRA.Utils.mostrarNotificacion("El map no está disponible", "error");
         return;
     }
     
-    // Centrar mapa en la posición
-    window.mapa.setView([documento.posicion.lat, documento.posicion.lng], 15);
+    // Centrar map en la posición
+    window.map.setView([documento.posicion.lat, documento.posicion.lng], 15);
     
     // Crear un marcador temporal
     const tempMarker = L.marker([documento.posicion.lat, documento.posicion.lng], {
@@ -3398,7 +3398,7 @@ function centrarEnPosicionDocumento(documentoId) {
             iconSize: [30, 30],
             iconAnchor: [15, 15]
         })
-    }).addTo(window.mapa);
+    }).addTo(window.map);
     
     // Añadir popup con información
     tempMarker.bindPopup(`
@@ -3411,8 +3411,8 @@ function centrarEnPosicionDocumento(documentoId) {
     
     // Eliminar el marcador después de 60 segundos
     setTimeout(() => {
-        if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-            window.mapa.removeLayer(tempMarker);
+        if (window.map && window.map.hasLayer(tempMarker)) {
+            window.map.removeLayer(tempMarker);
         }
     }, 60000);
     
@@ -3440,8 +3440,8 @@ function centrarEnPosicionDocumento(documentoId) {
                     return;
                 }
                 
-                if (window.mapa) {
-                    window.mapa.setView([lat, lng], 15);
+                if (window.map) {
+                    window.map.setView([lat, lng], 15);
                     
                     // Crear un marcador temporal
                     const tempMarker = L.marker([lat, lng], {
@@ -3451,15 +3451,15 @@ function centrarEnPosicionDocumento(documentoId) {
                             iconSize: [24, 24],
                             iconAnchor: [12, 12]
                         })
-                    }).addTo(window.mapa);
+                    }).addTo(window.map);
                     
                     // Añadir popup con información
                     tempMarker.bindPopup(`<strong>Ubicación del informe</strong><br>${document.querySelector(`.informe[data-id="${informeId}"] .informe-titulo strong`).textContent}`).openPopup();
                     
                     // Eliminar el marcador después de 30 segundos
                     setTimeout(() => {
-                        if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-                            window.mapa.removeLayer(tempMarker);
+                        if (window.map && window.map.hasLayer(tempMarker)) {
+                            window.map.removeLayer(tempMarker);
                         }
                     }, 30000);
                 }
@@ -3716,7 +3716,7 @@ function mostrarDetallesInforme(informeId) {
                 <div class="card-body">
                     <p>El informe incluye una ubicación geográfica.</p>
                     <button class="btn btn-info" onclick="MAIRA.Informes.centrarEnPosicionInforme('${informe.id}')">
-                        <i class="fas fa-map-marker-alt"></i> Ver en el mapa
+                        <i class="fas fa-map-marker-alt"></i> Ver en el map
                     </button>
                 </div>
             </div>
@@ -3816,7 +3816,7 @@ function mostrarDetallesInforme(informeId) {
     }
 }
 /**
- * Centra el mapa en la posición de un informe
+ * Centra el map en la posición de un informe
  * @param {string} informeId - ID del informe
  */
 function centrarEnPosicionInforme(informeId) {
@@ -3827,14 +3827,14 @@ function centrarEnPosicionInforme(informeId) {
         return;
     }
     
-    // Verificar que existe el mapa
-    if (!window.mapa) {
-        MAIRA.Utils.mostrarNotificacion("El mapa no está disponible", "error");
+    // Verificar que existe el map
+    if (!window.map) {
+        MAIRA.Utils.mostrarNotificacion("El map no está disponible", "error");
         return;
     }
     
-    // Centrar mapa en la posición
-    window.mapa.setView([informe.posicion.lat, informe.posicion.lng], 15);
+    // Centrar map en la posición
+    window.map.setView([informe.posicion.lat, informe.posicion.lng], 15);
     
     // Crear un marcador temporal
     const tempMarker = L.marker([informe.posicion.lat, informe.posicion.lng], {
@@ -3844,7 +3844,7 @@ function centrarEnPosicionInforme(informeId) {
             iconSize: [30, 30],
             iconAnchor: [15, 15]
         })
-    }).addTo(window.mapa);
+    }).addTo(window.map);
     
     // Añadir popup con información
     tempMarker.bindPopup(`
@@ -3857,8 +3857,8 @@ function centrarEnPosicionInforme(informeId) {
     
     // Eliminar el marcador después de 60 segundos
     setTimeout(() => {
-        if (window.mapa && window.mapa.hasLayer(tempMarker)) {
-            window.mapa.removeLayer(tempMarker);
+        if (window.map && window.map.hasLayer(tempMarker)) {
+            window.map.removeLayer(tempMarker);
         }
     }, 60000);
     

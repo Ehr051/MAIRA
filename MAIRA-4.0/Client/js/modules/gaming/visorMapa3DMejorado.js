@@ -1,5 +1,5 @@
 /**
- * VISOR MAPA 3D MEJORADO - MAIRA 4.0
+ * VISOR map 3D MEJORADO - MAIRA 4.0
  * Integra las mejores características del test_mapa3d.html con el sistema principal
  */
 
@@ -15,7 +15,7 @@ class VisorMapa3DMejorado {
         this.gridHelper = null;
         this.stats = null;
         
-        // Configuración inicial - Buenos Aires, Argentina (se actualizará con coordenadas reales del mapa)
+        // Configuración inicial - Buenos Aires, Argentina (se actualizará con coordenadas reales del map)
         this.currentLat = -34.61315;
         this.currentLng = -58.37723;
         this.currentZoom = 12;
@@ -28,7 +28,7 @@ class VisorMapa3DMejorado {
         this.isInitialized = false;
         this.isLoading = false;
         this.terrainGenerated = false;
-        this.leafletMap = null; // Referencia al mapa de Leaflet
+        this.leafletMap = null; // Referencia al map de Leaflet
         
         console.log('🗺️ VisorMapa3DMejorado creado');
     }
@@ -40,7 +40,7 @@ class VisorMapa3DMejorado {
                 return;
             }
             
-            console.log('🚀 Inicializando Visor Mapa 3D Mejorado...');
+            console.log('🚀 Inicializando Visor map 3D Mejorado...');
             
             this.container = document.getElementById(this.containerId);
             if (!this.container) {
@@ -52,7 +52,7 @@ class VisorMapa3DMejorado {
                 throw new Error('THREE.js no está disponible');
             }
             
-            // Obtener coordenadas actuales del mapa Leaflet
+            // Obtener coordenadas actuales del map Leaflet
             await this.sincronizarConMapaLeaflet();
             
             await this.setupScene();
@@ -70,7 +70,7 @@ class VisorMapa3DMejorado {
             this.animate();
             
             this.isInitialized = true;
-            console.log('✅ Visor Mapa 3D Mejorado inicializado correctamente');
+            console.log('✅ Visor map 3D Mejorado inicializado correctamente');
             
         } catch (error) {
             console.error('❌ Error inicializando Visor 3D:', error);
@@ -79,8 +79,8 @@ class VisorMapa3DMejorado {
     }
     
     async sincronizarConMapaLeaflet() {
-        // Buscar el mapa de Leaflet activo
-        this.leafletMap = window.map || window.mapa || null;
+        // Buscar el map de Leaflet activo
+        this.leafletMap = window.map || window.map || null;
         
         if (this.leafletMap && this.leafletMap.getCenter) {
             const center = this.leafletMap.getCenter();
@@ -90,7 +90,7 @@ class VisorMapa3DMejorado {
             this.currentLng = center.lng;
             this.currentZoom = zoom;
             
-            // Ajustar radio de mapa según el zoom
+            // Ajustar radio de map según el zoom
             if (zoom >= 16) {
                 this.mapRadius = 1; // 1 km para zoom alto
             } else if (zoom >= 14) {
@@ -103,7 +103,7 @@ class VisorMapa3DMejorado {
             
             console.log(`🗺️ Coordenadas sincronizadas: ${this.currentLat.toFixed(4)}, ${this.currentLng.toFixed(4)} (Zoom: ${this.currentZoom}, Radio: ${this.mapRadius}km)`);
         } else {
-            console.warn('⚠️ No se encontró mapa de Leaflet, usando coordenadas por defecto');
+            console.warn('⚠️ No se encontró map de Leaflet, usando coordenadas por defecto');
         }
     }
     
@@ -287,7 +287,7 @@ class VisorMapa3DMejorado {
             // Generar heightmap
             this.generateHeightmap(geometry);
             
-            // Cargar textura real del mapa
+            // Cargar textura real del map
             const texture = await this.loadRealMapTexture();
             
             // Crear material
@@ -378,7 +378,7 @@ class VisorMapa3DMejorado {
     
     async loadRealMapTexture() {
         return new Promise((resolve, reject) => {
-            console.log('🗺️ Cargando textura de mapa real...');
+            console.log('🗺️ Cargando textura de map real...');
             
             // Crear canvas compuesto con múltiples tiles
             const canvas = document.createElement('canvas');
@@ -410,7 +410,7 @@ class VisorMapa3DMejorado {
                     tilesLoaded++;
                     
                     if (tilesLoaded === totalTiles) {
-                        // Agregar grid militar sobre el mapa real
+                        // Agregar grid militar sobre el map real
                         this.addMilitaryGrid(ctx, canvas.width, canvas.height);
                         
                         const texture = new THREE.CanvasTexture(canvas);
@@ -418,7 +418,7 @@ class VisorMapa3DMejorado {
                         texture.wrapT = THREE.RepeatWrapping;
                         texture.minFilter = THREE.LinearFilter;
                         
-                        console.log('✅ Textura de mapa real cargada');
+                        console.log('✅ Textura de map real cargada');
                         resolve(texture);
                     }
                 };
@@ -609,7 +609,7 @@ class VisorMapa3DMejorado {
     
     async regenerateTerrain() {
         console.log('🔄 Regenerando terreno 3D...');
-        // Resincronizar con mapa de Leaflet antes de regenerar
+        // Resincronizar con map de Leaflet antes de regenerar
         await this.sincronizarConMapaLeaflet();
         await this.generateTerrain();
     }
@@ -617,7 +617,7 @@ class VisorMapa3DMejorado {
     async actualizarDesdeMapaLeaflet() {
         if (!this.isInitialized) return;
         
-        console.log('🔄 Actualizando vista 3D desde mapa Leaflet...');
+        console.log('🔄 Actualizando vista 3D desde map Leaflet...');
         await this.sincronizarConMapaLeaflet();
         await this.generateTerrain();
     }
@@ -656,7 +656,7 @@ class VisorMapa3DMejorado {
                 this.camera.updateProjectionMatrix();
             }
             
-            // Configurar listeners del mapa de Leaflet para actualizaciones automáticas
+            // Configurar listeners del map de Leaflet para actualizaciones automáticas
             this.configurarListenersMapaLeaflet();
             
             console.log('✅ Visor 3D mostrado');
@@ -665,9 +665,9 @@ class VisorMapa3DMejorado {
     
     configurarListenersMapaLeaflet() {
         if (this.leafletMap && this.leafletMap.on) {
-            // Listener para movimientos del mapa
+            // Listener para movimientos del map
             this.leafletMap.on('moveend', () => {
-                console.log('🗺️ Mapa movido, sincronizando vista 3D...');
+                console.log('🗺️ map movido, sincronizando vista 3D...');
                 // Debounce para evitar actualizaciones excesivas
                 clearTimeout(this.syncTimeout);
                 this.syncTimeout = setTimeout(() => {
@@ -684,9 +684,9 @@ class VisorMapa3DMejorado {
                 }, 800);
             });
             
-            console.log('✅ Listeners del mapa Leaflet configurados');
+            console.log('✅ Listeners del map Leaflet configurados');
         } else {
-            console.warn('⚠️ No se pudo configurar listeners - mapa Leaflet no disponible');
+            console.warn('⚠️ No se pudo configurar listeners - map Leaflet no disponible');
         }
     }
     
@@ -698,7 +698,7 @@ class VisorMapa3DMejorado {
     }
     
     destroy() {
-        // Limpiar listeners del mapa
+        // Limpiar listeners del map
         if (this.leafletMap && this.leafletMap.off) {
             this.leafletMap.off('moveend');
             this.leafletMap.off('zoomend');

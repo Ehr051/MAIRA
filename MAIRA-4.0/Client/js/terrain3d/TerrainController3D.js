@@ -157,9 +157,9 @@ class TerrainController3D {
     initMap() {
         log('🗺️ Inicializando map...', 'info');
         
-        // ✅ REUTILIZAR mapa existente si ya está inicializado (planeamiento_integrado.html)
+        // ✅ REUTILIZAR map existente si ya está inicializado (planeamiento_integrado.html)
         if (window.map && typeof window.map.getCenter === 'function') {
-            log('♻️ Reutilizando mapa Leaflet existente', 'info');
+            log('♻️ Reutilizando map Leaflet existente', 'info');
             this.map = window.map;
             
             // Verificar si ya tiene capa satelital, si no agregarla
@@ -171,7 +171,7 @@ class TerrainController3D {
             });
             
             if (!hasSatelliteLayer) {
-                log('🛰️ Agregando capa satelital al mapa existente', 'info');
+                log('🛰️ Agregando capa satelital al map existente', 'info');
                 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                     attribution: '© Esri',
                     maxZoom: 19,
@@ -183,8 +183,8 @@ class TerrainController3D {
             return;
         }
         
-        // Si no existe, crear nuevo mapa
-        log('🆕 Creando nuevo mapa Leaflet', 'info');
+        // Si no existe, crear nuevo map
+        log('🆕 Creando nuevo map Leaflet', 'info');
         this.map = L.map('map').setView([-34.6, -58.4], 12);
         
         // 🛰️ TILES SATELITALES (ESRI World Imagery - permite CORS)
@@ -472,11 +472,11 @@ class TerrainController3D {
             console.log('🏁 [BATCH] Iniciando generateTerrainBatch()');
             
             if (!this.capturedBounds) {
-                throw new Error('Primero captura el mapa');
+                throw new Error('Primero captura el map');
             }
             
             if (!this.satelliteAnalyzer || !this.satelliteAnalyzer.imageData) {
-                throw new Error('Primero analiza el mapa');
+                throw new Error('Primero analiza el map');
             }
             
             console.log('📊 [BATCH] Bounds:', this.capturedBounds);
@@ -491,10 +491,10 @@ class TerrainController3D {
                 console.log('✅ [BATCH] Canvas activado');
             }
             
-            // 🚫 BLOQUEAR clicks del mapa (el 3D está encima)
+            // 🚫 BLOQUEAR clicks del map (el 3D está encima)
             if (this.map && this.map.getContainer()) {
                 this.map.getContainer().style.pointerEvents = 'none';
-                console.log('🚫 [BATCH] Clicks del mapa bloqueados');
+                console.log('🚫 [BATCH] Clicks del map bloqueados');
             }
             
             // Auto-activar fullscreen
@@ -964,7 +964,7 @@ class TerrainController3D {
     }
     
     /**
-     * ❌ Cerrar vista 3D y restaurar mapa
+     * ❌ Cerrar vista 3D y restaurar map
      */
     closeTerrain3D() {
         console.log('❌ [CLOSE] Cerrando vista 3D...');
@@ -991,10 +991,10 @@ class TerrainController3D {
             console.log('✅ [CLOSE] Botón de cierre ocultado');
         }
         
-        // Restaurar clicks del mapa
+        // Restaurar clicks del map
         if (this.map && this.map.getContainer()) {
             this.map.getContainer().style.pointerEvents = 'auto';
-            console.log('✅ [CLOSE] Clicks del mapa restaurados');
+            console.log('✅ [CLOSE] Clicks del map restaurados');
         }
         
         // Limpiar terreno de la escena

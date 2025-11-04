@@ -18,10 +18,10 @@ class SistemaPaneles {
         
         // Configuración de paneles disponibles
         this.configPaneles = {
-            'mapa': {
-                titulo: 'Mapa Táctico',
+            'map': {
+                titulo: 'map Táctico',
                 icono: '🗺️',
-                clase: 'panel-mapa',
+                clase: 'panel-map',
                 posicion: 'principal'
             },
             'unidades': {
@@ -109,8 +109,8 @@ class SistemaPaneles {
             <!-- Barra de herramientas superior -->
             <div id="barra-herramientas" class="barra-herramientas">
                 <div class="grupo-herramientas grupo-navegacion">
-                    <button class="btn-herramienta" data-panel="mapa" title="Mapa Táctico">
-                        🗺️ <span class="texto-btn">Mapa</span>
+                    <button class="btn-herramienta" data-panel="map" title="map Táctico">
+                        🗺️ <span class="texto-btn">map</span>
                     </button>
                     <button class="btn-herramienta" data-panel="vista3d" title="Vista 3D">
                         🎮 <span class="texto-btn">3D</span>
@@ -154,7 +154,7 @@ class SistemaPaneles {
 
             <!-- Área principal de trabajo -->
             <div id="area-trabajo" class="area-trabajo">
-                <!-- Panel principal (mapa/3D) -->
+                <!-- Panel principal (map/3D) -->
                 <div id="panel-principal" class="panel-principal">
                     <div id="contenido-principal" class="contenido-principal">
                         <!-- Aquí se carga el contenido principal -->
@@ -596,16 +596,16 @@ class SistemaPaneles {
         const contenido = document.getElementById('contenido-principal');
         
         switch (panelId) {
-            case 'mapa':
+            case 'map':
                 contenido.innerHTML = `
-                    <div class="panel-mapa-tactico">
-                        <h2>🗺️ Mapa Táctico</h2>
-                        <div id="mapa-canvas" class="mapa-canvas">
-                            <!-- Aquí se carga el mapa hexagonal -->
+                    <div class="panel-map-tactico">
+                        <h2>🗺️ map Táctico</h2>
+                        <div id="map-canvas" class="map-canvas">
+                            <!-- Aquí se carga el map hexagonal -->
                         </div>
                     </div>
                 `;
-                // Cargar mapa hexagonal
+                // Cargar map hexagonal
                 this.cargarMapaHexagonal();
                 break;
         }
@@ -721,8 +721,8 @@ class SistemaPaneles {
                     <div class="seccion-inteligencia">
                         <div class="reporte-intel">
                             <h4>🔍 Situación Enemiga</h4>
-                            <div class="mapa-situacion">
-                                <!-- Mini mapa de situación -->
+                            <div class="map-situacion">
+                                <!-- Mini map de situación -->
                             </div>
                             <div class="alertas-intel">
                                 <div class="alerta">⚠️ Movimiento enemigo detectado</div>
@@ -765,7 +765,7 @@ class SistemaPaneles {
                         <h3>🚫 Vista 3D Deshabilitada</h3>
                         <p>La Vista 3D ahora se activa desde:</p>
                         <ul style="text-align: left; max-width: 300px; margin: 0 auto;">
-                            <li>🔍 <strong>Zoom alto en el mapa</strong> - Se sugiere automáticamente</li>
+                            <li>🔍 <strong>Zoom alto en el map</strong> - Se sugiere automáticamente</li>
                             <li>🎮 <strong>Menú herramientas</strong> - Botón Vista 3D unificado</li>
                             <li>⌨️ <strong>Detector de zoom</strong> - Al acercarse mucho al terreno</li>
                         </ul>
@@ -813,13 +813,13 @@ class SistemaPaneles {
     }
 
     /**
-     * Carga el mapa hexagonal en el panel principal
+     * Carga el map hexagonal en el panel principal
      */
     cargarMapaHexagonal() {
-        // Esta función se conectará con el sistema de mapa hexagonal existente
-        const canvas = document.getElementById('mapa-canvas');
+        // Esta función se conectará con el sistema de map hexagonal existente
+        const canvas = document.getElementById('map-canvas');
         if (canvas) {
-            canvas.innerHTML = '<p>🗺️ Cargando mapa hexagonal...</p>';
+            canvas.innerHTML = '<p>🗺️ Cargando map hexagonal...</p>';
             // Aquí se integrará con el sistema de hexágonos existente
         }
     }

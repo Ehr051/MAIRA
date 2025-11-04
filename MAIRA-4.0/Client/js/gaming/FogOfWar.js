@@ -165,7 +165,7 @@ class FogOfWar {
             }
         });
         
-        // Mapa visibilidad
+        // map visibilidad
         this.visibilityMap = new VisibilityMap({
             resolution: 50, // 50m resolución
             updateInterval: 1000 // 1 segundo
@@ -246,7 +246,7 @@ class FogOfWar {
             this.updateSensorCoverage(unit, sensor);
         });
         
-        // Actualizar mapa visibilidad
+        // Actualizar map visibilidad
         this.visibilityMap.updateForUnit(unit);
         
         // Emitir evento actualización
@@ -536,12 +536,12 @@ class FogOfWar {
     }
 
     /**
-     * GENERAR MAPA INCERTIDUMBRE
+     * GENERAR map INCERTIDUMBRE
      */
     generateUncertaintyMap() {
         const uncertaintyMap = new Map();
         
-        // Para cada área del mapa
+        // Para cada área del map
         const gridSize = 1000; // 1km grid
         const bounds = this.spatialGrid.getBounds();
         
@@ -742,7 +742,7 @@ class FogOfWar {
         this.informationManager?.update(deltaTime);
         this.uncertaintyEngine?.update(deltaTime);
         
-        // Actualizar mapa visibilidad
+        // Actualizar map visibilidad
         this.visibilityMap?.update(deltaTime);
     }
 

@@ -4,7 +4,7 @@
  * - LOD (Level of Detail) - No procesar todos los píxeles
  * - Detección de features: caminos, edificios, vegetación, agua
  * - Texturizado del terreno 3D
- * - Mapa de colores para renderizado
+ * - map de colores para renderizado
  * 
  * NO CALCULA ALTURA - Solo features visuales
  * 
@@ -109,7 +109,7 @@ class SatelliteImageAnalyzer {
     /**
      * 🌿 Configurar VegetationService para usar datos TIF
      * @param {VegetationService} vegetationService - Servicio con datos TIF
-     * @param {L.LatLngBounds} bounds - Bounds del mapa
+     * @param {L.LatLngBounds} bounds - Bounds del map
      */
     setVegetationService(vegetationService, bounds) {
         this.vegetationService = vegetationService;
@@ -811,7 +811,7 @@ class SatelliteImageAnalyzer {
     }
     
     /**
-     * Obtener mapa de densidad de features
+     * Obtener map de densidad de features
      */
     getFeatureDensityMap(featureType, gridResolution = 20) {
         const features = this.features[featureType];

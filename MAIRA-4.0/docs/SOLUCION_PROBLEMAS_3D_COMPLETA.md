@@ -231,7 +231,7 @@ loader.loadModel('tree', 'vegetation').then(model => {
 
 ### **Test 4: Vista 3D Completa**
 1. Abrir `Client/planeamiento_integrado.html`
-2. Hacer zoom >= 15 en el mapa
+2. Hacer zoom >= 15 en el map
 3. Click en botón "Generar Vista 3D"
 4. Verificar que aparece canvas 3D
 5. Verificar que se renderiza terreno

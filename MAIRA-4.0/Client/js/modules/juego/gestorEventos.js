@@ -2,7 +2,7 @@
 
 class GestorEventos {
     constructor() {
-        // Mapa para almacenar todos los eventos registrados
+        // map para almacenar todos los eventos registrados
         this.mapaEventos = new Map();
         
         // Registro de eventos disparados (para debugging)
@@ -29,7 +29,7 @@ class GestorEventos {
             'accionDeshecha': [],
             'accionCompletada': [],
             
-            // Eventos de mapa
+            // Eventos de map
             'elementoCreado': [],
             'elementoEliminado': [],
             'elementoModificado': [],
@@ -56,7 +56,7 @@ class GestorEventos {
     inicializar() {
         console.log('Inicializando GestorEventos...');
         
-        // Inicializar el mapa de eventos con los eventos base
+        // Inicializar el map de eventos con los eventos base
         Object.keys(this.eventosBase).forEach(tipoEvento => {
             this.mapaEventos.set(tipoEvento, new Set());
         });

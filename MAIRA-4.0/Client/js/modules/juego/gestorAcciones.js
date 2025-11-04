@@ -11,7 +11,7 @@ class GestorAcciones extends GestorBase {
 
         // Referencias a otros sistemas
         this.socket = null;
-        this.mapa = null;
+        this.map = null;
         this.miRadial = null;
     }
 
@@ -21,12 +21,12 @@ class GestorAcciones extends GestorBase {
         
         this.socket = config.socket;
         this.gestorJuego = config.gestorJuego;
-        this.mapa = window.mapa;
-        this.mapa.off('contextmenu');
-        this.mapa.off('dblclick');
+        this.map = window.map;
+        this.map.off('contextmenu');
+        this.map.off('dblclick');
         
-        if (!this.mapa) {
-            throw new Error('El mapa debe estar inicializado antes de usar GestorAcciones');
+        if (!this.map) {
+            throw new Error('El map debe estar inicializado antes de usar GestorAcciones');
         }
         if (!window.MiRadial) {
             throw new Error('MiRadial no disponible');
@@ -45,11 +45,11 @@ class GestorAcciones extends GestorBase {
     }
 
     configurarEventos() {
-        if (this.mapa) {
-            this.mapa.on('draw:created', (e) => this.manejarDibujoCreado(e));
-            this.mapa.on('draw:edited', (e) => this.manejarDibujoEditado(e));
-            this.mapa.on('draw:deleted', (e) => this.manejarDibujoBorrado(e));
-            this.mapa.on('click', (e) => this.manejarClickMapa(e));
+        if (this.map) {
+            this.map.on('draw:created', (e) => this.manejarDibujoCreado(e));
+            this.map.on('draw:edited', (e) => this.manejarDibujoEditado(e));
+            this.map.on('draw:deleted', (e) => this.manejarDibujoBorrado(e));
+            this.map.on('click', (e) => this.manejarClickMapa(e));
         }
     }
 
@@ -62,15 +62,15 @@ class GestorAcciones extends GestorBase {
                 throw new Error('MiRadial no disponible');
             }
     
-            // Inicializar MiRadial con el mapa
-            window.MiRadial.init(this.mapa);
+            // Inicializar MiRadial con el map
+            window.MiRadial.init(this.map);
             this.miRadial = window.MiRadial;
     
             // Configurar fase inicial
             this.miRadial.setFaseJuego('preparacion');
     
             // Desactivar el menú contextual por defecto
-            this.mapa.on('contextmenu', (e) => {
+            this.map.on('contextmenu', (e) => {
                 L.DomEvent.stopPropagation(e);
                 L.DomEvent.preventDefault(e);
             });
@@ -101,7 +101,7 @@ class GestorAcciones extends GestorBase {
             window.elementoSeleccionado = marcador;
     
             // Obtener coordenadas para el menú
-            const point = this.mapa.latLngToContainerPoint(e.latlng);
+            const point = this.map.latLngToContainerPoint(e.latlng);
             
             // Asegurar que MiRadial tenga la referencia correcta
             if (window.MiRadial) {
@@ -156,7 +156,7 @@ mostrarMenuContextual(e) {
     }
 
     // Obtener coordenadas de pantalla
-    const point = this.mapa.latLngToContainerPoint(latlng);
+    const point = this.map.latLngToContainerPoint(latlng);
     window.MiRadial.mostrarMenu(
         e.originalEvent ? e.originalEvent.pageX : point.x,
         e.originalEvent ? e.originalEvent.pageY : point.y,
@@ -166,12 +166,12 @@ mostrarMenuContextual(e) {
 
 
     configurarEventos() {
-        // Eventos del mapa
-        if (this.mapa) {
-            this.mapa.on('draw:created', (e) => this.manejarDibujoCreado(e));
-            this.mapa.on('draw:edited', (e) => this.manejarDibujoEditado(e));
-            this.mapa.on('draw:deleted', (e) => this.manejarDibujoBorrado(e));
-            this.mapa.on('click', (e) => this.manejarClickMapa(e));
+        // Eventos del map
+        if (this.map) {
+            this.map.on('draw:created', (e) => this.manejarDibujoCreado(e));
+            this.map.on('draw:edited', (e) => this.manejarDibujoEditado(e));
+            this.map.on('draw:deleted', (e) => this.manejarDibujoBorrado(e));
+            this.map.on('click', (e) => this.manejarClickMapa(e));
         }
 
         // Eventos de elementos
@@ -247,7 +247,7 @@ actualizarSidcPorEquipo(caracter) {
                     layer.on('dblclick', (e) => {
                         L.DomEvent.stopPropagation(e);
                         window.elementoSeleccionado = layer;
-                        const point = this.mapa.latLngToContainerPoint(e.latlng);
+                        const point = this.map.latLngToContainerPoint(e.latlng);
                         window.MiRadial.mostrarMenu(point.x, point.y, 'elemento');
                     });
                 }
@@ -372,7 +372,7 @@ actualizarSidcPorEquipo(caracter) {
                 throw new Error('MiRadial no disponible');
             }
     
-            window.MiRadial.init(this.mapa, {
+            window.MiRadial.init(this.map, {
                 modoInteraccion: 'dobleClick',
                 contenidoDinamico: true,
                 onSeleccionOpcion: (opcion) => {
@@ -485,7 +485,7 @@ actualizarSidcPorEquipo(caracter) {
             elemento: this.elementoSeleccionado
         };
 
-        this.mapa.once('click', (e) => {
+        this.map.once('click', (e) => {
             if (this.validarMovimiento({
                 unidadId: this.elementoSeleccionado.options.id,
                 destino: e.latlng
@@ -508,7 +508,7 @@ actualizarSidcPorEquipo(caracter) {
         };
 
         // Esperar selección de objetivo
-        this.mapa.once('click', (e) => {
+        this.map.once('click', (e) => {
             const objetivo = this.obtenerElementoEnPosicion(e.latlng);
             if (objetivo && this.validarAtaque({
                 atacanteId: this.elementoSeleccionado.options.id,
@@ -711,12 +711,12 @@ buscarUnidad(unidadId) {
 obtenerElementoEnPosicion(latlng) {
     let elementoEncontrado = null;
     const radio = 20; // pixels
-    const bounds = this.mapa.getBounds();
-    const point = this.mapa.latLngToContainerPoint(latlng);
+    const bounds = this.map.getBounds();
+    const point = this.map.latLngToContainerPoint(latlng);
 
     this.gestorJuego?.gestorMapa?.calcoActivo.eachLayer(layer => {
         if (layer instanceof L.Marker || layer instanceof L.Path) {
-            const layerPoint = this.mapa.latLngToContainerPoint(
+            const layerPoint = this.map.latLngToContainerPoint(
                 layer instanceof L.Marker ? layer.getLatLng() : layer.getBounds().getCenter()
             );
             if (point.distanceTo(layerPoint) <= radio) {
@@ -788,12 +788,12 @@ obtenerInformacionElemento(elemento) {
 //#endregion
 
 destruir() {
-    // Limpiar eventos del mapa
-    if (this.mapa) {
-        this.mapa.off('click');
-        this.mapa.off('draw:created');
-        this.mapa.off('draw:edited');
-        this.mapa.off('draw:deleted');
+    // Limpiar eventos del map
+    if (this.map) {
+        this.map.off('click');
+        this.map.off('draw:created');
+        this.map.off('draw:edited');
+        this.map.off('draw:deleted');
     }
 
     // Limpiar eventos de socket

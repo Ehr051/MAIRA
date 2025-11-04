@@ -64,17 +64,17 @@ class GestorFases extends GestorBase {
             zonaAzul: null
         };
 
-        // Inicializar herramientas de dibujo cuando el mapa esté listo
+        // Inicializar herramientas de dibujo cuando el map esté listo
         this.inicializarHerramientasCuandoMapaListo();
     }
 
     /**
-     * Inicializa las herramientas de dibujo cuando el mapa esté disponible
+     * Inicializa las herramientas de dibujo cuando el map esté disponible
      */
     inicializarHerramientasCuandoMapaListo() {
-        // Esperar a que el mapa esté disponible
+        // Esperar a que el map esté disponible
         const intentarInicializar = () => {
-            if (window.mapa && window.calcoActivo) {
+            if (window.map && window.calcoActivo) {
                 this.inicializarHerramientasDibujo();
                 this.configurarEventos();
                 console.log('✅ Herramientas de dibujo inicializadas automáticamente');
@@ -174,7 +174,7 @@ class GestorFases extends GestorBase {
             this.dibujandoSector = false;
     
             // 5. Zoom al sector
-            window.mapa.flyToBounds(this.sectorJuego, {
+            window.map.flyToBounds(this.sectorJuego, {
                 padding: [50, 50],
                 duration: 0.5
             });
@@ -211,7 +211,7 @@ class GestorFases extends GestorBase {
                 ...zonaData.estilo
             };
     
-            // Crear polígono y agregarlo al mapa
+            // Crear polígono y agregarlo al map
             this.zonasLayers[equipo] = L.polygon(zonaData.coordenadas, estiloZona);
             
             // Actualizar estado
@@ -330,21 +330,21 @@ class GestorFases extends GestorBase {
 
 
     async inicializarHerramientasDibujo() {
-        if (!window.mapa) {
-            throw new Error('Mapa no inicializado');
+        if (!window.map) {
+            throw new Error('map no inicializado');
         }
     
         try {
             this.herramientasDibujo = {
-                sector: new L.Draw.Polygon(window.mapa, {
+                sector: new L.Draw.Polygon(window.map, {
                     showArea: true,
                     shapeOptions: ESTILOS_DIBUJO.sector
                 }),
-                zonaRoja: new L.Draw.Polygon(window.mapa, {
+                zonaRoja: new L.Draw.Polygon(window.map, {
                     showArea: true,
                     shapeOptions: ESTILOS_DIBUJO.zonaRoja
                 }),
-                zonaAzul: new L.Draw.Polygon(window.mapa, {
+                zonaAzul: new L.Draw.Polygon(window.map, {
                     showArea: true,
                     shapeOptions: ESTILOS_DIBUJO.zonaAzul
                 })
@@ -353,7 +353,7 @@ class GestorFases extends GestorBase {
             
 
             // Asegurarse de que los estilos se apliquen al crear
-            window.mapa.on(L.Draw.Event.CREATED, (e) => {
+            window.map.on(L.Draw.Event.CREATED, (e) => {
                 const tipo = this.dibujandoSector ? 'sector' : 
                             this.dibujandoZona === 'rojo' ? 'zonaRoja' : 'zonaAzul';
                 e.layer.setStyle(ESTILOS_DIBUJO[tipo]);
@@ -367,16 +367,16 @@ class GestorFases extends GestorBase {
     }
 
     /**
-     * Maneja clicks normales en el mapa para mostrar menú radial
+     * Maneja clicks normales en el map para mostrar menú radial
      */
     manejarClickMapa(e) {
-        console.log('🎯 Click en mapa detectado:', e.latlng);
+        console.log('🎯 Click en map detectado:', e.latlng);
 
         try {
             // Si MiRadial está disponible, mostrar menú radial
             if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
-                const point = window.mapa.latLngToContainerPoint(e.latlng);
-                window.MiRadial.mostrarMenu(point.x, point.y, 'mapa', e.latlng);
+                const point = window.map.latLngToContainerPoint(e.latlng);
+                window.MiRadial.mostrarMenu(point.x, point.y, 'map', e.latlng);
                 console.log('📋 Menú radial mostrado en posición:', point);
                 return;
             }
@@ -396,7 +396,7 @@ class GestorFases extends GestorBase {
             }
 
         } catch (error) {
-            console.error('❌ Error manejando click en mapa:', error);
+            console.error('❌ Error manejando click en map:', error);
         }
     }
 
@@ -507,13 +507,13 @@ limpiarInterfazAnterior() {
 
     // Métodos de manejo de dibujo y herramientas
     async inicializarHerramientasDibujo() {
-        if (!window.mapa) {
-            throw new Error('Mapa no inicializado');
+        if (!window.map) {
+            throw new Error('map no inicializado');
         }
 
         try {
             this.herramientasDibujo = {
-                sector: new L.Draw.Polygon(window.mapa, {
+                sector: new L.Draw.Polygon(window.map, {
                     showArea: true,
                     shapeOptions: {
                         stroke: true,
@@ -525,7 +525,7 @@ limpiarInterfazAnterior() {
                         editable: true
                     }
                 }),
-                zonaRoja: new L.Draw.Polygon(window.mapa, {
+                zonaRoja: new L.Draw.Polygon(window.map, {
                     showArea: true,
                     shapeOptions: {
                         stroke: true,
@@ -538,7 +538,7 @@ limpiarInterfazAnterior() {
                         clickable: true
                     }
                 }),
-                zonaAzul: new L.Draw.Polygon(window.mapa, {
+                zonaAzul: new L.Draw.Polygon(window.map, {
                     showArea: true,
                     shapeOptions: {
                         stroke: true,
@@ -561,10 +561,10 @@ limpiarInterfazAnterior() {
     }
 
     configurarEventos() {
-        if (window.mapa) {
-            window.mapa.on(L.Draw.Event.CREATED, this.manejarDibujoCreado.bind(this));
-            window.mapa.on(L.Draw.Event.DRAWSTART, this.manejarInicioDibujo.bind(this));
-            window.mapa.on(L.Draw.Event.DRAWSTOP, this.manejarFinDibujo.bind(this));
+        if (window.map) {
+            window.map.on(L.Draw.Event.CREATED, this.manejarDibujoCreado.bind(this));
+            window.map.on(L.Draw.Event.DRAWSTART, this.manejarInicioDibujo.bind(this));
+            window.map.on(L.Draw.Event.DRAWSTOP, this.manejarFinDibujo.bind(this));
         }
     }
 
@@ -1954,9 +1954,9 @@ todosJugadoresListos() {
 
     destruir() {
         // Limpiar eventos
-        window.mapa?.off(L.Draw.Event.CREATED);
-        window.mapa?.off(L.Draw.Event.DRAWSTART);
-        window.mapa?.off(L.Draw.Event.DRAWSTOP);
+        window.map?.off(L.Draw.Event.CREATED);
+        window.map?.off(L.Draw.Event.DRAWSTART);
+        window.map?.off(L.Draw.Event.DRAWSTOP);
 
         // Deshabilitar herramientas
         Object.values(this.herramientasDibujo).forEach(herramienta => {

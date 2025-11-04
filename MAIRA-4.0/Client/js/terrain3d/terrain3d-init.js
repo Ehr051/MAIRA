@@ -100,11 +100,11 @@ function exposeGlobalFunctions() {
             console.log('🚀 [WORKFLOW] Iniciando workflow completo (modo optimizado)...');
             console.time('⏱️ Tiempo total workflow');
             
-            console.log('📸 [WORKFLOW] PASO 1/4: Capturando mapa...');
-            console.time('⏱️ Captura mapa');
+            console.log('📸 [WORKFLOW] PASO 1/4: Capturando map...');
+            console.time('⏱️ Captura map');
             await terrainController.captureMap();
-            console.timeEnd('⏱️ Captura mapa');
-            console.log('✅ [WORKFLOW] Mapa capturado');
+            console.timeEnd('⏱️ Captura map');
+            console.log('✅ [WORKFLOW] map capturado');
             
             await new Promise(resolve => setTimeout(resolve, 100));
             

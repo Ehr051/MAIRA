@@ -1,6 +1,6 @@
 window.interpolarPuntosRuta = interpolarpuntos;
 // herramientas.js
-// Este archivo contiene funciones para herramientas de medición, búsqueda y manipulación del mapa
+// Este archivo contiene funciones para herramientas de medición, búsqueda y manipulación del map
 
 // ======================================================
 // MAIRA - Optimización Móvil y Táctil Integrada
@@ -275,7 +275,7 @@ function configurarEventosTactilesMedicion() {
             lastTouchTime = now;
             touchCount++;
 
-            // Convertir posición de touch a coordenadas del mapa
+            // Convertir posición de touch a coordenadas del map
             const containerPoint = L.point(touchStartPos.x, touchStartPos.y);
             const latlng = map.containerPointToLatLng(containerPoint);
             
@@ -720,7 +720,7 @@ function initializeBuscarLugar() {
     }
 
     if (!window.map) {
-        console.error('❌ Mapa no disponible para búsqueda de lugar');
+        console.error('❌ map no disponible para búsqueda de lugar');
         return;
     }
 
@@ -753,7 +753,7 @@ function initializeBuscarLugar() {
                         li.style.padding = '5px';
                         li.addEventListener('click', function() {
                             window.map.setView(result.center, 13);
-                            console.log('🎯 Mapa centrado en:', result.center);
+                            console.log('🎯 map centrado en:', result.center);
                             busquedaLugarInput.value = '';
                             resultadosBusquedaLugar.innerHTML = '';
                         });
@@ -1667,7 +1667,7 @@ function inicializarControlGestos() {
         return;
     }
     
-    // Detectar elemento del mapa
+    // Detectar elemento del map
     const mapaElement = document.getElementById('map') || document.querySelector('.leaflet-container');
     if (!mapaElement) {
         console.warn('⚠️ Elemento del map no encontrado para gestos');
@@ -1812,12 +1812,12 @@ window.initializeBuscarLugar = function() {
         
         // Verificar que el map esté disponible
         if (!window.map) {
-            console.warn(`⚠️ Intento ${intentos}/${maxIntentos}: Mapa no disponible`);
+            console.warn(`⚠️ Intento ${intentos}/${maxIntentos}: map no disponible`);
             if (intentos < maxIntentos) {
                 setTimeout(intentarInicializar, 500);
                 return;
             }
-            console.error('❌ Mapa no se inicializó después de múltiples intentos');
+            console.error('❌ map no se inicializó después de múltiples intentos');
             return;
         }
         

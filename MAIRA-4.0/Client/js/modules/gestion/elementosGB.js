@@ -1,6 +1,6 @@
 /**
  * elementosGB.js
- * Módulo de gestión de elementos en el mapa para Gestión de Batalla en MAIRA
+ * Módulo de gestión de elementos en el map para Gestión de Batalla en MAIRA
  * @version 1.0.0
  */
 
@@ -199,14 +199,14 @@ function editarElementoGB(elemento) {
 function buscarElementoEnPosicion(latlng) {
     console.log("Buscando elemento en posición:", latlng);
     
-    if (!window.mapa) {
-        console.error("Mapa no disponible para buscar elementos");
+    if (!window.map) {
+        console.error("map no disponible para buscar elementos");
         return null;
     }
     
     let elementoEncontrado = null;
     let distanciaMinima = Infinity;
-    const puntoClick = window.mapa.latLngToContainerPoint(latlng);
+    const puntoClick = window.map.latLngToContainerPoint(latlng);
     const radioDeteccion = 60; // Aumentado a 60 píxeles para ser más permisivo
     
     // Imprimir todos los elementos conectados para diagnóstico
@@ -223,7 +223,7 @@ function buscarElementoEnPosicion(latlng) {
         if (elemento.marcador) {
             try {
                 const pos = elemento.marcador.getLatLng();
-                const puntoMarcador = window.mapa.latLngToContainerPoint(pos);
+                const puntoMarcador = window.map.latLngToContainerPoint(pos);
                 const distancia = puntoClick.distanceTo(puntoMarcador);
                 
                 console.log(`Elemento ${elemento.datos?.id}, distancia: ${distancia}px`);
@@ -245,7 +245,7 @@ function buscarElementoEnPosicion(latlng) {
             window.calcoActivo.eachLayer(function(layer) {
                 if (layer instanceof L.Marker) {
                     try {
-                        const puntoMarcador = window.mapa.latLngToContainerPoint(layer.getLatLng());
+                        const puntoMarcador = window.map.latLngToContainerPoint(layer.getLatLng());
                         const distancia = puntoClick.distanceTo(puntoMarcador);
                         
                         if (distancia < radioDeteccion && distancia < distanciaMinima) {
@@ -470,7 +470,7 @@ function buscarElementoEnPosicion(latlng) {
         // 1. Configurar botones de la interfaz
         configurarBotonesInterfaz();
         
-        // 2. Configurar eventos de elementos en el mapa
+        // 2. Configurar eventos de elementos en el map
         configurarEventosElementosMapa();
         
         // 3. Inicializar menú contextual
@@ -507,8 +507,8 @@ function buscarElementoEnPosicion(latlng) {
     }
     
     function configurarEventosElementosMapa() {
-        // Eventos para elementos en el mapa
-        window.mapa.on('click', function(e) {
+        // Eventos para elementos en el map
+        window.map.on('click', function(e) {
             // Ocultar menú contextual si está visible
             const menuContextual = document.getElementById('menu-contextual-elemento');
             if (menuContextual) {
@@ -1057,10 +1057,10 @@ function limpiarElementosDuplicados() {
     elementosAEliminar.forEach(id => {
         console.log(`🗑️ Eliminando elemento duplicado/inválido: ${id}`);
         
-        // Eliminar del mapa si tiene marcador
-        if (elementosConectados[id]?.marcador && window.mapa) {
+        // Eliminar del map si tiene marcador
+        if (elementosConectados[id]?.marcador && window.map) {
             try {
-                window.mapa.removeLayer(elementosConectados[id].marcador);
+                window.map.removeLayer(elementosConectados[id].marcador);
             } catch (e) {
                 console.warn(`Error al eliminar marcador de ${id}:`, e);
             }
@@ -1449,7 +1449,7 @@ function actualizarElementoVisual(elementoId, nuevosDatos) {
         elementoData.datos = {...elementoData.datos, ...nuevosDatos};
     }
     
-    // Actualizar marcador en el mapa
+    // Actualizar marcador en el map
     if (elementoData.marcador) {
         // Si cambió el SIDC, actualizar el icono
         if (nuevosDatos && nuevosDatos.sidc && nuevosDatos.sidc !== elementoData.marcador.options.sidc) {
@@ -1473,7 +1473,7 @@ function actualizarElementoVisual(elementoId, nuevosDatos) {
             }
         }
         
-        // Si cambió la posición, actualizar en el mapa
+        // Si cambió la posición, actualizar en el map
         if (nuevosDatos && nuevosDatos.posicion) {
             elementoData.marcador.setLatLng([
                 nuevosDatos.posicion.lat, 
@@ -1680,18 +1680,18 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         // Actualizar la posición en la estructura de datos
         elementosConectados[datos.id].datos.posicion = datos.posicion;
         
-        // Actualizar el marcador en el mapa si existe
+        // Actualizar el marcador en el map si existe
         if (elementosConectados[datos.id].marcador) {
             const marcador = elementosConectados[datos.id].marcador;
             
             try {
-                // Verificar si el marcador está en el mapa
-                const estaEnMapa = window.mapa.hasLayer(marcador);
-                console.log(`ℹ️ Marcador ${datos.id} está en el mapa: ${estaEnMapa ? 'Sí' : 'No'}`);
+                // Verificar si el marcador está en el map
+                const estaEnMapa = window.map.hasLayer(marcador);
+                console.log(`ℹ️ Marcador ${datos.id} está en el map: ${estaEnMapa ? 'Sí' : 'No'}`);
                 
                 if (!estaEnMapa) {
-                    console.log(`🔄 Añadiendo marcador ${datos.id} al mapa`);
-                    window.mapa.addLayer(marcador);
+                    console.log(`🔄 Añadiendo marcador ${datos.id} al map`);
+                    window.map.addLayer(marcador);
                 }
                 
                 // Actualizar la posición del marcador
@@ -1714,8 +1714,8 @@ if (window.MAIRA && window.MAIRA.Elementos) {
                 // Intentar recrear el marcador en caso de error
                 console.log(`🔄 Intentando recrear marcador para ${datos.id}`);
                 try {
-                    if (window.mapa.hasLayer(marcador)) {
-                        window.mapa.removeLayer(marcador);
+                    if (window.map.hasLayer(marcador)) {
+                        window.map.removeLayer(marcador);
                     }
                     elementosConectados[datos.id].marcador = crearMarcadorElemento(elementosConectados[datos.id].datos);
                     console.log(`✅ Marcador recreado exitosamente`);
@@ -1826,10 +1826,10 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         elementosAEliminar.forEach(id => {
             console.log(`🗑️ Eliminando elemento duplicado/inválido: ${id}`);
             
-            // Eliminar del mapa si tiene marcador
-            if (elementosConectados[id]?.marcador && window.mapa) {
+            // Eliminar del map si tiene marcador
+            if (elementosConectados[id]?.marcador && window.map) {
                 try {
-                    window.mapa.removeLayer(elementosConectados[id].marcador);
+                    window.map.removeLayer(elementosConectados[id].marcador);
                 } catch (e) {
                     console.warn(`Error al eliminar marcador de ${id}:`, e);
                 }
@@ -2100,7 +2100,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
                     <button title="Ver detalles" class="btn-detalles">
                         <i class="fas fa-info-circle"></i>
                     </button>
-                    <button title="Centrar en mapa" class="btn-centrar">
+                    <button title="Centrar en map" class="btn-centrar">
                         <i class="fas fa-crosshairs"></i>
                     </button>
                     <button title="Mostrar recorrido" class="btn-tracking">
@@ -2187,7 +2187,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         // Añadir a la lista visual
         agregarElementoALista(elemento);
         
-        // Crear marcador en el mapa
+        // Crear marcador en el map
         crearMarcadorElemento(elemento);
         
         // Mejorar la lista de elementos
@@ -2198,18 +2198,18 @@ if (window.MAIRA && window.MAIRA.Elementos) {
     }
     
     /**
-     * Elimina un elemento de la lista y del mapa
+     * Elimina un elemento de la lista y del map
      * @param {string} id - ID del elemento a eliminar
      */
     function eliminarElementoLista(id) {
         if (!id) return;
         
-        // Eliminar marcador del mapa
-        if (elementosConectados[id]?.marcador && window.mapa) {
+        // Eliminar marcador del map
+        if (elementosConectados[id]?.marcador && window.map) {
             try {
-                window.mapa.removeLayer(elementosConectados[id].marcador);
+                window.map.removeLayer(elementosConectados[id].marcador);
             } catch (e) {
-                console.warn("Error al eliminar marcador del mapa:", e);
+                console.warn("Error al eliminar marcador del map:", e);
             }
         }
         
@@ -2314,7 +2314,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
     }
     
     /**
-     * Actualiza la posición de un elemento en el mapa
+     * Actualiza la posición de un elemento en el map
      * @param {Object} data - Datos de posición
      */
     
@@ -2336,7 +2336,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         console.warn("MAIRA.GestionBatalla no disponible para asignar elementosConectados");
     }
     /**
-     * Crea un marcador para el elemento en el mapa
+     * Crea un marcador para el elemento en el map
      * @param {Object} elemento - Datos del elemento
      * @returns {L.Marker} - Marcador creado
      */
@@ -2397,9 +2397,9 @@ if (window.MAIRA && window.MAIRA.Elementos) {
             // Crear marcador
             const marcador = L.marker([elemento.posicion.lat, elemento.posicion.lng], opciones);
             
-            // Añadir al mapa
-            if (window.mapa) {
-                window.mapa.addLayer(marcador);
+            // Añadir al map
+            if (window.map) {
+                window.map.addLayer(marcador);
             }
             
             // Configurar eventos
@@ -2471,7 +2471,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         if (window.calcoActivo) {
             marcadorUsuario.addTo(window.calcoActivo);
         } else {
-            marcadorUsuario.addTo(window.mapa);
+            marcadorUsuario.addTo(window.map);
         }
         
         // Configurar evento de clic para el menú contextual
@@ -2479,7 +2479,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
             mostrarMenuContextualMarcador(e, 'usuario');
         });
         
-        console.log("Marcador simple añadido al mapa");
+        console.log("Marcador simple añadido al map");
     }
     
     
@@ -2540,7 +2540,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         // Guardar en localStorage
         localStorage.setItem('ultima_posicion', JSON.stringify(ultimaPosicion));
         
-        // Actualizar posición en el mapa
+        // Actualizar posición en el map
         actualizarMarcadorUsuario(latitude, longitude, heading);
         
         // Enviar posición al servidor si estamos conectados
@@ -2604,21 +2604,21 @@ if (window.MAIRA && window.MAIRA.Elementos) {
     }
     
     /**
-     * Centra el mapa en la posición actual del usuario
+     * Centra el map en la posición actual del usuario
      */
     function centrarEnPosicion() {
-        console.log("Centrando mapa en posición actual");
+        console.log("Centrando map en posición actual");
         
-        if (marcadorUsuario && window.mapa && window.mapa.hasLayer(marcadorUsuario)) {
-            window.mapa.setView(marcadorUsuario.getLatLng(), 15);
-            MAIRA.Utils.mostrarNotificacion("Mapa centrado en tu posición", "info", 2000);
+        if (marcadorUsuario && window.map && window.map.hasLayer(marcadorUsuario)) {
+            window.map.setView(marcadorUsuario.getLatLng(), 15);
+            MAIRA.Utils.mostrarNotificacion("map centrado en tu posición", "info", 2000);
         } else {
             // Si no hay marcador, intentar obtener posición actual
             try {
                 if (ultimaPosicion) {
-                    if (window.mapa) {
-                        window.mapa.setView([ultimaPosicion.lat, ultimaPosicion.lng], 15);
-                        MAIRA.Utils.mostrarNotificacion("Mapa centrado en tu última posición", "info", 2000);
+                    if (window.map) {
+                        window.map.setView([ultimaPosicion.lat, ultimaPosicion.lng], 15);
+                        MAIRA.Utils.mostrarNotificacion("map centrado en tu última posición", "info", 2000);
                     }
                 } else {
                     // Intentar obtener posición actual
@@ -2626,8 +2626,8 @@ if (window.MAIRA && window.MAIRA.Elementos) {
                         MAIRA.Utils.mostrarNotificacion("Obteniendo tu ubicación...", "info");
                         navigator.geolocation.getCurrentPosition(
                             function(posicion) {
-                                window.mapa.setView([posicion.coords.latitude, posicion.coords.longitude], 15);
-                                MAIRA.Utils.mostrarNotificacion("Mapa centrado en tu posición", "success", 2000);
+                                window.map.setView([posicion.coords.latitude, posicion.coords.longitude], 15);
+                                MAIRA.Utils.mostrarNotificacion("map centrado en tu posición", "success", 2000);
                             },
                             function(error) {
                                 console.error("Error al obtener posición:", error);
@@ -2648,7 +2648,7 @@ if (window.MAIRA && window.MAIRA.Elementos) {
     }
     
     /**
-     * Centra el mapa en un elemento específico
+     * Centra el map en un elemento específico
      * @param {string} elementoId - ID del elemento a centrar
      */
     function centrarEnElemento(elementoId) {
@@ -2658,15 +2658,15 @@ if (window.MAIRA && window.MAIRA.Elementos) {
         }
         
         const posicion = elementosConectados[elementoId].marcador.getLatLng();
-        if (window.mapa) {
-            window.mapa.setView(posicion, 15);
+        if (window.map) {
+            window.map.setView(posicion, 15);
             elementosConectados[elementoId].marcador.openPopup();
-            MAIRA.Utils.mostrarNotificacion("Mapa centrado en el elemento seleccionado", "info", 2000);
+            MAIRA.Utils.mostrarNotificacion("map centrado en el elemento seleccionado", "info", 2000);
         }
     }
     
     /**
-     * Inicia el seguimiento de un elemento en el mapa
+     * Inicia el seguimiento de un elemento en el map
      * @param {string} elementoId - ID del elemento a seguir
      */
 function iniciarSeguimientoElemento(elementoId) {
@@ -2694,7 +2694,7 @@ function iniciarSeguimientoElemento(elementoId) {
     // Centrar inmediatamente si hay marcador
     if (elementosConectados[elementoId].marcador) {
         const posicion = elementosConectados[elementoId].marcador.getLatLng();
-        window.mapa.setView(posicion, 15);
+        window.map.setView(posicion, 15);
         
         // Opcional: abrir popup con información
         const marcador = elementosConectados[elementoId].marcador;
@@ -2737,7 +2737,7 @@ function iniciarSeguimientoElemento(elementoId) {
         const elemento = elementosConectados[siguiendoElemento];
         if (elemento && elemento.marcador) {
             const posicion = elemento.marcador.getLatLng();
-            window.mapa.setView(posicion, window.mapa.getZoom());
+            window.map.setView(posicion, window.map.getZoom());
         }
     }, 2000); // Comprobar cada 2 segundos
 }
@@ -2918,13 +2918,13 @@ function ocultarIndicadorSeguimiento() {
     console.log('✅ elementosGB.js exportado correctamente');
     
     /**
-     * Muestra todos los elementos en el mapa
+     * Muestra todos los elementos en el map
      */
     function mostrarTodosElementos() {
-        console.log("Mostrando todos los elementos en el mapa");
+        console.log("Mostrando todos los elementos en el map");
         
-        if (!window.mapa) {
-            console.error("Mapa no disponible");
+        if (!window.map) {
+            console.error("map no disponible");
             return;
         }
         
@@ -2932,7 +2932,7 @@ function ocultarIndicadorSeguimiento() {
         const grupo = new L.featureGroup();
         
         // Añadir marcador del usuario
-        if (marcadorUsuario && window.mapa.hasLayer(marcadorUsuario)) {
+        if (marcadorUsuario && window.map.hasLayer(marcadorUsuario)) {
             grupo.addLayer(marcadorUsuario);
             console.log("Marcador del usuario añadido al grupo");
         } else if (ultimaPosicion) {
@@ -2967,28 +2967,28 @@ function ocultarIndicadorSeguimiento() {
         
         console.log(`Total de elementos añadidos al grupo: ${elementosAñadidos}`);
         
-        // Si hay elementos, ajustar el mapa para mostrarlos todos
+        // Si hay elementos, ajustar el map para mostrarlos todos
         if (grupo.getLayers().length > 0) {
             try {
                 const bounds = grupo.getBounds();
                 console.log("Ajustando vista a los límites:", bounds);
-                window.mapa.fitBounds(bounds, { 
+                window.map.fitBounds(bounds, { 
                     padding: [50, 50],
                     maxZoom: 15
                 });
-                MAIRA.Utils.mostrarNotificacion(`Mostrando ${grupo.getLayers().length} elementos en el mapa`, "success", 3000);
+                MAIRA.Utils.mostrarNotificacion(`Mostrando ${grupo.getLayers().length} elementos en el map`, "success", 3000);
             } catch (error) {
                 console.error("Error al ajustar vista:", error);
                 
                 // Si hay un error con los límites, intentar centrar en el primer elemento
                 if (marcadorUsuario) {
-                    window.mapa.setView(marcadorUsuario.getLatLng(), 13);
+                    window.map.setView(marcadorUsuario.getLatLng(), 13);
                 } else if (Object.values(elementosConectados).length > 0) {
                     const primerElemento = Object.values(elementosConectados)[0];
                     if (primerElemento.marcador) {
-                        window.mapa.setView(primerElemento.marcador.getLatLng(), 13);
+                        window.map.setView(primerElemento.marcador.getLatLng(), 13);
                     } else if (primerElemento.datos && primerElemento.datos.posicion) {
-                        window.mapa.setView([
+                        window.map.setView([
                             primerElemento.datos.posicion.lat,
                             primerElemento.datos.posicion.lng
                         ], 13);
@@ -2996,8 +2996,8 @@ function ocultarIndicadorSeguimiento() {
                 }
             }
         } else {
-            console.log("No hay elementos para mostrar en el mapa");
-            MAIRA.Utils.agregarMensajeChat("Sistema", "No hay elementos para mostrar en el mapa", "sistema");
+            console.log("No hay elementos para mostrar en el map");
+            MAIRA.Utils.agregarMensajeChat("Sistema", "No hay elementos para mostrar en el map", "sistema");
             MAIRA.Utils.mostrarNotificacion("No hay elementos para mostrar", "info");
         }
     }
@@ -3213,7 +3213,7 @@ function ocultarIndicadorSeguimiento() {
                 }
             }
             
-            // Configurar el botón para centrar en el mapa
+            // Configurar el botón para centrar en el map
             const btnCentrar = document.getElementById('btn-centrar-elemento');
             if (btnCentrar) {
                 btnCentrar.onclick = function() {
@@ -3291,10 +3291,10 @@ function ocultarIndicadorSeguimiento() {
     
 
     /**
-     * Configura los eventos para el mapa
+     * Configura los eventos para el map
      */
         function configurarEventosMapa() {
-        window.mapa.on('contextmenu', function(e) {
+        window.map.on('contextmenu', function(e) {
             L.DomEvent.stopPropagation(e);
             L.DomEvent.preventDefault(e);
     
@@ -3307,7 +3307,7 @@ function ocultarIndicadorSeguimiento() {
                     callback: () => agregarElementoGB(e.latlng)
                 },
                 {
-                    title: 'Centrar Mapa',
+                    title: 'Centrar map',
                     action: 'center',
                     icon: 'fas fa-crosshairs',
                     tooltip: 'Centrar en esta posición',
@@ -3319,7 +3319,7 @@ function ocultarIndicadorSeguimiento() {
                 window.MiRadial.mostrarMenu(
                     e.originalEvent.pageX,
                     e.originalEvent.pageY,
-                    'mapa',
+                    'map',
                     opciones
                 );
             }
@@ -3373,7 +3373,7 @@ function ocultarIndicadorSeguimiento() {
         // Configurar opciones del menú
         menu.innerHTML = `
             <div class="menu-item" data-action="centrar" data-id="${elementoId}">
-                <i class="fas fa-crosshairs"></i> Centrar en mapa
+                <i class="fas fa-crosshairs"></i> Centrar en map
             </div>
             <div class="menu-item" data-action="seguir" data-id="${elementoId}">
                 <i class="fas fa-location-arrow"></i> Seguir este elemento
@@ -3422,7 +3422,7 @@ function ocultarIndicadorSeguimiento() {
     }
     
     /**
-     * Muestra el menú contextual para un marcador en el mapa
+     * Muestra el menú contextual para un marcador en el map
      * @param {Event} e - Evento de clic derecho
      * @param {string} elementoId - ID del elemento o 'usuario' para el marcador del usuario
      */
@@ -3450,7 +3450,7 @@ function ocultarIndicadorSeguimiento() {
             
             menu.innerHTML = `
                 <div class="menu-item" data-action="centrar" data-id="${elementoId}">
-                    <i class="fas fa-crosshairs"></i> Centrar en mapa
+                    <i class="fas fa-crosshairs"></i> Centrar en map
                 </div>
                 <div class="menu-item" data-action="seguir" data-id="${elementoId}">
                     <i class="fas fa-location-arrow"></i> Seguir este elemento
@@ -3509,7 +3509,7 @@ function ocultarIndicadorSeguimiento() {
     }
     
     /**
-     * Muestra el menú contextual para el mapa
+     * Muestra el menú contextual para el map
      * @param {Event} e - Evento de clic derecho
      */
     function mostrarMenuContextualMapa(e) {
@@ -3580,7 +3580,7 @@ function ocultarIndicadorSeguimiento() {
                             };
                             
                             // Ejecutar función de agregar marcador
-                            window.mapa.fire('click', evento);
+                            window.map.fire('click', evento);
                         }
                         break;
                 }
@@ -3628,12 +3628,12 @@ function ocultarIndicadorSeguimiento() {
             
             // Si el marcador es diferente, reemplazarlo
             if (window.elementosConectados[datosElemento.id].marcador !== marcador) {
-                // Eliminar marcador anterior del mapa
+                // Eliminar marcador anterior del map
                 const marcadorAnterior = window.elementosConectados[datosElemento.id].marcador;
-                if (marcadorAnterior && window.mapa) {
-                    if (window.mapa.hasLayer(marcadorAnterior)) {
-                        window.mapa.removeLayer(marcadorAnterior);
-                        console.log(`🔄 Marcador anterior eliminado del mapa`);
+                if (marcadorAnterior && window.map) {
+                    if (window.map.hasLayer(marcadorAnterior)) {
+                        window.map.removeLayer(marcadorAnterior);
+                        console.log(`🔄 Marcador anterior eliminado del map`);
                     }
                 }
                 
@@ -3768,7 +3768,7 @@ function iniciarTrackingElemento(elementoId) {
         // Hacer la línea interactiva
         interactive: true,
         bubblingMouseEvents: false
-    }).addTo(window.mapa);
+    }).addTo(window.map);
 
     // Añadir propiedades personalizadas
     lineaTracking.elementoId = elementoId;
@@ -3836,18 +3836,18 @@ function actualizarTrackingElemento(elementoId, nuevaPosicion) {
     tracking.puntos.push([nuevaPosicion.lat, nuevaPosicion.lng]);
     tracking.linea.setLatLngs(tracking.puntos);
 
-    // Si está siendo seguido, centrar mapa
+    // Si está siendo seguido, centrar map
     if (trackingConfig.seguidos[elementoId]) {
-        window.mapa.setView([nuevaPosicion.lat, nuevaPosicion.lng]);
+        window.map.setView([nuevaPosicion.lat, nuevaPosicion.lng]);
     }
 }
 
 function detenerTrackingElemento(elementoId) {
     if (!trackingConfig.historial[elementoId]) return;
 
-    // Limpiar línea del mapa
+    // Limpiar línea del map
     if (trackingConfig.historial[elementoId].linea) {
-        window.mapa.removeLayer(trackingConfig.historial[elementoId].linea);
+        window.map.removeLayer(trackingConfig.historial[elementoId].linea);
     }
 
     // Limpiar datos
@@ -3931,8 +3931,8 @@ function detenerTrackingElementos() {
     
     // Limpiar líneas de tracking (opcional)
     Object.keys(trackHistorial).forEach(id => {
-        if (trackHistorial[id].linea && window.mapa.hasLayer(trackHistorial[id].linea)) {
-            window.mapa.removeLayer(trackHistorial[id].linea);
+        if (trackHistorial[id].linea && window.map.hasLayer(trackHistorial[id].linea)) {
+            window.map.removeLayer(trackHistorial[id].linea);
         }
     });
     
@@ -4171,13 +4171,13 @@ function actualizarElementoModificado(datosElemento) {
     if (elementosConectados[datosElemento.id]) {
         const elementoExistente = elementosConectados[datosElemento.id];
         
-        // 1. Eliminar marcador anterior del mapa si existe
+        // 1. Eliminar marcador anterior del map si existe
         if (elementoExistente.marcador) {
             console.log(`Eliminando marcador anterior para ${datosElemento.id}`);
             if (window.calcoActivo && window.calcoActivo.hasLayer(elementoExistente.marcador)) {
                 window.calcoActivo.removeLayer(elementoExistente.marcador);
-            } else if (window.mapa && window.mapa.hasLayer(elementoExistente.marcador)) {
-                window.mapa.removeLayer(elementoExistente.marcador);
+            } else if (window.map && window.map.hasLayer(elementoExistente.marcador)) {
+                window.map.removeLayer(elementoExistente.marcador);
             }
         }
         
@@ -4423,7 +4423,7 @@ function mostrarMenuContextualTracking(e, elementoId, linea) {
     `;
 
     // Posicionar menu
-    const containerPoint = window.mapa.latLngToContainerPoint(e.latlng);
+    const containerPoint = window.map.latLngToContainerPoint(e.latlng);
     menu.style.left = (containerPoint.x + 10) + 'px';
     menu.style.top = (containerPoint.y - 10) + 'px';
 
@@ -4504,18 +4504,18 @@ function mostrarMenuContextualTracking(e, elementoId, linea) {
     }, 100);
 
     // Añadir al DOM
-    window.mapa.getContainer().appendChild(menu);
+    window.map.getContainer().appendChild(menu);
 }
 
 /**
- * Centra el mapa en el recorrido completo
+ * Centra el map en el recorrido completo
  */
 function centrarEnRecorrido(elementoId) {
     const tracking = trackingConfig.historial[elementoId];
     if (!tracking || !tracking.puntos || tracking.puntos.length === 0) return;
 
     const bounds = L.latLngBounds(tracking.puntos);
-    window.mapa.fitBounds(bounds, { padding: [20, 20] });
+    window.map.fitBounds(bounds, { padding: [20, 20] });
     
     const elemento = elementosConectados[elementoId];
     const usuario = elemento?.datos?.usuario || `Elemento ${elementoId}`;

@@ -1,5 +1,5 @@
 /**
- * CO.js – Modo Cuadro de Organización Militar (sin mapa)
+ * CO.js – Modo Cuadro de Organización Militar (sin map)
  * Funcionalidades: agregar, editar y conectar elementos en un canvas,
  * manejo de propiedades mediante panel lateral y menús independientes.
  * Se utiliza jsPlumb para conexiones y ms.Symbol para generar símbolos.

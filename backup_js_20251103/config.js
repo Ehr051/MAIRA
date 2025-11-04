@@ -16,7 +16,7 @@ window.MAIRA_CONFIG = {
         maxReconnectionAttempts: 5
     },
     
-    // Configuración del mapa
+    // Configuración del map
     MAP_CONFIG: {
         center: [-34.6037, -58.3816], // Buenos Aires por defecto
         zoom: 10,

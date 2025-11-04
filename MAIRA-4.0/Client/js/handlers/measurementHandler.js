@@ -10,7 +10,7 @@ class MeasurementHandler {
         this.lineas = {};
         this.lineCounter = 0;
         this.calcoActivo = null;
-        this.mapa = null;
+        this.map = null;
         
         // ✅ FUNCIONES GLOBALES RESTAURADAS PARA EDICIÓN DE LÍNEAS
 window.hacerLineaEditable = function(linea) {
@@ -92,9 +92,9 @@ console.log('✅ MeasurementHandler con Leaflet cargado y funciones exportadas a
 console.log('✅ Funciones de edición de líneas restauradas: hacerLineaEditable, deshabilitarEdicionLinea, convertirAPolyline');
     }
     
-    // Establecer referencia al mapa
-    setMapa(mapa) {
-        this.mapa = mapa;
+    // Establecer referencia al map
+    setMapa(map) {
+        this.map = map;
         this.calcoActivo = this.obtenerCalcoActivo();
     }
     
@@ -105,9 +105,9 @@ console.log('✅ Funciones de edición de líneas restauradas: hacerLineaEditabl
         }
         
         // Buscar en mapas globales
-        if (typeof window.mapa !== 'undefined' && window.mapa) {
-            this.mapa = window.mapa;
-            return window.mapa;
+        if (typeof window.map !== 'undefined' && window.map) {
+            this.map = window.map;
+            return window.map;
         }
         
         return null;
@@ -327,13 +327,13 @@ function medirDistancia() {
     console.log("🚫 Modo marcha DESACTIVADO para medición normal");
     console.log("🔖 Función activa:", window.funcionMedicionActiva);
 
-    // Verificar mapa
-    if (!handler.mapa) {
-        handler.mapa = window.mapa || window.map || null;
+    // Verificar map
+    if (!handler.map) {
+        handler.map = window.map || window.map || null;
     }
 
-    if (!handler.mapa) {
-        alert('Mapa no disponible para medición');
+    if (!handler.map) {
+        alert('map no disponible para medición');
         return;
     }
 
@@ -348,18 +348,18 @@ function medirDistancia() {
         finalizarMedicion();
     } else {
         handler.measuringDistance = true;
-        handler.mapa.getContainer().style.cursor = 'crosshair';
+        handler.map.getContainer().style.cursor = 'crosshair';
         handler.lineaActual = handler.crearLinea();
 
         // Remover listeners existentes
-        handler.mapa.off('click', addDistancePoint);
-        handler.mapa.off('mousemove', actualizarDistanciaProvisional);
-        handler.mapa.off('dblclick', finalizarMedicion);
+        handler.map.off('click', addDistancePoint);
+        handler.map.off('mousemove', actualizarDistanciaProvisional);
+        handler.map.off('dblclick', finalizarMedicion);
 
         // Configurar eventos
-        handler.mapa.on('click', addDistancePoint);
-        handler.mapa.on('mousemove', actualizarDistanciaProvisional);
-        handler.mapa.once('dblclick', finalizarMedicion);
+        handler.map.on('click', addDistancePoint);
+        handler.map.on('mousemove', actualizarDistanciaProvisional);
+        handler.map.once('dblclick', finalizarMedicion);
 
         handler.mostrarDisplayMedicion();
     }
@@ -464,11 +464,11 @@ function finalizarMedicion() {
 
     console.log("🏁 Finalizando medición desde función:", window.funcionMedicionActiva || "desconocida");
 
-    if (handler.mapa) {
-        handler.mapa.getContainer().style.cursor = '';
-        handler.mapa.off('click', addDistancePoint);
-        handler.mapa.off('mousemove', actualizarDistanciaProvisional);
-        handler.mapa.off('dblclick', finalizarMedicion);
+    if (handler.map) {
+        handler.map.getContainer().style.cursor = '';
+        handler.map.off('click', addDistancePoint);
+        handler.map.off('mousemove', actualizarDistanciaProvisional);
+        handler.map.off('dblclick', finalizarMedicion);
     }
 
     // ✅ GUARDAR REFERENCIA A LA LÍNEA ACTUAL ANTES DE LIMPIAR
@@ -664,19 +664,19 @@ function mostrarMenuContextualLinea(evento, linea) {
         font-size: 14px;
     `;
     
-    // Posicionar menú usando coordenadas del evento o del mapa
+    // Posicionar menú usando coordenadas del evento o del map
     let x, y;
     if (evento.originalEvent && evento.originalEvent.clientX) {
         x = evento.originalEvent.clientX;
         y = evento.originalEvent.clientY;
     } else if (evento.containerPoint) {
-        const mapContainer = window.mapa.getContainer();
+        const mapContainer = window.map.getContainer();
         const mapRect = mapContainer.getBoundingClientRect();
         x = mapRect.left + evento.containerPoint.x;
         y = mapRect.top + evento.containerPoint.y;
     } else {
-        // Fallback: centro del mapa
-        const mapContainer = window.mapa.getContainer();
+        // Fallback: centro del map
+        const mapContainer = window.map.getContainer();
         const mapRect = mapContainer.getBoundingClientRect();
         x = mapRect.left + mapRect.width / 2;
         y = mapRect.top + mapRect.height / 2;

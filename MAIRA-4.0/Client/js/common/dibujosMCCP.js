@@ -116,8 +116,8 @@ function dibujarFlechaAncha(sidc, texto) {
     let puntos = [];
     let flechaAncha;
 
-    mapa.on('click', agregarPunto);
-    mapa.once('dblclick', finalizarFlechaAncha);
+    map.on('click', agregarPunto);
+    map.once('dblclick', finalizarFlechaAncha);
 
     function agregarPunto(e) {
         puntos.push(e.latlng);
@@ -129,8 +129,8 @@ function dibujarFlechaAncha(sidc, texto) {
     }
 
     function finalizarFlechaAncha(e) {
-        mapa.off('click', agregarPunto);
-        mapa.off('dblclick', finalizarFlechaAncha);
+        map.off('click', agregarPunto);
+        map.off('dblclick', finalizarFlechaAncha);
         flechaAncha.options.sidc = sidc;
         flechaAncha.options.nombre = texto || 'Nueva Flecha Ancha';
         actualizarTextoElemento(flechaAncha, flechaAncha.options.nombre, 'flechaAncha');
@@ -143,8 +143,8 @@ function dibujarFlecha(sidc, texto) {
     let puntos = [];
     let flecha;
 
-    mapa.on('click', agregarPunto);
-    mapa.once('dblclick', finalizarFlecha);
+    map.on('click', agregarPunto);
+    map.once('dblclick', finalizarFlecha);
 
     function agregarPunto(e) {
         puntos.push(e.latlng);
@@ -156,8 +156,8 @@ function dibujarFlecha(sidc, texto) {
     }
 
     function finalizarFlecha(e) {
-        mapa.off('click', agregarPunto);
-        mapa.off('dblclick', finalizarFlecha);
+        map.off('click', agregarPunto);
+        map.off('dblclick', finalizarFlecha);
         let puntaFlecha = crearPuntaFlecha(puntos[puntos.length - 2], puntos[puntos.length - 1]);
         flecha.setLatLngs([...puntos, ...puntaFlecha]);
         flecha.options.tipoElemento = 'flecha';

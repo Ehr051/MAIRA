@@ -20,7 +20,7 @@ class VegetationInstancer {
         this.scene = scene;
         this.modelLoader = modelLoader;
         
-        // Mapa de modelos cargados por tipo
+        // map de modelos cargados por tipo
         // { 'tree_tall': { geometry, material, instances: [] } }
         this.modelCache = new Map();
         
@@ -109,7 +109,7 @@ class VegetationInstancer {
                     // Forzar actualización del material
                     material.needsUpdate = true;
                     
-                    // Verificar si tiene mapa de textura
+                    // Verificar si tiene map de textura
                     if (material.map) {
                         console.log(`  ✅ BaseColor texture encontrada`);
                         material.map.needsUpdate = true;
