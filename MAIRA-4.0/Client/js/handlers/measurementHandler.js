@@ -490,6 +490,16 @@ function finalizarMedicion() {
     handler.lineaActual = null;
     handler.ocultarDisplayMedicion();
 
+    // ✅ DISPARAR EVENTO PERSONALIZADO PARA PT
+    const event = new CustomEvent('medicionFinalizada', {
+        detail: {
+            distancia: handler.lineas[Object.keys(handler.lineas)[Object.keys(handler.lineas).length - 1]]?.distancia,
+            puntos: handler.lineas[Object.keys(handler.lineas)[Object.keys(handler.lineas).length - 1]]?.polyline?.getLatLngs()
+        }
+    });
+    window.dispatchEvent(event);
+    console.log("📡 Evento 'medicionFinalizada' disparado");
+
     // ✅ LIMPIAR VARIABLES DE DEBUG
     window.funcionMedicionActiva = null;
     console.log("🧹 Variables de debug limpiadas");

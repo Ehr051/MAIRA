@@ -559,31 +559,53 @@
                 // El PT se crea al finalizar la medición
             };
             
-            // Interceptar finalización para crear PT
+            // ✅ ESCUCHAR EVENTO DE MEDICIÓN FINALIZADA PARA CREAR PT
+            window.addEventListener('medicionFinalizada', function(event) {
+                console.log("📡 Evento 'medicionFinalizada' recibido en panelMarcha");
+
+                // Crear PT en el último punto si hay puntos y estamos en modo marcha
+                if (window.modoMarcha && window.contadorPuntosMarcha > 0) {
+                    const puntos = event.detail?.puntos;
+                    if (puntos && puntos.length > 0) {
+                        var ultimoPunto = puntos[puntos.length - 1];
+                        console.log("🎖️ Creando símbolo PT en último punto de marcha:", ultimoPunto);
+                        self.crearSimboloPIPT(ultimoPunto, 'PT');
+                    }
+
+                    // Limpiar modo marcha
+                    window.modoMarcha = false;
+                    window.contadorPuntosMarcha = 0;
+                    console.log("🎖️ Modo marcha finalizado");
+                }
+            });
+
+            // ⚠️ MANTENER COMPATIBILIDAD: Interceptar finalización para otros casos
             var originalFinalizarMedicion = window.finalizarMedicion;
             window.finalizarMedicion = function() {
-                // Crear PT en el último punto si hay puntos
-                if (window.contadorPuntosMarcha > 0 && window.measurementHandler && window.measurementHandler.lineaActual) {
-                    var linea = window.measurementHandler.lineas[window.measurementHandler.lineaActual];
+                // Crear PT en el último punto si hay puntos (fallback legacy)
+                if (window.contadorPuntosMarcha > 0 && window.measurementHandler) {
+                    var lineas = window.measurementHandler.lineas;
+                    var ultimaLineaId = Object.keys(lineas)[Object.keys(lineas).length - 1];
+                    var linea = lineas[ultimaLineaId];
                     if (linea && linea.polyline) {
                         var puntos = linea.polyline.getLatLngs();
                         if (puntos.length > 0) {
                             var ultimoPunto = puntos[puntos.length - 1];
-                            console.log("🎖️ Creando símbolo PT en último punto de marcha");
+                            console.log("🎖️ [Fallback] Creando símbolo PT en último punto de marcha");
                             self.crearSimboloPIPT(ultimoPunto, 'PT');
                         }
                     }
                 }
-                
+
                 // Llamar función original
                 if (originalFinalizarMedicion) {
                     originalFinalizarMedicion();
                 }
-                
+
                 // Limpiar modo marcha
                 window.modoMarcha = false;
                 window.contadorPuntosMarcha = 0;
-                console.log("🎖️ Modo marcha finalizado");
+                console.log("🎖️ Modo marcha finalizado (legacy)");
             };
         },
 
