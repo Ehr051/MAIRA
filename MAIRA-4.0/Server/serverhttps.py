@@ -3307,7 +3307,8 @@ if __name__ == '__main__':
                 port=port,
                 certfile=cert_file,
                 keyfile=key_file,
-                debug=True
+                debug=True,
+                allow_unsafe_werkzeug=True
             )
         else:
             # Iniciar servidor HTTP normal
@@ -3316,7 +3317,8 @@ if __name__ == '__main__':
                 app,
                 host=host,
                 port=port,
-                debug=True
+                debug=True,
+                allow_unsafe_werkzeug=True
             )
             
     except Exception as e:
