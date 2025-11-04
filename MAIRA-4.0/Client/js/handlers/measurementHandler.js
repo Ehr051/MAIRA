@@ -492,6 +492,11 @@ function finalizarMedicion() {
 
         // ✅ DISPARAR EVENTO PERSONALIZADO PARA PT (ANTES DE LIMPIAR)
         const puntos = lineaFinalizada.polyline.getLatLngs();
+        console.log("🔍 DEBUG: Puntos extraídos:", puntos);
+        console.log("🔍 DEBUG: Cantidad de puntos:", puntos.length);
+        console.log("🔍 DEBUG: Primer punto:", puntos[0]);
+        console.log("🔍 DEBUG: Último punto:", puntos[puntos.length - 1]);
+        
         const event = new CustomEvent('medicionFinalizada', {
             detail: {
                 distancia: distanciaFinal,
@@ -499,8 +504,13 @@ function finalizarMedicion() {
                 lineaId: handler.lineaActual
             }
         });
+        
+        console.log("🔍 DEBUG: Evento creado:", event);
+        console.log("🔍 DEBUG: Event detail:", event.detail);
+        
         window.dispatchEvent(event);
         console.log("📡 Evento 'medicionFinalizada' disparado con", puntos.length, "puntos");
+        console.log("🔍 DEBUG: Evento disparado exitosamente");
     }
 
     handler.lineaActual = null;
