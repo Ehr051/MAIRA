@@ -1,7 +1,6 @@
 // partidas.js: Maneja las partidas, tanto la creación como la unión, así como el manejo de jugadores y estados
 
-let socket;
-let userId, userName;
+// NOTA: socket, userId, userName se declaran en iniciarpartida.js (se comparten globalmente)
 let partidasInicializadas = false;
 let intervalActualizacion = null;
 
@@ -11,8 +10,11 @@ function inicializarPartidas(socketInstance) {
         console.log('⚠️ Partidas ya inicializadas, saltando...');
         return;
     }
-    socket = socketInstance;
-    
+
+    // Usar socket global de iniciarpartida.js
+    const socket = socketInstance || window.socket;
+    window.socket = socket; // Asegurar que esté disponible globalmente
+
     // Eventos básicos de partida
     socket.on('partidaCreada', manejarPartidaCreada);
     socket.on('listaPartidas', manejarPartidasDisponibles);
@@ -48,9 +50,9 @@ function inicializarPartidas(socketInstance) {
         console.log('Jugador actualizado:', data);
         if (partidaActual && partidaActual.codigo === data.codigo) {
             actualizarListaJugadoresSala(data.jugadores);
-            
+
             // Verificar si todos están listos para habilitar botón de inicio
-            if (partidaActual.configuracion.creadorId === userId) {
+            if (partidaActual.configuracion.creadorId === window.userId) {
                 const todosListos = data.jugadores.every(j => j.listo && j.equipo !== 'sin_equipo');
                 const btnIniciarPartida = document.getElementById('btnIniciarPartida');
                 if (btnIniciarPartida) {
@@ -94,9 +96,9 @@ function inicializarPartidas(socketInstance) {
         console.log('Recibida actualización de sala:', data);
         if (data && data.jugadores) {
             actualizarListaJugadoresSala(data.jugadores);
-            
+
             // Actualizar estado del botón de inicio si es necesario
-            if (partidaActual && partidaActual.configuracion.creadorId === userId) {
+            if (partidaActual && partidaActual.configuracion.creadorId === window.userId) {
                 const btnIniciarPartida = document.getElementById('btnIniciarPartida');
                 if (btnIniciarPartida) {
                     btnIniciarPartida.disabled = !data.todosListos;
@@ -107,7 +109,7 @@ function inicializarPartidas(socketInstance) {
     // Inicializar event listeners y actualizaciones automáticas
     inicializarEventListenersPartidas();
     iniciarActualizacionAutomatica();
-    
+
     // Marcar como inicializado
     partidasInicializadas = true;
     console.log('✅ Partidas inicializadas correctamente');
@@ -119,7 +121,7 @@ function iniciarActualizacionAutomatica() {
     if (intervalActualizacion) {
         clearInterval(intervalActualizacion);
     }
-    
+
     // Actualizar lista de partidas cada 5 segundos
     intervalActualizacion = setInterval(obtenerPartidasDisponibles, 5000);
     console.log('⏰ Actualización automática iniciada (cada 5s)');
@@ -134,7 +136,7 @@ function iniciarActualizacionSalaEspera() {
                 clearInterval(intervalId);
                 return;
             }
-            socket.emit('obtenerEstadoSala', { codigo: partidaActual.codigo });
+            window.socket.emit('obtenerEstadoSala', { codigo: partidaActual.codigo });
         }, 3000);
     }
 }
@@ -147,29 +149,29 @@ function inicializarEventListenersPartidas() {
     } else {
         console.warn('⚠️ btnCrearPartidaConfirmar no encontrado');
     }
-    
+
     const btnListoJugador = document.getElementById('btnListoJugador');
     if (btnListoJugador) {
         btnListoJugador.addEventListener('click', marcarJugadorListo);
     }
-    
+
     const btnIniciarPartida = document.getElementById('btnIniciarPartida');
     if (btnIniciarPartida) {
         btnIniciarPartida.addEventListener('click', iniciarPartida);
     }
-    
+
     const btnSalirSalaEspera = document.getElementById('btnSalirSalaEspera');
     if (btnSalirSalaEspera) {
         btnSalirSalaEspera.addEventListener('click', salirSalaEspera);
     } else {
         console.warn('⚠️ btnSalirSalaEspera no encontrado');
     }
-    
+
     const btnCancelarPartida = document.getElementById('btnCancelarPartida');
     if (btnCancelarPartida) {
         btnCancelarPartida.addEventListener('click', cancelarPartida);
     }
-    
+
     const btnUnirseAPartidaConfirmar = document.getElementById('btnunirseAPartidaConfirmar');
     if (btnUnirseAPartidaConfirmar) {
         btnUnirseAPartidaConfirmar.addEventListener('click', function(e) {
@@ -190,7 +192,7 @@ function inicializarEventListenersPartidas() {
 
 function unirseAPartida(codigo) {
     console.log('🎯 Función unirseAPartida llamada con código:', codigo);
-    
+
     if (typeof codigo !== 'string' || codigo.length === 0) {
         console.error('❌ El código de partida no es válido:', codigo);
         mostrarError('Código de partida no válido');
@@ -211,7 +213,7 @@ function unirseAPartida(codigo) {
     // Si ya estamos en otra partida, salimos de la partida actual antes de unirnos a otra
     if (partidaActual) {
         console.log('🔄 Ya estás en una partida. Saliendo de la partida actual antes de unirse a otra.');
-        socket.emit('salirPartida', { codigo: partidaActual.codigo }, () => {
+        window.socket.emit('salirPartida', { codigo: partidaActual.codigo }, () => {
             partidaActual = null; // Limpiar la partida actual antes de unirse a la nueva
             emitirUnirseAPartida(codigo);
         });
@@ -223,46 +225,46 @@ function unirseAPartida(codigo) {
 function emitirUnirseAPartida(codigo) {
     console.log('Emitiendo evento unirseAPartida con:', {
         codigo: codigo,
-        userId: userId, 
-        userName: userName
+        userId: window.userId,
+        userName: window.userName
     });
-    
-    socket.emit('unirseAPartida', { 
+
+    window.socket.emit('unirseAPartida', {
         codigo: codigo,
-        userId: userId,
-        userName: userName
+        userId: window.userId,
+        userName: window.userName
     });
 
     // Configurar listeners para manejar respuestas
-    socket.once('unidoAPartida', function(datosPartida) {
+    window.socket.once('unidoAPartida', function(datosPartida) {
         ocultarIndicadorCarga();
         console.log("Unido a la partida con éxito:", datosPartida);
-        
+
         // Guardar datos para transición a juegodeguerra.html
         partidaActual = datosPartida;
-        
+
         // Encontrar el equipo del jugador
-        const miJugador = datosPartida.jugadores.find(j => j.id === userId);
+        const miJugador = datosPartida.jugadores.find(j => j.id === window.userId);
         const equipoJugador = miJugador ? miJugador.equipo : null;
-        
+
         // Guardar en sessionStorage para mantener durante navegación
         sessionStorage.setItem('datosPartidaActual', JSON.stringify({
             partidaActual: datosPartida,
-            userId: userId,
-            userName: userName,
+            userId: window.userId,
+            userName: window.userName,
             equipoJugador: equipoJugador
         }));
-        
+
         // Mostrar sala de espera
         mostrarSalaEspera(datosPartida);
-        
+
         // Cambiar de sala para el chat
         if (window.cambiarSalaChat) {
             window.cambiarSalaChat(codigo);
         }
     });
 
-    socket.once('errorUnirseAPartida', function(error) {
+    window.socket.once('errorUnirseAPartida', function(error) {
         ocultarIndicadorCarga();
         console.error('Error al unirse a la partida:', error);
         mostrarError(error.mensaje || 'Error al unirse a la partida');
@@ -273,45 +275,45 @@ function emitirUnirseAPartida(codigo) {
 
 function crearPartida(e) {
     e.preventDefault();
-    
+
     console.log('🎮 Validando antes de crear partida...');
-    
+
     // Verificar conexión de socket
-    if (!socket || !socket.connected) {
+    if (!window.socket || !window.socket.connected) {
         console.error('❌ Socket no conectado');
         mostrarError('Error: No hay conexión con el servidor. Intentar reconectar.');
         return;
     }
-    
+
     // Verificar datos de usuario usando UserIdentity
     const currentUserId = MAIRA.UserIdentity.getUserId();
     const currentUserName = MAIRA.UserIdentity.getUsername();
-    
+
     if (!currentUserId || !currentUserName) {
         console.error('❌ Datos de usuario no configurados via UserIdentity');
         mostrarError('Error: Datos de usuario no configurados. Redirigir a inicio.');
         window.location.href = 'index.html';
         return;
     }
-    
+
     console.log(`✅ Usuario validado: ${currentUserName} (${currentUserId})`);
-    
+
     // Asegurar variables globales para compatibilidad
     window.userId = currentUserId;
     window.userName = currentUserName;
-    
+
     console.log('✅ Validaciones pasadas, continuando...');
-    
+
     const nombrePartida = document.getElementById('nombrePartida').value;
     const duracionPartida = document.getElementById('duracionPartida').value;
     const duracionTurno = document.getElementById('duracionTurno').value;
     const objetivoPartida = document.getElementById('objetivoPartida').value;
-    
+
     if (!nombrePartida || !duracionPartida || !duracionTurno || !objetivoPartida) {
         mostrarError('Por favor, complete todos los campos');
         return;
     }
-    
+
     const configuracion = {
         nombrePartida,
         duracionPartida,
@@ -325,7 +327,7 @@ function crearPartida(e) {
         iniciarJuegoLocal(configuracion);
     } else {
         console.log('🚀 Enviando crear partida al servidor...');
-        socket.emit('crearPartida', { configuracion });
+        window.socket.emit('crearPartida', { configuracion });
     }
 }
 
@@ -337,20 +339,20 @@ function iniciarJuegoLocal(configuracion) {
         jugadores: [], // Se configurarán en gestorJuego.js
         estado: 'configurando'
     };
-    
+
     console.log('💾 Guardando datos de partida local:', datosPartida);
     localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
     localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
-    
+
     window.location.href = 'juegodeguerra.html';
 }
 
 function salirSalaEspera() {
     if (partidaActual) {
         console.log('Saliendo de la sala de espera de la partida con código:', partidaActual.codigo);
-        socket.emit('salirSalaEspera', { codigo: partidaActual.codigo, userId: userId });
-        socket.emit('leaveRoom', partidaActual.codigo);
-        socket.emit('joinRoom', 'general');  // Cambiar a sala general
+        window.socket.emit('salirSalaEspera', { codigo: partidaActual.codigo, userId: window.userId });
+        window.socket.emit('leaveRoom', partidaActual.codigo);
+        window.socket.emit('joinRoom', 'general');  // Cambiar a sala general
         partidaActual = null;
         mostrarMensaje('Has salido de la sala de espera.');
         ocultarTodosLosFormularios();
@@ -362,9 +364,9 @@ function cancelarPartida() {
     if (partidaActual) {
         console.log('Cancelando la partida con código:', partidaActual.codigo);
         mostrarIndicadorCarga(); // Mostrar indicador de carga mientras se cancela la partida
-        socket.emit('cancelarPartida', { codigo: partidaActual.codigo });
+        window.socket.emit('cancelarPartida', { codigo: partidaActual.codigo });
 
-        socket.once('partidaCancelada', function (data) {
+        window.socket.once('partidaCancelada', function (data) {
             ocultarIndicadorCarga();
             partidaActual = null;
             mostrarMensaje('La partida ha sido cancelada.');
@@ -372,13 +374,13 @@ function cancelarPartida() {
             document.getElementById('modoSeleccion').style.display = 'block';
         });
 
-        socket.once('errorCancelarPartida', function (error) {
+        window.socket.once('errorCancelarPartida', function (error) {
             ocultarIndicadorCarga();
             console.error('Error al cancelar la partida:', error.mensaje);
             mostrarError(error.mensaje);
         });
     }
-    
+
 }
 
 // Modificar la función marcarJugadorListo
@@ -396,14 +398,14 @@ function marcarJugadorListo(event) {
 
     console.log('Actualizando estado jugador:', {
         codigo: partidaActual.codigo,
-        userId: userId,
+        userId: window.userId,
         listo: estaListo,
         equipo: equipo
     });
 
-    socket.emit('actualizarJugador', {
+    window.socket.emit('actualizarJugador', {
         codigo: partidaActual.codigo,
-        userId: userId,
+        userId: window.userId,
         listo: estaListo,
         equipo: equipo
     });
@@ -423,14 +425,14 @@ function actualizarEquipoJugador(event) {
 
     console.log('Actualizando equipo jugador:', {
         codigo: partidaActual.codigo,
-        userId: userId,
+        userId: window.userId,
         equipo: nuevoEquipo,
         listo: estaListo
     });
 
-    socket.emit('actualizarJugador', {
+    window.socket.emit('actualizarJugador', {
         codigo: partidaActual.codigo,
-        userId: userId,
+        userId: window.userId,
         equipo: nuevoEquipo,
         listo: estaListo
     });
@@ -448,8 +450,8 @@ function actualizarListaJugadoresSala(jugadores) {
     jugadores.forEach(jugador => {
         const tr = document.createElement('tr');
         tr.setAttribute('data-user-id', jugador.id);
-        const esJugadorActual = jugador.id === userId;
-        
+        const esJugadorActual = jugador.id === window.userId;
+
         tr.innerHTML = `
             <td>${jugador.username}</td>
             <td>
@@ -461,23 +463,23 @@ function actualizarListaJugadoresSala(jugadores) {
                 </select>
             </td>
             <td>
-                <input type="checkbox" class="checkbox-listo" 
-                    ${jugador.listo ? 'checked' : ''} 
+                <input type="checkbox" class="checkbox-listo"
+                    ${jugador.listo ? 'checked' : ''}
                     ${esJugadorActual ? '' : 'disabled'}>
             </td>
         `;
-        
+
         listaJugadoresSala.appendChild(tr);
-        
+
         // Agregar event listeners solo para el jugador actual
         if (esJugadorActual) {
             const equipoSelect = tr.querySelector('.equipo-select');
             const checkboxListo = tr.querySelector('.checkbox-listo');
-            
+
             if (equipoSelect) {
                 equipoSelect.addEventListener('change', actualizarEquipoJugador);
             }
-            
+
             if (checkboxListo) {
                 checkboxListo.addEventListener('change', marcarJugadorListo);
             }
@@ -492,7 +494,7 @@ function iniciarPartida() {
     }
 
     const configuracion = parseConfiguracionPartida(partidaActual);
-    if (configuracion.creadorId !== userId) {
+    if (configuracion.creadorId !== window.userId) {
         mostrarError('Solo el creador puede iniciar la partida');
         return;
     }
@@ -512,7 +514,7 @@ function iniciarPartida() {
     // Guardar datos de jugadores en localStorage
     localStorage.setItem('jugadoresPartida', JSON.stringify(jugadores));
 
-    socket.emit('iniciarPartida', {
+    window.socket.emit('iniciarPartida', {
         codigo: partidaActual.codigo,
         jugadores: jugadores,
         configuracion: configuracion
@@ -522,34 +524,34 @@ function iniciarPartida() {
 // Modificar la función manejarPartidaIniciada en iniciarpartida.js
 function manejarPartidaIniciada(datosPartida) {
     console.log('Partida iniciada, preparando redirección...', datosPartida);
-    
+
     if (!datosPartida || !datosPartida.codigo) {
         console.error('Datos de partida inválidos:', datosPartida);
         mostrarError('Error al iniciar la partida: datos inválidos');
         return;
     }
-    
+
     try {
         // Encontrar información del jugador actual
-        const miJugador = datosPartida.jugadores.find(j => j.id === userId);
+        const miJugador = datosPartida.jugadores.find(j => j.id === window.userId);
         const equipoJugador = miJugador ? miJugador.equipo : null;
-        
+
         // Guardar en localStorage para persistencia
         localStorage.setItem('datosPartida', JSON.stringify(datosPartida));
-        
+
         // Guardar en sessionStorage para mejor rendimiento durante la navegación
         const datosSesion = {
             partidaActual: datosPartida,
-            userId: userId,
-            userName: userName,
+            userId: window.userId,
+            userName: window.userName,
             equipoJugador: equipoJugador,
             codigoPartida: datosPartida.codigo
         };
-        
+
         sessionStorage.setItem('datosPartidaActual', JSON.stringify(datosSesion));
-        
+
         console.log('Datos guardados para transición, redirigiendo a juego...');
-        
+
         // Redirigir a la página del juego
         window.location.href = `juegodeguerra.html?codigo=${datosPartida.codigo}`;
     } catch (error) {
@@ -561,8 +563,8 @@ function manejarPartidaIniciada(datosPartida) {
 function reconectarAPartida() {
     if (partidaActual) {
         console.log('Reconectando a la partida con código:', partidaActual.codigo);
-        socket.emit('reconectarAPartida', { codigo: partidaActual.codigo, userId: userId });
-        
+        window.socket.emit('reconectarAPartida', { codigo: partidaActual.codigo, userId: window.userId });
+
         // Redirigir a juegodeguerra.html
         window.location.href = `juegodeguerra.html?codigo=${partidaActual.codigo}`;
     } else {
@@ -573,7 +575,7 @@ function reconectarAPartida() {
 // Función para manejar la lista de partidas disponibles
 function manejarPartidasDisponibles(data) {
     console.log('📋 EVENTO: listaPartidas/partidasDisponibles recibido:', data);
-    
+
     // Manejar ambos formatos: directo (serverhttps.py) o con wrapper (app.py)
     let partidas = [];
     if (Array.isArray(data)) {
@@ -583,7 +585,7 @@ function manejarPartidasDisponibles(data) {
         // Formato con wrapper del app.py
         partidas = data.partidas;
     }
-    
+
     console.log(`🎮 Se recibieron ${partidas.length} partidas disponibles`);
     actualizarListaPartidas(partidas);
 }
@@ -591,13 +593,13 @@ function manejarPartidasDisponibles(data) {
 function manejarPartidaCreada(partida) {
     console.log('🎯 EVENTO: partidaCreada recibido:', partida);
     console.log('📋 Datos de la partida:', JSON.stringify(partida, null, 2));
-    
+
     if (!partida || !partida.codigo) {
         console.error('❌ Datos de partida inválidos:', partida);
         mostrarError('Error: Datos de partida inválidos');
         return;
     }
-    
+
     // Verificar que estamos en la página correcta
     if (!window.location.href.includes('iniciarpartida.html')) {
         console.log('🔄 Redirigiendo a iniciarpartida.html...');
@@ -605,23 +607,23 @@ function manejarPartidaCreada(partida) {
         window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
         return;
     }
-    
+
     console.log('✅ Asignando partidaActual y llamando a mostrarSalaEspera...');
     partidaActual = partida;
-    
+
     // Verificar elementos DOM con retry
     function verificarYMostrarSala(reintentos = 3) {
         const salaEspera = document.getElementById('salaEspera');
         const nombrePartidaSala = document.getElementById('nombrePartidaSala');
         const codigoPartidaSala = document.getElementById('codigoPartidaSala');
-        
+
         if (salaEspera && nombrePartidaSala && codigoPartidaSala) {
             console.log('✅ Elementos DOM encontrados, mostrando sala...');
             mostrarSalaEspera(partida);
             console.log('🏁 manejarPartidaCreada completado');
             return;
         }
-        
+
         if (reintentos > 0) {
             console.log(`⏳ Elementos no encontrados, reintentando... (${reintentos} restantes)`);
             setTimeout(() => verificarYMostrarSala(reintentos - 1), 500);
@@ -630,7 +632,7 @@ function manejarPartidaCreada(partida) {
             alert('Error: No se puede mostrar la sala de espera. Recargar página.');
         }
     }
-    
+
     verificarYMostrarSala();
 }
 
@@ -651,17 +653,17 @@ function manejarPartidaCancelada(data) {
     if (partidaActual && partidaActual.codigo === data.codigo) {
         // Limpiar estado local
         partidaActual = null;
-        
+
         // Limpiar la sala de espera
         ocultarTodosLosFormularios();
         document.getElementById('modoSeleccion').style.display = 'block';
-        
+
         // Salir de la sala
-        socket.emit('leaveRoom', data.codigo);
-        socket.emit('joinRoom', 'general');
-        
+        window.socket.emit('leaveRoom', data.codigo);
+        window.socket.emit('joinRoom', 'general');
+
         mostrarMensaje('La partida ha sido cancelada');
-        
+
         // Solicitar actualización de la lista de partidas
         obtenerPartidasDisponibles();
     }
@@ -669,7 +671,7 @@ function manejarPartidaCancelada(data) {
 
 function manejarJugadorListoActualizado(data) {
     actualizarListaJugadoresSala(data.jugadores);
-    if (data.todosListos && partidaActual.creadorId === userId) {
+    if (data.todosListos && partidaActual.creadorId === window.userId) {
         document.getElementById('btnIniciarPartida').disabled = false;
     }
 }
@@ -684,7 +686,7 @@ function manejarErrorPartida(error) {
 
 function invitarAmigo(amigoId) {
     if (partidaActual) {
-        socket.emit('invitarAmigo', { amigoId: amigoId, partidaCodigo: partidaActual.codigo });
+        window.socket.emit('invitarAmigo', { amigoId: amigoId, partidaCodigo: partidaActual.codigo });
     } else {
         mostrarError('No hay una partida activa para invitar amigos.');
     }
@@ -709,7 +711,7 @@ function actualizarInterfazSegunEstado() {
             btnListoJugador.disabled = false;
             break;
         case 'listo':
-            if (partidaActual.creadorId === userId) {
+            if (partidaActual.creadorId === window.userId) {
                 btnIniciarPartida.disabled = false;
             }
             btnListoJugador.disabled = true;
@@ -738,21 +740,21 @@ function mostrarSalaEspera(partida) {
     console.log('👥 INICIANDO mostrarSalaEspera para partida:', partida.codigo);
     console.log('📄 Estado actual de la página:', window.location.href);
     console.log('🔍 Buscando elementos DOM...');
-    
+
     // Verificar elementos requeridos
     const elementosRequeridos = [
         'salaEspera',
-        'nombrePartidaSala', 
+        'nombrePartidaSala',
         'codigoPartidaSala',
         'jugadoresSala'
     ];
-    
+
     const elementosNoEncontrados = elementosRequeridos.filter(id => !document.getElementById(id));
-    
+
     if (elementosNoEncontrados.length > 0) {
         console.error('❌ Elementos DOM faltantes:', elementosNoEncontrados);
         console.log('📍 URL actual:', window.location.href);
-        
+
         // Intentar redirigir si no estamos en la página correcta
         if (!window.location.href.includes('iniciarpartida.html')) {
             console.log('🔄 Redirigiendo a página correcta...');
@@ -760,14 +762,14 @@ function mostrarSalaEspera(partida) {
             window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
             return;
         }
-        
+
         // Si estamos en la página correcta pero faltan elementos, es un error
         alert(`Error: Elementos DOM faltantes: ${elementosNoEncontrados.join(', ')}`);
         return;
     }
-    
+
     console.log('✅ Todos los elementos DOM presentes, continuando...');
-    
+
     // ✅ CAMBIAR SALA DE CHAT:
     if (window.cambiarSalaChat) {
         const exito = window.cambiarSalaChat(partida.codigo);
@@ -775,24 +777,24 @@ function mostrarSalaEspera(partida) {
     } else {
         console.error('❌ Función cambiarSalaChat no disponible');
     }
-    
+
     // Buscar elementos de la sala de espera
     const salaEspera = document.getElementById('salaEspera');
     const nombrePartidaSala = document.getElementById('nombrePartidaSala');
     const codigoPartidaSala = document.getElementById('codigoPartidaSala');
-    
+
     console.log('🪟 Elementos encontrados:');
     console.log('- salaEspera:', salaEspera ? 'SI' : 'NO');
     console.log('- nombrePartidaSala:', nombrePartidaSala ? 'SI' : 'NO');
     console.log('- codigoPartidaSala:', codigoPartidaSala ? 'SI' : 'NO');
-    
+
     if (salaEspera && nombrePartidaSala && codigoPartidaSala) {
         console.log('✅ Configurando sala de espera...');
-        
+
         // Actualizar información de la partida
         nombrePartidaSala.textContent = partida.configuracion?.nombrePartida || 'Partida Sin Nombre';
         codigoPartidaSala.textContent = partida.codigo;
-        
+
         // Ocultar otros elementos y mostrar sala de espera
         ['modoLocal', 'modoOnline', 'formCrearPartida', 'formunirseAPartida'].forEach(id => {
             const elemento = document.getElementById(id);
@@ -801,30 +803,30 @@ function mostrarSalaEspera(partida) {
                 console.log(`🙈 Ocultado: ${id}`);
             }
         });
-        
+
         // Mostrar sala de espera
         salaEspera.style.display = 'block';
         console.log('👥 Sala de espera mostrada');
-        
+
         // Actualizar lista de jugadores
         console.log('👥 Actualizando lista de jugadores:', partida.jugadores);
         actualizarListaJugadoresSala(partida.jugadores);
-        
+
         // Mostrar botones según si es creador
         const userId = window.userId || localStorage.getItem('userId');
         const esCreador = partida.jugadores.some(j => j.id == userId && j.esCreador);
-        
+
         const btnIniciar = document.getElementById('btnIniciarPartida');
         const btnCancelar = document.getElementById('btnCancelarPartida');
-        
+
         if (btnIniciar) btnIniciar.style.display = esCreador ? 'block' : 'none';
         if (btnCancelar) btnCancelar.style.display = esCreador ? 'block' : 'none';
-        
+
         console.log('✅ Sala de espera configurada correctamente');
     } else {
         console.error('❌ No se encontraron elementos de sala de espera - revisando página actual...');
         console.log('📍 URL actual:', window.location.href);
-        
+
         // Intentar redirigir a iniciarpartida.html si no estamos ahí
         if (!window.location.href.includes('iniciarpartida.html')) {
             console.log('🔄 Redirigiendo a iniciarpartida.html...');
@@ -832,35 +834,35 @@ function mostrarSalaEspera(partida) {
             window.location.href = `iniciarpartida.html?partida=${partida.codigo}`;
         }
     }
-    
+
     console.log('🏁 mostrarSalaEspera completado');
 }
 
 // Modificar la función existente actualizarListaPartidas para manejar posibles errores
 function actualizarListaPartidas(partidas) {
     console.log('📝 Actualizando lista de partidas:', partidas);
-    
+
     // ✅ VALIDAR ENTRADA:
     if (!partidas) {
         console.warn('⚠️ Lista de partidas undefined, ignorando actualización');
         return;
     }
-    
+
     if (!Array.isArray(partidas)) {
         console.error('❌ La lista de partidas no es un array:', partidas);
         console.log('Tipo recibido:', typeof partidas);
         return;
     }
-    
+
     const tablaBody = document.querySelector('#tablaPartidas tbody');
     if (!tablaBody) {
         console.error('❌ No se encontró tabla de partidas');
         return;
     }
-    
+
     // Limpiar tabla
     tablaBody.innerHTML = '';
-    
+
     // ✅ AGREGAR CADA PARTIDA:
     partidas.forEach(partida => {
         if (partida && partida.codigo) { // Validar partida individual
@@ -870,7 +872,7 @@ function actualizarListaPartidas(partidas) {
             console.warn('⚠️ Partida inválida ignorada:', partida);
         }
     });
-    
+
     console.log(`✅ Lista actualizada con ${partidas.length} partidas`);
 }
 
@@ -941,9 +943,9 @@ function actualizarJugador(event) {
         equipoSelect.disabled = false;
     }
 
-    socket.emit('actualizarJugador', {
+    window.socket.emit('actualizarJugador', {
         codigo: partidaActual.codigo,
-        userId: userId,
+        userId: window.userId,
         equipo: equipoSelect.value,
         listo: checkboxListo.checked
     });
@@ -961,14 +963,14 @@ function guardarConfiguracionLocal(configuracion) {
             }))
         };
         localStorage.setItem('configuracionPartidaLocal', JSON.stringify(datosGuardado));
-        
+
         // También guardar en sessionStorage para mantener durante la redirección
         sessionStorage.setItem('datosPartidaActual', JSON.stringify({
             ...datosGuardado,
             userId: window.userId,
             userName: window.userName
         }));
-        
+
         return true;
     } catch (error) {
         console.error('Error al guardar configuración:', error);
