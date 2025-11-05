@@ -152,7 +152,7 @@ function inicializarControles() {
     // 🎯 INICIALIZAR MIRADIAL EN PLANEAMIENTO
     if (window.MiRadial && window.map) {
         console.log('🎯 Inicializando MiRadial en planeamiento...');
-        window.MiRadial.inicializar(window.map, 'planeamiento');
+        window.MiRadial.init(window.map, 'planeamiento');
         console.log('✅ MiRadial inicializado correctamente');
     } else {
         console.warn('⚠️ MiRadial o map no disponible para inicialización');

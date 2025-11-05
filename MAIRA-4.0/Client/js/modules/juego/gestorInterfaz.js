@@ -219,6 +219,7 @@ class GestorInterfaz extends GestorBase {
     }
 
     actualizarEstadoJuego(estado) {
+        return; // DESACTIVADO: Panel Inferior Unificado maneja todo
         if (!this.contenedores.panelEstado) return;
         
         // 🎨 ACTUALIZAR SISTEMA DE PANELES UNIFICADO
@@ -871,6 +872,7 @@ actualizarListaUnidadesDisponibles() {
     }
 
     actualizarPanelJuego() {
+        return; // DESACTIVADO: Panel Inferior Unificado maneja esto
         // Método para actualizar el panel cuando se cambia a fase de combate
         console.log('[GestorInterfaz] Actualizando Panel de Juego para fase combate');
         

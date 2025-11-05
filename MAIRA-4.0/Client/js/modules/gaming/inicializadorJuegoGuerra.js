@@ -131,7 +131,7 @@ class InicializadorJuegoGuerra {
             // Configuración por defecto - Argentina
             return {
                 modo: 'juego_guerra',
-                jugadores: 2,
+                jugadores: [{id: "local_player_1", equipo: "azul"}, {id: "local_player_2", equipo: "rojo"}],
                 escenario: 'default',
                 duracionTurno: 300000, // 5 minutos
                 mapaCentro: [-34.6037, -58.3816], // Buenos Aires, Argentina
@@ -142,7 +142,7 @@ class InicializadorJuegoGuerra {
             console.warn('⚠️ Error obteniendo configuración, usando defaults:', error);
             return {
                 modo: 'juego_guerra',
-                jugadores: 2,
+                jugadores: [{id: "local_player_1", equipo: "azul"}, {id: "local_player_2", equipo: "rojo"}],
                 escenario: 'default',
                 duracionTurno: 300000,
                 mapaCentro: [-34.6037, -58.3816], // Buenos Aires, Argentina

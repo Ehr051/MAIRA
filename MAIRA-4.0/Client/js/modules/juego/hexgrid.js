@@ -4,6 +4,7 @@ const HexGrid = {
     grid: new Map(),
     hexLayer: null,
     originLatLng: null,
+    // enabled: true, // REMOVIDO: no se necesita deshabilitar HexGrid
 
     initialize: function(map) {
         console.log("Inicializando HexGrid");
@@ -22,6 +23,28 @@ const HexGrid = {
 
         console.log("HexGrid inicializado");
     },
+
+    //     disable: function() {
+    //         console.log("🚫 HexGrid desactivado - clicks del map liberados");
+    //         this.enabled = false;
+    //         if (this.hexLayer) {
+    //             this.hexLayer.eachLayer(function(layer) {
+    //                 if (layer.off) layer.off('click');
+    //             });
+    //         }
+    //     },
+    // 
+    //     enable: function() {
+    //         console.log("✅ HexGrid activado - clicks del map capturados");
+    //         this.enabled = true;
+    //         if (this.hexLayer) {
+    //             this.hexLayer.eachLayer(function(layer) {
+    //                 if (layer.on) {
+    //                     layer.on('click', this.handleHexagonClick.bind(this));
+    //                 }
+    //             }.bind(this));
+    //         }
+    //     },
 
     createInitialGrid: function() {
         const bounds = this.map.getBounds();
@@ -250,7 +273,12 @@ const HexGrid = {
 
         // Seleccionar nuevo hexágono (temporal, amarillo)
         this.currentSelection = { hexKey, polygon };
-        polygon.getElement().classList.add('hex-selected');
+        const element = polygon.getElement();
+        if (!element || !element.classList) {
+            console.log("⚠️ Click fuera de hexágono, ignorando");
+            return;
+        }
+        element.classList.add("hex-selected");
         console.log('🔸 Hexágono seleccionado temporalmente:', hexKey);
 
         // Opcional: auto-limpiar después de unos segundos

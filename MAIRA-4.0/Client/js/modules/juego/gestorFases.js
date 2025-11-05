@@ -330,9 +330,14 @@ class GestorFases extends GestorBase {
 
 
     async inicializarHerramientasDibujo() {
-        if (!window.map) {
-            throw new Error('map no inicializado');
+        // Esperar hasta que window.map esté disponible
+        let intentos = 0;
+        while (!window.map && intentos < 50) {
+            console.log('⏳ Esperando window.map... intento', intentos + 1);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            intentos++;
         }
+
     
         try {
             this.herramientasDibujo = {
@@ -507,9 +512,14 @@ limpiarInterfazAnterior() {
 
     // Métodos de manejo de dibujo y herramientas
     async inicializarHerramientasDibujo() {
-        if (!window.map) {
-            throw new Error('map no inicializado');
+        // Esperar hasta que window.map esté disponible
+        let intentos = 0;
+        while (!window.map && intentos < 50) {
+            console.log('⏳ Esperando window.map... intento', intentos + 1);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            intentos++;
         }
+
 
         try {
             this.herramientasDibujo = {
@@ -578,25 +588,31 @@ limpiarInterfazAnterior() {
     }
 
     // Métodos de manejo de hexágonos
-    desactivarHexagonosInteractivos() {
-        // Remover la clase hex-interactive de todos los hexágonos
-        const hexagons = document.querySelectorAll('.hex-cell');
-        hexagons.forEach(hex => {
-            hex.classList.remove('hex-interactive');
-        });
-        console.log('🔸 Hexágonos desactivados para definición de sector/zona');
-    }
-
-    reactivarHexagonosInteractivos() {
-        // Solo reactivar si estamos en modo de juego que requiere hexágonos interactivos
-        if (this.fase === 'combate' || window.modoJuego === 'combate') {
-            const hexagons = document.querySelectorAll('.hex-cell');
-            hexagons.forEach(hex => {
-                hex.classList.add('hex-interactive');
-            });
-            console.log('🔸 Hexágonos reactivados para modo combate');
-        }
-    }
+    //     desactivarHexagonosInteractivos() {
+    //         if (window.HexGrid && window.HexGrid.disable) {
+    //             window.HexGrid.disable();
+    //         }
+    //         // Remover la clase hex-interactive de todos los hexágonos
+    //         const hexagons = document.querySelectorAll('.hex-cell');
+    //         hexagons.forEach(hex => {
+    //             hex.classList.remove('hex-interactive');
+    //         });
+    //         console.log('🔸 Hexágonos desactivados para definición de sector/zona');
+    //     }
+    // 
+    //     reactivarHexagonosInteractivos() {
+    //         if (window.HexGrid && window.HexGrid.enable) {
+    //             window.HexGrid.enable();
+    //         }
+    //         // Solo reactivar si estamos en modo de juego que requiere hexágonos interactivos
+    //         if (this.fase === 'combate' || window.modoJuego === 'combate') {
+    //             const hexagons = document.querySelectorAll('.hex-cell');
+    //             hexagons.forEach(hex => {
+    //                 hex.classList.add('hex-interactive');
+    //             });
+    //             console.log('🔸 Hexágonos reactivados para modo combate');
+    //         }
+    //     }
 
     // Métodos de manejo de sector
     iniciarDefinicionSector() {
@@ -612,7 +628,7 @@ limpiarInterfazAnterior() {
         }
 
         // Desactivar hexágonos para evitar interferencia con clicks
-        this.desactivarHexagonosInteractivos();
+        // this.desactivarHexagonosInteractivos(); // REMOVIDO: funcionaba SIN deshabilitar HexGrid
 
         // Activar herramienta de dibujo
         if (this.herramientasDibujo.sector) {
@@ -638,7 +654,7 @@ iniciarDefinicionZona(equipo) {
     if (!herramienta) return false;
 
     // Desactivar hexágonos para evitar interferencia con clicks
-    this.desactivarHexagonosInteractivos();
+    // this.desactivarHexagonosInteractivos(); // REMOVIDO: funcionaba SIN deshabilitar HexGrid
 
     this.zonaPendiente = equipo;
     this.dibujandoZona = equipo;
@@ -962,7 +978,7 @@ confirmarSector() {
         this.dibujandoSector = false;
 
         // Reactivar hexágonos si es necesario
-        this.reactivarHexagonosInteractivos();
+        // this.reactivarHexagonosInteractivos(); // REMOVIDO: no es necesario
 
         // 4. Emitir al servidor
         if (this.gestorJuego?.gestorComunicacion?.socket) {
@@ -1177,13 +1193,13 @@ limpiarEstadoFaseAnterior(faseAnterior, subfaseAnterior) {
         this.sectorTemporal = null;
         this.dibujandoSector = false;
         // Reactivar hexágonos al cambiar de subfase
-        this.reactivarHexagonosInteractivos();
+        // this.reactivarHexagonosInteractivos(); // REMOVIDO: no es necesario
     } else if (subfaseAnterior === 'definicion_zonas') {
         this.zonaTemporalLayer = null;
         this.dibujandoZona = null;
         this.zonaPendiente = null;
         // Reactivar hexágonos al cambiar de subfase de zonas
-        this.reactivarHexagonosInteractivos();
+        // this.reactivarHexagonosInteractivos(); // REMOVIDO: no es necesario
     }
 
     // Limpiar cualquier botón de confirmación existente
@@ -1484,7 +1500,7 @@ validarFaseActual() {
             this.dibujandoSector = false;
 
             // Reactivar hexágonos cuando se cancela la definición
-            this.reactivarHexagonosInteractivos();
+            // this.reactivarHexagonosInteractivos(); // REMOVIDO: no es necesario
 
             botonesContainer.remove();
             // Reactivar el botón de definir sector
