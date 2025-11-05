@@ -1,0 +1,77 @@
+/**
+ * 🎯 HEXGRID CSS - Sistema de cuadrícula hexagonal para Juego de Guerra
+ * Versión: 2.0
+ */
+
+/* Contenedor del HexGrid */
+.hexgrid-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 400;
+}
+
+/* Hexágonos individuales */
+.hex {
+    fill: transparent;
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 1px;
+    pointer-events: all;
+    transition: all 0.2s ease;
+}
+
+.hex:hover {
+    fill: rgba(255, 255, 255, 0.1);
+    stroke: rgba(255, 255, 255, 0.6);
+    stroke-width: 2px;
+    cursor: pointer;
+}
+
+/* Hexágono seleccionado */
+.hex.selected {
+    fill: rgba(0, 123, 255, 0.3);
+    stroke: rgb(0, 123, 255);
+    stroke-width: 2px;
+}
+
+/* Hexágonos en ruta */
+.hex.in-path {
+    fill: rgba(40, 167, 69, 0.2);
+    stroke: rgb(40, 167, 69);
+}
+
+/* Hexágonos en rango de ataque */
+.hex.in-range {
+    fill: rgba(220, 53, 69, 0.15);
+    stroke: rgba(220, 53, 69, 0.5);
+}
+
+/* Hexágonos bloqueados */
+.hex.blocked {
+    fill: rgba(108, 117, 125, 0.2);
+    stroke: rgba(108, 117, 125, 0.5);
+    pointer-events: none;
+}
+
+/* Overlay SVG para el grid */
+.leaflet-hex-grid-layer {
+    pointer-events: all;
+}
+
+/* Labels de coordenadas hexagonales */
+.hex-label {
+    fill: rgba(255, 255, 255, 0.7);
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    text-anchor: middle;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Ocultar hexgrid cuando está desactivado */
+.hexgrid-container.hidden {
+    display: none;
+}
