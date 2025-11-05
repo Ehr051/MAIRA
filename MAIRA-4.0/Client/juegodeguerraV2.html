@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>M.A.I.R.A. - Juego de Guerra V2</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+  <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- 🎨 ESTILOS CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+
+  <!-- Leaflet y plugins -->
+  <link rel="stylesheet" href="../node_modules/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-draw/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-measure/dist/leaflet-measure.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-easybutton/src/easy-button.css" />
+
+  <!-- CSS Personalizados MAIRA -->
+  <link rel="stylesheet" href="css/common/planeamiento.css">
+  <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
+  <link rel="stylesheet" href="css/modules/juegodeguerra/juegodeguerra.css">
+  <link rel="stylesheet" href="css/common/CYGMarcha.css">
+  <link rel="stylesheet" href="css/common/mairaRadialMenu.css">
+
+  <!-- Panel Inferior Unificado -->
+  <link rel="stylesheet" href="css/core/panelInferiorUnificado.css">
+
+  <!-- 🌐 CONFIGURACIÓN DE RED -->
+  <script src="js/common/networkConfig.js"></script>
+
+  <!-- 🚀 SCRIPTS JAVASCRIPT -->
+  <!-- Core Libraries -->
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Leaflet y plugins -->
+  <script src="../node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="../node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
+  <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+  <script src="../node_modules/html2canvas/dist/html2canvas.min.js"></script>
+  <script src="../node_modules/socket.io/client-dist/socket.io.min.js"></script>
+  <script src="../node_modules/milsymbol/dist/milsymbol.js"></script>
+  <script src="../node_modules/d3/dist/d3.min.js"></script>
+
+  <!-- Leaflet Plugins adicionales -->
+  <script src="../node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
+  <script src="../node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
+  <script src="../node_modules/file-saver/dist/FileSaver.js"></script>
+  <script src="../node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
+  <script src="../node_modules/geotiff/dist-browser/geotiff.js"></script>
+  <script src="../node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
+  <script src="../node_modules/leaflet-easybutton/src/easy-button.js"></script>
+  <script src="../node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
+  <script src="../node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
+  <script src="../node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
+  <script src="../node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+  <script src="../node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
+  <script src="../node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
+  <script src="../node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
+  <script src="../node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="../node_modules/proj4/dist/proj4.js"></script>
+  <script src="../node_modules/pako/dist/pako.min.js"></script>
+  <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
+
+  <!-- 🏗️ CORE -->
+  <script src="js/core/UserIdentity.js"></script>
+  <script src="js/utils/sessionManager.js"></script>
+  <script src="js/core/MAIRACore.js"></script>
+  <script src="js/core/panelInferiorUnificado.js"></script>
+
+  <!-- 🔧 UTILS -->
+  <script src="js/utils/eventemitter.js"></script>
+  <script src="js/utils/config.js"></script>
+  <script src="js/common/networkConfig.js"></script>
+
+  <!-- 🔄 SERVICES -->
+  <script src="js/services/transitabilityService.js"></script>
+  <script src="js/services/militaryDataService.js"></script>
+  <script src="js/services/elevationProfileService.js"></script>
+  <script src="js/services/slopeAnalysisService.js"></script>
+  <script src="js/infrastructure/terrainAdapter.js"></script>
+
+  <!-- 📢 NOTIFICACIONES -->
+  <script src="js/modules/shared/notificationSystem.js"></script>
+
+  <!-- 🎮 GAMING -->
+  <script src="js/gaming/GameEngine.js"></script>
+  <script src="js/gaming/AIDirector.js"></script>
+  <script src="js/gaming/FogOfWar.js"></script>
+
+  <!-- 🎯 HANDLERS -->
+  <script src="js/handlers/performanceOptimizer.js"></script>
+  <script src="js/handlers/elevationHandler.js"></script>
+  <script src="js/handlers/vegetacionhandler.js"></script>
+  <script src="js/handlers/dependency-manager.js"></script>
+  <script src="js/handlers/EventBus.js"></script>
+  <script src="js/handlers/searchHandler.js"></script>
+  <script src="js/utils/geometryUtils.js"></script>
+  <script src="js/handlers/mobileOptimizationHandler.js"></script>
+  <script src="js/handlers/mapInteractionHandler.js"></script>
+  <script src="js/handlers/measurementHandler.js"></script>
+  <script src="js/handlers/DirectorManager.js"></script>
+  <script src="js/handlers/pendienteHandler.js"></script>
+  <script src="js/handlers/transitabilidadHandler.js"></script>
+
+  <!-- 🎨 FONT AWESOME TEST -->
+  <script src="js/common/fontAwesomeTest.js"></script>
+
+  <!-- 📊 FUNCIONALIDADES BASE -->
+  <script src="js/common/atajosP.js"></script>
+  <script src="js/common/dibujosMCCP.js"></script>
+  <script src="js/common/graficoMarcha.js"></script>
+  <script src="js/common/herramientasP.js"></script>
+  <script src="js/common/simbolosP.js"></script>
+  <script src="js/common/unidades.js"></script>
+
+  <!-- 💬 CHAT SYSTEM -->
+  <script src="js/common/MAIRAChat.js"></script>
+
+  <!-- 🧩 GESTORES BASE -->
+  <script src="js/modules/planeamiento/planeamiento.js"></script>
+  <script src="js/modules/juego/gestorBase.js"></script>
+  <script src="js/modules/juego/gestorTurnos.js"></script>
+  <script src="js/modules/juego/gestorCarga.js"></script>
+  <script src="js/modules/juego/gestorComunicacion.js"></script>
+  <script src="js/modules/juego/gestorFases.js"></script>
+  <script src="js/modules/juego/gestorAcciones.js"></script>
+  <script src="js/modules/juego/gestorEventos.js"></script>
+  <script src="js/modules/juego/hexgrid.js"></script>
+  <script src="js/modules/juego/gestorJuego.js"></script>
+  <script src="js/modules/juego/gestorUnidades.js"></script>
+  <script src="js/modules/juego/gestorMapa.js"></script>
+  <script src="js/modules/juego/gestorEstado.js"></script>
+  <script src="js/modules/juego/gestorInterfaz.js"></script>
+
+  <!-- 🎯 MÓDULOS MAIRA -->
+  <script src="js/modules/planeamiento.js"></script>
+  <script src="js/modules/juegodeguerra.js"></script>
+
+  <!-- 🌐 COMMON -->
+  <script src="js/utils/calcosP.js"></script>
+  <script src="js/common/simbolosP.js"></script>
+  <script src="js/common/mapaP.js"></script>
+  <script src="js/common/edicioncompleto.js"></script>
+  <script src="js/common/panelMarcha.js"></script>
+  <script src="js/common/CalculoMarcha.js"></script>
+  <script src="js/common/miradial.js"></script>
+  <script src="js/common/mairaRadialMenu.js"></script>
+
+  <!-- 📊 ÍNDICE Y PRUEBAS -->
+  <script src="js/common/indexP.js"></script>
+  <script src="js/Test/testPlaneamiento.js"></script>
+  <script src="js/Test/autoTest.js"></script>
+  <script src="js/Test/visualizadorTests.js"></script>
+
+  <!-- 🚀 SISTEMA DE ÓRDENES V2 -->
+  <script src="js/modules/juegoV2/utils/Pathfinding.js"></script>
+  <script src="js/modules/juegoV2/ordenes/OrdenBase.js"></script>
+  <script src="js/modules/juegoV2/ordenes/OrdenMovimiento.js"></script>
+  <script src="js/modules/juegoV2/ordenes/OrdenAtaque.js"></script>
+  <script src="js/modules/juegoV2/ordenes/OrdenesQueueV2.js"></script>
+  <script src="js/modules/juegoV2/ui/PanelCoordinacionOrdenes.js"></script>
+
+  <!-- 🚀 INICIALIZADOR -->
+  <script src="js/modules/gaming/inicializadorJuegoGuerra.js"></script>
+
+</head>
+<body>
+  <!-- Loading container -->
+  <div class="loading-container" style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100vw !important; height: 100vh !important; background-color: black; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; z-index: 9999 !important; margin: 0; padding: 0; overflow: hidden;">
+    <img src="image/M.A.I.R.A..gif" alt="M.A.I.R.A. Logo" class="logo">
+    <h1>JUEGO DE GUERRA V2</h1>
+    <div class="progress-container">
+      <div class="progress-bar" id="progreso" style="width: 0%;">
+        <span class="loading-percentage" id="porcentajeCarga">0%</span>
+      </div>
+      <div class="loading-text" id="loadingText">Cargando recursos...</div>
+    </div>
+    <div class="version">Versión 2.0 Beta</div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar" class="leaflet-sidebar collapsed">
+    <div class="leaflet-sidebar-tabs">
+      <ul role="tablist">
+        <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+        <li><a href="#elementos" role="tab"><i class="fas fa-layer-group"></i></a></li>
+        <li><a href="#herramientas" role="tab"><i class="fas fa-tools"></i></a></li>
+        <li><a href="#ordenes" role="tab"><i class="fas fa-tasks"></i></a></li>
+      </ul>
+    </div>
+
+    <div class="leaflet-sidebar-content">
+      <div class="leaflet-sidebar-pane" id="home">
+        <h1 class="leaflet-sidebar-header">
+          Menú Principal
+          <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+        </h1>
+        <div class="sidebar-content">
+          <button class="btn btn-primary btn-block" id="btnVolverInicio">
+            <i class="fas fa-home"></i> Volver a Inicio
+          </button>
+        </div>
+      </div>
+
+      <div class="leaflet-sidebar-pane" id="elementos">
+        <h1 class="leaflet-sidebar-header">
+          Elementos Militares
+          <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+        </h1>
+        <div class="sidebar-content">
+          <!-- Contenido de elementos -->
+        </div>
+      </div>
+
+      <div class="leaflet-sidebar-pane" id="herramientas">
+        <h1 class="leaflet-sidebar-header">
+          Herramientas
+          <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+        </h1>
+        <div class="sidebar-content">
+          <!-- Contenido de herramientas -->
+        </div>
+      </div>
+
+      <div class="leaflet-sidebar-pane" id="ordenes">
+        <h1 class="leaflet-sidebar-header">
+          Sistema de Órdenes V2
+          <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+        </h1>
+        <div class="sidebar-content">
+          <button class="btn btn-success btn-block" id="btnAbrirPanelCoordinacion">
+            <i class="fas fa-tasks"></i> Abrir Panel de Coordinación
+          </button>
+          <button class="btn btn-info btn-block mt-2" id="btnValidarOrdenesActuales">
+            <i class="fas fa-check-circle"></i> Validar Órdenes
+          </button>
+          <button class="btn btn-warning btn-block mt-2" id="btnEjecutarTurnoActual">
+            <i class="fas fa-play"></i> Ejecutar Turno
+          </button>
+          <hr>
+          <h5>Estadísticas</h5>
+          <div id="estadisticasOrdenes">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapa principal -->
+  <div id="map"></div>
+
+  <!-- Script de inicialización -->
+  <script>
+    console.log('🎮 JUEGO DE GUERRA V2 - Iniciando...');
+
+    // Verificar que se cargaron los scripts V2
+    console.log({
+      OrdenBase: typeof OrdenBase,
+      OrdenMovimiento: typeof OrdenMovimiento,
+      OrdenAtaque: typeof OrdenAtaque,
+      Pathfinding: typeof Pathfinding,
+      OrdenesQueueV2: typeof OrdenesQueueV2,
+      PanelCoordinacionOrdenes: typeof PanelCoordinacionOrdenes
+    });
+
+    // Configurar eventos de botones V2
+    document.addEventListener('DOMContentLoaded', function() {
+      // Botón volver a inicio
+      document.getElementById('btnVolverInicio')?.addEventListener('click', function() {
+        if (confirm('¿Salir del juego?')) {
+          window.location.href = 'iniciarpartida.html';
+        }
+      });
+
+      // Botón abrir panel de coordinación
+      document.getElementById('btnAbrirPanelCoordinacion')?.addEventListener('click', function() {
+        if (!window.colaOrdenesAzul) {
+          window.colaOrdenesAzul = new OrdenesQueueV2('azul');
+        }
+        if (!window.panelCoordinacion) {
+          window.panelCoordinacion = new PanelCoordinacionOrdenes(window.colaOrdenesAzul);
+        }
+        window.panelCoordinacion.mostrar();
+      });
+
+      // Botón validar órdenes
+      document.getElementById('btnValidarOrdenesActuales')?.addEventListener('click', async function() {
+        if (window.colaOrdenesAzul) {
+          await window.colaOrdenesAzul.validarOrdenes();
+          alert('Órdenes validadas');
+        } else {
+          alert('No hay cola de órdenes activa');
+        }
+      });
+
+      // Botón ejecutar turno
+      document.getElementById('btnEjecutarTurnoActual')?.addEventListener('click', async function() {
+        if (window.colaOrdenesAzul) {
+          if (confirm('¿Ejecutar turno actual?')) {
+            await window.colaOrdenesAzul.ejecutarTurno(1);
+            alert('Turno ejecutado');
+          }
+        } else {
+          alert('No hay cola de órdenes activa');
+        }
+      });
+
+      console.log('✅ Eventos V2 configurados');
+    });
+  </script>
+</body>
+</html>

@@ -228,7 +228,7 @@ function iniciarJuegoLocalDesdeUI() {
     if (validarConfiguracionJugadores()) {
         const configuracion = recopilarConfiguracionPartida();
         localStorage.setItem('configuracionPartidaLocal', JSON.stringify(configuracion));
-        window.location.href = 'juegodeguerra.html';
+        window.location.href = 'juegodeguerraV2.html'; // ✅ V2
     }
 }
 
@@ -354,7 +354,7 @@ function actualizarSalaDeEspera(partida) {
 function iniciarJuego(data) {
     console.log('Iniciando juego con los datos de la partida:', data);
     if (partidaActual) {
-        window.location.href = `juegodeguerra.html?codigo=${partidaActual.codigo}`;
+        window.location.href = `juegodeguerraV2.html?codigo=${partidaActual.codigo}`; // ✅ V2
     } else {
         mostrarError('Error al iniciar el juego, no se encuentra la partida.');
     }
@@ -534,7 +534,7 @@ async function inicializarSocket() {
         }
 
         console.log('Redirigiendo a juego de guerra...');
-        window.location.href = `juegodeguerra.html?codigo=${datosPartida.codigo}`;
+        window.location.href = `juegodeguerraV2.html?codigo=${datosPartida.codigo}`; // ✅ V2
     });
 
         // Agregar evento para director asignado
