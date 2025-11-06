@@ -74,8 +74,6 @@ python3 -c "import flask" 2>/dev/null || {
 echo "✅ Dependencias Python OK"
 echo ""
 
-fi
-echo ""
 
 # Verificar si el puerto 5001 está en uso y limpiar
 echo "🧹 Verificando puerto 5001..."
