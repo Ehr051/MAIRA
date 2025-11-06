@@ -85,22 +85,25 @@ class VegetationInstancer {
                 material = meshes[0].material.clone();
                 console.log(`✅ Usando mesh único (${geometry.attributes.position.count} vértices)`);
             } else {
-                // 🔥 FIX CRÍTICO: Múltiples meshes con diferentes materiales (tronco + follaje)
-                // NO fusionar - usar el modelo completo como Group
-                console.warn(`⚠️ Modelo ${modelType} tiene ${meshes.length} meshes - NO fusionar para preservar materiales`);
-                console.warn(`   Usando modelo completo (Group) en lugar de InstancedMesh`);
-                console.warn(`   Materiales: ${materials.map(m => m.name || 'unnamed').join(', ')}`);
+                // 🚀 FUSIONAR múltiples meshes en uno solo para performance
+                console.log(`🔧 Fusionando ${meshes.length} meshes del modelo ${modelType}...`);
                 
-                // Guardar el modelo completo sin fusionar
-                const modelData = {
-                    model: model.clone(),
-                    meshes: meshes.length,
-                    materials: materials.length,
-                    useGroup: true // Flag para NO usar InstancedMesh
-                };
+                // Fusionar geometrías
+                const geometries = [];
+                meshes.forEach(mesh => {
+                    const clonedGeo = mesh.geometry.clone();
+                    // Aplicar transformaciones locales
+                    clonedGeo.applyMatrix4(mesh.matrixWorld);
+                    geometries.push(clonedGeo);
+                });
                 
-                this.modelCache.set(modelType, modelData);
-                return modelData;
+                // Combinar con BufferGeometryUtils (ya disponible en THREE)
+                geometry = THREE.BufferGeometryUtils.mergeGeometries(geometries, false);
+                
+                // Usar el primer material (o crear uno compuesto)
+                material = materials[0].clone();
+                
+                console.log(`✅ ${meshes.length} meshes fusionados en ${geometry.attributes.position.count} vértices`);
                 
                 // ✅ FORZAR CARGA DE TEXTURAS: Verificar y configurar correctamente
                 if (material) {

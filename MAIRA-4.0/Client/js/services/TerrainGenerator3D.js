@@ -800,6 +800,39 @@ class TerrainGenerator3D {
         for (let i = 0; i < sampledPoints.length; i += batchSize) {
             const batch = sampledPoints.slice(i, i + batchSize);
             
+            // 🚀 OPTIMIZACIÓN BATCH: Una sola llamada para todos los puntos del batch
+            let batchElevations = {};
+            
+            // ⚡ Intentar usar BATCH API si está disponible
+            if (this.heightmapHandler && typeof this.heightmapHandler.obtenerElevacionBatch === 'function') {
+                try {
+                    const pointsToFetch = batch.filter(p => !elevationCache.has(cacheKey(p.lat, p.lon)));
+                    if (pointsToFetch.length > 0) {
+                        console.log(`⚡ Usando BATCH API para ${pointsToFetch.length} puntos del batch...`);
+                        const batchPoints = pointsToFetch.map(p => ({ lat: p.lat, lon: p.lon }));
+                        const elevations = await this.heightmapHandler.obtenerElevacionBatch(batchPoints);
+                        
+                        // Distribuir resultados
+                        pointsToFetch.forEach((point, idx) => {
+                            const key = cacheKey(point.lat, point.lon);
+                            let elev = elevations[idx];
+                            
+                            // Validación
+                            if (isNaN(elev) || elev === null || elev === undefined || !isFinite(elev)) {
+                                elev = this.generateProceduralHeight(point.lat, point.lon);
+                            } else if (Math.abs(elev) > 5000) {
+                                console.error(`🚨 ELEVACIÓN EXTREMA: ${elev.toFixed(1)}m en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]`);
+                            }
+                            
+                            elevationCache.set(key, elev);
+                            batchElevations[key] = elev;
+                        });
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ Error en BATCH API, usando método individual:`, error.message);
+                }
+            }
+            
             const batchPromises = batch.map(async (point) => {
                 let elevation = 0;
                 let ndvi = 0;
@@ -808,7 +841,10 @@ class TerrainGenerator3D {
                 const key = cacheKey(point.lat, point.lon);
                 
                 // �🗻 Obtener elevación REAL de TIF (con caché)
-                if (elevationCache.has(key)) {
+                // 🗻 Obtener elevación (de batch cache primero, luego elevationCache, o individual)
+                if (batchElevations[key] !== undefined) {
+                    elevation = batchElevations[key];
+                } else if (elevationCache.has(key)) {
                     elevation = elevationCache.get(key);
                 } else if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
                     try {
@@ -1351,9 +1387,24 @@ class TerrainGenerator3D {
             });
             
             // Convertir instancias a objetos 3D
+            console.log(`🔧 Llamando a createVegetationFromInstances con ${instances.length} instancias...`);
             const vegetationObjects = await this.createVegetationFromInstances(instances);
             
             console.log(`✅ ${vegetationObjects.length} objetos 3D creados`);
+            console.log(`🎯 Tipos de objetos creados:`, vegetationObjects.map(o => o.vegetationType).slice(0, 10));
+            
+            // ✅ CRÍTICO: Añadir objetos a la escena aquí también
+            if (this.maira3DSystem && this.maira3DSystem.scene) {
+                vegetationObjects.forEach(obj => {
+                    if (obj.mesh) {
+                        console.log(`🌳 Añadiendo ${obj.vegetationType} a escena en posición:`, obj.position);
+                        this.maira3DSystem.scene.add(obj.mesh);
+                    }
+                });
+                console.log(`✅ ${vegetationObjects.length} objetos añadidos a la escena`);
+            } else {
+                console.error('❌ No hay acceso a maira3DSystem.scene - objetos NO añadidos');
+            }
             
             return vegetationObjects;
             
@@ -1397,44 +1448,45 @@ class TerrainGenerator3D {
         //           Desde cerca necesitas MENOS árboles (ya son grandes visualmente)
         const densityConfig = {
             'vegetation': { 
-                density: 0.35,          // ✅ 35% densidad (aumentado de 10% para vista aérea)
+                density: 0.25,          // ✅ 25% densidad (arbustos + árboles dispersos)
                 models: [
-                    // trees_low.glb - PRINCIPAL (50% árboles bajos)
-                    { type: 'trees_low', weight: 5, scale: [0.02, 0.03] },
+                    // oak_trees.glb - Robles bajos (40%)
+                    { type: 'trees_low', weight: 4, scale: [0.015, 0.025] },
                     
-                    // trees_low.glb - MEDIANOS (30% escalados más grandes)
-                    { type: 'trees_low', weight: 3, scale: [0.035, 0.045] },
+                    // urban_tree.glb - Árboles urbanos medianos (30%)
+                    { type: 'tree_medium', weight: 3, scale: [0.020, 0.035] },
                     
-                    // arbol.glb - ALTOS (20% árboles grandes)
-                    { type: 'arbol', weight: 2, scale: [0.08, 0.12] }
+                    // photorealistic_bush.glb - Arbustos (30%)
+                    { type: 'bush', weight: 3, scale: [0.008, 0.015] }
                 ],
                 priority: 2
             },
             'forest': { 
-                density: 0.50,          // ✅ 50% densidad (aumentado de 15% para vista aérea)
+                density: 0.40,          // ✅ 40% densidad (bosques densos)
                 models: [
-                    // trees_low.glb - BAJO (40%)
-                    { type: 'trees_low', weight: 4, scale: [0.025, 0.035] },
+                    // oak_trees.glb - Robles bajos (35%)
+                    { type: 'trees_low', weight: 3.5, scale: [0.020, 0.030] },
                     
-                    // trees_low.glb - MEDIANO (30%)  
-                    { type: 'trees_low', weight: 3, scale: [0.04, 0.055] },
+                    // pine_tree.glb - Pinos altos (40%)
+                    { type: 'arbol', weight: 4, scale: [0.030, 0.045] },
                     
-                    // arbol.glb - ALTO (30%)
-                    { type: 'arbol', weight: 3, scale: [0.10, 0.15] }
+                    // urban_tree.glb - Árboles medianos (25%)
+                    { type: 'tree_medium', weight: 2.5, scale: [0.025, 0.040] }
                 ],
                 priority: 1
             },
             'grass': { 
-                density: 0.00,          // ❌ DESACTIVADO (solo árboles)
+                density: 0.00,          // ❌ DESACTIVADO (no tenemos modelo grass.glb)
                 models: [
                     { type: 'grass', weight: 1, scale: [0.0005, 0.001] }
                 ],
                 priority: 3
             },
             'crops': { 
-                density: 0.00,          // ❌ DESACTIVADO (solo árboles)
+                density: 0.15,          // ✅ 15% densidad (cultivos con arbustos bajos)
                 models: [
-                    { type: 'trees_low', weight: 1, scale: [0.015, 0.020] }
+                    // photorealistic_bush.glb - Arbustos bajos como cultivos (100%)
+                    { type: 'bush', weight: 10, scale: [0.005, 0.012] }
                 ],
                 priority: 2
             }
@@ -1485,12 +1537,6 @@ class TerrainGenerator3D {
                 // Convertir píxel a coordenadas 3D
                 const pos3D = this.imageToTerrainCoords(feature.x, feature.y);
                 
-                // ❌ NO agregar variación de posición - posicionar exactamente donde OSM indica
-                // Los árboles deben estar sobre las manchas verdes de OpenStreetMap
-                // const jitter = 2.0;
-                // pos3D.x += (Math.random() - 0.5) * jitter;
-                // pos3D.z += (Math.random() - 0.5) * jitter;
-                
                 // Crear instancia con modelo seleccionado
                 instances.push({
                     type: selectedModel.type,
@@ -1519,8 +1565,9 @@ class TerrainGenerator3D {
      */
     async createVegetationFromInstances(instances) {
         console.log(`🌳 Creando ${instances.length} objetos 3D desde instancias...`);
-        
+        console.log(`🔍 Instancias de muestra:`, instances.slice(0, 3).map(i => ({type: i.type, pos: i.position})));
         // Las instancias ya tienen position como Vector3
+        
         const instancesWith3D = instances.map(inst => {
             const position = inst.position.clone();
             
@@ -1546,17 +1593,30 @@ class TerrainGenerator3D {
         
         // Fallback: crear meshes individuales
         console.log('📍 Fallback: creando meshes individuales');
+        console.log(`🔍 modelLoader disponible: ${!!this.modelLoader}`);
+        console.log(`🔍 Primeras 5 instancias:`, instancesWith3D.slice(0, 5).map(i => ({type: i.type, pos: i.position})));
+        
+        console.log(`🔍 modelLoader disponible: ${!!this.modelLoader}`);
+        console.log(`🔍 Primeras 5 instancias:`, instancesWith3D.slice(0, 5).map(i => ({type: i.type, pos: i.position})));
+        
         const objects = [];
         
         for (const inst of instancesWith3D) {
+        
+        for (const inst of instancesWith3D) {
+            console.log(`🌲 Intentando crear ${inst.type} en posición`, inst.position);
             const obj = await this.createVegetationObject(inst, inst.type);
             if (obj) {
+                console.log(`✅ Objeto ${inst.type} creado exitosamente`);
                 objects.push(obj);
+            } else {
+                console.warn(`⚠️ No se pudo crear objeto ${inst.type}`);
             }
         }
         
         this.vegetationObjects = objects;
         return objects;
+    }
     }
 
     /**
