@@ -800,39 +800,6 @@ class TerrainGenerator3D {
         for (let i = 0; i < sampledPoints.length; i += batchSize) {
             const batch = sampledPoints.slice(i, i + batchSize);
             
-            // 🚀 OPTIMIZACIÓN BATCH: Una sola llamada para todos los puntos del batch
-            let batchElevations = {};
-            
-            // ⚡ Intentar usar BATCH API si está disponible
-            if (this.heightmapHandler && typeof this.heightmapHandler.obtenerElevacionBatch === 'function') {
-                try {
-                    const pointsToFetch = batch.filter(p => !elevationCache.has(cacheKey(p.lat, p.lon)));
-                    if (pointsToFetch.length > 0) {
-                        console.log(`⚡ Usando BATCH API para ${pointsToFetch.length} puntos del batch...`);
-                        const batchPoints = pointsToFetch.map(p => ({ lat: p.lat, lon: p.lon }));
-                        const elevations = await this.heightmapHandler.obtenerElevacionBatch(batchPoints);
-                        
-                        // Distribuir resultados
-                        pointsToFetch.forEach((point, idx) => {
-                            const key = cacheKey(point.lat, point.lon);
-                            let elev = elevations[idx];
-                            
-                            // Validación
-                            if (isNaN(elev) || elev === null || elev === undefined || !isFinite(elev)) {
-                                elev = this.generateProceduralHeight(point.lat, point.lon);
-                            } else if (Math.abs(elev) > 5000) {
-                                console.error(`🚨 ELEVACIÓN EXTREMA: ${elev.toFixed(1)}m en [${point.lat.toFixed(6)}, ${point.lon.toFixed(6)}]`);
-                            }
-                            
-                            elevationCache.set(key, elev);
-                            batchElevations[key] = elev;
-                        });
-                    }
-                } catch (error) {
-                    console.warn(`⚠️ Error en BATCH API, usando método individual:`, error.message);
-                }
-            }
-            
             const batchPromises = batch.map(async (point) => {
                 let elevation = 0;
                 let ndvi = 0;
@@ -841,10 +808,7 @@ class TerrainGenerator3D {
                 const key = cacheKey(point.lat, point.lon);
                 
                 // �🗻 Obtener elevación REAL de TIF (con caché)
-                // 🗻 Obtener elevación (de batch cache primero, luego elevationCache, o individual)
-                if (batchElevations[key] !== undefined) {
-                    elevation = batchElevations[key];
-                } else if (elevationCache.has(key)) {
+                if (elevationCache.has(key)) {
                     elevation = elevationCache.get(key);
                 } else if (this.heightmapHandler && typeof this.heightmapHandler.getElevation === 'function') {
                     try {
@@ -1391,14 +1355,14 @@ class TerrainGenerator3D {
             const vegetationObjects = await this.createVegetationFromInstances(instances);
             
             console.log(`✅ ${vegetationObjects.length} objetos 3D creados`);
-            console.log(`🎯 Tipos de objetos creados:`, vegetationObjects.filter(o => o).map(o => o.userData?.vegetationType || 'unknown').slice(0, 10));
+            console.log(`🎯 Tipos de objetos creados:`, vegetationObjects.map(o => o.vegetationType).slice(0, 10));
             
-            // ✅ CRÍTICO: Los objetos ya son THREE.Object3D directos, NO tienen propiedad .mesh
+            // ✅ CRÍTICO: Añadir objetos a la escena aquí también
             if (this.maira3DSystem && this.maira3DSystem.scene) {
                 vegetationObjects.forEach(obj => {
-                    if (obj && obj.isObject3D) {
-                        console.log(`🌳 Añadiendo ${obj.userData?.vegetationType} a escena en posición:`, obj.position);
-                        this.maira3DSystem.scene.add(obj);
+                    if (obj.mesh) {
+                        console.log(`🌳 Añadiendo ${obj.vegetationType} a escena en posición:`, obj.position);
+                        this.maira3DSystem.scene.add(obj.mesh);
                     }
                 });
                 console.log(`✅ ${vegetationObjects.length} objetos añadidos a la escena`);
@@ -1656,15 +1620,14 @@ class TerrainGenerator3D {
 
                 if (instances && instances.length > 0) {
                     const instance = instances[0]; // Tomar la primera instancia del array
-                    // 🔥 FIX: Retornar el mesh directamente, no un wrapper
-                    // Agregar metadata al userData del mesh
-                    instance.userData = {
+                    return {
                         id,
                         type: 'vegetation',
                         vegetationType: type,
+                        mesh: instance,
+                        position: new THREE.Vector3(point.x, point.y, point.z),
                         isInstanced: true
                     };
-                    return instance; // ✅ Retornar THREE.Object3D directamente
                 }
             }
 
@@ -1687,21 +1650,19 @@ class TerrainGenerator3D {
                     mesh.castShadow = true;
                     mesh.receiveShadow = true;
 
-                    // 🔥 FIX: Agregar metadata al userData
-                    mesh.userData = {
-                        id,
-                        type: 'vegetation',
-                        vegetationType: type,
-                        isInstanced: false
-                    };
-
                     // Agregar a escena si tenemos acceso
                     if (this.maira3DSystem && this.maira3DSystem.scene) {
                         this.maira3DSystem.scene.add(mesh);
                     }
 
-                    // ✅ Retornar mesh directamente, no wrapper
-                    return mesh;
+                    return {
+                        id,
+                        type: 'vegetation',
+                        vegetationType: type,
+                        mesh,
+                        position: new THREE.Vector3(point.x, point.y, point.z),
+                        isInstanced: false
+                    };
                 }
             }
 
@@ -1785,26 +1746,20 @@ class TerrainGenerator3D {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
 
-        // Configurar sombras
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-
-        // 🔥 FIX: Agregar metadata al userData
-        mesh.userData = {
-            id,
-            type: 'vegetation',
-            vegetationType: type,
-            isInstanced: false,
-            isProcedural: true
-        };
-
         // Agregar a escena si tenemos acceso
         if (this.maira3DSystem && this.maira3DSystem.scene) {
             this.maira3DSystem.scene.add(mesh);
         }
 
-        // ✅ Retornar mesh directamente
-        return mesh;
+        return {
+            id,
+            type: 'vegetation',
+            vegetationType: type,
+            mesh,
+            position: new THREE.Vector3(point.x, point.y, point.z),
+            isInstanced: false,
+            isProcedural: true
+        };
     }
 
     /**
@@ -1813,18 +1768,17 @@ class TerrainGenerator3D {
     clearVegetation() {
         // Remover de escena
         this.vegetationObjects.forEach(veg => {
-            // ✅ FIX: Ahora veg ES el mesh directamente, no tiene propiedad .mesh
-            if (veg && veg.isObject3D) {
+            if (veg.mesh) {
                 if (this.maira3DSystem && this.maira3DSystem.scene) {
-                    this.maira3DSystem.scene.remove(veg);
+                    this.maira3DSystem.scene.remove(veg.mesh);
                 }
                 // Liberar geometría/material si es necesario
-                if (veg.geometry) veg.geometry.dispose();
-                if (veg.material) {
-                    if (Array.isArray(veg.material)) {
-                        veg.material.forEach(mat => mat.dispose());
+                if (veg.mesh.geometry) veg.mesh.geometry.dispose();
+                if (veg.mesh.material) {
+                    if (Array.isArray(veg.mesh.material)) {
+                        veg.mesh.material.forEach(mat => mat.dispose());
                     } else {
-                        veg.material.dispose();
+                        veg.mesh.material.dispose();
                     }
                 }
             }

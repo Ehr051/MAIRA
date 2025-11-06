@@ -347,7 +347,7 @@
           // 2. Cargar GLTFLoader NATIVO (texturas embedded funcionan)
           try {
             // ✅ Usar THREE.GLTFLoader desde jsDelivr CDN
-            await loadScript('/Client/Libs/mythree/GLTFLoader.js', 'GLTFLoader');
+            await loadScript('https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/loaders/GLTFLoader.js', 'GLTFLoader');
             console.log('✅ GLTFLoader nativo cargado - Texturas embedded OK');
           } catch (error) {
             console.warn('⚠️ GLTFLoader no disponible - solo modelos procedurales');

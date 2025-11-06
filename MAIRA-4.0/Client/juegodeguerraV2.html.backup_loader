@@ -344,11 +344,9 @@
             throw new Error('THREE.js no se cargó correctamente');
           }
 
-          // 2. Cargar GLTFLoader NATIVO (texturas embedded funcionan)
+          // 2. Cargar GLTFLoader (para modelos 3D)
           try {
-            // ✅ Usar THREE.GLTFLoader desde jsDelivr CDN
             await loadScript('/Client/Libs/mythree/GLTFLoader.js', 'GLTFLoader');
-            console.log('✅ GLTFLoader nativo cargado - Texturas embedded OK');
           } catch (error) {
             console.warn('⚠️ GLTFLoader no disponible - solo modelos procedurales');
           }
@@ -2241,12 +2239,11 @@ function initThreeJSDirect() {
         roughness: 0.7
     });
     const testCube = new THREE.Mesh(testGeometry, testMaterial);
-    testCube.position.set(0, 0, 0); // Se ajustará al terreno
+    testCube.position.set(0, 50, 0); // 50m arriba del origen
     testCube.castShadow = true;
     testCube.receiveShadow = true;
-    testCube.userData.isTestCube = true; // Flag para ajuste
     maira3DScene.add(testCube);
-    console.log('✅ Cubo agregado - se ajustará al terreno');
+    console.log('✅ Cubo de prueba agregado en (0, 50, 0) - Si lo ves, setup básico funciona');
     
     // Controles
     maira3DControls = new THREE.OrbitControls(maira3DCamera, maira3DRenderer.domElement);
@@ -2647,16 +2644,6 @@ async function generateTerrainDirectWithBounds(capturedBounds) {
     }
     
     maira3DCurrentTerrain = result;
-    
-    // 🎯 Ajustar cubo al nivel del terreno
-    const testCube = maira3DScene.children.find(obj => obj.userData?.isTestCube);
-    if (testCube && result.terrain?.geometry) {
-        const positions = result.terrain.geometry.attributes.position.array;
-        const centerIdx = Math.floor(positions.length / 2);
-        const centerY = positions[centerIdx * 3 + 1] || 0;
-        testCube.position.y = centerY + 50;
-        console.log(`🎯 Cubo ajustado: ${centerY.toFixed(1)}m + 50m = ${testCube.position.y.toFixed(1)}m`);
-    }
     
     // Posicionar cámara
     positionCameraForTerrain(result.terrain, capturedBounds);

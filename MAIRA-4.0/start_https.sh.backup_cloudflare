@@ -74,6 +74,43 @@ python3 -c "import flask" 2>/dev/null || {
 echo "✅ Dependencias Python OK"
 echo ""
 
+# Verificar y lanzar Cloudflare Tunnel si está disponible
+echo "🌐 Verificando Cloudflare Tunnel..."
+if command -v cloudflared &> /dev/null; then
+    echo "✅ cloudflared encontrado"
+    echo "   Iniciando túnel Cloudflare en segundo plano..."
+
+    # Matar cualquier instancia previa de cloudflared
+    pkill -f cloudflared 2>/dev/null
+
+    # Iniciar tunnel en background y guardar PID
+    cloudflared tunnel --url https://localhost:5001 > cloudflare_tunnel.log 2>&1 &
+    TUNNEL_PID=$!
+
+    # Esperar a que el tunnel inicie y obtener la URL
+    echo "   Esperando URL pública del túnel..."
+    sleep 3
+
+    # Extraer URL del log
+    TUNNEL_URL=$(grep -o 'https://.*\.trycloudflare.com' cloudflare_tunnel.log 2>/dev/null | head -n 1)
+
+    if [ -n "$TUNNEL_URL" ]; then
+        echo "✅ Túnel Cloudflare activo!"
+        echo "   🌍 URL PÚBLICA: $TUNNEL_URL"
+        echo "   📋 PID del túnel: $TUNNEL_PID"
+        echo ""
+        echo "   ⚠️  IMPORTANTE: Esta URL es temporal y cambia en cada ejecución"
+        echo "   💡 Compártela con otros jugadores para pruebas multi-jugador"
+        echo ""
+    else
+        echo "⚠️  No se pudo obtener URL del túnel (aún puede estar iniciando)"
+        echo "   Revisa cloudflare_tunnel.log para ver la URL"
+    fi
+else
+    echo "⚠️  cloudflared no encontrado"
+    echo "   El servidor solo será accesible en la red local"
+    echo "   Para instalar: brew install cloudflare/cloudflare/cloudflared"
+    echo "   (Usuarios en la misma red pueden acceder sin el túnel)"
 fi
 echo ""
 
@@ -119,6 +156,11 @@ echo ""
 cleanup() {
     echo ""
     echo "🛑 Deteniendo servicios..."
+    if [ -n "$TUNNEL_PID" ]; then
+        echo "   Cerrando túnel Cloudflare (PID: $TUNNEL_PID)..."
+        kill $TUNNEL_PID 2>/dev/null
+        pkill -f cloudflared 2>/dev/null
+    fi
     echo "✅ Servicios detenidos"
     exit 0
 }
