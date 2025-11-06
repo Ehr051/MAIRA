@@ -1,0 +1,403 @@
+/**
+ * CALCULADOR PCR - ESTILOS
+ */
+
+:root {
+    --color-azul: #0066cc;
+    --color-azul-light: #4d94ff;
+    --color-rojo: #cc0000;
+    --color-rojo-light: #ff4d4d;
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+    --color-danger: #dc3545;
+}
+
+body {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+header {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+/* ====================
+   RESULTADO PRINCIPAL
+   ==================== */
+
+.resultado-principal {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.resultado-principal h2 {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.pcr-display {
+    margin: 20px 0;
+}
+
+.pcr-valor {
+    font-size: 4rem;
+    font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'Courier New', monospace;
+}
+
+.pcr-ratio {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    opacity: 0.9;
+}
+
+.total-bando {
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.total-bando.azul {
+    background: linear-gradient(135deg, var(--color-azul) 0%, var(--color-azul-light) 100%);
+}
+
+.total-bando.rojo {
+    background: linear-gradient(135deg, var(--color-rojo) 0%, var(--color-rojo-light) 100%);
+}
+
+.total-bando h5 {
+    font-weight: 700;
+    margin-bottom: 15px;
+    opacity: 0.9;
+}
+
+.total-valor {
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+}
+
+/* ====================
+   CARDS DE FUERZAS
+   ==================== */
+
+.fuerza-card {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.fuerza-card.azul .card-header {
+    background: linear-gradient(135deg, var(--color-azul) 0%, var(--color-azul-light) 100%);
+    color: white;
+}
+
+.fuerza-card.rojo .card-header {
+    background: linear-gradient(135deg, var(--color-rojo) 0%, var(--color-rojo-light) 100%);
+    color: white;
+}
+
+.fuerza-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.fuerza-card .card-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.fuerza-card .card-body {
+    background: white;
+}
+
+/* ====================
+   FACTORES GLOBALES
+   ==================== */
+
+.factores-globales {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #6c757d;
+}
+
+.factores-globales h6 {
+    font-weight: 700;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.factores-globales label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 3px;
+}
+
+.factores-globales select {
+    font-size: 0.85rem;
+}
+
+/* ====================
+   TABLAS
+   ==================== */
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background: #343a40;
+    color: white;
+}
+
+.table thead th {
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.tabla-vacia td {
+    padding: 40px 20px;
+    font-size: 1.1rem;
+}
+
+.elemento-row {
+    transition: all 0.2s;
+}
+
+.elemento-row:hover {
+    background-color: #f8f9fa;
+}
+
+.elemento-nombre {
+    font-weight: 600;
+    color: #212529;
+}
+
+.elemento-obs {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.vrc-badge {
+    background: #6c757d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.total-badge {
+    background: var(--color-success);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+}
+
+.cantidad-input {
+    width: 70px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ====================
+   BOTONES
+   ==================== */
+
+.btn-eliminar {
+    padding: 4px 8px;
+    font-size: 0.85rem;
+}
+
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 0.4rem 0.8rem;
+}
+
+/* ====================
+   MODAL
+   ==================== */
+
+.modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.modal-title {
+    font-weight: 700;
+}
+
+#modalBandoTitle {
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+/* ====================
+   ALERTAS Y INFO
+   ==================== */
+
+.alert-info {
+    background: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.alert-info h6 {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* ====================
+   UTILIDADES
+   ==================== */
+
+.text-azul {
+    color: var(--color-azul);
+}
+
+.text-rojo {
+    color: var(--color-rojo);
+}
+
+.bg-azul {
+    background-color: var(--color-azul);
+}
+
+.bg-rojo {
+    background-color: var(--color-rojo);
+}
+
+/* ====================
+   RESPONSIVE
+   ==================== */
+
+@media (max-width: 768px) {
+    .pcr-valor {
+        font-size: 2.5rem;
+    }
+
+    .total-valor {
+        font-size: 1.8rem;
+    }
+
+    .fuerza-card .card-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .factores-globales .row .col-md-4,
+    .factores-globales .row .col-md-6 {
+        padding-bottom: 10px;
+    }
+
+    header h1 {
+        font-size: 1.3rem;
+    }
+
+    header .col-md-6.text-md-end {
+        text-align: center !important;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+
+    .cantidad-input {
+        width: 50px;
+        font-size: 0.8rem;
+    }
+
+    .btn-eliminar {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+    }
+}
+
+/* ====================
+   ANIMACIONES
+   ==================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.elemento-row {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.pcr-valor {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ====================
+   SCROLLBAR CUSTOM
+   ==================== */
+
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
