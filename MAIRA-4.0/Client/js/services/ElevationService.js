@@ -44,8 +44,18 @@ class ElevationService extends GeospatialDataService {
         // Inicializar base (workers, cache)
         await super.initialize();
         
-        // 🌍 CONFIGURAR SEGÚN ENTORNO (LOCAL vs RENDER)
-        if (this.config.isLocal) {
+        // 🚀 PRIORIDAD 1: Usar elevationHandlerBackend (OPTIMIZADO)
+        if (typeof window.elevationHandler !== 'undefined' && 
+            window.elevationHandler.version && 
+            window.elevationHandler.version.includes('backend')) {
+            
+            this.elevationHandler = window.elevationHandler;
+            this.useBackend = true;
+            this.useTIF = false;
+            this._log('info', '🚀 Usando elevationHandlerBackend (OPTIMIZADO - Python+GDAL)');
+        }
+        // 🌍 FALLBACK: Configurar según entorno
+        else if (this.config.isLocal) {
             // 🏠 LOCAL: Intentar usar TIF files directos
             this._log('info', '🏠 Modo LOCAL: Intentando cargar TIF files...');
             
@@ -83,7 +93,12 @@ class ElevationService extends GeospatialDataService {
         }
         
         this.initialized = true;
-        this._log('info', `✅ ElevationService listo (Entorno: ${this.config.isLocal ? 'LOCAL' : 'RENDER'}, TIF: ${this.useTIF}, API: ${this.useAPI || false}, Workers: ${this.config.useWorkers})`);
+        
+        const mode = this.useBackend ? 'BACKEND (Python+GDAL)' : 
+                     this.useTIF ? 'TIF (Local)' : 
+                     this.useAPI ? 'API (Render)' : 'PROCEDURAL';
+        
+        this._log('info', `✅ ElevationService listo (Modo: ${mode}, Workers: ${this.config.useWorkers})`);
     }
     
     

@@ -61,6 +61,13 @@ function initializeCarrusel() {
             icono: 'CO.png',
             descripcion: 'Diseña Cuadros de organizacion de elementos militares.',
             url: 'CO.html'
+        },
+        {
+            id: 'calculador-pcr',
+            nombre: 'Calculador PCR',
+            icono: 'calculator-icon.png',
+            descripcion: 'Calcula el Poder de Combate Relativo entre dos fuerzas militares enfrentadas.',
+            url: '../calculador-pcr/index.html'
         }
     ];
 

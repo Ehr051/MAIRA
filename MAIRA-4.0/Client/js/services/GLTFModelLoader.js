@@ -16,7 +16,7 @@ class GLTFModelLoader {
         this.loadingPromises = new Map();
 
         // Path a modelos GLB directos (CORREGIDO)
-        this.basePath = 'assets/models/';
+        this.basePath = 'assets/models/';  // ✅ Ruta actualizada
 
         // Inicializar generador procedural como fallback
         this.proceduralGenerator = window.ProceduralModelGenerator ?
@@ -27,24 +27,25 @@ class GLTFModelLoader {
         }
 
         // Mapeo de tipos de vegetación a archivos GLB
-        // 🌳 TODOS LOS MODELOS DISPONIBLES - Sin variaciones, modelos directos
+        // 🌳 MODELOS REALES DISPONIBLES en gbl_new/
         this.vegetationModels = {
-            // ÁRBOLES PRINCIPALES ✅
-            'trees_low': 'trees_low.glb',          // 2.4MB - Árboles principales ✅
-            'arbol': 'arbol.glb',                  // 8.9MB - Árbol alto genérico ✅
-            'tree_oak': 'AnimatedOak.glb',         // Roble animado MUY DIFERENTE ✅
+            // ÁRBOLES PRINCIPALES ✅ (Usando modelos reales)
+            'trees_low': 'gbl_new/oak_trees.glb',      // 8.9MB - Robles (principal)
+            'arbol': 'gbl_new/pine_tree.glb',          // 23MB - Pino alto
+            'tree_oak': 'gbl_new/oak_trees.glb',       // Roble
             
-            // ÁRBOLES ADICIONALES (pueden estar corruptos, fallback a válidos)
-            'tree_tall': 'tree_tall.glb',          // 1.2KB - Si falla → trees_low
-            'tree_medium': 'tree_medium.glb',      // 1.1KB - Si falla → arbol
-            'tree': 'trees_low.glb',               // Genérico
+            // ÁRBOLES ADICIONALES ✅
+            'tree_tall': 'gbl_new/pine_tree.glb',      // Pino alto
+            'tree_medium': 'gbl_new/urban_tree.glb',   // 14MB - Árbol urbano medio
+            'tree': 'gbl_new/oak_trees.glb',           // Genérico → Roble
+            'tree_urban': 'gbl_new/urban_tree.glb',    // Árbol urbano
             
             // ARBUSTOS ✅
-            'bush': 'arbusto.glb',                 // Arbusto principal
-            'bush_alt': 'bush.glb',                // Arbusto alternativo
+            'bush': 'gbl_new/photorealistic_bush.glb',     // 18MB - Arbusto fotorealista
+            'bush_alt': 'gbl_new/photorealistic_bush.glb', // Mismo arbusto
             
-            // PASTO ✅
-            'grass': 'grass.glb'                   // Pasto bajo
+            // PASTO ❌ (No disponible - desactivado en TerrainGenerator)
+            // 'grass': 'gbl_new/grass.glb'  // No tenemos, density: 0.0
         };
         
         // ✅ Estadísticas de carga para debugging

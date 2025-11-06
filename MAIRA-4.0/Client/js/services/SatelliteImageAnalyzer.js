@@ -591,31 +591,67 @@ class SatelliteImageAnalyzer {
      * @returns {'forest'|'vegetation'|null}
      */
     async classifyVegetationType(r, g, b, threshold, x = null, y = null) {
-        // 🌳 ULTRA SIMPLIFICADO: Solo árboles en verde MUY oscuro
-        // Eliminamos vegetation, grass y crops completamente
+        // ✅ CLASIFICACIÓN COMPLETA: 4 tipos de vegetación
         
         // Verificar que sea verde
         const isGreen = g > r && g > b;
         if (!isGreen) return null;
         
-        // Calcular dominancia de verde MUY permisiva
-        const hasStrongGreenDominance = (g - r) >= 1 && (g - b) >= 0; // MUY permisivo
+        // Calcular métricas
+        const greenDominance = (g - r) + (g - b);
         const totalBrightness = r + g + b;
+        const saturation = Math.max(r, g, b) - Math.min(r, g, b);
         
-        // � TIPO 1: BOSQUE (forest) - Verde oscuro
-        // Solo árboles en las zonas más oscuras
+        // 🌲 TIPO 1: BOSQUE (forest) - Verde oscuro intenso
         if (
-            g >= 4 && g <= 70 &&        // 🔥 Verde MUY restrictivo (reducido de 120 a 70)
-            r >= 0 && r <= 50 &&        // 🔥 Rojo ultra-restrictivo (reducido de 80 a 50)
-            b >= 0 && b <= 40 &&        // 🔥 Azul ultra-restrictivo (reducido de 60 a 40)
-            hasStrongGreenDominance &&  // Verde MUY dominante
-            totalBrightness <= 160      // 🔥 Brillo ultra-restrictivo (reducido de 300 a 160)
+            g >= 40 && g <= 120 &&        // Verde medio-oscuro
+            r >= 10 && r <= 80 &&         
+            b >= 10 && b <= 60 &&         
+            greenDominance >= 30 &&       // Verde muy dominante
+            totalBrightness <= 300 &&     // Relativamente oscuro
+            saturation >= 30              // Color saturado
         ) {
             return 'forest';
         }
         
-        return null; // No es vegetación detectable (solo forest ahora)
+        // 🌿 TIPO 2: VEGETACIÓN (vegetation) - Verde medio (arbustos)
+        if (
+            g >= 80 && g <= 180 &&        // Verde medio
+            r >= 40 && r <= 140 &&        
+            b >= 30 && b <= 120 &&        
+            greenDominance >= 20 &&       // Verde dominante moderado
+            totalBrightness >= 200 && totalBrightness <= 440
+        ) {
+            return 'vegetation';
+        }
+        
+        // 🌾 TIPO 3: CULTIVOS (crops) - Verde amarillento
+        if (
+            g >= 100 && g <= 200 &&       // Verde claro
+            r >= 80 && r <= 180 &&        // Rojo presente (amarillento)
+            b >= 40 && b <= 120 &&        
+            (g - r) >= 10 && (g - r) <= 60 &&  // Verde ligeramente mayor que rojo
+            totalBrightness >= 250
+        ) {
+            return 'crops';
+        }
+        
+        // 🟩 TIPO 4: CÉSPED (grass) - Verde pálido
+        if (
+            g >= 70 && g <= 200 &&        // Verde claro-medio
+            r >= 50 && r <= 180 &&        
+            b >= 50 && b <= 180 &&        
+            Math.abs(r - g) < 60 &&       // RGB similares (pálido)
+            Math.abs(g - b) < 60 &&       
+            g > r && g > b &&             // Verde ligeramente mayor
+            totalBrightness >= 200
+        ) {
+            return 'grass';
+        }
+        
+        return null; // No clasificado
     }
+
     
     /**
      * Detectar vegetación (verde predominante) - DEPRECATED, usar classifyVegetationType
