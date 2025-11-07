@@ -167,6 +167,9 @@ class FaseManager {
         // Callback
         this.callbacks.onFaseChange('preparacion', null);
 
+        // Evento para panelInferiorUnificado
+        this.dispatchCambioFase();
+
         console.log('✅ Fase PREPARACIÓN iniciada');
     }
 
@@ -311,6 +314,9 @@ class FaseManager {
         // Callback
         this.callbacks.onFaseChange('despliegue', null);
 
+        // Evento para panelInferiorUnificado
+        this.dispatchCambioFase();
+
         console.log('✅ Fase DESPLIEGUE iniciada');
     }
 
@@ -429,6 +435,9 @@ class FaseManager {
         // Callback
         this.callbacks.onSubfaseChange('planificacion');
 
+        // Evento para panelInferiorUnificado
+        this.dispatchCambioFase();
+
         console.log('✅ Planificación iniciada');
     }
 
@@ -466,6 +475,9 @@ class FaseManager {
         // Callback
         this.callbacks.onSubfaseChange('ejecucion');
 
+        // Evento para panelInferiorUnificado
+        this.dispatchCambioFase();
+
         console.log('✅ Ejecución completa - Pasando a REVISIÓN');
 
         // Pasar automáticamente a revisión
@@ -502,6 +514,9 @@ class FaseManager {
 
         // Callback
         this.callbacks.onSubfaseChange('revision');
+
+        // Evento para panelInferiorUnificado
+        this.dispatchCambioFase();
 
         console.log('✅ Revisión iniciada - Puedes seleccionar elementos durante turno enemigo');
     }
@@ -608,6 +623,21 @@ class FaseManager {
             zonaAzul: this.zonaAzul,
             zonaRoja: this.zonaRoja
         };
+    }
+
+    /**
+     * Dispara evento de cambio de fase para integración con panelInferiorUnificado
+     */
+    dispatchCambioFase() {
+        const evento = new CustomEvent('cambioFase', {
+            detail: {
+                fase: this.faseActual,
+                subfase: this.subfaseActual,
+                turno: this.turnoActual
+            }
+        });
+        document.dispatchEvent(evento);
+        console.log(`📡 Evento 'cambioFase' disparado:`, evento.detail);
     }
 }
 

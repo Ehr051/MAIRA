@@ -600,40 +600,14 @@ class InicializadorJuegoV2 {
 
     /**
      * Crea botones de control específicos de V2
+     * Los botones ahora se crean dinámicamente dentro de panelInferiorUnificado
      */
     crearBotonesControlV2() {
-        const contenedor = document.createElement('div');
-        contenedor.id = 'botones-control-v2';
-        contenedor.style.cssText = `
-            position: fixed;
-            top: 130px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 2000;
-        `;
+        // ✅ BOTONES AHORA DENTRO DEL PANEL INFERIOR UNIFICADO
+        // panelInferiorUnificado.js los crea dinámicamente según la fase
+        console.log('✅ Botones de control ahora manejados por panelInferiorUnificado');
 
-        // Botón Confirmar Órdenes
-        const btnConfirmar = this.crearBoton('✅ Confirmar Órdenes', '#00cc66', () => {
-            if (this.gestorOrdenesV2) {
-                this.gestorOrdenesV2.confirmarOrdenes();
-            }
-        });
-
-        // Botón Siguiente Turno
-        const btnSiguienteTurno = this.crearBoton('⏭️ Siguiente Turno', '#cc6600', () => {
-            if (this.gestorOrdenesV2) {
-                this.gestorOrdenesV2.finalizarTurno();
-            }
-        });
-
-        contenedor.appendChild(btnConfirmar);
-        contenedor.appendChild(btnSiguienteTurno);
-
-        document.body.appendChild(contenedor);
-
-        // ✅ CREAR CONTROLES DE PANEL ESTILO TOTAL WAR
+        // ✅ CREAR CONTROLES DE PANEL (FLECHA TOGGLE Y BOTÓN TIMELINE)
         this.crearControlesPanelInferior();
     }
 
