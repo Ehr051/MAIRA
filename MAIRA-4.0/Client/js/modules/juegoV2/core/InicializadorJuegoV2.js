@@ -436,23 +436,14 @@ class InicializadorJuegoV2 {
                 ">05:00</div>
             </div>
 
-            <!-- Botón Pasar Turno -->
-            <button id="panel-btn-pasar-turno" style="
-                padding: 12px 20px;
-                background: rgba(76, 175, 80, 0.8);
-                border: 2px solid #4CAF50;
-                border-radius: 6px;
-                color: white;
-                font-size: 14px;
-                font-weight: bold;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-transform: uppercase;
-                display: none;
-            " onmouseover="this.style.background='rgba(76, 175, 80, 1)'; this.style.transform='scale(1.05)';"
-               onmouseout="this.style.background='rgba(76, 175, 80, 0.8)'; this.style.transform='scale(1)';">
-                ✅ Pasar Turno
-            </button>
+            <!-- Contenedor de Botones Dinámicos -->
+            <div id="panel-botones-dinamicos" style="
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            ">
+                <!-- Botones se agregan dinámicamente según fase -->
+            </div>
         `;
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -565,18 +556,199 @@ class InicializadorJuegoV2 {
         document.body.appendChild(contenedor);
         console.log('✅ Panel Integrado creado con 3 secciones (Estado | Elementos | Chat)');
 
-        // Conectar evento del botón "Pasar Turno"
+        // Inicializar botones dinámicos después de un breve delay
         setTimeout(() => {
-            const btnPasarTurno = document.getElementById('panel-btn-pasar-turno');
-            if (btnPasarTurno) {
-                btnPasarTurno.addEventListener('click', () => {
-                    console.log('🔘 Botón "Pasar Turno" presionado');
-                    if (window.turnosManager) {
-                        window.turnosManager.finalizarTurnoManual();
+            this.actualizarBotonesDinamicos();
+        }, 100);
+    }
+
+    /**
+     * Actualiza los botones dinámicos según la fase actual
+     */
+    actualizarBotonesDinamicos() {
+        const contenedor = document.getElementById('panel-botones-dinamicos');
+        if (!contenedor) return;
+
+        // Limpiar botones existentes
+        contenedor.innerHTML = '';
+
+        if (!this.faseManager) return;
+
+        const fase = this.faseManager.faseActual;
+        const subfase = this.faseManager.subfaseActual;
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // FASE: PREPARACIÓN
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        if (fase === 'preparacion') {
+            // Botón: Delimitar Sector
+            if (!this.faseManager.sector) {
+                this.agregarBoton(contenedor, {
+                    texto: '🗺️ Delimitar Sector',
+                    color: 'rgba(255, 193, 7, 0.8)',
+                    colorHover: 'rgba(255, 193, 7, 1)',
+                    border: '#FFC107',
+                    onClick: () => {
+                        console.log('🗺️ Iniciando definición de sector...');
+                        this.faseManager.iniciarDefinicionSector();
                     }
                 });
             }
-        }, 100);
+            // Botón: Confirmar Sector
+            else if (this.faseManager.sector && !this.faseManager.zonaAzul && !this.faseManager.zonaRoja) {
+                this.agregarBoton(contenedor, {
+                    texto: '✅ Confirmar Sector',
+                    color: 'rgba(76, 175, 80, 0.8)',
+                    colorHover: 'rgba(76, 175, 80, 1)',
+                    border: '#4CAF50',
+                    onClick: () => {
+                        console.log('✅ Confirmando sector...');
+                        this.faseManager.confirmarSector();
+                        this.actualizarBotonesDinamicos(); // Refrescar botones
+                    }
+                });
+            }
+
+            // Botones de Zonas (solo si sector confirmado)
+            if (this.faseManager.sector) {
+                // Zona Roja
+                if (!this.faseManager.zonaRoja) {
+                    this.agregarBoton(contenedor, {
+                        texto: '🔴 Delimitar Zona Roja',
+                        color: 'rgba(244, 67, 54, 0.8)',
+                        colorHover: 'rgba(244, 67, 54, 1)',
+                        border: '#F44336',
+                        onClick: () => {
+                            console.log('🔴 Iniciando definición zona roja...');
+                            this.faseManager.iniciarDefinicionZona('rojo');
+                        }
+                    });
+                } else {
+                    this.agregarBoton(contenedor, {
+                        texto: '✅ Confirmar Zona Roja',
+                        color: 'rgba(76, 175, 80, 0.8)',
+                        colorHover: 'rgba(76, 175, 80, 1)',
+                        border: '#4CAF50',
+                        onClick: () => {
+                            console.log('✅ Confirmando zona roja...');
+                            this.faseManager.confirmarZonaRoja();
+                            this.actualizarBotonesDinamicos();
+                        }
+                    });
+                }
+
+                // Zona Azul
+                if (!this.faseManager.zonaAzul) {
+                    this.agregarBoton(contenedor, {
+                        texto: '🔵 Delimitar Zona Azul',
+                        color: 'rgba(33, 150, 243, 0.8)',
+                        colorHover: 'rgba(33, 150, 243, 1)',
+                        border: '#2196F3',
+                        onClick: () => {
+                            console.log('🔵 Iniciando definición zona azul...');
+                            this.faseManager.iniciarDefinicionZona('azul');
+                        }
+                    });
+                } else {
+                    this.agregarBoton(contenedor, {
+                        texto: '✅ Confirmar Zona Azul',
+                        color: 'rgba(76, 175, 80, 0.8)',
+                        colorHover: 'rgba(76, 175, 80, 1)',
+                        border: '#4CAF50',
+                        onClick: () => {
+                            console.log('✅ Confirmando zona azul...');
+                            this.faseManager.confirmarZonaAzul();
+                            this.actualizarBotonesDinamicos();
+                        }
+                    });
+                }
+
+                // Botón: Confirmar Zonas (solo si ambas confirmadas)
+                if (this.faseManager.zonaAzul && this.faseManager.zonaRoja) {
+                    this.agregarBoton(contenedor, {
+                        texto: '🎯 Iniciar Despliegue',
+                        color: 'rgba(156, 39, 176, 0.8)',
+                        colorHover: 'rgba(156, 39, 176, 1)',
+                        border: '#9C27B0',
+                        onClick: () => {
+                            console.log('🎯 Confirmando zonas y pasando a despliegue...');
+                            this.faseManager.confirmarZonas();
+                        }
+                    });
+                }
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // FASE: DESPLIEGUE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        else if (fase === 'despliegue') {
+            this.agregarBoton(contenedor, {
+                texto: '⚔️ Listo para Combate',
+                color: 'rgba(233, 30, 99, 0.8)',
+                colorHover: 'rgba(233, 30, 99, 1)',
+                border: '#E91E63',
+                onClick: () => {
+                    console.log('⚔️ Finalizando despliegue...');
+                    this.faseManager.finalizarDespliegue();
+                }
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // FASE: COMBATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        else if (fase === 'combate') {
+            // Solo mostrar "Pasar Turno" durante planificacion
+            if (subfase === 'planificacion') {
+                this.agregarBoton(contenedor, {
+                    texto: '✅ Pasar Turno',
+                    color: 'rgba(76, 175, 80, 0.8)',
+                    colorHover: 'rgba(76, 175, 80, 1)',
+                    border: '#4CAF50',
+                    onClick: () => {
+                        console.log('✅ Pasando turno...');
+                        if (this.turnosManager) {
+                            this.turnosManager.finalizarTurnoManual();
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Agrega un botón al contenedor de botones dinámicos
+     */
+    agregarBoton(contenedor, config) {
+        const btn = document.createElement('button');
+        btn.textContent = config.texto;
+        btn.style.cssText = `
+            padding: 12px 20px;
+            background: ${config.color};
+            border: 2px solid ${config.border};
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        `;
+
+        btn.addEventListener('mouseenter', () => {
+            btn.style.background = config.colorHover;
+            btn.style.transform = 'scale(1.05)';
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            btn.style.background = config.color;
+            btn.style.transform = 'scale(1)';
+        });
+
+        btn.addEventListener('click', config.onClick);
+
+        contenedor.appendChild(btn);
     }
 
     /**
@@ -622,15 +794,8 @@ class InicializadorJuegoV2 {
             }
         }
 
-        // Mostrar/ocultar botón "Pasar Turno" según fase
-        const btnPasarTurno = document.getElementById('panel-btn-pasar-turno');
-        if (btnPasarTurno) {
-            // Solo mostrar durante COMBATE > planificacion
-            const mostrar = this.faseManager &&
-                          this.faseManager.faseActual === 'combate' &&
-                          this.faseManager.subfaseActual === 'planificacion';
-            btnPasarTurno.style.display = mostrar ? 'block' : 'none';
-        }
+        // Actualizar botones dinámicos según fase
+        this.actualizarBotonesDinamicos();
     }
 
     /**
