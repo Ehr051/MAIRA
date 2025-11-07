@@ -1243,42 +1243,39 @@ class InicializadorJuegoV2 {
         `;
 
         flechaTogglePanelInferior.addEventListener('click', () => {
-            // ✅ Buscar TODOS los elementos del panel inferior
-            const panelInferiorUnificado = document.getElementById('panelInferiorUnificado');
+            // ✅ Buscar elementos del panel inferior V2
             const panelCoordinacionContainer = document.getElementById('panel-coordinacion-container');
-            const botonesControlV2 = document.getElementById('botones-control-v2');
-            const indicadorFase = document.getElementById('indicador-fase-v2');
             const btnToggleCoordinacion = document.getElementById('btn-toggle-coordinacion');
+            const badgeV2 = document.getElementById('badge-v2');
 
             // Toggle estado
             panelVisible = !panelVisible;
 
-            // ✅ Aplicar a TODOS los elementos del panel inferior (incluyendo botones)
-            const elementos = [
-                panelInferiorUnificado,
-                panelCoordinacionContainer,
-                botonesControlV2,
-                indicadorFase,
-                btnToggleCoordinacion
-            ];
+            // Aplicar a panel integrado (usa flex!)
+            if (panelCoordinacionContainer) {
+                panelCoordinacionContainer.style.display = panelVisible ? 'flex' : 'none';
+            }
 
-            elementos.forEach(elemento => {
-                if (elemento) {
-                    elemento.style.display = panelVisible ? 'block' : 'none';
-                }
-            });
+            // Aplicar a botones auxiliares
+            if (btnToggleCoordinacion) {
+                btnToggleCoordinacion.style.display = panelVisible ? 'block' : 'none';
+            }
+
+            if (badgeV2) {
+                badgeV2.style.display = panelVisible ? 'block' : 'none';
+            }
 
             // Actualizar flecha
             if (panelVisible) {
                 // Panel VISIBLE: flecha a media altura, apuntando hacia abajo (▼) para OCULTAR
                 flechaTogglePanelInferior.innerHTML = '▼';
                 flechaTogglePanelInferior.style.bottom = '250px';
-                console.log('📖 Panel inferior MOSTRADO (incluyendo botones de control)');
+                console.log('📖 Panel inferior MOSTRADO');
             } else {
                 // Panel OCULTO: flecha abajo, apuntando hacia arriba (▲) para MOSTRAR
                 flechaTogglePanelInferior.innerHTML = '▲';
                 flechaTogglePanelInferior.style.bottom = '0';
-                console.log('📕 Panel inferior OCULTADO (incluyendo botones de control)');
+                console.log('📕 Panel inferior OCULTADO');
             }
         });
 
