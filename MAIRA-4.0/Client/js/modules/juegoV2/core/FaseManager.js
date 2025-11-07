@@ -40,6 +40,13 @@ class FaseManager {
         // UI Elements
         this.indicadorFase = null;
 
+        // ✅ Herramientas de dibujo (Leaflet.Draw)
+        this.herramientasDibujo = {};
+        this.dibujandoActivo = false; // Flag para controlar cuando se está dibujando
+        this.sectorLayer = null; // Layer del sector dibujado
+        this.zonaAzulLayer = null; // Layer de zona azul
+        this.zonaRojaLayer = null; // Layer de zona roja
+
         console.log('🎯 FaseManager creado - Fase inicial: PREPARACIÓN');
     }
 
@@ -52,10 +59,92 @@ class FaseManager {
         // ✅ NO crear indicador flotante - se renderiza en panelInferiorUnificado
         // this.crearIndicadorFase();
 
+        // Inicializar herramientas de dibujo (Leaflet.Draw)
+        await this.inicializarHerramientasDibujo();
+
         // Iniciar en fase de preparación
         await this.iniciarPreparacion();
 
         console.log('✅ FaseManager inicializado (indicador integrado en panel)');
+    }
+
+    /**
+     * ✅ Inicializa las herramientas de dibujo usando Leaflet.Draw
+     */
+    async inicializarHerramientasDibujo() {
+        if (!this.map) {
+            console.error('❌ Mapa no disponible para inicializar herramientas de dibujo');
+            return;
+        }
+
+        if (!L.Draw) {
+            console.error('❌ Leaflet.Draw no está cargado');
+            return;
+        }
+
+        try {
+            // Definir estilos para cada tipo de polígono
+            const estilosSector = {
+                color: '#ffff00',
+                weight: 3,
+                opacity: 0.8,
+                fill: true,
+                fillColor: '#ffff00',
+                fillOpacity: 0.1,
+                clickable: true
+            };
+
+            const estilosZonaAzul = {
+                color: '#0066ff',
+                weight: 2,
+                opacity: 0.8,
+                fill: true,
+                fillColor: '#0066ff',
+                fillOpacity: 0.2,
+                clickable: true
+            };
+
+            const estilosZonaRoja = {
+                color: '#ff0000',
+                weight: 2,
+                opacity: 0.8,
+                fill: true,
+                fillColor: '#ff0000',
+                fillOpacity: 0.2,
+                clickable: true
+            };
+
+            // Crear herramientas de dibujo
+            this.herramientasDibujo = {
+                sector: new L.Draw.Polygon(this.map, {
+                    showArea: true,
+                    shapeOptions: estilosSector
+                }),
+                zonaAzul: new L.Draw.Polygon(this.map, {
+                    showArea: true,
+                    shapeOptions: estilosZonaAzul
+                }),
+                zonaRoja: new L.Draw.Polygon(this.map, {
+                    showArea: true,
+                    shapeOptions: estilosZonaRoja
+                })
+            };
+
+            // Configurar eventos de dibujo
+            this.map.on(L.Draw.Event.DRAWSTART, () => {
+                this.dibujandoActivo = true;
+                console.log('🖊️ Dibujo iniciado');
+            });
+
+            this.map.on(L.Draw.Event.DRAWSTOP, () => {
+                this.dibujandoActivo = false;
+                console.log('🖊️ Dibujo detenido');
+            });
+
+            console.log('✅ Herramientas de dibujo inicializadas (Leaflet.Draw)');
+        } catch (error) {
+            console.error('❌ Error al inicializar herramientas de dibujo:', error);
+        }
     }
 
     /**
@@ -174,7 +263,7 @@ class FaseManager {
     }
 
     /**
-     * Inicia la herramienta de dibujo para definir el sector
+     * ✅ Inicia la herramienta de dibujo para definir el sector (Leaflet.Draw)
      */
     iniciarDefinicionSector() {
         console.log('🗺️ Iniciando herramienta de dibujo para sector...');
@@ -182,26 +271,28 @@ class FaseManager {
         this.mostrarNotificacion({
             tipo: 'info',
             titulo: 'Definir Sector',
-            mensaje: 'Dibuja un polígono en el mapa para definir el sector de combate.'
+            mensaje: 'Dibuja un polígono en el mapa para definir el sector de combate. Doble click para finalizar.'
         });
 
         // Activar herramienta de dibujo (Leaflet.Draw)
-        if (this.map && this.map.pm) {
-            this.map.pm.enableDraw('Polygon', {
-                snappable: true,
-                snapDistance: 20,
-                finishOn: 'dblclick',
-                allowSelfIntersection: false
-            });
+        if (this.herramientasDibujo.sector) {
+            this.herramientasDibujo.sector.enable();
 
-            // Escuchar evento de creación
-            this.map.once('pm:create', (e) => {
+            // Escuchar evento de creación UNA SOLA VEZ
+            this.map.once(L.Draw.Event.CREATED, (e) => {
                 const layer = e.layer;
+                this.sectorLayer = layer; // Guardar referencia al layer
+                layer.addTo(this.map); // Agregar al mapa
                 this.definirSector(layer);
-                this.map.pm.disableDraw();
+                this.herramientasDibujo.sector.disable();
             });
         } else {
-            console.error('❌ Leaflet.Draw/Geoman no disponible');
+            console.error('❌ Herramienta de dibujo de sector no disponible');
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Error',
+                mensaje: 'Las herramientas de dibujo no están inicializadas correctamente.'
+            });
         }
     }
 
@@ -254,7 +345,7 @@ class FaseManager {
     }
 
     /**
-     * Inicia la herramienta de dibujo para definir una zona (azul o roja)
+     * ✅ Inicia la herramienta de dibujo para definir una zona (azul o roja) - Leaflet.Draw
      */
     iniciarDefinicionZona(equipo) {
         console.log(`🎨 Iniciando herramienta de dibujo para zona ${equipo}...`);
@@ -268,42 +359,41 @@ class FaseManager {
             return;
         }
 
-        const colorZona = equipo === 'azul' ? '#0066ff' : '#ff0000';
         const nombreZona = equipo === 'azul' ? 'Azul' : 'Roja';
+        const herramienta = equipo === 'azul' ? this.herramientasDibujo.zonaAzul : this.herramientasDibujo.zonaRoja;
 
         this.mostrarNotificacion({
             tipo: 'info',
             titulo: `Definir Zona ${nombreZona}`,
-            mensaje: `Dibuja un polígono DENTRO del sector para la zona ${nombreZona.toLowerCase()}.`
+            mensaje: `Dibuja un polígono DENTRO del sector para la zona ${nombreZona.toLowerCase()}. Doble click para finalizar.`
         });
 
         // Activar herramienta de dibujo
-        if (this.map && this.map.pm) {
-            this.map.pm.enableDraw('Polygon', {
-                snappable: true,
-                snapDistance: 20,
-                finishOn: 'dblclick',
-                allowSelfIntersection: false,
-                pathOptions: {
-                    color: colorZona,
-                    fillColor: colorZona,
-                    fillOpacity: 0.2,
-                    weight: 2
-                }
-            });
+        if (herramienta) {
+            herramienta.enable();
 
-            // Escuchar evento de creación
-            this.map.once('pm:create', (e) => {
+            // Escuchar evento de creación UNA SOLA VEZ
+            this.map.once(L.Draw.Event.CREATED, (e) => {
                 const layer = e.layer;
+                layer.addTo(this.map); // Agregar al mapa
+
                 if (equipo === 'azul') {
+                    this.zonaAzulLayer = layer; // Guardar referencia
                     this.definirZonaAzul(layer);
                 } else {
+                    this.zonaRojaLayer = layer; // Guardar referencia
                     this.definirZonaRoja(layer);
                 }
-                this.map.pm.disableDraw();
+
+                herramienta.disable();
             });
         } else {
-            console.error('❌ Leaflet.Draw/Geoman no disponible');
+            console.error(`❌ Herramienta de dibujo para zona ${equipo} no disponible`);
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Error',
+                mensaje: 'Las herramientas de dibujo no están inicializadas correctamente.'
+            });
         }
     }
 

@@ -95,6 +95,12 @@ const HexGrid = {
 
                         // ✅ EVENTO DOBLE CLICK para abrir menú radial
                         polygon.on('dblclick', (e) => {
+                            // ✅ NO abrir menú si estamos dibujando (Leaflet.Draw activo)
+                            if (window.faseManager && window.faseManager.dibujandoActivo) {
+                                console.log('🖊️ Dibujo activo - No abrir menú radial');
+                                return;
+                            }
+
                             L.DomEvent.stopPropagation(e);
                             L.DomEvent.preventDefault(e);
 

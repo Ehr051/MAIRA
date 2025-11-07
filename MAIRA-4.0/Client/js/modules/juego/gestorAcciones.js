@@ -91,6 +91,12 @@ class GestorAcciones extends GestorBase {
 
         // Función común para abrir menú radial (doble click Y contextmenu)
         const abrirMenuRadial = (e) => {
+            // ✅ NO abrir menú si estamos dibujando (Leaflet.Draw activo)
+            if (window.faseManager && window.faseManager.dibujandoActivo) {
+                console.log('🖊️ Dibujo activo - No abrir menú radial');
+                return;
+            }
+
             console.log('Abriendo menú radial en elemento');
 
             L.DomEvent.stopPropagation(e);
