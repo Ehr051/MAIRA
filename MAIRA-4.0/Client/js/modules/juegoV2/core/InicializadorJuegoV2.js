@@ -208,12 +208,15 @@ class InicializadorJuegoV2 {
     convertirConfiguracionLocal(config) {
         console.log('🔄 Convirtiendo configuración local:', config);
 
-        return {
+        const configConvertida = {
             modo: 'juego_guerra_v2',
-            nombrePartida: config.nombre || 'Partida Local',
+            nombrePartida: config.nombrePartida || config.nombre || 'Partida Local',
             codigo: config.codigo || `LOCAL-${Date.now()}`,
             duracionTurnoMinutos: parseInt(config.duracionTurno) || 60,
-            mapaCentro: config.centro || [-34.6037, -58.3816],
+            duracionPartidaMinutos: parseInt(config.duracionPartida) || 120,
+            objetivoPartida: config.objetivoPartida || config.objetivo || 'Objetivo no especificado',
+            cantidadJugadores: parseInt(config.cantidadJugadores) || 2,
+            mapaCentro: config.centro || config.mapaCentro || [-34.6037, -58.3816],
             zoomInicial: parseInt(config.zoom) || 13,
             equipos: config.equipos || ['azul', 'rojo'],
             jugadores: config.jugadores || [],
@@ -222,6 +225,28 @@ class InicializadorJuegoV2 {
             // Configuraciones adicionales específicas de V2
             configuracionOriginal: config
         };
+
+        // ✅ LOGS DETALLADOS PARA VERIFICAR CARGA
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📋 CONFIGURACIÓN CARGADA DESDE iniciarpartida.js:');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🎮 Nombre Partida:', configConvertida.nombrePartida);
+        console.log('🔑 Código Partida:', configConvertida.codigo);
+        console.log('⏱️  Duración Turno:', configConvertida.duracionTurnoMinutos, 'minutos');
+        console.log('⏰ Duración Partida:', configConvertida.duracionPartidaMinutos, 'minutos');
+        console.log('🎯 Objetivo:', configConvertida.objetivoPartida);
+        console.log('👥 Cantidad Jugadores:', configConvertida.cantidadJugadores);
+        console.log('🎨 Equipos:', configConvertida.equipos.join(', '));
+        console.log('👤 Jugadores:');
+        configConvertida.jugadores.forEach((jugador, index) => {
+            console.log(`   ${index + 1}. ${jugador.nombre || jugador.username} (${jugador.equipo})${jugador.ia ? ' [IA]' : ''}`);
+        });
+        console.log('🗺️  Centro Mapa:', configConvertida.mapaCentro);
+        console.log('🔍 Zoom Inicial:', configConvertida.zoomInicial);
+        console.log('🎲 Modo Juego:', configConvertida.modoJuego);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+        return configConvertida;
     }
 
     /**
@@ -263,21 +288,20 @@ class InicializadorJuegoV2 {
      * Inicializa el HexGrid sobre el mapa
      */
     async inicializarHexGrid() {
-        // Verificar si ya existe HexGrid
-        if (window.HexGrid) {
-            this.hexGrid = window.HexGrid;
-            console.log('✅ HexGrid existente reutilizado');
+        // Verificar si HexGrid está disponible
+        if (!window.HexGrid) {
+            console.warn('⚠️ HexGrid no disponible - funcionalidad limitada');
             return;
         }
 
-        // Si no existe, intentar inicializarlo
-        if (typeof window.inicializarHexGrid === 'function') {
-            await window.inicializarHexGrid();
-            this.hexGrid = window.HexGrid;
-            console.log('✅ HexGrid inicializado');
-        } else {
-            console.warn('⚠️ HexGrid no disponible - funcionalidad limitada');
+        // Si HexGrid existe, inicializarlo con el mapa si no está inicializado
+        if (!window.HexGrid.map || !window.HexGrid.hexLayer) {
+            console.log('🔄 Inicializando HexGrid con el mapa...');
+            window.HexGrid.initialize(this.map);
         }
+
+        this.hexGrid = window.HexGrid;
+        console.log('✅ HexGrid inicializado y listo');
     }
 
     /**
@@ -286,10 +310,11 @@ class InicializadorJuegoV2 {
     async inicializarMenuRadial() {
         if (window.MiRadial && this.map) {
             window.MiRadial.init(this.map);
-            // Configurar fase a 'combate' para que ejecute acciones V2
-            window.MiRadial.faseJuego = 'combate';
+            // ⚠️ NO cambiar la fase - debe mantenerse en 'preparacion' inicialmente
+            // El jugador cambiará manualmente a través del flujo: preparación → despliegue → combate
+            // window.MiRadial.faseJuego = 'combate';
             this.menuRadial = window.MiRadial;
-            console.log('✅ Menú Radial inicializado (fase: combate)');
+            console.log(`✅ Menú Radial inicializado (fase: ${window.MiRadial.faseJuego || 'preparacion'})`);
         } else {
             console.warn('⚠️ Menú Radial no disponible');
         }
@@ -353,8 +378,11 @@ class InicializadorJuegoV2 {
             // Configurar eventos
             this.configurarEventosGestor();
 
-            // Iniciar en fase de planificación
-            this.gestorOrdenesV2.iniciarPlanificacion();
+            // ⚠️ NO iniciar automáticamente - esperar a que el jugador cambie a fase combate
+            // El juego tiene fases previas: preparación → despliegue → combate
+            // this.gestorOrdenesV2.iniciarPlanificacion();
+
+            console.log('⏸️ GestorOrdenesV2 listo - esperando fase COMBATE para activarse');
 
             console.log('✅ GestorOrdenesV2 inicializado');
 
@@ -480,19 +508,167 @@ class InicializadorJuegoV2 {
             }
         });
 
-        // Botón Toggle Panel
-        const btnTogglePanel = this.crearBoton('📊 Toggle Panel', '#6600cc', () => {
-            const panel = document.getElementById('panel-coordinacion-container');
-            if (panel) {
-                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        contenedor.appendChild(btnConfirmar);
+        contenedor.appendChild(btnSiguienteTurno);
+
+        document.body.appendChild(contenedor);
+
+        // ✅ CREAR CONTROLES DE PANEL ESTILO TOTAL WAR
+        this.crearControlesPanelInferior();
+    }
+
+    /**
+     * Crea controles de panel inferior estilo Total War Rome III
+     */
+    crearControlesPanelInferior() {
+        // 1. FLECHA TOGGLE PARA PANEL INFERIOR INTEGRADO
+        const flechaTogglePanelInferior = document.createElement('button');
+        flechaTogglePanelInferior.id = 'flecha-toggle-panel-inferior';
+        flechaTogglePanelInferior.innerHTML = '▲'; // ✅ Inicialmente ▲ porque el panel está VISIBLE
+        flechaTogglePanelInferior.title = 'Mostrar/Ocultar Panel Inferior';
+
+        // ✅ Estado inicial: panel VISIBLE, flecha a media altura
+        let panelVisible = true;
+
+        flechaTogglePanelInferior.style.cssText = `
+            position: fixed;
+            bottom: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            color: #00ff00;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 2001;
+            transition: all 0.3s ease;
+            box-shadow: 0 -4px 12px rgba(0, 255, 0, 0.3);
+        `;
+
+        flechaTogglePanelInferior.addEventListener('click', () => {
+            // ✅ Buscar TODOS los elementos del panel inferior
+            const panelInferiorUnificado = document.getElementById('panelInferiorUnificado');
+            const panelCoordinacionContainer = document.getElementById('panel-coordinacion-container');
+            const botonesControlV2 = document.getElementById('botones-control-v2');
+            const indicadorFase = document.getElementById('indicador-fase-v2');
+            const btnToggleCoordinacion = document.getElementById('btn-toggle-coordinacion');
+
+            // Toggle estado
+            panelVisible = !panelVisible;
+
+            // ✅ Aplicar a TODOS los elementos del panel inferior (incluyendo botones)
+            const elementos = [
+                panelInferiorUnificado,
+                panelCoordinacionContainer,
+                botonesControlV2,
+                indicadorFase,
+                btnToggleCoordinacion
+            ];
+
+            elementos.forEach(elemento => {
+                if (elemento) {
+                    elemento.style.display = panelVisible ? 'block' : 'none';
+                }
+            });
+
+            // Actualizar flecha
+            if (panelVisible) {
+                // Panel VISIBLE: flecha a media altura, apuntando hacia abajo para OCULTAR
+                flechaTogglePanelInferior.innerHTML = '▲';
+                flechaTogglePanelInferior.style.bottom = '250px';
+                console.log('📖 Panel inferior MOSTRADO (incluyendo botones de control)');
+            } else {
+                // Panel OCULTO: flecha abajo, apuntando hacia arriba para MOSTRAR
+                flechaTogglePanelInferior.innerHTML = '▼';
+                flechaTogglePanelInferior.style.bottom = '0';
+                console.log('📕 Panel inferior OCULTADO (incluyendo botones de control)');
             }
         });
 
-        contenedor.appendChild(btnConfirmar);
-        contenedor.appendChild(btnSiguienteTurno);
-        contenedor.appendChild(btnTogglePanel);
+        flechaTogglePanelInferior.addEventListener('mouseenter', () => {
+            flechaTogglePanelInferior.style.background = 'rgba(0, 255, 0, 0.2)';
+            flechaTogglePanelInferior.style.transform = 'translateX(-50%) scale(1.1)';
+        });
 
-        document.body.appendChild(contenedor);
+        flechaTogglePanelInferior.addEventListener('mouseleave', () => {
+            flechaTogglePanelInferior.style.background = 'rgba(0, 0, 0, 0.8)';
+            flechaTogglePanelInferior.style.transform = 'translateX(-50%) scale(1)';
+        });
+
+        document.body.appendChild(flechaTogglePanelInferior);
+        window.flechaTogglePanelInferior = flechaTogglePanelInferior; // ✅ Exponer globalmente
+
+        // 2. BOTÓN DENTRO DEL PANEL PARA TOGGLE PANEL DE COORDINACIÓN
+        setTimeout(() => {
+            const panelCoordinacionContainer = document.getElementById('panel-coordinacion-container');
+
+            if (panelCoordinacionContainer) {
+                const btnToggleCoordinacion = document.createElement('button');
+                btnToggleCoordinacion.id = 'btn-toggle-coordinacion';
+                btnToggleCoordinacion.innerHTML = '📊 Mostrar Timeline';
+                btnToggleCoordinacion.title = 'Mostrar/Ocultar Timeline de Coordinación de Órdenes';
+                btnToggleCoordinacion.style.cssText = `
+                    position: fixed;
+                    bottom: 260px;
+                    right: 20px;
+                    padding: 8px 16px;
+                    background: rgba(102, 0, 204, 0.8);
+                    border: 2px solid #9966ff;
+                    border-radius: 6px;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 14px;
+                    cursor: pointer;
+                    z-index: 2002;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 8px rgba(153, 102, 255, 0.3);
+                `;
+
+                btnToggleCoordinacion.addEventListener('click', () => {
+                    // ✅ Toggle SOLO el panel de coordinación interno (el timeline)
+                    const panelCoordinacion = document.getElementById('panelCoordinacionOrdenes');
+
+                    if (panelCoordinacion) {
+                        // Verificar estado actual
+                        const estaOculto = window.getComputedStyle(panelCoordinacion).display === 'none';
+
+                        if (estaOculto) {
+                            // Mostrar panel
+                            panelCoordinacion.style.display = 'flex';
+                            btnToggleCoordinacion.innerHTML = '📊 Ocultar Timeline';
+                            console.log('📊 Timeline de coordinación MOSTRADO');
+                        } else {
+                            // Ocultar panel
+                            panelCoordinacion.style.display = 'none';
+                            btnToggleCoordinacion.innerHTML = '📊 Mostrar Timeline';
+                            console.log('📕 Timeline de coordinación OCULTADO');
+                        }
+                    } else {
+                        console.warn('⚠️ Timeline de coordinación no encontrado aún - se creará cuando inicies fase COMBATE');
+                    }
+                });
+
+                btnToggleCoordinacion.addEventListener('mouseenter', () => {
+                    btnToggleCoordinacion.style.background = 'rgba(153, 102, 255, 0.9)';
+                    btnToggleCoordinacion.style.transform = 'scale(1.05)';
+                });
+
+                btnToggleCoordinacion.addEventListener('mouseleave', () => {
+                    btnToggleCoordinacion.style.background = 'rgba(102, 0, 204, 0.8)';
+                    btnToggleCoordinacion.style.transform = 'scale(1)';
+                });
+
+                document.body.appendChild(btnToggleCoordinacion); // ✅ Agregar al body, no al panel
+                console.log('✅ Botón toggle timeline agregado');
+            }
+        }, 1500); // Esperar a que se cree todo
+
+        console.log('✅ Controles de panel inferior estilo Total War creados');
     }
 
     /**

@@ -9,12 +9,24 @@ let modoSeleccionado = null;
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
 
 function inicializarAplicacion() {
-    userId = localStorage.getItem('userId');
-    userName = localStorage.getItem('username');
+    // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
+    if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+        userId = MAIRA.UserIdentity.getUserId();
+        userName = MAIRA.UserIdentity.getUsername();
+        console.log('✅ Usuario obtenido desde UserIdentity:', { id: userId, username: userName });
+    } else {
+        // Fallback a localStorage
+        userId = localStorage.getItem('userId');
+        userName = localStorage.getItem('username');
+        console.log('⚠️ Usuario obtenido desde localStorage (UserIdentity no disponible):', { userId, userName });
+    }
+
     if (!userId || !userName) {
+        console.error('❌ No hay usuario autenticado - redirigiendo a index.html');
         window.location.href = 'index.html';
         return;
     }
+
     inicializarSocket();
     inicializarEventListeners();
     inicializarInterfazUsuario();
@@ -54,11 +66,25 @@ function inicializarEventListeners() {
 }
 
 function actualizarInfoUsuario() {
+    let currentUserId, currentUserName;
+
+    // ✅ OBTENER DATOS DEL USUARIO DESDE USERIDENTITY (MÁS CONFIABLE)
+    if (typeof MAIRA !== 'undefined' && MAIRA.UserIdentity && MAIRA.UserIdentity.isAuthenticated()) {
+        currentUserId = MAIRA.UserIdentity.getUserId();
+        currentUserName = MAIRA.UserIdentity.getUsername();
+        console.log('✅ Usuario obtenido desde UserIdentity:', { id: currentUserId, username: currentUserName });
+    } else {
+        // Fallback a localStorage
+        currentUserId = localStorage.getItem('userId');
+        currentUserName = localStorage.getItem('username');
+        console.log('⚠️ Usuario obtenido desde localStorage (UserIdentity no disponible):', { currentUserId, currentUserName });
+    }
+
     const nombreElement = document.getElementById('nombreJugadorActual');
     const idElement = document.getElementById('idJugadorActual');
     if (nombreElement && idElement) {
-        nombreElement.textContent = userName;
-        idElement.textContent = userId;
+        nombreElement.textContent = currentUserName || 'Usuario';
+        idElement.textContent = currentUserId || 'N/A';
     }
 }
 
@@ -155,8 +181,22 @@ function manejarErrorEliminarAmigo(data) {
 }
 
 function cargarDatosIniciales() {
+    console.log('📥 Cargando datos iniciales del servidor...');
     obtenerListaAmigos();
     obtenerPartidasDisponibles();
+    obtenerUsuariosConectados(); // ✅ Agregar solicitud de usuarios conectados
+}
+
+/**
+ * Solicita la lista de usuarios conectados al servidor
+ */
+function obtenerUsuariosConectados() {
+    if (socket && socket.connected) {
+        console.log('👥 Solicitando lista de usuarios conectados');
+        socket.emit('obtenerUsuariosConectados');
+    } else {
+        console.error('❌ Socket no conectado. No se pueden solicitar usuarios.');
+    }
 }
 
 function guardarPreferencias() {
@@ -596,13 +636,14 @@ async function inicializarSocket() {
 
 
 function manejarConexion() {
-    console.log('Conectado al servidor');
+    console.log('✅ Conectado al servidor');
     socket.emit('login', { userId, username: userName });
 
-    // Solicitar listas después de conectarse al servidor
-    console.log('Solicitando listas después de conectarse');
-    obtenerListaAmigos();
-    obtenerPartidasDisponibles();
+    // ✅ Solicitar TODOS los datos después de conectarse
+    console.log('📥 Solicitando datos iniciales desde el servidor...');
+    setTimeout(() => {
+        cargarDatosIniciales(); // ✅ Usar función que incluye TODOS los datos
+    }, 500); // Pequeño delay para asegurar que el servidor procesó el login
 }
 
 
@@ -820,6 +861,7 @@ window.unirseAPartida = unirseAPartida;
 window.crearPartidaOnline = crearPartidaOnline;
 window.mostrarSalaEspera = mostrarSalaEspera;
 window.actualizarListaJugadoresSala = actualizarListaJugadoresSala;
+window.obtenerUsuariosConectados = obtenerUsuariosConectados;
 
 // Inicialización cuando se carga la página
 window.onload = function() {

@@ -11,11 +11,15 @@
  */
 
 class PanelCoordinacionOrdenes {
-    constructor(colaOrdenes) {
-        this.cola = colaOrdenes;
+    constructor(opciones = {}) {
+        // Aceptar cola de órdenes o null (se asignará después)
+        this.cola = opciones.cola || null;
         this.container = null;
         this.timelineCanvas = null;
         this.ctx = null;
+
+        // ID del contenedor
+        this.contenedorId = opciones.contenedor || 'panel-coordinacion-container';
 
         // Configuración visual
         this.config = {
@@ -23,6 +27,7 @@ class PanelCoordinacionOrdenes {
             pixelesPorSegundo: 0.2,     // 0.2 px = 1 segundo (3600s = 720px por turno)
             anchoPanelLateral: 200,     // Ancho del panel de unidades
             alturaCabecera: 50,         // Altura de la cabecera con escala de tiempo
+            duracionTurnoMinutos: opciones.duracionTurnoMinutos || 60,
             coloresOrden: {
                 movimiento: '#4CAF50',
                 ataque: '#f44336',
@@ -42,17 +47,32 @@ class PanelCoordinacionOrdenes {
         this.zoom = 1.0;
         this.scrollX = 0;
 
-        // Inicializar
-        this.inicializar();
+        // NO inicializar automáticamente - esperar a que se asigne la cola
+        // this.inicializar();
+    }
+
+    /**
+     * Asigna una cola de órdenes al panel
+     */
+    asignarCola(cola) {
+        this.cola = cola;
+        return this;
     }
 
     /**
      * Inicializa el panel
      */
     inicializar() {
+        if (!this.cola) {
+            console.warn('⚠️ PanelCoordinacionOrdenes: No se puede inicializar sin cola de órdenes');
+            return;
+        }
         this.crearEstructuraHTML();
         this.configurarEventos();
         this.renderizar();
+
+        // ⚠️ OCULTAR inicialmente - solo mostrar cuando se inicie fase COMBATE
+        this.ocultar();
     }
 
     /**
@@ -356,6 +376,19 @@ class PanelCoordinacionOrdenes {
      */
     ajustarTamañoCanvas() {
         const container = document.getElementById('panelTimeline');
+        if (!container) {
+            console.warn('⚠️ Container panelTimeline no encontrado');
+            return;
+        }
+
+        // Validar que cola y ordenesPorUnidad existan
+        if (!this.cola || !this.cola.ordenesPorUnidad) {
+            console.warn('⚠️ Cola de órdenes no disponible para ajustar canvas');
+            this.timelineCanvas.width = container.clientWidth;
+            this.timelineCanvas.height = container.clientHeight || 400;
+            return;
+        }
+
         const unidades = Array.from(this.cola.ordenesPorUnidad.keys());
 
         this.timelineCanvas.width = container.clientWidth;
@@ -375,7 +408,8 @@ class PanelCoordinacionOrdenes {
         document.getElementById('btnResetZoom')?.addEventListener('click', () => this.resetZoom());
         document.getElementById('btnValidarOrdenes')?.addEventListener('click', () => this.validarOrdenes());
         document.getElementById('btnEjecutarTurno')?.addEventListener('click', () => this.ejecutarTurno());
-        document.getElementById('btnCerrarPanel')?.addEventListener('click', () => this.cerrar());
+        // ✅ CAMBIAR: Ocultar en lugar de cerrar (para que el toggle pueda volver a mostrar)
+        document.getElementById('btnCerrarPanel')?.addEventListener('click', () => this.ocultar());
 
         // Canvas eventos
         this.timelineCanvas.addEventListener('click', (e) => this.onCanvasClick(e));
