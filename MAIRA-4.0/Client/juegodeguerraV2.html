@@ -32,8 +32,8 @@
   <link rel="stylesheet" href="css/hexgrid.css">
   <!-- ✅ CSS MENU RADIAL - Movido ARRIBA antes de scripts -->
   <link rel="stylesheet" href="css/common/mairaRadialMenu.css">
-  <!-- ✅ CSS PANEL INFERIOR UNIFICADO V2 -->
-  <link rel="stylesheet" href="css/core/panelInferiorUnificado.css">
+  <!-- ✅ CSS Panel integrado ahora se define inline en InicializadorJuegoV2.js -->
+  <!-- <link rel="stylesheet" href="css/core/panelInferiorUnificado.css"> -->
 
   <!-- 🏗️ CSS FULLSCREEN 3D - FASE 1 -->
   <style>
@@ -1510,48 +1510,7 @@
   <div id="detallesMarchaContainer" class="detalles-marcha-container"></div>
 </div>
 
-<!-- Panel Inferior Unificado V2 - Estilo Total War -->
-<div id="panelInferiorUnificado" class="panel-inferior-unificado">
-  <!-- Sección Izquierda: Estado (Fase, Turno, Timer) -->
-  <div class="seccion-info">
-    <div class="info-fase">
-      <div class="fase-actual">
-        <span class="fase-numero" id="faseNumero">FASE -</span>
-        <span class="fase-nombre" id="faseNombre">Cargando...</span>
-      </div>
-      <div class="turno-info">
-        <span class="turno-label">TURNO:</span>
-        <span class="turno-numero" id="turnoNumero">-</span>
-      </div>
-    </div>
-    <div class="tiempo-restante">
-      <span class="tiempo-label">TIEMPO:</span>
-      <span class="tiempo-valor" id="tiempoValor">--:--</span>
-    </div>
-  </div>
-
-  <!-- Sección Central: Unidades Activas (Lista con SIDC) -->
-  <div class="seccion-unidades">
-    <div class="unidades-header">
-      <span>📋 UNIDADES</span>
-    </div>
-    <div class="elementos-jugadores" id="elementosJugadores">
-      <!-- Los elementos con SIDC se cargan dinámicamente -->
-    </div>
-  </div>
-
-  <!-- Sección Derecha: Controles Dinámicos + Chat -->
-  <div class="seccion-controles">
-    <div class="controles-principales" id="controlesPrincipales">
-      <!-- Los botones se generan dinámicamente según la fase -->
-    </div>
-    <div class="chat-container" id="chatContainer" style="display: none;">
-      <!-- Chat solo en modo online -->
-      <div class="chat-messages" id="chatMessages"></div>
-      <input type="text" id="chatInput" placeholder="Escribe un mensaje...">
-    </div>
-  </div>
-</div>
+<!-- ✅ Panel Inferior ahora se crea en InicializadorJuegoV2.js -->
 
 <!-- Contenedor para los detalles de la marcha -->
 

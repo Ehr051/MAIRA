@@ -411,6 +411,30 @@ class InicializadorJuegoV2 {
                 "></div>
             </div>
 
+            <!-- Información de Jugador y Equipo -->
+            <div style="
+                background: rgba(255, 152, 0, 0.1);
+                border: 1px solid rgba(255, 152, 0, 0.4);
+                border-radius: 6px;
+                padding: 10px;
+            ">
+                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px;">JUGADOR</div>
+                <div id="panel-jugador-actual" style="
+                    font-size: 13px;
+                    font-weight: bold;
+                    color: #ff9800;
+                    font-family: 'Courier New', monospace;
+                ">Director</div>
+
+                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 8px; margin-bottom: 4px;">EQUIPO</div>
+                <div id="panel-equipo-actual" style="
+                    font-size: 13px;
+                    font-weight: bold;
+                    color: #ff9800;
+                    font-family: 'Courier New', monospace;
+                ">--</div>
+            </div>
+
             <!-- Reloj y Turno -->
             <div style="
                 background: rgba(0, 100, 255, 0.1);
@@ -792,6 +816,53 @@ class InicializadorJuegoV2 {
             } else {
                 tiempoElement.style.color = '#00ff00';
             }
+        }
+
+        // Actualizar información de jugador y equipo
+        const jugadorElement = document.getElementById('panel-jugador-actual');
+        const equipoElement = document.getElementById('panel-equipo-actual');
+
+        if (jugadorElement && equipoElement) {
+            // Determinar jugador actual y equipo
+            let jugadorTexto = 'Director';
+            let equipoTexto = '--';
+            let colorEquipo = '#ff9800'; // Naranja por defecto
+
+            // En fase PREPARACIÓN: siempre Director
+            if (this.faseManager && this.faseManager.faseActual === 'preparacion') {
+                jugadorTexto = 'Director';
+                equipoTexto = '--';
+                colorEquipo = '#ff9800';
+            }
+            // En DESPLIEGUE y COMBATE: mostrar jugador y equipo
+            else if (this.faseManager && (this.faseManager.faseActual === 'despliegue' || this.faseManager.faseActual === 'combate')) {
+                // Obtener turno actual (par = azul, impar = rojo en local)
+                const turno = this.turnosManager ? this.turnosManager.getTurnoActual() : 0;
+                const esAzul = turno % 2 === 0;
+
+                // Determinar equipo
+                equipoTexto = esAzul ? 'Azul' : 'Rojo';
+                colorEquipo = esAzul ? '#0066ff' : '#ff0000';
+
+                // Intentar obtener info del jugador desde config
+                if (this.config && this.config.jugadores && this.config.jugadores.length > 0) {
+                    const jugadoresEquipo = this.config.jugadores.filter(j => j.equipo === (esAzul ? 'azul' : 'rojo'));
+                    if (jugadoresEquipo.length > 0) {
+                        const jugadorIndex = Math.floor(turno / 2) % jugadoresEquipo.length;
+                        const jugador = jugadoresEquipo[jugadorIndex];
+                        jugadorTexto = `${jugadorIndex + 1} - ${jugador.nombre || jugador.username || 'Jugador'}`;
+                    } else {
+                        jugadorTexto = esAzul ? 'Jugador Azul' : 'Jugador Rojo';
+                    }
+                } else {
+                    jugadorTexto = esAzul ? 'Jugador Azul' : 'Jugador Rojo';
+                }
+            }
+
+            jugadorElement.textContent = jugadorTexto;
+            equipoElement.textContent = equipoTexto;
+            equipoElement.style.color = colorEquipo;
+            jugadorElement.style.color = colorEquipo;
         }
 
         // Actualizar botones dinámicos según fase
