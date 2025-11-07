@@ -80,16 +80,6 @@ class TurnosManager {
             <div style="font-size: 14px; color: rgba(255, 255, 255, 0.7);">Turno ${this.turnoActual}</div>
             <div id="tiempo-display">${this.formatearTiempo(this.tiempoRestante)}</div>
             <div style="display: flex; gap: 8px;">
-                <button id="btn-pausar-reloj" style="
-                    padding: 4px 12px;
-                    background: rgba(255, 193, 7, 0.8);
-                    border: 1px solid #ffc107;
-                    border-radius: 4px;
-                    color: white;
-                    font-size: 12px;
-                    cursor: pointer;
-                    font-weight: bold;
-                ">⏸️ Pausar</button>
                 <button id="btn-finalizar-turno" style="
                     padding: 4px 12px;
                     background: rgba(76, 175, 80, 0.8);
@@ -99,14 +89,13 @@ class TurnosManager {
                     font-size: 12px;
                     cursor: pointer;
                     font-weight: bold;
-                ">✅ Finalizar</button>
+                ">✅ Pasar Turno</button>
             </div>
         `;
 
         document.body.appendChild(this.relojElement);
 
-        // Event listeners
-        document.getElementById('btn-pausar-reloj').addEventListener('click', () => this.togglePausa());
+        // Event listeners (sin pausa - una vez iniciado, se juega)
         document.getElementById('btn-finalizar-turno').addEventListener('click', () => this.finalizarTurnoManual());
     }
 
@@ -226,25 +215,7 @@ class TurnosManager {
         }
     }
 
-    /**
-     * Pausa/Reanuda el reloj
-     */
-    togglePausa() {
-        this.pausado = !this.pausado;
-
-        const btnPausar = document.getElementById('btn-pausar-reloj');
-        if (btnPausar) {
-            if (this.pausado) {
-                btnPausar.innerHTML = '▶️ Reanudar';
-                btnPausar.style.background = 'rgba(33, 150, 243, 0.8)';
-                console.log('⏸️ Reloj pausado');
-            } else {
-                btnPausar.innerHTML = '⏸️ Pausar';
-                btnPausar.style.background = 'rgba(255, 193, 7, 0.8)';
-                console.log('▶️ Reloj reanudado');
-            }
-        }
-    }
+    // ✅ SIN PAUSA - Una vez iniciada la partida, se juega sin pausas
 
     /**
      * Finaliza el turno manualmente

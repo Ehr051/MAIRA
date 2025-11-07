@@ -176,33 +176,19 @@ class FaseManager {
     definirSector(layer) {
         console.log('🗺️ Definiendo sector...');
 
-        // Validar área (entre 25 y 500 km²)
+        // Calcular área (sin validación de tamaño - libre)
         const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
         const areaKm2 = area / 1000000;
-
-        if (areaKm2 < 25 || areaKm2 > 500) {
-            this.mostrarNotificacion({
-                tipo: 'error',
-                titulo: 'Sector inválido',
-                mensaje: `El sector debe tener entre 25 y 500 km².<br>Área actual: ${areaKm2.toFixed(2)} km²`
-            });
-            return false;
-        }
 
         this.sector = layer.toGeoJSON();
         layer.setStyle({ color: '#ffff00', weight: 3 });
 
         console.log(`✅ Sector definido: ${areaKm2.toFixed(2)} km²`);
 
-        // Generar HexGrid dentro del sector
-        if (this.hexGrid) {
-            this.generarHexGridEnSector(layer);
-        }
-
         this.mostrarNotificacion({
             tipo: 'success',
             titulo: 'Sector definido',
-            mensaje: `Sector de ${areaKm2.toFixed(2)} km² establecido.<br>Ahora delimita las zonas azul y roja.`
+            mensaje: `Sector de ${areaKm2.toFixed(2)} km² establecido.<br>Ahora delimita las zonas azul y roja DENTRO del sector.`
         });
 
         return true;
@@ -285,22 +271,7 @@ class FaseManager {
         await this.iniciarDespliegue();
     }
 
-    /**
-     * Genera HexGrid dentro del sector definido
-     */
-    generarHexGridEnSector(sectorLayer) {
-        if (!this.hexGrid) {
-            console.warn('⚠️ HexGrid no disponible');
-            return;
-        }
-
-        console.log('⬢ Generando HexGrid dentro del sector...');
-
-        // TODO: Implementar filtro de hexágonos que caen dentro del sector
-        // Por ahora, el HexGrid se genera en toda el área visible
-
-        console.log('✅ HexGrid generado');
-    }
+    // ✅ HexGrid ya existe desde el inicio - NO se genera aquí
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // FASE 2: DESPLIEGUE
@@ -319,14 +290,19 @@ class FaseManager {
 
         this.mostrarNotificacion({
             tipo: 'info',
-            titulo: 'Fase de Despliegue',
+            titulo: 'Fase de Despliegue (SIN LÍMITE DE TIEMPO)',
             mensaje: `
                 <strong>Jugadores:</strong><br>
-                Coloca tus unidades en tu zona asignada.<br>
+                Coloca y edita tus unidades en tu zona asignada.<br>
+                <br>
+                <strong>Validación requerida:</strong><br>
+                - Magnitud<br>
+                - Designación<br>
+                - Asignación<br>
                 <br>
                 Cuando termines, haz click en "Listo para Combate".
             `,
-            duracion: 8000
+            duracion: 10000
         });
 
         // TODO: Implementar sistema de turnos de despliegue
@@ -349,8 +325,43 @@ class FaseManager {
             return false;
         }
 
-        // TODO: Implementar verificación geométrica
+        // TODO: Implementar verificación geométrica point-in-polygon
         // Por ahora, retornar true
+        return true;
+    }
+
+    /**
+     * Valida que un elemento tenga todos los campos obligatorios
+     */
+    validarElemento(elemento) {
+        const camposObligatorios = ['magnitud', 'designacion', 'asignacion'];
+        const faltantes = [];
+
+        for (const campo of camposObligatorios) {
+            if (!elemento[campo] || elemento[campo].trim() === '') {
+                faltantes.push(campo);
+            }
+        }
+
+        if (faltantes.length > 0) {
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Elemento incompleto',
+                mensaje: `Faltan campos obligatorios:<br>- ${faltantes.join('<br>- ')}`
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Valida todos los elementos del equipo antes de finalizar despliegue
+     */
+    validarElementosEquipo(equipo) {
+        // TODO: Obtener todos los elementos del equipo del mapa
+        // Por ahora, retornar true para testing
+        console.log(`🔍 Validando elementos de equipo ${equipo}...`);
         return true;
     }
 
@@ -462,7 +473,7 @@ class FaseManager {
     }
 
     /**
-     * Subfase de Revisión
+     * Subfase de Revisión (activa durante turno enemigo)
      */
     async iniciarRevision() {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -482,6 +493,8 @@ class FaseManager {
                 - Combates resueltos<br>
                 - Bajas reportadas<br>
                 <br>
+                Durante el turno enemigo puedes seleccionar elementos para revisarlos.<br>
+                <br>
                 <button onclick="window.faseManager.siguienteTurno()">Siguiente Turno</button>
             `,
             duracion: null // No auto-cerrar
@@ -490,7 +503,7 @@ class FaseManager {
         // Callback
         this.callbacks.onSubfaseChange('revision');
 
-        console.log('✅ Revisión iniciada');
+        console.log('✅ Revisión iniciada - Puedes seleccionar elementos durante turno enemigo');
     }
 
     /**
