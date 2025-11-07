@@ -174,6 +174,38 @@ class FaseManager {
     }
 
     /**
+     * Inicia la herramienta de dibujo para definir el sector
+     */
+    iniciarDefinicionSector() {
+        console.log('🗺️ Iniciando herramienta de dibujo para sector...');
+
+        this.mostrarNotificacion({
+            tipo: 'info',
+            titulo: 'Definir Sector',
+            mensaje: 'Dibuja un polígono en el mapa para definir el sector de combate.'
+        });
+
+        // Activar herramienta de dibujo (Leaflet.Draw)
+        if (this.map && this.map.pm) {
+            this.map.pm.enableDraw('Polygon', {
+                snappable: true,
+                snapDistance: 20,
+                finishOn: 'dblclick',
+                allowSelfIntersection: false
+            });
+
+            // Escuchar evento de creación
+            this.map.once('pm:create', (e) => {
+                const layer = e.layer;
+                this.definirSector(layer);
+                this.map.pm.disableDraw();
+            });
+        } else {
+            console.error('❌ Leaflet.Draw/Geoman no disponible');
+        }
+    }
+
+    /**
      * Define el sector de combate
      */
     definirSector(layer) {
@@ -219,6 +251,60 @@ class FaseManager {
         });
 
         return true;
+    }
+
+    /**
+     * Inicia la herramienta de dibujo para definir una zona (azul o roja)
+     */
+    iniciarDefinicionZona(equipo) {
+        console.log(`🎨 Iniciando herramienta de dibujo para zona ${equipo}...`);
+
+        if (!this.sector) {
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Error',
+                mensaje: 'Primero debes definir y confirmar el sector'
+            });
+            return;
+        }
+
+        const colorZona = equipo === 'azul' ? '#0066ff' : '#ff0000';
+        const nombreZona = equipo === 'azul' ? 'Azul' : 'Roja';
+
+        this.mostrarNotificacion({
+            tipo: 'info',
+            titulo: `Definir Zona ${nombreZona}`,
+            mensaje: `Dibuja un polígono DENTRO del sector para la zona ${nombreZona.toLowerCase()}.`
+        });
+
+        // Activar herramienta de dibujo
+        if (this.map && this.map.pm) {
+            this.map.pm.enableDraw('Polygon', {
+                snappable: true,
+                snapDistance: 20,
+                finishOn: 'dblclick',
+                allowSelfIntersection: false,
+                pathOptions: {
+                    color: colorZona,
+                    fillColor: colorZona,
+                    fillOpacity: 0.2,
+                    weight: 2
+                }
+            });
+
+            // Escuchar evento de creación
+            this.map.once('pm:create', (e) => {
+                const layer = e.layer;
+                if (equipo === 'azul') {
+                    this.definirZonaAzul(layer);
+                } else {
+                    this.definirZonaRoja(layer);
+                }
+                this.map.pm.disableDraw();
+            });
+        } else {
+            console.error('❌ Leaflet.Draw/Geoman no disponible');
+        }
     }
 
     /**
