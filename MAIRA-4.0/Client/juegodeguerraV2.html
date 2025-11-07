@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
-  <!-- ✅ CSS HEXÁGONOS - Faltaba para colores correctos -->
-  <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
+  <!-- ✅ CSS HEXÁGONOS - Ruta corregida -->
+  <link rel="stylesheet" href="css/hexgrid.css">
   <!-- ✅ CSS MENU RADIAL - Movido ARRIBA antes de scripts -->
   <link rel="stylesheet" href="css/common/mairaRadialMenu.css">
   
@@ -346,7 +346,7 @@
 
           // 2. Cargar GLTFLoader NATIVO (texturas embedded funcionan)
           try {
-            // ✅ Usar THREE.GLTFLoader desde jsDelivr CDN
+            // ✅ Usar THREE.GLTFLoader local
             await loadScript('/Client/Libs/mythree/GLTFLoader.js', 'GLTFLoader');
             console.log('✅ GLTFLoader nativo cargado - Texturas embedded OK');
           } catch (error) {
@@ -509,6 +509,8 @@
   <script src="js/Test/autoTest.js"></script>
   <script src="js/Test/visualizadorTests.js"></script>
 
+  <!-- ✅ CRÍTICO: HexGrid DEBE cargarse ANTES de GestorOrdenesV2 -->
+  <script src="js/modules/juego/hexgrid.js"></script>
 
   <!-- ================================================================
        🎮 SISTEMA DE ÓRDENES V2 - JUEGO DE GUERRA
@@ -528,7 +530,9 @@
   <!-- UI V2 -->
   <script src="js/modules/juegoV2/ui/PanelCoordinacionOrdenes.js"></script>
 
-  <!-- Core V2 - Gestor y Inicializador -->
+  <!-- Core V2 - Managers, Gestor y Inicializador -->
+  <script src="js/modules/juegoV2/core/FaseManager.js"></script>
+  <script src="js/modules/juegoV2/core/TurnosManager.js"></script>
   <script src="js/modules/juegoV2/core/GestorOrdenesV2.js"></script>
   <script src="js/modules/juegoV2/core/InicializadorJuegoV2.js"></script>
 
@@ -542,6 +546,8 @@
       Pathfinding: typeof Pathfinding,
       OrdenesQueueV2: typeof OrdenesQueueV2,
       PanelCoordinacionOrdenes: typeof PanelCoordinacionOrdenes,
+      FaseManager: typeof FaseManager,
+      TurnosManager: typeof TurnosManager,
       GestorOrdenesV2: typeof GestorOrdenesV2,
       InicializadorJuegoV2: typeof InicializadorJuegoV2
     });
@@ -620,6 +626,8 @@
         <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
         <a href="#" id="btnVista3D"><i class="fas fa-cube" id="fa-cube-icon"></i> Generar Vista 3D</a>
         <a href="#" id="btnControles3D"><i class="fas fa-sliders-h"></i> Controles 3D</a>
+        <!-- 🎮 PANEL DE COORDINACIÓN DE ÓRDENES V2 -->
+        <a href="#" id="btnPanelCoordinacion"><i class="fas fa-tasks"></i> Panel de Coordinación</a>
         <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
         <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
         <a href="#" onclick="ejecutarPruebasIntegracionSIDC3D()"><i class="fas fa-vial"></i> Probar SIDC-3D</a>
@@ -2088,17 +2096,26 @@ function activateFullscreen3D() {
 }
 
 function closeFullscreen3D() {
-    const mainContainer = document.getElementById('main-container') || 
+    const mainContainer = document.getElementById('main-container') ||
                          document.getElementById('sidebar')?.parentElement ||
                          document.body;
     const closeButton = document.getElementById('close-3d-button');
-    
+    const canvasContainer = document.getElementById('canvas-container');
+
     mainContainer.classList.remove('fullscreen-3d');
-    
+
+    // ✅ FIX: Ocultar canvas-container y remover clase active
+    if (canvasContainer) {
+        canvasContainer.classList.remove('active');
+        canvasContainer.style.display = 'none';
+        canvasContainer.style.pointerEvents = 'none';
+        console.log('✅ Canvas container ocultado correctamente');
+    }
+
     if (closeButton) {
         closeButton.style.display = 'none';
     }
-    
+
     // Limpiar terreno y liberar memoria
     if (currentTerrain && currentTerrain.terrain) {
         scene.remove(currentTerrain.terrain);
@@ -2731,12 +2748,24 @@ function positionCameraForTerrain(terrain, bounds) {
 // =========================================================================
 
 function configurarEventosPlaneamiento() {
-    // 🏗️ VISTA 3D - PATRÓN DIRECTO DEL TEST QUE FUNCIONA
+    // 🏗️ VISTA 3D - TOGGLE (ABRIR/CERRAR)
     const btnVista3D = document.getElementById('btnVista3D');
+    let vista3DActiva = false;
+
     if (btnVista3D) {
         btnVista3D.addEventListener('click', async function(e) {
             e.preventDefault();
 
+            // Si la vista 3D está activa, cerrarla
+            if (vista3DActiva) {
+                console.log('🔴 Cerrando vista 3D...');
+                closeFullscreen3D();
+                btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Generar Vista 3D';
+                vista3DActiva = false;
+                return;
+            }
+
+            // Si no está activa, abrirla
             console.log('🎬 Iniciando generación de vista 3D...');
 
             // Actualizar botón
@@ -2754,16 +2783,29 @@ function configurarEventosPlaneamiento() {
                 btnVista3D.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando terreno...';
                 await generateTerrainDirect();
 
+                // Mostrar botón de cerrar en el canvas
+                const closeButton = document.getElementById('close-3d-button');
+                if (closeButton) {
+                    closeButton.style.display = 'block';
+                    closeButton.onclick = () => {
+                        closeFullscreen3D();
+                        btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Generar Vista 3D';
+                        vista3DActiva = false;
+                    };
+                }
+
                 // Actualizar texto del botón después de completar
                 setTimeout(() => {
-                    btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Cerrar Vista 3D';
+                    btnVista3D.innerHTML = '<i class="fas fa-times-circle"></i> Cerrar Vista 3D';
                     btnVista3D.disabled = false;
+                    vista3DActiva = true;
                 }, 2000);
 
             } catch (error) {
                 console.error('❌ Error en vista 3D:', error);
                 btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Generar Vista 3D';
                 btnVista3D.disabled = false;
+                vista3DActiva = false;
                 alert('Error generando terreno 3D: ' + error.message);
             }
         });
@@ -2786,6 +2828,33 @@ function configurarEventosPlaneamiento() {
         btnControlGestos.addEventListener('click', function(e) {
             e.preventDefault();
             descargarDetectorGestos();
+        });
+    }
+
+    // 🎮 PANEL DE COORDINACIÓN DE ÓRDENES V2
+    const btnPanelCoordinacion = document.getElementById('btnPanelCoordinacion');
+    if (btnPanelCoordinacion) {
+        btnPanelCoordinacion.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Verificar que el gestor de órdenes V2 esté disponible
+            if (window.gestorOrdenesV2 && window.gestorOrdenesV2.panelCoordinacion) {
+                const panel = window.gestorOrdenesV2.panelCoordinacion;
+
+                // Toggle mostrar/ocultar panel
+                if (panel.container && panel.container.style.display === 'none') {
+                    panel.mostrar();
+                    btnPanelCoordinacion.innerHTML = '<i class="fas fa-times-circle"></i> Cerrar Panel Coordinación';
+                    console.log('✅ Panel de Coordinación abierto');
+                } else {
+                    panel.ocultar();
+                    btnPanelCoordinacion.innerHTML = '<i class="fas fa-tasks"></i> Panel de Coordinación';
+                    console.log('🔴 Panel de Coordinación cerrado');
+                }
+            } else {
+                console.warn('⚠️ Panel de Coordinación no disponible. Debe estar en fase COMBATE.');
+                alert('El Panel de Coordinación solo está disponible en la fase de COMBATE.\n\nPrimero completa:\n1. Preparación\n2. Despliegue\n3. Luego inicia la fase de Combate');
+            }
         });
     }
 

@@ -22,6 +22,10 @@ class InicializadorJuegoV2 {
         this.hexGrid = null;
         this.map = null;
         this.menuRadial = null;
+
+        // ✅ NUEVOS MANAGERS V2
+        this.faseManager = null;
+        this.turnosManager = null;
     }
 
     /**
@@ -62,6 +66,12 @@ class InicializadorJuegoV2 {
             // 8. Inicializar GestorOrdenesV2 (corazón del sistema)
             await this.inicializarGestorOrdenesV2();
 
+            // 8.5. Inicializar FaseManager (gestión de fases)
+            await this.inicializarFaseManager();
+
+            // 8.6. Inicializar TurnosManager (gestión de turnos y reloj)
+            await this.inicializarTurnosManager();
+
             // 9. Configurar interfaz distintiva V2
             this.configurarInterfazV2();
 
@@ -100,7 +110,9 @@ class InicializadorJuegoV2 {
             { nombre: 'Pathfinding', variable: 'Pathfinding' },
             { nombre: 'OrdenesQueueV2', variable: 'OrdenesQueueV2' },
             { nombre: 'PanelCoordinacionOrdenes', variable: 'PanelCoordinacionOrdenes' },
-            { nombre: 'GestorOrdenesV2', variable: 'GestorOrdenesV2' }
+            { nombre: 'GestorOrdenesV2', variable: 'GestorOrdenesV2' },
+            { nombre: 'FaseManager', variable: 'FaseManager' },
+            { nombre: 'TurnosManager', variable: 'TurnosManager' }
         ];
 
         let todasPresentes = true;
@@ -388,6 +400,114 @@ class InicializadorJuegoV2 {
 
         } catch (error) {
             console.error('❌ Error inicializando GestorOrdenesV2:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Inicializa el FaseManager (gestión de fases del juego)
+     */
+    async inicializarFaseManager() {
+        try {
+            console.log('🎯 Inicializando FaseManager...');
+
+            this.faseManager = new FaseManager({
+                map: this.map,
+                hexGrid: this.hexGrid,
+                gestorOrdenes: this.gestorOrdenesV2,
+                configuracion: this.config,
+                jugadores: this.config.jugadores || [],
+                director: this.config.director || null,
+
+                // Callbacks
+                onFaseChange: (fase, subfase) => {
+                    console.log(`🎯 Fase cambió: ${fase} ${subfase ? `(${subfase})` : ''}`);
+
+                    // Si entramos en fase COMBATE, activar gestor de órdenes
+                    if (fase === 'combate' && this.gestorOrdenesV2) {
+                        console.log('⚔️ Activando GestorOrdenesV2 para fase COMBATE');
+                        this.gestorOrdenesV2.iniciarPlanificacion();
+                    }
+                },
+
+                onSubfaseChange: (subfase) => {
+                    console.log(`📍 Subfase cambió: ${subfase}`);
+                },
+
+                onTurnoChange: (turno) => {
+                    console.log(`🔄 Turno cambió: ${turno}`);
+
+                    // Iniciar nuevo turno en TurnosManager
+                    if (this.turnosManager) {
+                        this.turnosManager.iniciarTurno(turno);
+                    }
+                }
+            });
+
+            await this.faseManager.inicializar();
+
+            // Exponer globalmente
+            window.faseManager = this.faseManager;
+
+            console.log('✅ FaseManager inicializado');
+
+        } catch (error) {
+            console.error('❌ Error inicializando FaseManager:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Inicializa el TurnosManager (gestión de turnos y reloj)
+     */
+    async inicializarTurnosManager() {
+        try {
+            console.log('🕐 Inicializando TurnosManager...');
+
+            this.turnosManager = new TurnosManager({
+                duracionTurnoSegundos: (this.config.duracionTurnoMinutos || 5) * 60,
+                autoFinalizarTurno: true,
+
+                // Callbacks
+                onTurnoInicio: (turno) => {
+                    console.log(`🕐 Turno ${turno} iniciado`);
+                },
+
+                onTurnoFin: (turno, tipo) => {
+                    console.log(`✅ Turno ${turno} finalizado (${tipo})`);
+
+                    // Si es en fase COMBATE, pasar a ejecución
+                    if (this.faseManager && this.faseManager.faseActual === 'combate') {
+                        if (tipo === 'timeout') {
+                            console.log('⏰ Timeout alcanzado - ejecutando órdenes automáticamente');
+                        }
+                        // this.faseManager.confirmarOrdenes(); // Esto se llama manualmente
+                    }
+                },
+
+                onTimeout: (turno) => {
+                    console.log(`⏰ TIMEOUT en turno ${turno}`);
+
+                    // Auto-confirmar órdenes por timeout
+                    if (this.faseManager && this.faseManager.subfaseActual === 'planificacion') {
+                        this.faseManager.confirmarOrdenes();
+                    }
+                },
+
+                onTick: (segundos) => {
+                    // Se ejecuta cada segundo - útil para actualizaciones
+                }
+            });
+
+            this.turnosManager.inicializar();
+
+            // Exponer globalmente
+            window.turnosManager = this.turnosManager;
+
+            console.log('✅ TurnosManager inicializado');
+
+        } catch (error) {
+            console.error('❌ Error inicializando TurnosManager:', error);
             throw error;
         }
     }
