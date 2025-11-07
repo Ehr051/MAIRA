@@ -21,7 +21,7 @@ class PanelCoordinacionOrdenes {
         // ID del contenedor
         this.contenedorId = opciones.contenedor || 'panel-coordinacion-container';
 
-        // Configuración visual
+        // Configuración visual - ✅ TEMA OSCURO TÁCTICO
         this.config = {
             alturaUnidad: 60,           // Altura de cada fila de unidad
             pixelesPorSegundo: 0.2,     // 0.2 px = 1 segundo (3600s = 720px por turno)
@@ -29,15 +29,15 @@ class PanelCoordinacionOrdenes {
             alturaCabecera: 50,         // Altura de la cabecera con escala de tiempo
             duracionTurnoMinutos: opciones.duracionTurnoMinutos || 60,
             coloresOrden: {
-                movimiento: '#4CAF50',
-                ataque: '#f44336',
-                defensa: '#2196F3',
-                ingeniero: '#FF9800',
-                comunicaciones: '#9C27B0',
-                pendiente: '#999',
-                ejecutando: '#FFD700',
-                completada: '#4CAF50',
-                invalida: '#f44336'
+                movimiento: 'rgba(33, 100, 180, 0.9)',      // Azul oscuro
+                ataque: 'rgba(180, 40, 30, 0.9)',           // Rojo oscuro
+                defensa: 'rgba(50, 120, 200, 0.8)',         // Azul medio
+                ingeniero: 'rgba(200, 120, 30, 0.8)',       // Naranja oscuro
+                comunicaciones: 'rgba(120, 50, 150, 0.8)',  // Púrpura oscuro
+                pendiente: 'rgba(100, 100, 100, 0.7)',      // Gris oscuro
+                ejecutando: 'rgba(200, 180, 0, 0.9)',       // Amarillo oscuro
+                completada: 'rgba(50, 150, 50, 0.9)',       // Verde oscuro
+                invalida: 'rgba(150, 30, 30, 0.9)'          // Rojo muy oscuro
             }
         };
 
@@ -179,23 +179,23 @@ class PanelCoordinacionOrdenes {
                 left: 0;
                 right: 0;
                 height: 50vh;
-                background: rgba(255, 255, 255, 0.98);
-                border-top: 3px solid #2196F3;
-                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+                background: rgba(10, 10, 10, 0.95);
+                border-top: 3px solid rgba(0, 255, 0, 0.6);
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
                 z-index: 10000;
                 display: flex;
                 flex-direction: column;
-                font-family: 'Segoe UI', Arial, sans-serif;
+                font-family: 'Courier New', monospace;
             }
 
             .panel-header {
-                background: linear-gradient(135deg, #2196F3, #1976D2);
-                color: white;
+                background: linear-gradient(135deg, rgba(0, 80, 0, 0.8), rgba(0, 50, 0, 0.9));
+                color: #00ff00;
                 padding: 12px 20px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                border-bottom: 1px solid rgba(0, 255, 0, 0.3);
             }
 
             .panel-title {
@@ -258,17 +258,18 @@ class PanelCoordinacionOrdenes {
 
             .panel-unidades {
                 width: ${this.config.anchoPanelLateral}px;
-                border-right: 2px solid #ddd;
-                background: #f5f5f5;
+                border-right: 2px solid rgba(0, 255, 0, 0.2);
+                background: rgba(20, 20, 20, 0.9);
                 display: flex;
                 flex-direction: column;
             }
 
             .unidades-header {
-                background: #e0e0e0;
+                background: rgba(0, 80, 0, 0.5);
+                color: #00ff00;
                 padding: 12px;
                 font-weight: bold;
-                border-bottom: 1px solid #ccc;
+                border-bottom: 1px solid rgba(0, 255, 0, 0.3);
             }
 
             .unidades-lista {
@@ -278,33 +279,35 @@ class PanelCoordinacionOrdenes {
 
             .unidad-item {
                 padding: 12px;
-                border-bottom: 1px solid #ddd;
+                border-bottom: 1px solid rgba(0, 255, 0, 0.15);
                 cursor: pointer;
                 transition: background 0.2s;
                 height: ${this.config.alturaUnidad}px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
+                color: rgba(0, 255, 0, 0.7);
             }
 
             .unidad-item:hover {
-                background: #e3f2fd;
+                background: rgba(0, 100, 0, 0.3);
             }
 
             .unidad-item.selected {
-                background: #bbdefb;
-                border-left: 4px solid #2196F3;
+                background: rgba(0, 150, 0, 0.4);
+                border-left: 4px solid #00ff00;
             }
 
             .unidad-nombre {
                 font-weight: bold;
                 font-size: 14px;
                 margin-bottom: 4px;
+                color: #00ff00;
             }
 
             .unidad-ordenes {
                 font-size: 11px;
-                color: #666;
+                color: rgba(0, 255, 0, 0.6);
             }
 
             .panel-timeline {
@@ -318,8 +321,8 @@ class PanelCoordinacionOrdenes {
             }
 
             .panel-footer {
-                background: #f5f5f5;
-                border-top: 1px solid #ddd;
+                background: rgba(20, 20, 20, 0.9);
+                border-top: 1px solid rgba(0, 255, 0, 0.3);
                 padding: 12px 20px;
                 display: flex;
                 justify-content: space-between;
@@ -330,7 +333,7 @@ class PanelCoordinacionOrdenes {
                 display: flex;
                 gap: 20px;
                 font-size: 13px;
-                color: #666;
+                color: rgba(0, 255, 0, 0.8);
             }
 
             .footer-leyenda {
@@ -343,6 +346,7 @@ class PanelCoordinacionOrdenes {
                 align-items: center;
                 gap: 6px;
                 font-size: 12px;
+                color: rgba(0, 255, 0, 0.7);
             }
 
             .color-box {
@@ -440,36 +444,36 @@ class PanelCoordinacionOrdenes {
     }
 
     /**
-     * Limpia el canvas
+     * ✅ Limpia el canvas - TEMA OSCURO
      */
     limpiarCanvas() {
         this.ctx.clearRect(0, 0, this.timelineCanvas.width, this.timelineCanvas.height);
-        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillStyle = 'rgba(15, 15, 15, 1)';
         this.ctx.fillRect(0, 0, this.timelineCanvas.width, this.timelineCanvas.height);
     }
 
     /**
-     * Renderiza la cabecera con escala de tiempo
+     * ✅ Renderiza la cabecera con escala de tiempo - TEMA OSCURO
      */
     renderizarCabecera() {
         const ctx = this.ctx;
         const h = this.config.alturaCabecera;
 
-        // Fondo
-        ctx.fillStyle = '#e0e0e0';
+        // Fondo oscuro
+        ctx.fillStyle = 'rgba(30, 30, 30, 1)';
         ctx.fillRect(0, 0, this.timelineCanvas.width, h);
 
-        // Línea divisoria
-        ctx.strokeStyle = '#999';
+        // Línea divisoria verde
+        ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, h);
         ctx.lineTo(this.timelineCanvas.width, h);
         ctx.stroke();
 
-        // Escala de tiempo (cada 5 minutos)
-        ctx.fillStyle = '#333';
-        ctx.font = '11px Arial';
+        // Escala de tiempo (cada 5 minutos) - Texto verde
+        ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+        ctx.font = '11px "Courier New", monospace';
         ctx.textAlign = 'center';
 
         const pixelesPorMinuto = (this.config.pixelesPorSegundo * 60) * this.zoom;
@@ -481,6 +485,7 @@ class PanelCoordinacionOrdenes {
             if (x > this.timelineCanvas.width) break;
 
             // Marca
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
             ctx.beginPath();
             ctx.moveTo(x, h - 10);
             ctx.lineTo(x, h);
@@ -492,8 +497,8 @@ class PanelCoordinacionOrdenes {
             ctx.fillText(`${horas}:${mins.toString().padStart(2, '0')}`, x, h - 15);
         }
 
-        // Marcas de turnos (cada hora)
-        ctx.strokeStyle = '#2196F3';
+        // Marcas de turnos (cada hora) - Verde brillante
+        ctx.strokeStyle = 'rgba(0, 255, 0, 0.6)';
         ctx.lineWidth = 2;
 
         for (let turno = 1; turno <= 5; turno++) {
@@ -507,14 +512,14 @@ class PanelCoordinacionOrdenes {
             ctx.stroke();
 
             // Etiqueta de turno
-            ctx.fillStyle = '#2196F3';
-            ctx.font = 'bold 12px Arial';
+            ctx.fillStyle = '#00ff00';
+            ctx.font = 'bold 12px "Courier New", monospace';
             ctx.fillText(`Turno ${turno}`, x, 20);
         }
     }
 
     /**
-     * Renderiza las filas de unidades (fondo)
+     * ✅ Renderiza las filas de unidades (fondo) - TEMA OSCURO
      */
     renderizarFilasUnidades() {
         const ctx = this.ctx;
@@ -523,18 +528,18 @@ class PanelCoordinacionOrdenes {
         const yInicio = this.config.alturaCabecera;
 
         ctx.lineWidth = 1;
-        ctx.strokeStyle = '#ddd';
+        ctx.strokeStyle = 'rgba(0, 255, 0, 0.15)';
 
         unidades.forEach((unidadId, index) => {
             const y = yInicio + (index * h);
 
-            // Fondo alternado
+            // Fondo alternado oscuro
             if (index % 2 === 0) {
-                ctx.fillStyle = '#fafafa';
+                ctx.fillStyle = 'rgba(20, 20, 20, 0.5)';
                 ctx.fillRect(0, y, this.timelineCanvas.width, h);
             }
 
-            // Línea divisoria
+            // Línea divisoria verde tenue
             ctx.beginPath();
             ctx.moveTo(0, y + h);
             ctx.lineTo(this.timelineCanvas.width, y + h);
@@ -576,17 +581,17 @@ class PanelCoordinacionOrdenes {
                 ctx.fillStyle = color;
                 ctx.fillRect(x, y + 5, width - 2, h - 10);
 
-                // Borde
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                // Borde verde tenue
+                ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
                 ctx.lineWidth = 1;
                 ctx.strokeRect(x, y + 5, width - 2, h - 10);
 
-                // Texto (si hay espacio)
+                // Texto (si hay espacio) - Blanco para mejor contraste
                 if (width > 50) {
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 11px Arial';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 11px "Courier New", monospace';
                     ctx.textAlign = 'left';
-                    ctx.fillText(orden.tipo, x + 5, y + h / 2 + 4);
+                    ctx.fillText(orden.tipo.toUpperCase(), x + 5, y + h / 2 + 4);
                 }
 
                 // Guardar bounds para detección de clicks
