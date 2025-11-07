@@ -43,10 +43,10 @@ class TurnosManager {
     inicializar() {
         console.log('🔄 Inicializando TurnosManager...');
 
-        // Crear reloj visual
-        this.crearReloj();
+        // ✅ NO crear reloj flotante - se renderiza en panelInferiorUnificado
+        // this.crearReloj();
 
-        console.log('✅ TurnosManager inicializado');
+        console.log('✅ TurnosManager inicializado (reloj integrado en panel)');
     }
 
     /**

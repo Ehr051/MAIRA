@@ -49,13 +49,13 @@ class FaseManager {
     async inicializar() {
         console.log('🔄 Inicializando FaseManager...');
 
-        // Crear indicador visual de fase
-        this.crearIndicadorFase();
+        // ✅ NO crear indicador flotante - se renderiza en panelInferiorUnificado
+        // this.crearIndicadorFase();
 
         // Iniciar en fase de preparación
         await this.iniciarPreparacion();
 
-        console.log('✅ FaseManager inicializado');
+        console.log('✅ FaseManager inicializado (indicador integrado en panel)');
     }
 
     /**
@@ -191,7 +191,31 @@ class FaseManager {
         this.mostrarNotificacion({
             tipo: 'success',
             titulo: 'Sector definido',
-            mensaje: `Sector de ${areaKm2.toFixed(2)} km² establecido.<br>Ahora delimita las zonas azul y roja DENTRO del sector.`
+            mensaje: `Sector de ${areaKm2.toFixed(2)} km² establecido.<br>Haz click en "Confirmar Sector" para continuar.`
+        });
+
+        return true;
+    }
+
+    /**
+     * Confirma el sector definido
+     */
+    confirmarSector() {
+        if (!this.sector) {
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Error',
+                mensaje: 'Debes definir el sector primero'
+            });
+            return false;
+        }
+
+        console.log('✅ Sector confirmado - Puedes delimitar zonas');
+
+        this.mostrarNotificacion({
+            tipo: 'success',
+            titulo: 'Sector confirmado',
+            mensaje: 'Ahora delimita las zonas azul y roja DENTRO del sector.'
         });
 
         return true;
@@ -215,12 +239,36 @@ class FaseManager {
         this.zonaAzul = layer.toGeoJSON();
         layer.setStyle({ color: '#0066ff', fillColor: '#0066ff', fillOpacity: 0.2, weight: 2 });
 
-        console.log('✅ Zona azul definida');
+        console.log('✅ Zona azul definida - Esperando confirmación');
 
         this.mostrarNotificacion({
             tipo: 'success',
             titulo: 'Zona azul definida',
-            mensaje: 'Ahora delimita la zona roja'
+            mensaje: 'Haz click en "Confirmar Zona Azul" para continuar.'
+        });
+
+        return true;
+    }
+
+    /**
+     * Confirma la zona azul
+     */
+    confirmarZonaAzul() {
+        if (!this.zonaAzul) {
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Error',
+                mensaje: 'Debes definir la zona azul primero'
+            });
+            return false;
+        }
+
+        console.log('✅ Zona azul confirmada');
+
+        this.mostrarNotificacion({
+            tipo: 'success',
+            titulo: 'Zona azul confirmada',
+            mensaje: 'Zona azul lista.'
         });
 
         return true;
@@ -232,11 +280,11 @@ class FaseManager {
     definirZonaRoja(layer) {
         console.log('🔴 Definiendo zona roja...');
 
-        if (!this.sector || !this.zonaAzul) {
+        if (!this.sector) {
             this.mostrarNotificacion({
                 tipo: 'error',
                 titulo: 'Error',
-                mensaje: 'Primero debes definir el sector y la zona azul'
+                mensaje: 'Primero debes definir el sector'
             });
             return false;
         }
@@ -244,15 +292,66 @@ class FaseManager {
         this.zonaRoja = layer.toGeoJSON();
         layer.setStyle({ color: '#ff0000', fillColor: '#ff0000', fillOpacity: 0.2, weight: 2 });
 
-        console.log('✅ Zona roja definida');
+        console.log('✅ Zona roja definida - Esperando confirmación');
 
-        // Preparación completa - ofrecer pasar a despliegue
+        this.mostrarNotificacion({
+            tipo: 'success',
+            titulo: 'Zona roja definida',
+            mensaje: 'Haz click en "Confirmar Zona Roja" para continuar.'
+        });
+
+        return true;
+    }
+
+    /**
+     * Confirma la zona roja
+     */
+    confirmarZonaRoja() {
+        if (!this.zonaRoja) {
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Error',
+                mensaje: 'Debes definir la zona roja primero'
+            });
+            return false;
+        }
+
+        console.log('✅ Zona roja confirmada');
+
+        this.mostrarNotificacion({
+            tipo: 'success',
+            titulo: 'Zona roja confirmada',
+            mensaje: 'Zona roja lista.'
+        });
+
+        return true;
+    }
+
+    /**
+     * Confirma ambas zonas y permite pasar a despliegue
+     */
+    confirmarZonas() {
+        if (!this.zonaAzul || !this.zonaRoja) {
+            this.mostrarNotificacion({
+                tipo: 'error',
+                titulo: 'Error',
+                mensaje: 'Debes definir y confirmar ambas zonas primero'
+            });
+            return false;
+        }
+
+        console.log('✅ Ambas zonas confirmadas - Pasando a Despliegue');
+
         this.mostrarNotificacion({
             tipo: 'success',
             titulo: 'Preparación completa',
-            mensaje: 'Todas las zonas están definidas.<br><button onclick="window.faseManager.finalizarPreparacion()">Pasar a Despliegue</button>',
-            duracion: null // No auto-cerrar
+            mensaje: 'Todas las zonas están confirmadas.<br>Pasando a DESPLIEGUE...'
         });
+
+        // Pasar automáticamente a despliegue después de 1 segundo
+        setTimeout(() => {
+            this.finalizarPreparacion();
+        }, 1000);
 
         return true;
     }
