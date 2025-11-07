@@ -88,21 +88,21 @@ class GestorAcciones extends GestorBase {
         if (!marcador) return;
     
         marcador.off('click dblclick contextmenu');
-    
-        // Usar solo contextmenu para el menú radial
-        marcador.on('contextmenu', (e) => {
-            console.log('Evento contextmenu en elemento');
-            
+
+        // Función común para abrir menú radial (doble click Y contextmenu)
+        const abrirMenuRadial = (e) => {
+            console.log('Abriendo menú radial en elemento');
+
             L.DomEvent.stopPropagation(e);
             L.DomEvent.preventDefault(e);
-            
+
             // Actualizar elemento seleccionado
             this.elementoSeleccionado = marcador;
             window.elementoSeleccionado = marcador;
-    
+
             // Obtener coordenadas para el menú
             const point = this.map.latLngToContainerPoint(e.latlng);
-            
+
             // Asegurar que MiRadial tenga la referencia correcta
             if (window.MiRadial) {
                 window.MiRadial.selectedUnit = marcador;
@@ -113,7 +113,11 @@ class GestorAcciones extends GestorBase {
                     'elemento'
                 );
             }
-        });
+        };
+
+        // ✅ DOBLE CLICK Y CONTEXTMENU abren menú radial
+        marcador.on('dblclick', abrirMenuRadial);
+        marcador.on('contextmenu', abrirMenuRadial);
     }
 
 

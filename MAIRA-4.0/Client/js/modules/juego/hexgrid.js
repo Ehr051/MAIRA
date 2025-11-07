@@ -93,10 +93,24 @@ const HexGrid = {
                             className: 'hex-cell'
                         }).addTo(this.hexLayer);
 
-                        // ✅ EVENTO DOBLE CLICK para selección temporal de hexágonos
+                        // ✅ EVENTO DOBLE CLICK para abrir menú radial
                         polygon.on('dblclick', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            this.selectHexagon(hexKey, polygon);
+                            L.DomEvent.preventDefault(e);
+
+                            // Abrir menú radial sobre el hexágono
+                            if (window.MiRadial && typeof window.MiRadial.mostrarMenu === 'function') {
+                                window.MiRadial.selectedHex = {
+                                    key: hexKey,
+                                    polygon: polygon,
+                                    center: hexCenter,
+                                    hex: hex
+                                };
+                                window.MiRadial.selectedUnit = null;
+                                window.MiRadial.mostrarMenu(e.containerPoint.x, e.containerPoint.y, 'hex', hexCenter);
+                            } else {
+                                console.warn('❌ MiRadial no disponible para menú contextual del hexágono');
+                            }
                         });
 
                         this.grid.set(hexKey, {
