@@ -103,9 +103,6 @@ class PanelCoordinacionOrdenes {
                     <button class="btn-icon" id="btnValidarOrdenes" title="Validar Órdenes">
                         <i class="fas fa-check-circle"></i>
                     </button>
-                    <button class="btn-primary" id="btnEjecutarTurno">
-                        <i class="fas fa-play"></i> Ejecutar Turno
-                    </button>
                     <button class="btn-icon" id="btnCerrarPanel" title="Cerrar">
                         <i class="fas fa-times"></i>
                     </button>
@@ -407,7 +404,6 @@ class PanelCoordinacionOrdenes {
         document.getElementById('btnZoomOut')?.addEventListener('click', () => this.zoomOut());
         document.getElementById('btnResetZoom')?.addEventListener('click', () => this.resetZoom());
         document.getElementById('btnValidarOrdenes')?.addEventListener('click', () => this.validarOrdenes());
-        document.getElementById('btnEjecutarTurno')?.addEventListener('click', () => this.ejecutarTurno());
         // ✅ CAMBIAR: Ocultar en lugar de cerrar (para que el toggle pueda volver a mostrar)
         document.getElementById('btnCerrarPanel')?.addEventListener('click', () => this.ocultar());
 

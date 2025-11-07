@@ -644,7 +644,7 @@ class InicializadorJuegoV2 {
         // 1. FLECHA TOGGLE PARA PANEL INFERIOR INTEGRADO
         const flechaTogglePanelInferior = document.createElement('button');
         flechaTogglePanelInferior.id = 'flecha-toggle-panel-inferior';
-        flechaTogglePanelInferior.innerHTML = '▲'; // ✅ Inicialmente ▲ porque el panel está VISIBLE
+        flechaTogglePanelInferior.innerHTML = '▼'; // ✅ Inicialmente ▼ (flecha hacia abajo oculta el panel)
         flechaTogglePanelInferior.title = 'Mostrar/Ocultar Panel Inferior';
 
         // ✅ Estado inicial: panel VISIBLE, flecha a media altura
@@ -698,13 +698,13 @@ class InicializadorJuegoV2 {
 
             // Actualizar flecha
             if (panelVisible) {
-                // Panel VISIBLE: flecha a media altura, apuntando hacia abajo para OCULTAR
-                flechaTogglePanelInferior.innerHTML = '▲';
+                // Panel VISIBLE: flecha a media altura, apuntando hacia abajo (▼) para OCULTAR
+                flechaTogglePanelInferior.innerHTML = '▼';
                 flechaTogglePanelInferior.style.bottom = '250px';
                 console.log('📖 Panel inferior MOSTRADO (incluyendo botones de control)');
             } else {
-                // Panel OCULTO: flecha abajo, apuntando hacia arriba para MOSTRAR
-                flechaTogglePanelInferior.innerHTML = '▼';
+                // Panel OCULTO: flecha abajo, apuntando hacia arriba (▲) para MOSTRAR
+                flechaTogglePanelInferior.innerHTML = '▲';
                 flechaTogglePanelInferior.style.bottom = '0';
                 console.log('📕 Panel inferior OCULTADO (incluyendo botones de control)');
             }
@@ -730,8 +730,8 @@ class InicializadorJuegoV2 {
             if (panelCoordinacionContainer) {
                 const btnToggleCoordinacion = document.createElement('button');
                 btnToggleCoordinacion.id = 'btn-toggle-coordinacion';
-                btnToggleCoordinacion.innerHTML = '📊 Mostrar Timeline';
-                btnToggleCoordinacion.title = 'Mostrar/Ocultar Timeline de Coordinación de Órdenes';
+                btnToggleCoordinacion.innerHTML = '📊 Matriz de Coordinación';
+                btnToggleCoordinacion.title = 'Mostrar/Ocultar Matriz de Coordinación de Órdenes';
                 btnToggleCoordinacion.style.cssText = `
                     position: fixed;
                     bottom: 260px;
@@ -760,13 +760,13 @@ class InicializadorJuegoV2 {
                         if (estaOculto) {
                             // Mostrar panel
                             panelCoordinacion.style.display = 'flex';
-                            btnToggleCoordinacion.innerHTML = '📊 Ocultar Timeline';
-                            console.log('📊 Timeline de coordinación MOSTRADO');
+                            btnToggleCoordinacion.innerHTML = '📊 Ocultar Matriz';
+                            console.log('📊 Matriz de coordinación MOSTRADA');
                         } else {
                             // Ocultar panel
                             panelCoordinacion.style.display = 'none';
-                            btnToggleCoordinacion.innerHTML = '📊 Mostrar Timeline';
-                            console.log('📕 Timeline de coordinación OCULTADO');
+                            btnToggleCoordinacion.innerHTML = '📊 Matriz de Coordinación';
+                            console.log('📕 Matriz de coordinación OCULTADA');
                         }
                     } else {
                         console.warn('⚠️ Timeline de coordinación no encontrado aún - se creará cuando inicies fase COMBATE');
