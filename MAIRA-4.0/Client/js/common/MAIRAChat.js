@@ -53,6 +53,18 @@ window.MAIRAChat = (function() {
                 enviar: 'mensajeJuego',
                 recibir: 'mensajeJuego'
             }
+        },
+        'juegodeguerraV2': {
+            // ✅ USA CONTENEDORES DEL PANEL INTEGRADO
+            contenedorMensajes: '#chat-mensajes-v2',
+            inputMensaje: '#chat-input-v2',
+            botonEnviar: '#chat-enviar-v2',
+            selectorDestino: '#chat-destino-v2',
+            crearEnPanel: true, // Flag para crear dentro del panel
+            eventos: {
+                enviar: 'mensajeJuego',
+                recibir: 'mensajeJuego'
+            }
         }
     };
     
@@ -150,9 +162,9 @@ window.MAIRAChat = (function() {
     function detectarModulo() {
         const pathname = window.location.pathname;
         const filename = pathname.split('/').pop().replace('.html', '');
-        
+
         console.log('🔍 Detectando módulo desde:', pathname, 'filename:', filename);
-        
+
         // ✅ MEJORAR DETECCIÓN:
         if (filename === 'iniciarpartida' || pathname.includes('iniciarpartida')) {
             return 'iniciarpartida';
@@ -160,33 +172,40 @@ window.MAIRAChat = (function() {
             return 'inicioGB';
         } else if (filename === 'gestionbatalla' || pathname.includes('gestionbatalla')) {
             return 'gestionbatalla';
+        } else if (filename === 'juegodeguerraV2' || pathname.includes('juegodeguerraV2')) {
+            return 'juegodeguerraV2';
         } else if (filename === 'juegodeguerra' || pathname.includes('juegodeguerra')) {
             return 'juegodeguerra';
         }
-        
+
         // ✅ FALLBACK MEJORADO POR CONTENIDO:
         if (document.getElementById('chatMessages')) {
             // Distinguir entre iniciarpartida e inicioGB
-            if (pathname.includes('inicioGB') || 
+            if (pathname.includes('inicioGB') ||
                 document.querySelector('.operaciones-panel') ||
                 document.querySelector('#operacionesPanel') ||
-                document.querySelector('.card-header') && 
+                document.querySelector('.card-header') &&
                 document.querySelector('.card-header').textContent.includes('Operaciones')) {
                 return 'inicioGB';
             }
             return 'iniciarpartida';
         }
-        
+
         if (document.getElementById('chat-messages')) {
             return 'gestionbatalla';
         }
-        
+
+        // ✅ FALLBACK PARA JUEGO V2 - Buscar panel integrado
+        if (document.getElementById('panel-maira-chat-contenido')) {
+            return 'juegodeguerraV2';
+        }
+
         // ✅ ÚLTIMO FALLBACK - BUSCAR ELEMENTOS ÚNICOS:
-        if (document.querySelector('.chat-juego') || 
+        if (document.querySelector('.chat-juego') ||
             window.location.href.includes('juego')) {
             return 'juegodeguerra';
         }
-        
+
         console.warn('⚠️ No se pudo detectar módulo, usando gestionbatalla por defecto');
         return 'gestionbatalla';
     }
@@ -196,38 +215,154 @@ window.MAIRAChat = (function() {
      */
     function encontrarContenedores() {
         const config = CONFIGURACION_MODULOS[modulo];
-        
+
         // Para juegodeguerra, crear contenedores dinámicamente
         if (config?.crearDinamicamente) {
             return crearContenedoresJuegoDinamicamente();
         }
-        
+
+        // Para juegodeguerraV2, crear dentro del panel
+        if (config?.crearEnPanel) {
+            return crearContenedoresEnPanel();
+        }
+
         console.log('🔍 Buscando contenedores para módulo:', modulo);
         console.log('📝 Configuración:', config);
-        
+
         contenedores = {
             mensajes: document.querySelector(config.contenedorMensajes),
             input: document.querySelector(config.inputMensaje),
             botonEnviar: document.querySelector(config.botonEnviar),
-            selectorDestinatario: config.selectorDestinatario ? 
+            selectorDestinatario: config.selectorDestinatario ?
                 document.querySelector(config.selectorDestinatario) : null,
-            selectorDestino: config.selectorDestino ? 
+            selectorDestino: config.selectorDestino ?
                 document.querySelector(config.selectorDestino) : null
         };
-        
+
         console.log('📦 Contenedores encontrados:', contenedores);
-        
+
         // Verificar elementos críticos
         const elementosCriticos = ['mensajes', 'input', 'botonEnviar'];
         const faltantes = elementosCriticos.filter(key => !contenedores[key]);
-        
+
         if (faltantes.length > 0) {
             console.error('❌ Elementos críticos faltantes:', faltantes);
             return false;
         }
-        
+
         console.log('✅ Todos los contenedores encontrados');
         return true;
+    }
+
+    /**
+     * Crea contenedores de chat dentro del panel integrado (juegodeguerraV2)
+     */
+    function crearContenedoresEnPanel() {
+        console.log('🎮 Creando contenedores de chat en panel integrado');
+
+        const panelChat = document.getElementById('panel-maira-chat-contenido');
+        if (!panelChat) {
+            console.error('❌ No se encontró #panel-maira-chat-contenido');
+            return false;
+        }
+
+        // Limpiar contenido existente (placeholder)
+        panelChat.innerHTML = '';
+
+        // Crear estructura de chat dentro del panel
+        panelChat.innerHTML = `
+            <div style="
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                gap: 10px;
+            ">
+                <!-- Selector de destino -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="color: rgba(255, 255, 255, 0.7); font-size: 12px; white-space: nowrap;">
+                        Destino:
+                    </label>
+                    <select id="chat-destino-v2" style="
+                        flex: 1;
+                        background: rgba(0, 0, 0, 0.5);
+                        color: #00ff00;
+                        border: 1px solid rgba(0, 255, 0, 0.3);
+                        padding: 6px 10px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        cursor: pointer;
+                    ">
+                        <option value="global">🌍 Global</option>
+                        <option value="equipo">👥 Mi Equipo</option>
+                        ${window.equipoJugador === 'Director' ? '<option value="director">⭐ Director</option>' : ''}
+                    </select>
+                </div>
+
+                <!-- Área de mensajes -->
+                <div id="chat-mensajes-v2" style="
+                    flex: 1;
+                    background: rgba(0, 0, 0, 0.3);
+                    border: 1px solid rgba(0, 255, 0, 0.2);
+                    border-radius: 6px;
+                    padding: 12px;
+                    overflow-y: auto;
+                    min-height: 150px;
+                    max-height: 300px;
+                "></div>
+
+                <!-- Input y botón de envío -->
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="chat-input-v2" placeholder="Escribe un mensaje..." style="
+                        flex: 1;
+                        background: rgba(0, 0, 0, 0.5);
+                        color: white;
+                        border: 1px solid rgba(0, 255, 0, 0.3);
+                        padding: 8px 12px;
+                        border-radius: 4px;
+                        font-size: 13px;
+                    ">
+                    <button id="chat-enviar-v2" style="
+                        background: rgba(0, 255, 0, 0.2);
+                        color: #00ff00;
+                        border: 1px solid rgba(0, 255, 0, 0.5);
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 13px;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.background='rgba(0, 255, 0, 0.3)'" onmouseout="this.style.background='rgba(0, 255, 0, 0.2)'">
+                        Enviar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Actualizar referencias de contenedores
+        contenedores = {
+            mensajes: panelChat.querySelector('#chat-mensajes-v2'),
+            input: panelChat.querySelector('#chat-input-v2'),
+            botonEnviar: panelChat.querySelector('#chat-enviar-v2'),
+            selectorDestino: panelChat.querySelector('#chat-destino-v2')
+        };
+
+        // Verificar que se crearon correctamente
+        const todosCreados = Object.values(contenedores).every(c => c !== null);
+
+        console.log('✅ Contenedores de panel configurados:', {
+            creados: todosCreados,
+            contenedores: Object.keys(contenedores)
+        });
+
+        // Agregar mensaje de bienvenida
+        if (contenedores.mensajes) {
+            const bienvenida = document.createElement('div');
+            bienvenida.style.cssText = 'color: #4fc3f7; font-size: 12px; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; border-left: 3px solid #4fc3f7;';
+            bienvenida.innerHTML = '<strong>💬 Chat M.A.I.R.A. activo</strong><br><span style="font-size: 11px; color: rgba(255,255,255,0.6);">Listo para comunicarte con tu equipo</span>';
+            contenedores.mensajes.appendChild(bienvenida);
+        }
+
+        return todosCreados;
     }
     
     /**
