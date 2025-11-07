@@ -75,6 +75,13 @@ class InicializadorJuegoV2 {
             // 8.7. Conectar panelInferiorUnificado con gestores V2
             await this.conectarPanelInferiorUnificado();
 
+            // 8.8. Actualizar panel integrado con estado inicial
+            setTimeout(() => {
+                this.actualizarPanelEstado();
+                this.actualizarListaElementos();
+                console.log('✅ Panel integrado actualizado con estado inicial');
+            }, 500);
+
             // 9. Configurar interfaz distintiva V2
             this.configurarInterfazV2();
 
@@ -336,7 +343,7 @@ class InicializadorJuegoV2 {
     }
 
     /**
-     * Crea el contenedor para el panel de coordinación
+     * Crea el contenedor del panel de coordinación con estructura de 3 secciones
      */
     crearContenedorPanelCoordinacion() {
         // Verificar si ya existe
@@ -345,7 +352,7 @@ class InicializadorJuegoV2 {
             return;
         }
 
-        // Crear contenedor
+        // Crear contenedor principal
         const contenedor = document.createElement('div');
         contenedor.id = 'panel-coordinacion-container';
         contenedor.style.cssText = `
@@ -357,11 +364,335 @@ class InicializadorJuegoV2 {
             background: rgba(0, 0, 0, 0.9);
             border-top: 2px solid #00ff00;
             z-index: 1000;
-            display: block;
+            display: flex;
+            flex-direction: row;
+            gap: 0;
+            padding: 0;
         `;
 
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SECCIÓN IZQUIERDA: Estado del Juego
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const seccionIzquierda = document.createElement('div');
+        seccionIzquierda.id = 'panel-seccion-estado';
+        seccionIzquierda.style.cssText = `
+            width: 250px;
+            height: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            border-right: 1px solid rgba(0, 255, 0, 0.3);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        `;
+
+        seccionIzquierda.innerHTML = `
+            <!-- Indicador de Fase -->
+            <div style="
+                background: rgba(0, 255, 0, 0.1);
+                border: 1px solid rgba(0, 255, 0, 0.4);
+                border-radius: 6px;
+                padding: 10px;
+            ">
+                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px;">FASE ACTUAL</div>
+                <div id="panel-fase-actual" style="
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #00ff00;
+                    text-transform: uppercase;
+                    font-family: 'Courier New', monospace;
+                ">PREPARACIÓN</div>
+                <div id="panel-subfase-actual" style="
+                    font-size: 12px;
+                    color: rgba(255, 255, 255, 0.7);
+                    margin-top: 4px;
+                    display: none;
+                "></div>
+            </div>
+
+            <!-- Reloj y Turno -->
+            <div style="
+                background: rgba(0, 100, 255, 0.1);
+                border: 1px solid rgba(0, 100, 255, 0.4);
+                border-radius: 6px;
+                padding: 10px;
+            ">
+                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px;">TURNO</div>
+                <div id="panel-turno-actual" style="
+                    font-size: 14px;
+                    font-weight: bold;
+                    color: #00aaff;
+                    font-family: 'Courier New', monospace;
+                ">0</div>
+
+                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 8px; margin-bottom: 4px;">TIEMPO RESTANTE</div>
+                <div id="panel-tiempo-restante" style="
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #00ff00;
+                    font-family: 'Courier New', monospace;
+                    text-align: center;
+                ">05:00</div>
+            </div>
+
+            <!-- Botón Pasar Turno -->
+            <button id="panel-btn-pasar-turno" style="
+                padding: 12px 20px;
+                background: rgba(76, 175, 80, 0.8);
+                border: 2px solid #4CAF50;
+                border-radius: 6px;
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                display: none;
+            " onmouseover="this.style.background='rgba(76, 175, 80, 1)'; this.style.transform='scale(1.05)';"
+               onmouseout="this.style.background='rgba(76, 175, 80, 0.8)'; this.style.transform='scale(1)';">
+                ✅ Pasar Turno
+            </button>
+        `;
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SECCIÓN CENTRAL: Lista de Elementos
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const seccionCentral = document.createElement('div');
+        seccionCentral.id = 'panel-seccion-elementos';
+        seccionCentral.style.cssText = `
+            flex: 1;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            padding: 15px;
+            overflow-y: auto;
+        `;
+
+        seccionCentral.innerHTML = `
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            ">
+                <div style="
+                    font-size: 12px;
+                    color: rgba(255, 255, 255, 0.5);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                ">Elementos en Mapa</div>
+                <div id="panel-contador-elementos" style="
+                    font-size: 12px;
+                    color: #00ff00;
+                    font-weight: bold;
+                ">0 elementos</div>
+            </div>
+            <div id="panel-lista-elementos" style="
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            ">
+                <!-- Elementos se agregarán dinámicamente aquí -->
+                <div style="
+                    text-align: center;
+                    color: rgba(255, 255, 255, 0.3);
+                    padding: 40px 20px;
+                    font-size: 13px;
+                ">
+                    No hay elementos en el mapa todavía.
+                    <br>
+                    <span style="font-size: 11px; margin-top: 8px; display: block;">
+                        Los elementos aparecerán aquí durante la fase de DESPLIEGUE
+                    </span>
+                </div>
+            </div>
+        `;
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SECCIÓN DERECHA: MAIRAChat
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const seccionDerecha = document.createElement('div');
+        seccionDerecha.id = 'panel-seccion-chat';
+        seccionDerecha.style.cssText = `
+            width: 300px;
+            height: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            border-left: 1px solid rgba(0, 255, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        `;
+
+        seccionDerecha.innerHTML = `
+            <div style="
+                padding: 12px 15px;
+                background: rgba(0, 255, 0, 0.1);
+                border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+                font-size: 12px;
+                color: #00ff00;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            ">
+                M.A.I.R.A. Chat
+            </div>
+            <div id="panel-maira-chat-contenido" style="
+                flex: 1;
+                padding: 15px;
+                overflow-y: auto;
+            ">
+                <div style="
+                    text-align: center;
+                    color: rgba(255, 255, 255, 0.3);
+                    padding: 40px 20px;
+                    font-size: 13px;
+                ">
+                    Chat no disponible aún
+                    <br>
+                    <span style="font-size: 11px; margin-top: 8px; display: block;">
+                        Esta sección se integrará con MAIRAChat
+                    </span>
+                </div>
+            </div>
+        `;
+
+        // Ensamblar las 3 secciones
+        contenedor.appendChild(seccionIzquierda);
+        contenedor.appendChild(seccionCentral);
+        contenedor.appendChild(seccionDerecha);
+
         document.body.appendChild(contenedor);
-        console.log('✅ Contenedor Panel Coordinación creado');
+        console.log('✅ Panel Integrado creado con 3 secciones (Estado | Elementos | Chat)');
+
+        // Conectar evento del botón "Pasar Turno"
+        setTimeout(() => {
+            const btnPasarTurno = document.getElementById('panel-btn-pasar-turno');
+            if (btnPasarTurno) {
+                btnPasarTurno.addEventListener('click', () => {
+                    console.log('🔘 Botón "Pasar Turno" presionado');
+                    if (window.turnosManager) {
+                        window.turnosManager.finalizarTurnoManual();
+                    }
+                });
+            }
+        }, 100);
+    }
+
+    /**
+     * Actualiza el panel de estado (fase, turno, tiempo)
+     */
+    actualizarPanelEstado() {
+        // Actualizar fase
+        const faseElement = document.getElementById('panel-fase-actual');
+        const subfaseElement = document.getElementById('panel-subfase-actual');
+
+        if (faseElement && this.faseManager) {
+            faseElement.textContent = this.faseManager.faseActual.toUpperCase();
+
+            if (subfaseElement && this.faseManager.subfaseActual) {
+                subfaseElement.textContent = `└─ ${this.faseManager.subfaseActual}`;
+                subfaseElement.style.display = 'block';
+            } else if (subfaseElement) {
+                subfaseElement.style.display = 'none';
+            }
+        }
+
+        // Actualizar turno
+        const turnoElement = document.getElementById('panel-turno-actual');
+        if (turnoElement && this.turnosManager) {
+            turnoElement.textContent = this.turnosManager.getTurnoActual();
+        }
+
+        // Actualizar tiempo restante
+        const tiempoElement = document.getElementById('panel-tiempo-restante');
+        if (tiempoElement && this.turnosManager) {
+            const segundos = this.turnosManager.getTiempoRestante();
+            const minutos = Math.floor(segundos / 60);
+            const segs = segundos % 60;
+            tiempoElement.textContent = `${minutos.toString().padStart(2, '0')}:${segs.toString().padStart(2, '0')}`;
+
+            // Cambiar color según tiempo restante
+            if (segundos <= 30) {
+                tiempoElement.style.color = '#ff0000';
+            } else if (segundos <= 60) {
+                tiempoElement.style.color = '#ff9800';
+            } else {
+                tiempoElement.style.color = '#00ff00';
+            }
+        }
+
+        // Mostrar/ocultar botón "Pasar Turno" según fase
+        const btnPasarTurno = document.getElementById('panel-btn-pasar-turno');
+        if (btnPasarTurno) {
+            // Solo mostrar durante COMBATE > planificacion
+            const mostrar = this.faseManager &&
+                          this.faseManager.faseActual === 'combate' &&
+                          this.faseManager.subfaseActual === 'planificacion';
+            btnPasarTurno.style.display = mostrar ? 'block' : 'none';
+        }
+    }
+
+    /**
+     * Actualiza la lista de elementos en el panel central
+     */
+    actualizarListaElementos() {
+        const listaContainer = document.getElementById('panel-lista-elementos');
+        const contador = document.getElementById('panel-contador-elementos');
+
+        if (!listaContainer) return;
+
+        // TODO: Obtener elementos del mapa (desde hexGrid o gestorUnidades)
+        // Por ahora, mostrar placeholder
+        const elementos = []; // Aquí irían los elementos reales
+
+        if (contador) {
+            contador.textContent = `${elementos.length} elemento${elementos.length !== 1 ? 's' : ''}`;
+        }
+
+        if (elementos.length === 0) {
+            listaContainer.innerHTML = `
+                <div style="
+                    text-align: center;
+                    color: rgba(255, 255, 255, 0.3);
+                    padding: 40px 20px;
+                    font-size: 13px;
+                ">
+                    No hay elementos en el mapa todavía.
+                    <br>
+                    <span style="font-size: 11px; margin-top: 8px; display: block;">
+                        Los elementos aparecerán aquí durante la fase de DESPLIEGUE
+                    </span>
+                </div>
+            `;
+        } else {
+            // TODO: Renderizar elementos con SIDC
+            listaContainer.innerHTML = elementos.map(elem => `
+                <div style="
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 4px;
+                    padding: 8px 12px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <div style="
+                        width: 32px;
+                        height: 32px;
+                        background: rgba(0, 255, 0, 0.2);
+                        border: 1px solid rgba(0, 255, 0, 0.5);
+                        border-radius: 4px;
+                    ">
+                        <!-- Aquí iría el símbolo SIDC -->
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 13px; color: white; font-weight: bold;">${elem.nombre}</div>
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">${elem.tipo}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
 
     /**
@@ -431,10 +762,16 @@ class InicializadorJuegoV2 {
                         console.log('⚔️ Activando GestorOrdenesV2 para fase COMBATE');
                         this.gestorOrdenesV2.iniciarPlanificacion();
                     }
+
+                    // Actualizar panel integrado
+                    this.actualizarPanelEstado();
                 },
 
                 onSubfaseChange: (subfase) => {
                     console.log(`📍 Subfase cambió: ${subfase}`);
+
+                    // Actualizar panel integrado
+                    this.actualizarPanelEstado();
                 },
 
                 onTurnoChange: (turno) => {
@@ -444,6 +781,9 @@ class InicializadorJuegoV2 {
                     if (this.turnosManager) {
                         this.turnosManager.iniciarTurno(turno);
                     }
+
+                    // Actualizar panel integrado
+                    this.actualizarPanelEstado();
                 }
             });
 
@@ -474,6 +814,9 @@ class InicializadorJuegoV2 {
                 // Callbacks
                 onTurnoInicio: (turno) => {
                     console.log(`🕐 Turno ${turno} iniciado`);
+
+                    // Actualizar panel integrado
+                    this.actualizarPanelEstado();
                 },
 
                 onTurnoFin: (turno, tipo) => {
@@ -486,6 +829,9 @@ class InicializadorJuegoV2 {
                         }
                         // this.faseManager.confirmarOrdenes(); // Esto se llama manualmente
                     }
+
+                    // Actualizar panel integrado
+                    this.actualizarPanelEstado();
                 },
 
                 onTimeout: (turno) => {
@@ -495,10 +841,14 @@ class InicializadorJuegoV2 {
                     if (this.faseManager && this.faseManager.subfaseActual === 'planificacion') {
                         this.faseManager.confirmarOrdenes();
                     }
+
+                    // Actualizar panel integrado
+                    this.actualizarPanelEstado();
                 },
 
                 onTick: (segundos) => {
-                    // Se ejecuta cada segundo - útil para actualizaciones
+                    // Actualizar reloj cada segundo
+                    this.actualizarPanelEstado();
                 }
             });
 
@@ -570,50 +920,20 @@ class InicializadorJuegoV2 {
 
     /**
      * Actualiza UI según subfase
+     * ✅ Ahora actualiza el panel integrado
      */
     actualizarUISegunSubfase(subfase) {
-        const indicador = document.getElementById('indicador-fase-v2');
-        if (!indicador) return;
-
-        switch (subfase) {
-            case 'planificacion':
-                indicador.textContent = '📋 Planificación';
-                indicador.style.background = '#0066cc';
-                break;
-            case 'ejecucion':
-                indicador.textContent = '⚡ Ejecución';
-                indicador.style.background = '#cc6600';
-                break;
-            case 'revision':
-                indicador.textContent = '📊 Revisión';
-                indicador.style.background = '#00cc66';
-                break;
-        }
+        // Actualizar el panel integrado
+        this.actualizarPanelEstado();
     }
 
     /**
      * Configura interfaz distintiva V2
      */
     configurarInterfazV2() {
-        // Crear indicador de fase V2
-        const indicador = document.createElement('div');
-        indicador.id = 'indicador-fase-v2';
-        indicador.style.cssText = `
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            padding: 15px 25px;
-            background: #0066cc;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            border-radius: 8px;
-            z-index: 2000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            border: 2px solid #00ff00;
-        `;
-        indicador.textContent = '📋 Planificación';
-        document.body.appendChild(indicador);
+        // ✅ NO crear indicador flotante - ahora se renderiza en panel integrado
+        // El indicador de fase ya está dentro del panel-coordinacion-container
+        console.log('✅ Indicador de fase integrado en panel (no flotante)');
 
         // Crear badge V2
         const badge = document.createElement('div');
