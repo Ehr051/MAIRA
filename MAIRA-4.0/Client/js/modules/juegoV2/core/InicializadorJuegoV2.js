@@ -383,7 +383,7 @@ class InicializadorJuegoV2 {
             padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
             overflow-y: auto;
         `;
 
@@ -393,11 +393,11 @@ class InicializadorJuegoV2 {
                 background: rgba(0, 255, 0, 0.1);
                 border: 1px solid rgba(0, 255, 0, 0.4);
                 border-radius: 6px;
-                padding: 10px;
+                padding: 8px;
             ">
                 <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px;">FASE ACTUAL</div>
                 <div id="panel-fase-actual" style="
-                    font-size: 16px;
+                    font-size: 14px;
                     font-weight: bold;
                     color: #00ff00;
                     text-transform: uppercase;
@@ -416,11 +416,11 @@ class InicializadorJuegoV2 {
                 background: rgba(255, 152, 0, 0.1);
                 border: 1px solid rgba(255, 152, 0, 0.4);
                 border-radius: 6px;
-                padding: 10px;
+                padding: 8px;
             ">
                 <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px;">JUGADOR</div>
                 <div id="panel-jugador-actual" style="
-                    font-size: 13px;
+                    font-size: 11px;
                     font-weight: bold;
                     color: #ff9800;
                     font-family: 'Courier New', monospace;
@@ -428,7 +428,7 @@ class InicializadorJuegoV2 {
 
                 <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 8px; margin-bottom: 4px;">EQUIPO</div>
                 <div id="panel-equipo-actual" style="
-                    font-size: 13px;
+                    font-size: 11px;
                     font-weight: bold;
                     color: #ff9800;
                     font-family: 'Courier New', monospace;
@@ -440,11 +440,11 @@ class InicializadorJuegoV2 {
                 background: rgba(0, 100, 255, 0.1);
                 border: 1px solid rgba(0, 100, 255, 0.4);
                 border-radius: 6px;
-                padding: 10px;
+                padding: 8px;
             ">
                 <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-bottom: 4px;">TURNO</div>
                 <div id="panel-turno-actual" style="
-                    font-size: 14px;
+                    font-size: 12px;
                     font-weight: bold;
                     color: #00aaff;
                     font-family: 'Courier New', monospace;
@@ -452,7 +452,7 @@ class InicializadorJuegoV2 {
 
                 <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 8px; margin-bottom: 4px;">TIEMPO RESTANTE</div>
                 <div id="panel-tiempo-restante" style="
-                    font-size: 24px;
+                    font-size: 20px;
                     font-weight: bold;
                     color: #00ff00;
                     font-family: 'Courier New', monospace;
