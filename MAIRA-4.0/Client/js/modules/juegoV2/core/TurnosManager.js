@@ -169,6 +169,9 @@ class TurnosManager {
         // Callback
         this.callbacks.onTurnoInicio(numeroTurno);
 
+        // Evento para panelInferiorUnificado
+        this.dispatchCambioTurno();
+
         console.log(`✅ Turno ${numeroTurno} iniciado - Duración: ${this.duracionTurnoSegundos}s`);
     }
 
@@ -317,6 +320,21 @@ class TurnosManager {
      */
     estaPausado() {
         return this.pausado;
+    }
+
+    /**
+     * Dispara evento de cambio de turno para integración con panelInferiorUnificado
+     */
+    dispatchCambioTurno() {
+        const evento = new CustomEvent('cambioTurno', {
+            detail: {
+                turno: this.turnoActual,
+                tiempoRestante: this.tiempoRestante,
+                jugadorActual: null // TODO: Obtener de configuración de partida
+            }
+        });
+        document.dispatchEvent(evento);
+        console.log(`📡 Evento 'cambioTurno' disparado:`, evento.detail);
     }
 
     /**

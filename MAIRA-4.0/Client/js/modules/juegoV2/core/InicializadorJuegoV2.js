@@ -72,6 +72,9 @@ class InicializadorJuegoV2 {
             // 8.6. Inicializar TurnosManager (gestión de turnos y reloj)
             await this.inicializarTurnosManager();
 
+            // 8.7. Conectar panelInferiorUnificado con gestores V2
+            await this.conectarPanelInferiorUnificado();
+
             // 9. Configurar interfaz distintiva V2
             this.configurarInterfazV2();
 
@@ -509,6 +512,45 @@ class InicializadorJuegoV2 {
         } catch (error) {
             console.error('❌ Error inicializando TurnosManager:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Conecta panelInferiorUnificado con FaseManager y TurnosManager V2
+     */
+    async conectarPanelInferiorUnificado() {
+        console.log('🔗 Conectando panelInferiorUnificado con gestores V2...');
+
+        try {
+            // Esperar a que panelInferiorUnificado esté disponible
+            if (!window.panelInferiorUnificado) {
+                console.warn('⚠️ panelInferiorUnificado no disponible - se inicializará automáticamente');
+                return;
+            }
+
+            // Conectar FaseManager con el panel
+            if (this.faseManager) {
+                window.gestorFases = this.faseManager; // Exponer para compatibilidad con panelInferiorUnificado
+                console.log('✅ FaseManager conectado con panel');
+            }
+
+            // Conectar TurnosManager con el panel
+            if (this.turnosManager) {
+                window.gestorTurnos = this.turnosManager; // Exponer para compatibilidad con panelInferiorUnificado
+                console.log('✅ TurnosManager conectado con panel');
+            }
+
+            // Forzar actualización inicial del panel
+            if (window.panelInferiorUnificado.forzarActualizacionCompleta) {
+                window.panelInferiorUnificado.forzarActualizacionCompleta();
+                console.log('✅ Panel actualizado con estado inicial');
+            }
+
+            console.log('✅ panelInferiorUnificado conectado con gestores V2');
+
+        } catch (error) {
+            console.error('❌ Error conectando panelInferiorUnificado:', error);
+            // No lanzar error - el panel puede inicializarse después
         }
     }
 
