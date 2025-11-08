@@ -25,10 +25,21 @@ class FaseManager {
 
         // Datos de la partida
         this.sector = null; // Polígono del sector
+        this.sectorLayer = null; // ✅ Layer de Leaflet del sector
+        this.sectorConfirmado = false; // ✅ Flag para saber si se confirmó
         this.zonaAzul = null; // Polígono zona azul
+        this.zonaAzulLayer = null; // ✅ Layer de Leaflet zona azul
+        this.zonaAzulConfirmada = false; // ✅ Flag para saber si se confirmó
         this.zonaRoja = null; // Polígono zona roja
+        this.zonaRojaLayer = null; // ✅ Layer de Leaflet zona roja
+        this.zonaRojaConfirmada = false; // ✅ Flag para saber si se confirmó
         this.jugadores = opciones.jugadores || [];
         this.director = opciones.director || null;
+
+        // ✅ Control de turnos de despliegue
+        this.modoJuego = opciones.configuracion?.modoJuego || 'local'; // 'local' o 'online'
+        this.turnoDespliegueActual = 0; // Índice del jugador actual en modo LOCAL
+        this.jugadoresListos = new Set(); // Set de jugadores que confirmaron despliegue
 
         // Callbacks para eventos
         this.callbacks = {
@@ -317,6 +328,9 @@ class FaseManager {
             mensaje: `Sector de ${areaKm2.toFixed(2)} km² establecido.<br>Haz click en "Confirmar Sector" para continuar.`
         });
 
+        // ✅ Disparar evento para actualizar UI
+        this.dispatchCambioEstado();
+
         return true;
     }
 
@@ -333,6 +347,9 @@ class FaseManager {
             return false;
         }
 
+        // ✅ Marcar como confirmado
+        this.sectorConfirmado = true;
+
         console.log('✅ Sector confirmado - Puedes delimitar zonas');
 
         this.mostrarNotificacion({
@@ -340,6 +357,9 @@ class FaseManager {
             titulo: 'Sector confirmado',
             mensaje: 'Ahora delimita las zonas azul y roja DENTRO del sector.'
         });
+
+        // ✅ Disparar evento para actualizar UI
+        this.dispatchCambioEstado();
 
         return true;
     }
@@ -403,7 +423,7 @@ class FaseManager {
     definirZonaAzul(layer) {
         console.log('🔵 Definiendo zona azul...');
 
-        if (!this.sector) {
+        if (!this.sector || !this.sectorLayer) {
             this.mostrarNotificacion({
                 tipo: 'error',
                 titulo: 'Error',
@@ -412,7 +432,31 @@ class FaseManager {
             return false;
         }
 
+        // ✅ Validar que la zona azul esté completamente dentro del sector
+        if (typeof ValidacionesGeometricas !== 'undefined') {
+            const validacion = ValidacionesGeometricas.validarZonaEnSector(
+                layer,
+                this.sectorLayer,
+                'Zona Azul'
+            );
+
+            if (!validacion.valido) {
+                console.error('❌ Zona azul fuera del sector:', validacion.mensaje);
+                this.mostrarNotificacion({
+                    tipo: 'error',
+                    titulo: 'Zona azul inválida',
+                    mensaje: validacion.mensaje
+                });
+                // Remover el layer del mapa
+                this.map.removeLayer(layer);
+                return false;
+            }
+
+            console.log('✅ Validación zona azul:', validacion.mensaje);
+        }
+
         this.zonaAzul = layer.toGeoJSON();
+        this.zonaAzulLayer = layer; // ✅ Guardar referencia al layer
         layer.setStyle({ color: '#0066ff', fillColor: '#0066ff', fillOpacity: 0.2, weight: 2 });
 
         console.log('✅ Zona azul definida - Esperando confirmación');
@@ -422,6 +466,9 @@ class FaseManager {
             titulo: 'Zona azul definida',
             mensaje: 'Haz click en "Confirmar Zona Azul" para continuar.'
         });
+
+        // ✅ Disparar evento para actualizar UI
+        this.dispatchCambioEstado();
 
         return true;
     }
@@ -439,13 +486,19 @@ class FaseManager {
             return false;
         }
 
+        // ✅ Marcar como confirmada
+        this.zonaAzulConfirmada = true;
+
         console.log('✅ Zona azul confirmada');
 
         this.mostrarNotificacion({
             tipo: 'success',
             titulo: 'Zona azul confirmada',
-            mensaje: 'Zona azul lista.'
+            mensaje: 'Zona azul lista. Ahora delimita la zona roja.'
         });
+
+        // ✅ Disparar evento para actualizar UI
+        this.dispatchCambioEstado();
 
         return true;
     }
@@ -456,7 +509,7 @@ class FaseManager {
     definirZonaRoja(layer) {
         console.log('🔴 Definiendo zona roja...');
 
-        if (!this.sector) {
+        if (!this.sector || !this.sectorLayer) {
             this.mostrarNotificacion({
                 tipo: 'error',
                 titulo: 'Error',
@@ -465,7 +518,54 @@ class FaseManager {
             return false;
         }
 
+        // ✅ Validar que la zona roja esté completamente dentro del sector
+        if (typeof ValidacionesGeometricas !== 'undefined') {
+            const validacionSector = ValidacionesGeometricas.validarZonaEnSector(
+                layer,
+                this.sectorLayer,
+                'Zona Roja'
+            );
+
+            if (!validacionSector.valido) {
+                console.error('❌ Zona roja fuera del sector:', validacionSector.mensaje);
+                this.mostrarNotificacion({
+                    tipo: 'error',
+                    titulo: 'Zona roja inválida',
+                    mensaje: validacionSector.mensaje
+                });
+                // Remover el layer del mapa
+                this.map.removeLayer(layer);
+                return false;
+            }
+
+            console.log('✅ Validación zona roja (sector):', validacionSector.mensaje);
+
+            // ✅ Validar que no se superponga con la zona azul
+            if (this.zonaAzulLayer) {
+                const validacionSuperposicion = ValidacionesGeometricas.validarZonasNoSuperpuestas(
+                    this.zonaAzulLayer,
+                    layer,
+                    100 // Distancia mínima 100 metros
+                );
+
+                if (!validacionSuperposicion.valido) {
+                    console.error('❌ Zonas superpuestas:', validacionSuperposicion.mensaje);
+                    this.mostrarNotificacion({
+                        tipo: 'error',
+                        titulo: 'Zonas superpuestas',
+                        mensaje: validacionSuperposicion.mensaje
+                    });
+                    // Remover el layer del mapa
+                    this.map.removeLayer(layer);
+                    return false;
+                }
+
+                console.log('✅ Validación zona roja (superposición):', validacionSuperposicion.mensaje);
+            }
+        }
+
         this.zonaRoja = layer.toGeoJSON();
+        this.zonaRojaLayer = layer; // ✅ Guardar referencia al layer
         layer.setStyle({ color: '#ff0000', fillColor: '#ff0000', fillOpacity: 0.2, weight: 2 });
 
         console.log('✅ Zona roja definida - Esperando confirmación');
@@ -475,6 +575,9 @@ class FaseManager {
             titulo: 'Zona roja definida',
             mensaje: 'Haz click en "Confirmar Zona Roja" para continuar.'
         });
+
+        // ✅ Disparar evento para actualizar UI
+        this.dispatchCambioEstado();
 
         return true;
     }
@@ -492,13 +595,19 @@ class FaseManager {
             return false;
         }
 
+        // ✅ Marcar como confirmada
+        this.zonaRojaConfirmada = true;
+
         console.log('✅ Zona roja confirmada');
 
         this.mostrarNotificacion({
             tipo: 'success',
             titulo: 'Zona roja confirmada',
-            mensaje: 'Zona roja lista.'
+            mensaje: 'Ambas zonas listas. Puedes iniciar el despliegue.'
         });
+
+        // ✅ Disparar evento para actualizar UI
+        this.dispatchCambioEstado();
 
         return true;
     }
@@ -564,27 +673,45 @@ class FaseManager {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         this.faseActual = 'despliegue';
+        this.turnoDespliegueActual = 0; // Resetear turnos
+        this.jugadoresListos.clear(); // Limpiar jugadores listos
         this.actualizarIndicadorFase();
 
-        this.mostrarNotificacion({
-            tipo: 'info',
-            titulo: 'Fase de Despliegue (SIN LÍMITE DE TIEMPO)',
-            mensaje: `
-                <strong>Jugadores:</strong><br>
-                Coloca y edita tus unidades en tu zona asignada.<br>
-                <br>
-                <strong>Validación requerida:</strong><br>
-                - Magnitud<br>
-                - Designación<br>
-                - Asignación<br>
-                <br>
-                Cuando termines, haz click en "Listo para Combate".
-            `,
-            duracion: 10000
-        });
-
-        // TODO: Implementar sistema de turnos de despliegue
-        // Por ahora, modo libre
+        // ✅ Mensaje diferente según modo
+        if (this.modoJuego === 'local') {
+            const primerJugador = this.jugadores[0];
+            this.mostrarNotificacion({
+                tipo: 'info',
+                titulo: 'Fase de Despliegue - MODO LOCAL',
+                mensaje: `
+                    <strong>Turno de: ${primerJugador.nombre} (${primerJugador.equipo.toUpperCase()})</strong><br>
+                    <br>
+                    Coloca y edita tus unidades en tu zona asignada.<br>
+                    <br>
+                    <strong>Validación requerida:</strong><br>
+                    - Magnitud, Designación, Asignación<br>
+                    <br>
+                    Cuando termines, haz click en "Jugador Listo".
+                `,
+                duracion: 8000
+            });
+        } else {
+            this.mostrarNotificacion({
+                tipo: 'info',
+                titulo: 'Fase de Despliegue - MODO ONLINE',
+                mensaje: `
+                    <strong>Despliega tus unidades</strong><br>
+                    <br>
+                    Coloca y edita tus unidades en tu zona asignada.<br>
+                    <br>
+                    <strong>Validación requerida:</strong><br>
+                    - Magnitud, Designación, Asignación<br>
+                    <br>
+                    Cuando termines, haz click en "Listo para Combate".
+                `,
+                duracion: 8000
+            });
+        }
 
         // Callback
         this.callbacks.onFaseChange('despliegue', null);
@@ -593,6 +720,87 @@ class FaseManager {
         this.dispatchCambioFase();
 
         console.log('✅ Fase DESPLIEGUE iniciada');
+        console.log(`📋 Modo: ${this.modoJuego.toUpperCase()}`);
+        if (this.modoJuego === 'local') {
+            console.log(`👤 Turno actual: ${this.jugadores[this.turnoDespliegueActual]?.nombre}`);
+        }
+    }
+
+    /**
+     * ✅ Obtiene el jugador que debe desplegar actualmente (LOCAL)
+     */
+    obtenerJugadorActual() {
+        if (this.modoJuego !== 'local' || this.faseActual !== 'despliegue') {
+            return null;
+        }
+        return this.jugadores[this.turnoDespliegueActual] || null;
+    }
+
+    /**
+     * ✅ Jugador confirma que terminó de desplegar
+     */
+    jugadorListo() {
+        if (this.faseActual !== 'despliegue') {
+            console.warn('⚠️ jugadorListo() solo disponible en fase DESPLIEGUE');
+            return false;
+        }
+
+        const jugadorActual = this.obtenerJugadorActual();
+
+        if (this.modoJuego === 'local') {
+            // LOCAL: Avanzar al siguiente jugador
+            if (!jugadorActual) {
+                console.error('❌ No hay jugador actual');
+                return false;
+            }
+
+            console.log(`✅ Jugador ${jugadorActual.nombre} confirmó despliegue`);
+            this.jugadoresListos.add(jugadorActual.nombre);
+
+            // Verificar si hay más jugadores
+            if (this.turnoDespliegueActual < this.jugadores.length - 1) {
+                // Hay más jugadores, pasar al siguiente
+                this.turnoDespliegueActual++;
+                const siguienteJugador = this.jugadores[this.turnoDespliegueActual];
+
+                this.mostrarNotificacion({
+                    tipo: 'success',
+                    titulo: `${jugadorActual.nombre} listo`,
+                    mensaje: `Ahora es el turno de <strong>${siguienteJugador.nombre} (${siguienteJugador.equipo.toUpperCase()})</strong>`,
+                    duracion: 5000
+                });
+
+                // Disparar evento para actualizar UI
+                this.dispatchCambioEstado();
+
+                return true;
+            } else {
+                // Todos los jugadores terminaron
+                console.log('✅ Todos los jugadores terminaron el despliegue');
+                this.finalizarDespliegue();
+                return true;
+            }
+        } else {
+            // ONLINE: Marcar jugador como listo y verificar si todos están listos
+            const jugadorId = window.userId || 'jugador1'; // TODO: Obtener ID real
+            this.jugadoresListos.add(jugadorId);
+
+            console.log(`✅ Jugador ${jugadorId} listo (${this.jugadoresListos.size}/${this.jugadores.length})`);
+
+            if (this.jugadoresListos.size >= this.jugadores.length) {
+                // Todos listos
+                this.finalizarDespliegue();
+            } else {
+                this.mostrarNotificacion({
+                    tipo: 'info',
+                    titulo: 'Esperando otros jugadores',
+                    mensaje: `Listos: ${this.jugadoresListos.size}/${this.jugadores.length}`,
+                    duracion: 3000
+                });
+            }
+
+            return true;
+        }
     }
 
     /**
@@ -913,6 +1121,31 @@ class FaseManager {
         });
         document.dispatchEvent(evento);
         console.log(`📡 Evento 'cambioFase' disparado:`, evento.detail);
+    }
+
+    /**
+     * Dispara evento de cambio de estado (sector/zonas definidas/confirmadas)
+     */
+    dispatchCambioEstado() {
+        const evento = new CustomEvent('cambioEstadoPreparacion', {
+            detail: {
+                fase: this.faseActual,
+                sector: this.sector !== null,
+                sectorConfirmado: this.sectorConfirmado,
+                zonaAzul: this.zonaAzul !== null,
+                zonaAzulConfirmada: this.zonaAzulConfirmada,
+                zonaRoja: this.zonaRoja !== null,
+                zonaRojaConfirmada: this.zonaRojaConfirmada,
+                // ✅ Info de turnos de despliegue
+                modoJuego: this.modoJuego,
+                turnoDespliegueActual: this.turnoDespliegueActual,
+                jugadorActual: this.obtenerJugadorActual(),
+                jugadoresListos: this.jugadoresListos.size,
+                totalJugadores: this.jugadores.length
+            }
+        });
+        document.dispatchEvent(evento);
+        console.log(`📡 Evento 'cambioEstadoPreparacion' disparado:`, evento.detail);
     }
 }
 
