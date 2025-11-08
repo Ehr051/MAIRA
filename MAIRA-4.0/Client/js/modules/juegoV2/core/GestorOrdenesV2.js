@@ -207,8 +207,12 @@ class GestorOrdenesV2 {
             this.iniciarOrdenDefensa({ elemento: elemento || window.elementoSeleccionado });
         };
 
-        window.ordenEsperar = (elemento) => {
-            this.iniciarOrdenEsperar({ elemento: elemento || window.elementoSeleccionado });
+        window.ordenEspera = (elemento) => {
+            this.iniciarOrdenEspera({ elemento: elemento || window.elementoSeleccionado });
+        };
+
+        window.ordenReconocimiento = (elemento) => {
+            this.iniciarOrdenReconocimiento({ elemento: elemento || window.elementoSeleccionado });
         };
 
         window.verOrdenesUnidad = (elemento) => {
@@ -372,7 +376,7 @@ class GestorOrdenesV2 {
     /**
      * Inicia orden de espera
      */
-    iniciarOrdenEsperar(contexto) {
+    iniciarOrdenEspera(contexto) {
         this.log('⏱️ Iniciando orden de espera...');
 
         const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
@@ -381,10 +385,32 @@ class GestorOrdenesV2 {
             return;
         }
 
-        // Mostrar diálogo para especificar duración
-        this.mostrarDialogoDuracion((minutos) => {
-            this.crearOrdenEspera(unidad, minutos);
+        // Mostrar diálogo para especificar duración y modalidad
+        this.mostrarDialogoEspera((opciones) => {
+            this.crearOrdenEspera(unidad, opciones);
         });
+    }
+
+    /**
+     * Inicia orden de reconocimiento
+     */
+    iniciarOrdenReconocimiento(contexto) {
+        this.log('🔍 Iniciando orden de reconocimiento...');
+
+        const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
+        if (!unidad) {
+            this.mostrarNotificacion('⚠️ Selecciona una unidad primero', 'warning');
+            return;
+        }
+
+        this.mostrarNotificacion('🗺️ Haz click en el área objetivo para reconocimiento', 'info');
+        this.modoOrden = 'reconocimiento';
+        this.unidadSeleccionada = unidad;
+
+        // Cambiar cursor
+        if (this.map) {
+            this.map.getContainer().style.cursor = 'crosshair';
+        }
     }
 
     /**
@@ -397,6 +423,8 @@ class GestorOrdenesV2 {
             this.crearOrdenMovimiento(this.unidadSeleccionada, latlng);
         } else if (this.modoOrden === 'ataque') {
             this.crearOrdenAtaque(this.unidadSeleccionada, latlng);
+        } else if (this.modoOrden === 'reconocimiento') {
+            this.crearOrdenReconocimiento(this.unidadSeleccionada, latlng);
         }
 
         // Limpiar modo orden
@@ -497,17 +525,117 @@ class GestorOrdenesV2 {
     /**
      * Crea orden de defensa
      */
-    crearOrdenDefensa(unidad) {
-        // TODO: Implementar cuando exista OrdenDefensa.js
-        this.mostrarNotificacion('🚧 Orden de defensa en desarrollo', 'info');
+    crearOrdenDefensa(unidad, opciones = {}) {
+        this.log('🛡️ Creando orden de defensa');
+
+        if (typeof OrdenDefensa === 'undefined') {
+            this.mostrarNotificacion('❌ OrdenDefensa no disponible', 'error');
+            return null;
+        }
+
+        try {
+            // Obtener posición actual de la unidad
+            const posicion = unidad.getLatLng ? unidad.getLatLng() : null;
+
+            if (!posicion) {
+                this.mostrarNotificacion('❌ No se pudo determinar la posición de la unidad', 'error');
+                return null;
+            }
+
+            // Crear instancia de orden
+            const orden = new OrdenDefensa(unidad, posicion, opciones);
+
+            // Validar orden
+            orden.validar().then(esValida => {
+                if (esValida) {
+                    // Agregar a la cola del equipo
+                    const equipo = unidad.options?.equipo || 'azul';
+                    this.agregarOrden(orden, equipo);
+                    this.mostrarNotificacion(`✅ Orden de defensa agregada (${orden.tipoDefensa})`, 'success');
+                } else {
+                    this.mostrarNotificacion(`❌ Orden inválida: ${orden.mensajesValidacion.join(', ')}`, 'error');
+                }
+            });
+
+            return orden;
+
+        } catch (error) {
+            console.error('Error creando orden de defensa:', error);
+            this.mostrarNotificacion('❌ Error al crear orden de defensa', 'error');
+            return null;
+        }
     }
 
     /**
      * Crea orden de espera
      */
-    crearOrdenEspera(unidad, minutos) {
-        // TODO: Implementar cuando exista OrdenEspera.js
-        this.mostrarNotificacion('🚧 Orden de espera en desarrollo', 'info');
+    crearOrdenEspera(unidad, opciones = {}) {
+        this.log('⏱️ Creando orden de espera');
+
+        if (typeof OrdenEspera === 'undefined') {
+            this.mostrarNotificacion('❌ OrdenEspera no disponible', 'error');
+            return null;
+        }
+
+        try {
+            // Crear instancia de orden
+            const orden = new OrdenEspera(unidad, opciones);
+
+            // Validar orden
+            orden.validar().then(esValida => {
+                if (esValida) {
+                    // Agregar a la cola del equipo
+                    const equipo = unidad.options?.equipo || 'azul';
+                    this.agregarOrden(orden, equipo);
+                    this.mostrarNotificacion(`✅ Orden de espera agregada (${orden.modalidad}, ${orden.duracion}s)`, 'success');
+                } else {
+                    this.mostrarNotificacion(`❌ Orden inválida: ${orden.mensajesValidacion.join(', ')}`, 'error');
+                }
+            });
+
+            return orden;
+
+        } catch (error) {
+            console.error('Error creando orden de espera:', error);
+            this.mostrarNotificacion('❌ Error al crear orden de espera', 'error');
+            return null;
+        }
+    }
+
+    /**
+     * Crea orden de reconocimiento
+     */
+    crearOrdenReconocimiento(unidad, objetivo, opciones = {}) {
+        this.log('🔍 Creando orden de reconocimiento');
+
+        if (typeof OrdenReconocimiento === 'undefined') {
+            this.mostrarNotificacion('❌ OrdenReconocimiento no disponible', 'error');
+            return null;
+        }
+
+        try {
+            // Crear instancia de orden
+            const orden = new OrdenReconocimiento(unidad, objetivo, opciones);
+
+            // Validar orden
+            orden.validar().then(esValida => {
+                if (esValida) {
+                    // Agregar a la cola del equipo
+                    const equipo = unidad.options?.equipo || 'azul';
+                    this.agregarOrden(orden, equipo);
+                    this.mostrarNotificacion(`✅ Orden de reconocimiento agregada (${orden.tipoReconocimiento})`, 'success');
+                } else {
+                    this.mostrarNotificacion(`❌ Orden inválida: ${orden.mensajesValidacion.join(', ')}`, 'error');
+                }
+            });
+
+            return orden;
+
+        } catch (error) {
+            console.error('Error creando orden de reconocimiento:', error);
+            this.mostrarNotificacion('❌ Error al crear orden de reconocimiento', 'error');
+            return null;
+        }
     }
 
     // =====================================================

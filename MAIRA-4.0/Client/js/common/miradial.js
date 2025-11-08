@@ -424,6 +424,18 @@
                 }
             }
 
+            // ✅ JUEGO DE GUERRA V2: Filtrar opciones según fase
+            // Solo permitir "Agregar" en fase DESPLIEGUE o COMBATE
+            if (window.faseManager) {
+                const faseActual = window.faseManager.faseActual;
+
+                // Si estamos pidiendo menú de mapa y NO estamos en despliegue/combate
+                if (tipo === 'map' && faseActual === 'preparacion') {
+                    // Devolver menú vacío o solo opciones permitidas (sin "Agregar")
+                    return [];
+                }
+            }
+
             // Resto de la función para el modo juego de guerra...
             if (tipo === 'terreno') {
                 const hexId = this.selectedHex ? 
@@ -441,14 +453,30 @@
                     { title: 'Cerrar', action: 'close', icon: 'fas fa-times', tooltip: 'Cerrar menú' }
                 ];
             }
-            
-            if (this.faseJuego === 'preparacion') {
+
+            // ✅ JUEGO DE GUERRA V2: Verificar fase actual
+            if (this.faseJuego === 'preparacion' || this.faseJuego === 'despliegue') {
+                // En preparación y despliegue: opciones de edición
                 return MENU_ITEMS.preparacion;
-            } else if (window.elementoSeleccionado) {
-                // Determinar tipo de unidad y retornar menú correspondiente
-                return this.getCombatMenuItems(window.elementoSeleccionado);
+            } else if (this.faseJuego === 'combate' && window.elementoSeleccionado) {
+                // En combate: opciones de órdenes (mover, atacar, etc.)
+                console.log('📋 Menú combate para elemento:', window.elementoSeleccionado);
+
+                // Si hay gestorOrdenesV2, usar sus opciones
+                if (window.gestorOrdenesV2 && window.gestorOrdenesV2.obtenerOpcionesMenu) {
+                    return window.gestorOrdenesV2.obtenerOpcionesMenu(window.elementoSeleccionado);
+                }
+
+                // Fallback: opciones básicas de combate
+                return [
+                    { title: 'Mover', action: 'ordenMovimiento', icon: 'fas fa-arrows-alt', tooltip: 'Dar orden de movimiento' },
+                    { title: 'Atacar', action: 'ordenAtaque', icon: 'fas fa-crosshairs', tooltip: 'Dar orden de ataque' },
+                    { title: 'Defender', action: 'ordenDefensa', icon: 'fas fa-shield-alt', tooltip: 'Dar orden de defensa' },
+                    { title: 'Reconocer', action: 'ordenReconocimiento', icon: 'fas fa-binoculars', tooltip: 'Orden de reconocimiento' },
+                    { title: 'Esperar', action: 'ordenEspera', icon: 'fas fa-pause', tooltip: 'Esperar este turno' }
+                ];
             }
-            
+
             return [];
         },
 
@@ -630,6 +658,53 @@ handleMenuClick: function(action, submenu) {
                 case 'back':
                     this.showPreviousMenu();
                     return; // No ocultar el menú
+
+                // ✅ JUEGO DE GUERRA V2: Órdenes de combate
+                case 'ordenMovimiento':
+                    console.log('📋 Orden de Movimiento seleccionada');
+                    if (typeof window.ordenMovimiento === 'function') {
+                        window.ordenMovimiento();
+                    } else {
+                        console.error('❌ window.ordenMovimiento no está disponible');
+                    }
+                    break;
+
+                case 'ordenAtaque':
+                    console.log('📋 Orden de Ataque seleccionada');
+                    if (typeof window.ordenAtaque === 'function') {
+                        window.ordenAtaque();
+                    } else {
+                        console.error('❌ window.ordenAtaque no está disponible');
+                    }
+                    break;
+
+                case 'ordenDefensa':
+                    console.log('📋 Orden de Defensa seleccionada');
+                    if (typeof window.ordenDefensa === 'function') {
+                        window.ordenDefensa();
+                    } else {
+                        console.error('❌ window.ordenDefensa no está disponible');
+                    }
+                    break;
+
+                case 'ordenReconocimiento':
+                    console.log('📋 Orden de Reconocimiento seleccionada');
+                    if (typeof window.ordenReconocimiento === 'function') {
+                        window.ordenReconocimiento();
+                    } else {
+                        console.error('❌ window.ordenReconocimiento no está disponible');
+                    }
+                    break;
+
+                case 'ordenEspera':
+                    console.log('📋 Orden de Espera seleccionada');
+                    if (typeof window.ordenEspera === 'function') {
+                        window.ordenEspera();
+                    } else {
+                        console.warn('⚠️ window.ordenEspera no está disponible aún');
+                    }
+                    break;
+
                 default:
                     if (this.faseJuego === 'combate' && window.acciones) {
                         window.acciones.ejecutarAccion(action, window.elementoSeleccionado);
