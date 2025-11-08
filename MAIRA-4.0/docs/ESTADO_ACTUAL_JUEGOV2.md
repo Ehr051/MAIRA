@@ -1,31 +1,30 @@
 # 🎮 ESTADO ACTUAL - JUEGO DE GUERRA V2
 
-**Fecha última actualización:** 7 de Noviembre 2025
+**Fecha última actualización:** 8 de Noviembre 2025
 **Branch:** `feature/juego-guerra-v2`
-**Progreso General:** ~45% completado
+**Progreso General:** ~55% completado
 
 ---
 
 ## 📊 RESUMEN EJECUTIVO
 
-### Fase Actual: FASE 6 - Ejecución de Turnos
+### Fase Actual: FASE 6 - Ejecución de Turnos (→ FASE 7)
 
 ```
-COMPLETADO (45%):
+COMPLETADO (55%):
 ✅ FASE 1: Fundaciones (Sistema base, arquitectura)
 ✅ FASE 2: Integración con Iniciar Partida
-✅ FASE 3: Fases y Territorio (parcial - bloqueado por Geoman→Leaflet.Draw)
-✅ FASE 4: Despliegue (parcial - falta validaciones)
-✅ FASE 5: Sistema de Órdenes ← Completado
+✅ FASE 3: Fases y Territorio ← Leaflet.Draw migrado ✅
+✅ FASE 4: Despliegue ← Validaciones completadas ✅
+✅ FASE 5: Sistema de Órdenes Core (Movimiento, Ataque)
 ✅ FASE 6: Ejecución de Turnos (básico)
 
-EN PROGRESO (25%):
-⏳ Validaciones de zona/sector
-⏳ Sistema de turnos LOCAL
-⏳ Modo online (endpoints servidor)
+EN PROGRESO (15%):
+⏳ FASE 7: Órdenes adicionales (Defensa, Reconocimiento, Espera)
+⏳ Modo online (endpoints servidor pendientes)
 
 PENDIENTE (30%):
-❌ FASE 7: Combate Básico (resolver daño, bajas, moral)
+❌ FASE 7: Combate Básico completo (resolver daño, bajas, moral)
 ❌ FASE 8: Visibilidad (FOW, LOS con terreno)
 ❌ FASE 9: Vista 3D Táctica
 ❌ FASE 10: Pulido y Testing
@@ -35,24 +34,29 @@ PENDIENTE (30%):
 
 ## 🔥 BLOQUEOS CRÍTICOS
 
-### 1. FaseManager.js usa Geoman (juegodeguerraV2.html tiene Leaflet.Draw)
-**Impacto:** 🚨 CRÍTICO - Impide delimitar sector
-**Bloquea:** Inicio completo de partida (Fase Preparación)
-**Solución:** Migrar FaseManager.js de `map.pm.*` a `L.Draw.*`
-**Tiempo estimado:** 2-3 horas
-**Archivos:** `/Client/js/modules/juegoV2/core/FaseManager.js` (líneas 189-205, 282-307)
+### 1. ~~FaseManager.js usa Geoman~~ ✅ RESUELTO (8 Nov 2025)
+~~**Impacto:** 🚨 CRÍTICO - Impide delimitar sector~~
+**Estado:** ✅ **COMPLETADO** - FaseManager.js YA usa Leaflet.Draw
+**Archivos:** `/Client/js/modules/juegoV2/core/FaseManager.js` (líneas 85-159)
+- ✅ `inicializarHerramientasDibujo()` usa `L.Draw.Polygon`
+- ✅ Eventos `L.Draw.Event.CREATED` configurados
+- ✅ Validaciones geométricas implementadas
 
 ### 2. Endpoints servidor no verificados
 **Impacto:** 🔶 ALTO - Modo online puede no funcionar
 **Bloquea:** Sincronización online
 **Solución:** Verificar/crear endpoints en serverhttps.py y app.py
 **Tiempo estimado:** 3-4 horas
+**Próximo:** Usuario pasará serverhttps.py viejo para comparar
 
-### 3. Validaciones de zona/sector faltantes
-**Impacto:** 🔶 ALTO - Jugadores pueden hacer trampas
-**Bloquea:** Juego justo
-**Solución:** Implementar validaciones (ver sección Validaciones Pendientes)
-**Tiempo estimado:** 4-5 horas
+### 3. ~~Validaciones de zona/sector faltantes~~ ✅ RESUELTO (8 Nov 2025)
+~~**Impacto:** 🔶 ALTO - Jugadores pueden hacer trampas~~
+**Estado:** ✅ **COMPLETADO** - Sistema de validaciones implementado
+**Archivos:** `/Client/js/modules/juegoV2/utils/ValidacionesGeometricas.js`
+- ✅ Zonas dentro de sector (Ray Casting)
+- ✅ Elementos dentro de zona correcta (SIDC)
+- ✅ Órdenes dentro de sector
+- ✅ Separación mínima entre zonas (100m)
 
 ---
 
