@@ -69,6 +69,23 @@ class OrdenMovimiento extends OrdenBase {
             return;
         }
 
+        // ✅ VALIDACIÓN: Verificar que el destino esté dentro del sector
+        if (window.faseManager && window.faseManager.sectorLayer && typeof ValidacionesGeometricas !== 'undefined') {
+            // Obtener coordenadas del destino
+            const hexKey = `${this.hexDestino.q},${this.hexDestino.r},${this.hexDestino.s}`;
+            const hexData = window.HexGrid.grid.get(hexKey);
+
+            if (hexData && hexData.center) {
+                const destinoLatLng = L.latLng(hexData.center);
+
+                if (!ValidacionesGeometricas.puntoEnPoligono(destinoLatLng, window.faseManager.sectorLayer)) {
+                    this.actualizarEstado('invalida', 'El destino está fuera del sector de operaciones');
+                    this.log('❌ Destino fuera del sector');
+                    return;
+                }
+            }
+        }
+
         // Dibujar visualización inicial
         if (this.opciones.mostrarRuta) {
             this.dibujarEnMapa();
@@ -188,6 +205,28 @@ class OrdenMovimiento extends OrdenBase {
                 this.actualizarEstado('invalida', 'Sin movimiento');
                 return false;
             }
+        }
+
+        // ✅ VALIDACIÓN: Verificar que toda la ruta esté dentro del sector
+        if (window.faseManager && window.faseManager.sectorLayer && typeof ValidacionesGeometricas !== 'undefined') {
+            for (let i = 0; i < this.ruta.length; i++) {
+                const hex = this.ruta[i];
+                const hexKey = `${hex.q},${hex.r},${hex.s}`;
+                const hexData = window.HexGrid.grid.get(hexKey);
+
+                if (hexData && hexData.center) {
+                    const puntoLatLng = L.latLng(hexData.center);
+
+                    if (!ValidacionesGeometricas.puntoEnPoligono(puntoLatLng, window.faseManager.sectorLayer)) {
+                        this.mensajesValidacion.push(`Hexágono ${i + 1}/${this.ruta.length} está fuera del sector`);
+                        this.esValida = false;
+                        this.actualizarEstado('invalida', 'Ruta sale del sector de operaciones');
+                        this.log(`❌ Ruta sale del sector en hexágono ${i + 1}`);
+                        return false;
+                    }
+                }
+            }
+            this.log('✅ Ruta completamente dentro del sector');
         }
 
         // TODO: Verificar zona de control enemiga
