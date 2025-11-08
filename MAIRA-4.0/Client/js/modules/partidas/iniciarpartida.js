@@ -392,12 +392,33 @@ function actualizarSalaDeEspera(partida) {
 
 
 function iniciarJuego(data) {
-    console.log('Iniciando juego con los datos de la partida:', data);
-    if (partidaActual) {
-        window.location.href = `juegodeguerraV2.html?codigo=${partidaActual.codigo}`; // ✅ V2
-    } else {
+    console.log('🎮 Iniciando juego con los datos de la partida:', data);
+
+    if (!partidaActual) {
         mostrarError('Error al iniciar el juego, no se encuentra la partida.');
+        return;
     }
+
+    // ✅ Guardar configuración completa en localStorage para juegodeguerraV2.html
+    const configuracionPartida = {
+        id: partidaActual.id || partidaActual.codigo,
+        codigo: partidaActual.codigo,
+        nombrePartida: partidaActual.nombrePartida || partidaActual.configuracion?.nombrePartida,
+        duracionPartida: partidaActual.duracionPartida || partidaActual.configuracion?.duracionPartida,
+        duracionTurno: partidaActual.duracionTurno || partidaActual.configuracion?.duracionTurno,
+        objetivoPartida: partidaActual.objetivoPartida || partidaActual.configuracion?.objetivoPartida,
+        jugadores: partidaActual.jugadores || [],
+        modo: 'online',
+        creadorId: partidaActual.creadorId,
+        socket: true // Indicar que usa socket
+    };
+
+    console.log('💾 Guardando configuración en localStorage:', configuracionPartida);
+    localStorage.setItem('configuracionPartidaOnline', JSON.stringify(configuracionPartida));
+
+    // Redirigir a juegodeguerraV2.html
+    console.log(`🚀 Redirigiendo a juegodeguerraV2.html?codigo=${partidaActual.codigo}`);
+    window.location.href = `juegodeguerraV2.html?codigo=${partidaActual.codigo}`; // ✅ V2
 }
 
 

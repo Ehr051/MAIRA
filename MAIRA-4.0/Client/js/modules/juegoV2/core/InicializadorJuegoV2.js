@@ -149,15 +149,23 @@ class InicializadorJuegoV2 {
      */
     obtenerConfiguracion() {
         try {
-            // ✅ PRIORIDAD 1: Configuración desde iniciarpartida.js
+            // ✅ PRIORIDAD 1: Configuración LOCAL desde iniciarpartida.js
             const configLocal = localStorage.getItem('configuracionPartidaLocal');
             if (configLocal) {
-                console.log('✅ Configuración encontrada en configuracionPartidaLocal');
+                console.log('✅ Configuración LOCAL encontrada en configuracionPartidaLocal');
                 const config = JSON.parse(configLocal);
                 return this.convertirConfiguracionLocal(config);
             }
 
-            // PRIORIDAD 2: Intentar obtener desde URL
+            // ✅ PRIORIDAD 2: Configuración ONLINE desde iniciarpartida.js
+            const configOnline = localStorage.getItem('configuracionPartidaOnline');
+            if (configOnline) {
+                console.log('✅ Configuración ONLINE encontrada en configuracionPartidaOnline');
+                const config = JSON.parse(configOnline);
+                return this.convertirConfiguracionOnline(config);
+            }
+
+            // PRIORIDAD 3: Intentar obtener desde URL (legacy)
             const urlParams = new URLSearchParams(window.location.search);
             const codigoPartida = urlParams.get('codigo');
 
@@ -169,6 +177,7 @@ class InicializadorJuegoV2 {
                     const datosPartida = parsed.partidaActual || parsed;
 
                     if (datosPartida && datosPartida.codigo === codigoPartida) {
+                        console.log('✅ Configuración encontrada en sessionStorage (legacy)');
                         return this.convertirDatosPartida(datosPartida);
                     }
                 }
@@ -178,6 +187,7 @@ class InicializadorJuegoV2 {
                 if (datosLocal) {
                     const datosPartida = JSON.parse(datosLocal);
                     if (datosPartida && datosPartida.codigo === codigoPartida) {
+                        console.log('✅ Configuración encontrada en localStorage (legacy)');
                         return this.convertirDatosPartida(datosPartida);
                     }
                 }
@@ -272,6 +282,53 @@ class InicializadorJuegoV2 {
         console.log('🗺️  Centro Mapa:', configConvertida.mapaCentro);
         console.log('🔍 Zoom Inicial:', configConvertida.zoomInicial);
         console.log('🎲 Modo Juego:', configConvertida.modoJuego);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+        return configConvertida;
+    }
+
+    /**
+     * ✅ Convierte configuración ONLINE desde iniciarpartida.js
+     */
+    convertirConfiguracionOnline(config) {
+        console.log('🔄 Convirtiendo configuración ONLINE:', config);
+
+        const configConvertida = {
+            modo: 'juego_guerra_v2',
+            nombrePartida: config.nombrePartida || config.nombre || 'Partida Online',
+            codigo: config.codigo || `ONLINE-${Date.now()}`,
+            duracionTurnoMinutos: parseInt(config.duracionTurno) || 60,
+            duracionPartidaMinutos: parseInt(config.duracionPartida) || 120,
+            objetivoPartida: config.objetivoPartida || config.objetivo || 'Objetivo no especificado',
+            mapaCentro: config.centro || config.mapaCentro || [-34.6037, -58.3816],
+            zoomInicial: parseInt(config.zoom) || 13,
+            equipos: config.equipos || ['azul', 'rojo'],
+            jugadores: config.jugadores || [],
+            director: config.director || null,
+            modoJuego: 'online', // ✅ Siempre online
+            creadorId: config.creadorId,
+            socket: config.socket || true,
+            // Configuraciones adicionales específicas de V2
+            configuracionOriginal: config
+        };
+
+        // ✅ LOGS DETALLADOS PARA VERIFICAR CARGA
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📡 CONFIGURACIÓN ONLINE CARGADA:');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🎮 Nombre Partida:', configConvertida.nombrePartida);
+        console.log('🔑 Código Partida:', configConvertida.codigo);
+        console.log('⏱️  Duración Turno:', configConvertida.duracionTurnoMinutos, 'minutos');
+        console.log('⏰ Duración Partida:', configConvertida.duracionPartidaMinutos, 'minutos');
+        console.log('🎯 Objetivo:', configConvertida.objetivoPartida);
+        console.log('👥 Jugadores conectados:', configConvertida.jugadores.length);
+        configConvertida.jugadores.forEach((jugador, index) => {
+            console.log(`   ${index + 1}. ${jugador.nombre || jugador.username} (${jugador.equipo || 'Sin asignar'})`);
+        });
+        console.log('🗺️  Centro Mapa:', configConvertida.mapaCentro);
+        console.log('🔍 Zoom Inicial:', configConvertida.zoomInicial);
+        console.log('🌐 Creador:', configConvertida.creadorId);
+        console.log('🔌 Socket:', configConvertida.socket ? 'Activo' : 'Inactivo');
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         return configConvertida;
