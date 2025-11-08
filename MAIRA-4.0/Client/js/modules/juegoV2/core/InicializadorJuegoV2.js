@@ -1572,12 +1572,22 @@ class InicializadorJuegoV2 {
             const equipoJugador = window.equipoJugador || 'azul'; // TODO: Obtener de sesión
             elementosAMostrar = this.elementos[equipoJugador] || [];
         } else {
-            // LOCAL: Mostrar elementos según turno actual
-            // Por ahora mostrar todos hasta implementar turnos de despliegue
-            elementosAMostrar = [
-                ...this.elementos.azul,
-                ...this.elementos.rojo
-            ];
+            // LOCAL: Mostrar elementos según turno del jugador actual
+            const jugadorActual = this.faseManager?.obtenerJugadorActual();
+
+            if (jugadorActual && jugadorActual.equipo) {
+                // Mostrar solo elementos del equipo del jugador actual
+                elementosAMostrar = this.elementos[jugadorActual.equipo] || [];
+                console.log(`🎮 LOCAL: Mostrando elementos de ${jugadorActual.equipo} (jugador: ${jugadorActual.nombre})`);
+            } else {
+                // Si no hay jugador actual definido (ej: fase preparación completa),
+                // mostrar todos los elementos
+                elementosAMostrar = [
+                    ...this.elementos.azul,
+                    ...this.elementos.rojo
+                ];
+                console.log('🎮 LOCAL: Mostrando todos los elementos (sin jugador activo)');
+            }
         }
 
         if (elementosAMostrar.length === 0) {

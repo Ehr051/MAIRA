@@ -238,6 +238,33 @@ window.agregarMarcador = function(sidc, nombre) {
         });
 
         // 5. Crear marcador con propiedades específicas según modo
+        // Determinar propiedades de juego (V2 o sistema viejo)
+        let propiedadesJuego = {};
+
+        if (window.faseManager && equipoMarcador) {
+            // ✅ V2: Usar equipo del SIDC y jugador actual
+            propiedadesJuego = {
+                equipo: equipoMarcador,
+                jugador: window.faseManager.obtenerJugadorActual()?.nombre || 'jugador1',
+                id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                designacion: '',
+                dependencia: '',
+                magnitud: sidcFormateado.charAt(11) || '-',
+                estado: 'operativo'
+            };
+        } else if (modoJuegoGuerra) {
+            // Sistema viejo: Usar equipoJugador global
+            propiedadesJuego = {
+                equipo: window.equipoJugador,
+                jugador: window.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId,
+                id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                designacion: '',
+                dependencia: '',
+                magnitud: sidcFormateado.charAt(11) || '-',
+                estado: 'operativo'
+            };
+        }
+
         const marcador = L.marker(latlng, {
             icon: L.divIcon({
                 className: equipoMarcador ?
@@ -252,25 +279,7 @@ window.agregarMarcador = function(sidc, nombre) {
                 true,
             sidc: sidcFormateado,
             nombre: nombre || '',
-            ...(modoJuegoGuerra && {
-                jugador: window.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId,
-                equipo: window.equipoJugador,
-                id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                designacion: '',
-                dependencia: '',
-                magnitud: sidcFormateado.charAt(11) || '-',
-                estado: 'operativo'
-            }),
-            // ✅ V2: Agregar equipo basado en SIDC
-            ...(window.faseManager && equipoMarcador && {
-                equipo: equipoMarcador,
-                jugador: window.faseManager.obtenerJugadorActual()?.nombre || 'jugador1',
-                id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                designacion: '',
-                dependencia: '',
-                magnitud: sidcFormateado.charAt(11) || '-',
-                estado: 'operativo'
-            })
+            ...propiedadesJuego
         });
 
         // 6. Configurar eventos según modo
