@@ -122,20 +122,30 @@ function inicializarBotonesAmigoEnemigo() {
 }
 
 window.agregarMarcador = function(sidc, nombre) {
-    // 1. Validación inicial modo y permisos
+    // ✅ JUEGO DE GUERRA V2: Validación de fase con FaseManager
+    if (window.faseManager) {
+        const faseActual = window.faseManager.faseActual;
+
+        if (faseActual !== 'despliegue' && faseActual !== 'combate') {
+            alert('Solo puedes agregar unidades en la fase de DESPLIEGUE');
+            return;
+        }
+    }
+
+    // 1. Validación inicial modo y permisos (sistema viejo)
     const modoJuegoGuerra = window.gestorJuego?.gestorAcciones !== undefined;
     if (modoJuegoGuerra) {
         const fase = window.gestorJuego?.gestorFases?.fase;
         const subfase = window.gestorJuego?.gestorFases?.subfase;
-        
+
         if (fase !== 'preparacion' || subfase !== 'despliegue') {
             window.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-                'Solo puedes agregar unidades en fase de despliegue', 
+                'Solo puedes agregar unidades en fase de despliegue',
                 'error'
             );
             return;
         }
-        
+
         if (!window.gestorJuego.gestorAcciones.validarDespliegueUnidad()) {
             return;
         }
@@ -145,7 +155,50 @@ window.agregarMarcador = function(sidc, nombre) {
     window.map.once('click', function(event) {
         const latlng = event.latlng;
 
-        // 3. Validación zona despliegue
+        // ✅ JUEGO DE GUERRA V2: Validación SIDC y zona
+        if (window.faseManager && typeof ValidacionesGeometricas !== 'undefined') {
+            // Obtener afiliado del SIDC
+            const afiliado = ValidacionesGeometricas.obtenerAfiliadoSIDC(sidc);
+
+            // Determinar equipo según afiliado
+            let equipoSIDC = null;
+            let zonaCorrecta = null;
+
+            if (afiliado === 'F') {
+                // Friend = Azul
+                equipoSIDC = 'azul';
+                zonaCorrecta = window.faseManager.zonaAzulLayer;
+            } else if (afiliado === 'H') {
+                // Hostile = Rojo
+                equipoSIDC = 'rojo';
+                zonaCorrecta = window.faseManager.zonaRojaLayer;
+            } else {
+                alert(`❌ SIDC no válido para despliegue.\n\nDebe ser Friend (S*F*...) para equipo azul o Hostile (S*H*...) para equipo rojo.\n\nActual: ${afiliado === 'N' ? 'Neutral' : 'Unknown'}`);
+                return;
+            }
+
+            // Validar que el SIDC coincida con la zona
+            if (!zonaCorrecta) {
+                alert(`❌ Zona ${equipoSIDC} no definida.\n\nDebe delimitar las zonas antes de desplegar unidades.`);
+                return;
+            }
+
+            // Validar que el elemento esté dentro de la zona correcta
+            const validacion = ValidacionesGeometricas.validarElementoEnZona(
+                latlng,
+                zonaCorrecta,
+                `zona ${equipoSIDC}`
+            );
+
+            if (!validacion.valido) {
+                alert(`❌ ${validacion.mensaje}\n\nUnidades ${equipoSIDC === 'azul' ? 'amigas (S*F*)' : 'enemigas (S*H*)'} deben estar en la zona ${equipoSIDC}.`);
+                return;
+            }
+
+            console.log(`✅ Validación elemento: SIDC ${afiliado} en zona ${equipoSIDC}`);
+        }
+
+        // 3. Validación zona despliegue (sistema viejo)
         if (modoJuegoGuerra) {
             const zonaEquipo = window.gestorJuego?.gestorFases?.zonasDespliegue[window.equipoJugador];
             if (!zonaEquipo?.contains(latlng)) {
@@ -159,10 +212,19 @@ window.agregarMarcador = function(sidc, nombre) {
 
         // 4. Configuración SIDC y símbolo
         let sidcFormateado = sidc.padEnd(15, '-');
-        if (modoJuegoGuerra) {
+        let equipoMarcador = null; // ✅ V2: Equipo determinado por SIDC
+
+        // ✅ JUEGO DE GUERRA V2: Determinar equipo por SIDC
+        if (window.faseManager && typeof ValidacionesGeometricas !== 'undefined') {
+            const afiliado = ValidacionesGeometricas.obtenerAfiliadoSIDC(sidcFormateado);
+            equipoMarcador = afiliado === 'F' ? 'azul' : 'rojo';
+            console.log(`✅ Equipo asignado por SIDC: ${equipoMarcador} (afiliado: ${afiliado})`);
+        } else if (modoJuegoGuerra) {
+            // Sistema viejo: forzar afiliado según equipoJugador
             const sidcArray = sidcFormateado.split('');
             sidcArray[1] = window.equipoJugador === 'azul' ? 'F' : 'H';
             sidcFormateado = sidcArray.join('');
+            equipoMarcador = window.equipoJugador;
         }
 
         // Verificar que milsymbol esté disponible
@@ -171,28 +233,38 @@ window.agregarMarcador = function(sidc, nombre) {
             return null;
         }
 
-        const sym = new ms.Symbol(sidcFormateado, { 
+        const sym = new ms.Symbol(sidcFormateado, {
             size: 35,
         });
 
         // 5. Crear marcador con propiedades específicas según modo
         const marcador = L.marker(latlng, {
             icon: L.divIcon({
-                className: modoJuegoGuerra ? 
-                    `custom-div-icon equipo-${window.equipoJugador}` : 
+                className: equipoMarcador ?
+                    `custom-div-icon equipo-${equipoMarcador}` :
                     'elemento-militar',
                 html: sym.asSVG(),
                 iconSize: [70, 50],
                 iconAnchor: [35, 25]
             }),
-            draggable: modoJuegoGuerra ? 
-                window.gestorJuego?.gestorFases?.fase === 'preparacion' : 
+            draggable: modoJuegoGuerra ?
+                window.gestorJuego?.gestorFases?.fase === 'preparacion' :
                 true,
             sidc: sidcFormateado,
             nombre: nombre || '',
             ...(modoJuegoGuerra && {
                 jugador: window.gestorTurnos?.obtenerJugadorPropietario?.() || window.userId,
                 equipo: window.equipoJugador,
+                id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                designacion: '',
+                dependencia: '',
+                magnitud: sidcFormateado.charAt(11) || '-',
+                estado: 'operativo'
+            }),
+            // ✅ V2: Agregar equipo basado en SIDC
+            ...(window.faseManager && equipoMarcador && {
+                equipo: equipoMarcador,
+                jugador: window.faseManager.obtenerJugadorActual()?.nombre || 'jugador1',
                 id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 designacion: '',
                 dependencia: '',
@@ -273,6 +345,21 @@ window.agregarMarcador = function(sidc, nombre) {
 
         // 7. Agregar al map y notificar
         window.calcoActivo.addLayer(marcador);
+
+        // ✅ JUEGO DE GUERRA V2: Disparar evento para actualizar panel
+        if (window.faseManager) {
+            const evento = new CustomEvent('elementoAgregado', {
+                detail: {
+                    marcador: marcador,
+                    sidc: sidcFormateado,
+                    nombre: nombre,
+                    equipo: marcador.options.equipo || null,
+                    jugador: marcador.options.jugador || null
+                }
+            });
+            document.dispatchEvent(evento);
+            console.log('📡 Evento elementoAgregado disparado:', evento.detail);
+        }
 
         if (nombre === 'Punto Inicial' || nombre === 'PI') {
             agregarPuntoControl('PI');
