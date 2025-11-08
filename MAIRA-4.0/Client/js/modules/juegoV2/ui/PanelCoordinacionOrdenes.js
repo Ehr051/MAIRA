@@ -182,7 +182,7 @@ class PanelCoordinacionOrdenes {
                 background: rgba(10, 10, 10, 0.95);
                 border-top: 3px solid rgba(0, 255, 0, 0.6);
                 box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
-                z-index: 10000;
+                z-index: 1350; /* ✅ Paneles Flotantes (antes 10000) */
                 display: flex;
                 flex-direction: column;
                 font-family: 'Courier New', monospace;
@@ -365,7 +365,7 @@ class PanelCoordinacionOrdenes {
                 border-radius: 6px;
                 font-size: 12px;
                 pointer-events: none;
-                z-index: 10001;
+                z-index: 2500; /* ✅ Tooltips Globales (antes 10001) */
                 white-space: nowrap;
             }
         `;

@@ -96,8 +96,18 @@ class GestorOrdenesV2 {
                     contenedor: opciones.contenedorPanel || 'panel-coordinacion-container',
                     duracionTurnoMinutos: this.config.duracionTurnoMinutos
                 });
-                this.panelCoordinacion.inicializar();
-                this.log('✅ Panel de coordinación inicializado');
+
+                // Asignar la cola del primer equipo (típicamente 'azul')
+                // El panel mostrará todas las órdenes de ese equipo
+                const primerEquipo = equipos[0];
+                const colaEquipo = this.colasOrdenes.get(primerEquipo);
+                if (colaEquipo) {
+                    this.panelCoordinacion.asignarCola(colaEquipo);
+                    this.panelCoordinacion.inicializar();
+                    this.log(`✅ Panel de coordinación inicializado (equipo: ${primerEquipo})`);
+                } else {
+                    this.log('⚠️ No se pudo asignar cola al panel de coordinación');
+                }
             }
 
             // Configurar menú radial
@@ -622,10 +632,10 @@ class GestorOrdenesV2 {
         // Habilitar interfaz para dar órdenes
         this.habilitarInterfazOrdenes(true);
 
-        // Mostrar panel de coordinación
-        if (this.panelCoordinacion) {
-            this.panelCoordinacion.mostrar();
-        }
+        // ✅ NO mostrar panel automáticamente - el usuario lo abrirá con el botón
+        // if (this.panelCoordinacion) {
+        //     this.panelCoordinacion.mostrar();
+        // }
 
         this.emit('subfaseCambiada', { subfase: 'planificacion', turno: this.turnoActual });
         this.mostrarNotificacion(`📋 Turno ${this.turnoActual} - Planificación`, 'info');

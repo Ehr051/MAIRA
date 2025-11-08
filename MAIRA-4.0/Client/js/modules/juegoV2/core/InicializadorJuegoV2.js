@@ -26,6 +26,12 @@ class InicializadorJuegoV2 {
         // ✅ NUEVOS MANAGERS V2
         this.faseManager = null;
         this.turnosManager = null;
+
+        // ✅ Lista de elementos agregados (por equipo)
+        this.elementos = {
+            azul: [],
+            rojo: []
+        };
     }
 
     /**
@@ -357,7 +363,7 @@ class InicializadorJuegoV2 {
         contenedor.id = 'panel-coordinacion-container';
         contenedor.style.cssText = `
             position: fixed;
-            bottom: 60px;
+            bottom: 0;
             left: 0;
             right: 0;
             height: 250px;
@@ -602,10 +608,10 @@ class InicializadorJuegoV2 {
         const subfase = this.faseManager.subfaseActual;
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // FASE: PREPARACIÓN
+        // FASE: PREPARACIÓN (FLUJO SECUENCIAL - UN BOTÓN A LA VEZ)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         if (fase === 'preparacion') {
-            // Botón: Delimitar Sector
+            // 1. Delimitar Sector
             if (!this.faseManager.sector) {
                 this.agregarBoton(contenedor, {
                     texto: '🗺️ Delimitar Sector',
@@ -618,8 +624,8 @@ class InicializadorJuegoV2 {
                     }
                 });
             }
-            // Botón: Confirmar Sector
-            else if (this.faseManager.sector && !this.faseManager.zonaAzul && !this.faseManager.zonaRoja) {
+            // 2. Confirmar Sector
+            else if (this.faseManager.sector && !this.faseManager.sectorConfirmado) {
                 this.agregarBoton(contenedor, {
                     texto: '✅ Confirmar Sector',
                     color: 'rgba(76, 175, 80, 0.8)',
@@ -628,78 +634,73 @@ class InicializadorJuegoV2 {
                     onClick: () => {
                         console.log('✅ Confirmando sector...');
                         this.faseManager.confirmarSector();
-                        this.actualizarBotonesDinamicos(); // Refrescar botones
                     }
                 });
             }
-
-            // Botones de Zonas (solo si sector confirmado)
-            if (this.faseManager.sector) {
-                // Zona Roja
-                if (!this.faseManager.zonaRoja) {
-                    this.agregarBoton(contenedor, {
-                        texto: '🔴 Delimitar Zona Roja',
-                        color: 'rgba(244, 67, 54, 0.8)',
-                        colorHover: 'rgba(244, 67, 54, 1)',
-                        border: '#F44336',
-                        onClick: () => {
-                            console.log('🔴 Iniciando definición zona roja...');
-                            this.faseManager.iniciarDefinicionZona('rojo');
-                        }
-                    });
-                } else {
-                    this.agregarBoton(contenedor, {
-                        texto: '✅ Confirmar Zona Roja',
-                        color: 'rgba(76, 175, 80, 0.8)',
-                        colorHover: 'rgba(76, 175, 80, 1)',
-                        border: '#4CAF50',
-                        onClick: () => {
-                            console.log('✅ Confirmando zona roja...');
-                            this.faseManager.confirmarZonaRoja();
-                            this.actualizarBotonesDinamicos();
-                        }
-                    });
-                }
-
-                // Zona Azul
-                if (!this.faseManager.zonaAzul) {
-                    this.agregarBoton(contenedor, {
-                        texto: '🔵 Delimitar Zona Azul',
-                        color: 'rgba(33, 150, 243, 0.8)',
-                        colorHover: 'rgba(33, 150, 243, 1)',
-                        border: '#2196F3',
-                        onClick: () => {
-                            console.log('🔵 Iniciando definición zona azul...');
-                            this.faseManager.iniciarDefinicionZona('azul');
-                        }
-                    });
-                } else {
-                    this.agregarBoton(contenedor, {
-                        texto: '✅ Confirmar Zona Azul',
-                        color: 'rgba(76, 175, 80, 0.8)',
-                        colorHover: 'rgba(76, 175, 80, 1)',
-                        border: '#4CAF50',
-                        onClick: () => {
-                            console.log('✅ Confirmando zona azul...');
-                            this.faseManager.confirmarZonaAzul();
-                            this.actualizarBotonesDinamicos();
-                        }
-                    });
-                }
-
-                // Botón: Confirmar Zonas (solo si ambas confirmadas)
-                if (this.faseManager.zonaAzul && this.faseManager.zonaRoja) {
-                    this.agregarBoton(contenedor, {
-                        texto: '🎯 Iniciar Despliegue',
-                        color: 'rgba(156, 39, 176, 0.8)',
-                        colorHover: 'rgba(156, 39, 176, 1)',
-                        border: '#9C27B0',
-                        onClick: () => {
-                            console.log('🎯 Confirmando zonas y pasando a despliegue...');
-                            this.faseManager.confirmarZonas();
-                        }
-                    });
-                }
+            // 3. Delimitar Zona Azul
+            else if (this.faseManager.sectorConfirmado && !this.faseManager.zonaAzul) {
+                this.agregarBoton(contenedor, {
+                    texto: '🔵 Delimitar Zona Azul',
+                    color: 'rgba(33, 150, 243, 0.8)',
+                    colorHover: 'rgba(33, 150, 243, 1)',
+                    border: '#2196F3',
+                    onClick: () => {
+                        console.log('🔵 Iniciando definición zona azul...');
+                        this.faseManager.iniciarDefinicionZona('azul');
+                    }
+                });
+            }
+            // 4. Confirmar Zona Azul
+            else if (this.faseManager.zonaAzul && !this.faseManager.zonaAzulConfirmada) {
+                this.agregarBoton(contenedor, {
+                    texto: '✅ Confirmar Zona Azul',
+                    color: 'rgba(76, 175, 80, 0.8)',
+                    colorHover: 'rgba(76, 175, 80, 1)',
+                    border: '#4CAF50',
+                    onClick: () => {
+                        console.log('✅ Confirmando zona azul...');
+                        this.faseManager.confirmarZonaAzul();
+                    }
+                });
+            }
+            // 5. Delimitar Zona Roja
+            else if (this.faseManager.zonaAzulConfirmada && !this.faseManager.zonaRoja) {
+                this.agregarBoton(contenedor, {
+                    texto: '🔴 Delimitar Zona Roja',
+                    color: 'rgba(244, 67, 54, 0.8)',
+                    colorHover: 'rgba(244, 67, 54, 1)',
+                    border: '#F44336',
+                    onClick: () => {
+                        console.log('🔴 Iniciando definición zona roja...');
+                        this.faseManager.iniciarDefinicionZona('rojo');
+                    }
+                });
+            }
+            // 6. Confirmar Zona Roja
+            else if (this.faseManager.zonaRoja && !this.faseManager.zonaRojaConfirmada) {
+                this.agregarBoton(contenedor, {
+                    texto: '✅ Confirmar Zona Roja',
+                    color: 'rgba(76, 175, 80, 0.8)',
+                    colorHover: 'rgba(76, 175, 80, 1)',
+                    border: '#4CAF50',
+                    onClick: () => {
+                        console.log('✅ Confirmando zona roja...');
+                        this.faseManager.confirmarZonaRoja();
+                    }
+                });
+            }
+            // 7. Iniciar Despliegue (ambas zonas confirmadas)
+            else if (this.faseManager.zonaAzulConfirmada && this.faseManager.zonaRojaConfirmada) {
+                this.agregarBoton(contenedor, {
+                    texto: '🎯 Iniciar Despliegue',
+                    color: 'rgba(156, 39, 176, 0.8)',
+                    colorHover: 'rgba(156, 39, 176, 1)',
+                    border: '#9C27B0',
+                    onClick: () => {
+                        console.log('🎯 Pasando a despliegue...');
+                        this.faseManager.finalizarPreparacion();
+                    }
+                });
             }
         }
 
@@ -707,14 +708,22 @@ class InicializadorJuegoV2 {
         // FASE: DESPLIEGUE
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         else if (fase === 'despliegue') {
+            const modoJuego = this.faseManager.modoJuego;
+            const jugadorActual = this.faseManager.obtenerJugadorActual();
+
+            let textoBoton = '⚔️ Listo para Combate';
+            if (modoJuego === 'local' && jugadorActual) {
+                textoBoton = `✅ ${jugadorActual.nombre} Listo`;
+            }
+
             this.agregarBoton(contenedor, {
-                texto: '⚔️ Listo para Combate',
-                color: 'rgba(233, 30, 99, 0.8)',
-                colorHover: 'rgba(233, 30, 99, 1)',
-                border: '#E91E63',
+                texto: textoBoton,
+                color: 'rgba(76, 175, 80, 0.8)',
+                colorHover: 'rgba(76, 175, 80, 1)',
+                border: '#4CAF50',
                 onClick: () => {
-                    console.log('⚔️ Finalizando despliegue...');
-                    this.faseManager.finalizarDespliegue();
+                    console.log('✅ Jugador confirmó despliegue...');
+                    this.faseManager.jugadorListo();
                 }
             });
         }
@@ -993,6 +1002,12 @@ class InicializadorJuegoV2 {
                 onFaseChange: (fase, subfase) => {
                     console.log(`🎯 Fase cambió: ${fase} ${subfase ? `(${subfase})` : ''}`);
 
+                    // ✅ Actualizar fase del menú radial
+                    if (this.menuRadial && this.menuRadial.setFaseJuego) {
+                        this.menuRadial.setFaseJuego(fase);
+                        console.log(`📋 Menú radial actualizado a fase: ${fase}`);
+                    }
+
                     // Si entramos en fase COMBATE, activar gestor de órdenes
                     if (fase === 'combate' && this.gestorOrdenesV2) {
                         console.log('⚔️ Activando GestorOrdenesV2 para fase COMBATE');
@@ -1001,6 +1016,9 @@ class InicializadorJuegoV2 {
 
                     // Actualizar panel integrado
                     this.actualizarPanelEstado();
+
+                    // Actualizar botones dinámicos
+                    this.actualizarBotonesDinamicos();
                 },
 
                 onSubfaseChange: (subfase) => {
@@ -1027,6 +1045,18 @@ class InicializadorJuegoV2 {
 
             // Exponer globalmente
             window.faseManager = this.faseManager;
+
+            // ✅ Escuchar eventos de cambio de estado (sector/zonas)
+            document.addEventListener('cambioEstadoPreparacion', () => {
+                console.log('📡 Evento cambioEstadoPreparacion recibido - actualizando botones');
+                this.actualizarBotonesDinamicos();
+            });
+
+            // ✅ Escuchar eventos de elementos agregados
+            document.addEventListener('elementoAgregado', (e) => {
+                console.log('📡 Evento elementoAgregado recibido:', e.detail);
+                this.agregarElementoAPanel(e.detail);
+            });
 
             console.log('✅ FaseManager inicializado');
 
@@ -1313,27 +1343,27 @@ class InicializadorJuegoV2 {
                     font-weight: bold;
                     font-size: 14px;
                     cursor: pointer;
-                    z-index: 2002;
+                    z-index: 1351; /* ✅ Sobre panel coordinación (antes 2002) */
                     transition: all 0.3s ease;
                     box-shadow: 0 2px 8px rgba(153, 102, 255, 0.3);
                 `;
 
                 btnToggleCoordinacion.addEventListener('click', () => {
-                    // ✅ Toggle SOLO el panel de coordinación interno (el timeline)
+                    // ✅ Usar métodos del panel en lugar de manipular DOM directamente
                     const panelCoordinacion = document.getElementById('panelCoordinacionOrdenes');
 
-                    if (panelCoordinacion) {
+                    if (panelCoordinacion && window.gestorOrdenes?.panelCoordinacion) {
                         // Verificar estado actual
                         const estaOculto = window.getComputedStyle(panelCoordinacion).display === 'none';
 
                         if (estaOculto) {
-                            // Mostrar panel
-                            panelCoordinacion.style.display = 'flex';
+                            // Mostrar panel usando el método correcto
+                            window.gestorOrdenes.panelCoordinacion.mostrar();
                             btnToggleCoordinacion.innerHTML = '📊 Ocultar Matriz';
                             console.log('📊 Matriz de coordinación MOSTRADA');
                         } else {
-                            // Ocultar panel
-                            panelCoordinacion.style.display = 'none';
+                            // Ocultar panel usando el método correcto
+                            window.gestorOrdenes.panelCoordinacion.ocultar();
                             btnToggleCoordinacion.innerHTML = '📊 Matriz de Coordinación';
                             console.log('📕 Matriz de coordinación OCULTADA');
                         }
@@ -1496,6 +1526,125 @@ class InicializadorJuegoV2 {
         }
 
         return stats;
+    }
+
+    /**
+     * ✅ Agrega un elemento al panel inferior central
+     * @param {Object} detalle - Detalles del elemento agregado (desde evento)
+     */
+    agregarElementoAPanel(detalle) {
+        const { marcador, sidc, nombre, equipo, jugador } = detalle;
+
+        if (!equipo) {
+            console.warn('⚠️ Elemento sin equipo asignado, no se agregará al panel');
+            return;
+        }
+
+        // Agregar al array de elementos
+        const elemento = {
+            marcador,
+            sidc,
+            nombre,
+            equipo,
+            jugador,
+            timestamp: Date.now()
+        };
+
+        this.elementos[equipo].push(elemento);
+        console.log(`✅ Elemento agregado a lista ${equipo}:`, elemento);
+
+        // Actualizar visualización del panel
+        this.actualizarListaElementosPanel();
+    }
+
+    /**
+     * ✅ Actualiza la lista visual de elementos en el panel central
+     */
+    actualizarListaElementosPanel() {
+        const listaContainer = document.getElementById('panel-lista-elementos');
+        if (!listaContainer) return;
+
+        // ✅ DIFERENCIA LOCAL vs ONLINE
+        let elementosAMostrar = [];
+
+        if (this.config?.modoJuego === 'online') {
+            // ONLINE: Mostrar solo elementos del jugador actual
+            const equipoJugador = window.equipoJugador || 'azul'; // TODO: Obtener de sesión
+            elementosAMostrar = this.elementos[equipoJugador] || [];
+        } else {
+            // LOCAL: Mostrar elementos según turno actual
+            // Por ahora mostrar todos hasta implementar turnos de despliegue
+            elementosAMostrar = [
+                ...this.elementos.azul,
+                ...this.elementos.rojo
+            ];
+        }
+
+        if (elementosAMostrar.length === 0) {
+            listaContainer.innerHTML = `
+                <div style="
+                    text-align: center;
+                    color: rgba(255, 255, 255, 0.3);
+                    padding: 40px 20px;
+                    font-size: 13px;
+                ">
+                    <i class="fas fa-chess-knight" style="font-size: 32px; margin-bottom: 10px; opacity: 0.5;"></i>
+                    <br>
+                    No hay elementos desplegados
+                    <br>
+                    <span style="font-size: 11px; margin-top: 8px; display: block;">
+                        Los elementos aparecerán aquí durante la fase de DESPLIEGUE
+                    </span>
+                </div>
+            `;
+        } else {
+            listaContainer.innerHTML = elementosAMostrar.map((elem, index) => `
+                <div style="
+                    background: rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.1);
+                    border-left: 3px solid ${elem.equipo === 'azul' ? '#0066ff' : '#ff0000'};
+                    border-radius: 4px;
+                    padding: 8px 12px;
+                    margin-bottom: 6px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    transition: all 0.2s;
+                    cursor: pointer;
+                " onmouseenter="this.style.background='rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.2)'"
+                   onmouseleave="this.style.background='rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.1)'"
+                   onclick="window.inicializadorV2.centrarElemento(${index}, '${elem.equipo}')">
+                    <div style="
+                        width: 32px;
+                        height: 32px;
+                        background: rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.3);
+                        border: 1px solid ${elem.equipo === 'azul' ? '#0066ff' : '#ff0000'};
+                        border-radius: 4px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 18px;
+                    ">
+                        ${elem.equipo === 'azul' ? '🔵' : '🔴'}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 13px; color: white; font-weight: bold;">${elem.nombre || 'Sin nombre'}</div>
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">${elem.equipo.toUpperCase()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    /**
+     * ✅ Centra el mapa en un elemento al hacer click
+     */
+    centrarElemento(index, equipo) {
+        const elemento = this.elementos[equipo][index];
+        if (elemento && elemento.marcador && this.map) {
+            const latlng = elemento.marcador.getLatLng();
+            this.map.setView(latlng, 14, { animate: true });
+            console.log(`🎯 Centrando en elemento: ${elemento.nombre}`);
+        }
     }
 }
 

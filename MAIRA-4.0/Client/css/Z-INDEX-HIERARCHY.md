@@ -97,6 +97,17 @@ Este documento define la jerarquía de z-index utilizada en toda la aplicación 
 - `.menu-contextual`: 9999 → **2300**
 - `.modal-overlay`: 9998 → **1500**
 
+### JuegoV2 - Panel de Coordinación (✅ Corregido - 7 Nov 2025)
+- `PanelCoordinacionOrdenes`: 10000 → **1350** (Paneles Flotantes)
+- `.orden-tooltip`: 10001 → **2500** (Tooltips Globales)
+- `btnToggleCoordinacion`: 2002 → **1351** (Sobre panel coordinación)
+
+### juegodeguerraV2.html - Inline z-index (✅ Corregido - 7 Nov 2025)
+- `#panelControles3D`: 10000 → **1350** (Paneles Flotantes)
+- `.fullscreen-3d #canvas-container`: 9999 → **3000** (Fullscreen mode)
+- `#loading-modal`: 10000 → **3100** (Loading overlays)
+- `#close-3d-button`: 10001 → **3101** (Sobre loading overlay)
+
 ### Pendientes de Revisión
 - [ ] graficomarcha.css
 - [ ] style.css (z-index: 999)
