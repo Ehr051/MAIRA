@@ -1,0 +1,360 @@
+{
+  "descripcion": "Organización para el Combate (ORBAT) - Estructuras Argentinas según SIDC",
+  "version": "2.0.0",
+  "fecha": "2025-11-08",
+  "fuente": "Basado en TOE argentino real y doctrina vigente",
+
+  "magnitudes": {
+    "A": { "nombre": "Equipo/Tripulación", "simbolo": "●", "personal_promedio": 4 },
+    "B": { "nombre": "Grupo", "simbolo": "●●", "personal_promedio": 10 },
+    "C": { "nombre": "Sección", "simbolo": "●●●", "personal_promedio": 30 },
+    "D": { "nombre": "Pelotón", "simbolo": "●", "personal_promedio": 40 },
+    "E": { "nombre": "Compañía/Batería", "simbolo": "I", "personal_promedio": 120 },
+    "F": { "nombre": "Batallón/Escuadrón", "simbolo": "II", "personal_promedio": 600 },
+    "G": { "nombre": "Regimiento/Grupo", "simbolo": "III", "personal_promedio": 2000 },
+    "H": { "nombre": "Brigada", "simbolo": "X", "personal_promedio": 4000 },
+    "I": { "nombre": "División", "simbolo": "XX", "personal_promedio": 15000 },
+    "J": { "nombre": "Cuerpo de Ejército", "simbolo": "XXX", "personal_promedio": 40000 },
+    "K": { "nombre": "Ejército", "simbolo": "XXXX", "personal_promedio": 100000 }
+  },
+
+  "plantillas": {
+    "_comentario": "Plantillas de despliegue según arma y magnitud. Código SIDC posiciones 4-6 + posición 11",
+
+    "UCI": {
+      "_nombre": "Infantería",
+      "_fuente": "Reglamento de Infantería Argentina",
+
+      "F": {
+        "_magnitud": "Batallón de Infantería",
+        "_personal": 600,
+        "subordinados": [
+          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Fusileros A", "cantidad": 1, "personal": 120 },
+          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Fusileros B", "cantidad": 1, "personal": 120 },
+          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Fusileros C", "cantidad": 1, "personal": 120 },
+          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Apoyo", "cantidad": 1, "personal": 80, "vehiculos": ["M113"] },
+          { "tipo": "UCI", "magnitud": "D", "nombre": "Plana Mayor", "cantidad": 1, "personal": 40 },
+          { "tipo": "USS", "magnitud": "C", "nombre": "Sección Logística", "cantidad": 1, "personal": 20 }
+        ]
+      },
+
+      "E": {
+        "_magnitud": "Compañía de Infantería",
+        "_personal": 120,
+        "_vehiculos": ["M113", "M113", "M113", "M113"],
+        "subordinados": [
+          { "tipo": "UCI", "magnitud": "D", "nombre": "Pelotón 1", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
+          { "tipo": "UCI", "magnitud": "D", "nombre": "Pelotón 2", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
+          { "tipo": "UCI", "magnitud": "D", "nombre": "Pelotón 3", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
+          { "tipo": "UCI", "magnitud": "B", "nombre": "Grupo Comando", "cantidad": 1, "personal": 10 }
+        ]
+      },
+
+      "D": {
+        "_magnitud": "Pelotón de Infantería",
+        "_personal": 30,
+        "_vehiculo": "M113",
+        "subordinados": [
+          { "tipo": "UCI", "magnitud": "C", "nombre": "Sección 1", "cantidad": 1, "personal": 10 },
+          { "tipo": "UCI", "magnitud": "C", "nombre": "Sección 2", "cantidad": 1, "personal": 10 },
+          { "tipo": "UCI", "magnitud": "C", "nombre": "Sección 3", "cantidad": 1, "personal": 10 }
+        ]
+      },
+
+      "C": {
+        "_magnitud": "Sección de Infantería",
+        "_personal": 10,
+        "_composicion_detallada": {
+          "jefe_seccion": 1,
+          "grupos": 2
+        },
+        "subordinados": [
+          { "tipo": "UCI", "magnitud": "B", "nombre": "Grupo 1", "cantidad": 1, "personal": 5 },
+          { "tipo": "UCI", "magnitud": "B", "nombre": "Grupo 2", "cantidad": 1, "personal": 5 }
+        ]
+      },
+
+      "B": {
+        "_magnitud": "Grupo de Infantería",
+        "_personal": 5,
+        "_roles": [
+          { "nombre": "Jefe de Grupo", "rol_id": 8, "arma": "FAL" },
+          { "nombre": "Tirador FAL", "rol_id": 1, "arma": "FAL", "cantidad": 2 },
+          { "nombre": "Tirador MAG", "rol_id": 2, "arma": "MAG" },
+          { "nombre": "Tirador ATAN", "rol_id": 5, "arma": "M72 LAW" }
+        ],
+        "subordinados": [
+          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 1", "cantidad": 1, "rol": "Jefe Grupo" },
+          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 2", "cantidad": 1, "rol": "FAL" },
+          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 3", "cantidad": 1, "rol": "FAL" },
+          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 4", "cantidad": 1, "rol": "MAG" },
+          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 5", "cantidad": 1, "rol": "ATAN" }
+        ]
+      }
+    },
+
+    "UCR": {
+      "_nombre": "Caballería/Blindados",
+      "_fuente": "TOE Caballería Blindada Argentina - TAM",
+
+      "F": {
+        "_magnitud": "Escuadrón de Caballería (TAM)",
+        "_personal": 40,
+        "_vehiculos_totales": { "TAM": 10, "UNIMOG": 1 },
+        "subordinados": [
+          { "tipo": "UCR", "magnitud": "C", "nombre": "Sección TAM 1", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
+          { "tipo": "UCR", "magnitud": "C", "nombre": "Sección TAM 2", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
+          { "tipo": "UCR", "magnitud": "C", "nombre": "Sección TAM 3", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
+          { "tipo": "UCR", "magnitud": "A", "nombre": "Puesto Comando", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Escuadrón" },
+          { "tipo": "USS", "magnitud": "A", "nombre": "Tren Escuadrón", "cantidad": 1, "vehiculo": "UNIMOG" }
+        ]
+      },
+
+      "C": {
+        "_magnitud": "Sección de Caballería (TAM)",
+        "_personal": 12,
+        "_vehiculos": ["TAM", "TAM", "TAM"],
+        "subordinados": [
+          { "tipo": "UCR", "magnitud": "A", "nombre": "Tanque 1", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Sección" },
+          { "tipo": "UCR", "magnitud": "A", "nombre": "Tanque 2", "cantidad": 1, "vehiculo": "TAM" },
+          { "tipo": "UCR", "magnitud": "A", "nombre": "Tanque 3", "cantidad": 1, "vehiculo": "TAM" }
+        ]
+      },
+
+      "A": {
+        "_magnitud": "Tanque TAM (Tripulación)",
+        "_personal": 4,
+        "_vehiculo": "TAM",
+        "_roles": [
+          { "nombre": "Jefe de Tanque", "rol_id": 25 },
+          { "nombre": "Conductor", "rol_id": 22 },
+          { "nombre": "Apuntador", "rol_id": 23 },
+          { "nombre": "Cargador", "rol_id": 24 }
+        ],
+        "subordinados": []
+      }
+    },
+
+    "UCF": {
+      "_nombre": "Artillería",
+      "_fuente": "Reglamento de Artillería Argentina",
+
+      "G": {
+        "_magnitud": "Grupo de Artillería",
+        "_personal": 300,
+        "_piezas_totales": 18,
+        "subordinados": [
+          { "tipo": "UCF", "magnitud": "E", "nombre": "Batería 1", "cantidad": 1, "piezas": 6 },
+          { "tipo": "UCF", "magnitud": "E", "nombre": "Batería 2", "cantidad": 1, "piezas": 6 },
+          { "tipo": "UCF", "magnitud": "E", "nombre": "Batería 3", "cantidad": 1, "piezas": 6 },
+          { "tipo": "UCF", "magnitud": "C", "nombre": "Sección Dirección Tiro", "cantidad": 1 }
+        ]
+      },
+
+      "E": {
+        "_magnitud": "Batería de Artillería",
+        "_personal": 80,
+        "_piezas": 6,
+        "subordinados": [
+          { "tipo": "UCF", "magnitud": "C", "nombre": "Sección 1", "cantidad": 1, "piezas": 2 },
+          { "tipo": "UCF", "magnitud": "C", "nombre": "Sección 2", "cantidad": 1, "piezas": 2 },
+          { "tipo": "UCF", "magnitud": "C", "nombre": "Sección 3", "cantidad": 1, "piezas": 2 },
+          { "tipo": "UCF", "magnitud": "B", "nombre": "Dirección Tiro", "cantidad": 1 }
+        ]
+      },
+
+      "C": {
+        "_magnitud": "Sección de Artillería",
+        "_personal": 20,
+        "_piezas": 2,
+        "subordinados": [
+          { "tipo": "UCF", "magnitud": "A", "nombre": "Pieza 1", "cantidad": 1, "personal": 8 },
+          { "tipo": "UCF", "magnitud": "A", "nombre": "Pieza 2", "cantidad": 1, "personal": 8 }
+        ]
+      }
+    },
+
+    "UCE": {
+      "_nombre": "Ingenieros",
+      "_fuente": "Reglamento de Ingenieros Argentina",
+
+      "F": {
+        "_magnitud": "Batallón de Ingenieros",
+        "_personal": 500,
+        "subordinados": [
+          { "tipo": "UCE", "magnitud": "E", "nombre": "Compañía Zapadores 1", "cantidad": 1 },
+          { "tipo": "UCE", "magnitud": "E", "nombre": "Compañía Zapadores 2", "cantidad": 1 },
+          { "tipo": "UCE", "magnitud": "E", "nombre": "Compañía Pontones", "cantidad": 1 },
+          { "tipo": "UCE", "magnitud": "D", "nombre": "Plana Mayor", "cantidad": 1 }
+        ]
+      },
+
+      "E": {
+        "_magnitud": "Compañía de Ingenieros",
+        "_personal": 100,
+        "subordinados": [
+          { "tipo": "UCE", "magnitud": "D", "nombre": "Pelotón Zapadores 1", "cantidad": 1 },
+          { "tipo": "UCE", "magnitud": "D", "nombre": "Pelotón Zapadores 2", "cantidad": 1 },
+          { "tipo": "UCE", "magnitud": "D", "nombre": "Pelotón Zapadores 3", "cantidad": 1 }
+        ]
+      },
+
+      "D": {
+        "_magnitud": "Pelotón de Ingenieros",
+        "_personal": 30,
+        "subordinados": [
+          { "tipo": "UCE", "magnitud": "C", "nombre": "Sección 1", "cantidad": 1 },
+          { "tipo": "UCE", "magnitud": "C", "nombre": "Sección 2", "cantidad": 1 }
+        ]
+      }
+    },
+
+    "UUS": {
+      "_nombre": "Comunicaciones",
+
+      "E": {
+        "_magnitud": "Compañía de Comunicaciones",
+        "_personal": 80,
+        "subordinados": [
+          { "tipo": "UUS", "magnitud": "D", "nombre": "Pelotón Radio 1", "cantidad": 1 },
+          { "tipo": "UUS", "magnitud": "D", "nombre": "Pelotón Radio 2", "cantidad": 1 },
+          { "tipo": "UUS", "magnitud": "C", "nombre": "Sección Enlaces", "cantidad": 1 }
+        ]
+      }
+    },
+
+    "USM": {
+      "_nombre": "Sanidad",
+
+      "E": {
+        "_magnitud": "Compañía de Sanidad",
+        "_personal": 60,
+        "subordinados": [
+          { "tipo": "USM", "magnitud": "D", "nombre": "Pelotón Evacuación", "cantidad": 1 },
+          { "tipo": "USM", "magnitud": "D", "nombre": "Pelotón Tratamiento", "cantidad": 1 },
+          { "tipo": "USM", "magnitud": "C", "nombre": "Puesto Socorro", "cantidad": 1 }
+        ]
+      }
+    },
+
+    "USS": {
+      "_nombre": "Abastecimiento",
+
+      "E": {
+        "_magnitud": "Compañía de Abastecimiento",
+        "_personal": 80,
+        "_vehiculos": ["Camión", "Camión", "Camión"],
+        "subordinados": [
+          { "tipo": "USS", "magnitud": "D", "nombre": "Pelotón Municiones", "cantidad": 1 },
+          { "tipo": "USS", "magnitud": "D", "nombre": "Pelotón Combustible", "cantidad": 1 },
+          { "tipo": "USS", "magnitud": "D", "nombre": "Pelotón Víveres", "cantidad": 1 }
+        ]
+      }
+    }
+  },
+
+  "configuracion": {
+    "desplieguePorDefecto": {
+      "_comentario": "Configuración de despliegue automático",
+      "distanciaEntreSub": 100,
+      "comentario_distancia": "Distancia en metros entre subordinados (separación táctica)",
+      "formacion": "linea",
+      "comentario_formacion": "linea, columna, cuña, escalon_derecha, escalon_izquierda, agrupado",
+      "offsetDesdeComandante": 200,
+      "comentario_offset": "Distancia del comandante al primer subordinado (metros)"
+    },
+
+    "formaciones": {
+      "linea": {
+        "descripcion": "Subordinados desplegados en línea horizontal",
+        "calculo": "horizontal_equidistante",
+        "usos": "Ataque frontal, defensa lineal",
+        "frente_metros": 200,
+        "separacion_elementos": 100
+      },
+      "columna": {
+        "descripcion": "Subordinados desplegados en columna vertical",
+        "calculo": "vertical_equidistante",
+        "usos": "Marcha, movimiento en terreno restrictivo",
+        "frente_metros": 50,
+        "separacion_elementos": 50
+      },
+      "cuña": {
+        "descripcion": "Formación en cuña (V)",
+        "calculo": "v_shape",
+        "usos": "Ataque, reconocimiento en fuerza",
+        "frente_metros": 300,
+        "separacion_elementos": 100
+      },
+      "cuña_escuadron": {
+        "descripcion": "Formación en cuña para caballería blindada",
+        "calculo": "v_shape_extended",
+        "usos": "Ataque motorizado, explotación",
+        "frente_metros": 400,
+        "separacion_elementos": 150
+      },
+      "escalon_derecha": {
+        "descripcion": "Escalonados a la derecha",
+        "calculo": "diagonal_derecha",
+        "usos": "Protección de flanco derecho",
+        "frente_metros": 250,
+        "separacion_elementos": 100
+      },
+      "escalon_izquierda": {
+        "descripcion": "Escalonados a la izquierda",
+        "calculo": "diagonal_izquierda",
+        "usos": "Protección de flanco izquierdo",
+        "frente_metros": 250,
+        "separacion_elementos": 100
+      },
+      "agrupado": {
+        "descripcion": "Elementos agrupados (puesto comando, etc.)",
+        "calculo": "cluster",
+        "usos": "Puestos comando, servicios",
+        "frente_metros": 30,
+        "separacion_elementos": 20
+      }
+    },
+
+    "separacionPorTipo": {
+      "_comentario": "Separación táctica según tipo de elemento (metros)",
+      "infanteria_pie": 5,
+      "infanteria_grupo": 30,
+      "infanteria_seccion": 50,
+      "blindados_tanque": 50,
+      "blindados_seccion": 100,
+      "artilleria_pieza": 30,
+      "artilleria_seccion": 100,
+      "vehiculos_logistica": 50
+    }
+  },
+
+  "notas": [
+    "Plantillas basadas en TOE argentino real (TAM, M113, FAL, MAG)",
+    "La posición 11 del SIDC indica la magnitud (A-K)",
+    "Las posiciones 4-6 del SIDC indican el tipo de arma (UCI, UCR, UCF, etc.)",
+    "Roles específicos (rol_id) corresponden a la tabla roles en BD original",
+    "Formaciones tácticas según doctrina argentina vigente",
+    "Separación de elementos según tipo de terreno y amenaza",
+    "Personal y vehículos son promedios, pueden variar según misión"
+  ],
+
+  "referencias": {
+    "reglamentos": [
+      "RC-3-2 Reglamento de Conducción para las Fuerzas Terrestres",
+      "RC-3-30 Reglamento de Infantería",
+      "RC-3-40 Reglamento de Caballería",
+      "RC-3-50 Reglamento de Artillería",
+      "RC-3-60 Reglamento de Ingenieros"
+    ],
+    "vehiculos_argentinos": {
+      "TAM": "Tanque Argentino Mediano",
+      "VCTP": "Vehículo de Combate Transporte Personal",
+      "M113": "Transporte Personal Blindado",
+      "UNIMOG": "Camión táctico multipropósito",
+      "FAL": "Fusil Automático Liviano (5.56mm)",
+      "MAG": "Ametralladora MAG (7.62mm)",
+      "M72_LAW": "Lanzacohetes antitanque"
+    }
+  }
+}

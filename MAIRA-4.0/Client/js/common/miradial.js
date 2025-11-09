@@ -714,6 +714,15 @@ handleMenuClick: function(action, submenu) {
                     }
                     break;
 
+                case 'desplegarSubordinados':
+                    console.log('🎖️ Desplegar Subordinados seleccionado');
+                    if (typeof window.desplegarSubordinados === 'function') {
+                        window.desplegarSubordinados();
+                    } else {
+                        console.error('❌ window.desplegarSubordinados no está disponible');
+                    }
+                    break;
+
                 default:
                     if (this.faseJuego === 'combate' && window.acciones) {
                         window.acciones.ejecutarAccion(action, window.elementoSeleccionado);

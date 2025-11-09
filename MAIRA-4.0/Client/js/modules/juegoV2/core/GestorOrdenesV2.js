@@ -215,6 +215,10 @@ class GestorOrdenesV2 {
             this.iniciarOrdenReconocimiento({ elemento: elemento || window.elementoSeleccionado });
         };
 
+        window.desplegarSubordinados = (elemento) => {
+            this.desplegarSubordinados({ elemento: elemento || window.elementoSeleccionado });
+        };
+
         window.verOrdenesUnidad = (elemento) => {
             this.mostrarOrdenesUnidad({ elemento: elemento || window.elementoSeleccionado });
         };
@@ -946,6 +950,66 @@ class GestorOrdenesV2 {
 
         // TODO: Mostrar en UI panel
         this.mostrarNotificacion(`📋 ${ordenesUnidad.length} orden(es) - Ver consola`, 'info');
+    }
+
+    /**
+     * Despliega subordinados de una unidad según ORBAT
+     */
+    async desplegarSubordinados(contexto) {
+        this.log('🎖️ Desplegando subordinados...');
+
+        const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
+        if (!unidad) {
+            this.mostrarNotificacion('⚠️ Selecciona una unidad primero', 'warning');
+            return;
+        }
+
+        // Verificar que ORBATManager esté disponible
+        if (typeof window.orbatManager === 'undefined') {
+            this.mostrarNotificacion('❌ Sistema ORBAT no disponible', 'error');
+            console.error('ORBATManager no está cargado');
+            return;
+        }
+
+        // Configurar el mapa en ORBATManager si no lo está
+        if (!window.orbatManager.map && this.map) {
+            window.orbatManager.setMap(this.map);
+        }
+
+        // Verificar si la unidad puede desplegar subordinados
+        const sidc = unidad.options?.sidc;
+        if (!sidc) {
+            this.mostrarNotificacion('❌ La unidad no tiene SIDC', 'error');
+            return;
+        }
+
+        const puedeDesplegar = window.orbatManager.puedeDesplegar(sidc);
+        if (!puedeDesplegar) {
+            const magnitudInfo = window.orbatManager.obtenerInfoMagnitud(window.orbatManager.extraerMagnitud(sidc));
+            this.mostrarNotificacion(`⚠️ ${magnitudInfo?.nombre || 'Esta unidad'} no tiene subordinados definidos en ORBAT`, 'warning');
+            return;
+        }
+
+        const cantidad = window.orbatManager.contarSubordinados(sidc);
+        this.mostrarNotificacion(`🎖️ Desplegando ${cantidad} subordinados...`, 'info');
+
+        try {
+            // Desplegar subordinados
+            const subordinados = await window.orbatManager.desplegarSubordinados(unidad, {
+                formacion: 'linea' // Puede ser configurable
+            });
+
+            if (subordinados && subordinados.length > 0) {
+                this.mostrarNotificacion(`✅ ${subordinados.length} subordinados desplegados`, 'success');
+                this.log(`✅ Desplegados: ${subordinados.map(s => s.options.nombre).join(', ')}`);
+            } else {
+                this.mostrarNotificacion('⚠️ No se pudieron desplegar subordinados', 'warning');
+            }
+
+        } catch (error) {
+            console.error('Error desplegando subordinados:', error);
+            this.mostrarNotificacion('❌ Error al desplegar subordinados', 'error');
+        }
     }
 
     /**
