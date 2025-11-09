@@ -650,6 +650,15 @@ handleMenuClick: function(action, submenu) {
                         }
                     break;    
                 case 'submenu':
+                    // ✅ Primero buscar en MenusDoctrinales (V2)
+                    if (submenu && typeof MenusDoctrinales !== 'undefined') {
+                        const submenuItems = MenusDoctrinales.obtenerSubmenu(submenu);
+                        if (submenuItems && submenuItems.length > 0) {
+                            this.showSubmenu(submenu);
+                            return; // No ocultar el menú
+                        }
+                    }
+                    // Fallback: buscar en MENU_ITEMS legacy
                     if (submenu && MENU_ITEMS.combate.ingeniero[submenu]) {
                         this.showSubmenu(submenu);
                         return; // No ocultar el menú
@@ -720,14 +729,24 @@ handleMenuClick: function(action, submenu) {
          */
         showSubmenu: function(submenuName) {
             if (!this.menuElement) return;
-            
+
             const currentMenu = {
                 items: this.getMenuItems(this.currentMenuType),
                 type: this.currentMenuType
             };
             this.menuHistory.push(currentMenu);
-            
-            const submenuItems = MENU_ITEMS.combate.ingeniero[submenuName];
+
+            // ✅ Buscar submenu en MenusDoctrinales primero (V2)
+            let submenuItems = null;
+            if (typeof MenusDoctrinales !== 'undefined') {
+                submenuItems = MenusDoctrinales.obtenerSubmenu(submenuName);
+            }
+
+            // Fallback: legacy MENU_ITEMS
+            if (!submenuItems || submenuItems.length === 0) {
+                submenuItems = MENU_ITEMS.combate.ingeniero[submenuName];
+            }
+
             const point = this.getMenuPosition();
             this.mostrarMenu(point.x, point.y, submenuItems);
         },

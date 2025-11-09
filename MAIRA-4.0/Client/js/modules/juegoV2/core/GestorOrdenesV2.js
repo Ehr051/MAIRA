@@ -948,6 +948,27 @@ class GestorOrdenesV2 {
         this.mostrarNotificacion(`📋 ${ordenesUnidad.length} orden(es) - Ver consola`, 'info');
     }
 
+    /**
+     * Obtiene opciones de menú según tipo de arma (doctrina)
+     * @param {Object} unidad - Unidad (marker de Leaflet)
+     * @returns {Array} Items del menú radial
+     */
+    obtenerOpcionesMenu(unidad) {
+        // Delegar a MenusDoctrinales si está disponible
+        if (typeof MenusDoctrinales !== 'undefined') {
+            return MenusDoctrinales.obtenerMenu(unidad);
+        }
+
+        // Fallback: menú genérico
+        return [
+            { title: 'Mover', action: 'ordenMovimiento', icon: 'fas fa-arrows-alt', tooltip: 'Dar orden de movimiento' },
+            { title: 'Atacar', action: 'ordenAtaque', icon: 'fas fa-crosshairs', tooltip: 'Dar orden de ataque' },
+            { title: 'Defender', action: 'ordenDefensa', icon: 'fas fa-shield-alt', tooltip: 'Dar orden de defensa' },
+            { title: 'Reconocer', action: 'ordenReconocimiento', icon: 'fas fa-binoculars', tooltip: 'Orden de reconocimiento' },
+            { title: 'Esperar', action: 'ordenEspera', icon: 'fas fa-pause', tooltip: 'Esperar este turno' }
+        ];
+    }
+
     // =====================================================
     // UTILIDADES
     // =====================================================
