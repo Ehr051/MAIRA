@@ -111,6 +111,9 @@ const MenusDoctrinales = {
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
 
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
+
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-walking', tooltip: 'Movimiento táctico' },
 
@@ -139,6 +142,9 @@ const MenusDoctrinales = {
             return [
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
+
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
 
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-truck', tooltip: 'Movimiento motorizado' },
@@ -169,6 +175,9 @@ const MenusDoctrinales = {
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
 
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
+
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-truck-moving', tooltip: 'Cambio de posición' },
 
@@ -198,6 +207,9 @@ const MenusDoctrinales = {
             return [
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
+
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
 
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-truck', tooltip: 'Movimiento' },
@@ -243,6 +255,9 @@ const MenusDoctrinales = {
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
 
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
+
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-truck', tooltip: 'Movimiento' },
 
@@ -268,6 +283,9 @@ const MenusDoctrinales = {
             return [
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
+
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
 
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-walking', tooltip: 'Movimiento táctico' },
@@ -299,6 +317,9 @@ const MenusDoctrinales = {
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
 
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
+
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-ambulance', tooltip: 'Movimiento' },
 
@@ -324,6 +345,9 @@ const MenusDoctrinales = {
             return [
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
+
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
 
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-truck-loading', tooltip: 'Movimiento logístico' },
@@ -351,6 +375,9 @@ const MenusDoctrinales = {
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
 
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
+
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-truck', tooltip: 'Movimiento' },
 
@@ -376,6 +403,9 @@ const MenusDoctrinales = {
             return [
                 // DESPLEGAR SUBORDINADOS
                 { title: 'Desplegar', action: 'desplegarSubordinados', icon: 'fas fa-sitemap', tooltip: 'Desplegar elementos subordinados' },
+
+                // REAGRUPAR SUBORDINADOS
+                { title: 'Reagrupar', action: 'reagruparSubordinados', icon: 'fas fa-object-group', tooltip: 'Reagrupar subordinados desplegados' },
 
                 // MARCHA
                 { title: 'Marcha', action: 'ordenMovimiento', icon: 'fas fa-truck', tooltip: 'Movimiento' },

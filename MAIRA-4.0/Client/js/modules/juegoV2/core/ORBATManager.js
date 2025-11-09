@@ -260,6 +260,18 @@ class ORBATManager {
 
         console.log(`✅ Desplegados ${subordinados.length} subordinados`);
 
+        // 🔗 TRACKING: Guardar referencia de subordinados en el padre
+        if (!unidadPadre.subordinadosDesplegados) {
+            unidadPadre.subordinadosDesplegados = [];
+        }
+        unidadPadre.subordinadosDesplegados.push(...subordinados);
+
+        // Marcar padre como "desplegado"
+        unidadPadre.estaDesplegado = true;
+
+        // Actualizar icono del padre para indicar que está desplegado
+        this.actualizarIconoPadre(unidadPadre, true);
+
         // Emitir evento
         if (window.eventBus) {
             window.eventBus.emit('subordinadosDesplegados', {
@@ -346,6 +358,95 @@ class ORBATManager {
     contarSubordinados(sidc) {
         const plantilla = this.obtenerPlantillaSubordinados(sidc);
         return plantilla?.subordinados?.length || 0;
+    }
+
+    /**
+     * 🔄 REAGRUPAR: Oculta/elimina subordinados desplegados
+     * @param {Object} unidadPadre - Unidad comandante
+     * @returns {Number} Cantidad de subordinados reagrupados
+     */
+    reagruparSubordinados(unidadPadre) {
+        if (!unidadPadre) {
+            console.error('❌ Unidad padre inválida');
+            return 0;
+        }
+
+        if (!unidadPadre.subordinadosDesplegados || unidadPadre.subordinadosDesplegados.length === 0) {
+            console.warn('⚠️ Esta unidad no tiene subordinados desplegados');
+            return 0;
+        }
+
+        const cantidad = unidadPadre.subordinadosDesplegados.length;
+        console.log(`🔄 Reagrupando ${cantidad} subordinados...`);
+
+        // Eliminar cada subordinado del mapa
+        for (const subordinado of unidadPadre.subordinadosDesplegados) {
+            if (subordinado && this.map && this.map.hasLayer(subordinado)) {
+                this.map.removeLayer(subordinado);
+            }
+        }
+
+        // Limpiar array de subordinados
+        unidadPadre.subordinadosDesplegados = [];
+        unidadPadre.estaDesplegado = false;
+
+        // Actualizar icono del padre
+        this.actualizarIconoPadre(unidadPadre, false);
+
+        // Emitir evento
+        if (window.eventBus) {
+            window.eventBus.emit('subordinadosReagrupados', {
+                comandante: unidadPadre,
+                cantidad: cantidad
+            });
+        }
+
+        console.log(`✅ ${cantidad} subordinados reagrupados`);
+        return cantidad;
+    }
+
+    /**
+     * Verifica si una unidad tiene subordinados desplegados
+     */
+    tieneSubordinadosDesplegados(unidad) {
+        return unidad &&
+               unidad.subordinadosDesplegados &&
+               unidad.subordinadosDesplegados.length > 0;
+    }
+
+    /**
+     * Actualiza el icono del padre para indicar si está desplegado
+     */
+    actualizarIconoPadre(unidadPadre, estaDesplegado) {
+        if (!unidadPadre || !unidadPadre.options || !unidadPadre.options.sidc) return;
+
+        try {
+            // Agregar indicador visual (borde o badge)
+            const sidc = unidadPadre.options.sidc;
+            const symbol = new ms.Symbol(sidc, {
+                size: 30,
+                // Agregar modificador de "desplegado" (opcional)
+            });
+
+            // Crear nuevo icono con indicador
+            const iconHtml = estaDesplegado
+                ? `<div style="position: relative;">
+                    ${symbol.asSVG()}
+                    <div style="position: absolute; top: -5px; right: -5px; background: #00ff00; border-radius: 50%; width: 12px; height: 12px; border: 2px solid white;"></div>
+                   </div>`
+                : symbol.asSVG();
+
+            const nuevoIcono = L.divIcon({
+                className: 'milsymbol-marker',
+                html: iconHtml,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+
+            unidadPadre.setIcon(nuevoIcono);
+        } catch (error) {
+            console.warn('⚠️ No se pudo actualizar icono del padre:', error);
+        }
     }
 }
 

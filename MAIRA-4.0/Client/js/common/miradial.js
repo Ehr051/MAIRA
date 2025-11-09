@@ -723,6 +723,15 @@ handleMenuClick: function(action, submenu) {
                     }
                     break;
 
+                case 'reagruparSubordinados':
+                    console.log('🔄 Reagrupar Subordinados seleccionado');
+                    if (typeof window.reagruparSubordinados === 'function') {
+                        window.reagruparSubordinados();
+                    } else {
+                        console.error('❌ window.reagruparSubordinados no está disponible');
+                    }
+                    break;
+
                 default:
                     if (this.faseJuego === 'combate' && window.acciones) {
                         window.acciones.ejecutarAccion(action, window.elementoSeleccionado);

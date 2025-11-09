@@ -219,6 +219,10 @@ class GestorOrdenesV2 {
             this.desplegarSubordinados({ elemento: elemento || window.elementoSeleccionado });
         };
 
+        window.reagruparSubordinados = (elemento) => {
+            this.reagruparSubordinados({ elemento: elemento || window.elementoSeleccionado });
+        };
+
         window.verOrdenesUnidad = (elemento) => {
             this.mostrarOrdenesUnidad({ elemento: elemento || window.elementoSeleccionado });
         };
@@ -1009,6 +1013,50 @@ class GestorOrdenesV2 {
         } catch (error) {
             console.error('Error desplegando subordinados:', error);
             this.mostrarNotificacion('❌ Error al desplegar subordinados', 'error');
+        }
+    }
+
+    /**
+     * 🔄 Reagrupa subordinados de una unidad (los oculta/elimina del mapa)
+     */
+    reagruparSubordinados(contexto) {
+        this.log('🔄 Reagrupando subordinados...');
+
+        const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
+        if (!unidad) {
+            this.mostrarNotificacion('⚠️ Selecciona una unidad primero', 'warning');
+            return;
+        }
+
+        // Verificar que ORBATManager esté disponible
+        if (typeof window.orbatManager === 'undefined') {
+            this.mostrarNotificacion('❌ Sistema ORBAT no disponible', 'error');
+            return;
+        }
+
+        // Verificar si la unidad tiene subordinados desplegados
+        if (!window.orbatManager.tieneSubordinadosDesplegados(unidad)) {
+            this.mostrarNotificacion('⚠️ Esta unidad no tiene subordinados desplegados', 'warning');
+            return;
+        }
+
+        const cantidad = unidad.subordinadosDesplegados ? unidad.subordinadosDesplegados.length : 0;
+        this.mostrarNotificacion(`🔄 Reagrupando ${cantidad} subordinados...`, 'info');
+
+        try {
+            // Reagrupar subordinados
+            const reagrupados = window.orbatManager.reagruparSubordinados(unidad);
+
+            if (reagrupados > 0) {
+                this.mostrarNotificacion(`✅ ${reagrupados} subordinados reagrupados`, 'success');
+                this.log(`✅ Reagrupados ${reagrupados} subordinados`);
+            } else {
+                this.mostrarNotificacion('⚠️ No se pudieron reagrupar subordinados', 'warning');
+            }
+
+        } catch (error) {
+            console.error('Error reagrupando subordinados:', error);
+            this.mostrarNotificacion('❌ Error al reagrupar subordinados', 'error');
         }
     }
 
