@@ -103,6 +103,12 @@ class TurnosManager {
      * Actualiza el display del reloj
      */
     actualizarReloj() {
+        // 🔒 PROTECCIÓN: Verificar que relojElement existe
+        if (!this.relojElement) {
+            console.warn('⚠️ relojElement no existe aún, creándolo...');
+            this.crearReloj();
+        }
+
         const tiempoDisplay = document.getElementById('tiempo-display');
         if (tiempoDisplay) {
             tiempoDisplay.textContent = this.formatearTiempo(this.tiempoRestante);
@@ -120,7 +126,26 @@ class TurnosManager {
             }
         }
 
-        const turnoDisplay = this.relojElement.querySelector('div:first-child');
+        // También actualizar el panel inferior
+        const panelTiempo = document.getElementById('panel-tiempo-restante');
+        if (panelTiempo) {
+            panelTiempo.textContent = this.formatearTiempo(this.tiempoRestante);
+            
+            if (this.tiempoRestante <= 30) {
+                panelTiempo.style.color = '#ff0000';
+            } else if (this.tiempoRestante <= 60) {
+                panelTiempo.style.color = '#ff9800';
+            } else {
+                panelTiempo.style.color = '#00ff00';
+            }
+        }
+
+        const panelTurno = document.getElementById('panel-turno-actual');
+        if (panelTurno) {
+            panelTurno.textContent = `${this.turnoActual}`;
+        }
+
+        const turnoDisplay = this.relojElement?.querySelector('div:first-child');
         if (turnoDisplay) {
             turnoDisplay.textContent = `Turno ${this.turnoActual}`;
         }
