@@ -1000,12 +1000,40 @@ function finalizarMedicion(e) {
             // 🎖️ CREAR MARCADOR PT SI ESTAMOS EN MODO MARCHA
             if (window.modoMarcha && window.contadorPuntosMarcha > 0) {
                 var puntos = linea.polyline.getLatLngs();
-                if (puntos.length > 0) {
+                if (puntos.length > 0 && window.map) {
                     var ultimoPunto = puntos[puntos.length - 1];
-                    console.log("🎖️ Creando símbolo PT en último punto de marcha");
-                    // Llamar a la función de panelMarcha para crear PT
-                    if (window.panelMarchaManager && typeof window.panelMarchaManager.crearSimboloPIPT === 'function') {
-                        window.panelMarchaManager.crearSimboloPIPT(ultimoPunto, 'PT');
+                    console.log("🎖️ Creando símbolo PT en último punto de marcha:", ultimoPunto);
+                    
+                    // Crear símbolo PT directamente (código copiado de panelMarcha.js)
+                    if (typeof window.ms !== 'undefined') {
+                        var sidc = 'GFGPGPP---';
+                        var symbol = new ms.Symbol(sidc, {
+                            size: 35,
+                            uniqueDesignation: 'PT',
+                            infoFields: false,
+                            colorMode: "Light",
+                            fill: true,
+                            monoColor: "black"
+                        });
+                        
+                        var icon = L.divIcon({
+                            html: symbol.asSVG(),
+                            iconSize: [35, 35],
+                            iconAnchor: [17.5, 70],
+                            className: 'punto-control-icon pt'
+                        });
+                        
+                        var marker = L.marker(ultimoPunto, {
+                            icon: icon,
+                            draggable: false,
+                            tipo: 'PT',
+                            sidc: sidc
+                        });
+                        
+                        marker.addTo(window.map);
+                        console.log("✅ Símbolo PT creado correctamente");
+                    } else {
+                        console.warn("⚠️ milsymbol.js no disponible para crear PT");
                     }
                 }
                 // Limpiar modo marcha
