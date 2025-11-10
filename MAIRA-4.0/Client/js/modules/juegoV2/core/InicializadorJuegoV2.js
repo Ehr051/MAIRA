@@ -1128,9 +1128,10 @@ class InicializadorJuegoV2 {
             // Exponer globalmente
             window.faseManager = this.faseManager;
 
-            // ✅ Escuchar eventos de cambio de estado (sector/zonas)
+            // ✅ Escuchar eventos de cambio de estado (sector/zonas y cambio de jugador en despliegue)
             document.addEventListener('cambioEstadoPreparacion', () => {
-                console.log('📡 Evento cambioEstadoPreparacion recibido - actualizando botones');
+                console.log('📡 Evento cambioEstadoPreparacion recibido - actualizando panel y botones');
+                this.actualizarPanelEstado(); // ✅ Actualizar panel cuando cambia jugador en despliegue
                 this.actualizarBotonesDinamicos();
             });
 
