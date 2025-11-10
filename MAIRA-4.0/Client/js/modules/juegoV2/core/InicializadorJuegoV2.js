@@ -1171,12 +1171,29 @@ class InicializadorJuegoV2 {
                 onTurnoFin: (turno, tipo) => {
                     console.log(`✅ Turno ${turno} finalizado (${tipo})`);
 
-                    // Si es en fase COMBATE, pasar a ejecución
+                    // 🔄 ROTAR AL SIGUIENTE JUGADOR EN COMBATE
                     if (this.faseManager && this.faseManager.faseActual === 'combate') {
                         if (tipo === 'timeout') {
-                            console.log('⏰ Timeout alcanzado - ejecutando órdenes automáticamente');
+                            console.log('⏰ Timeout alcanzado - pasando al siguiente jugador');
                         }
-                        // this.faseManager.confirmarOrdenes(); // Esto se llama manualmente
+                        
+                        // Pasar al siguiente jugador
+                        const siguienteJugador = this.faseManager.siguienteJugador();
+                        
+                        if (siguienteJugador) {
+                            // Reiniciar reloj para el siguiente jugador
+                            if (this.turnosManager) {
+                                this.turnosManager.iniciarTurno(turno + 1);
+                            }
+                            
+                            // Notificar
+                            this.mostrarNotificacion({
+                                tipo: 'info',
+                                titulo: 'Cambio de turno',
+                                mensaje: `Ahora es turno de <strong>${siguienteJugador.nombre}</strong> (${siguienteJugador.equipo.toUpperCase()})`,
+                                duracion: 4000
+                            });
+                        }
                     }
 
                     // Actualizar panel integrado

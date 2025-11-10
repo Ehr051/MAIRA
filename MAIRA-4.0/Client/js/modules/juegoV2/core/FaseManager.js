@@ -40,6 +40,14 @@ class FaseManager {
         this.modoJuego = opciones.configuracion?.modoJuego || 'local'; // 'local' o 'online'
         this.turnoDespliegueActual = 0; // Índice del jugador actual en modo LOCAL
         this.jugadoresListos = new Set(); // Set de jugadores que confirmaron despliegue
+        
+        // 🔄 Control de turnos en COMBATE
+        this.jugadorCombateActual = 0; // Índice del jugador actual en fase COMBATE
+        this.ordenJugadoresCombate = []; // Array ordenado: primero azules, luego rojos
+        
+        // 🔄 Control de turnos en COMBATE
+        this.jugadorCombateActual = 0; // Índice del jugador actual en fase COMBATE
+        this.ordenJugadoresCombate = []; // Array ordenado: primero azules, luego rojos
 
         // Callbacks para eventos
         this.callbacks = {
@@ -730,10 +738,63 @@ class FaseManager {
      * ✅ Obtiene el jugador que debe desplegar actualmente (LOCAL)
      */
     obtenerJugadorActual() {
-        if (this.modoJuego !== 'local' || this.faseActual !== 'despliegue') {
+        if (this.modoJuego !== 'local') {
             return null;
         }
-        return this.jugadores[this.turnoDespliegueActual] || null;
+        
+        if (this.faseActual === 'despliegue') {
+            return this.jugadores[this.turnoDespliegueActual] || null;
+        } else if (this.faseActual === 'combate') {
+            return this.ordenJugadoresCombate[this.jugadorCombateActual] || null;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * 🔄 Inicializa el orden de jugadores para combate: primero azules, luego rojos
+     */
+    inicializarOrdenJugadores() {
+        const azules = this.jugadores.filter(j => j.equipo === 'azul');
+        const rojos = this.jugadores.filter(j => j.equipo === 'rojo');
+        
+        this.ordenJugadoresCombate = [...azules, ...rojos];
+        this.jugadorCombateActual = 0;
+        
+        console.log('🔄 Orden de jugadores inicializado:', 
+            this.ordenJugadoresCombate.map(j => `${j.nombre} (${j.equipo})`).join(' → '));
+        
+        return this.ordenJugadoresCombate;
+    }
+    
+    /**
+     * 🔄 Avanza al siguiente jugador en fase COMBATE
+     */
+    siguienteJugador() {
+        if (this.faseActual !== 'combate') {
+            console.warn('⚠️ siguienteJugador() solo disponible en fase COMBATE');
+            return null;
+        }
+        
+        // Avanzar índice
+        this.jugadorCombateActual++;
+        
+        // Si llegamos al final, volver al principio (ciclo completo)
+        if (this.jugadorCombateActual >= this.ordenJugadoresCombate.length) {
+            this.jugadorCombateActual = 0;
+            console.log('🔄 Ciclo de jugadores completado, volviendo al primero');
+        }
+        
+        const jugador = this.ordenJugadoresCombate[this.jugadorCombateActual];
+        console.log(`🎯 Ahora es turno de: ${jugador.nombre} (${jugador.equipo})`);
+        
+        // Actualizar window.jugadorActual para los filtros
+        window.jugadorActual = jugador.nombre;
+        
+        // Disparar evento
+        this.dispatchCambioEstado();
+        
+        return jugador;
     }
 
     /**
