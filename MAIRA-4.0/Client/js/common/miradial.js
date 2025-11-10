@@ -425,13 +425,14 @@
             }
 
             // ✅ JUEGO DE GUERRA V2: Filtrar opciones según fase
-            // Solo permitir "Agregar" en fase DESPLIEGUE o COMBATE
+            // Solo permitir "Agregar" en fase DESPLIEGUE
             if (window.faseManager) {
                 const faseActual = window.faseManager.faseActual;
 
-                // Si estamos pidiendo menú de mapa y NO estamos en despliegue/combate
-                if (tipo === 'map' && faseActual === 'preparacion') {
-                    // Devolver menú vacío o solo opciones permitidas (sin "Agregar")
+                // Si estamos pidiendo menú de mapa y NO estamos en despliegue
+                if (tipo === 'map' && faseActual !== 'despliegue') {
+                    // Devolver menú vacío (sin "Agregar")
+                    console.log(`🔒 Agregar elementos deshabilitado - Fase: ${faseActual} (solo disponible en DESPLIEGUE)`);
                     return [];
                 }
             }
@@ -1084,3 +1085,12 @@ window.MAIRA.MenuRadial = {
     ocultar: MiRadial.hideMenu.bind(MiRadial),
     configurarGB: MiRadial.configurarModoGB.bind(MiRadial)
 };
+
+// ✅ SYNC FASE: Escuchar cambios de fase desde FaseManager
+document.addEventListener('cambioFase', function(e) {
+    const fase = e.detail?.fase;
+    if (fase && MiRadial) {
+        console.log(`🔄 MiRadial sincronizando fase: ${fase}`);
+        MiRadial.faseJuego = fase;
+    }
+});

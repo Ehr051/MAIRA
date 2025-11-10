@@ -745,6 +745,31 @@ class FaseManager {
             return false;
         }
 
+        // ✅ Validar que haya al menos 1 elemento en el mapa
+        let cantidadElementos = 0;
+
+        // Contar marcadores con SIDC (símbolos militares) en el mapa
+        if (window.map) {
+            window.map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker && layer.options && layer.options.sidc) {
+                    cantidadElementos++;
+                }
+            });
+        }
+
+        if (cantidadElementos === 0) {
+            console.warn('⚠️ No hay elementos en el mapa');
+            this.mostrarNotificacion({
+                tipo: 'warning',
+                titulo: 'Sin elementos',
+                mensaje: 'Debes desplegar al menos 1 elemento antes de marcar como listo',
+                duracion: 5000
+            });
+            return false;
+        }
+
+        console.log(`✅ Validación OK: ${cantidadElementos} elementos en el mapa`);
+
         const jugadorActual = this.obtenerJugadorActual();
 
         if (this.modoJuego === 'local') {
