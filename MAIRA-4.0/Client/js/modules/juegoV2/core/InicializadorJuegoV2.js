@@ -900,8 +900,24 @@ class InicializadorJuegoV2 {
                 equipoTexto = '--';
                 colorEquipo = '#ff9800';
             }
-            // En DESPLIEGUE y COMBATE: mostrar jugador y equipo
-            else if (this.faseManager && (this.faseManager.faseActual === 'despliegue' || this.faseManager.faseActual === 'combate')) {
+            // En DESPLIEGUE: usar turnoDespliegueActual
+            else if (this.faseManager && this.faseManager.faseActual === 'despliegue') {
+                const jugadorActual = this.faseManager.obtenerJugadorActual();
+
+                if (jugadorActual) {
+                    // Modo LOCAL - usar jugador actual de despliegue
+                    jugadorTexto = `${this.faseManager.turnoDespliegueActual + 1} - ${jugadorActual.nombre || jugadorActual.username}`;
+                    equipoTexto = jugadorActual.equipo.charAt(0).toUpperCase() + jugadorActual.equipo.slice(1); // Capitalizar
+                    colorEquipo = jugadorActual.equipo === 'azul' ? '#0066ff' : '#ff0000';
+                } else {
+                    // Modo ONLINE o error
+                    equipoTexto = 'DESPLIEGUE';
+                    colorEquipo = '#ff9800';
+                    jugadorTexto = 'Jugador';
+                }
+            }
+            // En COMBATE: mostrar jugador y equipo basado en turnos
+            else if (this.faseManager && this.faseManager.faseActual === 'combate') {
                 // Obtener turno actual (par = azul, impar = rojo en local)
                 const turno = this.turnosManager ? this.turnosManager.getTurnoActual() : 0;
                 const esAzul = turno % 2 === 0;
