@@ -168,12 +168,12 @@ window.agregarMarcador = function(sidc, nombre) {
                 // Friend = Azul
                 equipoSIDC = 'azul';
                 zonaCorrecta = window.faseManager.zonaAzulLayer;
-            } else if (afiliado === 'H') {
-                // Hostile = Rojo
+            } else if (afiliado === 'J') {
+                // Joker/Faker (Enemigo según doctrina argentina) = Rojo
                 equipoSIDC = 'rojo';
                 zonaCorrecta = window.faseManager.zonaRojaLayer;
             } else {
-                alert(`❌ SIDC no válido para despliegue.\n\nDebe ser Friend (S*F*...) para equipo azul o Hostile (S*H*...) para equipo rojo.\n\nActual: ${afiliado === 'N' ? 'Neutral' : 'Unknown'}`);
+                alert(`❌ SIDC no válido para despliegue.\n\nDebe ser Friend (S*F*...) para equipo azul o Joker (S*J*...) para equipo rojo.\n\nActual: ${afiliado === 'N' ? 'Neutral' : afiliado === 'H' ? 'Hostile (usar J)' : 'Unknown'}`);
                 return;
             }
 
@@ -191,7 +191,7 @@ window.agregarMarcador = function(sidc, nombre) {
             );
 
             if (!validacion.valido) {
-                alert(`❌ ${validacion.mensaje}\n\nUnidades ${equipoSIDC === 'azul' ? 'amigas (S*F*)' : 'enemigas (S*H*)'} deben estar en la zona ${equipoSIDC}.`);
+                alert(`❌ ${validacion.mensaje}\n\nUnidades ${equipoSIDC === 'azul' ? 'amigas (S*F*)' : 'enemigas (S*J*)'} deben estar en la zona ${equipoSIDC}.`);
                 return;
             }
 
@@ -222,7 +222,7 @@ window.agregarMarcador = function(sidc, nombre) {
         } else if (modoJuegoGuerra) {
             // Sistema viejo: forzar afiliado según equipoJugador
             const sidcArray = sidcFormateado.split('');
-            sidcArray[1] = window.equipoJugador === 'azul' ? 'F' : 'H';
+            sidcArray[1] = window.equipoJugador === 'azul' ? 'F' : 'J';
             sidcFormateado = sidcArray.join('');
             equipoMarcador = window.equipoJugador;
         }

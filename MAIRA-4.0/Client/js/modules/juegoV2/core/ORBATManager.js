@@ -102,42 +102,48 @@ class ORBATManager {
 
     /**
      * Calcula posiciones de despliegue según formación
+     * Usa distancias REALES en metros (no píxeles)
      */
     calcularPosicionesDespliegue(posicionComandante, numeroSubordinados, formacion = 'linea') {
         if (!this.map || !posicionComandante) return [];
 
+        // 📏 DISTANCIAS TÁCTICAS REALES EN METROS
         const config = this.orbatData?.configuracion?.desplieguePorDefecto || {
-            distanciaEntreSub: 200,
-            offsetDesdeComandante: 300
+            distanciaEntreSub: 80,       // 80 metros entre subordinados
+            offsetDesdeComandante: 100   // 100 metros desde comandante
         };
 
         const posiciones = [];
-        const distancia = config.distanciaEntreSub;
-        const offset = config.offsetDesdeComandante;
-
-        // Convertir posición comandante a píxeles
-        const comandantePoint = this.map.latLngToLayerPoint(posicionComandante);
+        const distanciaMetros = config.distanciaEntreSub;  // metros
+        const offsetMetros = config.offsetDesdeComandante; // metros
 
         switch (formacion) {
             case 'linea':
-                // Despliegue horizontal
-                const inicioX = comandantePoint.x - ((numeroSubordinados - 1) * distancia / 2);
-                const y = comandantePoint.y + offset;
+                // Despliegue horizontal (Este-Oeste)
+                const inicioLat = -(numeroSubordinados - 1) * distanciaMetros / 2;
 
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    const point = L.point(inicioX + (i * distancia), y);
-                    posiciones.push(this.map.layerPointToLatLng(point));
+                    const offsetLat = inicioLat + (i * distanciaMetros);
+                    const nuevaPos = this.calcularPosicionDesdeDistancia(
+                        posicionComandante,
+                        90,  // Bearing Este
+                        offsetLat,
+                        180, // Bearing Sur para offset
+                        offsetMetros
+                    );
+                    posiciones.push(nuevaPos);
                 }
                 break;
 
             case 'columna':
-                // Despliegue vertical
-                const x = comandantePoint.x;
-                const inicioY = comandantePoint.y + offset;
-
+                // Despliegue vertical (Norte-Sur)
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    const point = L.point(x, inicioY + (i * distancia));
-                    posiciones.push(this.map.layerPointToLatLng(point));
+                    const nuevaPos = this.calcularPosicionDesdeDistancia(
+                        posicionComandante,
+                        180, // Bearing Sur
+                        offsetMetros + (i * distanciaMetros)
+                    );
+                    posiciones.push(nuevaPos);
                 }
                 break;
 
@@ -145,41 +151,51 @@ class ORBATManager {
                 // Formación en V
                 const mitad = Math.floor(numeroSubordinados / 2);
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    let offsetX, offsetY;
+                    let bearing, distancia;
                     if (i < mitad) {
-                        // Lado izquierdo de la V
-                        offsetX = -(i + 1) * distancia;
-                        offsetY = offset + (i + 1) * distancia;
+                        // Lado izquierdo de la V (Suroeste)
+                        bearing = 225; // SW
+                        distancia = offsetMetros + ((i + 1) * distanciaMetros);
                     } else {
-                        // Lado derecho de la V
+                        // Lado derecho de la V (Sureste)
+                        bearing = 135; // SE
                         const idx = i - mitad;
-                        offsetX = (idx + 1) * distancia;
-                        offsetY = offset + (idx + 1) * distancia;
+                        distancia = offsetMetros + ((idx + 1) * distanciaMetros);
                     }
-                    const point = L.point(comandantePoint.x + offsetX, comandantePoint.y + offsetY);
-                    posiciones.push(this.map.layerPointToLatLng(point));
+                    const nuevaPos = this.calcularPosicionDesdeDistancia(
+                        posicionComandante,
+                        bearing,
+                        distancia
+                    );
+                    posiciones.push(nuevaPos);
                 }
                 break;
 
             case 'escalon_derecha':
-                // Escalonados a la derecha
+                // Escalonados a la derecha (SE)
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    const point = L.point(
-                        comandantePoint.x + (i * distancia),
-                        comandantePoint.y + offset + (i * distancia / 2)
+                    const bearing = 135; // SE
+                    const distancia = offsetMetros + (i * distanciaMetros);
+                    const nuevaPos = this.calcularPosicionDesdeDistancia(
+                        posicionComandante,
+                        bearing,
+                        distancia
                     );
-                    posiciones.push(this.map.layerPointToLatLng(point));
+                    posiciones.push(nuevaPos);
                 }
                 break;
 
             case 'escalon_izquierda':
-                // Escalonados a la izquierda
+                // Escalonados a la izquierda (SW)
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    const point = L.point(
-                        comandantePoint.x - (i * distancia),
-                        comandantePoint.y + offset + (i * distancia / 2)
+                    const bearing = 225; // SW
+                    const distancia = offsetMetros + (i * distanciaMetros);
+                    const nuevaPos = this.calcularPosicionDesdeDistancia(
+                        posicionComandante,
+                        bearing,
+                        distancia
                     );
-                    posiciones.push(this.map.layerPointToLatLng(point));
+                    posiciones.push(nuevaPos);
                 }
                 break;
 
@@ -189,6 +205,54 @@ class ORBATManager {
         }
 
         return posiciones;
+    }
+
+    /**
+     * Calcula una nueva posición geográfica desde un punto, bearing y distancia
+     * @param {L.LatLng} origen - Punto de origen
+     * @param {Number} bearing1 - Bearing principal (grados 0-360)
+     * @param {Number} distancia1 - Distancia en metros
+     * @param {Number} bearing2 - Bearing secundario opcional
+     * @param {Number} distancia2 - Distancia secundaria opcional
+     * @returns {L.LatLng} Nueva posición
+     */
+    calcularPosicionDesdeDistancia(origen, bearing1, distancia1, bearing2 = null, distancia2 = 0) {
+        const R = 6371000; // Radio de la Tierra en metros
+
+        // Convertir a radianes
+        const lat1 = origen.lat * Math.PI / 180;
+        const lon1 = origen.lng * Math.PI / 180;
+        const brng1 = bearing1 * Math.PI / 180;
+
+        // Calcular nueva posición (bearing1 + distancia1)
+        const lat2 = Math.asin(
+            Math.sin(lat1) * Math.cos(distancia1 / R) +
+            Math.cos(lat1) * Math.sin(distancia1 / R) * Math.cos(brng1)
+        );
+
+        let lon2 = lon1 + Math.atan2(
+            Math.sin(brng1) * Math.sin(distancia1 / R) * Math.cos(lat1),
+            Math.cos(distancia1 / R) - Math.sin(lat1) * Math.sin(lat2)
+        );
+
+        // Si hay bearing/distancia secundaria, aplicarla
+        if (bearing2 !== null && distancia2 > 0) {
+            const brng2 = bearing2 * Math.PI / 180;
+            const lat3 = Math.asin(
+                Math.sin(lat2) * Math.cos(distancia2 / R) +
+                Math.cos(lat2) * Math.sin(distancia2 / R) * Math.cos(brng2)
+            );
+
+            lon2 = lon2 + Math.atan2(
+                Math.sin(brng2) * Math.sin(distancia2 / R) * Math.cos(lat2),
+                Math.cos(distancia2 / R) - Math.sin(lat2) * Math.sin(lat3)
+            );
+
+            return L.latLng(lat3 * 180 / Math.PI, lon2 * 180 / Math.PI);
+        }
+
+        // Convertir de vuelta a grados
+        return L.latLng(lat2 * 180 / Math.PI, lon2 * 180 / Math.PI);
     }
 
     /**
@@ -480,19 +544,44 @@ class ORBATManager {
 
     /**
      * Actualiza el icono del padre para indicar si está desplegado
+     * Al desplegar: Convierte a Puesto Comando (SIDC pos 10 = 'A')
+     * Al reagrupar: Restaura a normal (SIDC pos 10 = '-')
      */
     actualizarIconoPadre(unidadPadre, estaDesplegado) {
         if (!unidadPadre || !unidadPadre.options || !unidadPadre.options.sidc) return;
 
         try {
-            // Agregar indicador visual (borde o badge)
-            const sidc = unidadPadre.options.sidc;
-            const symbol = new ms.Symbol(sidc, {
-                size: 30,
-                // Agregar modificador de "desplegado" (opcional)
+            // 🏛️ CONVERSIÓN A PUESTO COMANDO
+            let sidcActual = unidadPadre.options.sidc;
+            let sidcNuevo = sidcActual;
+
+            if (estaDesplegado) {
+                // Convertir a Puesto Comando (Headquarters): posición 10 = 'A'
+                // Preservar si ya era Task Force ('E' o 'D')
+                const modificadorActual = sidcActual.charAt(10);
+                if (modificadorActual === 'E') {
+                    // Ya es Task Force, convertir a HQ + Task Force
+                    sidcNuevo = sidcActual.substring(0, 10) + 'D' + sidcActual.substring(11);
+                } else if (modificadorActual !== 'A' && modificadorActual !== 'D') {
+                    // Convertir a solo Headquarters
+                    sidcNuevo = sidcActual.substring(0, 10) + 'A' + sidcActual.substring(11);
+                }
+                console.log(`🏛️ Convirtiendo a Puesto Comando: ${sidcActual} → ${sidcNuevo}`);
+            } else {
+                // Restaurar a normal: posición 10 = '-'
+                sidcNuevo = sidcActual.substring(0, 10) + '-' + sidcActual.substring(11);
+                console.log(`🔄 Restaurando a normal: ${sidcActual} → ${sidcNuevo}`);
+            }
+
+            // Actualizar SIDC en options
+            unidadPadre.options.sidc = sidcNuevo;
+
+            // Crear símbolo con el SIDC nuevo
+            const symbol = new ms.Symbol(sidcNuevo, {
+                size: 30
             });
 
-            // Crear nuevo icono con indicador
+            // Crear nuevo icono con indicador verde si está desplegado
             const iconHtml = estaDesplegado
                 ? `<div style="position: relative;">
                     ${symbol.asSVG()}

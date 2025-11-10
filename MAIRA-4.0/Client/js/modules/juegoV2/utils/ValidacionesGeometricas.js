@@ -263,10 +263,10 @@ class ValidacionesGeometricas {
     }
 
     /**
-     * Extrae el afiliado del SIDC (Friend, Hostile, Neutral, Unknown)
+     * Extrae el afiliado del SIDC (Friend, Joker/Faker, Neutral, Unknown)
      *
      * @param {string} sidc - Código SIDC (ej: "SFGPUCF---")
-     * @returns {string} 'F' (Friend), 'H' (Hostile), 'N' (Neutral), 'U' (Unknown)
+     * @returns {string} 'F' (Friend), 'J' (Joker - Enemigo), 'N' (Neutral), 'U' (Unknown)
      */
     static obtenerAfiliadoSIDC(sidc) {
         if (!sidc || sidc.length < 3) {
@@ -276,12 +276,19 @@ class ValidacionesGeometricas {
 
         // El afiliado está en la posición 1 (0-indexed)
         // S*F* = Friend (Azul)
-        // S*H* = Hostile (Rojo)
+        // S*J* = Joker/Faker (Rojo - doctrina argentina)
+        // S*H* = Hostile (también aceptado como Rojo, compatibilidad)
         // S*N* = Neutral
         // S*U* = Unknown
         const afiliado = sidc.charAt(1).toUpperCase();
 
-        if (['F', 'H', 'N', 'U'].includes(afiliado)) {
+        // Convertir H (Hostile) a J (Joker) para compatibilidad
+        if (afiliado === 'H') {
+            console.log('⚠️ Convirtiendo H (Hostile) → J (Joker) por doctrina argentina');
+            return 'J';
+        }
+
+        if (['F', 'J', 'N', 'U'].includes(afiliado)) {
             return afiliado;
         }
 
@@ -304,15 +311,15 @@ class ValidacionesGeometricas {
                 return {
                     valido: false,
                     afiliado: afiliado,
-                    mensaje: `SIDC incorrecto para equipo azul.<br>Debe ser Friend (S*F*...), actual: ${afiliado === 'H' ? 'Hostile' : afiliado === 'N' ? 'Neutral' : 'Unknown'}`
+                    mensaje: `SIDC incorrecto para equipo azul.<br>Debe ser Friend (S*F*...), actual: ${afiliado === 'J' ? 'Joker' : afiliado === 'N' ? 'Neutral' : 'Unknown'}`
                 };
             }
         } else if (equipo === 'rojo') {
-            if (afiliado !== 'H') {
+            if (afiliado !== 'J') {
                 return {
                     valido: false,
                     afiliado: afiliado,
-                    mensaje: `SIDC incorrecto para equipo rojo.<br>Debe ser Hostile (S*H*...), actual: ${afiliado === 'F' ? 'Friend' : afiliado === 'N' ? 'Neutral' : 'Unknown'}`
+                    mensaje: `SIDC incorrecto para equipo rojo.<br>Debe ser Joker (S*J*...), actual: ${afiliado === 'F' ? 'Friend' : afiliado === 'N' ? 'Neutral' : 'Unknown'}`
                 };
             }
         } else {
@@ -341,7 +348,7 @@ class ValidacionesGeometricas {
 
         const colores = {
             'F': '#0080FF', // Friend - Azul
-            'H': '#FF0000', // Hostile - Rojo
+            'J': '#FF0000', // Joker/Faker - Rojo (enemigo según doctrina argentina)
             'N': '#00FF00', // Neutral - Verde
             'U': '#FFFF00'  // Unknown - Amarillo
         };
