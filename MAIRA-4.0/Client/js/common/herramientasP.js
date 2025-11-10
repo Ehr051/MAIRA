@@ -997,6 +997,23 @@ function finalizarMedicion(e) {
             
             console.log('✅ Medición completada:', distancia.toFixed(2), 'metros');
             
+            // 🎖️ CREAR MARCADOR PT SI ESTAMOS EN MODO MARCHA
+            if (window.modoMarcha && window.contadorPuntosMarcha > 0) {
+                var puntos = linea.polyline.getLatLngs();
+                if (puntos.length > 0) {
+                    var ultimoPunto = puntos[puntos.length - 1];
+                    console.log("🎖️ Creando símbolo PT en último punto de marcha");
+                    // Llamar a la función de panelMarcha para crear PT
+                    if (window.panelMarchaManager && typeof window.panelMarchaManager.crearSimboloPIPT === 'function') {
+                        window.panelMarchaManager.crearSimboloPIPT(ultimoPunto, 'PT');
+                    }
+                }
+                // Limpiar modo marcha
+                window.modoMarcha = false;
+                window.contadorPuntosMarcha = 0;
+                console.log("🎖️ Modo marcha finalizado");
+            }
+            
             // ✅ SELECCIONAR LÍNEA CREADA:
             if (typeof seleccionarElemento === 'function') {
                 seleccionarElemento(linea.polyline);
