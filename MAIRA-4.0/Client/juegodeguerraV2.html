@@ -1259,9 +1259,6 @@
     <button id="cerrarMedicion">X</button>
 </div>
 
-  <!-- 🎬 PANEL DE COORDINACIÓN DE ÓRDENES V2 -->
-  <div id="panel-coordinacion-container"></div>
-
   <div id="panelEdicionLinea" class="panel">
     <h3>Editar Línea</h3>
     <div>
@@ -2866,14 +2863,22 @@ function configurarEventosPlaneamiento() {
                 const panel = window.gestorOrdenesV2.panelCoordinacion;
 
                 // Toggle mostrar/ocultar panel
-                if (panel.container && panel.container.style.display === 'none') {
-                    panel.mostrar();
-                    btnPanelCoordinacion.innerHTML = '<i class="fas fa-times-circle"></i> Cerrar Panel Coordinación';
-                    console.log('✅ Panel de Coordinación abierto');
+                // Verificar si está oculto usando getComputedStyle para mayor robustez
+                if (panel.container) {
+                    const isHidden = panel.container.style.display === 'none' ||
+                                   window.getComputedStyle(panel.container).display === 'none';
+
+                    if (isHidden) {
+                        panel.mostrar();
+                        btnPanelCoordinacion.innerHTML = '<i class="fas fa-times-circle"></i> Cerrar Panel Coordinación';
+                        console.log('✅ Panel de Coordinación abierto');
+                    } else {
+                        panel.ocultar();
+                        btnPanelCoordinacion.innerHTML = '<i class="fas fa-tasks"></i> Panel de Coordinación';
+                        console.log('🔴 Panel de Coordinación cerrado');
+                    }
                 } else {
-                    panel.ocultar();
-                    btnPanelCoordinacion.innerHTML = '<i class="fas fa-tasks"></i> Panel de Coordinación';
-                    console.log('🔴 Panel de Coordinación cerrado');
+                    console.error('❌ Panel.container no existe');
                 }
             } else {
                 console.warn('⚠️ Panel de Coordinación no disponible. Debe estar en fase COMBATE.');
