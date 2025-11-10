@@ -121,7 +121,7 @@ class VegetationInstancer {
                     } else {
                         console.warn(`  ⚠️ Sin baseColor texture - Aplicando color fallback`);
                         // Color verde oscuro para vegetación sin textura
-                        material.color = new THREE.Color(0x2d5016);
+                        material.color = new THREE.Color(0x1a3d0f);
                     }
                     
                     // Verificar normal map
@@ -234,14 +234,14 @@ class VegetationInstancer {
                         
                         instanceGroup.rotation.y = inst.rotation || 0;
                         
-                        const scaleValue = inst.scale || 1.0;
+                        const scaleValue = inst.scale ? inst.scale * 2.5 : 2.5;
                         instanceGroup.scale.set(scaleValue, scaleValue, scaleValue);
                         
                         // 🔥 FORZAR VISIBILIDAD de TODOS los meshes
                         instanceGroup.traverse((child) => {
                             if (child.isMesh) {
                                 child.visible = true;
-                                child.frustumCulled = false;
+                                child.frustumCulled = true;
                                 child.castShadow = true;
                                 child.receiveShadow = true;
                                 
@@ -250,7 +250,7 @@ class VegetationInstancer {
                                     const materials = Array.isArray(child.material) ? child.material : [child.material];
                                     materials.forEach(mat => {
                                         mat.needsUpdate = true;
-                                        mat.side = THREE.DoubleSide;
+                                        mat.side = THREE.FrontSide;
                                         mat.visible = true;
                                         
                                         // Fix opacity
@@ -302,7 +302,7 @@ class VegetationInstancer {
                     );
                     
                     // Escala
-                    const scaleValue = inst.scale || 1.0;
+                    const scaleValue = inst.scale ? inst.scale * 2.5 : 2.5;
                     scale.set(scaleValue, scaleValue, scaleValue);
                     
                     // Componer matriz
