@@ -745,32 +745,51 @@ class FaseManager {
             return false;
         }
 
-        // ✅ Validar que haya al menos 1 elemento en el mapa
-        let cantidadElementos = 0;
+        const jugadorActual = this.obtenerJugadorActual();
 
-        // Contar marcadores con SIDC (símbolos militares) en el mapa
+        // ✅ Validar que haya al menos 1 elemento del equipo actual en el mapa
+        let cantidadElementos = 0;
+        let equipoActual = null;
+
+        // Determinar equipo actual
+        if (this.modoJuego === 'local' && jugadorActual) {
+            equipoActual = jugadorActual.equipo; // 'azul' o 'rojo'
+        }
+
+        // Contar marcadores con SIDC del equipo actual
         if (window.map) {
             window.map.eachLayer(function(layer) {
                 if (layer instanceof L.Marker && layer.options && layer.options.sidc) {
-                    cantidadElementos++;
+                    // Verificar afiliación SIDC (posición 1, index 1)
+                    const afiliacion = layer.options.sidc.charAt(1);
+
+                    // F = Friend (azul), J = Joker/Enemigo (rojo en doctrina argentina)
+                    if (equipoActual) {
+                        if ((equipoActual === 'azul' && afiliacion === 'F') ||
+                            (equipoActual === 'rojo' && afiliacion === 'J')) {
+                            cantidadElementos++;
+                        }
+                    } else {
+                        // Modo online o sin equipo específico
+                        cantidadElementos++;
+                    }
                 }
             });
         }
 
         if (cantidadElementos === 0) {
-            console.warn('⚠️ No hay elementos en el mapa');
+            const equipoTexto = equipoActual ? ` del equipo ${equipoActual.toUpperCase()}` : '';
+            console.warn(`⚠️ No hay elementos${equipoTexto} en el mapa`);
             this.mostrarNotificacion({
                 tipo: 'warning',
                 titulo: 'Sin elementos',
-                mensaje: 'Debes desplegar al menos 1 elemento antes de marcar como listo',
+                mensaje: `Debes desplegar al menos 1 elemento${equipoTexto} antes de marcar como listo`,
                 duracion: 5000
             });
             return false;
         }
 
-        console.log(`✅ Validación OK: ${cantidadElementos} elementos en el mapa`);
-
-        const jugadorActual = this.obtenerJugadorActual();
+        console.log(`✅ Validación OK: ${cantidadElementos} elementos${equipoActual ? ' del equipo ' + equipoActual.toUpperCase() : ''} en el mapa`);
 
         if (this.modoJuego === 'local') {
             // LOCAL: Avanzar al siguiente jugador
