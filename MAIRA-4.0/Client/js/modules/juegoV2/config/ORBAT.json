@@ -28,36 +28,26 @@
       "F": {
         "_magnitud": "Batallón de Infantería",
         "_personal": 600,
+        "_nomenclatura": "letra",
         "subordinados": [
-          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Fusileros A", "cantidad": 1, "personal": 120 },
-          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Fusileros B", "cantidad": 1, "personal": 120 },
-          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Fusileros C", "cantidad": 1, "personal": 120 },
-          { "tipo": "UCI", "magnitud": "E", "nombre": "Cía Apoyo", "cantidad": 1, "personal": 80, "vehiculos": ["M113"] },
-          { "tipo": "UCI", "magnitud": "D", "nombre": "Plana Mayor", "cantidad": 1, "personal": 40 },
-          { "tipo": "USS", "magnitud": "C", "nombre": "Sección Logística", "cantidad": 1, "personal": 20 }
+          { "tipo": "UCI", "magnitud": "E", "letra": "A", "cantidad": 1, "personal": 90 },
+          { "tipo": "UCI", "magnitud": "E", "letra": "B", "cantidad": 1, "personal": 90 },
+          { "tipo": "UCI", "magnitud": "E", "letra": "C", "cantidad": 1, "personal": 90 },
+          { "tipo": "UCI", "magnitud": "E", "nombre": "Mor", "cantidad": 1, "personal": 40, "observacion": "Sección Morteros" },
+          { "tipo": "UCI", "magnitud": "C", "nombre": "Expl", "cantidad": 1, "personal": 20, "observacion": "Sección Exploración" },
+          { "tipo": "USS", "magnitud": "C", "nombre": "Log", "cantidad": 1, "personal": 30, "observacion": "Sección Logística" }
         ]
       },
 
       "E": {
         "_magnitud": "Compañía de Infantería",
-        "_personal": 120,
-        "_vehiculos": ["M113", "M113", "M113", "M113"],
+        "_personal": 90,
+        "_vehiculos": ["M113", "M113", "M113"],
+        "_nomenclatura": "letra",
         "subordinados": [
-          { "tipo": "UCI", "magnitud": "D", "nombre": "Pelotón 1", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
-          { "tipo": "UCI", "magnitud": "D", "nombre": "Pelotón 2", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
-          { "tipo": "UCI", "magnitud": "D", "nombre": "Pelotón 3", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
-          { "tipo": "UCI", "magnitud": "B", "nombre": "Grupo Comando", "cantidad": 1, "personal": 10 }
-        ]
-      },
-
-      "D": {
-        "_magnitud": "Pelotón de Infantería",
-        "_personal": 30,
-        "_vehiculo": "M113",
-        "subordinados": [
-          { "tipo": "UCI", "magnitud": "C", "nombre": "Sección 1", "cantidad": 1, "personal": 10 },
-          { "tipo": "UCI", "magnitud": "C", "nombre": "Sección 2", "cantidad": 1, "personal": 10 },
-          { "tipo": "UCI", "magnitud": "C", "nombre": "Sección 3", "cantidad": 1, "personal": 10 }
+          { "tipo": "UCI", "magnitud": "C", "letra": "1", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
+          { "tipo": "UCI", "magnitud": "C", "letra": "2", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
+          { "tipo": "UCI", "magnitud": "C", "letra": "3", "cantidad": 1, "personal": 30, "vehiculo": "M113" }
         ]
       },
 
@@ -68,9 +58,10 @@
           "jefe_seccion": 1,
           "grupos": 2
         },
+        "_nomenclatura": "letra",
         "subordinados": [
-          { "tipo": "UCI", "magnitud": "B", "nombre": "Grupo 1", "cantidad": 1, "personal": 5 },
-          { "tipo": "UCI", "magnitud": "B", "nombre": "Grupo 2", "cantidad": 1, "personal": 5 }
+          { "tipo": "UCI", "magnitud": "B", "letra": "1", "cantidad": 1, "personal": 5 },
+          { "tipo": "UCI", "magnitud": "B", "letra": "2", "cantidad": 1, "personal": 5 }
         ]
       },
 
@@ -101,12 +92,13 @@
         "_magnitud": "Escuadrón de Caballería (TAM)",
         "_personal": 40,
         "_vehiculos_totales": { "TAM": 10, "UNIMOG": 1 },
+        "_nomenclatura": "letra",
         "subordinados": [
-          { "tipo": "UCR", "magnitud": "C", "nombre": "Sección TAM 1", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
-          { "tipo": "UCR", "magnitud": "C", "nombre": "Sección TAM 2", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
-          { "tipo": "UCR", "magnitud": "C", "nombre": "Sección TAM 3", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
-          { "tipo": "UCR", "magnitud": "A", "nombre": "Puesto Comando", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Escuadrón" },
-          { "tipo": "USS", "magnitud": "A", "nombre": "Tren Escuadrón", "cantidad": 1, "vehiculo": "UNIMOG" }
+          { "tipo": "UCR", "magnitud": "C", "letra": "1", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
+          { "tipo": "UCR", "magnitud": "C", "letra": "2", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
+          { "tipo": "UCR", "magnitud": "C", "letra": "3", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
+          { "tipo": "UCR", "magnitud": "A", "nombre": "PC", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Escuadrón" },
+          { "tipo": "USS", "magnitud": "A", "nombre": "Tren", "cantidad": 1, "vehiculo": "UNIMOG" }
         ]
       },
 
@@ -114,10 +106,11 @@
         "_magnitud": "Sección de Caballería (TAM)",
         "_personal": 12,
         "_vehiculos": ["TAM", "TAM", "TAM"],
+        "_nomenclatura": "letra",
         "subordinados": [
-          { "tipo": "UCR", "magnitud": "A", "nombre": "Tanque 1", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Sección" },
-          { "tipo": "UCR", "magnitud": "A", "nombre": "Tanque 2", "cantidad": 1, "vehiculo": "TAM" },
-          { "tipo": "UCR", "magnitud": "A", "nombre": "Tanque 3", "cantidad": 1, "vehiculo": "TAM" }
+          { "tipo": "UCR", "magnitud": "A", "letra": "1", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Sección" },
+          { "tipo": "UCR", "magnitud": "A", "letra": "2", "cantidad": 1, "vehiculo": "TAM" },
+          { "tipo": "UCR", "magnitud": "A", "letra": "3", "cantidad": 1, "vehiculo": "TAM" }
         ]
       },
 

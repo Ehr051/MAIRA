@@ -244,13 +244,21 @@ class ORBATManager {
                 subData.magnitud
             );
 
+            // 🏷️ NOMENCLATURA AUTOMÁTICA: Generar nombre según doctrina argentina
+            const nombreSubordinado = this.generarNombreSubordinado(
+                unidadPadre,
+                subData,
+                i
+            );
+
             // Crear marcador subordinado
             const subordinado = this.crearMarcadorSubordinado({
                 sidc: sidcSubordinado,
-                nombre: subData.nombre,
+                nombre: nombreSubordinado,
                 posicion: posicion,
                 equipoPadre: unidadPadre.options.equipo,
-                comandante: unidadPadre.options.id || unidadPadre.options.nombre
+                comandante: unidadPadre.options.id || unidadPadre.options.nombre,
+                designacionPadre: unidadPadre.options.designacion
             });
 
             if (subordinado) {
@@ -315,9 +323,10 @@ class ORBATManager {
                 }),
                 sidc: config.sidc,
                 nombre: config.nombre,
+                designacion: config.nombre, // 🏷️ Designación para nomenclatura recursiva
                 equipo: config.equipoPadre,
                 comandante: config.comandante,
-                id: `${config.comandante}_${config.nombre.replace(/\s/g, '_')}_${Date.now()}`
+                id: `${config.comandante}_${config.nombre.replace(/\//g, '-').replace(/\s/g, '_')}_${Date.now()}`
             });
 
             marcador.addTo(this.map);
@@ -358,6 +367,61 @@ class ORBATManager {
     contarSubordinados(sidc) {
         const plantilla = this.obtenerPlantillaSubordinados(sidc);
         return plantilla?.subordinados?.length || 0;
+    }
+
+    /**
+     * 🏷️ NOMENCLATURA AUTOMÁTICA: Genera nombre según doctrina argentina
+     * Reglas:
+     * - Si tiene nombre específico (Mor, Expl) → nombre/designacion_padre
+     * - Si tiene letra → letra/designacion_padre
+     * - Si no tiene nada → generar letra automática (A, B, C...)
+     *
+     * Ejemplos:
+     * - Padre "14" + letra "1" → "1/14"
+     * - Padre "Suipacha" + letra "A" → "A/Suipacha"
+     * - Padre "A/14" + letra "1" → "1/A"
+     * - Padre "14" + nombre "Mor" → "Mor/14"
+     */
+    generarNombreSubordinado(unidadPadre, subData, indice) {
+        // 1. Obtener designación del padre
+        let designacionPadre = unidadPadre.options.designacion ||
+                               unidadPadre.options.nombre ||
+                               'Unidad';
+
+        // 2. Determinar letra/nombre del subordinado
+        let letraSubordinado = null;
+
+        // 2a. Si tiene nombre específico (Mor, Expl, Franqueo, etc.)
+        if (subData.nombre && !subData.nombre.includes('Sección') &&
+            !subData.nombre.includes('Grupo') && !subData.nombre.includes('Pelotón')) {
+            letraSubordinado = subData.nombre;
+        }
+        // 2b. Si tiene letra definida en ORBAT.json
+        else if (subData.letra) {
+            letraSubordinado = subData.letra;
+        }
+        // 2c. Generar letra automática (A, B, C, ...)
+        else {
+            // Para unidades: A, B, C, D...
+            // Para secciones de compañías argentinas: 1, 2, 3...
+            const letras = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+            const numeros = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+
+            // Si el padre es compañía/escuadrón (E,F), usar números para subordinados
+            const magnitudPadre = this.extraerMagnitud(unidadPadre.options.sidc);
+            if (magnitudPadre === 'E' || magnitudPadre === 'F') {
+                letraSubordinado = numeros[indice] || `${indice + 1}`;
+            } else {
+                letraSubordinado = letras[indice] || String.fromCharCode(65 + indice);
+            }
+        }
+
+        // 3. Construir nombre final: letra/designacion_padre
+        const nombreFinal = `${letraSubordinado}/${designacionPadre}`;
+
+        console.log(`📝 Nomenclatura: Padre="${designacionPadre}" + Letra="${letraSubordinado}" → "${nombreFinal}"`);
+
+        return nombreFinal;
     }
 
     /**
