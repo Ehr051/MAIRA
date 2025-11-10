@@ -789,8 +789,8 @@ class InicializadorJuegoV2 {
         // FASE: COMBATE
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         else if (fase === 'combate') {
-            // Solo mostrar "Pasar Turno" durante planificacion
-            if (subfase === 'planificacion') {
+            // Solo mostrar "Pasar Turno" durante imparticion
+            if (subfase === 'imparticion') {
                 this.agregarBoton(contenedor, {
                     texto: '✅ Pasar Turno',
                     color: 'rgba(76, 175, 80, 0.8)',
@@ -1161,7 +1161,7 @@ class InicializadorJuegoV2 {
                     console.log(`⏰ TIMEOUT en turno ${turno}`);
 
                     // Auto-confirmar órdenes por timeout
-                    if (this.faseManager && this.faseManager.subfaseActual === 'planificacion') {
+                    if (this.faseManager && this.faseManager.subfaseActual === 'imparticion') {
                         this.faseManager.confirmarOrdenes();
                     }
 

@@ -4,7 +4,7 @@
  * Controla el flujo completo del juego:
  * - PREPARACIÓN: Director delimita sector y zonas
  * - DESPLIEGUE: Jugadores colocan unidades en sus zonas
- * - COMBATE: Subfases de Planificación → Ejecución → Revisión
+ * - COMBATE: Subfases de Impartición de Órdenes → Ejecución → Revisión
  *
  * @version 2.0
  * @date 2025-11-07
@@ -20,7 +20,7 @@ class FaseManager {
 
         // Estado actual
         this.faseActual = 'preparacion'; // preparacion | despliegue | combate
-        this.subfaseActual = null; // Para combate: planificacion | ejecucion | revision
+        this.subfaseActual = null; // Para combate: imparticion | ejecucion | revision
         this.turnoActual = 0;
 
         // Datos de la partida
@@ -204,8 +204,8 @@ class FaseManager {
                 break;
             case 'combate':
                 switch (this.subfaseActual) {
-                    case 'planificacion':
-                        texto = `⚔️ COMBATE - Turno ${this.turnoActual} - 📋 Planificación`;
+                    case 'imparticion':
+                        texto = `⚔️ COMBATE - Turno ${this.turnoActual} - 📋 Impartición de Órdenes`;
                         gradiente = 'linear-gradient(135deg, #2196F3, #1976D2)';
                         break;
                     case 'ejecucion':
@@ -903,29 +903,29 @@ class FaseManager {
         this.turnoActual = 1;
         this.actualizarIndicadorFase();
 
-        // Iniciar subfase de planificación
+        // Iniciar subfase de impartición de órdenes
         await this.iniciarPlanificacion();
 
         // Callback
-        this.callbacks.onFaseChange('combate', 'planificacion');
+        this.callbacks.onFaseChange('combate', 'imparticion');
 
         console.log('✅ Fase COMBATE iniciada - Turno 1');
     }
 
     /**
-     * Subfase de Planificación
+     * Subfase de Impartición de Órdenes
      */
     async iniciarPlanificacion() {
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`📋 SUBFASE: PLANIFICACIÓN - Turno ${this.turnoActual}`);
+        console.log(`📋 SUBFASE: IMPARTICIÓN DE ÓRDENES - Turno ${this.turnoActual}`);
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-        this.subfaseActual = 'planificacion';
+        this.subfaseActual = 'imparticion';
         this.actualizarIndicadorFase();
 
         this.mostrarNotificacion({
             tipo: 'info',
-            titulo: `Planificación - Turno ${this.turnoActual}`,
+            titulo: `Impartición de Órdenes - Turno ${this.turnoActual}`,
             mensaje: `
                 Da órdenes a tus unidades:<br>
                 - Doble-click en unidad → Menú radial<br>
@@ -941,12 +941,12 @@ class FaseManager {
         }
 
         // Callback
-        this.callbacks.onSubfaseChange('planificacion');
+        this.callbacks.onSubfaseChange('imparticion');
 
         // Evento para panelInferiorUnificado
         this.dispatchCambioFase();
 
-        console.log('✅ Planificación iniciada');
+        console.log('✅ Impartición de Órdenes iniciada');
     }
 
     /**
@@ -1042,7 +1042,7 @@ class FaseManager {
         // Callback
         this.callbacks.onTurnoChange(this.turnoActual);
 
-        // Volver a planificación
+        // Volver a impartición de órdenes
         await this.iniciarPlanificacion();
     }
 

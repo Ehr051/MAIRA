@@ -6,7 +6,7 @@
  * - PanelCoordinacionOrdenes (visualización timeline)
  * - Menú Radial (interfaz para dar órdenes)
  * - HexGrid (mapa hexagonal)
- * - Subfases de combate (planificación → ejecución → revisión)
+ * - Subfases de combate (impartición de órdenes → ejecución → revisión)
  *
  * @author MAIRA Team
  * @version 2.0
@@ -33,7 +33,7 @@ class GestorOrdenesV2 {
         this.menuRadial = null;
 
         // Estado del juego
-        this.subfaseActual = 'planificacion'; // planificacion | ejecucion | revision
+        this.subfaseActual = 'imparticion'; // imparticion | ejecucion | revision
         this.turnoActual = 1;
         this.tiempoSimuladoMinutos = 0;
         this.jugadorActual = null;
@@ -758,11 +758,11 @@ class GestorOrdenesV2 {
     // =====================================================
 
     /**
-     * Cambia a subfase de planificación
+     * Cambia a subfase de impartición de órdenes
      */
     iniciarPlanificacion() {
-        this.log('📋 Iniciando fase de PLANIFICACIÓN');
-        this.subfaseActual = 'planificacion';
+        this.log('📋 Iniciando fase de IMPARTICIÓN DE ÓRDENES');
+        this.subfaseActual = 'imparticion';
         this.logEventosTurno = [];
 
         // Habilitar interfaz para dar órdenes
@@ -773,8 +773,8 @@ class GestorOrdenesV2 {
         //     this.panelCoordinacion.mostrar();
         // }
 
-        this.emit('subfaseCambiada', { subfase: 'planificacion', turno: this.turnoActual });
-        this.mostrarNotificacion(`📋 Turno ${this.turnoActual} - Planificación`, 'info');
+        this.emit('subfaseCambiada', { subfase: 'imparticion', turno: this.turnoActual });
+        this.mostrarNotificacion(`📋 Turno ${this.turnoActual} - Impartición de Órdenes`, 'info');
     }
 
     /**
@@ -880,7 +880,7 @@ class GestorOrdenesV2 {
 
         this.emit('turnoFinalizado', { turno: this.turnoActual - 1 });
 
-        // Volver a planificación
+        // Volver a impartición de órdenes
         this.iniciarPlanificacion();
     }
 
