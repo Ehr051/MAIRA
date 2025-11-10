@@ -325,6 +325,16 @@ class GestorOrdenesV2 {
             return;
         }
 
+        // 🔒 VALIDAR PROPIEDAD
+        const jugadorActual = window.jugadorActual;
+        const jugadorUnidad = unidad.options?.jugador || unidad.jugador;
+        
+        if (jugadorActual && jugadorUnidad && jugadorUnidad !== jugadorActual) {
+            this.mostrarNotificacion(`🚫 No puedes dar órdenes a elementos de ${jugadorUnidad}`, 'error');
+            console.warn(`🚫 Intento bloqueado: ${jugadorActual} -> ${jugadorUnidad}`);
+            return;
+        }
+
         this.unidadSeleccionada = unidad;
         this.modoOrden = 'movimiento';
         this.origenOrden = this.obtenerPosicionUnidad(unidad);
@@ -350,6 +360,16 @@ class GestorOrdenesV2 {
         const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
         if (!unidad) {
             this.mostrarNotificacion('⚠️ Selecciona una unidad primero', 'warning');
+            return;
+        }
+
+        // 🔒 VALIDAR PROPIEDAD
+        const jugadorActual = window.jugadorActual;
+        const jugadorUnidad = unidad.options?.jugador || unidad.jugador;
+        
+        if (jugadorActual && jugadorUnidad && jugadorUnidad !== jugadorActual) {
+            this.mostrarNotificacion(`🚫 No puedes dar órdenes a elementos de ${jugadorUnidad}`, 'error');
+            console.warn(`🚫 Intento bloqueado: ${jugadorActual} -> ${jugadorUnidad}`);
             return;
         }
 
@@ -408,6 +428,16 @@ class GestorOrdenesV2 {
         const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
         if (!unidad) {
             this.mostrarNotificacion('⚠️ Selecciona una unidad primero', 'warning');
+            return;
+        }
+
+        // 🔒 VALIDAR PROPIEDAD
+        const jugadorActual = window.jugadorActual;
+        const jugadorUnidad = unidad.options?.jugador || unidad.jugador;
+        
+        if (jugadorActual && jugadorUnidad && jugadorUnidad !== jugadorActual) {
+            this.mostrarNotificacion(`🚫 No puedes dar órdenes a elementos de ${jugadorUnidad}`, 'error');
+            console.warn(`🚫 Intento bloqueado: ${jugadorActual} -> ${jugadorUnidad}`);
             return;
         }
 

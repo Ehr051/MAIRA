@@ -1585,4 +1585,244 @@ header {
 body.maira-planeamiento * {
     font-family: 'Roboto Mono', monospace !important;
 }
+/* ===============================================
+🎨 ESTILOS ESPECÍFICOS PARA EL MÓDULO 3D
+   =============================================== */
 
+    /* 🎨 ESTADO ACTIVO (3D visible pero NO fullscreen) */
+#canvas-container.active {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        pointer-events: auto !important;
+        display: block !important;
+    }
+    
+    #canvas-container.active canvas {
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: auto !important;
+    }
+    
+    /* 🎨 ESTADO FULLSCREEN (z-index más alto) */
+    .fullscreen-3d #canvas-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 3000 !important; /* ✅ Fullscreen mode (antes 9999) */
+        pointer-events: all !important;
+    }
+    
+    .fullscreen-3d #canvas-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: all !important;
+    }
+    
+    .fullscreen-3d #sidebar,
+    .fullscreen-3d #map-container {
+        display: none !important;
+        pointer-events: none !important;
+    }
+    
+    .fullscreen-3d #map {
+        pointer-events: none !important;
+    }
+    
+    #close-3d-button:hover {
+        background: rgba(185, 28, 28, 1);
+        transform: scale(1.05);
+        transition: all 0.2s ease;
+    }
+    
+    /* 🎛️ ESTILOS DEL PANEL DE CONTROLES 3D */
+    #panelControles3D {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: 320px;
+        max-height: 80vh;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid #007bff;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        z-index: 1350; /* ✅ Paneles Flotantes (antes 10000) */
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .controles-3d-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+    }
+    
+    .controles-3d-header h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    .btn-cerrar-controles {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+    
+    .btn-cerrar-controles:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .controles-3d-content {
+        padding: 16px;
+        max-height: calc(80vh - 60px);
+        overflow-y: auto;
+    }
+    
+    .control-group {
+        margin-bottom: 16px;
+    }
+    
+    .control-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+    
+    .control-group input[type="range"] {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #ddd;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    .control-group input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .control-group input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .control-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+    }
+    
+    .control-group span {
+        display: inline-block;
+        margin-left: 8px;
+        font-weight: bold;
+        color: #007bff;
+        min-width: 50px;
+    }
+    
+    .control-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+    }
+    
+    .btn-aplicar, .btn-reset {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-aplicar {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-aplicar:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+    
+    .btn-reset {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-reset:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+    }
+    
+    .control-info {
+        margin-top: 20px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .control-info p {
+        margin: 0 0 8px 0;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .control-info ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .control-info li {
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .control-info kbd {
+        background: #e9ecef;
+        border: 1px solid #adb5bd;
+        border-radius: 3px;
+        box-shadow: 0 1px 0 rgba(0,0,0,.2);
+        color: #495057;
+        display: inline-block;
+        font-size: 12px;
+        line-height: 1;
+        padding: 2px 4px;
+        margin: 0 2px;
+    }

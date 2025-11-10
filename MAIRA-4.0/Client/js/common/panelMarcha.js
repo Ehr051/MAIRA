@@ -585,6 +585,17 @@
                 // Limpiar modo marcha
                 window.modoMarcha = false;
                 window.contadorPuntosMarcha = 0;
+                
+                // 🔧 RESTAURAR FUNCIONES ORIGINALES PARA EVITAR QUE PI APAREZCA EN MEDICIONES NORMALES
+                if (originalAddDistancePoint) {
+                    window.addDistancePoint = originalAddDistancePoint;
+                    console.log("✅ addDistancePoint restaurado");
+                }
+                if (originalFinalizarMedicion) {
+                    window.finalizarMedicion = originalFinalizarMedicion;
+                    console.log("✅ finalizarMedicion restaurado");
+                }
+                
                 console.log("🎖️ Modo marcha finalizado (legacy)");
             };
         },

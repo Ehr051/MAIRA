@@ -1652,16 +1652,29 @@ class InicializadorJuegoV2 {
 
         if (this.config?.modoJuego === 'online') {
             // ONLINE: Mostrar solo elementos del jugador actual
-            const equipoJugador = window.equipoJugador || 'azul'; // TODO: Obtener de sesión
-            elementosAMostrar = this.elementos[equipoJugador] || [];
+            const equipoJugador = window.equipoJugador || 'azul';
+            const jugadorNombre = window.jugadorActual;
+            
+            const todosDelEquipo = this.elementos[equipoJugador] || [];
+            if (jugadorNombre) {
+                elementosAMostrar = todosDelEquipo.filter(elem => elem.jugador === jugadorNombre);
+                console.log(`🎮 ONLINE: Mostrando solo elementos de ${jugadorNombre} (${elementosAMostrar.length}/${todosDelEquipo.length})`);
+            } else {
+                elementosAMostrar = todosDelEquipo;
+            }
         } else {
             // LOCAL: Mostrar elementos según turno del jugador actual
             const jugadorActual = this.faseManager?.obtenerJugadorActual();
 
             if (jugadorActual && jugadorActual.equipo) {
-                // Mostrar solo elementos del equipo del jugador actual
-                elementosAMostrar = this.elementos[jugadorActual.equipo] || [];
-                console.log(`🎮 LOCAL: Mostrando elementos de ${jugadorActual.equipo} (jugador: ${jugadorActual.nombre})`);
+                const todosDelEquipo = this.elementos[jugadorActual.equipo] || [];
+                if (jugadorActual.nombre) {
+                    elementosAMostrar = todosDelEquipo.filter(elem => elem.jugador === jugadorActual.nombre);
+                    console.log(`🎮 LOCAL: Mostrando solo elementos de ${jugadorActual.nombre} (${elementosAMostrar.length}/${todosDelEquipo.length})`);
+                } else {
+                    elementosAMostrar = todosDelEquipo;
+                    console.log(`🎮 LOCAL: Mostrando elementos de ${jugadorActual.equipo} (sin filtro por jugador)`);
+                }
             } else {
                 // Si no hay jugador actual definido (ej: fase preparación completa),
                 // mostrar todos los elementos
@@ -1721,7 +1734,11 @@ class InicializadorJuegoV2 {
                     </div>
                     <div style="flex: 1;">
                         <div style="font-size: 13px; color: white; font-weight: bold;">${elem.nombre || 'Sin nombre'}</div>
-                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">${elem.equipo.toUpperCase()}</div>
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">
+                            ${elem.equipo.toUpperCase()}
+                            ${elem.sidc ? ` | SIDC: <span style="font-family: monospace; color: rgba(255, 255, 255, 0.7);">${elem.sidc}</span>` : ''}
+                            ${elem.jugador ? ` | Jugador: ${elem.jugador}` : ''}
+                        </div>
                     </div>
                 </div>
             `).join('');

@@ -75,12 +75,20 @@ function actualizarElementosList(nombreCalco) {
     }
     lista.innerHTML = '';
     
+    // 🔧 FILTRAR POR JUGADOR
+    const jugadorActual = window.jugadorActual;
+    
     calcos[nombreCalco].eachLayer(function(layer) {
         // Solo procesar elementos con nombre y excluir marcadores sin nombre
         if ((layer instanceof L.Marker || layer instanceof L.Polyline || layer instanceof L.Polygon) 
             && layer.options.nombre
             && layer.options.nombre !== 'Sin nombre'
             && !(layer instanceof L.Marker && layer.options.nombre === 'Sin nombre')) {
+            
+            // 🔒 FILTRAR POR JUGADOR
+            if (jugadorActual && layer.options.jugador && layer.options.jugador !== jugadorActual) {
+                return;
+            }
             
             var item = document.createElement('li');
             item.className = 'elemento-item';
