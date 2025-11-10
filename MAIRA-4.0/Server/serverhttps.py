@@ -36,24 +36,17 @@ BASE_DIR = os.path.dirname(server_dir)
 CLIENT_DIR = os.path.join(BASE_DIR, 'Client')
 
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='/')
-# Agregar soporte para proxy como ngrok
-from werkzeug.middleware.proxy_fix import ProxyFix
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-
-# Detectar flags
-is_ngrok = 'ngrok' in request.headers.get('Host', '') if request else any('ngrok' in arg for arg in sys.argv)
 
 # Configuración optimizada para Socket.IO
 socketio = SocketIO(
-    app, 
-    cors_allowed_origins="*", 
-    logger=True, 
+    app,
+    cors_allowed_origins="*",
+    logger=True,
     engineio_logger=True,
     ping_timeout=60,
     ping_interval=25,
-    transports=['polling'] if is_ngrok else ['websocket', 'polling'],
-    upgrade=not is_ngrok
+    transports=['websocket', 'polling']
 )
 
 # Configuración de la base de datos
@@ -3272,7 +3265,6 @@ if __name__ == '__main__':
 
     # Verificar argumentos de línea de comandos
     https_mode = "--https" in sys.argv
-    tunnel_mode = "--tunnel" in sys.argv or "--cloudflare" in sys.argv
 
     # Configurar host y puerto
     host = "127.0.0.1"  # localhost para desarrollo seguro
@@ -3281,7 +3273,6 @@ if __name__ == '__main__':
     print("🚀 Iniciando servidor MAIRA...")
     print(f"📍 Host: {host}:{port}")
     print(f"🔒 Modo HTTPS: {'Activado' if https_mode else 'Desactivado'}")
-    print(f"🌐 Túnel público: {'Activado' if tunnel_mode else 'Desactivado'}")
 
     protocol = "https" if https_mode else "http"
     print("\n" + "="*60)
@@ -3294,81 +3285,6 @@ if __name__ == '__main__':
     print(f"🗺️  Planeamiento:            {protocol}://{host}:{port}/client/planeamiento.html")
     print(f"💚 Health Check:            {protocol}://{host}:{port}/health")
     print("="*60 + "\n")
-
-    # Variable global para la URL del túnel
-    tunnel_url = None
-    tunnel_process = None
-
-    def start_cloudflare_tunnel():
-        """Inicia cloudflared y extrae la URL del túnel"""
-        global tunnel_url, tunnel_process
-        try:
-            # Buscar cloudflared
-            cloudflared_paths = [
-                '/usr/local/bin/cloudflared',
-                '/opt/homebrew/bin/cloudflared',
-                'cloudflared'
-            ]
-
-            cloudflared_cmd = None
-            for path in cloudflared_paths:
-                try:
-                    result = subprocess.run([path, '--version'], capture_output=True, timeout=2)
-                    if result.returncode == 0:
-                        cloudflared_cmd = path
-                        break
-                except:
-                    continue
-
-            if not cloudflared_cmd:
-                print("⚠️  cloudflared no encontrado. Túnel deshabilitado.")
-                print("   Instalar: brew install cloudflare/cloudflare/cloudflared")
-                return
-
-            print("🌐 Iniciando túnel Cloudflare...")
-
-            # Iniciar cloudflared
-            tunnel_process = subprocess.Popen(
-                [cloudflared_cmd, 'tunnel', '--url', f'{protocol}://{host}:{port}'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1
-            )
-
-            # Leer la salida para encontrar la URL
-            url_pattern = re.compile(r'https://[a-zA-Z0-9-]+\.trycloudflare\.com')
-
-            for line in tunnel_process.stderr:
-                match = url_pattern.search(line)
-                if match:
-                    tunnel_url = match.group(0)
-                    print("\n" + "="*60)
-                    print("🌍 TÚNEL CLOUDFLARE ACTIVO:")
-                    print("="*60)
-                    print(f"🔗 URL Pública: {tunnel_url}")
-                    print("\n📱 URLs PÚBLICAS (acceso desde cualquier lugar):")
-                    print(f"🏠 Página Principal:        {tunnel_url}/client/index.html")
-                    print(f"🎮 Iniciar Partida:         {tunnel_url}/client/iniciarpartida.html")
-                    print(f"⚔️  Gestión de Batalla:      {tunnel_url}/client/inicioGB.html")
-                    print(f"📊 Cuadro de Organización:  {tunnel_url}/client/CO.html")
-                    print(f"🗺️  Planeamiento:            {tunnel_url}/client/planeamiento.html")
-                    print(f"💚 Health Check:            {tunnel_url}/health")
-                    print("="*60 + "\n")
-                    break
-
-            # Continuar leyendo para mantener el proceso vivo
-            for line in tunnel_process.stderr:
-                pass  # Mantener el túnel activo
-
-        except Exception as e:
-            print(f"❌ Error al iniciar túnel: {e}")
-
-    # Iniciar túnel en thread separado si está habilitado
-    if tunnel_mode:
-        tunnel_thread = threading.Thread(target=start_cloudflare_tunnel, daemon=True)
-        tunnel_thread.start()
-        time.sleep(3)  # Dar tiempo para que se establezca el túnel
 
     try:
         if https_mode:
@@ -3408,15 +3324,9 @@ if __name__ == '__main__':
             
     except KeyboardInterrupt:
         print("\n🛑 Deteniendo servidor...")
-        if tunnel_process:
-            print("🌐 Cerrando túnel Cloudflare...")
-            tunnel_process.terminate()
-            tunnel_process.wait()
         sys.exit(0)
     except Exception as e:
         print(f"❌ Error al iniciar el servidor: {str(e)}")
         import traceback
         traceback.print_exc()
-        if tunnel_process:
-            tunnel_process.terminate()
         sys.exit(1)

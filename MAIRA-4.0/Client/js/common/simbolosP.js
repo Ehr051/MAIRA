@@ -274,9 +274,19 @@ window.agregarMarcador = function(sidc, nombre) {
                 iconSize: [70, 50],
                 iconAnchor: [35, 25]
             }),
-            draggable: modoJuegoGuerra ?
-                window.gestorJuego?.gestorFases?.fase === 'preparacion' :
-                true,
+            draggable: (function() {
+                // JuegoV2: Solo draggable en fase PREPARACIÓN o DESPLIEGUE
+                if (window.faseManager) {
+                    const fase = window.faseManager.faseActual;
+                    return fase === 'preparacion' || fase === 'despliegue';
+                }
+                // JuegoGuerra clásico
+                if (modoJuegoGuerra) {
+                    return window.gestorJuego?.gestorFases?.fase === 'preparacion';
+                }
+                // Modo planeamiento: siempre draggable
+                return true;
+            })(),
             sidc: sidcFormateado,
             nombre: nombre || '',
             ...propiedadesJuego
@@ -775,5 +785,51 @@ window.buscarSimbolo = buscarSimbolo;
 window.actualizarSidc = actualizarSidc;
 window.agregarMarcador = agregarMarcador;
 window.agregarPuntoControl = agregarPuntoControl;
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔒 CONTROL DE DRAGGABLE SEGÚN FASE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/**
+ * Actualiza el draggable de todos los marcadores en el mapa según la fase actual
+ * @param {string} fase - 'preparacion', 'despliegue', 'combate'
+ */
+function actualizarDraggableSegunFase(fase) {
+    if (!window.map) return;
+
+    console.log(`🔒 Actualizando draggable de marcadores - Fase: ${fase}`);
+
+    // En COMBATE: marcadores NO son draggable
+    // En PREPARACIÓN o DESPLIEGUE: marcadores SÍ son draggable
+    const permitirDrag = fase === 'preparacion' || fase === 'despliegue';
+
+    // Iterar sobre todas las capas del mapa
+    window.map.eachLayer(function(layer) {
+        // Solo procesar marcadores con SIDC (unidades militares)
+        if (layer instanceof L.Marker && layer.options && layer.options.sidc) {
+            if (layer.dragging) {
+                if (permitirDrag) {
+                    layer.dragging.enable();
+                    console.log(`✅ Drag habilitado: ${layer.options.nombre || layer.options.sidc}`);
+                } else {
+                    layer.dragging.disable();
+                    console.log(`🔒 Drag deshabilitado: ${layer.options.nombre || layer.options.sidc}`);
+                }
+            }
+        }
+    });
+
+    console.log(`${permitirDrag ? '✅' : '🔒'} Draggable ${permitirDrag ? 'HABILITADO' : 'DESHABILITADO'} para fase: ${fase}`);
+}
+
+// Listener para cambio de fase
+document.addEventListener('cambioFase', function(e) {
+    const fase = e.detail?.fase;
+    if (fase) {
+        actualizarDraggableSegunFase(fase);
+    }
+});
+
+console.log('🔒 Sistema de control draggable por fase inicializado');
 
 

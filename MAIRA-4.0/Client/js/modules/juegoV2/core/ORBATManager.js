@@ -366,18 +366,10 @@ class ORBATManager {
         }
 
         try {
-            // Usar la función global agregarMarcadorConCoordenadas si existe
-            if (typeof window.agregarMarcadorConCoordenadas === 'function') {
-                return window.agregarMarcadorConCoordenadas(
-                    config.sidc,
-                    config.nombre,
-                    config.posicion
-                );
-            }
-
-            // Fallback: crear marcador manualmente
+            // Crear símbolo militar
             const symbol = new ms.Symbol(config.sidc, { size: 30 });
 
+            // Crear marcador con todas las propiedades necesarias
             const marcador = L.marker(config.posicion, {
                 icon: L.divIcon({
                     className: 'milsymbol-marker',
@@ -385,21 +377,47 @@ class ORBATManager {
                     iconSize: [30, 30],
                     iconAnchor: [15, 15]
                 }),
+                draggable: true, // ✅ Hacer draggable
                 sidc: config.sidc,
                 nombre: config.nombre,
-                designacion: config.nombre, // 🏷️ Designación para nomenclatura recursiva
+                designacion: config.nombre, // 🏷️ Designación (ej: "1/14")
+                asignacion: config.designacionPadre || config.comandante, // 🏷️ Asignación (unidad padre)
                 equipo: config.equipoPadre,
+                jugador: config.jugadorPadre,
                 comandante: config.comandante,
+                magnitud: config.sidc.charAt(11) || '-',
+                estado: 'operativo',
                 id: `${config.comandante}_${config.nombre.replace(/\//g, '-').replace(/\s/g, '_')}_${Date.now()}`
             });
 
-            marcador.addTo(this.map);
+            // Agregar al mapa
+            if (window.calcoActivo) {
+                window.calcoActivo.addLayer(marcador);
+            } else {
+                marcador.addTo(this.map);
+            }
 
-            // Tooltip
-            marcador.bindTooltip(config.nombre, {
+            // Tooltip con designación y asignación
+            const tooltipText = `${config.nombre}\n${config.designacionPadre || config.comandante}`;
+            marcador.bindTooltip(tooltipText, {
                 permanent: false,
                 direction: 'top'
             });
+
+            // ✅ DISPARAR EVENTO para que aparezca en lista de elementos
+            if (window.faseManager) {
+                const evento = new CustomEvent('elementoAgregado', {
+                    detail: {
+                        marcador: marcador,
+                        sidc: config.sidc,
+                        nombre: config.nombre,
+                        equipo: config.equipoPadre || null,
+                        jugador: config.jugadorPadre || null
+                    }
+                });
+                document.dispatchEvent(evento);
+                console.log('📡 Subordinado agregado al panel:', config.nombre);
+            }
 
             return marcador;
 

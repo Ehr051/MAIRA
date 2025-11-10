@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
-  <!-- ✅ CSS HEXÁGONOS - Faltaba para colores correctos -->
-  <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
+  <!-- ✅ CSS HEXÁGONOS - Ruta corregida -->
+  <link rel="stylesheet" href="css/hexgrid.css">
   <!-- ✅ CSS MENU RADIAL - Movido ARRIBA antes de scripts -->
   <link rel="stylesheet" href="css/common/mairaRadialMenu.css">
   
@@ -394,7 +394,7 @@
 
   <!-- 🏗️ TERRENO 3D - FASE 1: Generación desde map -->
   <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
-  <script src="js/services/TerrainGenerator3D.js?v=20241106-batchv4-nanfix"></script>
+  <script src="js/services/TerrainGenerator3D.js?v=20241106-v5-posfix"></script>
 
 
   
@@ -2048,17 +2048,26 @@ function activateFullscreen3D() {
 }
 
 function closeFullscreen3D() {
-    const mainContainer = document.getElementById('main-container') || 
+    const mainContainer = document.getElementById('main-container') ||
                          document.getElementById('sidebar')?.parentElement ||
                          document.body;
     const closeButton = document.getElementById('close-3d-button');
-    
+    const canvasContainer = document.getElementById('canvas-container');
+
     mainContainer.classList.remove('fullscreen-3d');
-    
+
+    // ✅ FIX: Ocultar canvas-container y remover clase active
+    if (canvasContainer) {
+        canvasContainer.classList.remove('active');
+        canvasContainer.style.display = 'none';
+        canvasContainer.style.pointerEvents = 'none';
+        console.log('✅ Canvas container ocultado correctamente');
+    }
+
     if (closeButton) {
         closeButton.style.display = 'none';
     }
-    
+
     // Limpiar terreno y liberar memoria
     if (currentTerrain && currentTerrain.terrain) {
         scene.remove(currentTerrain.terrain);

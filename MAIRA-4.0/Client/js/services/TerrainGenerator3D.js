@@ -1636,7 +1636,7 @@ class TerrainGenerator3D {
     /**
      * Crear objeto de vegetación en una posición específica
      */
-    async createVegetationObject(point, type) {
+    async createVegetationObject(inst, type) {
         try {
             // Generar ID único
             const id = `veg_${type}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1649,7 +1649,7 @@ class TerrainGenerator3D {
                 const instances = await this.vegetationInstancer.addInstances([{
                     id,
                     type,
-                    position: new THREE.Vector3(point.x, point.y, point.z),
+                    position: new THREE.Vector3(inst.position.x, inst.position.y, inst.position.z),
                     scale: this.getVegetationScale(type),
                     rotation: Math.random() * Math.PI * 2
                 }]);
@@ -1674,7 +1674,7 @@ class TerrainGenerator3D {
 
                 if (mesh) {
                     // Configurar posición
-                    mesh.position.set(point.x, point.y, point.z);
+                    mesh.position.set(inst.position.x, inst.position.y, inst.position.z);
 
                     // Aplicar escala
                     const scale = this.getVegetationScale(type);
@@ -1707,7 +1707,7 @@ class TerrainGenerator3D {
 
             // Último fallback: geometría procedural básica
             console.warn(`⚠️ Creando geometría procedural para ${type} (modelos no disponibles)`);
-            return this.createProceduralVegetation(point, type, id);
+            return this.createProceduralVegetation(inst, type, id);
 
         } catch (error) {
             console.error(`❌ Error creando objeto de vegetación ${type}:`, error);
@@ -1732,7 +1732,7 @@ class TerrainGenerator3D {
     /**
      * Crear geometría procedural de vegetación como último recurso
      */
-    createProceduralVegetation(point, type, id) {
+    createProceduralVegetation(inst, type, id) {
         let geometry, material, mesh;
 
         switch (type) {
@@ -1776,7 +1776,7 @@ class TerrainGenerator3D {
         }
 
         // Configurar posición
-        mesh.position.set(point.x, point.y, point.z);
+        mesh.position.set(inst.position.x, inst.position.y, inst.position.z);
 
         // Rotación aleatoria
         mesh.rotation.y = Math.random() * Math.PI * 2;

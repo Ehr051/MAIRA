@@ -564,20 +564,34 @@ actualizarSidcPorEquipo(caracter) {
     }
 
     validarDespliegueUnidad(latlng) {
-        // 1. Validar fase/subfase
-        if (this.gestorJuego?.gestorFases?.fase !== 'preparacion' || 
+        // ✅ JUEGO DE GUERRA V2: Validar con FaseManager
+        if (window.faseManager) {
+            const faseActual = window.faseManager.faseActual;
+
+            if (faseActual !== 'despliegue' && faseActual !== 'combate') {
+                console.warn(`⚠️ No puedes agregar unidades en fase: ${faseActual}`);
+                alert('Solo puedes agregar unidades en la fase de DESPLIEGUE');
+                return false;
+            }
+
+            // En V2, la validación de equipo puede ser diferente
+            return true;
+        }
+
+        // 1. Validar fase/subfase (sistema viejo)
+        if (this.gestorJuego?.gestorFases?.fase !== 'preparacion' ||
             this.gestorJuego?.gestorFases?.subfase !== 'despliegue') {
             this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-                'Solo puedes agregar unidades en fase de despliegue', 
+                'Solo puedes agregar unidades en fase de despliegue',
                 'error'
             );
             return false;
         }
 
-        // 2. Validar equipo
+        // 2. Validar equipo (sistema viejo)
         if (!window.equipoJugador) {
             this.gestorJuego?.gestorInterfaz?.mostrarMensaje(
-                'Debes tener un equipo asignado', 
+                'Debes tener un equipo asignado',
                 'error'
             );
             return false;
