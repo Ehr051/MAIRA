@@ -1081,10 +1081,19 @@ class InicializadorJuegoV2 {
                         console.log(`📋 Menú radial actualizado a fase: ${fase}`);
                     }
 
-                    // Si entramos en fase COMBATE, activar gestor de órdenes
-                    if (fase === 'combate' && this.gestorOrdenesV2) {
-                        console.log('⚔️ Activando GestorOrdenesV2 para fase COMBATE');
-                        this.gestorOrdenesV2.iniciarPlanificacion();
+                    // Si entramos en fase COMBATE, activar gestor de órdenes y reloj
+                    if (fase === 'combate') {
+                        console.log('⚔️ Activando GestorOrdenesV2 y TurnosManager para fase COMBATE');
+
+                        if (this.gestorOrdenesV2) {
+                            this.gestorOrdenesV2.iniciarPlanificacion();
+                        }
+
+                        // ⏱️ Iniciar reloj del turno 1
+                        if (this.turnosManager) {
+                            console.log('⏱️ Iniciando reloj - Turno 1');
+                            this.turnosManager.iniciarTurno(1);
+                        }
                     }
 
                     // Actualizar panel integrado
