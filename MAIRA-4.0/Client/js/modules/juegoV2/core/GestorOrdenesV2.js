@@ -701,35 +701,33 @@ class GestorOrdenesV2 {
      * Actualiza preview de ruta durante movimiento del mouse
      */
     actualizarPreviewRuta(destino) {
-        if (!this.pathfinding || !this.unidadSeleccionada) return;
-
-        const origen = this.obtenerPosicionUnidad(this.unidadSeleccionada);
-        const hexDestino = this.hexGrid.getHexagonAt(destino);
-
-        if (!hexDestino) return;
-
-        // Calcular ruta
-        const resultado = this.pathfinding.encontrarRuta(origen, hexDestino, this.unidadSeleccionada);
-
-        if (resultado && resultado.ruta.length > 0) {
-            // Dibujar preview de ruta
-            this.dibujarPreviewRuta(resultado.ruta);
-        }
+        // ❌ DESHABILITADO - Ya NO se usa pathfinding
+        // El CÁLCULO DE MARCHA maneja el preview de ruta automáticamente
+        // cuando el usuario traza la línea en el panel de marcha
+        return;
     }
 
     /**
      * Actualiza preview de línea de ataque
+     * PASO 1: Mostrar eje de avance
+     * PASO 2: Mostrar objetivo
      */
     actualizarPreviewAtaque(objetivo) {
         if (!this.unidadSeleccionada) return;
 
         const origen = this.obtenerPosicionUnidad(this.unidadSeleccionada);
-        const hexObjetivo = this.hexGrid.getHexagonAt(objetivo);
+        
+        if (!origen || !objetivo) return;
 
-        if (!hexObjetivo) return;
-
-        // Dibujar preview de línea
-        this.dibujarPreviewLinea(origen, hexObjetivo);
+        // Si aún no se definió el eje de avance (PASO 1)
+        if (!this.ejeAtaqueDefinido) {
+            // Dibujar línea temporal del eje de avance
+            this.dibujarPreviewLinea(origen, objetivo, '#ff9900', 'Eje de Avance');
+        } else {
+            // PASO 2: Mostrar objetivo
+            // El eje ya está definido, ahora marcar el objetivo
+            this.dibujarPreviewLinea(this.ejeAtaque, objetivo, '#ff0000', 'Objetivo');
+        }
     }
 
     /**
