@@ -959,9 +959,23 @@ class InicializadorJuegoV2 {
 
         if (!listaContainer) return;
 
-        // TODO: Obtener elementos del mapa (desde hexGrid o gestorUnidades)
-        // Por ahora, mostrar placeholder
-        const elementos = []; // Aquí irían los elementos reales
+        // Obtener elementos del mapa
+        let elementos = [];
+        if (window.elementosEnMapa && Array.isArray(window.elementosEnMapa)) {
+            elementos = window.elementosEnMapa;
+        } else if (window.simbolosPorJugador) {
+            // Alternativamente, desde simbolosPorJugador
+            elementos = Object.values(window.simbolosPorJugador).flat();
+        }
+
+        // 🔒 FILTRAR por jugador actual en fase COMBATE
+        if (this.faseManager && this.faseManager.faseActual === 'combate' && window.jugadorActual) {
+            const jugadorActualNombre = window.jugadorActual;
+            elementos = elementos.filter(elem => {
+                const jugadorElem = elem.options?.jugador || elem.jugador;
+                return jugadorElem === jugadorActualNombre;
+            });
+        }
 
         if (contador) {
             contador.textContent = `${elementos.length} elemento${elementos.length !== 1 ? 's' : ''}`;
@@ -983,32 +997,58 @@ class InicializadorJuegoV2 {
                 </div>
             `;
         } else {
-            // TODO: Renderizar elementos con SIDC
-            listaContainer.innerHTML = elementos.map(elem => `
-                <div style="
-                    background: rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 4px;
-                    padding: 8px 12px;
+            // Cambiar a layout HORIZONTAL tipo grid/tarjetas
+            listaContainer.style.display = 'grid';
+            listaContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
+            listaContainer.style.gap = '10px';
+            
+            listaContainer.innerHTML = elementos.map((elem, index) => {
+                const equipo = elem.options?.equipo || elem.equipo || 'azul';
+                const colorEquipo = equipo === 'azul' ? '#0066ff' : '#ff0000';
+                const nombre = elem.options?.nombre || elem.nombre || 'Elemento';
+                const sidc = elem.options?.sidc || elem.sidc || '';
+                const jugador = elem.options?.jugador || elem.jugador || '';
+                const designacion = elem.options?.designacion || elem.designacion || '';
+                
+                // URL del símbolo SVG (similar a lista de calco)
+                const simboloUrl = sidc ? `http://localhost:5001/static/simbolos/${sidc}.svg` : '';
+                
+                return `
+                <div onclick="if(window.inicializadorV2) window.inicializadorV2.centrarElemento(${index}, '${equipo}')" 
+                     style="
+                    background: rgba(${equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.1);
+                    border-left: 3px solid ${colorEquipo};
+                    border-radius: 6px;
+                    padding: 10px;
+                    cursor: pointer;
+                    transition: 0.2s;
                     display: flex;
+                    flex-direction: column;
                     align-items: center;
-                    gap: 10px;
-                ">
-                    <div style="
-                        width: 32px;
-                        height: 32px;
-                        background: rgba(0, 255, 0, 0.2);
-                        border: 1px solid rgba(0, 255, 0, 0.5);
-                        border-radius: 4px;
-                    ">
-                        <!-- Aquí iría el símbolo SIDC -->
+                    gap: 8px;
+                "
+                onmouseenter="this.style.background='rgba(${equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.2)'"
+                onmouseleave="this.style.background='rgba(${equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.1)'">
+                    ${simboloUrl ? `<img src="${simboloUrl}" style="width: 48px; height: 48px;" onerror="this.style.display='none'">` : 
+                      `<div style="width: 48px; height: 48px; background: ${colorEquipo}; border-radius: 50%; opacity: 0.5;"></div>`}
+                    <div style="text-align: center; width: 100%;">
+                        <div style="font-size: 13px; color: white; font-weight: bold; margin-bottom: 4px;">${nombre}</div>
+                        ${designacion ? `<div style="font-size: 10px; color: rgba(255,255,255,0.6);">${designacion}</div>` : ''}
                     </div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 13px; color: white; font-weight: bold;">${elem.nombre}</div>
-                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">${elem.tipo}</div>
+                    <div style="width: 100%; display: flex; flex-direction: column; gap: 2px; margin-top: 4px;">
+                        <div style="height: 4px; background: rgba(0,255,0,0.3); border-radius: 2px; overflow: hidden;">
+                            <div style="height: 100%; width: 100%; background: #00ff00;"></div>
+                        </div>
+                        <div style="height: 4px; background: rgba(255,165,0,0.3); border-radius: 2px; overflow: hidden;">
+                            <div style="height: 100%; width: 80%; background: #ffa500;"></div>
+                        </div>
+                        <div style="height: 4px; background: rgba(0,191,255,0.3); border-radius: 2px; overflow: hidden;">
+                            <div style="height: 100%; width: 60%; background: #00bfff;"></div>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
     }
 
@@ -1201,6 +1241,9 @@ class InicializadorJuegoV2 {
 
                     // Actualizar panel integrado
                     this.actualizarPanelEstado();
+                    
+                    // Actualizar lista de elementos (filtrada por jugador actual)
+                    this.actualizarListaElementos();
                 },
 
                 onTimeout: (turno) => {

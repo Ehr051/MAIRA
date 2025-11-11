@@ -326,7 +326,11 @@ class FaseManager {
         const areaKm2 = area / 1000000;
 
         this.sector = layer.toGeoJSON();
-        layer.setStyle({ color: '#ffff00', weight: 3 });
+        layer.setStyle({ 
+            color: '#000000',      // NEGRO
+            weight: 3,
+            fillOpacity: 0         // SIN RELLENO
+        });
 
         console.log(`✅ Sector definido: ${areaKm2.toFixed(2)} km²`);
 
@@ -1010,6 +1014,16 @@ class FaseManager {
         if (primerJugador) {
             window.jugadorActual = primerJugador.nombre;
             console.log(`👤 Turno inicial: ${primerJugador.nombre} (${primerJugador.equipo})`);
+        }
+
+        // 🗺️ Ocultar zonas de despliegue (azules no deben ver dónde desplegaron rojos)
+        if (this.zonaAzulLayer) {
+            this.map.removeLayer(this.zonaAzulLayer);
+            console.log('🔒 Zona azul ocultada');
+        }
+        if (this.zonaRojaLayer) {
+            this.map.removeLayer(this.zonaRojaLayer);
+            console.log('🔒 Zona roja ocultada');
         }
 
         // Iniciar subfase de impartición de órdenes
