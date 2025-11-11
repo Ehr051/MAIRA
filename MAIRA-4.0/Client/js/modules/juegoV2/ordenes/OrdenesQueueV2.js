@@ -548,6 +548,17 @@ class OrdenesQueueV2 {
         this.ordenesPorUnidad.forEach(ordenes => {
             totalOrdenesPendientes += ordenes.length;
         });
+
+        return {
+            ...this.stats,
+            pendientes: totalOrdenesPendientes,
+            unidadesConOrdenes: this.ordenesPorUnidad.size,
+            enHistorial: this.historial.length,
+            ejecutando: this.ejecutando,
+            pausada: this.pausada
+        };
+    }
+
     /**
      * Obtener TODAS las órdenes de la cola (para timeline/matriz)
      */
@@ -562,17 +573,6 @@ class OrdenesQueueV2 {
             });
         });
         return todas;
-    }
-
-
-        return {
-            ...this.stats,
-            pendientes: totalOrdenesPendientes,
-            unidadesConOrdenes: this.ordenesPorUnidad.size,
-            enHistorial: this.historial.length,
-            ejecutando: this.ejecutando,
-            pausada: this.pausada
-        };
     }
 
     /**

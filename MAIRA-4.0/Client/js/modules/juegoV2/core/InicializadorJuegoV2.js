@@ -1185,13 +1185,17 @@ class InicializadorJuegoV2 {
                                 this.turnosManager.iniciarTurno(turno + 1);
                             }
                             
-                            // Notificar
-                            this.mostrarNotificacion({
-                                tipo: 'info',
-                                titulo: 'Cambio de turno',
-                                mensaje: `Ahora es turno de <strong>${siguienteJugador.nombre}</strong> (${siguienteJugador.equipo.toUpperCase()})`,
-                                duracion: 4000
-                            });
+                            // Notificar (usando función global)
+                            if (typeof window.mostrarNotificacion === 'function') {
+                                window.mostrarNotificacion(
+                                    `Ahora es turno de <strong>${siguienteJugador.nombre}</strong> (${siguienteJugador.equipo.toUpperCase()})`,
+                                    'info',
+                                    4000,
+                                    true
+                                );
+                            } else {
+                                console.log(`✅ Cambio de turno: ${siguienteJugador.nombre} (${siguienteJugador.equipo})`);
+                            }
                         }
                     }
 
