@@ -427,7 +427,7 @@ class InicializadorJuegoV2 {
             background: rgba(0, 0, 0, 0.9);
             border-top: 2px solid #00ff00;
             z-index: 1000;
-            display: none;
+            display: flex;
             flex-direction: row;
             gap: 0;
             padding: 0;
