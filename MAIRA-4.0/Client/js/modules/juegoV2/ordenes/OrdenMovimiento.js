@@ -6,26 +6,41 @@
  */
 
 class OrdenMovimiento extends OrdenBase {
-    constructor(unidad, destino, opciones = {}) {
-        super(unidad, 'movimiento');
+    constructor(config) {
+        // ✅ NUEVO FORMATO: Recibe objeto config con { unidadId, origen, destino, unidadRef, prioridad }
+        // Extraer unidadRef para pasarlo a OrdenBase (compatibilidad)
+        const unidadRef = config.unidadRef || { 
+            id: config.unidadId, 
+            equipo: config.equipo || 'azul' 
+        };
+        
+        super(unidadRef, 'movimiento');
 
-        // Destino
-        this.destino = destino; // {lat, lng} o hexágono {q, r, s}
+        // ✅ Guardar ID explícito y referencia
+        this.unidadId = config.unidadId;
+        this.unidadRef = config.unidadRef; // Referencia al marcador Leaflet
+
+        // Origen y Destino
+        this.origen = config.origen; // {lat, lng} o hexágono
+        this.destino = config.destino; // {lat, lng} o hexágono {q, r, s}
         this.hexDestino = null;
         this.hexOrigen = null;
 
-        // Ruta
+        // Ruta (waypoints - puntos intermedios del camino de marcha)
         this.ruta = null; // Array de hexágonos
-        this.rutaLatLngs = null; // Array de coordenadas Leaflet
+        this.rutaLatLngs = null; // Array de coordenadas Leaflet (waypoints)
+        this.waypoints = []; // ✅ NUEVO: Puntos intermedios del camino
         this.distanciaTotal = 0;
-        this.tiempoEstimado = 0;
+        this.tiempoEstimado = 0; // Segundos totales
+        this.turnosNecesarios = 0; // ✅ NUEVO: Turnos para completar
 
         // Opciones
         this.opciones = {
-            mostrarRuta: opciones.mostrarRuta !== false,
-            considerarTerreno: opciones.considerarTerreno !== false,
-            evitarEnemigos: opciones.evitarEnemigos !== false,
-            ...opciones
+            mostrarRuta: config.mostrarRuta !== false,
+            considerarTerreno: config.considerarTerreno !== false,
+            evitarEnemigos: config.evitarEnemigos !== false,
+            prioridad: config.prioridad || 1,
+            ...config
         };
 
         // Visualización
@@ -49,18 +64,42 @@ class OrdenMovimiento extends OrdenBase {
      * Inicializa la orden
      */
     async inicializar() {
-        // Convertir destino a hexágono si es necesario
-        if (this.destino.lat && this.destino.lng) {
-            this.hexDestino = window.HexGrid.pixelToHex(this.destino);
-        } else if (this.destino.q !== undefined) {
+        // ✅ Convertir destino a hexágono o latLng
+        if (this.destino && this.destino.lat !== undefined && this.destino.lng !== undefined) {
+            // Ya es latLng, guardar y convertir a hex si HexGrid disponible
+            this.destinoLatLng = L.latLng(this.destino.lat, this.destino.lng);
+            if (window.HexGrid && typeof window.HexGrid.pixelToHex === 'function') {
+                this.hexDestino = window.HexGrid.pixelToHex(this.destino);
+            }
+        } else if (this.destino && this.destino.q !== undefined) {
+            // Es hexágono, convertir a latLng
             this.hexDestino = this.destino;
+            if (window.HexGrid && window.HexGrid.grid) {
+                const hexKey = `${this.destino.q},${this.destino.r},${this.destino.s}`;
+                const hexData = window.HexGrid.grid.get(hexKey);
+                if (hexData && hexData.center) {
+                    this.destinoLatLng = L.latLng(hexData.center);
+                }
+            }
         }
 
-        // Obtener hexágono origen
-        if (this.unidad.hexActual) {
-            this.hexOrigen = this.unidad.hexActual;
-        } else if (this.unidad.getLatLng) {
-            this.hexOrigen = window.HexGrid.pixelToHex(this.unidad.getLatLng());
+        // ✅ Obtener hexágono origen desde this.origen o this.unidadRef
+        if (this.origen && this.origen.lat !== undefined && this.origen.lng !== undefined) {
+            // Origen es latLng
+            this.origenLatLng = L.latLng(this.origen.lat, this.origen.lng);
+            if (window.HexGrid && typeof window.HexGrid.pixelToHex === 'function') {
+                this.hexOrigen = window.HexGrid.pixelToHex(this.origen);
+            }
+        } else if (this.origen && this.origen.q !== undefined) {
+            // Origen es hexágono
+            this.hexOrigen = this.origen;
+        } else if (this.unidadRef && typeof this.unidadRef.getLatLng === 'function') {
+            // Obtener desde marcador Leaflet
+            const latlng = this.unidadRef.getLatLng();
+            this.origenLatLng = latlng;
+            if (window.HexGrid && typeof window.HexGrid.pixelToHex === 'function') {
+                this.hexOrigen = window.HexGrid.pixelToHex(latlng);
+            }
         }
 
         // Verificar que tenemos lo necesario
