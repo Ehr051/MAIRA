@@ -755,8 +755,14 @@ class FaseManager {
      * 🔄 Inicializa el orden de jugadores para combate: primero azules, luego rojos
      */
     inicializarOrdenJugadores() {
+        console.log('🔍 DEBUG: inicializarOrdenJugadores() llamado');
+        console.log('📊 this.jugadores:', this.jugadores);
+        console.log('📊 Cantidad de jugadores:', this.jugadores ? this.jugadores.length : 0);
+        
         const azules = this.jugadores.filter(j => j.equipo === 'azul');
         const rojos = this.jugadores.filter(j => j.equipo === 'rojo');
+        
+        console.log(`👥 Azules: ${azules.length}, Rojos: ${rojos.length}`);
         
         this.ordenJugadoresCombate = [...azules, ...rojos];
         this.jugadorCombateActual = 0;
