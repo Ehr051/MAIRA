@@ -946,8 +946,8 @@ class GestorOrdenesV2 {
             todasLasOrdenes.push(...ordenes);
         }
 
-        // Actualizar panel
-        this.panelCoordinacion.actualizarOrdenes(todasLasOrdenes);
+        // Actualizar panel (renderizar muestra las órdenes de la cola asignada)
+        this.panelCoordinacion.renderizar();
     }
 
     /**

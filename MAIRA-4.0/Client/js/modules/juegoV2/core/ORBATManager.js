@@ -321,6 +321,7 @@ class ORBATManager {
                 nombre: nombreSubordinado,
                 posicion: posicion,
                 equipoPadre: unidadPadre.options.equipo,
+                jugadorPadre: unidadPadre.options.jugador, // ✅ AGREGADO: jugador propietario
                 comandante: unidadPadre.options.id || unidadPadre.options.nombre,
                 designacionPadre: unidadPadre.options.designacion
             });
