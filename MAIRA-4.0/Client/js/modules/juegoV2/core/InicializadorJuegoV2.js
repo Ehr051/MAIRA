@@ -916,28 +916,27 @@ class InicializadorJuegoV2 {
                     jugadorTexto = 'Jugador';
                 }
             }
-            // En COMBATE: mostrar jugador y equipo basado en turnos
+            // En COMBATE: usar ordenJugadoresCombate del FaseManager
             else if (this.faseManager && this.faseManager.faseActual === 'combate') {
-                // Obtener turno actual (par = azul, impar = rojo en local)
-                const turno = this.turnosManager ? this.turnosManager.getTurnoActual() : 0;
-                const esAzul = turno % 2 === 0;
-
-                // Determinar equipo
-                equipoTexto = esAzul ? 'Azul' : 'Rojo';
-                colorEquipo = esAzul ? '#0066ff' : '#ff0000';
-
-                // Intentar obtener info del jugador desde config
-                if (this.config && this.config.jugadores && this.config.jugadores.length > 0) {
-                    const jugadoresEquipo = this.config.jugadores.filter(j => j.equipo === (esAzul ? 'azul' : 'rojo'));
-                    if (jugadoresEquipo.length > 0) {
-                        const jugadorIndex = Math.floor(turno / 2) % jugadoresEquipo.length;
-                        const jugador = jugadoresEquipo[jugadorIndex];
-                        jugadorTexto = `${jugadorIndex + 1} - ${jugador.nombre || jugador.username || 'Jugador'}`;
-                    } else {
-                        jugadorTexto = esAzul ? 'Jugador Azul' : 'Jugador Rojo';
+                const jugadorActual = this.faseManager.obtenerJugadorActual();
+                
+                if (jugadorActual) {
+                    // Mostrar nombre y equipo del jugador actual
+                    jugadorTexto = jugadorActual.nombre || jugadorActual.username || 'Jugador';
+                    equipoTexto = jugadorActual.equipo.charAt(0).toUpperCase() + jugadorActual.equipo.slice(1);
+                    colorEquipo = jugadorActual.equipo === 'azul' ? '#0066ff' : '#ff0000';
+                    
+                    // Agregar posición en el orden (ej: "1/4 - Juan")
+                    if (this.faseManager.ordenJugadoresCombate && this.faseManager.ordenJugadoresCombate.length > 0) {
+                        const posicion = this.faseManager.jugadorCombateActual + 1;
+                        const total = this.faseManager.ordenJugadoresCombate.length;
+                        jugadorTexto = `${posicion}/${total} - ${jugadorTexto}`;
                     }
                 } else {
-                    jugadorTexto = esAzul ? 'Jugador Azul' : 'Jugador Rojo';
+                    // Fallback si no hay jugador actual
+                    jugadorTexto = 'Combate';
+                    equipoTexto = '--';
+                    colorEquipo = '#ff9800';
                 }
             }
 

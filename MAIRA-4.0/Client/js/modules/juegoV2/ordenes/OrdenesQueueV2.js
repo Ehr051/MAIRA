@@ -548,6 +548,22 @@ class OrdenesQueueV2 {
         this.ordenesPorUnidad.forEach(ordenes => {
             totalOrdenesPendientes += ordenes.length;
         });
+    /**
+     * Obtener TODAS las órdenes de la cola (para timeline/matriz)
+     */
+    obtenerTodasLasOrdenes() {
+        const todas = [];
+        this.ordenesPorUnidad.forEach((ordenes, unidadId) => {
+            ordenes.forEach(orden => {
+                todas.push({
+                    ...orden,
+                    unidadId: unidadId
+                });
+            });
+        });
+        return todas;
+    }
+
 
         return {
             ...this.stats,

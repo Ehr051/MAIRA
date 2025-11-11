@@ -996,6 +996,16 @@ class FaseManager {
         this.turnoActual = 1;
         this.actualizarIndicadorFase();
 
+        // 🎯 INICIALIZAR ORDEN DE JUGADORES (azules → rojos)
+        this.inicializarOrdenJugadores();
+        
+        // Establecer jugador actual como window.jugadorActual
+        const primerJugador = this.ordenJugadoresCombate[0];
+        if (primerJugador) {
+            window.jugadorActual = primerJugador.nombre;
+            console.log(`👤 Turno inicial: ${primerJugador.nombre} (${primerJugador.equipo})`);
+        }
+
         // Iniciar subfase de impartición de órdenes
         await this.iniciarPlanificacion();
 

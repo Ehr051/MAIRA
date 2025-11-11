@@ -56,7 +56,7 @@ class OrdenEspera extends OrdenBase {
         }
 
         // Obtener hexágono
-        this.hexPosicion = window.HexGrid.getHexAtLatLng(this.posicion);
+        this.hexPosicion = window.HexGrid.pixelToHex(this.posicion);
 
         if (!this.hexPosicion) {
             this.actualizarEstado('invalida', 'Posición inválida');

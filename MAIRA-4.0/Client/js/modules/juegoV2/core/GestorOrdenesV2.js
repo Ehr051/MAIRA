@@ -1168,6 +1168,23 @@ class GestorOrdenesV2 {
     /**
      * Muestra diálogo para especificar duración
      */
+
+    /**
+     * Muestra diálogo para configurar orden de espera
+     */
+    mostrarDialogoEspera(callback) {
+        // TODO: Crear diálogo modal más sofisticado
+        const minutos = prompt('¿Cuántos minutos esperar?', '30');
+        const modalidad = confirm('¿Espera activa? (OK = Activa, Cancelar = Pasiva)') ? 'activa' : 'pasiva';
+        
+        if (minutos && !isNaN(minutos)) {
+            callback({
+                duracion: parseInt(minutos),
+                modalidad: modalidad
+            });
+        }
+    }
+
     mostrarDialogoDuracion(callback) {
         const minutos = prompt('¿Cuántos minutos esperar?', '30');
         if (minutos && !isNaN(minutos)) {

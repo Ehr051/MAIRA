@@ -113,8 +113,8 @@ class OrdenAtaque extends OrdenBase {
         }
 
         // Obtener hexágonos
-        const hexUnidad = window.HexGrid.getHexAtLatLng(posUnidad);
-        const hexObjetivo = window.HexGrid.getHexAtLatLng(posObjetivo);
+        const hexUnidad = window.HexGrid.pixelToHex(posUnidad);
+        const hexObjetivo = window.HexGrid.pixelToHex(posObjetivo);
 
         if (!hexUnidad || !hexObjetivo) {
             this.tieneLineaVista = false;

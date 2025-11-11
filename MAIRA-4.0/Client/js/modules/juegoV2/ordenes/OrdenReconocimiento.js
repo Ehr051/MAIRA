@@ -67,7 +67,7 @@ class OrdenReconocimiento extends OrdenBase {
             this.objetivo.getBounds().getCenter() :
             this.objetivo;
 
-        this.hexObjetivo = window.HexGrid.getHexAtLatLng(posObjetivo);
+        this.hexObjetivo = window.HexGrid.pixelToHex(posObjetivo);
 
         if (!this.hexObjetivo) {
             this.actualizarEstado('invalida', 'Objetivo inválido');
@@ -101,7 +101,7 @@ class OrdenReconocimiento extends OrdenBase {
         }
 
         try {
-            const hexOrigen = window.HexGrid.getHexAtLatLng(this.posicionOriginal);
+            const hexOrigen = window.HexGrid.pixelToHex(this.posicionOriginal);
             const tipoUnidad = this.unidad.tipoUnidad || 'infanteria';
 
             // Ruta de ida

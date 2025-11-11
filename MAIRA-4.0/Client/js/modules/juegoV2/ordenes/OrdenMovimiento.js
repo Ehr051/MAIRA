@@ -51,7 +51,7 @@ class OrdenMovimiento extends OrdenBase {
     async inicializar() {
         // Convertir destino a hexágono si es necesario
         if (this.destino.lat && this.destino.lng) {
-            this.hexDestino = window.HexGrid.getHexAtLatLng(this.destino);
+            this.hexDestino = window.HexGrid.pixelToHex(this.destino);
         } else if (this.destino.q !== undefined) {
             this.hexDestino = this.destino;
         }
@@ -60,7 +60,7 @@ class OrdenMovimiento extends OrdenBase {
         if (this.unidad.hexActual) {
             this.hexOrigen = this.unidad.hexActual;
         } else if (this.unidad.getLatLng) {
-            this.hexOrigen = window.HexGrid.getHexAtLatLng(this.unidad.getLatLng());
+            this.hexOrigen = window.HexGrid.pixelToHex(this.unidad.getLatLng());
         }
 
         // Verificar que tenemos lo necesario
