@@ -73,11 +73,11 @@ class GestorOrdenesV2 {
             if (!this.map) throw new Error('Map no disponible');
             if (!this.hexGrid) throw new Error('HexGrid no disponible');
 
-            // Inicializar pathfinding
-            if (typeof Pathfinding !== 'undefined') {
-                this.pathfinding = new Pathfinding(this.hexGrid);
-                this.log('✅ Pathfinding inicializado');
-            }
+            // ❌ NO USAR Pathfinding con HexGrid
+            // Las órdenes de MOVIMIENTO deben usar líneas de medición/marcha
+            // Las órdenes de ATAQUE deben marcar: 1) eje de avance 2) objetivo
+            this.pathfinding = null; // Sistema de órdenes rediseñado
+            this.log('⚠️ Sistema de órdenes usa líneas de medición (no pathfinding)');
 
             // Inicializar colas de órdenes por equipo
             const equipos = opciones.equipos || ['azul', 'rojo'];
@@ -316,7 +316,7 @@ class GestorOrdenesV2 {
      * Inicia el proceso de dar una orden de movimiento
      */
     iniciarOrdenMovimiento(contexto) {
-        this.log('📍 Iniciando orden de movimiento...');
+        this.log('🚶 Iniciando orden de MOVIMIENTO con CÁLCULO DE MARCHA...');
 
         // Obtener unidad desde contexto
         const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
@@ -339,11 +339,23 @@ class GestorOrdenesV2 {
         this.modoOrden = 'movimiento';
         this.origenOrden = this.obtenerPosicionUnidad(unidad);
 
-        // Cambiar cursor
-        this.map.getContainer().style.cursor = 'crosshair';
-
-        // Notificar usuario
-        this.mostrarNotificacion('📍 Click en el destino para mover', 'info');
+        // 🎯 ABRIR PANEL DE MARCHA para trazar ruta
+        // El panel de marcha calculará:
+        // - Vegetación en cada punto del camino
+        // - Altimetría (subidas/bajadas)
+        // - Velocidad promedio según terreno
+        // - Tiempo estimado de marcha
+        // - Dibuja PI/PT automáticamente
+        if (typeof abrirPanelMarcha === 'function') {
+            abrirPanelMarcha();
+            this.mostrarNotificacion('🗺️ Traza la ruta de marcha punto por punto', 'info');
+            this.log('✅ Panel de marcha activado para orden de movimiento');
+        } else {
+            // Fallback: modo simple
+            this.map.getContainer().style.cursor = 'crosshair';
+            this.mostrarNotificacion('📍 Click en el destino para mover', 'info');
+            this.log('⚠️ Panel de marcha no disponible - usando modo simple');
+        }
 
         // Ocultar menú radial
         if (this.menuRadial) {
@@ -355,7 +367,7 @@ class GestorOrdenesV2 {
      * Inicia el proceso de dar una orden de ataque
      */
     iniciarOrdenAtaque(contexto) {
-        this.log('🎯 Iniciando orden de ataque...');
+        this.log('⚔️ Iniciando orden de ATAQUE (2 pasos: eje + objetivo)...');
 
         const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
         if (!unidad) {
@@ -376,9 +388,14 @@ class GestorOrdenesV2 {
         this.unidadSeleccionada = unidad;
         this.modoOrden = 'ataque';
         this.origenOrden = this.obtenerPosicionUnidad(unidad);
+        this.ejeAtaqueDefinido = false; // Control de 2 pasos
+        this.ejeAtaque = null; // Guardar eje de avance
 
         this.map.getContainer().style.cursor = 'crosshair';
-        this.mostrarNotificacion('🎯 Click en el objetivo a atacar', 'info');
+        
+        // PASO 1: Definir EJE DE AVANCE (dirección de ataque)
+        this.mostrarNotificacion('🎯 PASO 1/2: Marca el EJE DE AVANCE', 'info');
+        this.log('📍 Esperando eje de avance...');
 
         if (this.menuRadial) {
             this.menuRadial.hideMenu();

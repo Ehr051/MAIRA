@@ -785,20 +785,7 @@ class FaseManager {
             console.log('🔄 Ciclo de jugadores completado, volviendo al primero');
         }
         
-        
-        // 🔒 VALIDAR que haya jugadores en el orden
-        if (!this.ordenJugadoresCombate || this.ordenJugadoresCombate.length === 0) {
-            console.error('❌ No hay jugadores en ordenJugadoresCombate');
-            return null;
-        }
-        
         const jugador = this.ordenJugadoresCombate[this.jugadorCombateActual];
-        
-        if (!jugador) {
-            console.error('❌ Jugador undefined en índice:', this.jugadorCombateActual);
-            return null;
-        }
-        
         console.log(`🎯 Ahora es turno de: ${jugador.nombre} (${jugador.equipo})`);
         
         // Actualizar window.jugadorActual para los filtros
