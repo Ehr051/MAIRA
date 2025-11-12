@@ -1,0 +1,150 @@
+{
+  "version": "1.0.0",
+  "source": "Batalla Virtual 8 2019",
+  "description": "Efectos de condiciones climáticas en operaciones militares",
+  
+  "climas": {
+    "DESPEJADO": {
+      "visibilidad": 1.0,
+      "movimiento": 1.0,
+      "precision": 1.0,
+      "moral": 1.0,
+      "descripcion": "Condiciones ideales",
+      "probabilidad_transicion": {
+        "DESPEJADO": 0.6,
+        "NUBLADO": 0.3,
+        "CALIDO": 0.1
+      }
+    },
+    "NUBLADO": {
+      "visibilidad": 0.85,
+      "movimiento": 1.0,
+      "precision": 0.95,
+      "moral": 0.98,
+      "descripcion": "Visibilidad reducida levemente",
+      "probabilidad_transicion": {
+        "NUBLADO": 0.5,
+        "LLUVIA": 0.3,
+        "DESPEJADO": 0.2
+      }
+    },
+    "LLUVIA": {
+      "visibilidad": 0.7,
+      "movimiento": 0.8,
+      "precision": 0.85,
+      "moral": 0.95,
+      "descripcion": "Dificulta observación y movimiento",
+      "probabilidad_transicion": {
+        "LLUVIA": 0.4,
+        "NUBLADO": 0.5,
+        "TORMENTA": 0.1
+      }
+    },
+    "LLUVIA_INTENSA": {
+      "visibilidad": 0.5,
+      "movimiento": 0.6,
+      "precision": 0.7,
+      "moral": 0.9,
+      "descripcion": "Severa reducción de capacidades",
+      "probabilidad_transicion": {
+        "LLUVIA_INTENSA": 0.3,
+        "LLUVIA": 0.5,
+        "TORMENTA": 0.2
+      }
+    },
+    "TORMENTA": {
+      "visibilidad": 0.4,
+      "movimiento": 0.5,
+      "precision": 0.6,
+      "moral": 0.85,
+      "descripcion": "Operaciones muy comprometidas",
+      "probabilidad_transicion": {
+        "TORMENTA": 0.2,
+        "LLUVIA_INTENSA": 0.6,
+        "LLUVIA": 0.2
+      }
+    },
+    "NIEBLA": {
+      "visibilidad": 0.4,
+      "movimiento": 1.0,
+      "precision": 0.7,
+      "moral": 0.9,
+      "descripcion": "Visibilidad muy reducida",
+      "probabilidad_transicion": {
+        "NIEBLA": 0.4,
+        "NUBLADO": 0.5,
+        "DESPEJADO": 0.1
+      }
+    },
+    "NIEVE": {
+      "visibilidad": 0.6,
+      "movimiento": 0.5,
+      "precision": 0.75,
+      "moral": 0.85,
+      "descripcion": "Dificulta movimiento terrestre",
+      "probabilidad_transicion": {
+        "NIEVE": 0.5,
+        "NUBLADO": 0.4,
+        "VENTISCA": 0.1
+      }
+    },
+    "VENTISCA": {
+      "visibilidad": 0.3,
+      "movimiento": 0.3,
+      "precision": 0.5,
+      "moral": 0.75,
+      "descripcion": "Operaciones casi imposibles",
+      "probabilidad_transicion": {
+        "VENTISCA": 0.3,
+        "NIEVE": 0.6,
+        "NUBLADO": 0.1
+      }
+    },
+    "CALIDO": {
+      "visibilidad": 0.9,
+      "movimiento": 0.7,
+      "precision": 0.9,
+      "moral": 0.8,
+      "descripcion": "Calor extremo afecta rendimiento",
+      "probabilidad_transicion": {
+        "CALIDO": 0.6,
+        "DESPEJADO": 0.3,
+        "NUBLADO": 0.1
+      }
+    },
+    "FRIO_EXTREMO": {
+      "visibilidad": 1.0,
+      "movimiento": 0.6,
+      "precision": 0.85,
+      "moral": 0.8,
+      "descripcion": "Frío extremo afecta equipamiento",
+      "probabilidad_transicion": {
+        "FRIO_EXTREMO": 0.5,
+        "NUBLADO": 0.3,
+        "NIEVE": 0.2
+      }
+    }
+  },
+  
+  "rangos_temperatura": {
+    "CALIDO": { "min": 35, "max": 50 },
+    "NORMAL": { "min": 10, "max": 34 },
+    "FRIO": { "min": -5, "max": 9 },
+    "FRIO_EXTREMO": { "min": -30, "max": -6 }
+  },
+  
+  "variacion_temperatura_turno": {
+    "maxima": 2,
+    "descripcion": "Máxima variación de temperatura por turno en grados Celsius"
+  },
+  
+  "notas": [
+    "visibilidad: factor de observación (1.0 = 100% visibilidad)",
+    "movimiento: factor de velocidad (1.0 = velocidad normal)",
+    "precision: factor de puntería de armas (1.0 = precisión normal)",
+    "moral: factor de ánimo de tropas (1.0 = moral normal)",
+    "probabilidad_transicion: probabilidades de cambio al próximo turno"
+  ],
+  
+  "estado": "PRELIMINAR - Requiere validación con documentación BV8"
+}

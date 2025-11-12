@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "description": "Datos extraídos de Batalla Virtual 8 para MAIRA 4.0",
+  "author": "MAIRA Team",
+  "date": "2025-11-12",
+  "source": "Batalla Virtual 8 2019 rev 5.02.005",
+  
+  "estructura": {
+    "factores_terreno.json": "Modificadores de combate por tipo de terreno",
+    "factores_clima.json": "Efectos del clima en operaciones",
+    "alcances_armas.json": "Alcances efectivos y máximos de armas",
+    "consumos_logisticos.json": "Consumos estándar por tipo de unidad",
+    "tiempos_ingenieros.json": "Tiempos de construcción de obras",
+    "mtbf.json": "Mean Time Between Failures de vehículos"
+  },
+  
+  "nota": "Estos archivos JSON contienen datos extraídos de la documentación de BV8. Se irán completando a medida que se reverse-enginee el software original."
+}
