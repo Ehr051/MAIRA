@@ -1,0 +1,900 @@
+
+
+================================================================================
+Guia de Instalacion Batalla Virtual 2019  v1.5.pdf
+================================================================================
+
+
+Indice
+1.NOTA TÉCNICA........................................................................................................................................................ 3
+2.CONFIGURACIONES PREVIAS PARA INSTALACIÓN EN WINDOWS® SERVER (2003, 2008) ........................................... 4
+2.1.HABILITAR CARACTERÍSTICAS DE .NET FRAMEWORK 3.5.1...................................................................................................... 4
+2.2.DESACTIVAR PREVENCIÓN DE EJECUCIÓN DE DATOS (DEP)..................................................................................................... 5
+3.CONSULTAS Y RECLAMOS ........................................................................................................................................ 7
+4.INSTALACIÓN MANUAL DE APLICACIONES BASE ...................................................................................................... 8
+4.1.INSTALACIÓN DE PLATAFORMAS 2019................................................................................................................................. 8
+4.2.INSTALACIÓN DE COMPONENTE SIG 2019........................................................................................................................... 9
+5.INSTALACIÓN DE SERVIDOR DE DATOS .................................................................................................................. 10
+5.1.INSTALACIÓN DE SERVIDOR DE DATOS 2019....................................................................................................................... 10
+6.INSTALACIÓN DE BATALLA VIRTUAL 8 .................................................................................................................... 11
+6.1.INSTALACIÓN DE BV SERVIDOR 8...................................................................................................................................... 11
+6.2.INSTALACIÓN DE BV SIMULADOR 8.................................................................................................................................... 11
+6.3.INSTALACIÓN DE BV USUARIO 8....................................................................................................................................... 11
+7.INSTALACIÓN DE HERRAMIENTAS DE ESTADO MAYOR 8 ........................................................................................ 12
+7.1.INSTALACIÓN DE ADMINISTRACIÓN DE AMBIENTES 8............................................................................................................ 12
+7.2.INSTALACIÓN DE ADMINISTRACIÓN DE CCOO 8.................................................................................................................. 12
+7.3.INSTALACIÓN DE DIBUJO MILITAR 8................................................................................................................................... 12
+7.4.INSTALACIÓN DE ESTIMACIÓN DE BAJAS DE COMBATE 8........................................................................................................ 12
+7.5.INSTALACIÓN DE ESTIMACIÓN DE FALLAS 8......................................................................................................................... 12
+7.6.INSTALACIÓN DE ESTUDIO DEL TERRENO 8.......................................................................................................................... 12
+7.7.INSTALACIÓN DE PLANEAMIENTO DE INGENIEROS 8.............................................................................................................. 12
+7.8.INSTALACIÓN DE PLANEAMIENTO LOGÍSTICO 8..................................................................................................................... 12
+7.9.INSTALACIÓN DE APOYO A LA CONFRONTACIÓN................................................................................................................... 13
+7.10.INSTALACIÓN DE PLANEAMIENTO DE AEROTRANSPORTE...................................................................................................... 13
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+1.Nota Técnica
+Esta Guía Rápida es compatible con la versión Plenus del Sistema Batalla Virtual (SBV) y explica las diferentes variantes para  la instalación delos productos que lo componen: Usuario, Servidor, Cadete, y Simulador BV; Utilitarios de Aplicación Militar y Herramientas de Estado Mayor.La instalación es el modo manual.
+El apartado 2. describe las configuraciones previas que se deben  realizar.  Estas configuraciones son fundamentales para el uso del sistema en redcon el servidor provisto. 
+Por último, los apartados 3. a 6. describen las instrucciones para la instalación manual del componente SIG, Servidor de Datos, Plataformas yBatalla Virtual, sobre los sistemas operativos Windows ® Server (2003,2008) y Windows ® (XP, Vista y Seven).
+Todas las aplicaciones de software del SBV están protegidas mediante los Derechos de Autor establecidos en la  LEY 11.723 - REGIMENLEGAL DE LA PROPIEDAD INTELECTUAL  con las modificaciones incorporadas por la Ley  24.870 – DERECHOS DE AUTOR , y hansido registradas a nombre del Ejército Argentino como Obra Inédita para uso interno de la Fuerza, en cumplimiento de la Resolución  534/2006del MINISTERIO DE DEFENSA .  
+El uso del software del SBV sólo está autorizado en el ámbito del Ejército Argentino y su empleo en otros ambientes de trabajo deberá seraprobado por la Dirección General de Investigación y Desarrollo del Ejército.
+CIDESO | Guía de Instalación Batalla Virtual 8 3
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+2.Configuraciones Previas para Instalación en Windows® Server (2003, 2008)
+Cuando la instalación de Batalla Virtual se lleva a cabo sobre el Sistema Operativo Windows® Server se deben ejecutar  los siguientes pasos:
+2.1.Habilitar características de .NET Framework 3.5.1
+2.1.1.Entrar a Inicio, hacer clic derecho sobre Equipo para abrir el menú desplegable, y hacer clic izquierdo sobre la opción Administrar.
+2.1.2.En la ventana que se abrió, seleccionar la opción  Características en el menú de la izquierda y luego hacer clic sobre  Agregarcaracterísticas.
+2.1.3.En la nueva ventana, buscar la opción Características de .NET Framework 3.5.1 y hacer clic en el cuadro correspondiente paratildarla (esto tildará automáticamente a las opciones inferiores). Luego, hacer clic en el botón Siguiente.
+(Nota: Si la opción Características de .NET Framework 3.5.1 ya figura como tildada e instalada no es necesario seguir con los siguientes pasos delítem 2.1)
+2.1.4.En la siguiente ventana, hacer clic en el botón Instalar.
+CIDESO | Guía de Instalación Batalla Virtual 8 4
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+2.1.5.Al finalizar la instalación, presionar el botón Cerrar. 
+2.2.Desactivar Prevención de Ejecución de Datos (DEP)
+2.2.1.Entrar a Inicio, hacer clic derecho sobre Equipo para abrir el menú desplegable, y hacer clic izquierdo sobre la opción Propiedades.
+2.2.2.En la nueva ventana, hacer clic sobre Configuración avanzada del sistema .
+2.2.3.En la nueva ventana, seleccionar la pestaña de Opciones avanzadas y luego, en el cuadro de Rendimiento, hacer clic en el botónConfiguración.
+CIDESO | Guía de Instalación Batalla Virtual 8 5
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+2.2.4.En la nueva ventana, seleccionar la pestaña de Prevención de ejecución de datos , marcar la opción de Activar DEP sólo para losprogramas y servicios  de Windows esenciales . Luego presionar Aceptar.
+2.2.5.Si el sistema lo pide, reiniciar.
+CIDESO | Guía de Instalación Batalla Virtual 8 6
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+3.Consultas y Reclamos
+Si tiene alguna consulta sobre la instalación o del funcionamiento de las aplicaciones entregadas, así como posibles reclamos por malfuncionamiento, el soporte técnico del CIDESO deberá efectuarse al Jefe del CIDESO mediante mensaje a: jcideso@ejercito.mil.ar.
+CIDESO | Guía de Instalación Batalla Virtual 8 7
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+4.Instalación Manual de Aplicaciones Base
+4.1.Instalación de Plataformas 2019
+Este componente deberá instalarlo en todas las computadoras donde desee ejecutar cualquiera de las 
+aplicaciones distribuidas. 
+4.1.1.Ejecutar  el instalador  de  Plataformas.  (Recuerde  que  necesita  la clave  de  instalación la  cual es proporcionada junto  con elinstalador)
+Plataformas 2019 rev 2.03.02.exe
+4.1.2.En la ventana de instalación, hacer clic en Siguiente hasta que pida la clave de instalación. Llenar el campo con la clave y presionarSiguiente.
+4.1.3.Hacer clic en Siguiente hasta que pida los componentes de Instalación. En esa ventana, dejar la opción de Instalación Completa ypresionar el botón Siguiente.
+4.1.4.En la siguiente ventana, hacer clic en Instalar y esperar hasta que el sistema diga Instalación Completada. Es posible que durante lainstalación de Plataformas se abran otras ventanas en las cuales debe presionar  Aceptar. Antes de presionar  Finalizar, dejarseleccionada la opción Sí, deseo reiniciar el sistema ahora . (La instalación de Plataformas puede demorar varios minutos)
+CIDESO | Guía de Instalación Batalla Virtual 8 8
+
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+4.2.Instalación de Componente SIG 2019
+Este componente deberá instalarlo en todas las computadoras donde desee ejecutar cualquiera de las 
+aplicaciones distribuidas. 
+4.2.1.Ejecutar el instalador de Componente SIG. (Recuerde que necesita la clave de instalación la cual es proporcionada junto con elinstalador)
+Componente SIG 2019 rev 2.02.02.exe
+4.2.2.En la ventana de instalación, hacer clic en Siguiente hasta que pida la clave de instalación. Llenar el campo con la clave y presionarSiguiente.
+4.2.3.En la siguiente ventana, hacer clic en Instalar y esperar hasta que el sistema diga Instalación Completada.
+CIDESO | Guía de Instalación Batalla Virtual 8 9
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+5.Instalación de Servidor de Datos  
+5.1.Instalación de Servidor de Datos 2019
+Este componente deberá instalarlo únicamente en aquella computadora que designe como servidor de base de 
+datos. Puede compartir, si lo desea, la computadora que contiene el servidor de base de datos con los servidores 
+de batalla virtual (Simulador y Distribuidor). 
+(Nota: Si ya tenía instalado el Servidor de Datos, entonces hay una  serie de ventanas de las mencionadas en 
+esta guía que no aparecerán. Saltear esos pasos)
+5.1.1.Ejecutar el instalador de Servidor de Datos. (Recuerde que necesita la clave de instalación la cual es proporcionada junto con elinstalador)
+Servidor de Datos 2019 rev 4.02.02.exe
+5.1.2.Hacer clic en el botón Siguiente hasta que la ventana diga Listo para Instalar. En esa ventana, hacer clic en Instalar. Espera a queel proceso termine. Luego, reinicie la computadora.
+CIDESO | Guía de Instalación Batalla Virtual 8 10
+
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+6.Instalación de Batalla Virtual 8
+(Nota: Las distintas aplicaciones de Batalla Virtual, Servidor, Simulador y Usuario pueden estar instaladas independientemente en distintascomputadoras, pero es preciso tener antes instalado en esa máquina al menos Plataformas y Componente SIG).
+6.1.Instalación de BV Servidor 8
+6.1.1.Ejecutar el Instalador  Batalla Virtual Servidor 8 rev 5.02.005.exe .  (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+6.1.2.Luego, de finalizar la instalación se solicitará la instalación del componente CADETE, debe instalarlo si desea ejecutar batalla virtual.
+6.1.3.Al finalizar la instalación, presionar el botón Finalizar.
+6.2.Instalación de BV Simulador 8
+6.2.1.Ejecutar el Instalador  Batalla Virtual Simulador 8 rev 6.02.005.exe . (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+6.2.2.Al finalizar la instalación, presionar el botón Finalizar.
+6.3.Instalación de BV Usuario 8
+6.3.1.Ejecutar el Instalador  Batalla Virtual Usuario 8 rev 6.03.002.exe .  (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+6.3.2.Al finalizar la instalación, presionar el botón Finalizar.
+CIDESO | Guía de Instalación Batalla Virtual 8 11
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+7.Instalación de Herramientas de Estado Mayor 8
+(Nota: Las distintas aplicaciones pueden estar instaladas independientemente en distintas computadoras, pero es preciso tener antes instalado enesa máquina al menos Plataformas y Componente SIG).
+7.1.Instalación de Administración de Ambientes 8
+7.1.1.Ejecutar  el  Instalador  Administración  de  Ambientes  Geográficos  8 rev  7.01.003 .exe.  (Recuerde  que  necesita  la clave  deinstalación la cual es proporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.1.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.2.Instalación de Administración de CCOO 8
+7.2.1.Ejecutar el Instalador  Administración de CCOO 8 rev 7.01.004 .exe. (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.2.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.3.Instalación de Dibujo Militar 8
+7.3.1.Ejecutar el Instalador Dibujo Militar 8 rev 7.01.003 .exe. (Recuerde que necesita la clave de instalación la cual es proporcionadajunto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.3.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.4.Instalación de Estimación de Bajas de Combate 8
+7.4.1.Ejecutar el Instalador Estimación de Bajas de Combate 8 rev 7.01.004 .exe. (Recuerde que necesita la clave de instalación la cuales proporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.4.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.5.Instalación de Estimación de Fallas 8
+7.5.1.Ejecutar  el Instalador  Estimación  de  Fallas  8 rev 7.01.003 .exe.  (Recuerde  que  necesita  la clave  de  instalación la  cual esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.5.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.6.Instalación de Estudio del Terreno 8
+7.6.1.Ejecutar  el  Instalador  Estudio  del  Terreno  8  rev 7.01.005 .exe.  (Recuerde  que  necesita  la clave  de  instalación  la  cual  esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.6.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.7.Instalación de Planeamiento de Ingenieros 8
+7.7.1.Ejecutar el Instalador Planeamiento de Ingenieros 2017 rev 7.01.003 .exe. (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.7.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.8.Instalación de Planeamiento Logístico 8
+7.8.1.Ejecutar el Instalador  Planeamiento Logístico 8 rev 7.01.004 .exe.  (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.8.2.Al finalizar la instalación, presionar el botón Finalizar.
+CIDESO | Guía de Instalación Batalla Virtual 8 12
+CIDESO – DIGID – Ejército Argentino
+Centro de Investigación y Desarrollo de Sistemas Operacionales
+7.9.Instalación de Apoyo a la Confrontación
+7.9.1.Ejecutar el Instalador Apoyo a la Confrontación 1.4.0 .exe. (Recuerde que necesita la clave de instalación la cual es proporcionadajunto con el instalador)
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.9.2.Al finalizar la instalación, presionar el botón Finalizar.
+7.10.Instalación de Planeamiento de Aerotransporte 
+7.10.1.Ejecutar el Instalador Planeamiento de Aerotransporte 0.03.001 .exe.
+En la ventana que se abre, hacer clic en el botón Siguiente en todas las ventanas, y luego en el botón Instalar.
+7.10.2.Al finalizar la instalación, presionar el botón Finalizar.
+CIDESO | Guía de Instalación Batalla Virtual 8 13
+
+
+================================================================================
+Notas de Lanzamiento 2019 v0.7.pdf
+================================================================================
+
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+Notas de Lanzamiento de Software
+«Batalla Virtual y HEM 8 »
+Contenido
+INFORMACIÓN DE LA VERSIÓN DEL PRODUCTO ................................................................................... 3
+INTRODUCCIÓN................................................................................................................................... 4
+CAMBIOS DE BATALLA VIRTUAL 8 ......................................................................................................... 5
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):..................................................................................... 5
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):..................................................... 5
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):............................................................................... 6
+CAMBIOS DE PLANEAMIENTO LOGÍSTICO DE MATERIAL 8 .................................................................... 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):.................................................................................... 8
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):..................................................... 8
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):................................................................................ 8
+CAMBIOS DE ADMINISTRADOR DE AMBIENTES GEOGRÁFICOS 8 .......................................................... 9
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):..................................................................................... 9
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):..................................................... 9
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):............................................................................... 9
+CAMBIOS DE ADMINISTRACIÓN DE CUADROS DE ORGANIZACIÓN 8 ................................................... 10
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):................................................................................... 10
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):................................................... 10
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):.............................................................................. 10
+CAMBIOS DE DIBUJO MILITAR 8 ......................................................................................................... 11
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):................................................................................... 11
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):................................................... 11
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):.............................................................................. 11
+CAMBIOS DE ESTIMACIÓN DE BAJAS DE COMBATE 8 .......................................................................... 12
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):.................................................................................. 12
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):................................................... 12
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):.............................................................................. 12
+CAMBIOS DE ESTIMACIÓN DE FALLAS 8 .............................................................................................. 13
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):................................................................................... 13
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):................................................... 13
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):............................................................................. 13
+CAMBIOS DE ESTUDIO DEL TERRENO 8 .............................................................................................. 14
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):................................................................................... 14
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):................................................... 14
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):.............................................................................. 14
+CAMBIOS DE PLANEAMIENTO DE INGENIEROS 8 ................................................................................ 16
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):................................................................................... 16
+AMPLIACIÓN DE FUNCIONALIDADES EXISTENTES (MANTENIMIENTO ADAPTATIVO):................................................... 16
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):.............................................................................. 16
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+NOTAS DE INSTALACIÓN Y ACTUALIZACIÓN ........................................................................................ 17
+Descripción........................................................................................................................................... 17
+REQUISITOS MÍNIMOS DE SISTEMA ................................................................................................... 17
+COMPATIBILIDAD DE VERSIONES ........................................................................................................ 17
+PROBLEMAS CONOCIDOS Y SOLUCIONES ........................................................................................... 17
+LISTADO DE SOFTWARE ..................................................................................................................... 18
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+INFORMACIÓN DE LA VERSIÓN DEL PRODUCTO
+Producto de Software: Batalla Virtual y HEM 8 (Familia de Productos 8)
+Versión Detallada: Servidor de Distribución:  5.02.005
+Servidor de Simulación:  6.02.005
+Cadete: 3.02.005
+Usuario: 6.03.002
+Planeamiento Logístico de Material:  7.01.004
+Administrador de Ambientes Geográficos:  7.01.003
+Administrador de Cuadros de Organización: 7.01.004 
+Dibujo Militar: 7.01.003
+Estimación de Bajas de Combate:  7.01.004
+Estimación de Fallas:  7.01.003
+Estudio del Terreno: 7.01.005
+Planeamiento de Ingenieros:  7.01.003
+Apoyo a la Confrontación: 1.4.0
+Planeamiento de Aerotransporte:  0.03.001  (NOTA: la aplicación
+está  en  una  versión  Beta,  es  distribuida  con  el  objetivo  de
+capturar requisitos para un desarrollo definitivo )
+Fecha de Lanzamiento: 07/06/2019
+Alcance del Producto: Actualización, Ampliación y Reparación.
+Producto que 
+Actualiza, Amplía o 
+Repara:Actualiza batalla virtual plenus y todas las herramientas de es -
+tado mayor 2017. El detalle de los cambios está explicado más
+abajo en este mismo documento.
+Apoyo al Usuario: Para  más  información  o  soporte,  envíe  un  mensaje  a
+cideso@ejercito.mil.ar  o solicite apoyo técnico al teléfono +54-
+011-47793358 / (REDISE) 01-3358.
+Propiedad Intelectual: La Propiedad Intelectual de esta Obra de Software y de Base de
+Datos está  regulada por las leyes de la República Argentina y los
+Tratados Internacionales suscriptos por el país, en esta materia.
+Los  Derechos  de  Autor están protegidos por la  LEY  11.723  -
+RÉGIMEN  LEGAL  DE  LA  PROPIEDAD INTELECTUAL con las
+modificaciones  incorporadas  por  la  Ley  25.036/1998  y  la  Ley
+24.870/1997 – DERECHOS DE AUTOR, y el Decreto 165/1994.
+Su registro se ha efectuado ante la DIRECCIÓN NACIONAL DEL
+DERECHO DE AUTOR a nombre del EJÉRCITO ARGENTINO
+como Obra Publicada y con Licencia de Uso interno  de la Fuerza,
+en cumplimiento de la Resolución 534/2006 del MINISTERIO DE
+DEFENSA.
+Organismo  de  Registro:  Dirección  Nacional  del  Derecho  de
+Autor / Ministerio de Justicia y Derechos Humanos.
+Autoridad de Registro: J Dpto Planto Estr – DIGID 
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+INTRODUCCIÓN
+Este  documento  contiene  las  notas  de  lanzamiento  del Sistema  « Batalla  Virtual 8»  y  las
+«Herramientas de Estado Mayor 8 »
+La  finalidad  es  proporcionar  información  técnica  y  de  uso  para  su  empleo  interno  en  el
+CIDESO, así como brindar a los usuarios la información necesaria para el correcto despliegue,
+instalación  y  uso  del software y de la base de datos.
+Las secciones siguientes describen la versión en detalle y brindan información del alcance
+funcional y aspectos técnicos u otro tipo de información que complementan la documentación
+principal.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE BATALLA VIRTUAL 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+Se corrigió un problema que ocurría cuando se cargaban ejercicios desde el simulador,
+el cadete quedaba en estado inconsistente.
+Se corrigió un problema con la orden de apoyo de fuego naval y fragmentaria.
+Se corrigió un error de actualización de estado en requerimiento de apoyo de fuego.
+Se corrigió un problema al importar los CCOO desde el simulador, el GAA35MM no se
+importaba.
+Se corrigió un problema con los elementos de software que representan las fechas y
+las horas (TimeStamp).
+Se  corrigió  un  problema  en  las  órdenes  de  aerotransporte.  Al  dar  una  orden  de
+aerotransporte y seleccionar la opción que salte la tropa sobre tropa enemigas, la
+orden de aerotransporte funcionaba bien, luego cuando la tropa llegaba a tierra y tenía
+que combatir no lo hacía.
+Se corrigió un error al Exportar Blancos en la "lista de blancos planificados".
+Se corrigió un error que ocurría al elevar un requerimiento de apoyo de fuego del OE al
+CAF desde la ventana resumen (la que se encuentra en la esquina inferior izquierda de
+la pantalla) lo hacía desaparecer sin que llegara al CAF.
+Se arregló un error que ocurría al abrir la ventana de apoyo de fuego con el usuario
+Jsec.
+Se corrigió un problema con las actualizaciones del chat.
+Se limitó la visión de los aeródromos únicamente a los usuarios que pertenecen al
+bando correspondiente.
+Se corrigió un error que surgía al recuperar órdenes de misiones de fuego.
+Se  corrigió  una  validación  incorrecta  que  hacía  que  el  usuario  CAF  no  pudiera
+modificar el tipo de agencia de un requerimiento de apoyo de fuego.
+Se corrigió un problema que surgía cuando el director del ejercicio, desde la ventana
+de “vistas múltiples”, seleccionaba en la barra de menú la opción “Archivo” – “Exportar
+elementos ubicados “.
+Corrección de problema en la operación anfibia con botes.
+Se  corrigió  un  problema  de  actualización  de  estados  de  orden  en  las  solapas
+PFMorPes que permitía que se ejecute la orden de fuego las veces que el usuario
+presionaba sobre el botón.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Se agrega algoritmo que permite comprimir los mensajes que se envían por la red, esto
+hace que la conexión sea más estable y duradera.
+Se agregó al chat la posibilidad de crear grupos por unidad, brigada o bando.
+Se  agregó  la  posibilidad  de  modificar  la  fecha  de  despegue  en  las  órdenes  de
+operaciones aerotransportadas.
+Se agregaron mejoras en la ventana de modificación de estado de los vehículos.
+Al exportar calcos desde Batalla Virtual se agregó la convención de colocar el nombre
+del ambiente al nombre de archivo que agrega el usuario, tal cual lo hace Dibujo Militar.
+Se agregó la opción “por red vial” a la orden de marcha abreviada.
+Se agregó al chat la opción para enviar la imagen del mapa en forma directa, solo tiene
+que presionar un botón.
+Se incorporó una nueva aplicación de vista satelital que además de las opciones de
+siempre, ahora podrá agregar un calco. También cuenta con un diseño de interfaces
+gráficas mejorado.
+Se agrega la ventana de misión de fuegos múltiples por efecto.
+Se agregó botón de actualización en todas las ventanas de apoyo de fuego, para todas
+las solapas.
+Mejoras en la interfaz de creación de blancos de apoyo de fuego.
+Mejoras en las interfaces del chat.
+Mejoras en las interfaces de ingenieros.
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la aplicación trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Se realizaron cambios para que las aplicaciones sean tolerantes a fallos (Esta nueva
+funcionalidad será explicada con más detalle en el documento de Tolerancia a Fallos
+incluí do en la documentación oficial).
+Integración con las funcionalidades implementadas en C16 (Curso Conjunto C16 Coord
+Apy Fgo Conj). Ahora Batalla Virtual y C16 son el mismo producto. Incorporación de
+librería de apoyo de fuego aéreo. Actualizaciones de las interfaces gráficas para incluir
+las funcionalidades de C16.
+Se agrega una funcionalidad que permite visualizar las estadísticas de la aplicación en
+ejecución.
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+Se agregó una opción que permite importar y utilizar ejercicios de versiones anteriores
+(6 o Plenus). Esta opción se accede desde la ventana de utilidades del Simulador.
+El  Simulador  tiene  un  log  (cuadro  de  texto)  para  que  muestre  que  evento  está
+ejecutando en ese momento.
+Se agregó por archivo de configuración el tiempo mínimo entre ticks. Por defecto el
+valor  mínimo  es  5  segundos,  pero  puede  configurarse  por  archivo  INI  si  desea
+establecer otro valor mímino. Esta opción es válida para el Simulador.
+Se agregó la opción de cambiar de ejercicio desde la interfaz de usuario del director, la
+única restricción es que el ejercicio esté desactivado.
+Se mejoró la usabilidad del sistema al momento de crear ejercicios, se pueden guardar
+en cualquier momento durante el proceso con el fin de recuperarlos luego y continuar
+con el trabajo de creación. Quiere decir que con esta funcionalidad usted podrá crear
+planillas de ejercicios.
+Se agregó para el administrador la opción de imprimir los usuarios creados. Para el
+director se agregó poder imprimir los usuarios y las tropas al momento de creación del
+ejercicio.
+Se agregó la opción de poder embarcar tropas en elementos navales (barcos) para su
+transporte y posterior desembarco y despliegue.
+Se  agregó  la  opción  para  que  el  usuario  pueda  mover  el  mapa  con  el  cursor.
+Simplemente debe presionar la tecla Q y luego dirigir el cursor hacia la esquina del
+mapa donde desea realizar el movimiento.
+Se agregó una opción que permite exportar la pantalla visible del usuario (SIG y todo lo
+que este contenga) a formato BMP, disponible para el Usuario de Batalla Virtual.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE PLANEAMIENTO LOGÍSTICO DE MATERIAL 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+Se corrigió un problema que ocurría al cargar armamento manualmente.
+Se  reparó  un  error  de  interfaz  gráfica  al  momento  de  arreglar  un  armamento
+seleccionado en la sección de cálculo de municiones.
+Se resolvió un conflicto que impedía que se guarde la configuración seleccionada por el
+usuario cuando corregía algún efecto defectuoso.
+Se corrigieron errores que se producían en los cálculos de municiones con algunos
+tipos de elementos.
+Se corrigió un error que se producía cuando se intentaban exportar los resultados de
+los cálculos a plantillas en formato ODS.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la herramienta trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+Mejoras en las interfaces gráficas, se agregan configuraciones que permiten usar la
+aplicación en un mayor número de resoluciones de pantalla.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE ADMINISTRADOR DE AMBIENTES GEOGRÁFICOS 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+Se corrigió un error que se producía cuando se proyectaba un layer.
+Se corrigió un error que surgía al presionar el botón Editar Shapes Seleccionados.
+Se corrigió un error al cambiar el nombre de un campo dentro del layer.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la herramienta trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+Mejoras visuales al momento de georeferenciar una imagen.
+Actualización de tamaños en la ventana de Creación de Layers.
+Se han recortado los scrolls de las barras laterales al momento de guardar el mapa
+para que la imagen salga más limpia.
+Al momento de guardar un ambiente aparece una nueva opción que permite guardar el
+ambiente compatible con versiones anteriores de Administración de Ambientes.
+Se incorporó una nueva aplicación de vista satelital que además de las opciones de
+siempre, ahora podrá agregar un calco. También cuenta con un diseño de interfaces
+gráficas mejorado.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Se agregaron los nombres de layers reglamentarios, debe ir a menú Archivo->Nombre
+de layers reglamentarios.
+Se  agregó  la  opción  para  que  el  usuario  pueda  mover  el  mapa  con  el  cursor.
+Simplemente debe presionar la tecla Q y luego dirigir el cursor hacia la esquina del
+mapa donde desea realizar el movimiento.
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+Se agregó una opción que permite exportar la pantalla visible del usuario (SIG y todo lo
+que contenta este) a formato BMP.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE ADMINISTRACIÓN  DE CUADROS DE ORGANIZACIÓN 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+Se agregaron algunas validaciones para que al momento de guardar el CCOO no
+ocurran problemas con elementos que estén donde no deben estar.
+Se agregaron las imágenes en los botones de la barra lateral.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la aplicación trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+Mejoras en las interfaces gráficas, se agregan configuraciones que permiten usar la
+aplicación en un mayor número de resoluciones de pantalla.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE DIBUJO MILITAR 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+Se arreglo un problema que surgía al querer configurar el guardado automático.
+Se reparó un problema que ocurría al cambiar el estilo de una figura.
+Se corrigió un error que surgía cuando se deseaba cambiar el color de un símbolo.
+Se corrigió un problema en el refresco de los botones del panel de la izquierda.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la aplicación trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+Se incorporó una nueva aplicación de vista satelital que además de las opciones de
+siempre, ahora podrá agregar un calco. También cuenta con un diseño de interfaces
+gráficas mejorado.
+Se han recortado los scrolls de las barras laterales al momento de guardar el mapa
+para que la imagen salga más limpia.
+Al momento de guardar un calco se ofrece un nuevo tipo de extensión, aquella que es
+compatible con versiones anteriores de Dibujo Militar.
+Mejoras en las interfaces gráficas, se agregan configuraciones que permiten usar la
+aplicación en un mayor número de resoluciones de pantalla.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+Se  agregó  las  opciones  para  poder  Deshacer-Rehacer  las  acciones  que  se  van
+ejecutando
+Se agregó una opción que permite exportar la pantalla visible del usuario (SIG y todo lo
+que contenta este) a formato BMP.
+Se insertaron nuevos símbolos de la ONU.
+Se  agregó  la  opción  para  que  el  usuario  pueda  mover  el  mapa  con  el  cursor.
+Simplemente debe presionar la tecla Q y luego dirigir el cursor hacia la esquina del
+mapa donde desea realizar el movimiento.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE ESTIMACIÓN DE BAJAS DE COMBATE 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+Corrección de error en los gráficos, no mostraban los textos en las leyendas.
+Se resolvió lo siguiente: en los gráficos estadísticos, heridos 72 horas aparecía 2
+veces, uno de esos es en combate y el otro en NO combate.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la aplicación trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+Incorporación de opción que permite acceder a las últimas mejoras de la aplicación.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE ESTIMACIÓN DE FALLAS 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+No se registraron errores desde la versión anterior.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la aplicación trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+Mejoras en las interfaces gráficas, se agregan configuraciones que permiten usar la
+aplicación en un mayor número de resoluciones de pantalla.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE ESTUDIO DEL TERRENO 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+Se corrigió un error que se producía al calcular las avenidas de aproximación usando el
+modelo de cotas.
+Se  corrigió  un  error  que  no  permitía  trabajar  con  ambientes  en  coordenadas
+geográficas para la funcionalidad de determinar avenida de aproximación.
+Corrección de íconos que no se mostraban correctamente.
+Corrección de error que ocurría al cargar un calco de otro ambiente.
+Se corrigieron mensajes incorrectos que se mostraban al  momento de guardar los
+archivos  en  disco,  siempre  preguntaba  lo  mismo  y  no  tenía  relación  con  la
+funcionalidad que se estaba ejecutando.
+Se corrigió problema que había cuando se mostraba el porcentaje del cálculo de los
+caminos en la funcionalidad de avenida de aproximación.
+Se resolvió un problema que ocurría en el cálculo de transitabilidad.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la aplicación trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+Mejoras en la interfaz gráfica de configuración de avenidas de aproximación.
+Se han recortado los scrolls de las barras laterales al momento de guardar el mapa
+para que la imagen salga más limpia.
+En el perfil del camino, cuando se consultaba la información, se mostraba los mensajes
+con muchos ceros, se formateó ese valor a un numero más aproximado.
+Se agregó para las opciones de Zonas restringidas para el lanzamiento y Sectores
+aptos para misión de fuego una mejora que muestra el progreso de los cálculos de una
+forma más completa.
+Se incorporó una nueva aplicación de vista satelital que además de las opciones de
+siempre, ahora podrá agregar un calco. También cuenta con un diseño de interfaces
+gráficas mejorado.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+Se  agregó  la  opción  para  que  el  usuario  pueda  mover  el  mapa  con  el  cursor.
+Simplemente debe presionar la tecla Q y luego dirigir el cursor hacia la esquina del
+mapa donde desea realizar el movimiento.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+CAMBIOS DE PLANEAMIENTO DE INGENIEROS 8
+SOLUCIÓN DE ERRORES (MANTENIMIENTO CORRECTIVO):   
+No se presentaron errores respecto a la versión anterior del producto.
+AMPLIACIÓN DE FUNCIONALIDADES  EXISTENTES (MANTENIMIENTO ADAPTATIVO):   
+Actualización de la máquina virtual de Dolphin SmallTalk a su versión 7.
+Se  eliminó  la  opción  de  "trabajar  sin  conexión".  Las  aplicaciones  contienen
+almacenados todos los datos que necesitan lo que les permite abrir directamente.
+Luego, en caso de necesitarlo, se pueden actualizar los datos locales realizando una
+conexión con el Servidor de Base de Datos (MySql).
+Actualización del motor de serialización de objetos a la versión 2. Sin embargo, puede
+configurar para que la aplicación trabaje con la versión anterior (1) si es que necesita
+tener compatibilidad hacia atrás.
+Mejoras en las interfaces gráficas, se agregan configuraciones que permiten usar la
+aplicación en un mayor número de resoluciones de pantalla.
+NUEVAS FUNCIONALIDADES (MANTENIMIENTO PERFECTIVO):   
+Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las
+teclas Ctrl+Shift+Z se abrirá una ventana que mostrará los datos que contiene la lista
+de una forma más visual. También podrá buscar elementos pertenecientes al listado y
+seleccionarlos para facilitar la búsqueda. Esta funcionalidad es muy útil en listas que
+poseen muchos elementos.
+Incorporación de opción que permite acceder a las últimas mejoras de la aplicación.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+NOTAS DE INSTALACIÓN Y ACTUALIZACIÓN
+DESCRIPCIÓN
+Esta Versión está formada por:
+Notas de Lanzamiento (este archivo)
+Guía Rápida de Instalación de BV8
+Manual de usuario de Batalla Virtual
+Archivo Leeme (Con datos claves para comenzar a utilizar el sistema)
+Documento explicativo de Tolerancia a Fallos
+Instalador de Herramienta Planeamiento Logístico
+Instalador de Herramienta Administrador de Ambientes
+Instalador de Herramienta Administración de Cuadros de Organización
+Instalador de Herramienta Planeamiento de Ingenieros
+Instalador de Herramienta Estudio del Terreno
+Instalador de Herramienta Dibujo Militar
+Instalador de Herramienta Estimación de Bajas de Combate
+Instalador de Herramienta Estimación de Fallas
+Instalador del Servidor de Distribución
+Instalador del Servidor de Simulación
+Instalador del Usuario
+Instalador de Apoyo a la Confrontación
+Instalador de Planeamiento de Aerotransporte
+REQUISITOS MÍNIMOS DE SISTEMA
+Procesador: 2GHz (Recomendado doble núcleo)
+Memoria RAM: 2 Gb (Recomendado 4 Gb)
+Espacio libre en disco: 4 Gb (Recomendado 10 Gb)
+Sistema Operativo: Windows  Server  20xx  (Servidor),  Windows  XP  32  bits,
+Windows Vista, 7, 8 y 10 (Recomendado Windows 10)
+Red: Acceso a Internet (solo para algunas funcionalidades, como
+por ejemplo  Vista  Satelital.  Puede  usar  casi todo  lo  que
+ofrece el sistema sin tener acceso a Internet).
+LAN 100 Mbps – Cableada (Recomendado) o WLAN (Wifi)
+Software Necesario: Ver Tabla de Software Compatible
+COMPATIBILIDAD DE VERSIONES
+Esta versión mantiene compatibilidad con cualquier ejercicio creado con BV6 o BVPlenus. No
+es compatible con ejercicios creados en versiones previas a éstas. Se accede a través de las
+utilidades del Simulador.
+Hay compatibilidad con ambientes geográficos creados o modificados con versiones anteriores,
+así como también permite guardar ambientes para poder ser usados con versiones anteriores a
+esta. Lo mismo ocurre con los calcos, se puede guardar para usarlos en versiones anteriores, y
+también se interpretan calcos creados con versiones anteriores.
+PROBLEMAS CONOCIDOS Y SOLUCIONES
+En esta versión no se identificaron aspectos críticos pendientes de resolver.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+LISTADO DE SOFTWARE
+El  sistema  de  simulación  Batalla  Virtual  8  incluye  aparte  del  software  Batalla  Virtual
+propiamente dicho, todas las aplicaciones de Planeamiento, más el conjunto de aplicaciones,
+datos y herramientas que dan soporte al negocio.
+A continuación se detallan cada uno de los componentes de software y datos que componen al
+sistema con su respectiva versión, que conforman un paquete 100% compatible asegurando el
+correcto funcionamiento de los productos de la familia 8.
+Tabla de Aplicaciones Compatibles
+NombreVersiónDesarro-
+lloDetalle de Instalación
+APLICACIONES DE SOPORTE AL NEGOCIO
+Plataformas 2019 2.03.02ExternoMicrosoft .Net Framework versión 3.5
+Microsoft .Net Framework versión 4.0
+Microsoft .NET Framework 4.7
+MySQLConnector ODBC  5.1.7 (32 o 64
+Bits según corresponda)
+Visual C++ Redistributable 2015
+Máquina  Virtual  de Java  8  (32  o 64
+Bits según corresponda)
+Librerías requeridas por las aplicacio -
+nes
+    
+Componente SIG 2019 2.02.02ExternoESRI MapObject 2.4
+Data AccesObject (DAO) 3.5
+Vista Satelital 1.02
+Fuentes y Librerías requeridas por las
+aplicaciones
+    
+Servidor De Datos 2019 4.02.02ExternoMySQLCommunity Server 5.1.51 (32 o
+64 Bits según corresponda)
+BD Actualizada (Datos)
+    
+APLICACIONES DE SOPORTE AL PLANEAMIENTO
+Adm. de Ambientes Geográficos 8 7.01.003CIDESOInstalador HEM de Adm. de Ambien -
+tes Geográficos
+Administración de CCOO 8 7.01.004CIDESOInstalador de HEM de Adm. de Cua -
+dros de Organización
+Dibujo Militar 8 7.01.003CIDESOInstalador HEM de Dibujo Militar
+Estimación de Bajas de Combate 8 7.01.004CIDESOInstalador HEM de Estimación de Ba -
+jas de Combate
+Estimación de Fallas 8 7.01.003CIDESOInstalador HEM de Estimación de Fa -
+llas
+Estudio del Terreno 8 7.01.005CIDESOInstalador HEM de Estudio del Terreno
+Planeamiento de Ingenieros 8 7.01.003CIDESOInstalador  HEM  de  Planeamiento  de
+Ingenieros
+Planeamiento Logístico 8 7.01.004CIDESOInstalador HEM  de Planeamiento Lo -
+gístico
+Apoyo a la Confrontación 1.4.0CIDESOInstalador  Apoyo  a  la  Confrontación
+1.4.0
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Familia de Productos 8
+Notas de Lanzamiento                                                                                          Junio 2019
+Planeamiento de Aerotransporte 0.03.001CIDESOInstalador de Planeamiento de Aero -
+transporte  0.03.001  (la  aplicación  es
+una versión Beta con el objeto de cap -
+turar requisitos para un desarrollo de -
+finitivo)
+    
+APLICACIONES DE SOPORTE A LA SIMULACIÓN
+Batalla Virtual Servidor 8 5.02.005CIDESOInstalador del Servidor de Distribución
+Batalla Virtual Cadete 8 3.02.005CIDESOInstalador  de  la  aplicación  Cadete
+(Este instalador no se distribuye, esta
+contenido  dentro  del  instalador  del
+Servidor de Distribución)
+Batalla Virtual Simulador 8 6.02.005CIDESOInstalador del Servidor de Simulación
+Batalla Virtual Usuario 8 6.03.002CIDESOInstalador de la aplicación Usuario
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+
+
+================================================================================
+Tolerancia a Fallos 2019 v0.1.pdf
+================================================================================
+
+Batalla Virtual 8
+Tolerancia a Fallos                                                                                                      Junio 2019
+Tolerancia a Fallos de
+«Batalla Virtual 8 »
+Contenido
+INTRODUCCIÓN................................................................................................................................... 2
+SERVIDOR DE SIMULACIÓN .................................................................................................................. 3
+PERDIDA DE CONEXIÓN DE LA RED...................................................................................................................... 3
+DETENCIÓN INESPERADA DE LA APLICACIÓN......................................................................................................... 3
+USUARIO............................................................................................................................................. 4
+PERDIDA DE CONEXIÓN DE LA RED...................................................................................................................... 4
+DETENCIÓN INESPERADA DE LA APLICACIÓN......................................................................................................... 4
+CADETE............................................................................................................................................... 5
+PERDIDA DE CONEXIÓN DE LA RED...................................................................................................................... 5
+DETENCIÓN INESPERADA DE LA APLICACIÓN......................................................................................................... 5
+SERVIDOR DE DISTRIBUCIÓN ............................................................................................................... 7
+PERDIDA DE CONEXIÓN DE LA RED...................................................................................................................... 7
+DETENCIÓN INESPERADA DE LA APLICACIÓN......................................................................................................... 7
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Batalla Virtual 8
+Tolerancia a Fallos                                                                                                      Junio 2019
+INTRODUCCIÓN
+Este documento tiene como finalidad explicar como funciona el sistema de tolerancia a fallos
+incorporado en Batalla Virtual 8. Este comportamiento le permite al usuario salvar situaciones
+donde las aplicaciones dejan de funcionar por cuestiones ajenas al software. Por ejemplo, se
+desconecta un cable de red de alguna computador, o se corta la luz en el servidor, o la red deja
+de funcionar, etc..
+A continuación, se va a explicar por cada aplicación, cómo debe proceder en caso de algún
+problema.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+Batalla Virtual 8
+Tolerancia a Fallos                                                                                                      Junio 2019
+SERVIDOR DE SIMULACIÓN
+PERDIDA DE CONEXIÓN DE LA RED   
+Esto puede producirse por dos situaciones, o el Servidor de Distribución dejó de funcionar o se
+desconectó el cable de red de la computadora donde está ejecutando esta aplicación. En cual -
+quier caso debe dirigirse a las Utilidades del sistema desde el menú de la aplicación o presio -
+nando Ctrl+U, lo cual le abrirá la siguiente interfaz gráfica:
+Presionando sobre el botón Reconexión logrará resolver el problema.
+DETENCIÓN INESPERADA DE LA APLICACIÓN   
+Si el Simulador deja de funcionar o se apaga la computadora donde estaba ejecutando deberá
+empezar el proceso de conexión de usuarios desde sus inicios y deberá recurrir al último
+ejercicio guardado automáticamente. Recuerde que se guarda cada 20 minutos, pero puede
+configurar ese tiempo según sus necesidades.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+
+Batalla Virtual 8
+Tolerancia a Fallos                                                                                                      Junio 2019
+USUARIO
+PERDIDA DE CONEXIÓN DE LA RED   
+Esto puede producirse por dos situaciones, o el Servidor de Distribución dejó de funcionar o se
+desconectó el cable de red de la computadora donde está ejecutando esta aplicación. El Usua -
+rio mostrará un mensaje cuando pierda conexión y le preguntará si desea conectarse nueva -
+mente.
+También hay un botón en la barra de tareas que se pondrá en rojo cuando esté desconectado
+Lo que debe hacer es presionar el botón rojo y el Usuario se conectará nuevamente.
+DETENCIÓN INESPERADA DE LA APLICACIÓN   
+Si el Usuario se detiene en forma inesperada solo debe abrirlo nuevamente y podrá continuar
+con su trabajo. Todos los cambios siempre están en el Simulador de manera que no perderá
+información alguna.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+
+Batalla Virtual 8
+Tolerancia a Fallos                                                                                                      Junio 2019
+CADETE
+El Cadete es una aplicación que corre como tarea en segundo plano y se encarga de distribuir
+el ejercicio y el ambiente a los nuevos usuarios que ingresan al sistema, así como también se
+encarga del módulo del Chat. Es una pieza clave en el funcionamiento de batalla virtual.
+El cadete se abre en forma automática cuando se abre el servidor de distribución y se ubica en
+la barra de tareas de Windows.
+Ejecuta en la misma computadora donde está ejecutando el servidor de distribución.
+PERDIDA DE CONEXIÓN DE LA RED   
+Esto puede producirse por dos situaciones, o el Servidor de Distribución dejó de funcionar o se
+desconectó el cable de red de la computadora donde está ejecutando esta aplicación.
+Lo que debe hacer es Click Derecho sobre el ícono lo cual abrirá las opciones que tiene el Ca -
+dete y debe presionar sobre Reconexión.
+DETENCIÓN INESPERADA DE LA APLICACIÓN   
+Si el Cadete se detiene en forma inesperada lo primero que ocurrirá es que el Simulador dejará
+de simular (Si estaba simulando) por lo que no se perderán datos de simulación. Luego lo que
+debe hacer es asegurarse que la aplicación Cadete no continúe ejecutando, para esto debe ir
+al administrador de tareas de Windows (Ctrl+Shift+Esc) y buscar en los procesos que el Cadete
+no continúe ejecutando. Si está abierto entonces debe terminar el proceso.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+
+Batalla Virtual 8
+Tolerancia a Fallos                                                                                                      Junio 2019
+Una vez resuelto esto debe dirigirse al Servidor de Distribución en el menú Conexión y conectar
+al Cadete. Antes de realizar esta operación verifique  que el Simulador se encuentre conectado
+con el Servidor de Distribución
+El Cadete se abrirá y pedirá el ejercicio al Simulador (esto puede demorar unos segundos), y
+podrá verificar esto en la opción que muestra “Ejercicio Actual: Nombre del ejercicio”. En caso
+de que no ocurra, podrá usar la opción pedir el ejercicio al Simulador, como se muestra en la
+siguiente imagen (nótese que esta imagen el Cadete ya pidió el ejercicio en forma automática
+por eso muestra Ejercicio Actual: logistico)
+Luego de que llegue el ejercicio (puede demorar unos segundos), ya está en condiciones de
+continuar con el trabajo.
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+
+Batalla Virtual 8
+Tolerancia a Fallos                                                                                                      Junio 2019
+SERVIDOR DE DISTRIBUCIÓN
+PERDIDA DE CONEXIÓN DE LA RED   
+Esto puede producirse debido a que se desconectó el cable de red de la computadora donde
+estaba ejecutando esta aplicación. Si la conexión a la red se recupera en menos de 1 minuto
+entonces el resto de las aplicaciones que estaban conectadas (Cadete, Simulador y Usuarios)
+se conectarán en forma automática. En caso contrario, debe ir a las opciones de Reconexión
+explicadas en forma particular para cada una de estas aplicaciones y realizar la conexión en
+forma manual.
+DETENCIÓN INESPERADA DE LA APLICACIÓN   
+Si  el  Servidor  de  Distribución  deja  de  funcionar  entonces  lo  que  debe  hacer  es  abrirlo
+nuevamente (puede darse el caso de que arroje un mensaje informando que no se puede abrir
+el Cadete, esto es porque ya está abierto, ignore este mensaje) y luego las aplicaciones se
+conectará en forma automática. Si no lo hacen (porque pasó más de 1 minuto) deberá hacerlo
+en forma manual, en este caso debe primero conectar el Simulador desde su opción de
+Reconexión y luego puede conectar el Cadete y al resto de los usuarios también desde sus
+respectivas opciones de Reconexión.
+Al  igual  que  en  el  caso  del  Cadete,  cuando  se  cierre  inesperadamente  el  Servidor  de
+Distribución el Simulador dejará de simular (si lo estaba haciendo) lo que significa que no
+perderá datos de simulación.
+Para saber si el Cadete esta conectado puede dirigirse al menú  Configuración → Lan → Ver
+conexiones ocultas
+Lo que permitirá ver en el listado la conexión perteneciente al Cadete
+CIDESO-DIGID | EJÉRCITO ARGENTINO
+

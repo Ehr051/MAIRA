@@ -1,0 +1,35 @@
+<definiciones>
+	<definicion tipo="ElementoEmercat" creador="Default" finalizador="Default">
+		<campo nombre="id" tipo="xsd:int" />
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="tipo" tipo="xsd:string" />
+		<subclase tipo="RecursoEmercat" />
+	</definicion>
+	<definicion tipo="RecursoEmercat" creador="Default" finalizador="Default">		
+		<campo nombre="origen" traductor="Objeto" tipo="ElementoEmercat" />		
+	</definicion>
+	<definicion tipo="ElementoEnvio" creador="Default" finalizador="Default">
+		<campo nombre="cantidad" tipo="xsd:int" />
+		<campo nombre="elemento" traductor="Objeto" tipo="ElementoEmercat" />		
+	</definicion>
+	<definicion tipo="PaqueteEnvio" creador="Default" finalizador="Default">
+		<campo nombre="elementos" traductor="Objeto" tipo="ElementoEnvio" array="true" />
+		<campo nombre="medio" traductor="Objeto" tipo="RecursoEmercat" />
+	</definicion>
+	<definicion tipo="DatosEnvio" creador="Default" finalizador="Default">
+		<campo nombre="actualizarEnDestino" tipo="xsd:string" />
+		<campo nombre="actualizarEnOrigen" tipo="xsd:string" />
+		<campo nombre="destino" traductor="Objeto" tipo="ElementoEmercat" />
+		<campo nombre="fecha" traductor="TimeStampString" tipo="xsd:string" />
+		<campo nombre="paquetes" traductor="Objeto" tipo="PaqueteEnvio" array="true" />		
+	</definicion>
+	<definicion tipo="RolProxy" creador="Default" finalizador="Default">		
+		<campo nombre="nombre" tipo="xsd:string" />		
+	</definicion>
+	<definicion tipo="DatosDeLogueo" creador="Default" finalizador="Default">		
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="clave" tipo="xsd:string" />
+		<campo nombre="rol" traductor="Objeto" tipo="RolProxy" />
+		<campo nombre="version" tipo="xsd:string" />
+	</definicion>
+</definiciones>

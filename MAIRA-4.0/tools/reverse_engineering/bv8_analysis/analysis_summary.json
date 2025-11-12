@@ -1,0 +1,27 @@
+{
+  "bajas": {
+    "factores": 0,
+    "constantes": 0,
+    "strings_total": 748
+  },
+  "logistica": {
+    "factores": 0,
+    "constantes": 0,
+    "strings_total": 748
+  },
+  "ingenieros": {
+    "factores": 0,
+    "constantes": 0,
+    "strings_total": 747
+  },
+  "fallas": {
+    "factores": 0,
+    "constantes": 0,
+    "strings_total": 748
+  },
+  "terreno": {
+    "factores": 0,
+    "constantes": 0,
+    "strings_total": 747
+  }
+}

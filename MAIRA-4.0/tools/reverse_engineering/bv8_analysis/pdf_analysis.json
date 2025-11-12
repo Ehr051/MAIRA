@@ -1,0 +1,136 @@
+{
+  "patterns": {
+    "Guia de Instalacion Batalla Virtual 2019  v1.5.pdf": {
+      "factores": [
+        0.03,
+        1.1,
+        1.4,
+        1.3,
+        1.2,
+        1.5
+      ],
+      "porcentajes": [],
+      "distancias": [],
+      "tiempos": [],
+      "mtbf": []
+    },
+    "Notas de Lanzamiento 2019 v0.7.pdf": {
+      "factores": [
+        0.03,
+        1.4,
+        1.02,
+        1.51,
+        1.7
+      ],
+      "porcentajes": [
+        "100%"
+      ],
+      "distancias": [],
+      "tiempos": [],
+      "mtbf": []
+    },
+    "Tolerancia a Fallos 2019 v0.1.pdf": {
+      "factores": [],
+      "porcentajes": [],
+      "distancias": [],
+      "tiempos": [],
+      "mtbf": []
+    }
+  },
+  "keywords": {
+    "Guia de Instalacion Batalla Virtual 2019  v1.5.pdf": {
+      "terreno": [],
+      "clima": [],
+      "armas": [
+        "7.5.1.Ejecutar  el Instalador  Estimación  de  Fallas  8 rev 7.01.003 .exe.  (Recuerde  que  necesita  la clave  de  instalación la  cual esproporcionada junto con el instalador)",
+        "7.5.INSTALACIÓN DE ESTIMACIÓN DE FALLAS 8......................................................................................................................... 12",
+        "7.5.Instalación de Estimación de Fallas 8"
+      ],
+      "vehiculos": [],
+      "combate": []
+    },
+    "Notas de Lanzamiento 2019 v0.7.pdf": {
+      "terreno": [],
+      "clima": [],
+      "armas": [
+        "así como también permite guardar ambientes para poder ser usados con versiones anteriores a",
+        "Instalador de Herramienta Estimación de Fallas",
+        "Se realizaron cambios para que las aplicaciones sean tolerantes a fallos (Esta nueva",
+        "para que la imagen salga más limpia.",
+        "Documento explicativo de Tolerancia a Fallos",
+        "CAMBIOS DE ESTIMACIÓN DE FALLAS 8",
+        "Estimación de Fallas:  7.01.003",
+        "Si presiona sobre cualquier listado que tenga foco (también sobre combos-box) las",
+        "Se agregó al chat la opción para enviar la imagen del mapa en forma directa, solo tiene",
+        "CAMBIOS DE ESTIMACIÓN DE FALLAS 8 .............................................................................................. 13"
+      ],
+      "vehiculos": [],
+      "combate": []
+    },
+    "Tolerancia a Fallos 2019 v0.1.pdf": {
+      "terreno": [
+        "el Cadete, esto es porque ya está abierto, ignore este mensaje) y luego las aplicaciones se",
+        "no continúe ejecutando. Si está abierto entonces debe terminar el proceso."
+      ],
+      "clima": [],
+      "armas": [
+        "el ejercicio y el ambiente a los nuevos usuarios que ingresan al sistema, así como también se",
+        "siguiente imagen (nótese que esta imagen el Cadete ya pidió el ejercicio en forma automática",
+        "Tolerancia a Fallos de",
+        "incorporado en Batalla Virtual 8. Este comportamiento le permite al usuario salvar situaciones",
+        "También hay un botón en la barra de tareas que se pondrá en rojo cuando esté desconectado",
+        "Reconexión y luego puede conectar el Cadete y al resto de los usuarios también desde sus",
+        "Tolerancia a Fallos                                                                                                      Junio 2019",
+        "Este documento tiene como finalidad explicar como funciona el sistema de tolerancia a fallos"
+      ],
+      "vehiculos": [],
+      "combate": []
+    }
+  },
+  "tables": [
+    "Todas las aplicaciones de software del SBV están protegidas mediante los Derechos de Autor establecidos en la  LEY 11.723 - REGIMENLEGAL DE LA PROPIEDAD INTELECTUAL  con las modificaciones incorporadas por la Ley  24.870 – DERECHOS DE AUTOR , y hansido registradas a nombre del Ejército Argentino como Obra Inédita para uso interno de la Fuerza, en cumplimiento de la Resolución  534/2006del MINISTERIO DE DEFENSA .  ",
+    "2.1.2.En la ventana que se abrió, seleccionar la opción  Características en el menú de la izquierda y luego hacer clic sobre  Agregarcaracterísticas.",
+    "2.2.4.En la nueva ventana, seleccionar la pestaña de Prevención de ejecución de datos , marcar la opción de Activar DEP sólo para losprogramas y servicios  de Windows esenciales . Luego presionar Aceptar.",
+    "4.1.1.Ejecutar  el instalador  de  Plataformas.  (Recuerde  que  necesita  la clave  de  instalación la  cual es proporcionada junto  con elinstalador)",
+    "4.1.4.En la siguiente ventana, hacer clic en Instalar y esperar hasta que el sistema diga Instalación Completada. Es posible que durante lainstalación de Plataformas se abran otras ventanas en las cuales debe presionar  Aceptar. Antes de presionar  Finalizar, dejarseleccionada la opción Sí, deseo reiniciar el sistema ahora . (La instalación de Plataformas puede demorar varios minutos)",
+    "CIDESO | Guía de Instalación Batalla Virtual 8 10",
+    "6.1.1.Ejecutar el Instalador  Batalla Virtual Servidor 8 rev 5.02.005.exe .  (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)",
+    "6.2.1.Ejecutar el Instalador  Batalla Virtual Simulador 8 rev 6.02.005.exe . (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)",
+    "6.3.1.Ejecutar el Instalador  Batalla Virtual Usuario 8 rev 6.03.002.exe .  (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)",
+    "CIDESO | Guía de Instalación Batalla Virtual 8 11",
+    "7.1.1.Ejecutar  el  Instalador  Administración  de  Ambientes  Geográficos  8 rev  7.01.003 .exe.  (Recuerde  que  necesita  la clave  deinstalación la cual es proporcionada junto con el instalador)",
+    "7.2.1.Ejecutar el Instalador  Administración de CCOO 8 rev 7.01.004 .exe. (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)",
+    "7.5.1.Ejecutar  el Instalador  Estimación  de  Fallas  8 rev 7.01.003 .exe.  (Recuerde  que  necesita  la clave  de  instalación la  cual esproporcionada junto con el instalador)",
+    "7.6.1.Ejecutar  el  Instalador  Estudio  del  Terreno  8  rev 7.01.005 .exe.  (Recuerde  que  necesita  la clave  de  instalación  la  cual  esproporcionada junto con el instalador)",
+    "7.8.1.Ejecutar el Instalador  Planeamiento Logístico 8 rev 7.01.004 .exe.  (Recuerde que necesita la clave de instalación la cual esproporcionada junto con el instalador)",
+    "CIDESO | Guía de Instalación Batalla Virtual 8 12",
+    "CIDESO | Guía de Instalación Batalla Virtual 8 13",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Versión Detallada: Servidor de Distribución:  5.02.005",
+    "Servidor de Simulación:  6.02.005",
+    "Planeamiento Logístico de Material:  7.01.004",
+    "Administrador de Ambientes Geográficos:  7.01.003",
+    "Estimación de Bajas de Combate:  7.01.004",
+    "Estimación de Fallas:  7.01.003",
+    "Planeamiento de Ingenieros:  7.01.003",
+    "Planeamiento de Aerotransporte:  0.03.001  (NOTA: la aplicación",
+    "Los  Derechos  de  Autor están protegidos por la  LEY  11.723  -",
+    "modificaciones  incorporadas  por  la  Ley  25.036/1998  y  la  Ley",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Notas de Lanzamiento                                                                                          Junio 2019",
+    "Tolerancia a Fallos                                                                                                      Junio 2019",
+    "Tolerancia a Fallos                                                                                                      Junio 2019",
+    "Tolerancia a Fallos                                                                                                      Junio 2019",
+    "Tolerancia a Fallos                                                                                                      Junio 2019",
+    "Tolerancia a Fallos                                                                                                      Junio 2019",
+    "Tolerancia a Fallos                                                                                                      Junio 2019",
+    "Tolerancia a Fallos                                                                                                      Junio 2019"
+  ]
+}

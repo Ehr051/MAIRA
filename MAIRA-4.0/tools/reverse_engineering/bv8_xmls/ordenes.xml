@@ -1,0 +1,316 @@
+<definiciones>
+	<definicion tipo="OrdenBasica" abstracto="true">
+		<campo nombre="id" tipo="xsd:int" />
+		<campo nombre="horaDeInicio" traductor="TimeStampString" mapeo="momentoDeEjecucion" tipo="xsd:string" />
+		<subclase tipo="Orden" />
+		<subclase tipo="MisionGE" />
+	</definicion>
+
+	<definicion tipo="MisionGE" abstracto="true">
+		<!-- Estado puede ser "MisionGEEjecutada", "MisionGEEnEjecucion", "MisionGEFinalizada" o "MisionGEPlanificada" -->
+		<campo nombre="estado" traductor="NombreClase" tipo="xsd:string" />
+		<campo nombre="horaDeFin" traductor="TimeStampString" mapeo="fechaFin" tipo="xsd:string" />
+		<!-- La banda puede ser "VHF", "HF" o "UHF" -->
+		<campo nombre="banda" traductor="fromSymbol" tipo="xsd:string" />
+		<campo nombre="observaciones" tipo="xsd:string" />
+		<campo nombre="red" tipo="xsd:string" />
+		<campo nombre="frecuenciaMaxima" tipo="xsd:float" />
+    <campo nombre="frecuenciaMinima" tipo="xsd:float" />
+    <campo nombre="numero" tipo="xsd:int" />
+    <campo nombre="mision" tipo="xsd:string" />
+		<subclase tipo="MAE" />
+	</definicion>
+
+	<definicion tipo="MAE">
+		<campo nombre="elementosLocalizados" traductor="Objeto" tipo="ElementoDetectado" array="true" />
+	</definicion>
+
+	<definicion tipo="Orden" creador="Default" finalizador="Default" abstracto="true">
+		<campo nombre="usuario" traductor="UsuarioString" mapeo="usuarioEmisor" tipo="xsd:string" />
+		<campo nombre="estado" traductor="Objeto" tipo="EstadoOrden" />
+		<campo nombre="dirAtaque" tipo="xsd:float" />
+		<subclase tipo="OrdenDeApoyoAereo" />
+		<subclase tipo="OrdenDeDefensa" />
+		<subclase tipo="OrdenDeIngeniero" />
+		<subclase tipo="OrdenDeMovimiento" />
+		<subclase tipo="OrdenDeFuego" />
+		<subclase tipo="OrdenDeAtaque" />
+	</definicion>
+
+	<definicion tipo="EstadoOrden" creador="ClaseDeCampo:descripcion" finalizador="Default">
+		<!-- Descripcion puede ser "EstadoCancelada", "EstadoEjecutando", "EstadoFinalizada", "EstadoPendiente", "DetenidaParaEdicion", "DetenidaPorUsuario", "SuspendidaPorDesabastecimiento", "SuspendidaPorObstaculos" o "SuspendidaPorPIAA" -->
+		<campo nombre="descripcion" traductor="NombreClase" mapeo="yourself" sentido="BvAExt" tipo="xsd:string" />
+		<campo nombre="puedeReanudar" tipo="xsd:boolean" />
+		<campo nombre="detalle" tipo="xsd:string" />
+	</definicion>
+
+	<definicion tipo="OrdenDeMovimiento" creador="Default" finalizador="Default">
+		<campo nombre="mision" tipo="xsd:string" />
+		<campo nombre="velocidad" tipo="xsd:float" />
+		<campo nombre="distanciaRecorrida" tipo="xsd:float" />
+		<campo nombre="caminoDeMarcha" traductor="Objeto" tipo="CaminoMarcha" />
+		<campo nombre="distanciaIntervehicular" tipo="xsd:float" />
+		<subclase tipo="OrdenDeAtaque" />
+		<subclase tipo="OrdenDeExploracion" />
+		<subclase tipo="OrdenDeMarcha" />
+	</definicion>
+
+	<definicion tipo="OrdenDeAtaque" creador="Default" finalizador="Default">
+		<campo nombre="situacion" tipo="xsd:string"/>
+		<campo nombre="misionGeneral" tipo="xsd:string"/>
+		<campo nombre="concepto" tipo="xsd:string"/>
+		<campo nombre="apoyoLogistico" tipo="xsd:string"/>
+		<campo nombre="comandoYComunicaciones" tipo="xsd:string"/>
+		<campo nombre="objetivoFormal" mapeo="para" tipo="xsd:string"/>
+		<campo nombre="objetivo" traductor="Objeto" tipo="Sector"/>
+	</definicion>
+
+	<definicion tipo="OrdenDeExploracion" creador="Default" finalizador="Default">
+		<campo nombre="situacion" tipo="xsd:string"/>
+		<campo nombre="misionGeneral" tipo="xsd:string"/>
+		<campo nombre="concepto" tipo="xsd:string"/>
+		<campo nombre="apoyoLogistico" tipo="xsd:string"/>
+		<campo nombre="comandoYComunicaciones" tipo="xsd:string"/>
+		<campo nombre="procedimiento" tipo="xsd:string"/>
+		<campo nombre="area" traductor="Objeto" tipo="Sector" />
+		<campo nombre="tipo" tipo="xsd:string"/>
+		<campo nombre="estaRetornando"  tipo="xsd:boolean"/>
+		<campo nombre="exploracionDetenida"  tipo="xsd:boolean"/>
+	</definicion>
+
+	<definicion tipo="Forma" creador="Default" finalizador="Default" abstracto="true">
+		<campo nombre="nombre" tipo="xsd:string"/>
+		<campo nombre="puntos" traductor="Objeto" tipo="Coordenada" array="true" />
+		<subclase tipo="CaminoMarcha" />
+		<subclase tipo="Sector" />
+	</definicion>
+
+	<definicion tipo="CaminoMarcha" creador="Default" finalizador="Default">
+		<campo nombre="esCampoTraviesa" tipo="xsd:boolean"/>
+	</definicion>
+
+	<definicion tipo="Sector" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="OrdenDeMarcha" creador="Default" finalizador="Default">
+		<campo nombre="tipo" tipo="xsd:string"/>
+	</definicion>
+
+	<definicion tipo="OrdenDeApoyoAereo" creador="Default" finalizador="Default">
+		<campo nombre="configuracion" traductor="ConfApyAereo" tipo="ConfApyAereo"/>
+		<campo nombre="recorrido" traductor="Objeto" tipo="CaminoMarcha" />
+		<campo nombre="cantidadVehiculos" tipo="xsd:int"/>
+		<campo nombre="alturaVuelo" tipo="xsd:int"/>
+		<campo nombre="tipo" tipo="xsd:string"/>
+		<campo nombre="tipoHorario" tipo="xsd:string"/>
+		<subclase tipo="OrdenApAEAtaque" />
+		<subclase tipo="OrdenApAEExploracion" />
+	</definicion>
+
+	<definicion tipo="ConfApyAereo">
+		<campo nombre="id" tipo="xsd:int"/>
+		<campo nombre="idVehiculo" tipo="xsd:int"/>
+	</definicion>
+
+	<definicion tipo="OrdenApAEAtaque" creador="Default" finalizador="Default">
+		<campo nombre="efecto" tipo="xsd:string" />
+		<campo nombre="blanco" traductor="Objeto" tipo="Blanco" />
+	</definicion>
+
+	<definicion tipo="OrdenApAEExploracion" creador="Default" finalizador="Default">
+		<campo nombre="resultado" traductor="Objeto" tipo="ResultadoExploracion" />
+	</definicion>
+
+	<definicion tipo="ResultadoExploracion">
+		<campo nombre="fecha" traductor="TimeStampString" tipo="xsd:string" />
+		<campo nombre="objetosIdentificados" traductor="IdElementoF" tipo="xsd:int" array="true" />
+		<campo nombre="objetosDetectados" traductor="IdElementoF" tipo="xsd:int" array="true" />
+	</definicion>
+
+	<definicion tipo="Blanco" creador="Default" finalizador="Default">		
+		<campo nombre="idNaturaleza" mapeo="idNaturaleza" tipo="xsd:int" />
+		<campo nombre="dimension" traductor="Objeto" tipo="Dimension2D" />
+		<campo nombre="localizacion" traductor="Objeto" tipo="xsd:anyType" />
+		<campo nombre="cota" tipo="xsd:int" />
+		<campo nombre="prioridad" mapeo="prioridadString" tipo="xsd:string" />
+		<campo nombre="observaciones" tipo="xsd:string" />
+		<campo nombre="orientacion" tipo="xsd:string" />
+		<campo nombre="actitud" tipo="xsd:string"/>
+		<subclase tipo="BlancoPlanificado" />
+	</definicion>
+
+	<definicion tipo="BlancoPlanificado">
+		<campo nombre="tipoHorario" tipo="xsd:string" />
+		<campo nombre="horario" traductor="TimeStampString" tipo="xsd:string" />
+		<campo nombre="idEfecto" tipo="xsd:int" />
+		<campo nombre="tipoAgencia" tipo="xsd:string" />
+	</definicion>
+
+	<definicion tipo="OrdenDeFuego">
+		<campo nombre="horario" tipo="xsd:string" />
+		<campo nombre="blanco" traductor="Objeto" tipo="Blanco"/>
+		<campo nombre="alternativa" traductor="Objeto"  tipo="AlternativaMunicionEspoleta"/>
+		<campo nombre="cantidadDeDisparos" tipo="xsd:int"/>
+		<campo nombre="diametroEsquema" tipo="xsd:float"/>
+		<campo nombre="sectoresEficaces" tipo="xsd:float"/>
+		<campo nombre="bajasEfectuadas" traductor="BajasEfectuadas" tipo="BajasEfectuadas" array="true" />
+		<campo nombre="idEfecto" tipo="xsd:int" />
+	</definicion>
+
+	<definicion tipo="AlternativaMunicionEspoleta">
+		<campo nombre="espoleta" tipo="xsd:string"/>
+		<campo nombre="idMunicion" tipo="xsd:int"/>
+	</definicion>
+	
+	<definicion tipo="BajasEfectuadas">
+		<campo nombre="hora" traductor="TimeStampString" tipo="xsd:string"/>
+		<campo nombre="danios" traductor="Objeto" tipo="BajaElemento" array="true" />
+	</definicion>
+
+	<definicion tipo="BajaElemento">
+		<campo nombre="idElemento" tipo="xsd:int"/>
+		<campo nombre="personasConDanio" tipo="xsd:int"/>
+		<campo nombre="embarquesConDanio" tipo="xsd:int"/>
+		<campo nombre="armasConDanio" tipo="xsd:int"/>
+	</definicion>
+
+	<definicion tipo="OrdenDeIngeniero" creador="Default" finalizador="Default" abstracto="true">
+		<campo nombre="obstaculo" traductor="Objeto" tipo="xsd:anyType" />
+		<campo nombre="elemento" traductor="IdElemento" tipo="xsd:int" />
+		<campo nombre="mision" tipo="xsd:string" />
+		<subclase tipo="AperturaDeBrecha" />
+		<subclase tipo="DemolicionDePuente" />
+		<subclase tipo="InstalacionDeObstaculo" />
+		<subclase tipo="InstalacionDePuente" />
+		<subclase tipo="RemocionDeObstaculo" />
+	</definicion>
+
+	<definicion tipo="Grafico" creador="ClaseDeCampo:tipo">
+		<!-- El tipo puede ser "Punto", "Linea" o "Poligono" -->
+		<campo nombre="tipo" mapeo="yourself" sentido="BvAExt" traductor="NombreClase" tipo="xsd:string" />
+		<campo nombre="nodos" traductor="Objeto" tipo="Punto" array="true" />
+	</definicion>
+	
+	<definicion tipo="AperturaDeBrecha" creador="Default" finalizador="Default">
+		<campo nombre="tiempoDeApertura" tipo="xsd:float"/>
+	</definicion>
+
+	<definicion tipo="InstalacionDePuente" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="DemolicionDePuente" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="InstalacionDeObstaculo" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="RemocionDeObstaculo" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="ObstaculoArtificial">
+		<campo nombre="id" tipo="xsd:int" />
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="tiempo" tipo="xsd:float" />
+		<campo nombre="tiempoAcumulado" tipo="xsd:float" />
+		<campo nombre="inicioConstruccion" traductor="TimeStampString" tipo="xsd:string" />
+		<!-- El estado puede ser "AbriendoBrecha", "EnConstruccion", "EnDemolicion", "EnRemocion" o "Finalizado" -->
+		<campo nombre="estado" traductor="NombreClase" tipo="xsd:string" />
+		<campo nombre="figura" traductor="Objeto" tipo="Grafico" />
+		<campo nombre="constructor" traductor="IdElementoF" tipo="xsd:int" />
+		<campo nombre="visiblePara" tipo="soapE:ArrayOfint" />
+		<subclase tipo="Alambrada" />
+		<subclase tipo="Brecha" />
+		<subclase tipo="Demolicion" />
+		<subclase tipo="Generico" />
+		<subclase tipo="MinasYCamposMinados" />
+		<subclase tipo="PuenteProvisorio" />
+		<subclase tipo="Zanjas" />
+	</definicion>
+
+	<definicion tipo="Alambrada" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="Brecha" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="Demolicion" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="MinasYCamposMinados" creador="Default" finalizador="Default">
+		<campo nombre="cantidadFajas" tipo="xsd:int"/>
+		<campo nombre="distanciaEntreFajas" tipo="xsd:int"/>
+		<campo nombre="cantBrechas" tipo="xsd:int"/>
+		<subclase tipo="FajaMinaAntitanque" />
+		<subclase tipo="FajaMinadaAntipersonal" />
+		<subclase tipo="FajaMinadaMixta" />
+		<subclase tipo="LineaDeMinasAntipersonal" />
+		<subclase tipo="LineaDeMinasAntitanque" />
+	</definicion>
+
+	<definicion tipo="PuenteProvisorio" creador="Default" finalizador="Default">
+		<campo nombre="largo" tipo="xsd:int"/>
+	</definicion>
+
+	<definicion tipo="Zanjas" creador="Default" finalizador="Default">
+		<subclase tipo="Zanja" />
+		<subclase tipo="ZanjaCubierta" />
+		<subclase tipo="ZonaDeBarreras" />
+	</definicion>
+
+	<definicion tipo="Zanja" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="ZanjaCubierta" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="ZonaDeBarreras" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="FajaMinaAntitanque" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="FajaMinadaAntipersonal" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="FajaMinadaMixta" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="LineaDeMinasAntipersonal" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="LineaDeMinasAntitanque" creador="Default" finalizador="Default">
+	</definicion>
+
+	<definicion tipo="OrdenDeDefensa" creador="Default" finalizador="Default">
+		<campo nombre="situacion" tipo="xsd:string"/>
+		<campo nombre="misionGeneral" tipo="xsd:string"/>
+		<campo nombre="concepto" tipo="xsd:string"/>
+		<campo nombre="apoyoLogistico" tipo="xsd:string"/>
+		<campo nombre="comandoYComunicaciones" tipo="xsd:string"/>
+		<campo nombre="mision" tipo="xsd:string"/>
+		<campo nombre="para" tipo="xsd:string"/>
+		<campo nombre="distanciaAlFrente" tipo="xsd:int"/>
+		<campo nombre="distanciaDeSeguridad" tipo="xsd:int"/>
+		<campo nombre="horaFin" traductor="TimeStampString" tipo="xsd:string" />
+		<!-- El tipo puede ser "PrimeraLinea", "Reserva" o "Seguridad" -->
+		<campo nombre="ubicacion" traductor="NombreClase" tipo="xsd:string" />
+		<campo nombre="sectorDeResponsabilidad" traductor="Objeto" tipo="Sector" />
+	</definicion>
+	
+	<definicion tipo="ObstaculoASuperar" creador="default" finalizador="default">
+		<campo nombre="clase" tipo="xsd:string" />
+		<campo nombre="descripcion" tipo="xsd:string" />
+		<campo nombre="puedeSuperarse" tipo="xsd:boolean" />
+	</definicion>
+
+	<definicion tipo="ResultadoEmisionOrden">
+		<campo nombre="idElemento" tipo="xsd:int" />
+		<campo nombre="idOrden" tipo="xsd:int" />
+	</definicion>
+	
+	<definicion tipo="PuntoAApuntar">	
+		<campo nombre="coordenadas" traductor="Objeto" tipo="Coordenada" />
+		<campo nombre="radioEficaz" mapeo="radioEficaz" tipo="xsd:float" />
+	</definicion>
+	
+</definiciones>

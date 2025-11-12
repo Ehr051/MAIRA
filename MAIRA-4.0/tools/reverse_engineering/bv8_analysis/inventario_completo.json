@@ -1,0 +1,3020 @@
+{
+  "batalla_virtual": {
+    "servidor": [
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Configuracion Servidor - Confrontacion.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "IdentitySet",
+          "size": "1"
+        },
+        "elementos_unicos": [
+          "alias",
+          "hijos",
+          "ip",
+          "nombreClase",
+          "object",
+          "port",
+          "uri"
+        ],
+        "estructura": {
+          "object": {
+            "count": 1,
+            "attribs": [
+              "class"
+            ],
+            "children": [
+              "alias",
+              "hijos",
+              "ip",
+              "port"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "DescripcionSitio"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "alias",
+                "attribs": {},
+                "text": "sitio"
+              },
+              {
+                "tag": "hijos",
+                "attribs": {
+                  "size": "6"
+                },
+                "text": null
+              },
+              {
+                "tag": "ip",
+                "attribs": {},
+                "text": "127.0.0.1"
+              },
+              {
+                "tag": "port",
+                "attribs": {},
+                "text": "8080"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Configuracion Servidor - Confrontacion.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "IdentitySet",
+          "size": "1"
+        },
+        "elementos_unicos": [
+          "alias",
+          "hijos",
+          "ip",
+          "nombreClase",
+          "object",
+          "port",
+          "uri"
+        ],
+        "estructura": {
+          "object": {
+            "count": 1,
+            "attribs": [
+              "class"
+            ],
+            "children": [
+              "alias",
+              "hijos",
+              "ip",
+              "port"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "DescripcionSitio"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "alias",
+                "attribs": {},
+                "text": "sitio"
+              },
+              {
+                "tag": "hijos",
+                "attribs": {
+                  "size": "6"
+                },
+                "text": null
+              },
+              {
+                "tag": "ip",
+                "attribs": {},
+                "text": "127.0.0.1"
+              },
+              {
+                "tag": "port",
+                "attribs": {},
+                "text": "8080"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Definiciones/emercat.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 7,
+            "attribs": [
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ElementoEmercat",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "nombre",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "tipo",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "RecursoEmercat"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "RecursoEmercat",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "origen",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoEmercat"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ElementoEnvio",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "cantidad",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elemento",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoEmercat"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Definiciones/ejercicio.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 36,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Ejercicio",
+              "finalizador": "Ejercicio"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "nombre",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "alias",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "descripcion",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "ambienteGeografico",
+                  "traductor": "Objeto",
+                  "tipo": "AmbienteGeografico"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "reloj",
+                  "traductor": "Objeto",
+                  "tipo": "Reloj"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "EventoBasico"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "coordenadas",
+                  "traductor": "Objeto",
+                  "tipo": "Coordenada"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "tipo",
+                  "traductor": "NombreClase",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "texto",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeInicio",
+                  "traductor": "TimeStampString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "SimboloMilitar"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "color",
+                  "traductor": "ColorPipeString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "iconoPath",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "caracterFuente",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "caracterNumero",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Definiciones/comunicaciones.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "include",
+          "subclase"
+        ],
+        "estructura": {
+          "include": {
+            "count": 1,
+            "attribs": [
+              "archivo"
+            ],
+            "children": []
+          },
+          "definicion": {
+            "count": 19,
+            "attribs": [
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ejercicio.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ObjetoDeComunicacion"
+            },
+            "text": "\n\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "momentoDeEnvio",
+                  "traductor": "TimeStampString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "usuarioRemitente",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementoRemitente",
+                  "traductor": "IdElementoF",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "distribuir",
+                  "tipo": "xsd:boolean"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ModeloComunicaciones"
+            },
+            "text": "\n\t\t\n\t"
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Definiciones/traductor.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 1,
+            "attribs": [
+              "creador",
+              "tipo"
+            ],
+            "children": [
+              "campo"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Concatenador",
+              "creador": "Concatenador"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "palabra",
+                  "tipo": "xsd:string",
+                  "sentido": "BvAExt"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "numeros",
+                  "tipo": "xsd:int",
+                  "array": "true",
+                  "sentido": "BvAExt"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Definiciones/definiciones.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "definiciones",
+          "include"
+        ],
+        "estructura": {
+          "include": {
+            "count": 5,
+            "attribs": [
+              "archivo"
+            ],
+            "children": []
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "general.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ordenes.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ejercicio.xml"
+            },
+            "text": null
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Definiciones/ordenes.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 49,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "OrdenBasica",
+              "abstracto": "true"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeInicio",
+                  "traductor": "TimeStampString",
+                  "mapeo": "momentoDeEjecucion",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "Orden"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "MisionGE"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "MisionGE",
+              "abstracto": "true"
+            },
+            "text": "\n\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "estado",
+                  "traductor": "NombreClase",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeFin",
+                  "traductor": "TimeStampString",
+                  "mapeo": "fechaFin",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "banda",
+                  "traductor": "fromSymbol",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "observaciones",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "red",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "MAE"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementosLocalizados",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoDetectado",
+                  "array": "true"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Servidor/Datos/Definiciones/general.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 12,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Punto"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "coordenada",
+                  "traductor": "Objeto",
+                  "tipo": "Coordenada"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Coordenada"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "x",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "y",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "CoordenadasMovibles"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "CoordenadasMovibles"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementoDLI",
+                  "tipo": "xsd:int",
+                  "traductor": "IdElementoF"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "y",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "simulador": [
+      {
+        "archivo": "Batalla Virtual/8/Simulador/Datos/Definiciones/emercat.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 7,
+            "attribs": [
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ElementoEmercat",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "nombre",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "tipo",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "RecursoEmercat"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "RecursoEmercat",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "origen",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoEmercat"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ElementoEnvio",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "cantidad",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elemento",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoEmercat"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Simulador/Datos/Definiciones/ejercicio.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 36,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Ejercicio",
+              "finalizador": "Ejercicio"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "nombre",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "alias",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "descripcion",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "ambienteGeografico",
+                  "traductor": "Objeto",
+                  "tipo": "AmbienteGeografico"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "reloj",
+                  "traductor": "Objeto",
+                  "tipo": "Reloj"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "EventoBasico"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "coordenadas",
+                  "traductor": "Objeto",
+                  "tipo": "Coordenada"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "tipo",
+                  "traductor": "NombreClase",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "texto",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeInicio",
+                  "traductor": "TimeStampString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "SimboloMilitar"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "color",
+                  "traductor": "ColorPipeString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "iconoPath",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "caracterFuente",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "caracterNumero",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Simulador/Datos/Definiciones/comunicaciones.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "include",
+          "subclase"
+        ],
+        "estructura": {
+          "include": {
+            "count": 1,
+            "attribs": [
+              "archivo"
+            ],
+            "children": []
+          },
+          "definicion": {
+            "count": 19,
+            "attribs": [
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ejercicio.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ObjetoDeComunicacion"
+            },
+            "text": "\n\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "momentoDeEnvio",
+                  "traductor": "TimeStampString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "usuarioRemitente",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementoRemitente",
+                  "traductor": "IdElementoF",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "distribuir",
+                  "tipo": "xsd:boolean"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ModeloComunicaciones"
+            },
+            "text": "\n\t\t\n\t"
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Simulador/Datos/Definiciones/traductor.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 1,
+            "attribs": [
+              "creador",
+              "tipo"
+            ],
+            "children": [
+              "campo"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Concatenador",
+              "creador": "Concatenador"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "palabra",
+                  "tipo": "xsd:string",
+                  "sentido": "BvAExt"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "numeros",
+                  "tipo": "xsd:int",
+                  "array": "true",
+                  "sentido": "BvAExt"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Simulador/Datos/Definiciones/definiciones.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "definiciones",
+          "include"
+        ],
+        "estructura": {
+          "include": {
+            "count": 5,
+            "attribs": [
+              "archivo"
+            ],
+            "children": []
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "general.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ordenes.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ejercicio.xml"
+            },
+            "text": null
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Simulador/Datos/Definiciones/ordenes.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 49,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "OrdenBasica",
+              "abstracto": "true"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeInicio",
+                  "traductor": "TimeStampString",
+                  "mapeo": "momentoDeEjecucion",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "Orden"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "MisionGE"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "MisionGE",
+              "abstracto": "true"
+            },
+            "text": "\n\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "estado",
+                  "traductor": "NombreClase",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeFin",
+                  "traductor": "TimeStampString",
+                  "mapeo": "fechaFin",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "banda",
+                  "traductor": "fromSymbol",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "observaciones",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "red",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "MAE"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementosLocalizados",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoDetectado",
+                  "array": "true"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/Simulador/Datos/Definiciones/general.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 12,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Punto"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "coordenada",
+                  "traductor": "Objeto",
+                  "tipo": "Coordenada"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Coordenada"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "x",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "y",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "CoordenadasMovibles"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "CoordenadasMovibles"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementoDLI",
+                  "tipo": "xsd:int",
+                  "traductor": "IdElementoF"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "y",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "usuario": [],
+    "cdt": [
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Definiciones/emercat.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 7,
+            "attribs": [
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ElementoEmercat",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "nombre",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "tipo",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "RecursoEmercat"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "RecursoEmercat",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "origen",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoEmercat"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ElementoEnvio",
+              "creador": "Default",
+              "finalizador": "Default"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "cantidad",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elemento",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoEmercat"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Definiciones/ejercicio.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 36,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Ejercicio",
+              "finalizador": "Ejercicio"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "nombre",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "alias",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "descripcion",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "ambienteGeografico",
+                  "traductor": "Objeto",
+                  "tipo": "AmbienteGeografico"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "reloj",
+                  "traductor": "Objeto",
+                  "tipo": "Reloj"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "EventoBasico"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "coordenadas",
+                  "traductor": "Objeto",
+                  "tipo": "Coordenada"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "tipo",
+                  "traductor": "NombreClase",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "texto",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeInicio",
+                  "traductor": "TimeStampString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "SimboloMilitar"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "color",
+                  "traductor": "ColorPipeString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "iconoPath",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "caracterFuente",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "caracterNumero",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Definiciones/comunicaciones.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "include",
+          "subclase"
+        ],
+        "estructura": {
+          "include": {
+            "count": 1,
+            "attribs": [
+              "archivo"
+            ],
+            "children": []
+          },
+          "definicion": {
+            "count": 19,
+            "attribs": [
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ejercicio.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ObjetoDeComunicacion"
+            },
+            "text": "\n\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "momentoDeEnvio",
+                  "traductor": "TimeStampString",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "usuarioRemitente",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementoRemitente",
+                  "traductor": "IdElementoF",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "distribuir",
+                  "tipo": "xsd:boolean"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "ModeloComunicaciones"
+            },
+            "text": "\n\t\t\n\t"
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Definiciones/traductor.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 1,
+            "attribs": [
+              "creador",
+              "tipo"
+            ],
+            "children": [
+              "campo"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Concatenador",
+              "creador": "Concatenador"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "palabra",
+                  "tipo": "xsd:string",
+                  "sentido": "BvAExt"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "numeros",
+                  "tipo": "xsd:int",
+                  "array": "true",
+                  "sentido": "BvAExt"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Definiciones/definiciones.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "definiciones",
+          "include"
+        ],
+        "estructura": {
+          "include": {
+            "count": 5,
+            "attribs": [
+              "archivo"
+            ],
+            "children": []
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "general.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ordenes.xml"
+            },
+            "text": null
+          },
+          {
+            "tag": "include",
+            "attribs": {
+              "archivo": "ejercicio.xml"
+            },
+            "text": null
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Definiciones/ordenes.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 49,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "OrdenBasica",
+              "abstracto": "true"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "id",
+                  "tipo": "xsd:int"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeInicio",
+                  "traductor": "TimeStampString",
+                  "mapeo": "momentoDeEjecucion",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "Orden"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "MisionGE"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "MisionGE",
+              "abstracto": "true"
+            },
+            "text": "\n\t\t\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "estado",
+                  "traductor": "NombreClase",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "horaDeFin",
+                  "traductor": "TimeStampString",
+                  "mapeo": "fechaFin",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "banda",
+                  "traductor": "fromSymbol",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "observaciones",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "red",
+                  "tipo": "xsd:string"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "MAE"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementosLocalizados",
+                  "traductor": "Objeto",
+                  "tipo": "ElementoDetectado",
+                  "array": "true"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Batalla Virtual/8/CDT/Datos/Definiciones/general.xml",
+        "root_tag": "definiciones",
+        "root_attribs": {},
+        "elementos_unicos": [
+          "campo",
+          "definicion",
+          "definiciones",
+          "subclase"
+        ],
+        "estructura": {
+          "definicion": {
+            "count": 12,
+            "attribs": [
+              "abstracto",
+              "creador",
+              "finalizador",
+              "tipo"
+            ],
+            "children": [
+              "campo",
+              "subclase"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Punto"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "coordenada",
+                  "traductor": "Objeto",
+                  "tipo": "Coordenada"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "Coordenada"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "x",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "y",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              },
+              {
+                "tag": "subclase",
+                "attribs": {
+                  "tipo": "CoordenadasMovibles"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "definicion",
+            "attribs": {
+              "tipo": "CoordenadasMovibles"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "elementoDLI",
+                  "tipo": "xsd:int",
+                  "traductor": "IdElementoF"
+                },
+                "text": null
+              },
+              {
+                "tag": "campo",
+                "attribs": {
+                  "nombre": "y",
+                  "tipo": "xsd:float"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "hem": {
+    "bajas": [
+      {
+        "archivo": "Estimación de Bajas de Combate/8/Recursos/Datos/arbol.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "OrderedCollection",
+          "size": "23"
+        },
+        "elementos_unicos": [
+          "key",
+          "object",
+          "value"
+        ],
+        "estructura": {
+          "object": {
+            "count": 23,
+            "attribs": [
+              "class",
+              "index"
+            ],
+            "children": [
+              "key",
+              "value"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Association",
+              "index": "1"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "key",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Apoyo De Material"
+              },
+              {
+                "tag": "value",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "apoyoDeMaterial"
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Association",
+              "index": "2"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "key",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Apoyo De Personal"
+              },
+              {
+                "tag": "value",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "apoyoDePersonal"
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Association",
+              "index": "3"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "key",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Apoyo Naval"
+              },
+              {
+                "tag": "value",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "apoyoNaval"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "logistica": [
+      {
+        "archivo": "Planeamiento Logístico/8/Recursos/Datos/configuracionTransporte.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "OrderedCollection",
+          "size": "2"
+        },
+        "elementos_unicos": [
+          "alto",
+          "ancho",
+          "descripcion",
+          "largo",
+          "nombre",
+          "object",
+          "pesoMaximoDeCarga"
+        ],
+        "estructura": {
+          "object": {
+            "count": 2,
+            "attribs": [
+              "class",
+              "index"
+            ],
+            "children": [
+              "alto",
+              "ancho",
+              "descripcion",
+              "largo",
+              "nombre",
+              "pesoMaximoDeCarga"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Transporte",
+              "index": "1"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "alto",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "4"
+              },
+              {
+                "tag": "ancho",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "6"
+              },
+              {
+                "tag": "largo",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "10"
+              },
+              {
+                "tag": "nombre",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Camion"
+              },
+              {
+                "tag": "descripcion",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "camion standar"
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Transporte",
+              "index": "2"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "alto",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "4"
+              },
+              {
+                "tag": "ancho",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "10"
+              },
+              {
+                "tag": "largo",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "5"
+              },
+              {
+                "tag": "nombre",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Camion standar"
+              },
+              {
+                "tag": "descripcion",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Planeamiento Logístico/8/Recursos/Datos/configuracionCajones.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "OrderedCollection",
+          "size": "46"
+        },
+        "elementos_unicos": [
+          "descripcion",
+          "id",
+          "nombre",
+          "object",
+          "peso",
+          "volumen"
+        ],
+        "estructura": {
+          "object": {
+            "count": 41,
+            "attribs": [
+              "class",
+              "index"
+            ],
+            "children": [
+              "descripcion",
+              "id",
+              "nombre",
+              "peso",
+              "volumen"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Cajon",
+              "index": "1"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "id",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "1"
+              },
+              {
+                "tag": "volumen",
+                "attribs": {
+                  "class": "Float"
+                },
+                "text": "56.0"
+              },
+              {
+                "tag": "peso",
+                "attribs": {
+                  "class": "Float"
+                },
+                "text": "0.0"
+              },
+              {
+                "tag": "nombre",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Cart 7,62"
+              },
+              {
+                "tag": "descripcion",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Caja del cartucho 7.62"
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Cajon",
+              "index": "2"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "id",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "2"
+              },
+              {
+                "tag": "volumen",
+                "attribs": {
+                  "class": "Float"
+                },
+                "text": "63.0"
+              },
+              {
+                "tag": "peso",
+                "attribs": {
+                  "class": "Float"
+                },
+                "text": "0.0"
+              },
+              {
+                "tag": "nombre",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Cart 9x19"
+              },
+              {
+                "tag": "descripcion",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Caja del cartucho 9x19"
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "Cajon",
+              "index": "3"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "id",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "3"
+              },
+              {
+                "tag": "volumen",
+                "attribs": {
+                  "class": "Float"
+                },
+                "text": "17.6"
+              },
+              {
+                "tag": "peso",
+                "attribs": {
+                  "class": "Float"
+                },
+                "text": "0.0"
+              },
+              {
+                "tag": "nombre",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Cart 12,7x9"
+              },
+              {
+                "tag": "descripcion",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "Caja del cartucho 12,7x9"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Planeamiento Logístico/8/Recursos/Datos/idRelacionCajonEfecto.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "OrderedCollection",
+          "size": "25"
+        },
+        "elementos_unicos": [
+          "idCajon",
+          "listaIdEfectos",
+          "object"
+        ],
+        "estructura": {
+          "object": {
+            "count": 22,
+            "attribs": [
+              "class",
+              "index"
+            ],
+            "children": [
+              "idCajon",
+              "listaIdEfectos"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "RelacionIdCajonIdEfecto",
+              "index": "1"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "idCajon",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "1"
+              },
+              {
+                "tag": "listaIdEfectos",
+                "attribs": {
+                  "class": "OrderedCollection",
+                  "size": "3"
+                },
+                "text": "\n\t\t\t"
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "RelacionIdCajonIdEfecto",
+              "index": "2"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "idCajon",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "2"
+              },
+              {
+                "tag": "listaIdEfectos",
+                "attribs": {
+                  "class": "OrderedCollection",
+                  "size": "2"
+                },
+                "text": "\n\t\t\t"
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "RelacionIdCajonIdEfecto",
+              "index": "3"
+            },
+            "text": "\n\t\t",
+            "children_sample": [
+              {
+                "tag": "idCajon",
+                "attribs": {
+                  "class": "SmallInteger"
+                },
+                "text": "3"
+              },
+              {
+                "tag": "listaIdEfectos",
+                "attribs": {
+                  "class": "OrderedCollection",
+                  "size": "1"
+                },
+                "text": "\n\t\t\t"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "ingenieros": [],
+    "fallas": [],
+    "terreno": [
+      {
+        "archivo": "Estudio del Terreno/8/Recursos/Datos/traductor.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "OrderedCollection",
+          "size": "8"
+        },
+        "elementos_unicos": [
+          "nombre",
+          "object",
+          "suelosReales"
+        ],
+        "estructura": {
+          "object": {
+            "count": 8,
+            "attribs": [
+              "class",
+              "index"
+            ],
+            "children": [
+              "nombre",
+              "suelosReales"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "TipoSueloModelado",
+              "index": "1"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "nombre",
+                "attribs": {},
+                "text": "Arenal"
+              },
+              {
+                "tag": "suelosReales",
+                "attribs": {
+                  "size": "3"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "TipoSueloModelado",
+              "index": "2"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "nombre",
+                "attribs": {},
+                "text": "Arenal con ripio"
+              },
+              {
+                "tag": "suelosReales",
+                "attribs": {
+                  "size": "3"
+                },
+                "text": null
+              }
+            ]
+          },
+          {
+            "tag": "object",
+            "attribs": {
+              "class": "TipoSueloModelado",
+              "index": "3"
+            },
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "nombre",
+                "attribs": {},
+                "text": "Barrial"
+              },
+              {
+                "tag": "suelosReales",
+                "attribs": {
+                  "size": "5"
+                },
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "archivo": "Estudio del Terreno/8/Recursos/MapaInicial/control.xml",
+        "root_tag": "object",
+        "root_attribs": {
+          "class": "Dictionary"
+        },
+        "elementos_unicos": [
+          "association",
+          "key",
+          "object",
+          "value"
+        ],
+        "estructura": {
+          "association": {
+            "count": 25,
+            "attribs": [],
+            "children": [
+              "key",
+              "value"
+            ]
+          }
+        },
+        "muestra_datos": [
+          {
+            "tag": "association",
+            "attribs": {},
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "key",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "afl.prj"
+              },
+              {
+                "tag": "value",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "763163979537274321246478310757123830655375309003"
+              }
+            ]
+          },
+          {
+            "tag": "association",
+            "attribs": {},
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "key",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "cun.shp"
+              },
+              {
+                "tag": "value",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "396201365648704752977429570801549875510489547701"
+              }
+            ]
+          },
+          {
+            "tag": "association",
+            "attribs": {},
+            "text": null,
+            "children_sample": [
+              {
+                "tag": "key",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "lag.prj"
+              },
+              {
+                "tag": "value",
+                "attribs": {
+                  "class": "String"
+                },
+                "text": "763163979537274321246478310757123830655375309003"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "otros": []
+}

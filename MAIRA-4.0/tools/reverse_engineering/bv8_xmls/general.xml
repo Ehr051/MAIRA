@@ -1,0 +1,69 @@
+<definiciones>
+	<definicion tipo="Punto">
+		<campo nombre="coordenada" traductor="Objeto" tipo="Coordenada" />
+	</definicion>
+	<definicion tipo="Coordenada">
+		<campo nombre="x" tipo="xsd:float" />
+		<campo nombre="y" tipo="xsd:float" />
+		<subclase tipo="CoordenadasMovibles" />
+	</definicion>
+	<definicion tipo="CoordenadasMovibles">
+		<campo nombre="elementoDLI" tipo="xsd:int" traductor="IdElementoF" />
+		<campo nombre="y" tipo="xsd:float" />
+	</definicion>
+	<definicion tipo="Dimension2D">
+		<campo nombre="ancho" tipo="xsd:float" />
+		<campo nombre="largo" tipo="xsd:float" />
+	</definicion>
+	<definicion tipo="EventoClima">
+		<campo nombre="horaDeInicio" traductor="TimeStampString" tipo="xsd:string" />
+		<campo nombre="fechaFin" traductor="TimeStampString" tipo="xsd:string" />
+		<campo nombre="clima" traductor="Objeto" tipo="xsd:anyType" />
+	</definicion>
+	<definicion tipo="Clima" abstracto="true">
+		<campo nombre="cantidad" tipo="xsd:string" traductor="fromSymbol" />
+		<subclase tipo="Niebla" />
+		<subclase tipo="Precipitacion" />
+		<subclase tipo="Regular" />
+	</definicion>
+	<definicion tipo="Precipitacion" creador="ClaseDeCampo:tipo">
+		<campo nombre="tipo" tipo="xsd:string" sentido="BvAExt" mapeo="yourself" traductor="NombreClase" />
+		<campo nombre="valor" tipo="xsd:float" />
+	</definicion>
+	<definicion tipo="MensajesParaUsuario" creador="Default" finalizador="Default">
+		<campo nombre="usuario" tipo="xsd:string" />
+		<campo nombre="mensajes" tipo="xsd:string" array="true" traductor="StringANSI" />
+	</definicion>
+	<definicion tipo="ConfEficienciaCombate">
+		<campo nombre="bando" tipo="xsd:string" />
+		<campo nombre="nivelDeInstruccion" tipo="xsd:string" traductor="fromSymbol" />
+		<campo nombre="experienciaEnCombate" tipo="xsd:string" traductor="fromSymbol" />
+		<campo nombre="liderazgoCapacidadMando" tipo="xsd:string" traductor="fromSymbol" />
+		<campo nombre="moral" tipo="xsd:string" traductor="fromSymbol" />
+		<campo nombre="direccionAtaque" tipo="xsd:float" />
+	</definicion>
+	<definicion tipo="ConfNivelesCriticos">
+		<campo nombre="agua" tipo="xsd:int"/>
+		<campo nombre="viveres" tipo="xsd:int"/>
+		<campo nombre="nafta" tipo="xsd:int"/>
+		<campo nombre="gasoil" tipo="xsd:int"/>
+		<campo nombre="claseV" tipo="xsd:int"/>
+	</definicion>
+	<definicion tipo="TiempoPreparacion">
+		<campo nombre="efecto" tipo="xsd:string" traductor="fromSymbol"/>
+		<campo nombre="funcion" tipo="xsd:string" traductor="fromSymbol"/>
+		<campo nombre="idElemento" tipo="xsd:int"/>
+		<campo nombre="tiempo" tipo="xsd:int"/>
+	</definicion>
+	<definicion tipo="ValidacionTiempoApyAereo">
+		<!-- El codigo indica el resultado de la validacion.
+			0 -> Los parametros validaron correctamente. Este caso es el unico donde se establecen los valores del tiempo y la demora de salida.
+			1 -> La cantidad de vehiculos seleccionados para la mision no esta disponible.
+			2 -> La distancia a recorrer en esta mision supera la autonomia del vehiculo seleccionado. -->
+		<campo nombre="codigo" tipo="xsd:int" />
+		<!-- El tiempo total que demora la mision en minutos -->
+		<campo nombre="tiempoTotal" tipo="xsd:float" />
+		<!-- El tiempo que tarda en preparar la mision en minutos -->
+		<campo nombre="demoraSalida" tipo="xsd:float" />
+	</definicion>
+</definiciones>

@@ -1,0 +1,50 @@
+# ============================================
+# REVERSE ENGINEERING TOOLKIT - BV8 → MAIRA
+# ============================================
+
+# Análisis de ejecutables PE (Windows .exe)
+pefile>=2023.2.7                 # Analizar headers, secciones, recursos de PE32
+pe-tree>=1.0.0                   # Visualizar estructura PE interactiva
+
+# Disassembly y decompilación
+capstone>=5.0.1                  # Disassembler multi-arquitectura (x86, ARM, etc.)
+pyelftools>=0.30                 # Análisis de binarios (aunque BV8 es PE)
+r2pipe>=1.8.0                    # Interface Python para Radare2 (si lo instalamos)
+
+# Análisis de strings y recursos
+python-magic>=0.4.27             # Identificación de tipos de archivo
+chardet>=5.2.0                   # Detección de encoding de strings
+
+# Parseo y extracción de datos
+regex>=2023.10.3                 # Regex avanzado para parseo
+pyparsing>=3.1.1                 # Parser de gramáticas complejas
+
+# Conversión y exportación
+pandas>=2.1.3                    # Manipulación de datos tabulares
+openpyxl>=3.1.2                  # Leer/escribir Excel (si BV8 tiene recursos .xls)
+xlrd>=2.0.1                      # Leer archivos Excel antiguos
+json5>=0.9.14                    # JSON con comentarios
+
+# Decompilación Delphi (específico)
+# NOTA: No hay decompilador Delphi en PyPI, usaremos IDR manualmente
+
+# Herramientas de análisis
+yara-python>=4.3.1               # Pattern matching en binarios
+ssdeep>=3.4                      # Fuzzy hashing
+
+# Visualización y reporting
+matplotlib>=3.8.2                # Gráficos de análisis
+rich>=13.7.0                     # Output terminal colorido
+tabulate>=0.9.0                  # Tablas en terminal
+
+# Utilidades
+tqdm>=4.66.1                     # Progress bars
+colorama>=0.4.6                  # Colores en terminal
+python-dotenv>=1.0.0             # Variables de entorno
+
+# Herramientas de fuzzing (opcional)
+# boofuzz>=0.4.2
+
+# Para scripts de automatización
+click>=8.1.7                     # CLI framework
+argparse>=1.4.0                  # Argumentos de línea de comandos

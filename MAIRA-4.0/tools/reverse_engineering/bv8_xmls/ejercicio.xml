@@ -1,0 +1,276 @@
+<definiciones>
+	<definicion tipo="Ejercicio" finalizador="Ejercicio">
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="alias" tipo="xsd:string" />
+		<campo nombre="descripcion" tipo="xsd:string" />
+		<campo nombre="ambienteGeografico" traductor="Objeto" tipo="AmbienteGeografico" />
+		<campo nombre="reloj" traductor="Objeto" tipo="Reloj" />
+		<campo nombre="fechaCreacion" traductor="TimeStampString" tipo="xsd:string" />
+		<!-- Desactivado, Activado y Planeamiento (Habilitado para dar ordenes) -->
+		<campo nombre="estado" traductor="EstadoEjercicio" tipo="xsd:string" />
+		<campo nombre="elementos" traductor="Objeto" tipo="Bando" array="true" />
+		<campo nombre="obstaculos" traductor="Objeto" tipo="xsd:anyType" array="true" />
+		<campo nombre="usuarios" traductor="Objeto" mapeo="usuariosObjetos" tipo="UsuarioConRol" array="true" />
+		<!-- Puede ser CrepusculoMatutino, CrepusculoVespertino, Dia o Noche -->
+		<campo nombre="iluminacion" traductor="NombreClase" tipo="xsd:string" />
+		<!-- Este campo no se utiliza mas, hay que usar el servicio obtenerTiemposPreparacion de EjercicioService. 
+		campo nombre="tiemposDePreparacion" traductor="Objeto" tipo="TiempoPreparacion" array="true" -->
+		<!-- Puede ser Niebla o Precipitacion -->
+		<campo nombre="clima" traductor="Objeto" tipo="xsd:anyType" />
+		<!-- campo nombre="condicionesMeteorologicas" traductor="Objeto" tipo="EventoClima" sentido="BvAExt" array="true"/ -->
+		<campo nombre="eventosBasicos" traductor="Objeto" tipo="EventoBasico" sentido="BvAExt" array="true"/>
+		<campo nombre="modeloComunicaciones" traductor="Objeto" tipo="ModeloComunicaciones" sentido="BvAExt" />
+		<!-- campo nombre="datosDeUsuarios" traductor="Objeto" tipo="DatosDeUsuario" array="true"/ -->
+		<campo nombre="temperaturaActual" tipo="xsd:float" />
+	</definicion>
+	<definicion tipo="EventoBasico">
+		<campo nombre="id" tipo="xsd:int"/>
+		<!--<campo nombre="visible" tipo="xsd:boolean" />-->
+		<campo nombre="coordenadas" traductor="Objeto" tipo="Coordenada"/>
+		<!-- Inmediato o Proximidad -->
+		<campo nombre="tipo" traductor="NombreClase" tipo="xsd:string"/>
+		<!--<campo nombre="titulo" tipo="xsd:string"/>-->
+		<campo nombre="texto" tipo="xsd:string"/>
+		<campo nombre="horaDeInicio" traductor="TimeStampString" tipo="xsd:string" /> 
+		<campo nombre="usuarios" tipo="xsd:string" array="true"/>
+		<campo nombre="distancia" tipo="xsd:int"/>
+		<campo nombre="simboloMilitar" tipo="SimboloMilitar" />
+	</definicion>
+	<definicion tipo="SimboloMilitar">
+		<campo nombre="color" traductor="ColorPipeString" tipo="xsd:string" />
+		<campo nombre="iconoPath" tipo="xsd:string"/>
+		<campo nombre="caracterFuente" tipo="xsd:string"/>
+		<campo nombre="caracterNumero" tipo="xsd:int"/>
+	</definicion>
+	<definicion tipo="Reloj">
+		<campo nombre="horaTacticaActual" traductor="TimeStampString" tipo="xsd:string" />
+		<campo nombre="horaTacticaInicial" traductor="TimeStampString" tipo="xsd:string" />
+		<campo nombre="deltaT" tipo="xsd:int" />
+	</definicion>
+	<definicion tipo="OrganizacionTropa">
+		<campo nombre="idElemento" tipo="xsd:int" />
+		<campo nombre="idNuevoPadre" tipo="xsd:int" />
+		<campo nombre="tipo" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="AmbienteGeografico">
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="layersSeleccionados" tipo="xsd:string" array="true" />
+		<campo nombre="path" tipo="xsd:string" />
+		<campo nombre="urlRelativo" tipo="xsd:string" />
+		<campo nombre="idProvincia" tipo="xsd:int" />
+	</definicion>
+	<definicion tipo="UsuarioConRol">
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="clave" tipo="xsd:string" />
+	</definicion>
+	<!-- Elementos jerarquicos del ejercicio -->
+	<definicion tipo="ElementoJerarquico" creador="ElementoJerarquico">
+		<campo nombre="id" tipo="xsd:int" />
+		<campo nombre="identificador" tipo="xsd:string" />
+		<campo nombre="nombre" mapeo="nombreClase" tipo="xsd:string" />
+		<campo nombre="nombreIcono" tipo="xsd:string" />
+		<campo nombre="nombrePersonalizado" tipo="xsd:string" />
+		<campo nombre="tipo" sentido="BvAExt" mapeo="tipoElemento" tipo="xsd:string" />
+		<campo nombre="clase" sentido="BvAExt" mapeo="tipoElemento" tipo="xsd:string" />
+		<!-- campo nombre="responsabilidades" traductor="Objeto" tipo="Responsabilidad" array="true" / -->
+		<campo nombre="elementoDeQuienDepende" traductor="IdElemento" tipo="xsd:int" />
+		<campo nombre="elementoDeQuienDependia" traductor="IdElemento" tipo="xsd:int" />
+		<campo nombre="elementos" traductor="Objeto" tipo="xsd:anyType" array="true" />
+		<campo nombre="ordenes" mapeo="todasLasOrdenes" traductor="Objeto" tipo="xsd:anyType" array="true" />
+		<subclase tipo="Bando" />
+		<subclase tipo="ElementoPosicionable" />
+	</definicion>
+	<definicion tipo="Bando">
+		<campo nombre="color" mapeo="colorObj" traductor="ColorPipeString" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="ElementoPosicionable">
+		<campo nombre="poderDeCombate" tipo="xsd:float" />
+		<campo nombre="poderCombateInicial" tipo="xsd:float" />
+		<!-- campo nombre="enemigos" traductor="IdElemento" tipo="xsd:int" array="true" / -->
+		<campo nombre="coordenadas" mapeo="coordenadas" traductor="Objeto" tipo="Coordenada" />
+		<campo nombre="estado" traductor="Objeto" tipo="EstadoElemento" />
+		<campo nombre="situacionDeCombate" traductor="Objeto" tipo="SituacionCombate" />
+		<campo nombre="dispositivosDLI" traductor="Objeto" tipo="DispositivoDLI" array="true" />
+		<campo nombre="equiposComunicacion" traductor="Objeto" tipo="EquipoDeComunicacion" array="true" />
+		<campo nombre="personal" traductor="Objeto" tipo="PersonaBatalla" array="true" />
+		<campo nombre="vehiculos" traductor="Objeto" tipo="VehiculoGenerico" array="true" />
+		<campo nombre="frente" tipo="xsd:int" />
+		<campo nombre="profundidad" tipo="xsd:int" />
+		<campo nombre="dotacion" traductor="Objeto" tipo="DotacionElemento" />
+		<campo nombre="reabastecimiento" traductor="Objeto" tipo="DotacionElemento" />
+		<campo nombre="tropasDinamicas" traductor="Objeto" tipo="xsd:anyType" array="true" />
+	</definicion>
+	<!-- Objetos varios de los elementos -->
+	<definicion tipo="DotacionElemento">
+		<campo nombre="insumos" traductor="InsumoAssoc" mapeo="asociacionesInsumos" tipo="Insumo" array="true" />
+	</definicion>
+	<definicion tipo="Insumo">
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="cantInic" tipo="xsd:float" />
+		<campo nombre="cantAct" tipo="xsd:float" />
+		<campo nombre="clase" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="Responsabilidad">
+		<campo nombre="usuario" tipo="xsd:string" />
+		<!-- El tipo puede ser Logistica (G4), ApoyoFuego (CAF), Ingenieros (OfIng), G1, G2, G3, S1, S2, S3, S4 o Conduccion -->
+		<campo nombre="tipo" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="EstadoElemento" creador="ClaseDeCampo:descripcion">
+		<!-- La descripcion del estado puede ser CumpliendoOrden, Destruido, Detenido, EnZonaDeReunion o Seguridad360 -->
+		<campo nombre="descripcion" sentido="BvAExt" mapeo="yourself" traductor="NombreClase" tipo="xsd:string" />
+		<!-- campo nombre="idOrden" tipo="xsd:int" / -->
+	</definicion>
+	<definicion tipo="SituacionCombate" creador="ClaseDeCampo:valor">
+		<!-- Puede ser AptoParaCombate, Destruida o FueraDeCombate -->
+		<campo nombre="valor" sentido="BvAExt" mapeo="yourself" traductor="NombreClase"  tipo="xsd:string" />
+		<!-- campo nombre="puedeMarchar" tipo="xsd:boolean" / -->
+	</definicion>
+	<definicion tipo="CosaConId" abstracto="true">
+		<campo nombre="id" tipo="xsd:int" />
+		<subclase tipo="CosaConIdYBdId" />
+		<subclase tipo="PersonaBatalla" />
+	</definicion>
+	<definicion tipo="CosaConIdYBdId" abstracto="true">
+		<campo nombre="bdId" tipo="xsd:int" />
+		<subclase tipo="EquipoDeComunicacion" />
+		<subclase tipo="DispositivoDLI" />
+		<subclase tipo="VehiculoGenerico" />
+		<subclase tipo="Arma" />
+	</definicion>
+	<!-- Dispositivos DLI y Equipos de Comunicaciones de Guerra electronica -->
+	<definicion tipo="EquipoDeComunicacion" creador="ClaseDeCampo:tipo">
+		<!--Hereda de CosaConIdYBdId para las otras variables -->
+		<campo nombre="tipo" sentido="BvAExt" mapeo="yourself" traductor="NombreClase" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="DispositivoDLI">
+		<!--Hereda de CosaConIdYBdId para las otras variables -->
+		<campo nombre="elementosDLI" traductor="Objeto" tipo="ElementoDetectado" array="true" />
+		<campo nombre="bdId" tipo="xsd:int" />
+		<campo nombre="id" tipo="xsd:int" mapeo="key" />
+	</definicion>
+	<definicion tipo="ElementoDetectado">
+		<campo nombre="idElemento" tipo="xsd:int" />
+		<campo nombre="coordenadas" traductor="Objeto" tipo="Coordenada" />
+		<!-- El nivel de deteccion puede ser "Detectado", "Identificado", "Localizado",
+		     "IdentificadoHelicoptero", "IdentificadoPersona",
+		     "IdentificadoVehiculoLiviano", "IdentificadoVehiculoPesado" o "LocalizadoGE"
+		     que se utiliza para los elementos detectados con guerra electronica -->
+		<campo nombre="nivel" mapeo="mejorEstado" traductor="NombreClase" tipo="xsd:string" sentido="BvAExt" />
+		<campo nombre="descripcion" traductor="StringANSI" tipo="xsd:string" sentido="BvAExt" />
+		<campo nombre="detalle" traductor="StringANSI" tipo="xsd:string" sentido="BvAExt" />
+	</definicion>
+	<!-- Objetos de Embarque, PersonaBatalla y Arma -->
+	<definicion tipo="EstadoDeDanio" >
+		<!--Hereda de CosaConIdYBdId para las otras variables -->				
+		<campo nombre="categoria" tipo="xsd:int" mapeo="categoria" />
+		<campo nombre="descripcion" tipo="xsd:string" />		
+	</definicion>
+	<definicion tipo="Arma" creador="ClaseDeCampo:tipo">
+		<!--Hereda de CosaConIdYBdId para las otras variables -->
+		<!-- El tipo puede ser ArmaTiroDirecto o ArmaTiroIndirecto -->
+		<campo nombre="danio" tipo="EstadoDeDanio" mapeo="estado" traductor="Objeto" />
+		<campo nombre="tipo" sentido="BvAExt" mapeo="yourself" traductor="NombreClase" tipo="xsd:string" />		
+		<campo nombre="bdId" tipo="xsd:int" />
+		<campo nombre="id" tipo="xsd:int" mapeo="key" />
+	</definicion>
+	<definicion tipo="VehiculoGenerico" >
+		<!--Hereda de CosaConIdYBdId para las otras variables -->
+		<campo nombre="danio" tipo="EstadoDeDanio" mapeo="salud" traductor="Objeto" />		
+		<campo nombre="personal" traductor="Objeto" tipo="PersonaBatalla" array="true" />
+		<campo nombre="armasColectivas" traductor="Objeto" tipo="Arma" array="true" />
+		<campo nombre="acoplado" traductor="Objeto" tipo="Acoplado" />
+		<campo nombre="coordenadas" mapeo="coordenadas" traductor="Objeto" tipo="Coordenada" />
+		<campo nombre="kilometrosRecorridos" tipo="xsd:float" />
+		<campo nombre="estado" traductor="Objeto" tipo="EstadoVehiculo" />
+		<campo nombre="dotacion" traductor="Objeto" tipo="DotacionElemento" />
+		<campo nombre="equiposComunicacion" traductor="Objeto" tipo="EquipoDeComunicacion" array="true" />
+	</definicion>
+	<definicion tipo="Acoplado">
+		<campo nombre="bdId" tipo="xsd:int" />
+		<campo nombre="nombre" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="PersonaBatalla">
+		<!--Hereda de CosaConId y para las otras variables -->
+		<campo nombre="danio" tipo="EstadoDeDanio" mapeo="estado" traductor="Objeto" />
+		<campo nombre="rolPrincipal" tipo="xsd:string" />
+		<campo nombre="grado" tipo="xsd:string" />	
+		<campo nombre="numeroOrden" traductor="StringANSI" tipo="xsd:string"/>	
+		<campo nombre="orgComb" tipo="xsd:int"/>
+		<campo nombre="arma" traductor="Objeto" tipo="Arma" />
+		<campo nombre="dispositivosDLI" traductor="Objeto" tipo="DispositivoDLI" array="true" />
+		<campo nombre="dotacion" traductor="Objeto" tipo="DotacionElemento" />
+	</definicion>
+
+	<definicion tipo="EstadoVehiculo" creador="ClaseDeCampo:descripcion">
+		<!-- Activo, Inactivo o Abasteciendo -->
+		<campo nombre="descripcion" sentido="BvAExt" mapeo="yourself" traductor="NombreClase" tipo="xsd:string" />
+		<subclase tipo="Inactivo" />
+	</definicion>
+	<definicion tipo="Inactivo">
+		<campo nombre="motivo" mapeo="motivoString" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="Falla">
+		<campo nombre="tipo" tipo="xsd:string" />
+		<campo nombre="tiempoReparacion" tipo="xsd:float" />
+		<campo nombre="nivelMantenimiento" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="InsumoActual">
+		<campo nombre="nombre" tipo="xsd:string" />
+		<campo nombre="cantAct" tipo="xsd:float" />
+	</definicion>
+	<definicion tipo="CORaiz2">
+		<campo nombre="identificador" tipo="xsd:int"/>
+		<campo nombre="tipo" traductor="StringANSI" tipo="xsd:string"/>
+		<campo nombre="clase" traductor="StringANSI"  tipo="xsd:string"/>
+		<campo nombre="elementos" tipo="COElemento2" array="true" traductor="Objeto"/>
+		<campo nombre="cantidad" tipo="xsd:int"/>
+		<campo nombre="personal" tipo="COPersona2" array="true" traductor="Objeto"/> 
+		<campo nombre="embarques" tipo="COEmbarque2" array="true" traductor="Objeto"/>
+		<campo nombre="idPadre" tipo="xsd:int"/>		
+	</definicion>
+	<definicion tipo="COElemento2">
+		<campo nombre="identificador" tipo="xsd:int"/>
+ 		<campo nombre="tipo" traductor="StringANSI" tipo="xsd:string"/>
+		<campo nombre="clase" traductor="StringANSI"  tipo="xsd:string"/>
+		<campo nombre="elementos" tipo="xsd:anyType" array="true" traductor="Objeto"/>
+ 		<campo nombre="cantidad" tipo="xsd:int"/>
+ 		<campo nombre="personal" tipo="COPersona2" array="true" traductor="Objeto"/> 
+ 		<campo nombre="embarques" tipo="COEmbarque2" array="true" traductor="Objeto"/> 
+		<campo nombre="idPadre" tipo="xsd:int"/>
+	</definicion>
+	<definicion tipo="COEmbarque2">
+		<campo nombre="idVehiculo" tipo="xsd:int" mapeo="bdIdVehiculo"/>
+		<campo nombre="idEmbarque" tipo="xsd:int"/>
+		<campo nombre="cantidadAInstanciar" tipo="xsd:int"/>
+		<campo nombre="armasColectivas" tipo="COArma2" array="true" mapeo="armasColectivas" traductor="COArma"/>
+		<campo nombre="idAcoplado" tipo="xsd:int" mapeo="bdIdAcoplado"/>
+		<campo nombre="personas" tipo="COPersona2" array="true" traductor="Objeto"/> 
+		<campo nombre="elementosComunicacion" tipo="xsd:int" array="true" mapeo="elementosComunicacion"/>	
+	</definicion>
+	<definicion tipo="COPersona2">
+	 	<campo nombre="idRolPrincipal" tipo="xsd:int"/>
+ 		<campo nombre="idArma" tipo="xsd:int"/>
+ 		<campo nombre="numeroOrden" traductor="StringANSI" tipo="xsd:string"/>
+	 	<campo nombre="orgComb" tipo="xsd:int"/>
+		<campo nombre="idGrado" tipo="xsd:int"/>
+	 	<campo nombre="idEmbarque" tipo="xsd:int"/>
+		<campo nombre="idRolAlternativo" tipo="xsd:int"/>
+		<campo nombre="idArmaColectiva" tipo="xsd:int"/>
+		<!--Array que agrupa vision, radar y telemetro-->
+		<campo nombre="idsDispositivosDLI" tipo="xsd:int" array="true"/>
+ 		<campo nombre="idCom" tipo="xsd:int" mapeo="idCom"/>
+	</definicion>	
+	<definicion tipo="COArma2">
+		<campo nombre="id" tipo="xsd:int" mapeo="key" />
+		<campo nombre="nombre" tipo="xsd:string" mapeo="value" />
+	</definicion>	
+	<definicion tipo="DatosDeUsuario">
+		<campo nombre="nombreUsuario" mapeo="usuario" traductor="UsuarioString" tipo="xsd:string"/>
+		<campo nombre="blancos" tipo="xsd:anyType" array="true" traductor="Objeto" mapeo="blancosAsCollection"/>
+		<campo nombre="prefijoBlanco" tipo="xsd:string" />
+	</definicion>
+	<definicion tipo="ConfiguracionPrefijoBlanco">
+		<campo nombre="nombreUsuario" tipo="xsd:string"/>
+		<campo nombre="prefijoBlanco" tipo="xsd:string"/>
+	</definicion>
+</definiciones>

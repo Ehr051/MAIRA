@@ -1,0 +1,7 @@
+<definiciones>
+	<include archivo="general.xml" />
+	<include archivo="ordenes.xml" />
+	<include archivo="ejercicio.xml" />
+	<include archivo="comunicaciones.xml" />
+	<include archivo="emercat.xml" />
+</definiciones>

@@ -1,0 +1,18 @@
+{
+  "factores_numericos": [],
+  "nombres_terreno": [],
+  "nombres_clima": [],
+  "nombres_armas": [
+    "            <requestedExecutionLevel level=\"asInvoker\"            uiAccess=\"false\"/>",
+    "INFNANU",
+    "n de Fallas 8                                      ",
+    "n de Fallas 8 Setup                                "
+  ],
+  "nombres_vehiculos": [
+    "            <requestedExecutionLevel level=\"asInvoker\"            uiAccess=\"false\"/>",
+    "n de Fallas 8                                      ",
+    "n de Fallas 8 Setup                                "
+  ],
+  "constantes": [],
+  "strings_interes": []
+}

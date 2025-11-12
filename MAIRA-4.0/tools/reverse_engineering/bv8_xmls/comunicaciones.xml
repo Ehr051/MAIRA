@@ -1,0 +1,161 @@
+<definiciones>
+	<include archivo="ejercicio.xml"/>
+	<definicion tipo="ObjetoDeComunicacion">
+		<!-- El id lo asigna automaticamente el simulador -->
+		<campo nombre="id" tipo="xsd:int" />
+		<!-- La fecha de envio la agrega automaticamente el simulador -->
+		<campo nombre="momentoDeEnvio" traductor="TimeStampString" tipo="xsd:string"/>
+		<!-- El nombre del usuario que envia el mensaje -->
+		<campo nombre="usuarioRemitente" tipo="xsd:string" />
+		<!-- El id del elemento al que el usuario pertenece o conduce, si hay mas de uno debe seleccionar -->
+		<campo nombre="elementoRemitente" traductor="IdElementoF" tipo="xsd:int" />
+		<!-- Se pone en true si hay que mandarlo a todos los usuarios, si no se enviara solo a los destinatarios -->
+		<campo nombre="distribuir" tipo="xsd:boolean" />
+		<!-- No es necesario especificarlos -->
+		<campo nombre="visto" tipo="xsd:boolean" />
+		<campo nombre="oculto" tipo="xsd:boolean" />
+		<subclase tipo="RequerimientoApyFuego" />
+		<subclase tipo="RequerimientoLogistico" />
+		<subclase tipo="RequerimientoIngenieros" />
+		<subclase tipo="OrdenDeAbastecimiento" />
+		<subclase tipo="OrdenIngenieros" />
+		<subclase tipo="InformeLogistico" />
+		<subclase tipo="Respuesta" />
+		<subclase tipo="IdentificadorListadosApyFuego" />
+	</definicion>
+
+	<definicion tipo="ModeloComunicaciones">
+		<!-- campo nombre="buzonOrdenes" tipo="bv:ArrayOfComunicacionUsuario" traductor="ComunicacionUsuario" />
+		<campo nombre="buzonInformes" tipo="bv:ArrayOfComunicacionUsuario" traductor="ComunicacionUsuario" />
+		<campo nombre="buzonRequerimientos" tipo="bv:ArrayOfComunicacionUsuario" traductor="ComunicacionUsuario" />
+		<campo nombre="buzonRespuestas" tipo="bv:ArrayOfComunicacionUsuario" traductor="ComunicacionUsuario" / -->
+	</definicion>
+
+	<definicion tipo="ComunicacionUsuario">
+		<campo nombre="nombreUsuario" tipo="xsd:string" />
+		<!-- Coleccion de requerimientos, ordenes, informes o respuestas dependiendo de lo que sea -->
+		<campo nombre="objetos" tipo="xsd:anyType" traductor="Objeto" array="true"/>
+	</definicion>
+
+<!--APOYO DE FUEGO -->
+	<!-- Este objeto nunca se envia solo. Siempre va dentro de un IdentificadorListadosApyFuego o dentro de una Respuesta. -->
+	<definicion tipo="RequerimientoApyFuego">
+		<!-- Puede ser "Pendiente", "Aceptado", "Rechazado", "Cancelado" o "Elevado al Cdo. Sup." -->
+		<campo nombre="estado" tipo="xsd:string" />
+		<campo nombre="blanco" traductor="Objeto" tipo="BlancoPlanificado" />
+		<!-- Un numero que indica a que listado pertenece, lo asigna el usuario -->
+		<campo nombre="idListado" tipo="xsd:int" />
+		<campo nombre="modificado" tipo="xsd:boolean" />
+		<campo nombre="ejecutante" traductor="IdElementoF" tipo="xsd:int" />
+	</definicion>
+	
+	<!-- El ModeloComunicaciones no almacena estos objetos, solo guarda los requerimientos que hay dentro.
+	     Este objeto existe con el fin de distribuir los requerimientos mas facil. -->
+	<definicion tipo="IdentificadorListadosApyFuego">
+		<campo nombre="requerimientos" traductor="Objeto" tipo="RequerimientoApyFuego" array="true" />
+		<!-- Debe ser true si este listado es una actualizacion del PFA -->
+		<campo nombre="esActualizacion" tipo="xsd:boolean" />
+	</definicion>
+
+<!--LOGISTICA-->
+	<definicion tipo="RequerimientoLogistico">
+		<!-- "Sin Resolver", "Resulto Completamente", "Resulto Parcialmente" o "Cancelado" -->
+		<campo nombre="estado" tipo="xsd:string" />
+		<campo nombre="pedido" traductor="Default" tipo="CantidadLogistica" />
+	</definicion>
+
+	<definicion tipo="OrdenDeAbastecimiento">
+		<campo nombre="requerimiento" traductor="Objeto" tipo="RequerimientoLogistico" />
+		<campo nombre="estado" tipo="xsd:string" />
+		<campo nombre="pedido" traductor="CantidadLogistica" tipo="CantidadLogistica" />
+		<!-- Los usuarios del ejercicio que cumpliran la mision -->
+		<campo nombre="destinatarios" tipo="xsd:string" array="true" />
+		<!-- Es el id de la unidad que debe ser reabastecida -->
+		<campo nombre="elementoAAbastecer" traductor="IdElementoF" tipo="xsd:int" />
+		<campo nombre="pedidoEjecutado" traductor="CantidadLogistica" tipo="CantidadLogistica" />
+	</definicion>
+
+	<definicion tipo="CantidadLogistica">
+		<campo nombre="insumosComunes" tipo="InsumoLogistica" array="true" />
+		<campo nombre="insumosClaseIIyIV" tipo="InsumoClaseIIyIV" array="true" />
+	</definicion>
+
+	<definicion tipo="InsumoLogistica">
+		<!-- Las clases de abastecimiento son "ClaseI", "ClaseIII" o "ClaseV" -->
+		<campo nombre="clase" tipo="xsd:string" />
+		<campo nombre="insumo" tipo="xsd:string" />
+		<campo nombre="cantidad" tipo="xsd:float" />
+		<subclase tipo="InformeInsumoComun" />
+	</definicion>
+
+	<definicion tipo="InsumoClaseIIyIV">
+		<campo nombre="idElemento" tipo="xsd:int" />
+		<campo nombre="idVehiculo" tipo="xsd:int" />
+		<subclase tipo="InformeInsumoClaseIIyIV" />
+	</definicion>
+
+	<definicion tipo="InformeLogistico">
+		<campo nombre="dato" traductor="InformeCantidadLogistica" tipo="InformeCantidadLogistica" />
+		<!-- Puede ser del subtipo "trUn" o "trBr" -->
+		<campo nombre="subtipo" tipo="xsd:string" />
+	</definicion>
+
+	<definicion tipo="InformeCantidadLogistica">
+		<campo nombre="insumosComunes" tipo="InformeInsumoComun" array="true" />
+		<campo nombre="insumosClaseIIyIV" tipo="InformeInsumoClaseIIyIV" array="true" />
+	</definicion>
+
+	<definicion tipo="InformeInsumoComun">
+		<campo nombre="cantidadInicial" tipo="xsd:float" />
+	</definicion>
+
+	<definicion tipo="InformeInsumoClaseIIyIV">
+		<campo nombre="falla" tipo="Falla" />
+		<campo nombre="esDestruccion" tipo="xsd:boolean" />
+	</definicion>
+
+<!-- INGENIEROS -->
+	<definicion tipo="RequerimientoIngenieros">
+		<campo nombre="estado" tipo="xsd:string" />
+		<!-- Coleccion de objetos ObstaculoArtificial -->
+		<campo nombre="tareas" traductor="Objeto" tipo="TareaIngenieros" array="true" />		
+	</definicion>
+
+	<definicion tipo="OrdenIngenieros">
+		<campo nombre="lista" traductor="Objeto" tipo="ListaTareas" />
+		<campo nombre="estado" tipo="xsd:string" />
+		<campo nombre="requerimiento" traductor="Objeto" tipo="RequerimientoIngenieros" />
+		<!-- Los usuarios del ejercicio que cumpliran la mision -->
+		<campo nombre="destinatarios" tipo="xsd:string" array="true" />
+	</definicion>
+
+	<definicion tipo="ListaTareas">
+		<!-- Coleccion de objetos ObstaculoArtificial -->
+		<campo nombre="tareas" traductor="Objeto" tipo="TareaIngenieros" array="true" />
+		<campo nombre="nombre" tipo="xsd:string" />
+	</definicion>
+
+	<definicion tipo="TareaIngenieros">
+		<campo nombre="obstaculo" traductor="Objeto" tipo="xsd:anyType" />
+		<campo nombre="nombre" tipo="xsd:string" />
+		<!-- Puede ser "No Enviado", "Cancelado", "Ejecutada", "En Ejecucion" o "En Evaluacion" -->
+		<campo nombre="estado" tipo="xsd:string" />
+		<campo nombre="lista" tipo="xsd:string" />
+		<campo nombre="prioridad" tipo="xsd:int" />
+		<campo nombre="idTarea" tipo="xsd:string" />
+		<campo nombre="remitente" tipo="xsd:string" />
+	</definicion>
+
+<!-- RESPUESTA -->
+	<definicion tipo="Respuesta">
+		<campo nombre="respuestaDe" tipo="xsd:anyType" traductor="Objeto" />
+		<campo nombre="comentario" tipo="xsd:string" />
+		<!-- Este comando se utiliza para determinar quien es el destinatario de la respuesta.
+		     Por defecto es "remitente" que hace que se envie al remitente del objeto de respuestaDe.
+		     Puede ser:
+		        - "pedidoEjecucionApyFgo": Lo recibe el ejecutor del Requerimiento.
+		        - "cancelarApyFgo": Lo recibe el remitente, el CAF y el ejecutor. -->
+		<campo nombre="comando" tipo="xsd:string" />
+	</definicion>
+
+</definiciones>

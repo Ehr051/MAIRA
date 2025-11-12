@@ -1,0 +1,7 @@
+<definiciones>
+	<definicion tipo="Concatenador" creador="Concatenador">
+		<campo nombre="palabra" tipo="xsd:string" sentido="BvAExt" />
+		<campo nombre="numeros" tipo="xsd:int" array="true" sentido="BvAExt" />
+	</definicion>
+
+</definiciones>

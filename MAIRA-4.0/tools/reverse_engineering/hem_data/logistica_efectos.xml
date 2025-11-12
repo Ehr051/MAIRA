@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<object class="OrderedCollection" size="25">
+	<object class="RelacionIdCajonIdEfecto" index="1">
+		<idCajon class="SmallInteger">1</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="3">
+			<object class="SmallInteger" index="1">23</object>
+			<object class="SmallInteger" index="2">24</object>
+			<object class="SmallInteger" index="3">25</object>
+		</listaIdEfectos>
+	</object>
+	<object class="RelacionIdCajonIdEfecto" index="2">
+		<idCajon class="SmallInteger">2</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="2">
+			<object class="SmallInteger" index="1">29</object>
+			<object class="SmallInteger" index="2">30</object>
+		</listaIdEfectos>
+	</object>
+
+	<object class="RelacionIdCajonIdEfecto" index="3">
+		<idCajon class="SmallInteger">3</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">11</object>
+		</listaIdEfectos>
+	</object>
+
+
+	<object class="RelacionIdCajonIdEfecto" index="4">
+		<idCajon class="SmallInteger">4</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">22</object>		
+		</listaIdEfectos>
+	</object>
+
+
+	<object class="RelacionIdCajonIdEfecto" index="5">
+		<idCajon class="SmallInteger">5</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">22</object>		
+		</listaIdEfectos>
+	</object>
+
+	<object class="RelacionIdCajonIdEfecto" index="6">
+		<idCajon class="SmallInteger">7</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="3">
+			<object class="SmallInteger" index="1">46</object>		
+			<object class="SmallInteger" index="1">48</object>		
+			<object class="SmallInteger" index="1">49</object>		
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="7">
+		<idCajon class="SmallInteger">8</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">43</object>		
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="8">
+		<idCajon class="SmallInteger">9</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">44</object>		
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="9">
+		<idCajon class="SmallInteger">10</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">45</object>		
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="10">
+		<idCajon class="SmallInteger">11</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">43</object>		
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="11">
+		<idCajon class="SmallInteger">15</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="3">
+			<object class="SmallInteger" index="1">6</object>		
+			<object class="SmallInteger" index="1">5</object>		
+			<object class="SmallInteger" index="1">10</object>					
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="12">
+		<idCajon class="SmallInteger">16</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="3">
+			<object class="SmallInteger" index="1">9</object>		
+			<object class="SmallInteger" index="1">4</object>		
+			<object class="SmallInteger" index="1">7</object>					
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="13">
+		<idCajon class="SmallInteger">21</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">56</object>		
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="14">
+		<idCajon class="SmallInteger">24</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="4">
+			<object class="SmallInteger" index="1">14</object>		
+			<object class="SmallInteger" index="1">17</object>	
+			<object class="SmallInteger" index="1">16</object>	
+			<object class="SmallInteger" index="1">15</object>		
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="15">
+		<idCajon class="SmallInteger">41</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">21</object>				
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="16">
+		<idCajon class="SmallInteger">17</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="3">
+			<object class="SmallInteger" index="1">51</object>		
+			<object class="SmallInteger" index="1">41</object>
+			<object class="SmallInteger" index="1">42</object>
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="17">
+		<idCajon class="SmallInteger">20</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">55</object>			
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="18">
+		<idCajon class="SmallInteger">21</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">56</object>			
+		</listaIdEfectos>
+	</object>
+	
+	
+	
+	<object class="RelacionIdCajonIdEfecto" index="19">
+		<idCajon class="SmallInteger">24</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="4">
+			<object class="SmallInteger" index="1">16</object>	
+			<object class="SmallInteger" index="1">15</object>		
+			<object class="SmallInteger" index="1">14</object>	
+			<object class="SmallInteger" index="1">17</object>	
+		</listaIdEfectos>
+	</object>
+		
+		<object class="RelacionIdCajonIdEfecto" index="19">
+		<idCajon class="SmallInteger">39</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">52</object>			
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="20">
+		<idCajon class="SmallInteger">40</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">31</object>			
+		</listaIdEfectos>
+	</object>
+	
+	<object class="RelacionIdCajonIdEfecto" index="21">
+		<idCajon class="SmallInteger">38</idCajon>
+		<listaIdEfectos class="OrderedCollection" size="1">
+			<object class="SmallInteger" index="1">47</object>			
+		</listaIdEfectos>
+	</object>
+	
+</object>
