@@ -456,19 +456,32 @@ function buscarMarcadorPorId(unidadId, calco = window.calcoActivo) {
  * Valida que un elemento tenga datos mínimos requeridos
  */
 function validarDatosElemento(datosElemento) {
-    if (!datosElemento) return false;
+    if (!datosElemento) {
+        console.warn('⚠️ validarDatosElemento: datosElemento es null/undefined');
+        return false;
+    }
 
-    const esValido = !!(
-        datosElemento.id &&
-        datosElemento.designacion &&
-        datosElemento.coordenadas
-    );
+    // ✅ FIX CRÍTICO: Validar que coordenadas tenga lat/lng válidos
+    const tieneId = !!datosElemento.id;
+    const tieneDesignacion = !!datosElemento.designacion;
+    const tieneCoordenadasObj = !!datosElemento.coordenadas;
+    const tieneLatLng = tieneCoordenadasObj &&
+                        typeof datosElemento.coordenadas.lat === 'number' &&
+                        typeof datosElemento.coordenadas.lng === 'number' &&
+                        !isNaN(datosElemento.coordenadas.lat) &&
+                        !isNaN(datosElemento.coordenadas.lng);
+
+    const esValido = tieneId && tieneDesignacion && tieneLatLng;
 
     if (!esValido) {
         console.warn('⚠️ Datos de elemento incompletos:', {
-            tieneId: !!datosElemento.id,
-            tieneDesignacion: !!datosElemento.designacion,
-            tieneCoordenadas: !!datosElemento.coordenadas
+            tieneId: tieneId,
+            tieneDesignacion: tieneDesignacion,
+            tieneCoordenadasObj: tieneCoordenadasObj,
+            tieneLatLng: tieneLatLng,
+            coordenadas: datosElemento.coordenadas,
+            designacion: datosElemento.designacion,
+            id: datosElemento.id
         });
     }
 
