@@ -4,10 +4,209 @@
  * Usa la misma lógica que mostrarPanelEdicionUnidad() y calcosP.js
  */
 
+// ============================================================================
+// FUNCIONES AUXILIARES PARA STATS BV8
+// ============================================================================
+
+/**
+ * Calcula stats de la tripulación fija del vehículo
+ * @param {Object} datosBV8 - Datos BV8 del vehículo
+ * @returns {Object} Stats de tripulación
+ */
+function calcularStatsTripulacion(datosBV8) {
+    if (!datosBV8?.vehiculo?.tripulacion) {
+        return {
+            personal: 0,
+            agua: 0,
+            raciones: 0,
+            municion: {}
+        };
+    }
+
+    const tripulacion = datosBV8.vehiculo.tripulacion;
+    const dotacion = datosBV8.vehiculo.dotacion_inicial || {};
+    const totalTripulacion = tripulacion.total || 0;
+
+    // Agua y raciones por persona (BV8: 3.5L/persona/día)
+    const aguaPorPersona = 3.5;
+    const racionesPorPersona = dotacion.raciones_dias || 3;
+
+    return {
+        personal: totalTripulacion,
+        agua: dotacion.agua_litros || (totalTripulacion * aguaPorPersona),
+        raciones: totalTripulacion * racionesPorPersona,
+        municion: dotacion.municion || {},
+        roles: tripulacion.roles || {}
+    };
+}
+
+/**
+ * Calcula stats del personal embarcado (infantería dentro del vehículo)
+ * @param {Object} elemento - Marcador del vehículo
+ * @param {Object} datosBV8 - Datos BV8 del vehículo
+ * @returns {Object} Stats del personal embarcado
+ */
+function calcularStatsPersonalEmbarcado(elemento, datosBV8) {
+    const personalEmbarcado = elemento.options?.personalEmbarcado;
+
+    if (!personalEmbarcado || !personalEmbarcado.grupos || personalEmbarcado.grupos.length === 0) {
+        return {
+            personal: 0,
+            agua: 0,
+            raciones: 0,
+            municion: {},
+            grupos: []
+        };
+    }
+
+    let totalPersonal = 0;
+    let totalAgua = 0;
+    let totalRaciones = 0;
+    let municionCombinada = {};
+    const grupos = [];
+
+    // Iterar sobre cada grupo embarcado
+    personalEmbarcado.grupos.forEach(grupo => {
+        const cantidadPersonal = grupo.cantidad || 0;
+        const aguaPorPersona = 3.5; // BV8 estándar
+        const racionesPorPersona = 3;
+
+        totalPersonal += cantidadPersonal;
+        totalAgua += cantidadPersonal * aguaPorPersona;
+        totalRaciones += cantidadPersonal * racionesPorPersona;
+
+        // Munición del grupo
+        if (grupo.municion) {
+            for (const [tipo, cantidad] of Object.entries(grupo.municion)) {
+                municionCombinada[tipo] = (municionCombinada[tipo] || 0) + cantidad;
+            }
+        }
+
+        grupos.push({
+            nombre: grupo.nombre || 'Grupo',
+            cantidad: cantidadPersonal,
+            equipos: grupo.equipos || []
+        });
+    });
+
+    return {
+        personal: totalPersonal,
+        agua: totalAgua,
+        raciones: totalRaciones,
+        municion: municionCombinada,
+        grupos: grupos
+    };
+}
+
+/**
+ * Combina munición de múltiples fuentes
+ * @param {...Object} fuentes - Objetos con munición
+ * @returns {Object} Munición combinada
+ */
+function combinarMunicion(...fuentes) {
+    const municionTotal = {};
+
+    fuentes.forEach(fuente => {
+        if (!fuente) return;
+
+        for (const [tipo, cantidad] of Object.entries(fuente)) {
+            municionTotal[tipo] = (municionTotal[tipo] || 0) + cantidad;
+        }
+    });
+
+    return municionTotal;
+}
+
+/**
+ * Calcula TODOS los stats agregados de un vehículo con personal embarcado
+ * @param {Object} elemento - Marcador del vehículo
+ * @param {Object} datosBV8 - Datos BV8 del vehículo
+ * @returns {Object} Stats totales agregados
+ */
+function calcularStatsAgregados(elemento, datosBV8) {
+    if (!datosBV8) {
+        return null;
+    }
+
+    // Stats de tripulación fija
+    const statsTripulacion = calcularStatsTripulacion(datosBV8);
+
+    // Stats de personal embarcado
+    const statsEmbarcado = calcularStatsPersonalEmbarcado(elemento, datosBV8);
+
+    // Stats del vehículo (combustible, munición de vehículo)
+    const dotacionVehiculo = datosBV8.vehiculo?.dotacion_inicial || {};
+    const movilidad = datosBV8.vehiculo?.movilidad || {};
+
+    // Combinar munición de todas las fuentes
+    const municionTotal = combinarMunicion(
+        statsTripulacion.municion,
+        statsEmbarcado.municion,
+        dotacionVehiculo.municion
+    );
+
+    // 📊 STATS AGREGADOS TOTALES
+    return {
+        // 🧑‍✈️ Personal total
+        personal: {
+            total: statsTripulacion.personal + statsEmbarcado.personal,
+            tripulacion: statsTripulacion.personal,
+            embarcado: statsEmbarcado.personal,
+            max_capacidad: (datosBV8.vehiculo?.tripulacion?.total || 0) +
+                          (datosBV8.vehiculo?.tripulacion?.pasajeros || 0)
+        },
+
+        // ⛽ Combustible
+        combustible: {
+            actual: dotacionVehiculo.combustible_litros || 0,
+            capacidad: movilidad.capacidad_combustible_litros || 0,
+            tipo: movilidad.combustible_tipo || 'gasoil',
+            consumo_km: movilidad.consumo_km_litros || 0,
+            autonomia_km: movilidad.autonomia_km || 0
+        },
+
+        // 🔫 Munición (vehículo + personal)
+        municion: {
+            tipos: municionTotal,
+            total_tipos: Object.keys(municionTotal).length
+        },
+
+        // 💪 Moral (inicial 100%, se degrada con combate/tiempo)
+        moral: {
+            actual: 100,
+            max: 100,
+            estado: 'alta'
+        },
+
+        // 🍽️ Raciones
+        raciones: {
+            total: statsTripulacion.raciones + statsEmbarcado.raciones,
+            dias_disponibles: dotacionVehiculo.raciones_dias || 3
+        },
+
+        // 💧 Agua
+        agua: {
+            actual: statsTripulacion.agua + statsEmbarcado.agua,
+            capacidad: dotacionVehiculo.agua_litros ||
+                      (statsTripulacion.agua + statsEmbarcado.agua)
+        },
+
+        // 📋 Desglose detallado
+        desglose: {
+            tripulacion: statsTripulacion,
+            embarcado: statsEmbarcado
+        }
+    };
+}
+
+// ============================================================================
+// FUNCIÓN PRINCIPAL DE EXTRACCIÓN DE DATOS
+// ============================================================================
+
 /**
  * Extrae TODOS los datos de un elemento/marcador de forma coherente
  * Similar a cómo lo hace mostrarPanelEdicionUnidad() y calcosP.js
- * 
+ *
  * @param {L.Marker|Object} elemento - Marcador de Leaflet o referencia al elemento
  * @returns {Object|null} Datos completos del elemento o null si no es válido
  */
@@ -115,39 +314,70 @@ function obtenerDatosElemento(elemento) {
 
         // 🔍 PASO 7: Tipo de vehículo y otras propiedades
         const tipoVehiculo = elemento.options?.tipoVehiculo || 'sin_vehiculo';
-        
-        // �� PASO 8: Construir objeto de datos completo
+
+        // 🎯 PASO 8: Obtener datos BV8 (si existen)
+        let datosBV8 = null;
+        let datosMovilidad = null;
+
+        if (tipoVehiculo !== 'sin_vehiculo') {
+            // Usar velocidadUtils para obtener datos BV8 completos
+            if (typeof window.obtenerVelocidadElemento === 'function') {
+                try {
+                    datosMovilidad = window.obtenerVelocidadElemento(elemento);
+                    datosBV8 = datosMovilidad?.bv8 || null;
+                } catch (e) {
+                    console.warn('⚠️ Error obteniendo datos BV8:', e);
+                }
+            }
+        }
+
+        // 🎯 PASO 9: Calcular stats agregados (tripulación + personal embarcado)
+        let statsAgregados = null;
+
+        if (datosBV8) {
+            statsAgregados = calcularStatsAgregados(elemento, datosBV8);
+        }
+
+        // 📦 PASO 10: Construir objeto de datos completo
         const datosCompletos = {
             // Identificación
             id: id,
             sidc: sidc,
-            
+
             // Designación y organización
             designacion: designacion,
             dependencia: dependencia,
             uniqueDesignation: elemento.options?.uniqueDesignation || designacion,
             higherFormation: elemento.options?.higherFormation || dependencia,
-            
+
             // Propiedades SIDC
             magnitud: magnitud,
             afiliacion: afiliacion,
             estado: estado,
-            
+
             // Ubicación
             coordenadas: coordenadas,
             lat: lat,
             lng: lng,
-            
+
             // Clasificación
             equipo: equipo,
             jugador: jugador,
             tipo: elemento.options?.tipo || 'unidad',
             tipoVehiculo: tipoVehiculo,
-            
+
             // Nombre completo para UI
             nombre: elemento.options?.nombre || designacion,
             nombreCompleto: `${designacion}${dependencia ? ' / ' + dependencia : ''}`,
-            
+
+            // 📊 DATOS BV8 (NUEVO)
+            bv8: datosBV8,
+            movilidad: datosMovilidad,
+            stats: statsAgregados,
+
+            // 🔄 Personal embarcado (si aplica)
+            personalEmbarcado: elemento.options?.personalEmbarcado || null,
+
             // Referencia original
             _elementoRef: elemento
         };
@@ -263,13 +493,26 @@ window.buscarMarcadorPorId = buscarMarcadorPorId;
 window.obtenerDatosElementoSeleccionado = obtenerDatosElementoSeleccionado;
 window.validarDatosElemento = validarDatosElemento;
 
+// 🌍 Exportar funciones BV8 (nuevas)
+window.calcularStatsAgregados = calcularStatsAgregados;
+window.calcularStatsTripulacion = calcularStatsTripulacion;
+window.calcularStatsPersonalEmbarcado = calcularStatsPersonalEmbarcado;
+window.combinarMunicion = combinarMunicion;
+
 // 📦 Exportar como módulo para namespace MAIRA
 window.MAIRA = window.MAIRA || {};
 window.MAIRA.ElementoUtils = {
+    // Funciones principales
     obtenerDatos: obtenerDatosElemento,
     buscarPorId: buscarMarcadorPorId,
     obtenerSeleccionado: obtenerDatosElementoSeleccionado,
-    validar: validarDatosElemento
+    validar: validarDatosElemento,
+
+    // Funciones BV8 (nuevas)
+    calcularStatsAgregados: calcularStatsAgregados,
+    calcularStatsTripulacion: calcularStatsTripulacion,
+    calcularStatsPersonalEmbarcado: calcularStatsPersonalEmbarcado,
+    combinarMunicion: combinarMunicion
 };
 
-console.log('✅ elementoUtils.js cargado - Funciones de extracción centralizadas disponibles');
+console.log('✅ elementoUtils.js cargado - Funciones de extracción centralizadas + BV8 stats disponibles');

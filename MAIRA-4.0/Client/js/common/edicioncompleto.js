@@ -337,74 +337,130 @@ function actualizarCaracteristicas(categoriaArma, tipo) {
     actualizarSelectorTipoVehiculo(categoria, arma, tipo);
 }
 
+/**
+ * Obtiene vehículos disponibles desde velocidadesReales.json (datos BV8)
+ * @param {String} filtroCategoria - Opcional: 'blindado', 'mecanizado', 'motorizado', null para todos
+ * @returns {Array} Array de objetos {valor, texto, categoria, tipo}
+ */
+function obtenerVehiculosBV8Disponibles(filtroCategoria = null) {
+    const vehiculosBV8 = window.MAIRA?.velocidadesReales?.vehiculos || {};
+    const vehiculosDisponibles = [];
+
+    // Mapear cada vehículo BV8 a formato del selector
+    for (const [id, datosVehiculo] of Object.entries(vehiculosBV8)) {
+        const categoria = datosVehiculo.categoria;
+
+        // Aplicar filtro si se especificó
+        if (filtroCategoria && categoria !== filtroCategoria) {
+            continue;
+        }
+
+        vehiculosDisponibles.push({
+            valor: id,  // ID BV8 (ej: 'tam_tanque', 'vctp_tam', 'm113')
+            texto: datosVehiculo.nombre,  // Nombre amigable
+            categoria: categoria,
+            tipo: datosVehiculo.tipo,
+            sidc_base: datosVehiculo.sidc_base
+        });
+    }
+
+    // Ordenar por categoría y nombre
+    vehiculosDisponibles.sort((a, b) => {
+        if (a.categoria !== b.categoria) {
+            const orden = { 'blindado': 1, 'mecanizado': 2, 'motorizado': 3 };
+            return (orden[a.categoria] || 999) - (orden[b.categoria] || 999);
+        }
+        return a.texto.localeCompare(b.texto);
+    });
+
+    return vehiculosDisponibles;
+}
+
+/**
+ * Determina qué categoría de vehículos usar según el arma/tipo
+ * @param {String} categoria - Categoría del elemento
+ * @param {String} arma - Arma del elemento
+ * @param {String} tipo - Tipo del elemento
+ * @returns {String|null} Categoría de vehículo ('blindado', 'mecanizado', 'motorizado') o null para todos
+ */
+function determinarCategoriaVehiculoPorUnidad(categoria, arma, tipo) {
+    // Caballería Blindada → blindados
+    if (arma === 'Caballería' && tipo === 'Blindada') {
+        return 'blindado';
+    }
+
+    // Infantería Mecanizada → mecanizados
+    if (arma === 'Infantería' && tipo === 'Mecanizada') {
+        return 'mecanizado';
+    }
+
+    // Infantería Motorizada → motorizados
+    if (arma === 'Infantería' && tipo === 'Motorizada') {
+        return 'motorizado';
+    }
+
+    // Artillería → motorizados (para remolque)
+    if (arma === 'Artillería') {
+        return 'motorizado';
+    }
+
+    // Servicios → motorizados
+    if (categoria === 'Servicios') {
+        return 'motorizado';
+    }
+
+    // Por defecto: mostrar todos
+    return null;
+}
+
 function actualizarSelectorTipoVehiculo(categoria, arma, tipo) {
     const tipoVehiculoSelect = document.getElementById('tipoVehiculo');
     const tipoVehiculoEquipoSelect = document.getElementById('tipoVehiculoEquipo');
-    
+
     if (!tipoVehiculoSelect && !tipoVehiculoEquipoSelect) return;
-    
-    // Usar sistema jerárquico si está disponible
+
     let vehiculosDisponibles = [];
-    
+
+    // 🎯 PRIORIDAD 1: Usar sistema jerárquico SIDC si está disponible
     if (window.sistemaJerarquicoSIDC && window.sistemaJerarquicoSIDC.obtenerVehiculosDisponibles) {
         vehiculosDisponibles = window.sistemaJerarquicoSIDC.obtenerVehiculosDisponibles(categoria, arma, tipo);
-    } else {
-        // Fallback: lógica básica
-        if (categoria === 'Armas' && arma === 'Caballería') {
-            if (tipo === 'Blindada') {
-                vehiculosDisponibles = [
-                    { valor: 'TAM', texto: 'TAM - Tanque Argentino Mediano' },
-                    { valor: 'TAM2C', texto: 'TAM 2C - Tanque Argentino Mediano 2C' },
-                    { valor: 'SK105', texto: 'SK-105 Kürassier' }
-                ];
-            } else if (tipo === 'Exploración') {
-                vehiculosDisponibles = [
-                    { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo de Exploración' },
-                    { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Táctico' }
-                ];
-            }
-        } else if (categoria === 'Armas' && arma === 'Infantería') {
-            if (tipo === 'Mecanizada') {
-                vehiculosDisponibles = [
-                    { valor: 'VCTP', texto: 'VCTP - Vehículo de Combate de Transporte de Personal' },
-                    { valor: 'M113', texto: 'M113 - Transporte de Personal' }
-                ];
-            } else if (tipo === 'Motorizada') {
-                vehiculosDisponibles = [
-                    { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo Multipropósito' },
-                    { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Transporte' },
-                    { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Logístico' }
-                ];
-            }
-        } else if (categoria === 'Armas' && arma === 'Artillería') {
+    }
+
+    // 🎯 PRIORIDAD 2: Usar datos BV8 (velocidadesReales.json)
+    if (vehiculosDisponibles.length === 0 && window.MAIRA?.velocidadesReales) {
+        const filtroCategoria = determinarCategoriaVehiculoPorUnidad(categoria, arma, tipo);
+        vehiculosDisponibles = obtenerVehiculosBV8Disponibles(filtroCategoria);
+
+        console.log(`🚗 Vehículos BV8 cargados (filtro: ${filtroCategoria || 'todos'}): ${vehiculosDisponibles.length}`);
+    }
+
+    // 🎯 PRIORIDAD 3: Fallback a valores hardcoded (compatibilidad)
+    if (vehiculosDisponibles.length === 0) {
+        console.warn('⚠️ No hay datos BV8 disponibles, usando valores hardcoded');
+
+        if (categoria === 'Armas' && arma === 'Caballería' && tipo === 'Blindada') {
             vehiculosDisponibles = [
-                { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo de Apoyo' },
-                { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo de Remolque' },
-                { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo Logístico' }
+                { valor: 'tam_tanque', texto: 'TAM - Tanque Argentino Mediano' },
+                { valor: 'tam2c', texto: 'TAM 2C - Tanque Argentino Mediano 2C' }
             ];
-        } else if (categoria === 'Servicios') {
+        } else if (categoria === 'Armas' && arma === 'Infantería' && tipo === 'Mecanizada') {
             vehiculosDisponibles = [
-                { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo de Servicio' },
-                { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Logístico' },
-                { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Apoyo' }
+                { valor: 'vctp_tam', texto: 'VCTP TAM - Vehículo de Combate Transporte Personal' },
+                { valor: 'm113', texto: 'M113 APC' }
             ];
-        }
-        
-        // Si no hay vehículos específicos, mostrar todos
-        if (vehiculosDisponibles.length === 0) {
+        } else if (categoria === 'Armas' && arma === 'Infantería' && tipo === 'Motorizada') {
             vehiculosDisponibles = [
-                { valor: 'TAM', texto: 'TAM - Tanque Argentino Mediano' },
-                { valor: 'TAM2C', texto: 'TAM 2C - Tanque Argentino Mediano 2C' },
-                { valor: 'SK105', texto: 'SK-105 Kürassier' },
-                { valor: 'VCTP', texto: 'VCTP - Vehículo de Combate de Transporte de Personal' },
-                { valor: 'M113', texto: 'M113 - Transporte de Personal' },
-                { valor: 'HUMVEE', texto: 'HUMVEE - Vehículo Multipropósito' },
-                { valor: 'UNIMOG', texto: 'UNIMOG - Vehículo Logístico' },
-                { valor: 'MERCEDES', texto: 'Mercedes-Benz - Vehículo de Apoyo' }
+                { valor: 'vlega', texto: 'VLEGA - Vehículo Ligero Ejército Argentino' },
+                { valor: 'unimog', texto: 'Unimog - Camión todo terreno' }
+            ];
+        } else {
+            vehiculosDisponibles = [
+                { valor: 'vlega', texto: 'VLEGA - Vehículo Ligero' },
+                { valor: 'unimog', texto: 'Unimog - Vehículo Logístico' }
             ];
         }
     }
-    
+
     // Actualizar selector de unidades
     if (tipoVehiculoSelect) {
         tipoVehiculoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
@@ -412,10 +468,19 @@ function actualizarSelectorTipoVehiculo(categoria, arma, tipo) {
             let option = document.createElement('option');
             option.value = vehiculo.valor;
             option.textContent = vehiculo.texto;
+
+            // Agregar datos adicionales como atributos
+            if (vehiculo.categoria) {
+                option.dataset.categoria = vehiculo.categoria;
+            }
+            if (vehiculo.tipo) {
+                option.dataset.tipoVehiculo = vehiculo.tipo;
+            }
+
             tipoVehiculoSelect.appendChild(option);
         });
     }
-    
+
     // Actualizar selector de equipos
     if (tipoVehiculoEquipoSelect) {
         tipoVehiculoEquipoSelect.innerHTML = '<option value="">Seleccionar tipo...</option>';
@@ -423,6 +488,15 @@ function actualizarSelectorTipoVehiculo(categoria, arma, tipo) {
             let option = document.createElement('option');
             option.value = vehiculo.valor;
             option.textContent = vehiculo.texto;
+
+            // Agregar datos adicionales como atributos
+            if (vehiculo.categoria) {
+                option.dataset.categoria = vehiculo.categoria;
+            }
+            if (vehiculo.tipo) {
+                option.dataset.tipoVehiculo = vehiculo.tipo;
+            }
+
             tipoVehiculoEquipoSelect.appendChild(option);
         });
     }

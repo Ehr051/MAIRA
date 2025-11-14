@@ -88,6 +88,14 @@ class AnalisisTerreno {
         this.resolucion = 50; // metros (25, 50, o 100)
         this.chartPendientes = null;
         
+        // 🗺️ Capas GIS del IGN
+        this.capasGIS = {
+            transporte: null,
+            hidrografia: null,
+            areas_urbanas: null
+        };
+        this.capasGISActivas = new Set();
+        
         // Configuración
         this.config = {
             apiUrl: 'http://localhost:5001/api/terreno',
@@ -96,6 +104,42 @@ class AnalisisTerreno {
                 '5-15': '#f1c40f',     // Amarillo - Precaución
                 '15-30': '#e67e22',    // Naranja - Difícil
                 '30+': '#e74c3c'       // Rojo - Muy difícil
+            },
+            estilosGIS: {
+                ruta_nacional: {
+                    color: '#ff0000',
+                    weight: 3,
+                    opacity: 0.8
+                },
+                ruta_provincial: {
+                    color: '#ff9900',
+                    weight: 2,
+                    opacity: 0.7
+                },
+                caminos: {
+                    color: '#996633',
+                    weight: 1.5,
+                    opacity: 0.6
+                },
+                curso_agua_permanente: {
+                    color: '#0066cc',
+                    weight: 2,
+                    opacity: 0.7
+                },
+                espejo_agua_permanente: {
+                    color: '#0099ff',
+                    weight: 0.5,
+                    fillColor: '#66ccff',
+                    fillOpacity: 0.3
+                },
+                localidades: {
+                    radius: 5,
+                    fillColor: '#ff6600',
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.7
+                }
             }
         };
         
@@ -1830,6 +1874,167 @@ class AnalisisTerreno {
         
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+
+    /**
+     * 🗺️ CAPAS GIS DEL IGN - Sistema on-demand
+     */
+
+    /**
+     * Cargar capas GIS para el área visible del mapa
+     */
+    async cargarCapasGISArea(capas = ['transporte', 'hidrografia', 'areas_urbanas']) {
+        try {
+            const bounds = this.map.getBounds();
+            
+            console.log('🗺️ Cargando capas GIS:', capas);
+            console.log('📍 Bounds:', bounds);
+            
+            const response = await fetch('https://localhost:8443/api/capas_gis/consultar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    bounds: {
+                        north: bounds.getNorth(),
+                        south: bounds.getSouth(),
+                        east: bounds.getEast(),
+                        west: bounds.getWest()
+                    },
+                    capas: capas
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                console.log(`✅ Capas cargadas: ${data.tiles_cargados} tiles, ${data.features_totales} features`);
+                console.log(`⏱️ Tiempo: ${data.tiempo_ms.toFixed(1)} ms`);
+                
+                this.mostrarCapasGIS(data.capas);
+                return data;
+            } else {
+                throw new Error(data.error || 'Error desconocido');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error cargando capas GIS:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Mostrar capas GIS en el mapa
+     */
+    mostrarCapasGIS(capasData) {
+        // Transporte
+        if (capasData.transporte) {
+            if (capasData.transporte.rutas_nacionales) {
+                this.agregarCapaGeoJSON('ruta_nacional', capasData.transporte.rutas_nacionales, 'transporte');
+            }
+            if (capasData.transporte.rutas_provinciales) {
+                this.agregarCapaGeoJSON('ruta_provincial', capasData.transporte.rutas_provinciales, 'transporte');
+            }
+            if (capasData.transporte.caminos) {
+                this.agregarCapaGeoJSON('caminos', capasData.transporte.caminos, 'transporte');
+            }
+        }
+        
+        // Hidrografía
+        if (capasData.hidrografia) {
+            if (capasData.hidrografia.cursos_agua) {
+                this.agregarCapaGeoJSON('curso_agua_permanente', capasData.hidrografia.cursos_agua, 'hidrografia');
+            }
+            if (capasData.hidrografia.espejos_agua) {
+                this.agregarCapaGeoJSON('espejo_agua_permanente', capasData.hidrografia.espejos_agua, 'hidrografia');
+            }
+        }
+        
+        // Áreas urbanas
+        if (capasData.areas_urbanas) {
+            if (capasData.areas_urbanas.localidades) {
+                this.agregarCapaGeoJSON('localidades', capasData.areas_urbanas.localidades, 'areas_urbanas');
+            }
+        }
+    }
+
+    /**
+     * Agregar capa GeoJSON al mapa con estilo
+     */
+    agregarCapaGeoJSON(tipo, geojson, categoria) {
+        // Limpiar capa anterior si existe
+        if (this.capasGIS[categoria]) {
+            this.map.removeLayer(this.capasGIS[categoria]);
+        }
+        
+        const estilo = this.config.estilosGIS[tipo] || {};
+        
+        const capa = L.geoJSON(geojson, {
+            style: estilo,
+            pointToLayer: (feature, latlng) => {
+                return L.circleMarker(latlng, estilo);
+            },
+            onEachFeature: (feature, layer) => {
+                // Popup con información
+                if (feature.properties) {
+                    const props = feature.properties;
+                    let popupContent = `<strong>${tipo.replace(/_/g, ' ').toUpperCase()}</strong><br>`;
+                    
+                    if (props.nombre || props.nam) {
+                        popupContent += `Nombre: ${props.nombre || props.nam}<br>`;
+                    }
+                    if (props.tipo) {
+                        popupContent += `Tipo: ${props.tipo}<br>`;
+                    }
+                    
+                    layer.bindPopup(popupContent);
+                }
+            }
+        });
+        
+        this.capasGIS[categoria] = capa;
+        this.capasGISActivas.add(categoria);
+        
+        capa.addTo(this.map);
+        
+        console.log(`🗂️ Capa agregada: ${tipo} (${geojson.features.length} features)`);
+    }
+
+    /**
+     * Activar/desactivar capa GIS
+     */
+    toggleCapaGIS(categoria) {
+        if (this.capasGISActivas.has(categoria)) {
+            // Desactivar
+            if (this.capasGIS[categoria]) {
+                this.map.removeLayer(this.capasGIS[categoria]);
+            }
+            this.capasGISActivas.delete(categoria);
+            console.log(`🔴 Capa desactivada: ${categoria}`);
+        } else {
+            // Activar - cargar si no está cargada
+            this.cargarCapasGISArea([categoria]);
+            console.log(`🟢 Capa activada: ${categoria}`);
+        }
+    }
+
+    /**
+     * Limpiar todas las capas GIS
+     */
+    limpiarCapasGIS() {
+        for (const categoria in this.capasGIS) {
+            if (this.capasGIS[categoria]) {
+                this.map.removeLayer(this.capasGIS[categoria]);
+                this.capasGIS[categoria] = null;
+            }
+        }
+        this.capasGISActivas.clear();
+        console.log('🧹 Capas GIS limpiadas');
     }
 
 }
