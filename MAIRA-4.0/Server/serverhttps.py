@@ -295,7 +295,7 @@ def serve_static(path):
 @app.after_request
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,cache-control'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     return response
 
@@ -3008,13 +3008,13 @@ def get_elevation_batch():
 
         # Determinar provincia según latitud
         provincia = None
-        if center_lat >= -28:
+        if center_lat > -30:
             provincia = 'norte'
-        elif center_lat >= -34:
+        elif center_lat > -36:
             provincia = 'centro_norte'
-        elif center_lat >= -40:
+        elif center_lat > -42:
             provincia = 'centro'
-        elif center_lat >= -46:
+        elif center_lat > -48:
             provincia = 'sur'
         else:
             provincia = 'patagonia'
@@ -3254,6 +3254,506 @@ def actualizar_adjunto_en_db(informe_id, adjunto_db):
         return False
 
 
+
+
+# ===============================================================================
+# 🗺️ ENDPOINT ANÁLISIS DE TERRENO
+# ===============================================================================
+# Analiza un polígono para calcular pendientes, transitabilidad y estadísticas
+# Reutiliza el patrón de get_elevation_batch con tiles provinciales
+# ===============================================================================
+
+@app.route('/api/terreno/analizar', methods=['POST'])
+def analizar_terreno():
+    """
+    Analiza un polígono de terreno para obtener:
+    - Pendientes (promedio, máxima, distribución)
+    - Transitabilidad según vehículo/clima
+    - Puntos críticos
+    
+    Request JSON:
+    {
+        "poligono": [[[lng, lat], [lng, lat], ...]], // GeoJSON coordinates
+        "vehiculo": "TAM" | "VCLC" | "M113" | "infanteria",
+        "clima": "seco" | "humedo" | "inundado",
+        "capas": {
+            "pendientes": true,
+            "transitabilidad": true
+        }
+    }
+    
+    Response JSON:
+    {
+        "pendiente_promedio": 12.5,
+        "pendiente_maxima": 34.2,
+        "pct_transitable": 67.3,
+        "distribucion_pendientes": {
+            "0-5": 30,
+            "5-15": 45,
+            "15-30": 20,
+            "30+": 5
+        },
+        "puntos_criticos": [...],
+        "mapa_calor": [...] // Opcional: grid con pendientes para visualización
+    }
+    """
+    import time
+    import json
+    import math
+    
+    start_time = time.time()
+    
+    try:
+        # Importar rasterio
+        try:
+            import rasterio
+            import numpy as np
+        except ImportError:
+            return jsonify({
+                'error': 'rasterio no instalado',
+                'message': 'pip install rasterio'
+            }), 500
+        
+        # Validar request
+        data = request.get_json()
+        if not data or 'poligono' not in data:
+            return jsonify({'error': 'Se requiere poligono en formato GeoJSON'}), 400
+        
+        poligono_coords = data['poligono'][0] if len(data['poligono']) > 0 else []
+        vehiculo = data.get('vehiculo', 'TAM')
+        clima = data.get('clima', 'seco')
+        capas = data.get('capas', {'pendientes': True, 'transitabilidad': True})
+        
+        if len(poligono_coords) < 3:
+            return jsonify({'error': 'El polígono debe tener al menos 3 puntos'}), 400
+        
+        print(f'🗺️ Análisis de terreno: {len(poligono_coords)} puntos, vehículo={vehiculo}, clima={clima}')
+        
+        # ========================================================================
+        # PASO 1: Extraer latitudes/longitudes del polígono (GeoJSON es [lng, lat])
+        # ========================================================================
+        # ====================================================================
+        # PASO 1: Obtener puntos para análisis (grilla o vértices)
+        # ====================================================================
+        grid_points = data.get('puntos', None)
+        
+        if grid_points and len(grid_points) > 0:
+            # Usar grilla enviada desde frontend
+            lats = [p['lat'] for p in grid_points]
+            lons = [p['lon'] for p in grid_points]
+            print(f'📐 Usando grilla: {len(grid_points)} puntos')
+        else:
+            # Fallback: usar solo vértices del polígono
+            lons = [p[0] for p in poligono_coords]
+            lats = [p[1] for p in poligono_coords]
+            print(f'📐 Usando vértices: {len(poligono_coords)} puntos')
+        bounds = {
+            'north': max(lats),
+            'south': min(lats),
+            'east': max(lons),
+            'west': min(lons)
+        }
+        center_lat = (bounds['north'] + bounds['south']) / 2
+        center_lon = (bounds['east'] + bounds['west']) / 2
+        
+        print(f'📊 Bounds: N={bounds["north"]:.4f}, S={bounds["south"]:.4f}, E={bounds["east"]:.4f}, W={bounds["west"]:.4f}')
+        
+        # ========================================================================
+        # PASO 2: Cargar tiles de elevación (mismo patrón que get_elevation_batch)
+        # ========================================================================
+        tiles_base = os.path.join(BASE_DIR, 'Client', 'Libs', 'datos_argentina', 'Altimetria_Mini_Tiles')
+        
+        # Determinar provincia según latitud
+        provincia = None
+        if center_lat > -30:
+            provincia = 'norte'
+        elif center_lat > -36:
+            provincia = 'centro_norte'
+        elif center_lat > -42:
+            provincia = 'centro'
+        elif center_lat > -48:
+            provincia = 'sur'
+        else:
+            provincia = 'patagonia'
+        
+        print(f'📁 Provincia: {provincia}')
+        
+        # Cargar índice provincial
+        provincial_index_path = os.path.join(tiles_base, provincia, f'{provincia}_mini_tiles_index.json')
+        if not os.path.exists(provincial_index_path):
+            return jsonify({'error': f'Índice provincial no existe: {provincial_index_path}'}), 404
+        
+        with open(provincial_index_path, 'r', encoding='utf-8') as f:
+            provincial_index = json.load(f)
+        
+        # Filtrar tiles relevantes
+        relevant_tiles = []
+        tiles_dict = provincial_index.get('tiles', {})
+        
+        for tile_id, tile_info in tiles_dict.items():
+            tile_bounds = tile_info.get('bounds', {})
+            if not tile_bounds:
+                continue
+            
+            if (tile_bounds['north'] >= bounds['south'] and
+                tile_bounds['south'] <= bounds['north'] and
+                tile_bounds['east'] >= bounds['west'] and
+                tile_bounds['west'] <= bounds['east']):
+                relevant_tiles.append(tile_info)
+        
+        print(f'🎯 {len(relevant_tiles)} tiles relevantes')
+        
+        if len(relevant_tiles) == 0:
+            return jsonify({'error': 'No se encontraron tiles para el área seleccionada'}), 404
+        
+        # Cargar tiles en cache
+        tile_cache = {}
+        for tile_info in relevant_tiles:
+            filename = tile_info.get('filename')
+            if not filename:
+                continue
+            
+            tile_path = os.path.join(tiles_base, provincia, filename)
+            if os.path.exists(tile_path):
+                try:
+                    src = rasterio.open(tile_path)
+                    tile_cache[filename] = {
+                        'src': src,
+                        'bounds': src.bounds,
+                        'info': tile_info
+                    }
+                except Exception as e:
+                    print(f'⚠️ Error cargando {filename}: {e}')
+        
+        print(f'💾 {len(tile_cache)} tiles cargados')
+        
+        # ========================================================================
+        # PASO 3: Obtener elevaciones de cada punto del polígono
+        # ========================================================================
+        elevations = []
+        valid_points = []
+        
+        for i, (lon, lat) in enumerate(zip(lons, lats)):
+            elevation = None
+            
+            for tile_name, tile_info in tile_cache.items():
+                src = tile_info['src']
+                bounds_tile = tile_info['bounds']
+                
+                if bounds_tile.left <= lon <= bounds_tile.right and bounds_tile.bottom <= lat <= bounds_tile.top:
+                    try:
+                        py, px = src.index(lon, lat)
+                        if 0 <= py < src.height and 0 <= px < src.width:
+                            elev = float(src.read(1)[py, px])
+                            if elev != -9999:
+                                elevation = elev
+                                break
+                    except:
+                        pass
+            
+            if elevation is not None:
+                elevations.append(elevation)
+                valid_points.append({'lat': lat, 'lon': lon, 'elevation': elevation, 'index': i})
+        
+        # Cerrar tiles
+        for tile_info in tile_cache.values():
+            tile_info['src'].close()
+        
+        if len(elevations) < 2:
+            return jsonify({'error': 'No se pudieron obtener suficientes elevaciones del área'}), 500
+        
+        print(f'✅ {len(elevations)} elevaciones obtenidas')
+        
+        # ========================================================================
+        # PASO 4: Calcular pendientes entre puntos consecutivos
+        # ========================================================================
+        pendientes = []
+        distancias = []
+        
+        for i in range(len(valid_points) - 1):
+            p1 = valid_points[i]
+            p2 = valid_points[i + 1]
+            
+            # Calcular distancia horizontal usando fórmula de Haversine
+            lat1_rad = math.radians(p1['lat'])
+            lat2_rad = math.radians(p2['lat'])
+            dlon = math.radians(p2['lon'] - p1['lon'])
+            dlat = lat2_rad - lat1_rad
+            
+            a = math.sin(dlat / 2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2)**2
+            c = 2 * math.asin(math.sqrt(a))
+            distancia_horizontal = 6371000 * c  # Radio Tierra en metros
+            
+            # Diferencia de elevación
+            delta_elevation = abs(p2['elevation'] - p1['elevation'])
+            
+            # Pendiente en grados (arctan de delta_h / distancia_h)
+            if distancia_horizontal > 0:
+                pendiente_rad = math.atan(delta_elevation / distancia_horizontal)
+                pendiente_deg = math.degrees(pendiente_rad)
+                pendientes.append(pendiente_deg)
+                distancias.append(distancia_horizontal)
+        
+        if len(pendientes) == 0:
+            return jsonify({'error': 'No se pudieron calcular pendientes'}), 500
+        
+        print(f'📐 {len(pendientes)} pendientes calculadas')
+        
+        # ========================================================================
+        # PASO 5: Calcular estadísticas
+        # ========================================================================
+        pendiente_promedio = float(np.mean(pendientes))
+        pendiente_maxima = float(np.max(pendientes))
+        pendiente_minima = float(np.min(pendientes))
+        
+        # Distribución por rangos
+        rango_0_5 = sum(1 for p in pendientes if p < 5)
+        rango_5_15 = sum(1 for p in pendientes if 5 <= p < 15)
+        rango_15_30 = sum(1 for p in pendientes if 15 <= p < 30)
+        rango_30_plus = sum(1 for p in pendientes if p >= 30)
+        
+        total_segmentos = len(pendientes)
+        
+        distribucion_pendientes = {
+            '0-5': round((rango_0_5 / total_segmentos) * 100, 1),
+            '5-15': round((rango_5_15 / total_segmentos) * 100, 1),
+            '15-30': round((rango_15_30 / total_segmentos) * 100, 1),
+            '30+': round((rango_30_plus / total_segmentos) * 100, 1)
+        }
+        
+        # ========================================================================
+        # PASO 6: Calcular transitabilidad según vehículo/clima
+        # ========================================================================
+        # Límites de pendiente por vehículo (en grados)
+        limites_vehiculos = {
+            'TAM': 30,          # Tanque Argentino Mediano
+            'VCLC': 25,         # Vehículo de Combate Ligero
+            'M113': 20,         # Transporte Personal
+            'infanteria': 45,   # Infantería a pie
+            'camion': 15        # Camión logístico
+        }
+        
+        # Factor de clima (multiplica el límite)
+        factores_clima = {
+            'seco': 1.0,
+            'humedo': 0.8,      # Reduce 20% el límite
+            'inundado': 0.6     # Reduce 40% el límite
+        }
+        
+        limite_vehiculo = limites_vehiculos.get(vehiculo, 30)
+        factor_clima = factores_clima.get(clima, 1.0)
+        limite_efectivo = limite_vehiculo * factor_clima
+        
+        # Calcular % transitable (segmentos con pendiente <= límite)
+        segmentos_transitables = sum(1 for p in pendientes if p <= limite_efectivo)
+        pct_transitable = round((segmentos_transitables / total_segmentos) * 100, 1)
+        
+        print(f'✅ Transitabilidad: {pct_transitable}% (límite {limite_efectivo:.1f}°)')
+        
+        # ========================================================================
+        # PASO 7: Identificar puntos críticos (pendiente > límite)
+        # ========================================================================
+        puntos_criticos = []
+        for i, pendiente in enumerate(pendientes):
+            if pendiente > limite_efectivo:
+                p1 = valid_points[i]
+                p2 = valid_points[i + 1]
+                puntos_criticos.append({
+                    'lat': (p1['lat'] + p2['lat']) / 2,
+                    'lon': (p1['lon'] + p2['lon']) / 2,
+                    'pendiente': round(pendiente, 1),
+                    'limite': round(limite_efectivo, 1)
+                })
+        
+        print(f'⚠️ {len(puntos_criticos)} puntos críticos')
+        
+        # ========================================================================
+        # PASO 8: Retornar resultados
+        # ========================================================================
+        processing_time = time.time() - start_time
+        # ========================================================================
+        # 🎨 GENERAR PUNTOS_DETALLE PARA VISUALIZACIÓN
+        # ========================================================================
+        puntos_detalle = []
+        
+        # Iterar sobre los puntos con elevaciones válidas
+        for i in range(len(lats)):
+            if i < len(elevations):
+                lat = lats[i]
+                lon = lons[i]
+                elevation = elevations[i]
+                
+                # Calcular pendiente en este punto (promedio con vecinos)
+                pendiente_punto = 0.0
+                
+                if i > 0 and i < len(pendientes):
+                    # Promedio de pendiente con segmento anterior y siguiente
+                    count = 0
+                    if i - 1 < len(pendientes):
+                        pendiente_punto += pendientes[i - 1]
+                        count += 1
+                    if i < len(pendientes):
+                        pendiente_punto += pendientes[i]
+                        count += 1
+                    if count > 0:
+                        pendiente_punto = pendiente_punto / count
+                elif i < len(pendientes):
+                    pendiente_punto = pendientes[i]
+                
+                puntos_detalle.append({
+                    'lat': float(lat),
+                    'lon': float(lon),
+                    'elevation': float(elevation),
+                    'pendiente': round(float(pendiente_punto), 2),
+                    'ndvi': 0.0  # Se actualizará después con valores reales
+                })
+        
+        print(f'🎨 Puntos detalle generados: {len(puntos_detalle)}')
+        
+        # 🌿 INTEGRACIÓN NDVI - Obtener vegetación para todos los puntos
+        try:
+            print(f'🌿 Obteniendo NDVI para {len(puntos_detalle)} puntos...')
+            
+            # Preparar puntos para get_vegetation_batch (necesita formato {lat, lon, index})
+            points_for_ndvi = []
+            for idx, punto in enumerate(puntos_detalle):
+                points_for_ndvi.append({
+                    'lat': punto['lat'],
+                    'lon': punto['lon'],
+                    'index': idx
+                })
+            
+            # Obtener tiles relevantes
+            from shapely.geometry import box
+            all_lats = [p['lat'] for p in points_for_ndvi]
+            all_lons = [p['lon'] for p in points_for_ndvi]
+            bbox_area = box(min(all_lons), min(all_lats), max(all_lons), max(all_lats))
+            
+            vegetation_tiles_path = 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles'
+            relevant_tiles = []
+            
+            if os.path.exists(vegetation_tiles_path):
+                for package in os.listdir(vegetation_tiles_path):
+                    package_path = os.path.join(vegetation_tiles_path, package)
+                    if not os.path.isdir(package_path):
+                        continue
+                    
+                    # Leer metadata
+                    metadata_file = os.path.join(package_path, 'metadata.json')
+                    if os.path.exists(metadata_file):
+                        try:
+                            with open(metadata_file, 'r') as f:
+                                import json
+                                metadata = json.load(f)
+                                tiles = metadata.get('tiles', [])
+                                for tile in tiles:
+                                    bounds = tile.get('bounds', {})
+                                    tile_bbox = box(
+                                        bounds.get('left', 0),
+                                        bounds.get('bottom', 0),
+                                        bounds.get('right', 0),
+                                        bounds.get('top', 0)
+                                    )
+                                    if bbox_area.intersects(tile_bbox):
+                                        relevant_tiles.append({
+                                            'filename': tile.get('file'),
+                                            'package': package,
+                                            'bounds': bounds
+                                        })
+                        except:
+                            pass
+                
+                # Cargar tiles y obtener NDVI
+                tile_cache = {}
+                for tile_info in relevant_tiles:
+                    filename = tile_info.get('filename')
+                    package = tile_info.get('package')
+                    
+                    if not filename or not package:
+                        continue
+                    
+                    tile_path = os.path.join(vegetation_tiles_path, package, filename)
+                    
+                    if os.path.exists(tile_path):
+                        try:
+                            import rasterio
+                            src = rasterio.open(tile_path)
+                            tile_cache[filename] = {
+                                'src': src,
+                                'bounds': src.bounds
+                            }
+                        except Exception as e:
+                            print(f'⚠️ Error cargando {filename}: {e}')
+                
+                # Procesar puntos NDVI
+                ndvi_count = 0
+                for point in points_for_ndvi:
+                    lat = point['lat']
+                    lon = point['lon']
+                    idx = point.get('index', 0)
+                    
+                    for tile_name, tile_info in tile_cache.items():
+                        src = tile_info['src']
+                        bounds = tile_info['bounds']
+                        
+                        if bounds.left <= lon <= bounds.right and bounds.bottom <= lat <= bounds.top:
+                            try:
+                                py, px = src.index(lon, lat)
+                                if 0 <= py < src.height and 0 <= px < src.width:
+                                    ndvi_value = float(src.read(1)[py, px])
+                                    if ndvi_value != -9999:
+                                        if ndvi_value > 1:
+                                            ndvi_value = ndvi_value / 255.0
+                                        puntos_detalle[idx]['ndvi'] = round(ndvi_value, 3)
+                                        ndvi_count += 1
+                                        break
+                            except:
+                                pass
+                
+                # Cerrar tiles
+                for tile_info in tile_cache.values():
+                    tile_info['src'].close()
+                
+                print(f'✅ NDVI integrado: {ndvi_count}/{len(puntos_detalle)} puntos con valores reales')
+            else:
+                print(f'⚠️ No existe directorio vegetación: {vegetation_tiles_path}')
+        
+        except Exception as e:
+            print(f'⚠️ Error obteniendo NDVI (continuando con 0.0): {e}')
+            import traceback
+            traceback.print_exc()
+        
+
+        
+        resultado = {
+            'success': True,
+            'puntos_detalle': puntos_detalle,
+            'pendiente_promedio': round(pendiente_promedio, 1),
+            'pendiente_maxima': round(pendiente_maxima, 1),
+            'pendiente_minima': round(pendiente_minima, 1),
+            'pct_transitable': pct_transitable,
+            'distribucion_pendientes': distribucion_pendientes,
+            'puntos_criticos': puntos_criticos[:10],  # Máximo 10 para no saturar
+            'estadisticas': {
+                'puntos_analizados': len(valid_points),
+                'segmentos_calculados': total_segmentos,
+                'tiles_usados': len(tile_cache),
+                'vehiculo': vehiculo,
+                'clima': clima,
+                'limite_efectivo': round(limite_efectivo, 1),
+                'processing_time': round(processing_time, 2)
+            }
+        }
+        
+        print(f'🎉 Análisis completado en {processing_time:.2f}s')
+        
+        return jsonify(resultado)
+    
+    except Exception as e:
+        print(f'❌ Error en análisis de terreno: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'success': False}), 500
 
 
 if __name__ == '__main__':
