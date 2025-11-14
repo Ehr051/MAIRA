@@ -15,7 +15,7 @@ import time
 from datetime import datetime
 
 # URL del servidor
-BASE_URL = "https://localhost:8443"
+BASE_URL = "http://localhost:5001"
 
 # Áreas de prueba
 TEST_AREAS = {
@@ -79,7 +79,6 @@ def test_endpoint(area_name, config):
         response = requests.post(
             f"{BASE_URL}/api/capas_gis/consultar",
             json=payload,
-            verify=False,  # Ignorar certificado SSL autofirmado
             timeout=10
         )
         
@@ -137,10 +136,6 @@ def main():
     print("║  🧪 TEST ENDPOINT /api/capas_gis/consultar                        ║")
     print("║  Sistema de tiles GIS on-demand                                   ║")
     print("╚════════════════════════════════════════════════════════════════════╝")
-    
-    # Deshabilitar warnings SSL
-    import urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     
     results = []
     

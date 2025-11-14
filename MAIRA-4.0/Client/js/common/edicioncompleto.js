@@ -1261,10 +1261,22 @@ function guardarCambiosUnidad() {
         });
         
         nuevoMarcador.setIcon(icon);
-        
+
+        // 🎯 ASIGNAR RECURSOS ORBAT AUTOMÁTICAMENTE
+        if (typeof window.asignarRecursosORBATAlMarcador === 'function') {
+            try {
+                const asignado = window.asignarRecursosORBATAlMarcador(nuevoMarcador, nuevoSidc, tipoCustom);
+                if (asignado) {
+                    console.log('✅ Recursos ORBAT asignados automáticamente');
+                }
+            } catch (e) {
+                console.warn('⚠️ Error asignando recursos ORBAT:', e);
+            }
+        }
+
         // Añadir el nuevo marcador al calco
         nuevoMarcador.addTo(window.calcoActivo);
-        
+
         // ✅ DISPARAR EVENTO: Elemento modificado
         const eventoModificado = new CustomEvent('elementoModificado', {
             detail: {

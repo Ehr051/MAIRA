@@ -399,6 +399,294 @@
           "Generador eléctrico"
         ]
       }
+    },
+
+    "mb_1518": {
+      "id": "mb_1518",
+      "nombre": "Mercedes-Benz 1518 (Camión Logística)",
+      "tipo": "cargo_truck",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCLT---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 95,
+        "velocidad_promedio_kmh": 55,
+        "velocidad_terreno_dificil_kmh": 30,
+        "autonomia_km": 750,
+        "consumo_km_litros": 0.28,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 210
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 2,
+        "capacidad_carga_kg": 5000,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": null
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 210,
+        "municion": {},
+        "raciones_dias": 2,
+        "agua_litros": 10.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 7200,
+        "altura_m": 2.9,
+        "longitud_m": 7.5,
+        "ancho_m": 2.5
+      }
+    },
+
+    "mb_1114": {
+      "id": "mb_1114",
+      "nombre": "Mercedes-Benz 1114 (Camión Mediano)",
+      "tipo": "cargo_truck",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCLT---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 85,
+        "velocidad_promedio_kmh": 50,
+        "velocidad_terreno_dificil_kmh": 25,
+        "autonomia_km": 680,
+        "consumo_km_litros": 0.26,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 177
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 2,
+        "capacidad_carga_kg": 3500,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": null
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 177,
+        "municion": {},
+        "raciones_dias": 2,
+        "agua_litros": 10.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 5800,
+        "altura_m": 2.8,
+        "longitud_m": 6.8,
+        "ancho_m": 2.4
+      }
+    },
+
+    "mb_1720": {
+      "id": "mb_1720",
+      "nombre": "Mercedes-Benz 1720 (Camión Pesado)",
+      "tipo": "cargo_truck",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCLT---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 100,
+        "velocidad_promedio_kmh": 60,
+        "velocidad_terreno_dificil_kmh": 35,
+        "autonomia_km": 800,
+        "consumo_km_litros": 0.32,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 256
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 2,
+        "capacidad_carga_kg": 7000,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": null
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 256,
+        "municion": {},
+        "raciones_dias": 2,
+        "agua_litros": 10.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 9500,
+        "altura_m": 3.0,
+        "longitud_m": 8.2,
+        "ancho_m": 2.5
+      }
+    },
+
+    "himalayan": {
+      "id": "himalayan",
+      "nombre": "Royal Enfield Himalayan (Moto Exploración)",
+      "tipo": "motorcycle",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCL----*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 140,
+        "velocidad_promedio_kmh": 80,
+        "velocidad_terreno_dificil_kmh": 40,
+        "autonomia_km": 300,
+        "consumo_km_litros": 0.05,
+        "combustible_tipo": "nafta",
+        "capacidad_combustible_litros": 15
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 0,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm (personal)",
+          "calibre": 7.62,
+          "municion_tipo": "municion_762",
+          "capacidad_municion": 200
+        }
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 15,
+        "municion": {
+          "municion_762": 200
+        },
+        "raciones_dias": 1,
+        "agua_litros": 3.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 199,
+        "altura_m": 1.17,
+        "longitud_m": 2.19,
+        "ancho_m": 0.84
+      }
+    },
+
+    "tenere_700": {
+      "id": "tenere_700",
+      "nombre": "Yamaha Ténéré 700 (Moto Exploración)",
+      "tipo": "motorcycle",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCL----*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 160,
+        "velocidad_promedio_kmh": 90,
+        "velocidad_terreno_dificil_kmh": 45,
+        "autonomia_km": 350,
+        "consumo_km_litros": 0.046,
+        "combustible_tipo": "nafta",
+        "capacidad_combustible_litros": 16
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 0,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm (personal)",
+          "calibre": 7.62,
+          "municion_tipo": "municion_762",
+          "capacidad_municion": 200
+        }
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 16,
+        "municion": {
+          "municion_762": 200
+        },
+        "raciones_dias": 1,
+        "agua_litros": 3.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 204,
+        "altura_m": 1.46,
+        "longitud_m": 2.37,
+        "ancho_m": 0.90
+      }
+    },
+
+    "yaetsu_450": {
+      "id": "yaetsu_450",
+      "nombre": "Yaetsu 450 (Moto Táctica)",
+      "tipo": "motorcycle",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCL----*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 135,
+        "velocidad_promedio_kmh": 75,
+        "velocidad_terreno_dificil_kmh": 35,
+        "autonomia_km": 280,
+        "consumo_km_litros": 0.055,
+        "combustible_tipo": "nafta",
+        "capacidad_combustible_litros": 15.4
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 0,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm (personal)",
+          "calibre": 7.62,
+          "municion_tipo": "municion_762",
+          "capacidad_municion": 200
+        }
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 15.4,
+        "municion": {
+          "municion_762": 200
+        },
+        "raciones_dias": 1,
+        "agua_litros": 3.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 160,
+        "altura_m": 1.20,
+        "longitud_m": 2.15,
+        "ancho_m": 0.82
+      }
     }
   },
 

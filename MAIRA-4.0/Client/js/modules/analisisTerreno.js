@@ -95,6 +95,8 @@ class AnalisisTerreno {
             areas_urbanas: null
         };
         this.capasGISActivas = new Set();
+        this.ultimosBounds = null;
+        this.debounceTimerCapasGIS = null;
         
         // Configuración
         this.config = {
@@ -133,12 +135,11 @@ class AnalisisTerreno {
                     fillOpacity: 0.3
                 },
                 localidades: {
-                    radius: 5,
-                    fillColor: '#ff6600',
-                    color: '#fff',
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.7
+                    color: '#ff6600',
+                    weight: 2,
+                    opacity: 0.9,
+                    fillColor: '#ffaa66',
+                    fillOpacity: 0.4
                 }
             }
         };
@@ -153,7 +154,85 @@ class AnalisisTerreno {
         this.crearBotonHerramientas();
         this.crearModal();
         this.inicializarLeafletDraw();
+        this.configurarRecargaAutomaticaCapasGIS();
         console.log('✅ Análisis de Terreno listo');
+    }
+
+    /**
+     * Configurar recarga automática de capas GIS al mover el mapa
+     */
+    configurarRecargaAutomaticaCapasGIS() {
+        this.map.on('moveend', () => {
+            // Solo recargar si hay capas GIS activas
+            if (this.capasGISActivas.size === 0) return;
+
+            // Debounce: esperar 500ms después del último movimiento
+            clearTimeout(this.debounceTimerCapasGIS);
+            
+            this.debounceTimerCapasGIS = setTimeout(() => {
+                const boundsActuales = this.map.getBounds();
+                
+                // Verificar si los bounds cambiaron significativamente (>30%)
+                if (this.boundsChangedSignificantly(boundsActuales)) {
+                    console.log('📍 Bounds cambiaron significativamente, recargando capas GIS...');
+                    this.ultimosBounds = boundsActuales;
+                    
+                    // Recargar solo las capas que están activas
+                    const capasActivas = Array.from(this.capasGISActivas);
+                    if (capasActivas.length > 0) {
+                        this.cargarCapasGISArea(capasActivas).catch(err => {
+                            console.warn('⚠️ Error recargando capas GIS automáticamente:', err);
+                        });
+                    }
+                }
+            }, 500); // 500ms debounce
+        });
+    }
+
+    /**
+     * Verificar si los bounds cambiaron significativamente
+     */
+    boundsChangedSignificantly(newBounds) {
+        if (!this.ultimosBounds) {
+            this.ultimosBounds = newBounds;
+            return true;
+        }
+
+        const oldNorth = this.ultimosBounds.getNorth();
+        const oldSouth = this.ultimosBounds.getSouth();
+        const oldEast = this.ultimosBounds.getEast();
+        const oldWest = this.ultimosBounds.getWest();
+
+        const newNorth = newBounds.getNorth();
+        const newSouth = newBounds.getSouth();
+        const newEast = newBounds.getEast();
+        const newWest = newBounds.getWest();
+
+        // Calcular altura y ancho
+        const oldHeight = oldNorth - oldSouth;
+        const oldWidth = oldEast - oldWest;
+        const newHeight = newNorth - newSouth;
+        const newWidth = newEast - newWest;
+
+        // Calcular solape
+        const overlapNorth = Math.min(oldNorth, newNorth);
+        const overlapSouth = Math.max(oldSouth, newSouth);
+        const overlapEast = Math.min(oldEast, newEast);
+        const overlapWest = Math.max(oldWest, newWest);
+
+        if (overlapNorth <= overlapSouth || overlapEast <= overlapWest) {
+            // No hay solape
+            return true;
+        }
+
+        const overlapHeight = overlapNorth - overlapSouth;
+        const overlapWidth = overlapEast - overlapWest;
+        const overlapArea = overlapHeight * overlapWidth;
+        const oldArea = oldHeight * oldWidth;
+
+        // Si el solape es menor al 70%, recargar
+        const overlapPercentage = (overlapArea / oldArea) * 100;
+        return overlapPercentage < 70;
     }
 
     /**
@@ -278,6 +357,36 @@ class AnalisisTerreno {
                                 </label>
                             </div>
                         </div>
+
+                        <div class="param-group param-capas-gis">
+                            <label>
+                                <i class="fas fa-map-marked-alt"></i> Capas GIS del IGN:
+                            </label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="checkCapaTransporte">
+                                    🛣️ Transporte (rutas, caminos)
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="checkCapaHidrografia">
+                                    💧 Hidrografía (ríos, lagos)
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="checkCapaUrbanas">
+                                    🏙️ Áreas Urbanas (localidades)
+                                </label>
+                            </div>
+                            <button id="btnCargarCapasGIS" class="btn-mini" style="margin-top: 10px;">
+                                <i class="fas fa-download"></i> Cargar Capas para Área Visible
+                            </button>
+                            <button id="btnLimpiarCapasGIS" class="btn-mini btn-danger" style="margin-top: 5px;">
+                                <i class="fas fa-trash-alt"></i> Limpiar Capas GIS
+                            </button>
+                            <div id="statsCapasGIS" style="display: none; margin-top: 10px; padding: 10px; background: rgba(52, 152, 219, 0.1); border-radius: 5px; font-size: 0.85em;">
+                                <strong style="color: #3498db;">📊 Capas cargadas:</strong><br>
+                                <span id="statsCapasTexto"></span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Botones de acción -->
@@ -333,6 +442,8 @@ class AnalisisTerreno {
         const btnDibujar = document.getElementById('btnDibujarPoligono');
         const btnAnalizar = document.getElementById('btnAnalizarTerreno');
         const btnLimpiar = document.getElementById('btnLimpiarAnalisis');
+        const btnCargarCapasGIS = document.getElementById('btnCargarCapasGIS');
+        const btnLimpiarCapasGIS = document.getElementById('btnLimpiarCapasGIS');
 
         if (btnDibujar) {
             btnDibujar.addEventListener('click', () => this.activarDibujoPoligono());
@@ -344,6 +455,17 @@ class AnalisisTerreno {
 
         if (btnLimpiar) {
             btnLimpiar.addEventListener('click', () => this.limpiarAnalisis());
+        }
+
+        if (btnCargarCapasGIS) {
+            btnCargarCapasGIS.addEventListener('click', () => this.cargarCapasGISDesdeUI());
+        }
+
+        if (btnLimpiarCapasGIS) {
+            btnLimpiarCapasGIS.addEventListener('click', () => {
+                this.limpiarCapasGIS();
+                document.getElementById('statsCapasGIS').style.display = 'none';
+            });
         }
     }
 
@@ -1106,9 +1228,26 @@ class AnalisisTerreno {
                 delete window.calcos[nuevoNombre];
                 
                 const rectangles = puntos_detalle.map(punto => {
-                    const transitabilidad = this.calcularTransitabilidadBasica(punto);
+                    const transitabilidadBase = this.calcularTransitabilidadBasica(punto);
+                    const transitabilidad = this.aplicarModificadoresGIS(punto, transitabilidadBase);
                     const color = this.getColorTransitabilidad(transitabilidad.factor);
                     const bounds = this.crearCuadrado(punto.lat, punto.lon, this.resolucion);
+                    
+                    // Construir tooltip con modificadores GIS si existen
+                    let tooltipContent = `<strong>🚗 Transitabilidad:</strong> ${transitabilidad.clasificacion}<br>` +
+                        `<strong>📊 Factor:</strong> ${(transitabilidad.factor * 100).toFixed(0)}%<br>` +
+                        `<strong>📐 Pendiente:</strong> ${punto.pendiente}°<br>` +
+                        `<strong>🌿 NDVI:</strong> ${punto.ndvi.toFixed(2)}<br>`;
+                    
+                    if (transitabilidad.modificadores && transitabilidad.modificadores.detalles.length > 0) {
+                        tooltipContent += `<br><strong>�️ Modificadores GIS:</strong><br>`;
+                        transitabilidad.modificadores.detalles.forEach(mod => {
+                            const signo = mod.modificador >= 0 ? '+' : '';
+                            tooltipContent += `  • ${mod.descripcion} (${signo}${(mod.modificador * 100).toFixed(0)}%)<br>`;
+                        });
+                    }
+                    
+                    tooltipContent += `<strong>📍 Coord:</strong> ${punto.lat.toFixed(5)}, ${punto.lon.toFixed(5)}`;
                     
                     return L.rectangle(bounds, {
                         fillColor: color,
@@ -1117,11 +1256,7 @@ class AnalisisTerreno {
                         weight: 0,
                         className: 'calco-transitabilidad-square'
                     }).bindTooltip(
-                        `<strong>🚗 Transitabilidad:</strong> ${transitabilidad.clasificacion}<br>` +
-                        `<strong>📊 Factor:</strong> ${(transitabilidad.factor * 100).toFixed(0)}%<br>` +
-                        `<strong>📐 Pendiente:</strong> ${punto.pendiente}°<br>` +
-                        `<strong>🌿 NDVI:</strong> ${punto.ndvi.toFixed(2)}<br>` +
-                        `<strong>📍 Coord:</strong> ${punto.lat.toFixed(5)}, ${punto.lon.toFixed(5)}`,
+                        tooltipContent,
                         { permanent: false, direction: 'top', opacity: 0.95 }
                     );
                 });
@@ -1358,6 +1493,174 @@ class AnalisisTerreno {
         if (factor >= 0.4) return '#f1c40f';  // Amarillo - Difícil
         if (factor >= 0.2) return '#e67e22';  // Naranja - Muy difícil
         return '#e74c3c';                      // Rojo - Obstáculo
+    }
+
+    /**
+     * 🗺️ Aplicar modificadores GIS a transitabilidad
+     * 
+     * Modifica el factor de transitabilidad basándose en las capas GIS cargadas:
+     * - 🛣️ Rutas/Caminos: +30% transitabilidad, +20 km/h velocidad
+     * - 💧 Ríos/Lagos: -50% transitabilidad (obstáculo acuático)
+     * - 🏙️ Áreas Urbanas: +10% cobertura, -15 km/h velocidad
+     */
+    aplicarModificadoresGIS(punto, transitabilidadBase) {
+        if (!this.capasGIS || this.capasGISActivas.size === 0) {
+            return transitabilidadBase; // Sin capas GIS, retornar base
+        }
+
+        let factorModificado = transitabilidadBase.factor;
+        let modificadores = {
+            transporte: false,
+            hidrografia: false,
+            urbana: false,
+            detalles: []
+        };
+
+        const puntoLatLng = [punto.lat, punto.lon];
+
+        // 🛣️ TRANSPORTE: Verificar si el punto está sobre una ruta/camino
+        if (this.capasGISActivas.has('transporte') && this.capasGIS.transporte) {
+            this.capasGIS.transporte.eachLayer(layer => {
+                if (layer.feature && layer.feature.geometry) {
+                    // Verificar proximidad a la geometría (buffer ~50m)
+                    const coords = layer.feature.geometry.coordinates;
+                    
+                    if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0005)) { // ~50m
+                        factorModificado = Math.min(1.0, factorModificado + 0.3); // +30%
+                        modificadores.transporte = true;
+                        modificadores.detalles.push({
+                            tipo: 'transporte',
+                            descripcion: 'Sobre ruta/camino',
+                            modificador: +0.3
+                        });
+                    }
+                }
+            });
+        }
+
+        // 💧 HIDROGRAFÍA: Verificar si el punto está en un río/lago
+        if (this.capasGISActivas.has('hidrografia') && this.capasGIS.hidrografia) {
+            this.capasGIS.hidrografia.eachLayer(layer => {
+                if (layer.feature && layer.feature.geometry) {
+                    const coords = layer.feature.geometry.coordinates;
+                    
+                    if (this.puntoEstaDentroDePoligono(puntoLatLng, coords) || 
+                        this.puntoEstaCercaDe(puntoLatLng, coords, 0.0002)) { // ~20m
+                        factorModificado = Math.max(0.0, factorModificado - 0.5); // -50%
+                        modificadores.hidrografia = true;
+                        modificadores.detalles.push({
+                            tipo: 'hidrografia',
+                            descripcion: 'Obstáculo acuático',
+                            modificador: -0.5
+                        });
+                    }
+                }
+            });
+        }
+
+        // 🏙️ ÁREAS URBANAS: Verificar si el punto está en una localidad
+        if (this.capasGISActivas.has('areas_urbanas') && this.capasGIS.areas_urbanas) {
+            this.capasGIS.areas_urbanas.eachLayer(layer => {
+                if (layer.feature && layer.feature.geometry) {
+                    const coords = layer.feature.geometry.coordinates;
+                    
+                    if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
+                        // En áreas urbanas: +10% cobertura pero no afecta transitabilidad base
+                        modificadores.urbana = true;
+                        modificadores.detalles.push({
+                            tipo: 'urbana',
+                            descripcion: 'Área urbana (+cobertura)',
+                            modificador: 0
+                        });
+                    }
+                }
+            });
+        }
+
+        return {
+            ...transitabilidadBase,
+            factor: factorModificado,
+            modificadores: modificadores,
+            clasificacion: this.getClasificacionTransitabilidad(factorModificado)
+        };
+    }
+
+    /**
+     * Verificar si un punto está cerca de una línea/punto
+     */
+    puntoEstaCercaDe(punto, coords, umbral) {
+        if (!Array.isArray(coords) || coords.length === 0) return false;
+
+        // LineString
+        if (Array.isArray(coords[0]) && typeof coords[0][0] === 'number') {
+            for (let i = 0; i < coords.length; i++) {
+                const [lon, lat] = coords[i];
+                const dist = Math.sqrt(
+                    Math.pow(punto[0] - lat, 2) + 
+                    Math.pow(punto[1] - lon, 2)
+                );
+                if (dist < umbral) return true;
+            }
+        }
+        // MultiLineString
+        else if (Array.isArray(coords[0]) && Array.isArray(coords[0][0])) {
+            for (let line of coords) {
+                if (this.puntoEstaCercaDe(punto, line, umbral)) return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Verificar si un punto está dentro de un polígono
+     */
+    puntoEstaDentroDePoligono(punto, coords) {
+        if (!Array.isArray(coords) || coords.length === 0) return false;
+
+        // Polygon
+        if (Array.isArray(coords[0]) && Array.isArray(coords[0][0]) && typeof coords[0][0][0] === 'number') {
+            const ring = coords[0]; // Exterior ring
+            return this.pointInPolygon(punto, ring);
+        }
+        // MultiPolygon
+        else if (Array.isArray(coords[0]) && Array.isArray(coords[0][0]) && Array.isArray(coords[0][0][0])) {
+            for (let polygon of coords) {
+                if (this.puntoEstaDentroDePoligono(punto, polygon)) return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Ray casting algorithm para point-in-polygon
+     */
+    pointInPolygon(point, ring) {
+        const [lat, lon] = point;
+        let inside = false;
+
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+            const [lonI, latI] = ring[i];
+            const [lonJ, latJ] = ring[j];
+
+            const intersect = ((latI > lat) !== (latJ > lat)) &&
+                (lon < (lonJ - lonI) * (lat - latI) / (latJ - latI) + lonI);
+
+            if (intersect) inside = !inside;
+        }
+
+        return inside;
+    }
+
+    /**
+     * Obtener clasificación de transitabilidad según factor
+     */
+    getClasificacionTransitabilidad(factor) {
+        if (factor >= 0.7) return 'Transitable';
+        if (factor >= 0.4) return 'Difícil';
+        if (factor >= 0.2) return 'Muy difícil';
+        return 'Obstáculo';
     }
 
     /**
@@ -1881,6 +2184,53 @@ class AnalisisTerreno {
      */
 
     /**
+     * Cargar capas GIS desde la UI
+     */
+    async cargarCapasGISDesdeUI() {
+        const capasSeleccionadas = [];
+        
+        if (document.getElementById('checkCapaTransporte').checked) {
+            capasSeleccionadas.push('transporte');
+        }
+        if (document.getElementById('checkCapaHidrografia').checked) {
+            capasSeleccionadas.push('hidrografia');
+        }
+        if (document.getElementById('checkCapaUrbanas').checked) {
+            capasSeleccionadas.push('areas_urbanas');
+        }
+
+        if (capasSeleccionadas.length === 0) {
+            alert('⚠️ Selecciona al menos una capa GIS para cargar');
+            return;
+        }
+
+        const btnCargar = document.getElementById('btnCargarCapasGIS');
+        btnCargar.disabled = true;
+        btnCargar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+
+        try {
+            const data = await this.cargarCapasGISArea(capasSeleccionadas);
+            
+            // Mostrar estadísticas
+            const statsDiv = document.getElementById('statsCapasGIS');
+            const statsTexto = document.getElementById('statsCapasTexto');
+            
+            statsTexto.innerHTML = `
+                ✅ ${data.tiles_cargados} tiles cargados<br>
+                📍 ${data.features_totales} features<br>
+                ⏱️ ${data.tiempo_ms.toFixed(1)} ms
+            `;
+            statsDiv.style.display = 'block';
+            
+        } catch (error) {
+            alert(`❌ Error cargando capas GIS: ${error.message}`);
+        } finally {
+            btnCargar.disabled = false;
+            btnCargar.innerHTML = '<i class="fas fa-download"></i> Cargar Capas para Área Visible';
+        }
+    }
+
+    /**
      * Cargar capas GIS para el área visible del mapa
      */
     async cargarCapasGISArea(capas = ['transporte', 'hidrografia', 'areas_urbanas']) {
@@ -1890,7 +2240,7 @@ class AnalisisTerreno {
             console.log('🗺️ Cargando capas GIS:', capas);
             console.log('📍 Bounds:', bounds);
             
-            const response = await fetch('https://localhost:8443/api/capas_gis/consultar', {
+            const response = await fetch('http://localhost:5001/api/capas_gis/consultar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1976,9 +2326,6 @@ class AnalisisTerreno {
         
         const capa = L.geoJSON(geojson, {
             style: estilo,
-            pointToLayer: (feature, latlng) => {
-                return L.circleMarker(latlng, estilo);
-            },
             onEachFeature: (feature, layer) => {
                 // Popup con información
                 if (feature.properties) {
@@ -1990,6 +2337,9 @@ class AnalisisTerreno {
                     }
                     if (props.tipo) {
                         popupContent += `Tipo: ${props.tipo}<br>`;
+                    }
+                    if (props.poblacion || props.pob) {
+                        popupContent += `Población: ${props.poblacion || props.pob}<br>`;
                     }
                     
                     layer.bindPopup(popupContent);
