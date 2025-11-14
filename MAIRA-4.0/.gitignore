@@ -262,3 +262,8 @@ docs/MINI_TILES_SUCCESS.md
 # Archivos de configuración temporal
 uvicorn.conf.py
 # render-*.yaml  # Comentado: render.yaml es necesario para deployment
+# Archivos grandes de ingeniería inversa BV8
+tools/reverse_engineering/bv8_extracted/product.cab
+tools/reverse_engineering/bv8_server_extracted/product.cab
+*.cab
+
