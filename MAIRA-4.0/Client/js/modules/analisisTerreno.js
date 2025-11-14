@@ -441,25 +441,43 @@ class AnalisisTerreno {
         
         console.log(`🎯 Resolución seleccionada: ${this.resolucion}m`);
 
-        // 🔍 VALIDAR TAMAÑO DEL ÁREA
+        // 🔍 VALIDAR Y DIVIDIR ÁREA SI ES MUY GRANDE
         const geoJSON = this.poligonoActual.toGeoJSON();
         const area = this.calcularAreaPoligono(this.poligonoActual);
         const areaKm2 = area / 1000000;
         
-        const LIMITE_AREA_KM2 = 50;
-        if (areaKm2 > LIMITE_AREA_KM2) {
-            const confirmacion = confirm(
-                `⚠️ ÁREA MUY GRANDE\n\n` +
+        const LIMITE_CHUNK_KM2 = 25; // Procesar chunks de 25km²
+        const LIMITE_TOTAL_KM2 = 200; // Máximo total procesable
+        
+        let procesarPorChunks = false;
+        
+        if (areaKm2 > LIMITE_TOTAL_KM2) {
+            alert(
+                `⚠️ ÁREA DEMASIADO GRANDE\n\n` +
                 `Área: ${areaKm2.toFixed(2)} km²\n` +
-                `Límite: ${LIMITE_AREA_KM2} km²\n\n` +
-                `Procesar puede causar errores.\n` +
-                `¿Continuar de todas formas?`
+                `Límite máximo: ${LIMITE_TOTAL_KM2} km²\n\n` +
+                `Por favor, seleccione un área menor.`
+            );
+            console.log('❌ Análisis cancelado (área excede límite absoluto)');
+            return;
+        }
+        
+        if (areaKm2 > LIMITE_CHUNK_KM2) {
+            const numChunks = Math.ceil(areaKm2 / LIMITE_CHUNK_KM2);
+            const confirmacion = confirm(
+                `📦 ÁREA GRANDE - PROCESAMIENTO POR PARTES\n\n` +
+                `Área total: ${areaKm2.toFixed(2)} km²\n` +
+                `Se dividirá en ~${numChunks} partes de ${LIMITE_CHUNK_KM2}km² cada una\n\n` +
+                `Esto puede tomar varios minutos.\n` +
+                `¿Continuar?`
             );
             
             if (!confirmacion) {
-                console.log('❌ Análisis cancelado (área muy grande)');
+                console.log('❌ Análisis cancelado por usuario');
                 return;
             }
+            
+            procesarPorChunks = true;
         }
 
         // Mostrar indicador de carga
@@ -471,34 +489,42 @@ class AnalisisTerreno {
             
             console.log(`📐 Grilla generada: ${gridPoints.length} puntos (área ${areaKm2.toFixed(2)} km²)`);
             
-            // Preparar datos para API
-            const requestData = {
-                poligono: geoJSON.geometry.coordinates,
-                puntos: gridPoints, // ← Puntos de la grilla
-                vehiculo: vehiculo,
-                clima: clima,
-                capas: {
-                    pendientes: checkPendientes,
-                    transitabilidad: checkTransitabilidad
+            let resultados;
+            
+            // 📦 PROCESAR POR CHUNKS SI ES NECESARIO
+            if (procesarPorChunks) {
+                console.log('📦 Procesando por chunks...');
+                resultados = await this.procesarPorChunks(gridPoints, geoJSON, vehiculo, clima, checkPendientes, checkTransitabilidad);
+            } else {
+                // Procesar normalmente
+                const requestData = {
+                    poligono: geoJSON.geometry.coordinates,
+                    puntos: gridPoints,
+                    vehiculo: vehiculo,
+                    clima: clima,
+                    capas: {
+                        pendientes: checkPendientes,
+                        transitabilidad: checkTransitabilidad
+                    }
+                };
+
+                console.log('📡 Enviando solicitud de análisis:', requestData);
+
+                const response = await fetch(`${this.config.apiUrl}/analizar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
                 }
-            };
 
-            console.log('📡 Enviando solicitud de análisis:', requestData);
-
-            // Llamar a la API
-            const response = await fetch(`${this.config.apiUrl}/analizar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status}`);
+                resultados = await response.json();
             }
-
-            const resultados = await response.json();
+            
             console.log('✅ Resultados recibidos:', resultados);
 
             // Mostrar resultados
@@ -516,6 +542,113 @@ class AnalisisTerreno {
             // Ocultar indicador de carga
             document.getElementById('loadingAnalisis').style.display = 'none';
         }
+    }
+
+    /**
+     * 📦 Procesa área grande dividiéndola en chunks
+     */
+    async procesarPorChunks(gridPoints, geoJSON, vehiculo, clima, checkPendientes, checkTransitabilidad) {
+        const CHUNK_SIZE = 2000; // Máximo 2000 puntos por request
+        const totalPuntos = gridPoints.length;
+        const numChunks = Math.ceil(totalPuntos / CHUNK_SIZE);
+        
+        console.log(`📦 Dividiendo ${totalPuntos} puntos en ${numChunks} chunks de ~${CHUNK_SIZE} puntos`);
+        
+        let todosLosPuntosDetalle = [];
+        let pendientePromedio = 0;
+        let pendienteMaxima = -Infinity;
+        let pendienteMinima = Infinity;
+        let distribucionPendientes = {'0-5': 0, '5-15': 0, '15-30': 0, '30+': 0};
+        let puntosCriticos = [];
+        
+        // Procesar cada chunk
+        for (let i = 0; i < numChunks; i++) {
+            const start = i * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, totalPuntos);
+            const chunk = gridPoints.slice(start, end);
+            
+            console.log(`📦 Procesando chunk ${i + 1}/${numChunks} (${chunk.length} puntos)...`);
+            
+            // Actualizar indicador de progreso
+            const progress = Math.round(((i + 1) / numChunks) * 100);
+            document.getElementById('loadingAnalisis').querySelector('p').textContent = 
+                `Analizando terreno... ${progress}% (${i + 1}/${numChunks} partes)`;
+            
+            const requestData = {
+                poligono: geoJSON.geometry.coordinates,
+                puntos: chunk,
+                vehiculo: vehiculo,
+                clima: clima,
+                capas: {
+                    pendientes: checkPendientes,
+                    transitabilidad: checkTransitabilidad
+                }
+            };
+            
+            const response = await fetch(`${this.config.apiUrl}/analizar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP en chunk ${i + 1}: ${response.status}`);
+            }
+            
+            const resultado = await response.json();
+            
+            // Acumular resultados
+            if (resultado.puntos_detalle) {
+                todosLosPuntosDetalle = todosLosPuntosDetalle.concat(resultado.puntos_detalle);
+            }
+            
+            // Actualizar estadísticas
+            if (resultado.pendiente_maxima > pendienteMaxima) {
+                pendienteMaxima = resultado.pendiente_maxima;
+            }
+            if (resultado.pendiente_minima < pendienteMinima) {
+                pendienteMinima = resultado.pendiente_minima;
+            }
+            
+            // Acumular distribución (promedio ponderado después)
+            if (resultado.distribucion_pendientes) {
+                Object.keys(resultado.distribucion_pendientes).forEach(key => {
+                    distribucionPendientes[key] += resultado.distribucion_pendientes[key] * chunk.length;
+                });
+            }
+            
+            if (resultado.puntos_criticos) {
+                puntosCriticos = puntosCriticos.concat(resultado.puntos_criticos);
+            }
+            
+            // Pequeña pausa para no saturar
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        // Calcular promedios finales
+        Object.keys(distribucionPendientes).forEach(key => {
+            distribucionPendientes[key] = distribucionPendientes[key] / totalPuntos;
+        });
+        
+        pendientePromedio = todosLosPuntosDetalle.reduce((sum, p) => sum + p.pendiente, 0) / todosLosPuntosDetalle.length;
+        
+        console.log(`✅ Procesamiento por chunks completado: ${todosLosPuntosDetalle.length} puntos totales`);
+        
+        // Restaurar texto loading
+        document.getElementById('loadingAnalisis').querySelector('p').textContent = 'Analizando terreno...';
+        
+        return {
+            success: true,
+            puntos_detalle: todosLosPuntosDetalle,
+            pendiente_promedio: pendientePromedio,
+            pendiente_maxima: pendienteMaxima,
+            pendiente_minima: pendienteMinima,
+            pct_transitable: todosLosPuntosDetalle.filter(p => p.pendiente < 30).length / todosLosPuntosDetalle.length * 100,
+            distribucion_pendientes: distribucionPendientes,
+            puntos_criticos: puntosCriticos.slice(0, 10)
+        };
     }
 
     /**
@@ -593,7 +726,14 @@ class AnalisisTerreno {
         const ctx = document.getElementById('chartPendientes');
         if (!ctx) return;
 
-        new Chart(ctx, {
+        // 🧹 LIMPIAR CHART ANTERIOR (Fix: "Canvas already in use")
+        if (this.chartPendientes) {
+            this.chartPendientes.destroy();
+            this.chartPendientes = null;
+            console.log('🧹 Chart anterior destruido');
+        }
+
+        this.chartPendientes = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['0-5°', '5-15°', '15-30°', '>30°'],
