@@ -391,23 +391,77 @@ git commit -m "feat: Agregar tiles GIS pre-generados"
 
 ## 📊 Performance
 
-### Benchmarks
+### Benchmarks Reales (Probados 14/11/2025)
 
-| Área | Bounds (grados) | Tiles | Features | Tiempo |
-|------|----------------|-------|----------|---------|
-| Buenos Aires (grande) | 1° × 1° | 12-15 | 500-600 | ~150ms |
-| Mendoza (mediana) | 1° × 1° | 8-10 | 300-400 | ~100ms |
-| Córdoba (pequeña) | 0.2° × 0.2° | 2-3 | 50-100 | ~50ms |
-| Patagonia (dispersa) | 2° × 2° | 15-20 | 200-300 | ~180ms |
+| Área | Bounds (grados) | Tiles | Features | Tiempo | Performance |
+|------|----------------|-------|----------|---------|-------------|
+| Buenos Aires (grande) | 1° × 1° | 65 | 6,544 | 1,425ms | ⚠️ Mejorable |
+| Mendoza (mediana) | 1° × 1° | 39 | 2,093 | 736ms | ⚡ Buena |
+| Córdoba (pequeña) | 0.2° × 0.2° | 7 | 491 | 252ms | ⚡ Buena |
+| Patagonia (dispersa) | 2° × 2° | 17 | 274 | **104ms** | 🚀 **EXCELENTE** |
+
+**Promedio**: ~630ms  
+**Rango**: 104-1,425ms
 
 ### Comparación
 
 | Método | Tamaño | Tiempo | Features |
 |--------|--------|--------|----------|
-| **Tiles on-demand** | 50-600 KB | 50-200ms | Solo área visible |
+| **Tiles on-demand** | 50-600 KB | 100-1,400ms | Solo área visible |
 | GeoJSON completo | 133 MB | 2-5 seg | País completo (177K) |
 
 **Mejora**: ~25x más rápido, ~200x menos datos transferidos
+
+### Factores que Afectan Performance
+
+1. **Densidad de features**: Buenos Aires tiene ~10x más features que Patagonia
+2. **Número de tiles**: Más tiles = más archivos a cargar
+3. **Complejidad geometrías**: LineStrings simples vs polígonos complejos
+4. **Red/latencia**: Localhost rápido, producción puede variar
+
+---
+
+## 🧪 Testing
+
+### Resultados Pruebas Automatizadas
+
+```bash
+python3 tools/test_capas_gis_endpoint.py
+```
+
+**Resultado**: ✅ 4/4 pruebas exitosas (100%)
+
+```
+╔════════════════════════════════════════════════════════════════════╗
+║  🧪 TEST ENDPOINT /api/capas_gis/consultar                        ║
+║  Sistema de tiles GIS on-demand                                   ║
+╚════════════════════════════════════════════════════════════════════╝
+
+🧪 Buenos Aires
+✅ Respuesta exitosa
+📦 Tiles cargados: 65
+📊 Features totales: 6,544
+⏱️ Tiempo: 1,425.9 ms
+
+🗂️ TRANSPORTE:
+  • rutas_nacionales: 146 features
+  • rutas_provinciales: 1,414 features
+  • caminos: 2,272 features
+
+🗂️ HIDROGRAFIA:
+  • cursos_agua: 1,318 features
+  • espejos_agua: 1,277 features
+
+🗂️ AREAS_URBANAS:
+  • localidades: 117 features
+
+---
+
+🎯 Total: 4/4 pruebas exitosas
+🎉 ¡Todas las pruebas pasaron!
+```
+
+### Script de Prueba Automático
 
 ---
 
