@@ -3754,6 +3754,181 @@ def analizar_terreno():
         return jsonify({'error': str(e), 'success': False}), 500
 
 
+# ===============================================================================
+# 🗺️ ENDPOINT CAPAS GIS VECTORIALES (On-Demand)
+# ===============================================================================
+# Consulta tiles de capas vectoriales (transporte, hidrografía, urbanas)
+# Solo carga tiles relevantes según bounds del área de operaciones
+# ===============================================================================
+
+@app.route('/api/capas_gis/consultar', methods=['POST'])
+def consultar_capas_gis():
+    """
+    Consulta capas vectoriales GIS dentro de un área de operaciones.
+    Usa sistema de tiles espaciales para carga on-demand (similar a elevation tiles).
+    
+    Request JSON:
+    {
+        "bounds": {
+            "north": -38.0,
+            "south": -38.1,
+            "east": -61.8,
+            "west": -62.0
+        },
+        "capas": ["transporte", "hidrografia", "areas_urbanas"]  // Opcional, por defecto todas
+    }
+    
+    Response JSON:
+    {
+        "success": true,
+        "capas": {
+            "transporte": {
+                "rutas_nacionales": {
+                    "type": "FeatureCollection",
+                    "features": [...]
+                },
+                "rutas_provinciales": {...},
+                "caminos": {...}
+            },
+            "hidrografia": {
+                "cursos_agua": {...},
+                "espejos_agua": {...}
+            },
+            "areas_urbanas": {
+                "localidades": {...}
+            }
+        },
+        "tiles_cargados": 12,
+        "features_totales": 543,
+        "tiempo_ms": 123.4
+    }
+    """
+    import time
+    start_time = time.time()
+    
+    try:
+        data = request.get_json()
+        bounds = data.get('bounds')
+        capas_solicitadas = data.get('capas', ['transporte', 'hidrografia', 'areas_urbanas'])
+        
+        if not bounds:
+            return jsonify({'error': 'Se requiere bounds con north/south/east/west'}), 400
+        
+        # Cargar master index de tiles GIS
+        master_index_path = os.path.join(BASE_DIR, 'Client', 'Libs', 'datos_argentina', 'gis_tiles_master_index.json')
+        
+        if not os.path.exists(master_index_path):
+            return jsonify({'error': 'Master index de tiles GIS no encontrado. Ejecutar tools/create_gis_tiles.py'}), 500
+        
+        with open(master_index_path, 'r', encoding='utf-8') as f:
+            master_index = json.load(f)
+        
+        # Encontrar tiles relevantes que intersectan con bounds
+        relevant_tiles = []
+        for tile_id, tile_info in master_index.get('tiles', {}).items():
+            tile_bounds = tile_info.get('bounds', {})
+            
+            # Verificar intersección
+            if (tile_bounds['north'] >= bounds['south'] and
+                tile_bounds['south'] <= bounds['north'] and
+                tile_bounds['east'] >= bounds['west'] and
+                tile_bounds['west'] <= bounds['east']):
+                relevant_tiles.append(tile_info)
+        
+        print(f'🎯 {len(relevant_tiles)} tiles GIS relevantes para bounds especificados')
+        
+        # Cargar datos de tiles relevantes
+        resultado = {}
+        tiles_cargados = 0
+        features_totales = 0
+        
+        # Mapeo de capas solicitadas a directorios
+        capa_mapping = {
+            'transporte': {
+                'dir': 'Transporte_Tiles',
+                'subcapas': {
+                    'rutas_nacionales': 'ruta_nacional',
+                    'rutas_provinciales': 'ruta_provincial',
+                    'caminos': 'caminos'
+                }
+            },
+            'hidrografia': {
+                'dir': 'Hidrografia_Tiles',
+                'subcapas': {
+                    'cursos_agua': 'curso_agua_permanente',
+                    'espejos_agua': 'espejo_agua_permanente'
+                }
+            },
+            'areas_urbanas': {
+                'dir': 'Areas_Urbanas_Tiles',
+                'subcapas': {
+                    'localidades': 'localidades'
+                }
+            }
+        }
+        
+        # Procesar cada capa solicitada
+        for capa_nombre in capas_solicitadas:
+            if capa_nombre not in capa_mapping:
+                continue
+            
+            capa_info = capa_mapping[capa_nombre]
+            resultado[capa_nombre] = {}
+            
+            # Procesar cada subcapa
+            for subcapa_key, subcapa_dir in capa_info['subcapas'].items():
+                features_list = []
+                
+                # Cargar tiles relevantes para esta subcapa
+                for tile_info in relevant_tiles:
+                    tile_id = tile_info['id']
+                    tile_filename = f'{tile_id}.geojson'
+                    
+                    tile_path = os.path.join(
+                        BASE_DIR, 'Client', 'Libs', 'datos_argentina',
+                        capa_info['dir'], subcapa_dir, tile_filename
+                    )
+                    
+                    if os.path.exists(tile_path):
+                        try:
+                            with open(tile_path, 'r', encoding='utf-8') as f:
+                                tile_data = json.load(f)
+                                
+                            # Agregar features del tile
+                            if 'features' in tile_data:
+                                features_list.extend(tile_data['features'])
+                                tiles_cargados += 1
+                        
+                        except Exception as e:
+                            print(f'⚠️ Error cargando tile {tile_filename}: {e}')
+                
+                # Crear FeatureCollection para esta subcapa
+                resultado[capa_nombre][subcapa_key] = {
+                    'type': 'FeatureCollection',
+                    'features': features_list
+                }
+                
+                features_totales += len(features_list)
+        
+        elapsed_ms = (time.time() - start_time) * 1000
+        
+        print(f'✅ Capas GIS cargadas: {tiles_cargados} tiles, {features_totales} features en {elapsed_ms:.1f}ms')
+        
+        return jsonify({
+            'success': True,
+            'capas': resultado,
+            'tiles_cargados': tiles_cargados,
+            'features_totales': features_totales,
+            'tiempo_ms': round(elapsed_ms, 2)
+        }), 200
+    
+    except Exception as e:
+        print(f'❌ Error consultando capas GIS: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'success': False}), 500
+
+
 if __name__ == '__main__':
     import sys
     import subprocess

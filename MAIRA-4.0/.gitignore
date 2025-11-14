@@ -267,3 +267,19 @@ tools/reverse_engineering/bv8_extracted/product.cab
 tools/reverse_engineering/bv8_server_extracted/product.cab
 *.cab
 
+
+# ====================================
+# DATOS GIS Y ARCHIVOS DESCARGADOS
+# ====================================
+# Archivos Shapefiles del IGN (descargados manualmente)
+Client/Libs/datos_argentina/*.zip
+Client/Libs/datos_argentina/IGN_Shapefiles_Extraidos/
+
+# GeoJSON grandes (generados por script)
+Client/Libs/datos_argentina/*_GeoJSON/
+
+# Tiles GIS (generados por script)
+Client/Libs/datos_argentina/*_Tiles/
+
+# IMPORTANTE: El master index SÍ se incluye en el repo
+# Client/Libs/datos_argentina/gis_tiles_master_index.json

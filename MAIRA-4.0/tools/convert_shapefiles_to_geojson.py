@@ -15,28 +15,29 @@ import sys
 from pathlib import Path
 
 # Configuración
-INPUT_DIR = os.path.expanduser('~/Downloads/IGN_Shapefiles')
+INPUT_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    'Client', 'Libs', 'datos_argentina', 'IGN_Shapefiles_Extraidos'
+)
 OUTPUT_DIR = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     'Client', 'Libs', 'datos_argentina'
 )
 
 # Mapeo de archivos (ajustar según nombres reales descargados)
+# Estructura: 'subdirectorio/archivo.shp': 'salida/archivo.geojson'
 LAYERS = {
     'Transporte': {
-        'ruta_nacional.shp': 'Transporte_GeoJSON/ruta_nacional.geojson',
-        'ruta_provincial.shp': 'Transporte_GeoJSON/ruta_provincial.geojson',
-        'camino.shp': 'Transporte_GeoJSON/camino.geojson',
-        'puente.shp': 'Transporte_GeoJSON/puente.geojson',
+        'vial_nacional/vial_nacionalLine.shp': 'Transporte_GeoJSON/ruta_nacional.geojson',
+        'vial_provincial/vial_provincialLine.shp': 'Transporte_GeoJSON/ruta_provincial.geojson',
+        'vial_AP010/vial_AP010Line.shp': 'Transporte_GeoJSON/caminos.geojson',
     },
     'Hidrografia': {
-        'curso_agua_permanente.shp': 'Hidrografia_GeoJSON/curso_agua_permanente.geojson',
-        'espejo_agua_permanente.shp': 'Hidrografia_GeoJSON/espejo_agua_permanente.geojson',
-        'humedal.shp': 'Hidrografia_GeoJSON/humedal.geojson',
+        'lineas_de_aguas_continentales_perenne/lineas_de_aguas_continentales_perenneLine.shp': 'Hidrografia_GeoJSON/curso_agua_permanente.geojson',
+        'areas_de_aguas_continentales_perenne/areas_de_aguas_continentales_perennePolygon.shp': 'Hidrografia_GeoJSON/espejo_agua_permanente.geojson',
     },
     'Areas_Urbanas': {
-        'localidad_simple.shp': 'Areas_Urbanas_GeoJSON/localidad_simple.geojson',
-        'localidad_compuesta.shp': 'Areas_Urbanas_GeoJSON/localidad_compuesta.geojson',
+        'localidad_bahra/localidad_bahraMPoint.shp': 'Areas_Urbanas_GeoJSON/localidades.geojson',
     }
 }
 
@@ -105,9 +106,10 @@ def convert_and_simplify(shp_path, geojson_path, tolerance=0.0001):
 def main():
     """Ejecuta conversión de todas las capas."""
     
-    print('='*70)
+    separator = '='*70
+    print(separator)
     print('🗺️  CONVERSIÓN SHAPEFILES IGN → GEOJSON PARA MAIRA')
-    print('='*70)
+    print(separator)
     
     print(f'\n📁 Directorio entrada: {INPUT_DIR}')
     print(f'📁 Directorio salida: {OUTPUT_DIR}')
@@ -126,9 +128,10 @@ def main():
     
     # Procesar por categoría
     for category, files in LAYERS.items():
-        print(f'\n{'='*70}')
+        separator = '='*70
+        print(f'\n{separator}')
         print(f'📁 {category}')
-        print('='*70)
+        print(separator)
         
         tolerance = TOLERANCES.get(category, 0.0001)
         
@@ -150,9 +153,10 @@ def main():
                 total_failed += 1
     
     # Resumen final
-    print(f'\n{'='*70}')
+    separator = '='*70
+    print(f'\n{separator}')
     print('📊 RESUMEN')
-    print('='*70)
+    print(separator)
     print(f'✅ Convertidos: {total_converted}')
     print(f'❌ Fallidos: {total_failed}')
     print(f'💾 Peso total: {total_size_mb:.2f} MB')
