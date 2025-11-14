@@ -3614,109 +3614,107 @@ def analizar_terreno():
         try:
             print(f'🌿 Obteniendo NDVI para {len(puntos_detalle)} puntos...')
             
-            # Preparar puntos para get_vegetation_batch (necesita formato {lat, lon, index})
-            points_for_ndvi = []
-            for idx, punto in enumerate(puntos_detalle):
-                points_for_ndvi.append({
-                    'lat': punto['lat'],
-                    'lon': punto['lon'],
-                    'index': idx
-                })
-            
-            # Obtener tiles relevantes
+            # Importaciones necesarias
             from shapely.geometry import box
-            all_lats = [p['lat'] for p in points_for_ndvi]
-            all_lons = [p['lon'] for p in points_for_ndvi]
-            bbox_area = box(min(all_lons), min(all_lats), max(all_lons), max(all_lats))
+            import rasterio
             
-            vegetation_tiles_path = 'Client/Libs/datos_argentina/Vegetacion_Mini_Tiles'
+            # Preparar bounds del área
+            all_lats = [p['lat'] for p in puntos_detalle]
+            all_lons = [p['lon'] for p in puntos_detalle]
+            bounds_area = {
+                'north': max(all_lats),
+                'south': min(all_lats),
+                'east': max(all_lons),
+                'west': min(all_lons)
+            }
+            
+            # Cargar vegetation_master_index.json (estructura correcta)
+            vegetation_tiles_path = os.path.join(BASE_DIR, 'Client', 'Libs', 'datos_argentina', 'Vegetacion_Mini_Tiles')
+            master_index_path = os.path.join(vegetation_tiles_path, 'vegetation_master_index.json')
+            
+            if not os.path.exists(master_index_path):
+                print(f'⚠️ No existe {master_index_path}')
+                print(f'🔍 Buscando en: {os.path.abspath(master_index_path)}')
+                raise FileNotFoundError(f'Master index no encontrado')
+            
+            print(f'📖 Leyendo {master_index_path}')
+            with open(master_index_path, 'r', encoding='utf-8') as f:
+                master_index = json.load(f)
+            
+            # Filtrar tiles relevantes usando bounds
             relevant_tiles = []
+            tiles_dict = master_index.get('tiles', {})
             
-            if os.path.exists(vegetation_tiles_path):
-                for package in os.listdir(vegetation_tiles_path):
-                    package_path = os.path.join(vegetation_tiles_path, package)
-                    if not os.path.isdir(package_path):
-                        continue
-                    
-                    # Leer metadata
-                    metadata_file = os.path.join(package_path, 'metadata.json')
-                    if os.path.exists(metadata_file):
-                        try:
-                            with open(metadata_file, 'r') as f:
-                                import json
-                                metadata = json.load(f)
-                                tiles = metadata.get('tiles', [])
-                                for tile in tiles:
-                                    bounds = tile.get('bounds', {})
-                                    tile_bbox = box(
-                                        bounds.get('left', 0),
-                                        bounds.get('bottom', 0),
-                                        bounds.get('right', 0),
-                                        bounds.get('top', 0)
-                                    )
-                                    if bbox_area.intersects(tile_bbox):
-                                        relevant_tiles.append({
-                                            'filename': tile.get('file'),
-                                            'package': package,
-                                            'bounds': bounds
-                                        })
-                        except:
-                            pass
+            for tile_id, tile_info in tiles_dict.items():
+                tile_bounds = tile_info.get('bounds', {})
+                if not tile_bounds:
+                    continue
                 
-                # Cargar tiles y obtener NDVI
-                tile_cache = {}
-                for tile_info in relevant_tiles:
-                    filename = tile_info.get('filename')
-                    package = tile_info.get('package')
+                # Verificar intersección
+                if (tile_bounds['north'] >= bounds_area['south'] and
+                    tile_bounds['south'] <= bounds_area['north'] and
+                    tile_bounds['east'] >= bounds_area['west'] and
+                    tile_bounds['west'] <= bounds_area['east']):
+                    relevant_tiles.append(tile_info)
+            
+            print(f'🎯 {len(relevant_tiles)} tiles NDVI relevantes')
+            
+            # Cargar tiles
+            tile_cache = {}
+            for tile_info in relevant_tiles:
+                filename = tile_info.get('filename')
+                package = tile_info.get('package')
+                
+                if not filename or not package:
+                    continue
+                
+                tile_path = os.path.join(vegetation_tiles_path, package, filename)
+                
+                if os.path.exists(tile_path):
+                    try:
+                        src = rasterio.open(tile_path)
+                        tile_cache[filename] = {
+                            'src': src,
+                            'bounds': src.bounds,
+                            'info': tile_info
+                        }
+                    except Exception as e:
+                        print(f'⚠️ Error cargando {filename}: {e}')
+            
+            print(f'💾 {len(tile_cache)} tiles NDVI cargados')
+            
+            # Procesar cada punto para obtener NDVI
+            ndvi_count = 0
+            for idx, punto in enumerate(puntos_detalle):
+                lat = punto['lat']
+                lon = punto['lon']
+                
+                for tile_name, tile_info in tile_cache.items():
+                    src = tile_info['src']
+                    bounds = tile_info['bounds']
                     
-                    if not filename or not package:
-                        continue
-                    
-                    tile_path = os.path.join(vegetation_tiles_path, package, filename)
-                    
-                    if os.path.exists(tile_path):
+                    # Verificar si punto está dentro del tile
+                    if bounds.left <= lon <= bounds.right and bounds.bottom <= lat <= bounds.top:
                         try:
-                            import rasterio
-                            src = rasterio.open(tile_path)
-                            tile_cache[filename] = {
-                                'src': src,
-                                'bounds': src.bounds
-                            }
+                            py, px = src.index(lon, lat)
+                            if 0 <= py < src.height and 0 <= px < src.width:
+                                ndvi_value = float(src.read(1)[py, px])
+                                if ndvi_value != -9999:
+                                    # Normalizar si está en escala 0-255
+                                    if ndvi_value > 1:
+                                        ndvi_value = ndvi_value / 255.0
+                                    puntos_detalle[idx]['ndvi'] = round(ndvi_value, 3)
+                                    ndvi_count += 1
+                                    break
                         except Exception as e:
-                            print(f'⚠️ Error cargando {filename}: {e}')
-                
-                # Procesar puntos NDVI
-                ndvi_count = 0
-                for point in points_for_ndvi:
-                    lat = point['lat']
-                    lon = point['lon']
-                    idx = point.get('index', 0)
-                    
-                    for tile_name, tile_info in tile_cache.items():
-                        src = tile_info['src']
-                        bounds = tile_info['bounds']
-                        
-                        if bounds.left <= lon <= bounds.right and bounds.bottom <= lat <= bounds.top:
-                            try:
-                                py, px = src.index(lon, lat)
-                                if 0 <= py < src.height and 0 <= px < src.width:
-                                    ndvi_value = float(src.read(1)[py, px])
-                                    if ndvi_value != -9999:
-                                        if ndvi_value > 1:
-                                            ndvi_value = ndvi_value / 255.0
-                                        puntos_detalle[idx]['ndvi'] = round(ndvi_value, 3)
-                                        ndvi_count += 1
-                                        break
-                            except:
-                                pass
-                
-                # Cerrar tiles
-                for tile_info in tile_cache.values():
-                    tile_info['src'].close()
-                
-                print(f'✅ NDVI integrado: {ndvi_count}/{len(puntos_detalle)} puntos con valores reales')
-            else:
-                print(f'⚠️ No existe directorio vegetación: {vegetation_tiles_path}')
+                            # Silencioso, continuar con siguiente tile
+                            pass
+            
+            # Cerrar tiles
+            for tile_info in tile_cache.values():
+                tile_info['src'].close()
+            
+            print(f'✅ NDVI integrado: {ndvi_count}/{len(puntos_detalle)} puntos con valores reales')
         
         except Exception as e:
             print(f'⚠️ Error obteniendo NDVI (continuando con 0.0): {e}')

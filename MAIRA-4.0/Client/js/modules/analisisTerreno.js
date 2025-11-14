@@ -510,29 +510,47 @@ class AnalisisTerreno {
         const area = this.calcularAreaPoligono(this.poligonoActual);
         const areaKm2 = area / 1000000;
         
-        const LIMITE_CHUNK_KM2 = 25; // Procesar chunks de 25km²
-        const LIMITE_TOTAL_KM2 = 200; // Máximo total procesable
+        // 📏 LÍMITES OPERACIONALES
+        // Chunk: 50km² (~7x7km) - suficiente para Batallón
+        // Total: 2000km² (~45x45km) - cubre operaciones nivel División/Cuerpo
+        const LIMITE_CHUNK_KM2 = 50; // Procesar chunks de 50km²
+        const LIMITE_TOTAL_KM2 = 2000; // Máximo total procesable (operaciones División+)
         
         let procesarPorChunks = false;
         
         if (areaKm2 > LIMITE_TOTAL_KM2) {
             alert(
                 `⚠️ ÁREA DEMASIADO GRANDE\n\n` +
-                `Área: ${areaKm2.toFixed(2)} km²\n` +
+                `Área seleccionada: ${areaKm2.toFixed(2)} km²\n` +
                 `Límite máximo: ${LIMITE_TOTAL_KM2} km²\n\n` +
+                `Referencia:\n` +
+                `• Batallón: ~25-50 km²\n` +
+                `• Brigada: ~100-300 km²\n` +
+                `• División: ~500-1000 km²\n` +
+                `• Cuerpo: ~1500-2000 km²\n\n` +
                 `Por favor, seleccione un área menor.`
             );
-            console.log('❌ Análisis cancelado (área excede límite absoluto)');
+            console.log(`❌ Análisis cancelado (${areaKm2.toFixed(2)}km² excede límite ${LIMITE_TOTAL_KM2}km²)`);
             return;
         }
         
         if (areaKm2 > LIMITE_CHUNK_KM2) {
             const numChunks = Math.ceil(areaKm2 / LIMITE_CHUNK_KM2);
+            
+            // Estimar nivel operacional
+            let nivelOperacional = 'Batallón';
+            if (areaKm2 > 1500) nivelOperacional = 'Cuerpo de Ejército';
+            else if (areaKm2 > 500) nivelOperacional = 'División';
+            else if (areaKm2 > 100) nivelOperacional = 'Brigada';
+            
+            const tiempoEstimado = Math.ceil(numChunks * 2); // ~2 seg por chunk
+            
             const confirmacion = confirm(
                 `📦 ÁREA GRANDE - PROCESAMIENTO POR PARTES\n\n` +
-                `Área total: ${areaKm2.toFixed(2)} km²\n` +
-                `Se dividirá en ~${numChunks} partes de ${LIMITE_CHUNK_KM2}km² cada una\n\n` +
-                `Esto puede tomar varios minutos.\n` +
+                `Área total: ${areaKm2.toFixed(2)} km² (~${nivelOperacional})\n` +
+                `Se dividirá en ${numChunks} partes de ${LIMITE_CHUNK_KM2}km² cada una\n` +
+                `Tiempo estimado: ~${tiempoEstimado} segundos\n\n` +
+                `Esto procesará ${Math.round(areaKm2 * 40)} puntos aproximadamente.\n` +
                 `¿Continuar?`
             );
             
