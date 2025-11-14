@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Capas GIS - MAIRA 4.0</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .panel-control {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            min-width: 300px;
+        }
+
+        .panel-control h3 {
+            margin-bottom: 15px;
+            color: #3498db;
+            font-size: 18px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #bbb;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: #fff;
+            text-transform: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 5px;
+            border: 1px solid #3498db;
+        }
+
+        .stats h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .stat-label {
+            color: #bbb;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #3498db;
+            font-style: italic;
+        }
+
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            color: #e74c3c;
+            font-size: 13px;
+        }
+
+        .success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            color: #2ecc71;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="panel-control">
+        <h3>🗺️ Control Capas GIS</h3>
+        
+        <div class="control-group">
+            <label>Capas Disponibles</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="check-transporte" checked>
+                    <label for="check-transporte">🛣️ Transporte</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="check-hidrografia" checked>
+                    <label for="check-hidrografia">💧 Hidrografía</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="check-urbanas" checked>
+                    <label for="check-urbanas">🏙️ Áreas Urbanas</label>
+                </div>
+            </div>
+        </div>
+
+        <button id="btn-cargar" onclick="cargarCapas()">📥 Cargar Capas</button>
+        <button id="btn-limpiar" onclick="limpiarCapas()">🧹 Limpiar Todas</button>
+
+        <div id="stats" class="stats" style="display: none;">
+            <h4>📊 Estadísticas</h4>
+            <div class="stat-item">
+                <span class="stat-label">Tiles cargados:</span>
+                <span class="stat-value" id="stat-tiles">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Features totales:</span>
+                <span class="stat-value" id="stat-features">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Tiempo:</span>
+                <span class="stat-value" id="stat-tiempo">0 ms</span>
+            </div>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Inicializar mapa centrado en Argentina
+        const map = L.map('map').setView([-34.6037, -58.3816], 6);
+
+        // Capa base
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        }).addTo(map);
+
+        // Capas GIS
+        let capasGIS = {
+            transporte: null,
+            hidrografia: null,
+            areas_urbanas: null
+        };
+
+        // Estilos
+        const estilos = {
+            ruta_nacional: {
+                color: '#ff0000',
+                weight: 3,
+                opacity: 0.8
+            },
+            ruta_provincial: {
+                color: '#ff9900',
+                weight: 2,
+                opacity: 0.7
+            },
+            caminos: {
+                color: '#996633',
+                weight: 1.5,
+                opacity: 0.6
+            },
+            curso_agua_permanente: {
+                color: '#0066cc',
+                weight: 2,
+                opacity: 0.7
+            },
+            espejo_agua_permanente: {
+                color: '#0099ff',
+                weight: 0.5,
+                fillColor: '#66ccff',
+                fillOpacity: 0.3
+            },
+            localidades: {
+                radius: 5,
+                fillColor: '#ff6600',
+                color: '#fff',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.7
+            }
+        };
+
+        async function cargarCapas() {
+            const capasSeleccionadas = [];
+            
+            if (document.getElementById('check-transporte').checked) {
+                capasSeleccionadas.push('transporte');
+            }
+            if (document.getElementById('check-hidrografia').checked) {
+                capasSeleccionadas.push('hidrografia');
+            }
+            if (document.getElementById('check-urbanas').checked) {
+                capasSeleccionadas.push('areas_urbanas');
+            }
+
+            if (capasSeleccionadas.length === 0) {
+                mostrarMensaje('⚠️ Selecciona al menos una capa', 'error');
+                return;
+            }
+
+            const bounds = map.getBounds();
+            const btnCargar = document.getElementById('btn-cargar');
+            btnCargar.disabled = true;
+            btnCargar.textContent = '⏳ Cargando...';
+
+            mostrarMensaje('Cargando capas GIS...', 'loading');
+
+            try {
+                const response = await fetch('https://localhost:8443/api/capas_gis/consultar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bounds: {
+                            north: bounds.getNorth(),
+                            south: bounds.getSouth(),
+                            east: bounds.getEast(),
+                            west: bounds.getWest()
+                        },
+                        capas: capasSeleccionadas
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Limpiar capas anteriores
+                    limpiarCapas();
+
+                    // Mostrar capas
+                    mostrarCapasEnMapa(data.capas);
+
+                    // Actualizar estadísticas
+                    document.getElementById('stat-tiles').textContent = data.tiles_cargados;
+                    document.getElementById('stat-features').textContent = data.features_totales;
+                    document.getElementById('stat-tiempo').textContent = `${data.tiempo_ms.toFixed(1)} ms`;
+                    document.getElementById('stats').style.display = 'block';
+
+                    mostrarMensaje(`✅ Capas cargadas: ${data.tiles_cargados} tiles, ${data.features_totales} features`, 'success');
+                } else {
+                    throw new Error(data.error || 'Error desconocido');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                btnCargar.disabled = false;
+                btnCargar.textContent = '📥 Cargar Capas';
+            }
+        }
+
+        function mostrarCapasEnMapa(capasData) {
+            // Transporte
+            if (capasData.transporte) {
+                const grupoTransporte = L.layerGroup();
+
+                if (capasData.transporte.rutas_nacionales) {
+                    L.geoJSON(capasData.transporte.rutas_nacionales, {
+                        style: estilos.ruta_nacional,
+                        onEachFeature: agregarPopup
+                    }).addTo(grupoTransporte);
+                }
+
+                if (capasData.transporte.rutas_provinciales) {
+                    L.geoJSON(capasData.transporte.rutas_provinciales, {
+                        style: estilos.ruta_provincial,
+                        onEachFeature: agregarPopup
+                    }).addTo(grupoTransporte);
+                }
+
+                if (capasData.transporte.caminos) {
+                    L.geoJSON(capasData.transporte.caminos, {
+                        style: estilos.caminos,
+                        onEachFeature: agregarPopup
+                    }).addTo(grupoTransporte);
+                }
+
+                capasGIS.transporte = grupoTransporte;
+                grupoTransporte.addTo(map);
+            }
+
+            // Hidrografía
+            if (capasData.hidrografia) {
+                const grupoHidrografia = L.layerGroup();
+
+                if (capasData.hidrografia.cursos_agua) {
+                    L.geoJSON(capasData.hidrografia.cursos_agua, {
+                        style: estilos.curso_agua_permanente,
+                        onEachFeature: agregarPopup
+                    }).addTo(grupoHidrografia);
+                }
+
+                if (capasData.hidrografia.espejos_agua) {
+                    L.geoJSON(capasData.hidrografia.espejos_agua, {
+                        style: estilos.espejo_agua_permanente,
+                        onEachFeature: agregarPopup
+                    }).addTo(grupoHidrografia);
+                }
+
+                capasGIS.hidrografia = grupoHidrografia;
+                grupoHidrografia.addTo(map);
+            }
+
+            // Áreas urbanas
+            if (capasData.areas_urbanas) {
+                const grupoUrbanas = L.layerGroup();
+
+                if (capasData.areas_urbanas.localidades) {
+                    L.geoJSON(capasData.areas_urbanas.localidades, {
+                        pointToLayer: (feature, latlng) => {
+                            return L.circleMarker(latlng, estilos.localidades);
+                        },
+                        onEachFeature: agregarPopup
+                    }).addTo(grupoUrbanas);
+                }
+
+                capasGIS.areas_urbanas = grupoUrbanas;
+                grupoUrbanas.addTo(map);
+            }
+        }
+
+        function agregarPopup(feature, layer) {
+            if (feature.properties) {
+                const props = feature.properties;
+                let content = '<div style="color: #000;">';
+                
+                for (const key in props) {
+                    if (key !== 'geometry') {
+                        content += `<strong>${key}:</strong> ${props[key]}<br>`;
+                    }
+                }
+                
+                content += '</div>';
+                layer.bindPopup(content);
+            }
+        }
+
+        function limpiarCapas() {
+            for (const key in capasGIS) {
+                if (capasGIS[key]) {
+                    map.removeLayer(capasGIS[key]);
+                    capasGIS[key] = null;
+                }
+            }
+
+            document.getElementById('stats').style.display = 'none';
+            mostrarMensaje('🧹 Capas limpiadas', 'success');
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = tipo;
+            messageDiv.textContent = texto;
+
+            if (tipo !== 'loading') {
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                    messageDiv.className = '';
+                }, 5000);
+            }
+        }
+
+        // Recargar al mover el mapa
+        map.on('moveend', () => {
+            console.log('Mapa movido. Bounds actuales:', map.getBounds());
+        });
+
+        console.log('🗺️ Test Capas GIS listo');
+        console.log('📍 Mueve el mapa a un área de Argentina y haz clic en "Cargar Capas"');
+    </script>
+</body>
+</html>
