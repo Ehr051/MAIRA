@@ -1,0 +1,485 @@
+{
+  "version": "2.0.0",
+  "source": "BV8 tipos_vehiculos.json - Datos reales extraídos",
+  "descripcion": "Velocidades, consumos y características específicas por vehículo argentino",
+  "fecha_creacion": "2025-11-14",
+
+  "vehiculos": {
+    "tam_tanque": {
+      "id": "tam_tanque",
+      "nombre": "TAM (Tanque Argentino Mediano)",
+      "tipo": "main_battle_tank",
+      "categoria": "blindado",
+      "sidc_base": "SFGPUCRT---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 75,
+        "velocidad_promedio_kmh": 40,
+        "velocidad_terreno_dificil_kmh": 20,
+        "autonomia_km": 550,
+        "consumo_km_litros": 1.18,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 650
+      },
+
+      "tripulacion": {
+        "total": 4,
+        "roles": {
+          "jefe_tam": 1,
+          "tirador_tam": 1,
+          "cargador_tam": 1,
+          "conductor_tam": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "Cañón 105mm L7",
+          "calibre": 105,
+          "municion_tipo": "proyectil_105mm",
+          "capacidad_municion": 50
+        },
+        "secundario": [
+          {
+            "tipo": "MAG 7.62mm coaxial",
+            "calibre": 7.62,
+            "municion_tipo": "municion_762",
+            "capacidad_municion": 6000
+          },
+          {
+            "tipo": "M2 12.7mm antiaéreo",
+            "calibre": 12.7,
+            "municion_tipo": "municion_127",
+            "capacidad_municion": 1000
+          }
+        ]
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 650,
+        "municion": {
+          "proyectil_105mm": 50,
+          "municion_762": 6000,
+          "municion_127": 1000
+        },
+        "raciones_dias": 3,
+        "agua_litros": 14
+      },
+
+      "caracteristicas": {
+        "peso_kg": 30500,
+        "blindaje_frontal_mm": 50,
+        "altura_m": 2.42,
+        "longitud_m": 6.77,
+        "ancho_m": 3.25
+      }
+    },
+
+    "vctp_tam": {
+      "id": "vctp_tam",
+      "nombre": "VCTP TAM (Vehículo Combate Transporte Personal)",
+      "tipo": "infantry_fighting_vehicle",
+      "categoria": "mecanizado",
+      "sidc_base": "SFGPUCVI---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 75,
+        "velocidad_promedio_kmh": 35,
+        "velocidad_terreno_dificil_kmh": 18,
+        "autonomia_km": 500,
+        "consumo_km_litros": 1.02,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 510
+      },
+
+      "tripulacion": {
+        "total": 3,
+        "pasajeros": 8,
+        "roles": {
+          "jefe_vctp": 1,
+          "tirador_vctp": 1,
+          "conductor_vctp": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "Cañón 20mm Oerlikon",
+          "calibre": 20,
+          "municion_tipo": "municion_20mm",
+          "capacidad_municion": 800
+        },
+        "secundario": [
+          {
+            "tipo": "MAG 7.62mm coaxial",
+            "calibre": 7.62,
+            "municion_tipo": "municion_762",
+            "capacidad_municion": 2000
+          }
+        ]
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 510,
+        "municion": {
+          "municion_20mm": 800,
+          "municion_762": 2000
+        },
+        "raciones_dias": 3,
+        "agua_litros": 38.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 28000,
+        "blindaje_frontal_mm": 40,
+        "altura_m": 2.42,
+        "longitud_m": 6.10,
+        "ancho_m": 3.25
+      }
+    },
+
+    "vca_155mm_tam": {
+      "id": "vca_155mm_tam",
+      "nombre": "VCA 155mm TAM (Autopropulsado)",
+      "tipo": "self_propelled_artillery",
+      "categoria": "blindado",
+      "sidc_base": "SFGPUCFH---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 70,
+        "velocidad_promedio_kmh": 35,
+        "velocidad_terreno_dificil_kmh": 15,
+        "autonomia_km": 550,
+        "consumo_km_litros": 1.18,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 650
+      },
+
+      "tripulacion": {
+        "total": 5,
+        "roles": {
+          "jefe_artilleria": 1,
+          "apuntador_artilleria": 1,
+          "cargador_artilleria": 2,
+          "conductor_tam": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "Obús 155mm/39cal",
+          "calibre": 155,
+          "municion_tipo": "proyectil_155mm",
+          "capacidad_municion": 30,
+          "alcance_max_km": 30
+        }
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 650,
+        "municion": {
+          "proyectil_155mm": 30
+        },
+        "raciones_dias": 3,
+        "agua_litros": 17.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 31000,
+        "altura_m": 2.6,
+        "longitud_m": 7.3,
+        "ancho_m": 3.25
+      }
+    },
+
+    "m113": {
+      "id": "m113",
+      "nombre": "M113 APC",
+      "tipo": "armored_personnel_carrier",
+      "categoria": "mecanizado",
+      "sidc_base": "SFGPUCV----*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 65,
+        "velocidad_promedio_kmh": 30,
+        "velocidad_terreno_dificil_kmh": 15,
+        "autonomia_km": 480,
+        "consumo_km_litros": 0.75,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 360
+      },
+
+      "tripulacion": {
+        "total": 2,
+        "pasajeros": 11,
+        "roles": {
+          "jefe_m113": 1,
+          "conductor_m113": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "M2 12.7mm",
+          "calibre": 12.7,
+          "municion_tipo": "municion_127",
+          "capacidad_municion": 2000
+        }
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 360,
+        "municion": {
+          "municion_127": 2000
+        },
+        "raciones_dias": 3,
+        "agua_litros": 45.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 11253,
+        "blindaje_frontal_mm": 38,
+        "altura_m": 2.5,
+        "longitud_m": 4.86,
+        "ancho_m": 2.69
+      }
+    },
+
+    "vlega": {
+      "id": "vlega",
+      "nombre": "VLEGA (Vehículo Ligero Ejército Argentino)",
+      "tipo": "light_utility_vehicle",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCL----*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 120,
+        "velocidad_promedio_kmh": 60,
+        "velocidad_terreno_dificil_kmh": 30,
+        "autonomia_km": 600,
+        "consumo_km_litros": 0.15,
+        "combustible_tipo": "nafta",
+        "capacidad_combustible_litros": 90
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 3,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "MAG 7.62mm (montada)",
+          "calibre": 7.62,
+          "municion_tipo": "municion_762",
+          "capacidad_municion": 1000
+        }
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 90,
+        "municion": {
+          "municion_762": 1000
+        },
+        "raciones_dias": 2,
+        "agua_litros": 14
+      },
+
+      "caracteristicas": {
+        "peso_kg": 2200,
+        "altura_m": 1.85,
+        "longitud_m": 4.05,
+        "ancho_m": 1.78
+      }
+    },
+
+    "unimog": {
+      "id": "unimog",
+      "nombre": "Unimog (Camión todo terreno)",
+      "tipo": "cargo_truck",
+      "categoria": "motorizado",
+      "sidc_base": "SFGPUCLT---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 90,
+        "velocidad_promedio_kmh": 50,
+        "velocidad_terreno_dificil_kmh": 25,
+        "autonomia_km": 700,
+        "consumo_km_litros": 0.25,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 175
+      },
+
+      "tripulacion": {
+        "total": 1,
+        "pasajeros": 2,
+        "capacidad_carga_kg": 3500,
+        "roles": {
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": null
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 175,
+        "municion": {},
+        "raciones_dias": 2,
+        "agua_litros": 10.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 5800,
+        "altura_m": 2.8,
+        "longitud_m": 5.7,
+        "ancho_m": 2.3
+      }
+    },
+
+    "vcpc": {
+      "id": "vcpc",
+      "nombre": "VCPC (Vehículo Combate Puesto Comando)",
+      "tipo": "command_vehicle",
+      "categoria": "mecanizado",
+      "sidc_base": "SFGPUCHQ---*----",
+
+      "movilidad": {
+        "velocidad_max_kmh": 75,
+        "velocidad_promedio_kmh": 35,
+        "velocidad_terreno_dificil_kmh": 18,
+        "autonomia_km": 500,
+        "consumo_km_litros": 1.02,
+        "combustible_tipo": "gasoil",
+        "capacidad_combustible_litros": 510
+      },
+
+      "tripulacion": {
+        "total": 5,
+        "roles": {
+          "jefe_elemento": 1,
+          "oficial_operaciones": 1,
+          "comunicaciones": 2,
+          "conductor": 1
+        }
+      },
+
+      "armamento": {
+        "principal": {
+          "tipo": "MAG 7.62mm",
+          "calibre": 7.62,
+          "municion_tipo": "municion_762",
+          "capacidad_municion": 1000
+        }
+      },
+
+      "dotacion_inicial": {
+        "combustible_litros": 510,
+        "municion": {
+          "municion_762": 1000
+        },
+        "raciones_dias": 3,
+        "agua_litros": 17.5
+      },
+
+      "caracteristicas": {
+        "peso_kg": 28500,
+        "blindaje_frontal_mm": 40,
+        "altura_m": 2.7,
+        "longitud_m": 6.10,
+        "ancho_m": 3.25,
+        "equipamiento_especial": [
+          "Radio VHF largo alcance",
+          "Radio HF",
+          "Sistema GPS táctico",
+          "Generador eléctrico"
+        ]
+      }
+    }
+  },
+
+  "personal": {
+    "apie": {
+      "id": "apie",
+      "nombre": "Personal a pie",
+      "tipo": "infantry",
+      "categoria": "personal",
+
+      "movilidad": {
+        "velocidad_max_kmh": 6,
+        "velocidad_promedio_kmh": 4,
+        "velocidad_marcha_forzada_kmh": 5,
+        "velocidad_terreno_dificil_kmh": 2,
+        "autonomia_km": 25,
+        "consumo_km_litros": 0,
+        "combustible_tipo": null,
+        "capacidad_combustible_litros": 0
+      },
+
+      "dotacion_individual": {
+        "agua_litros_dia": 3.5,
+        "raciones_dia": 3,
+        "municion_segun_arma": true
+      }
+    },
+
+    "trote": {
+      "id": "trote",
+      "nombre": "Personal en movimiento rápido",
+      "tipo": "infantry",
+      "categoria": "personal",
+
+      "movilidad": {
+        "velocidad_max_kmh": 10,
+        "velocidad_promedio_kmh": 8,
+        "velocidad_terreno_dificil_kmh": 5,
+        "autonomia_km": 15,
+        "consumo_km_litros": 0,
+        "combustible_tipo": null,
+        "capacidad_combustible_litros": 0
+      },
+
+      "dotacion_individual": {
+        "agua_litros_dia": 5,
+        "raciones_dia": 4,
+        "municion_segun_arma": true
+      }
+    }
+  },
+
+  "factores_terreno": {
+    "descripcion": "Modificadores de velocidad según tipo de terreno",
+    "terreno": {
+      "despejado": 1.0,
+      "bosque_abierto": 0.8,
+      "bosque_denso": 0.5,
+      "urbano": 0.6,
+      "montanoso": 0.4,
+      "barrial": 0.3,
+      "arenal": 0.7,
+      "pedregoso": 0.6
+    }
+  },
+
+  "factores_clima": {
+    "descripcion": "Modificadores de velocidad según clima",
+    "clima": {
+      "seco": 1.0,
+      "lluvioso": 0.7,
+      "nieve": 0.4,
+      "barro": 0.3
+    }
+  },
+
+  "notas": [
+    "Velocidades basadas en datos BV8 validados",
+    "Consumos calculados a partir de autonomía y capacidad",
+    "Dotaciones de raciones y agua: 3.5L/persona/día (BV8)",
+    "Velocidades de terreno difícil son estimaciones (40-50% de velocidad normal)",
+    "Factores de terreno y clima basados en análisis BV8"
+  ]
+}

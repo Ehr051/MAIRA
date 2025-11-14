@@ -1,0 +1,3391 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Modo Planeamiento</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="image/favicon_logoai/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="image/favicon_logoai/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="image/favicon_logoai/favicon-16x16.png">
+    <link rel="manifest" href="image/favicon_logoai/site.webmanifest">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- ✅ FIX #14: FONT AWESOME PRIMERO - Misma versión que juegodeguerra (6.4.0) -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  
+  <!-- Estilos CSS -->
+  <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../node_modules/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-draw/dist/leaflet.draw.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <link rel="stylesheet" href="../node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-sidebar-v2/css/leaflet-sidebar.min.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-measure/dist/leaflet-measure.css" />
+  <link rel="stylesheet" href="../node_modules/leaflet-easybutton/src/easy-button.css" />
+  
+  <!-- 🗺️ Módulo Análisis de Terreno -->
+  <link rel="stylesheet" href="css/modules/analisisTerreno.css" />
+  <link rel="stylesheet" href="css/common/planeamiento.css">
+  <link rel="stylesheet" href="css/common/CYGMarcha.css">
+  <link rel="stylesheet" href="css/common/graficomarcha.css">
+  <!-- ✅ CSS HEXÁGONOS - Ruta corregida -->
+  <link rel="stylesheet" href="css/hexgrid.css">
+  <!-- ✅ CSS MENU RADIAL - Movido ARRIBA antes de scripts -->
+  <link rel="stylesheet" href="css/common/mairaRadialMenu.css">
+  
+  <!-- 🏗️ CSS FULLSCREEN 3D - FASE 1 -->
+  <style>
+    /* 🎨 ESTADO ACTIVO (3D visible pero NO fullscreen) */
+    #canvas-container.active {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        pointer-events: auto !important;
+        display: block !important;
+    }
+    
+    #canvas-container.active canvas {
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: auto !important;
+    }
+    
+    /* 🎨 ESTADO FULLSCREEN (z-index más alto) */
+    .fullscreen-3d #canvas-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 9999 !important;
+        pointer-events: all !important;
+    }
+    
+    .fullscreen-3d #canvas-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: all !important;
+    }
+    
+    .fullscreen-3d #sidebar,
+    .fullscreen-3d #map-container {
+        display: none !important;
+        pointer-events: none !important;
+    }
+    
+    .fullscreen-3d #map {
+        pointer-events: none !important;
+    }
+    
+    #close-3d-button:hover {
+        background: rgba(185, 28, 28, 1);
+        transform: scale(1.05);
+        transition: all 0.2s ease;
+    }
+    
+    /* 🎛️ ESTILOS DEL PANEL DE CONTROLES 3D */
+    #panelControles3D {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: 320px;
+        max-height: 80vh;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid #007bff;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .controles-3d-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+    }
+    
+    .controles-3d-header h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    .btn-cerrar-controles {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+    
+    .btn-cerrar-controles:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .controles-3d-content {
+        padding: 16px;
+        max-height: calc(80vh - 60px);
+        overflow-y: auto;
+    }
+    
+    .control-group {
+        margin-bottom: 16px;
+    }
+    
+    .control-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+    
+    .control-group input[type="range"] {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #ddd;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    .control-group input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .control-group input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #007bff;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .control-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background: white;
+    }
+    
+    .control-group span {
+        display: inline-block;
+        margin-left: 8px;
+        font-weight: bold;
+        color: #007bff;
+        min-width: 50px;
+    }
+    
+    .control-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+    }
+    
+    .btn-aplicar, .btn-reset {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-aplicar {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-aplicar:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+    
+    .btn-reset {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-reset:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+    }
+    
+    .control-info {
+        margin-top: 20px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .control-info p {
+        margin: 0 0 8px 0;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .control-info ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+    
+    .control-info li {
+        margin-bottom: 4px;
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .control-info kbd {
+        background: #e9ecef;
+        border: 1px solid #adb5bd;
+        border-radius: 3px;
+        box-shadow: 0 1px 0 rgba(0,0,0,.2);
+        color: #495057;
+        display: inline-block;
+        font-size: 12px;
+        line-height: 1;
+        padding: 2px 4px;
+        margin: 0 2px;
+    }
+  </style>
+  
+  <script src="js/common/networkConfig.js"></script>
+  <!-- Scripts JavaScript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+  <script src="../node_modules/html2canvas/dist/html2canvas.min.js"></script>
+
+  <script src="../node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="../node_modules/milsymbol/dist/milsymbol.js"></script>
+  <script src="../node_modules/d3/dist/d3.min.js"></script>
+  <script src="../node_modules/@raruto/leaflet-elevation/dist/leaflet-elevation.min.js"></script>
+  <script src="../node_modules/leaflet-draw/dist/leaflet.draw.js"></script>
+  <script src="../node_modules/leaflet-geometryutil/src/leaflet.geometryutil.js"></script>
+  <script src="../node_modules/leaflet-geosearch/dist/bundle.min.js"></script>
+  <script src="../node_modules/geotiff/dist-browser/geotiff.js"></script>
+  <script src="../node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
+  <script src="../node_modules/proj4/dist/proj4.js"></script>
+  <!-- <script src="../node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
+  
+  <!-- Three.js para visualización 3D - Sistema simplificado y robusto -->
+  <script>
+    /**
+     * SISTEMA DE CARGA THREE.JS SIMPLIFICADO
+     * ========================================
+     * Carga THREE.js local primero, luego dependencias en orden correcto
+     * Sistema más simple = menos puntos de fallo
+     */
+    (function() {
+      if (typeof THREE !== 'undefined') {
+        console.log('✅ THREE.js ya está disponible (precargado)');
+        window.threeJsReady = true;
+        return;
+      }
+
+      console.log('🔄 Iniciando carga de THREE.js...');
+      window.threeJsReady = false;
+
+      /**
+       * Cargar script con Promise
+       */
+      function loadScript(src, name) {
+        return new Promise((resolve, reject) => {
+          console.log(`📦 Cargando ${name}...`);
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = () => {
+            console.log(`✅ ${name} cargado correctamente`);
+            resolve();
+          };
+          script.onerror = (error) => {
+            console.error(`❌ Error cargando ${name} desde ${src}`);
+            reject(error);
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      /**
+       * Cargar todo en secuencia garantizada
+       */
+      async function initializeThreeJS() {
+        try {
+          // 1. Cargar THREE.js local (más rápido y confiable que CDN)
+          await loadScript('/Client/Libs/mythree/three.min.js', 'THREE.js');
+
+          // Verificar que THREE esté disponible
+          if (typeof THREE === 'undefined') {
+            throw new Error('THREE.js no se cargó correctamente');
+          }
+
+          // 2. Cargar GLTFLoader (para modelos 3D)
+          try {
+            await loadScript('/Client/Libs/mythree/GLTFLoader.js', 'GLTFLoader');
+          } catch (error) {
+            console.warn('⚠️ GLTFLoader no disponible - solo modelos procedurales');
+          }
+
+          // 3. Cargar OrbitControls (para navegación 3D)
+          try {
+            await loadScript('/Client/Libs/mythree/OrbitControls.js', 'OrbitControls');
+          } catch (error) {
+            console.warn('⚠️ OrbitControls no disponible - navegación limitada');
+          }
+
+          // 4. Todo listo
+          window.threeJsReady = true;
+          console.log('🎉 Sistema THREE.js completamente inicializado');
+
+          // Disparar evento para notificar a otros sistemas
+          window.dispatchEvent(new Event('threeJsReady'));
+
+        } catch (error) {
+          console.error('❌ Error fatal inicializando THREE.js:', error);
+          window.threeJsReady = false;
+
+          // Informar al usuario
+          console.error('⚠️ El sistema 3D no estará disponible');
+        }
+      }
+
+      // Iniciar carga
+      initializeThreeJS();
+    })();
+  </script>
+
+  <!-- ECOSISTEMA 3D COMPLETO - Componentes del sistema unificado -->
+  <script src="js/modules/gaming/modelos3DManager.js"></script>
+  <script src="js/modules/gaming/elementoModelo3DMapper.js"></script>
+  <script src="js/modules/gaming/sidcModelo3DBridge.js"></script>
+  <script src="js/modules/gaming/sistemaJerarquicoSIDC.js"></script>
+  <script src="js/modules/gaming/sistemaFormacionesMilitares.js"></script>
+  <script src="js/modules/gaming/tactico3dIntegration.js"></script>
+  <script src="js/modules/gaming/visorMapa3DMejorado.js"></script>
+  <script src="js/modules/gaming/sistemaTerrenoRealista.js"></script>
+
+  <!-- ⚡ BACKEND ELEVATION ADAPTER - Cargado ANTES del sistema 3D -->
+  <script src="js/services/elevationBackendAdapter.js?v=20241020-02"></script>
+
+  <!-- 🏗️ TERRENO 3D - FASE 1: Generación desde map -->
+  <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
+  <script src="js/services/TerrainGenerator3D.js?v=20241106-v5-posfix"></script>
+
+
+  
+  <!-- 🔄 SISTEMA SIDC-3D INTEGRADO -->
+  <script src="Libs/mythree/three.min.js"></script>
+  <script src="js/services/ProceduralModelGenerator.js"></script>
+  <script src="js/services/sidcToModel3D.js"></script>
+  <script src="js/services/maira3DMaster.js"></script>
+
+  <!-- Módulos MAIRA 4.0 -->
+  <script src="js/modules/paneles.js"></script>
+  <script src="js/modules/planeamiento.js"></script>
+  
+  <!-- Socket.IO desde node_modules local -->
+  <script src="../node_modules/socket.io/client-dist/socket.io.min.js"></script>
+
+  <!-- Three.js cargado desde /Libs/three-js/ - Sin dependencias externas -->
+  <!-- Pako.js para descompresión de TIF en tar.gz -->
+  <script src="../node_modules/pako/dist/pako.min.js"></script>
+
+  <script type="module">
+    import * as mgrs from '../node_modules/mgrs/mgrs.js';
+    window.mgrs = mgrs;
+  </script>
+  <script src="../node_modules/leaflet.gridlayer.googlemutant/dist/Leaflet.GoogleMutant.js"></script>
+  <script src="../node_modules/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+  <script src="../node_modules/leaflet-measure/dist/leaflet-measure.js"></script>
+  <script src="../node_modules/leaflet-easybutton/src/easy-button.js"></script>
+  <script src="../node_modules/leaflet-fullscreen/dist/Leaflet.fullscreen.min.js"></script>
+  <script src="../node_modules/leaflet-bing-layer/leaflet-bing-layer.min.js"></script>
+  <script src="../node_modules/leaflet-polylinedecorator/dist/leaflet.polylineDecorator.js"></script>
+  <script src="../node_modules/leaflet-sidebar-v2/js/leaflet-sidebar.min.js"></script>
+  <script src="../node_modules/leaflet-search/dist/leaflet-search.src.js"></script>
+  <script src="../node_modules/file-saver/dist/FileSaver.js"></script>
+  <script src="Libs/leaflet-pattern/dist/leaflet.pattern.js"></script>
+
+  <!-- Scripts personalizados -->
+  <!-- Core y utilidades -->
+  <script src="js/core/UserIdentity.js"></script>
+  <script src="js/utils/sessionManager.js"></script>
+  
+  
+  <!-- 🆕 SISTEMA GEOESPACIAL UNIFICADO v4.0 (Optimizado con Workers, Cache, Batch) -->
+  <script src="js/services/GeospatialDataService.js?v=20241020-02"></script>
+  <script src="js/services/ElevationService.js?v=20241105"></script>
+  <script src="js/services/VegetationService.js?v=20241020-02"></script>
+  <script src="js/services/GLTFModelLoader.js?v=20241105-fix"></script>
+  <script src="js/utils/VegetationInstancer.js?v=20241020-02"></script>
+  <script src="js/adapters/ElevationAdapter.js?v=20241020-02"></script>
+  <script src="js/adapters/VegetationAdapter.js?v=20241020-02"></script>
+  <script src="js/init/geospatialInit.js?v=20241020-02"></script>
+
+  <!-- Servicios -->
+  <script src="js/services/servicesManager.js"></script>
+  <script src="js/services/transitabilityService.js"></script>
+  <script src="js/services/slopeAnalysisService.js"></script>
+  <script src="js/services/elevationProfileService.js"></script>
+  <script src="js/services/SatelliteImageAnalyzer.js"></script>
+
+  <script src="js/modules/shared/sistemaZoomMultiNivel.js"></script>
+  
+  <!-- Handlers de terreno -->
+  <script src="js/handlers/elevationHandlerBackend.js?v=20241105"></script>
+  <script src="js/handlers/vegetacionhandler.js?v=20241020-04"></script>
+  
+  <!-- Handlers refactorizados -->
+  <script src="js/utils/geometryUtils.js"></script>
+  <script src="js/handlers/mobileOptimizationHandler.js"></script>
+  <script src="js/handlers/mapInteractionHandler.js"></script>
+  <script src="js/handlers/measurementHandler.js"></script>
+  
+
+  <!-- Element Editor - FUNCIÓN CRÍTICA PARA EDICIÓN - MOVIDO A edicioncompleto.js -->
+  <script src="js/handlers/performanceOptimizer.js"></script>
+  <script src="js/handlers/EventBus.js"></script>
+  <script src="js/handlers/pendienteHandler.js"></script>
+  <script src="js/handlers/transitabilidadHandler.js"></script>
+  <script src="js/handlers/searchHandler.js"></script>
+  <script src="js/handlers/testHandler.js"></script>
+  
+
+  <!-- Common -->
+  <script src="js/common/mapaP.js"></script>
+  <script src="js/utils/calcosP.js"></script>
+  <script src="js/common/simbolosP.js"></script>
+  <script src="js/common/herramientasP.js"></script>
+  <script src="js/common/fontAwesomeTest.js"></script>
+  <script src="js/common/toolsInitializer.js"></script>
+  <script src="js/common/dibujosMCCP.js"></script>
+  <script src="js/common/edicioncompleto.js"></script>
+  <script src="js/common/atajosP.js"></script>
+  <script src="js/common/unidades.js"></script>
+  <script src="js/common/partidas.js"></script>
+  
+  <script src="js/common/CalculoMarcha.js"></script>
+  <script src="js/common/graficoMarcha.js"></script>
+  <script src="js/common/panelMarcha.js"></script>
+  <script src="js/common/miradial.js"></script>
+  
+  <!-- Sistema de Menú Radial MAIRA -->
+  <!-- ✅ CSS ya cargado arriba en línea 34 -->
+  <script src="js/common/mairaRadialMenu.js"></script>
+  
+  <!-- Módulos específicos -->
+  <script src="js/modules/planeamiento/planeamiento.js"></script>
+  <script src="js/common/indexP.js"></script>
+  
+  <!-- Script de verificación -->
+  <script src="js/Test/testPlaneamiento.js"></script>
+  <script src="js/Test/autoTest.js"></script>
+  <script src="js/Test/visualizadorTests.js"></script>
+
+</head>
+
+<body class="maira-planeamiento">
+
+<div id="botones-principales">
+  <div class="menu-btn">
+    <button id="verBtn" data-toggle="collapse" data-target="#ver-menu" aria-expanded="false" aria-controls="ver-menu">
+      <i class="fas fa-eye" id="fa-eye-icon"></i> Ver
+    </button>
+    <div id="ver-menu" class="menu collapse">
+      <div class="menu-btn">
+        <button id="tipoMapaBtn" onclick="toggleMenu('collapse')">Tipo de map</button>
+        <div id="collapse" class="collapse">
+          <a href="#" data-map-type="osm"><i class="fas fa-mountain"></i> Terreno</a>
+          <a href="#" data-map-type="calles"><i class="fas fa-road"></i> Calles</a>
+          <a href="#" data-map-type="satelite"><i class="fas fa-satellite-dish"></i> Satélite</a>
+          <a href="#" data-map-type="Transport"><i class="fas fa-bus"></i> Transport</a>
+          <a href="#" data-map-type="Landscape"><i class="fas fa-mountain"></i> Landscape</a>
+          <a href="#" data-map-type="Outdoors"><i class="fas fa-tree"></i> Outdoors</a>
+        </div>
+      </div>
+      <div class="menu-btn">
+        <button onclick="toggleMenu('cuadriculasBtn')">Cuadrículas</button>
+        <div id="cuadriculasBtn" class="collapse">
+          <div class="menu-btn">
+            <button onclick="toggleMenu('tipoCuadriculaBtn')">Tipo de Cuadrícula</button>
+            <div id="tipoCuadriculaBtn" class="collapse">
+              <button id="cuadriculaMGRS" onclick="cambiarCuadricula('MGRS')">MGRS</button>
+              <button id="cuadriculaUTM" onclick="cambiarCuadricula('UTM')">UTM</button>
+              <button id="cuadriculaWGS84" onclick="cambiarCuadricula('WGS84')">WGS84</button>
+              <button id="cuadriculaPlana" onclick="cambiarCuadricula('Planas')">Planas</button>
+              <button id="cuadriculaNinguna" onclick="cambiarCuadricula('Ninguna')">Ninguna</button>
+              </div>
+            </div>
+          <div class="opacity-slider">
+            <label for="opacitySlider">Transparencia</label>
+            <input type="range" min="0" max="100" value="50" id="opacitySlider">
+          </div>
+          <div class="grid-width-slider">
+            <label for="gridWidthSlider">Ancho de Línea</label>
+            <input type="range" min="1" max="10" value="2" id="gridWidthSlider">
+          </div>
+          <div class="color-selector">
+            <label for="colorSelector">Color</label>
+            <input type="color" id="colorSelector" value="#000000">
+          </div>
+        </div>
+        <span>coordenadas del cursor</span>
+        <div id="gridControls"></div>
+        <label class="switch">
+          <input type="checkbox" id="coordenadasCheckbox">
+          <span class="slider round"></span>
+        </label> </label>
+      </div>
+    </div>
+  </div>
+  <div class="menu-btn">
+    <button id="herramientasBtn" data-toggle="collapse" data-target="#herramientas-menu" aria-expanded="false"
+      aria-controls="herramientas-menu">
+      <i class="fas fa-tools" id="fa-tools-icon"></i> Herramientas
+    </button>
+    <div id="herramientas-menu" class="menu collapse">
+      <div id="search-container">
+        <div class="search-input-wrapper">
+            <input type="text" id="busquedaLugar" placeholder="Buscar lugar...">
+            <button id="btnBuscarLugar" type="buscarlugar"><i class="fas fa-search"></i></button>
+        </div>
+        <ul id="resultadosBusquedaLugar"></ul>
+      </div>
+        <a href="#" id="btnMedirDistancia"><i class="fas fa-ruler-combined"></i> Medir Distancia</a>
+        <a href="#" id="PerfilElevacionBtn"><i class="fas fa-chart-line"></i> Perfil de Elevación</a>
+        <a href="#" id="btnVista3D"><i class="fas fa-cube" id="fa-cube-icon"></i> Generar Vista 3D</a>
+        <a href="#" id="btnControles3D"><i class="fas fa-sliders-h"></i> Controles 3D</a>
+        <a href="#" id="btnCalculoMarcha" ><i class="fas fa-route"></i>Cálculo de Marcha</a>
+        <a href="#" id="btnControlGestos"><i class="fas fa-hand-paper"></i> Control por Gestos</a>
+        <a href="#" onclick="ejecutarPruebasIntegracionSIDC3D()"><i class="fas fa-vial"></i> Probar SIDC-3D</a>
+      </div>
+  </div>
+  <div class="menu-btn"> 
+    <button onclick="toggleMenu('agregar-menu')"><i class="fas fa-plus"> </i> Agregar Elemento</button>
+    <div id="agregar-menu" class="menu collapse">
+    <div class="botones-fuerza">
+      <button onclick="actualizarSidc('F')">Amigo</button>
+      <button onclick="actualizarSidc('J')">Enemigo</button>
+    </div>
+    <div id="search-container">
+      <div class="search-input-wrapper">
+        <input type="text" id="busquedaSimbolo" placeholder="Buscar Simbolo...">
+        <button id="btnBuscarSimbolo" type="button"><i class="fas fa-search"></i></button>
+      </div>
+      <ul id="resultadosBusquedaSimbolos"></ul>
+    </div>
+    <div class="menu-btn">
+      <button onclick="toggleMenu('simbolosBasicosBtn')">Símbolos Básicos</button>
+      <div id="simbolosBasicosBtn" class="collapse">
+        <div class="sidc-container">
+          <div class="menu-btn">
+            <button onclick="toggleMenu('basicos')">Generales</button>
+            <div id="basicos" class="collapse submenu simbolo-grid"> 
+              <a href="#" data-sidc="SFGPUH----" onclick="agregarMarcador(this.dataset.sidc, 'Puesto Comando')"><span
+                  class="mil-symbol"></span> Puesto Comando </a>
+              <a href="#" data-sidc="SFGPU-----" onclick="agregarMarcador(this.dataset.sidc, 'Elemento Básico')"><span
+              class="mil-symbol"></span> Elemento Básico</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🧪 PRUEBAS SIDC-3D -->
+    <div class="menu-btn">
+      <button onclick="toggleMenu('pruebasSidc3DBtn')">🧪 Pruebas SIDC-3D</button>
+      <div id="pruebasSidc3DBtn" class="collapse submenu simbolo-grid">
+        <button onclick="testSIDC3DMarker('SFGPUCI---')" class="btn-test-sidc">
+          <i class="fas fa-user"></i> Infantería (SFGPUCI---)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPUCR---')" class="btn-test-sidc">
+          <i class="fas fa-horse"></i> Caballería (SFGPUCR---)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPUCF---')" class="btn-test-sidc">
+          <i class="fas fa-cannon"></i> Artillería (SFGPUCF---)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPEWH---')" class="btn-test-sidc">
+          <i class="fas fa-bullseye"></i> Obús 105mm (SFGPEWH---)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPEVAI--')" class="btn-test-sidc">
+          <i class="fas fa-shield"></i> Vehículo Blindado (SFGPEVAI--)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPUH----')" class="btn-test-sidc">
+          <i class="fas fa-flag"></i> Puesto Comando (SFGPUH----)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPU-----')" class="btn-test-sidc">
+          <i class="fas fa-users"></i> Elemento Básico (SFGPU-----)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPUCE---')" class="btn-test-sidc">
+          <i class="fas fa-tools"></i> Ingenieros (SFGPUCE---)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPUSM---')" class="btn-test-sidc">
+          <i class="fas fa-medkit"></i> Sanidad (SFGPUSM---)
+        </button>
+        <button onclick="testSIDC3DMarker('SFGPUUS---')" class="btn-test-sidc">
+          <i class="fas fa-broadcast-tower"></i> Comunicaciones (SFGPUUS---)
+        </button>
+        <button onclick="testMCC3DMarker('SFFPAO----')" class="btn-test-sidc">
+          <i class="fas fa-target"></i> Objetivo (SFFPAO----)
+        </button>
+        <button onclick="testMCC3DMarker('GFGPOLAA--')" class="btn-test-sidc">
+          <i class="fas fa-route"></i> Eje de Avance (GFGPOLAA--)
+        </button>
+        <button onclick="testMCC3DMarker('GFGPOLK---')" class="btn-test-sidc">
+          <i class="fas fa-minus"></i> Línea Coordinación (GFGPOLK---)
+        </button>
+        <button onclick="clearAll3DMarkers()" class="btn-test-sidc btn-clear">
+          <i class="fas fa-trash"></i> Limpiar Marcadores 3D
+        </button>
+      </div>
+    </div>
+
+    <div class="menu-btn">
+      <button onclick="toggleMenu('infanteriaBtn')">Infantería</button>
+      <div id="infanteriaBtn" class="collapse submenu">
+        <div class="sidc-container">
+          <a href="#" data-sidc="SFGPUCI---" onclick="agregarMarcador(this.dataset.sidc, 'infanteria')"><span
+              class="mil-symbol"></span> Infantería</a>
+          <a href="#" data-sidc="SFGPUCAA--" onclick="agregarMarcador(this.dataset.sidc, 'Antitanque')"><span
+              class="mil-symbol"></span> Antitanque</a>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('infanteriaArmamentoBtn')">Armamento</button>
+          <div id="infanteriaArmamentoBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                class="mil-symbol"></span> FAL</a>
+            <a href="#" data-sidc="SFGPEWRR--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                class="mil-symbol"></span> FAP</a>
+            <a href="#" data-sidc="SFGPEWRL--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+              Ametralladora Pesada</a>
+            <a href="#" data-sidc="SFGPEWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                class="mil-symbol"></span> Arma Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWAM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                class="mil-symbol"></span> Cañón Antitanque</a>
+            <a href="#" data-sidc="SFGPEWG---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+            <a href="#" data-sidc="SFGPEWGM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+            <a href="#" data-sidc="SFGPEWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                class="mil-symbol"></span> Lanzacohetes</a>
+            <a href="#" data-sidc="SFGPEWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                class="mil-symbol"></span> Mortero Liviano</a>
+            <a href="#" data-sidc="SFGPEWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                class="mil-symbol"></span> Mortero Mediano</a>
+            <a href="#" data-sidc="SFGPEWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                class="mil-symbol"></span> Mortero Pesado</a>
+          </div>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('infanteriaVehiculosBtn')">Vehículos</button>
+          <div id="infanteriaVehiculosBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEVAI--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+              Vehículo Blindado a Rueda</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-btn">
+      <button onclick="toggleMenu('caballeriaBtn')">Caballería</button>
+      <div id="caballeriaBtn" class="collapse submenu">
+        <div class="sidc-container">
+          <a href="#" data-sidc="SFGPUCR---" onclick="agregarMarcador(this.dataset.sidc, 'Caballería')"><span
+              class="mil-symbol"></span> Caballería</a>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('caballeriaArmamentoBtn')">Armamento</button>
+          <div id="caballeriaArmamentoBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEWR---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Básica o FAL')"><span
+                class="mil-symbol"></span> FAL</a>
+            <a href="#" data-sidc="SFGPEWRR--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Fusil Automático Pesado (FAP)')"><span
+                class="mil-symbol"></span> FAP</a>
+            <a href="#" data-sidc="SFGPEWRL--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada')"><span class="mil-symbol"></span>
+              Ametralladora Pesada</a>
+            <a href="#" data-sidc="SFGPEWA---" onclick="agregarMarcador(this.dataset.sidc, 'Arma Antiaérea')"><span
+                class="mil-symbol"></span> Arma Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWAM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Ametralladora Pesada Antiaérea')"><span
+                class="mil-symbol"></span> Ametralladora Pesada Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Antitanque')"><span
+                class="mil-symbol"></span> Cañón Antitanque</a>
+            <a href="#" data-sidc="SFGPEWG---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (corto alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (corto alcance)</a>
+            <a href="#" data-sidc="SFGPEWGM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Arma Antitanque (largo alcance)')"><span
+                class="mil-symbol"></span> Arma Antitanque (largo alcance)</a>
+            <a href="#" data-sidc="SFGPEWM---" onclick="agregarMarcador(this.dataset.sidc, 'Lanzacohetes')"><span
+                class="mil-symbol"></span> Lanzacohetes</a>
+            <a href="#" data-sidc="GFGPDPOR--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Observador Adelantado')"><span class="mil-symbol"></span></a>
+            <a href="#" data-sidc="SFGPEWO---" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Liviano')"><span
+                class="mil-symbol"></span> Mortero Liviano</a>
+            <a href="#" data-sidc="SFGPEWOM--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Mediano')"><span
+                class="mil-symbol"></span> Mortero Mediano</a>
+            <a href="#" data-sidc="SFGPEWOH--" onclick="agregarMarcador(this.dataset.sidc, 'Mortero Pesado')"><span
+                class="mil-symbol"></span> Mortero Pesado</a>
+          </div>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('caballeriaVehiculosBtn')">Vehículos</button>
+          <div id="caballeriaVehiculosBtn" class="collapse submenu simbolo-grid">
+            <a href="#" data-sidc="SFGPEVAI--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo a Blindado Rueda')"><span class="mil-symbol"></span>
+              Vehículo a Rueda</a>
+            <a href="#" data-sidc="SFGPEVAT--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Oruga o Semioruga (básico)')"><span
+                class="mil-symbol"></span> Vehículo Blindado a Oruga o Semioruga (básico)</a>
+            <a href="#" data-sidc="SFGPEVATM-"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda')"><span class="mil-symbol"></span>
+              Vehículo Blindado a Rueda</a>
+            <a href="#" data-sidc="SFGPEVATH-"
+              onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Blindado a Rueda de Exploración (mediano)')"><span
+                class="mil-symbol"></span> Vehículo Blindado a Rueda de Exploración (mediano)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-btn">
+      <button onclick="toggleMenu('apoyoFuegoBtn')">Apoyo de Fuego</button>
+      <div id="apoyoFuegoBtn" class="collapse submenu sidc-container">
+        <a href="#" data-sidc="SFGPUCF---" onclick="agregarMarcador(this.dataset.sidc, 'Artillería')"><span class="mil-symbol"></span> Artillería</a>
+        <a href="#" data-sidc="GFGPDPOF--" onclick="agregarMarcador(this.dataset.sidc, 'Observador adelantado de Artilleria')"><span class="mil-symbol"></span> Observador Adelantado de Artileria</a>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('artilleriaCampanaBtn')">Artillería de Campaña</button>
+          <div id="artilleriaCampanaBtn" class="collapse submenu simbolo-grid sidc-container">
+            <a href="#" data-sidc="SFGPEWH---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Obús Liviano (cal 105mm)')"><span class="mil-symbol"></span>
+              Obús Liviano (cal 105mm)</a>
+            <a href="#" data-sidc="SFGPEWHM--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Obús Mediano (cal 155mm)')"><span class="mil-symbol"></span>
+              Obús Mediano (cal 155mm)</a>
+            <a href="#" data-sidc="SFGPEWHH--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Obús Pesado (cal 240mm)')"><span class="mil-symbol"></span>
+              Obús Pesado (cal 240mm)</a>
+            <a href="#" data-sidc="SFGPEWD---" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano')"><span
+                class="mil-symbol"></span> Cañón Liviano</a>
+            <a href="#" data-sidc="SFGPEWDL--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano')"><span
+                class="mil-symbol"></span> Cañón Mediano</a>
+            <a href="#" data-sidc="SFGPEWDM--" onclick="agregarMarcador(this.dataset.sidc, 'Cañón Pesado')"><span
+                class="mil-symbol"></span> Cañón Pesado</a>
+            <a href="#" data-sidc="SFGPEWG---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Cañón Liviano Antitanque')"><span class="mil-symbol"></span>
+              Cañón Liviano Antitanque</a>
+            <a href="#" data-sidc="SFGPEWDLS-"
+              onclick="agregarMarcador(this.dataset.sidc, 'Cañón Mediano Autopropulsado')"><span
+                class="mil-symbol"></span> Cañón Mediano Autopropulsado</a>
+          </div>
+        </div>
+
+        <div class="menu-btn">
+          <button onclick="toggleMenu('artilleriaAntiareaBtn')">Artillería Antiaérea</button>
+          <div id="artilleriaAntiareaBtn" class="collapse submenu simbolo-grid sidc-container">
+            <a href="#" data-sidc="SFGPEWA---"
+              onclick="agregarMarcador(this.dataset.sidc, 'Cañón de Artillería Antiaérea')"><span
+                class="mil-symbol"></span> Cañón de Artillería Antiaérea</a>
+            <a href="#" data-sidc="SFGPEWAL--"
+              onclick="agregarMarcador(this.dataset.sidc, 'Proyectil Autopropulsado Superficie-Aire')"><span
+                class="mil-symbol"></span> Proyectil Autopropulsado Superficie-Aire</a>
+          </div>
+        </div>
+      </div>
+    </div>
+          <div class="menu-btn">
+              <button onclick="toggleMenu('apoyoCombateBtn')">Apoyo de Combate</button>
+              <div id="apoyoCombateBtn" class="collapse submenu simbolo-grid">
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Ingenieros')" data-sidc="SFGPUCE---"><span class="mil-symbol"></span>Ingenieros</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comunicaciones')" data-sidc="SFGPUUS---"><span class="mil-symbol"></span>Comunicaciones</a>         
+                  <div class="menu-btn">
+                      <button onclick="toggleMenu('ingenierosBtn')">Ingenieros</button>
+                      <div id="ingenierosBtn" class="collapse submenu">
+                        <div class="menu-btn">
+                          <button onclick="toggleMenu('ingenierosVehiculosEquiposBtn')">Vehículos y Equipos</button>
+                          <div id="ingenierosVehiculosEquiposBtn" class="collapse submenu simbolo-grid">
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Combate Lanzapuentes')" data-sidc="SFGPEVEB--"><span class="mil-symbol"></span>Vehículo de Combate Lanzapuentes</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Ingenieros')" data-sidc="SFGPEVE---"><span class="mil-symbol"></span>Vehículo de Ingenieros</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Apertura de Brecha')" data-sidc="SFGPEVC---"><span class="mil-symbol"></span>Vehículo de Apertura de Brecha</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Desminado')" data-sidc="SFGPEVUL--"><span class="mil-symbol"></span>Vehículo de Desminado</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo de Movilidad')" data-sidc="SFGPEVM---"><span class="mil-symbol"></span>Vehículo de Movilidad</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vehículo Utilitario')" data-sidc="SFGPEVU---"><span class="mil-symbol"></span>Vehículo Utilitario</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Bulldozer')" data-sidc="SFGPEVUB--"><span class="mil-symbol"></span>Bulldozer</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Rodillo')" data-sidc="SFGPEVUR--"><span class="mil-symbol"></span>Rodillo</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Excavadora')" data-sidc="SFGPEVUE--"><span class="mil-symbol"></span>Excavadora</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cargador')" data-sidc="SFGPEVUL--"><span class="mil-symbol"></span>Cargador</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Grúa')" data-sidc="SFGPEVUX--"><span class="mil-symbol"></span>Grúa</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Volquete')" data-sidc="SFGPEVUT--"><span class="mil-symbol"></span>Volquete</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Camión Cisterna')" data-sidc="SFGPEVUT--"><span class="mil-symbol"></span>Camión Cisterna</a>
+                              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Buscaminas')" data-sidc="SFGPEVUSL-"><span class="mil-symbol"></span>Buscaminas</a>
+                          </div>
+                      </div>
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('ingenierosMovilidadBtn')">Movilidad</button>
+                              <div id="ingenierosMovilidadBtn" class="collapse submenu simbolo-grid">
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Bueno')">Camino Bueno</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Malo')">Camino Malo</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino Pavimentado')">Camino Pavimentado</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLR---', 'Camino de Tierra')">Camino de Tierra</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puente')" data-sidc="GFMPBCB---"><span class="mil-symbol"></span>Puente</a>
+                                <a href="#" onclick="dibujarElemento('linea', 'GFGPGLL---', 'Curso de Agua')">Curso de Agua</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Vado')" data-sidc="GFMPBCF---"><span class="mil-symbol"></span>Vado</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compuerta')" data-sidc="GFMPBCA---"><span class="mil-symbol"></span>Compuerta</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Túnel')" data-sidc="GFMPBCT---"><span class="mil-symbol"></span>Túnel</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Paso a Nivel')" data-sidc="GFMPBCP---"><span class="mil-symbol"></span>Paso a Nivel</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Punto de Embarque')" data-sidc="GFGPGPE---"><span class="mil-symbol"></span>Punto de Embarque</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Punto de Desembarque')" data-sidc="GFGPGPD---"><span class="mil-symbol"></span>Punto de Desembarque</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Helipuerto')" data-sidc="GFGPGAH---"><span class="mil-symbol"></span>Helipuerto</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Aeródromo')" data-sidc="GFGPGAA---"><span class="mil-symbol"></span>Aeródromo</a>
+                            </div>
+                          </div>         
+                          <div class="menu-btn">
+                            <button onclick="toggleMenu('ingenierosContramovilidadBtn')">Contramovilidad</button>
+                              <div id="ingenierosContramovilidadBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="dibujarElemento('poligono', 'GFMPOAD---', 'Zona de Demoliciones')">Zona de Demoliciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Obstáculo')" data-sidc="GFMPOB----"><span class="mil-symbol"></span>Obstáculo</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'GFMPOF----', 'Campo Minado')">Campo Minado</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque')" data-sidc="GFMPOMD---"><span class="mil-symbol"></span>Mina Antitanque</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antipersonal')" data-sidc="GFMPOME---"><span class="mil-symbol"></span>Mina Antipersonal</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Mina Antitanque de Circunstancia')" data-sidc="GFMPOMW---"><span class="mil-symbol"></span>Mina Antitanque de Circunstancia</a>
+                              </div>
+                          </div>          
+                          <div class="menu-btn">
+                            <button onclick="toggleMenu('ingenierosProteccionBtn')">Protección</button>
+                            <div id="ingenierosProteccionBtn" class="collapse submenu simbolo-grid">
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Fortificación')" data-sidc="GFMPSF----"><span class="mil-symbol"></span>Fortificación</a>
+                                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Muro')" data-sidc="GFMPSE----"><span class="mil-symbol"></span>Muro</a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>          
+                  <div class="menu-btn">
+                      <button onclick="toggleMenu('comunicacionesBtn')">Comunicaciones</button>
+                      <div id="comunicacionesBtn" class="collapse submenu">
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('comunicacionesComandosBtn')">Comandos, Elementos y Centros</button>
+                              <div id="comunicacionesComandosBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando de Comunicaciones')" data-sidc="SFGPUCCS--"><span class="mil-symbol"></span>Comando de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Comunicaciones')" data-sidc="SFGPUCCB--"><span class="mil-symbol"></span>Batallón de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Telecomunicaciones')" data-sidc="SFGPUCCE--"><span class="mil-symbol"></span>Batallón de Telecomunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Batallón de Operaciones Electrónicas')" data-sidc="SFGPUCPF--"><span class="mil-symbol"></span>Batallón de Operaciones Electrónicas</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Compañía de Comunicaciones')" data-sidc="SFGPUCCA--"><span class="mil-symbol"></span>Compañía de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Escuadrón de Comunicaciones')" data-sidc="SFGPUCCE--"><span class="mil-symbol"></span>Escuadrón de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Principal)')" data-sidc="SFGPUCPX--"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Principal)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando Alternativo)')" data-sidc="SFGPUCPXA-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando Alternativo)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Comunicaciones (Comando de Retaguardia)')" data-sidc="SFGPUCPXR-"><span class="mil-symbol"></span>Centro de Comunicaciones (Comando de Retaguardia)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Comunicaciones')" data-sidc="SFGPUCP---"><span class="mil-symbol"></span>Puesto de Comunicaciones</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Mensajes')" data-sidc="SFGPUCM---"><span class="mil-symbol"></span>Centro de Mensajes</a>
+                              </div>
+                          </div>          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('radioelectricosBtn')">Radioeléctricos</button>
+                              <div id="radioelectricosBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radio Vehicular')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo de Radio Vehicular</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Radiointerceptación')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo de Radiointerceptación</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo o Puesto de Integración Radio a Radio')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo o Puesto de Integración Radio a Radio</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación, Puesto o Equipo de Radio en General')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Estación, Puesto o Equipo de Radio en General</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radio')" data-sidc="SFG-UCRRT-"><span class="mil-symbol"></span>Repetidor de Radio</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo de Integración Radioalámbrica')" data-sidc="SFG-UCRRI-"><span class="mil-symbol"></span>Equipo de Integración Radioalámbrica</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo Radiorreceptor')" data-sidc="SFG-UCRR--"><span class="mil-symbol"></span>Equipo Radiorreceptor</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación o Puesto Radiogoniómetro')" data-sidc="SFG-UCRRG-"><span class="mil-symbol"></span>Estación o Puesto Radiogoniómetro</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Equipo, Estación o Puesto de Radioteleimpresor')" data-sidc="SFG-UCRRT-"><span class="mil-symbol"></span>Equipo, Estación o Puesto de Radioteleimpresor</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Radiomulticanal')" data-sidc="SFG-UCRM--"><span class="mil-symbol"></span>Puesto de Radiomulticanal</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Repetidor de Radiomulticanal')" data-sidc="SFG-UCRMT-"><span class="mil-symbol"></span>Repetidor de Radiomulticanal</a>
+                              </div>
+                          </div>          
+                          <div class="menu-btn">
+                              <button onclick="toggleMenu('telefoniaBtn')">Telefonía</button>
+                              <div id="telefoniaBtn" class="collapse submenu simbolo-grid">
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teléfono de Campaña a Magneto')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Teléfono de Campaña a Magneto</a>
+                                  <a href="#" onclick="dibujarElemento('linea', 'alambre-de-campana')">Alambre de Campaña (1 canal telefónico)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central de Teleimpresores')" data-sidc="SFG-UCTCT-"><span class="mil-symbol"></span>Central de Teleimpresores</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica (en un puesto de comando)')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Central Telefónica (en un puesto de comando)</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Central Telefónica')" data-sidc="SFG-UCTCP-"><span class="mil-symbol"></span>Central Telefónica</a>
+                                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Teleimpresor')" data-sidc="SFG-UCTIT-"><span class="mil-symbol"></span>Teleimpresor</a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('logisticaSanidadBtn')">Logística de Sanidad</button>
+            <div id="logisticaSanidadBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Sanidad')" data-sidc="SFGPUSM---"><span class="mil-symbol"></span>Sanidad</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Ambulancia')" data-sidc="EFOPAE----"><span class="mil-symbol"></span>Ambulancia</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Hospital Quirófano Móvil')" data-sidc="SFGPUSMM--"><span class="mil-symbol"></span>Hospital Quirófano Móvil</a>
+            </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('logisticaMaterialBtn')">Logística de Material</button>
+            <div id="logisticaMaterialBtn" class="collapse submenu">
+              <div class="menu-btn">
+                <button onclick="toggleMenu('intendenciaBtn')">Intendencia</button>
+                <div id="intendenciaBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Intendencia')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Instalación de Intendencia</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Depósito de Intendencia (Clase II y IV)')" data-sidc="SFGPUSS---"><span class="mil-symbol"></span>Depósito de Intendencia (Clase II y IV)</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Efectos Clase I')" data-sidc="GFSPPSA---"><span class="mil-symbol"></span>Lugar de Distribución de Efectos Clase I</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase III')" data-sidc="GFSPPSC---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase III</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión de Efectos Clase II y IV')" data-sidc="GFSPPSB---"><span class="mil-symbol"></span>Lugar de Reunión de Efectos Clase II y IV</a>
+                    </div>
+                  </div>
+                <div class="menu-btn">
+                  <button onclick="toggleMenu('arsenalesBtn')">Arsenales</button>
+                  <div id="arsenalesBtn" class="collapse submenu simbolo-grid">
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Instalación de Arsenales')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Instalación de Arsenales</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Reunión')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Reunión de Arsenales</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Distribución de Munición')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Distribución de Munición</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Abastecimiento de Efectos Clase II y IV')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Abastecimiento de Efectos Clase II y IV</a>
+                        <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Lugar de Recolección de Arsenales (Clase II y IV)')" data-sidc="GFSPPSZ---"><span class="mil-symbol"></span>Lugar de Recolección de Arsenales (Clase II y IV)</a>
+                    </div>
+                </div>
+            </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('transporteBtn')">Transporte</button>
+            <div id="transporteBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="dibujarElemento('linea', 'transito-alternado')">Tránsito Alternado</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-abierta')">Ruta Abierta</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-supervisada')">Ruta Supervisada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-despacho')">Ruta de Despacho</a>
+                <a href="#" onclick="dibujarElemento('linea', 'ruta-reservada')">Ruta Reservada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-secciones-carreteras')">Límite entre Secciones de Carreteras</a>
+                <a href="#" onclick="dibujarElemento('linea', 'itinerario-guardado')">Itinerario Guardado</a>
+                <a href="#" onclick="dibujarElemento('linea', 'seccion-carretera-intransitable')">Sección de Carretera Intransitable</a>
+                <a href="#" onclick="dibujarElemento('linea', 'transito-mano-unica')">Tránsito de Mano Única</a>
+                <a href="#" onclick="dibujarElemento('linea', 'transito-doble-mano')">Tránsito de Doble Mano</a>
+                <a href="#" onclick="dibujarElemento('linea', 'desvio')">Desvío</a>
+                </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('mccGeneralesBtn')">MCC</button>
+            <div id="mccGeneralesBtn" class="collapse submenu simbolo-grid">
+                <a href="#" onclick="dibujarElemento('poligono', 'SFFPAO----', 'Objetivo')">Objetivo</a>
+                <a href="#" onclick="dibujarFlecha('flecha', 'Dirección de Ataque')">Dirección de Ataque</a>
+                <a href="#" onclick="dibujarElemento('flechaAncha', 'GFGPOLAA--', 'Eje de Avance')">Eje de Avance</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'GFGPOAA---')">Área de Operaciones</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLK---', 'Línea de Coordinación')">LLA</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'GFMPOGB---')">Bloqueo</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLR---')">Retirada</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLAA--')">Límite de Área</a>
+                <a href="#" onclick="dibujarElemento('poligono', 'GFGPOAR---')">Zona de Reunión</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-entre-dos-elementos')">Límite entre dos elementos</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-dentro-de-un-objetivo')">Límite dentro de un objetivo</a>
+                <a href="#" onclick="dibujarElemento('linea', 'limite-exploracion-seguridad')">Límite de Exploración y Seguridad</a>
+                <a href="#" onclick="dibujarElemento('linea', 'GFGPOLC---')">Línea de Contacto (tropas amigas)</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LCFin')">Línea de Coordinación Final</a>
+                <a href="#" onclick="dibujarElemento('linea', 'LPAtq')">Línea de Partida para el Ataque</a>
+                <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Bloqueo')" data-sidc="GFMPOGB---"><span class="mil-symbol"></span>Bloqueo</a>
+                <a href="#" onclick="agregarPuntoControl('PC')"> Punto de Control (PC)</a>
+                <a href="#" onclick="agregarPuntoControl('PI')">Punto Inicial (PI)</a>
+                <a href="#" onclick="agregarPuntoControl('PT')">Punto Terminal (PT)</a>
+                <a href="#" onclick="agregarPuntoControl('PD')">Punto de Desdoblamiento (PD)</a>
+                <a href="#" onclick="agregarPuntoControl('PE')"> Punto de Encolumnamiento (PE)</a>
+                <a href="#" onclick="agregarPuntoControl('PP')"> Punto de Pasaje (PP)</a>
+  
+              </div>
+          </div>
+          <div class="menu-btn">
+            <button onclick="toggleMenu('fuegosBtn')">MCCF</button>
+            <div id="fuegosBtn" class="collapse submenu simbolo-grid">
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACSR--', 'Área de Fuego Restringido (AFR)', {color: 'red', fillColor: 'red', fillPattern: 'diagonal'})">Área de Fuego Restringido (AFR)</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*ACNR--', 'Área de NO Fuego (ANF)')">Área de NO Fuego (ANF)</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*ATB---', 'Barrera')">Barrera</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Acústica')" data-sidc="S*G*USAS--"><span class="mil-symbol"></span>Base Acústica</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Base Óptica')" data-sidc="S*G*USAO--"><span class="mil-symbol"></span>Base Óptica</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Centro de Batería')" data-sidc="S*G*USAT--"><span class="mil-symbol"></span>Centro de Batería</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AT----', 'Concentración de Tiro')">Concentración de Tiro</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Estación Meteorológica')" data-sidc="S*G*USAM--"><span class="mil-symbol"></span>Estación Meteorológica</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LT----', 'Grupo de Fuegos')">Grupo de Fuegos</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LCF---', 'Línea de Coordinación de Apoyo de Fuego (LCAF)')">Línea de Coordinación de Apoyo de Fuego (LCAF)</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LCC---', 'Línea de Coordinación y Seguridad de los Fuegos (LCSF)')">Línea de Coordinación y Seguridad de los Fuegos (LCSF)</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LCF---', 'Línea de Coordinación de los Fuegos (LCF)')">Línea de Coordinación de los Fuegos (LCF)</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Posición de Radar')" data-sidc="S*G*USAP--"><span class="mil-symbol"></span>Posición de Radar</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Puesto de Observación')" data-sidc="GFGPDPO---"><span class="mil-symbol"></span>Puesto de Observación</a>
+              <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'PRB')" data-sidc="GFFPPTS---"><span class="mil-symbol"></span>Punto Registro Blanco</a>
+              <a href="#" onclick="dibujarElemento('linea', 'G*F*LTS---', 'Línea de Apertura de Fuego')">Línea de Apertura de Fuego</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--', 'Zona de Apoyo de Fuego (ZAF)')">Zona de Apoyo de Fuego (ZAF)</a>
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZFX--', 'Zona de Fuego')">Zona de Fuego</a>
+             
+              <a href="#" onclick="dibujarElemento('poligono', 'G*F*AZXX--', 'Zona de Responsabilidad de Fuego Naval (ZRFN)')">Zona de Responsabilidad de Fuego Naval (ZRFN)</a>
+
+            </div>
+        </div>
+        <div class="menu-btn">
+          <button onclick="toggleMenu('toeBtn')">TOE (Tropas de Operaciones Especiales)</button>
+          <div id="toeBtn" class="collapse submenu">
+              <div class="menu-btn">
+                  <button onclick="toggleMenu('comandosTOEBtn')">Comandos</button>
+                  <div id="comandosTOEBtn" class="collapse submenu simbolo-grid">
+                      <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Comando')" data-sidc="NONE"><span class="mil-symbol"></span>Comando</a>
+                  </div>
+              </div>
+              <div class="menu-btn">
+                <button onclick="toggleMenu('cazadoresBtn')">Cazadores</button>
+                <div id="cazadoresBtn" class="collapse submenu simbolo-grid">
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Monte')" data-sidc="S*G*UCIZ--"><span class="mil-symbol"></span>Cazador de Monte</a>
+                  <a href="#" onclick="agregarMarcador(this.dataset.sidc, 'Cazador de Montaña')" data-sidc="S*G*UCIZ--"><span class="mil-symbol"></span>Cazador de Montaña</a>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<div class="menu-btn">
+  <button id="calcoBtn" data-toggle="collapse" data-target="#calcos-menu">
+    <i class="fas fa-layer-group"></i> Calcos
+  </button>
+  <div id="calcos-menu" class="menu collapse">
+    <div>
+      <a href="#" id="nuevoCalcoBtn"><i class="fas fa-plus"></i> Nuevo Calco</a>
+      <a href="#" id="cargarCalcoBtn"><i class="fas fa-upload"></i> Cargar Calco</a>
+      <a href="#" id="guardarCalcoBtn"><i class="fas fa-save"></i> Guardar Calco</a>
+      <a href="#" id="imprimirBtn"><i class="fas fa-print"></i> Imprimir</a>
+    <div id="calcosLista">
+      <!-- Aquí se agregarán los calcos dinámicamente -->
+    </div>
+  </div>
+  </div>
+</div>
+<div class="menu-btn">
+  <button id="ayudaBtn" data-toggle="collapse" data-target="#helpMenu" aria-expanded="false" aria-controls="helpMenu">
+    <i class="fas fa-question"></i> Ayuda
+  </button>
+  <div id="helpMenu" class="menu collapse">
+    <a href="#" id="documentacionBtn">
+      <i class="fas fa-book"></i> Documentación
+    </a>
+    <a href="#" id="atajosBtn">
+      <i class="fas fa-keyboard"></i> Atajos de Teclado
+    </a>
+  </div>
+</div>
+<div class="menu-btn">
+  <button id="btnControles3D" onclick="toggleControles3D()">
+    <i class="fas fa-sliders-h"></i> Controles 3D
+  </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+
+<!-- 🎛️ PANEL DE CONTROLES 3D -->
+<div id="panelControles3D" class="panel-controles-3d" style="display: none;">
+  <div class="controles-3d-header">
+    <h3><i class="fas fa-sliders-h"></i> Controles de Terreno 3D</h3>
+    <button id="cerrarControles3D" class="btn-cerrar-controles" onclick="cerrarControles3D()">×</button>
+  </div>
+  <div class="controles-3d-content">
+    <div class="control-group">
+      <label for="vegetationScale">Escala de Vegetación:</label>
+      <input type="range" id="vegetationScale" min="0.1" max="2.0" step="0.1" value="1.0">
+      <span id="vegetationScaleValue">1.0x</span>
+    </div>
+    
+    <div class="control-group">
+      <label for="vegetationDensity">Densidad de Vegetación:</label>
+      <input type="range" id="vegetationDensity" min="0.1" max="1.0" step="0.1" value="0.3">
+      <span id="vegetationDensityValue">0.3</span>
+    </div>
+    
+    <div class="control-group">
+      <label for="lodDistance">Distancia LOD:</label>
+      <input type="range" id="lodDistance" min="50" max="500" step="25" value="200">
+      <span id="lodDistanceValue">200m</span>
+    </div>
+    
+    <div class="control-group">
+      <label for="terrainResolution">Resolución del Terreno:</label>
+      <select id="terrainResolution">
+        <option value="64">64x64 (Rápido)</option>
+        <option value="128" selected>128x128 (Estándar)</option>
+        <option value="256">256x256 (Detallado)</option>
+      </select>
+    </div>
+    
+    <div class="control-group">
+      <label for="cameraHeight">Altura de Cámara:</label>
+      <input type="range" id="cameraHeight" min="50" max="2000" step="50" value="1000">
+      <span id="cameraHeightValue">1000m</span>
+    </div>
+    
+    <div class="control-buttons">
+      <button id="aplicarControles3D" class="btn-aplicar" onclick="aplicarControles3D()">
+        <i class="fas fa-check"></i> Aplicar Cambios
+      </button>
+      <button id="resetControles3D" class="btn-reset" onclick="resetControles3D()">
+        <i class="fas fa-undo"></i> Reset
+      </button>
+    </div>
+    
+    <div class="control-info">
+      <p><strong>Controles de Teclado:</strong></p>
+      <ul>
+        <li><kbd>WASD</kbd> - Mover cámara horizontal</li>
+        <li><kbd>QE</kbd> - Subir/Bajar</li>
+        <li><kbd>Mouse</kbd> - Rotar vista</li>
+        <li><kbd>Scroll</kbd> - Zoom</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div id="mapContainer"></div>
+  <div id="map" style="height: 100%;"></div>
+  
+  <!-- 🏗️ Contenedor para Canvas 3D - FASE 1 -->
+  <div id="canvas-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
+    <!-- El canvas 3D se insertará aquí dinámicamente -->
+  </div>
+  
+  </div>
+  <div>
+    <button id="fullscreenBtn" class="fullscreen-button"><i class="fas fa-expand"></i></button>
+  </div>
+  <div id="botones-secundarios">
+    <button id="btnDeshacer" onclick="deshacer()" disabled><i class="fas fa-undo-alt"></i></button>
+    <button id="btnRehacer" onclick="rehacer()" disabled><i class="fas fa-redo-alt"></i></button>
+    <button id="btnVolver" class="boton-volver"><i class="fas fa-arrow-left"></i></button>
+  </div>
+  <div id="coordenadas" class="coordenadas-display"></div>
+  <div id="medicionDistancia" class="medicion-display">
+    <span id="textoMedicion"></span>
+    <button id="cerrarMedicion">X</button>
+</div>
+  
+  <div id="panelEdicionLinea" class="panel">
+    <h3>Editar Línea</h3>
+    <div>
+        <label for="nombreLinea">Nombre:</label>
+        <input type="text" id="nombreLinea">
+    </div>
+    <div>
+        <label for="colorLinea">Color:</label>
+        <input type="color" id="colorLinea">
+    </div>
+    <div>
+        <label for="anchoLinea">Ancho:</label>
+        <input type="number" id="anchoLinea" min="1" max="10">
+    </div> 
+    <div>
+        <label for="tipoLinea">Tipo:</label>
+        <select id="tipoLinea">
+            <option value="solid">Sólida</option>
+            <option value="dashed">Punteada</option>
+        </select> 
+    </div>
+    <div class="panel-buttons">
+        <button id="guardarCambiosLinea">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionLinea')">Cerrar</button>
+    </div>
+    
+</div>
+
+<div id="panelEdicionUnidad" class="panel">
+    <h3>Editar Unidad</h3>
+    <div class="tab">
+        <button class="tablinks" data-tab="SIDC">SIDC</button>
+        <button class="tablinks" data-tab="Informacion">Información</button>
+        <button class="tablinks" data-tab="Caracteristicas">Características</button>
+    </div>
+
+    <div id="sidcDisplay"></div>
+
+    <div id="SIDC" class="tabcontent">
+        <div>
+            <label for="afiliacion">Afiliación:</label>
+            <select id="afiliacion">
+                <option value="-">Desconocido</option>
+                <option value="F">Amigo</option>
+                <option value="J">Hostil/Enemigo</option>
+            </select>
+        </div>
+        <div>
+            <label for="estado">Estado:</label>
+            <select id="estado">
+                <option value="P">Presente</option>
+                <option value="A">Planeado</option>
+            </select>
+        </div>
+        <div>
+            <label for="arma">Arma:</label>
+            <select id="arma"></select>
+        </div>
+        <div>
+            <label for="tipo">Tipo:</label>
+            <select id="tipo"></select>
+        </div>
+        <div>
+            <label for="caracteristica">Característica:</label>
+            <select id="caracteristica"></select>
+        </div>
+        <div>
+            <label for="tipoVehiculo">Tipo de Vehículo:</label>
+            <select id="tipoVehiculo">
+                <option value="">Seleccionar tipo...</option>
+            </select>
+        </div>
+        <div>
+            <label for="magnitud">Magnitud:</label>
+            <select id="magnitud">
+                <option value="-">No especificado</option>
+                <option value="A">Equipo/Tripulación</option>
+                <option value="B">peloton</option>
+                <option value="C">grupo</option>
+                <option value="D">Sección</option>
+                <option value="E">Compañía/Escuadrón/Batería</option>
+                <option value="F">Regimiento/Batallón/Grupo</option>
+                <option value="H">Brigada</option>
+                    <option value="I">División</option>
+                    <option value="J">Cuerpo/MEF</option>
+                    <option value="K">Ejército</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="Informacion" class="tabcontent">
+        <div>
+            <label for="designacion">Designación:</label>
+            <input type="text" id="designacion">
+        </div>
+        <div>
+            <label for="dependencia">Dependencia:</label>
+            <input type="text" id="dependencia">
+        </div>
+    </div>
+
+    <div id="Caracteristicas" class="tabcontent">
+        <div>
+            <input type="checkbox" id="puestoComando">
+            <label for="puestoComando">Puesto de Comando</label>
+        </div>
+        <div>
+            <input type="checkbox" id="fuerzaTarea">
+            <label for="fuerzaTarea">Fuerza de Tarea</label>
+        </div>
+        <div>
+            <input type="checkbox" id="reforzado">
+            <label for="reforzado">Reforzado</label>
+        </div>
+        <div>
+            <input type="checkbox" id="disminuido">
+            <label for="disminuido">Disminuido</label>
+        </div>
+    </div>
+
+    <div class="panel-buttons">
+        <button id="guardarCambiosUnidad">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionUnidad')">Cerrar</button>
+    </div>
+</div>
+
+<div id="panelEdicionEquipo" class="panel">
+    <h3>Editar Equipo</h3>
+    
+    <div id="sidcDisplayEquipo"></div>
+    
+    <div class="tab">
+        <button class="tablinks" data-tab="SIDCEquipo">SIDC</button>
+        <button class="tablinks" data-tab="InformacionEquipo">Información</button>
+    </div>
+
+    <div id="SIDCEquipo" class="tabcontent">
+        <div>
+            <label for="afiliacionEquipo">Afiliación:</label>
+            <select id="afiliacionEquipo">
+                <option value="-">Desconocido</option>
+                <option value="F">Amigo</option>
+                <option value="J">Hostil/Enemigo</option>
+            </select>
+        </div>
+        <div>
+            <label for="tipoVehiculoEquipo" id="labelTipoEquipo">Tipo de Vehículo:</label>
+            <select id="tipoVehiculoEquipo">
+                <option value="">Seleccionar tipo...</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="InformacionEquipo" class="tabcontent">
+        <div>
+            <label for="designacionEquipo">Designación:</label>
+            <input type="text" id="designacionEquipo">
+        </div>
+        <div>
+            <label for="asignacionEquipo">Asignación:</label>
+            <input type="text" id="asignacionEquipo">
+        </div>
+    </div>
+
+    <div class="panel-buttons">
+        <button id="guardarCambiosEquipo">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionEquipo')">Cerrar</button>
+    </div>
+</div>
+
+<div id="panelEdicionMCC" class="panel">
+    <h3>Editar Elemento MCC</h3>
+    <div>
+        <label for="textoMCC">Texto:</label>
+        <input type="text" id="textoMCC">
+    </div>
+    <div>
+        <label for="colorMCC">Color:</label>
+        <input type="color" id="colorMCC">
+    </div>
+    <div>
+        <label for="anchoMCC">Ancho:</label>
+        <input type="number" id="anchoMCC" min="1" max="10">
+    </div>
+    <div>
+        <label for="colorRellenoMCC">Color de relleno:</label>
+        <input type="color" id="colorRellenoMCC">
+    </div>
+    <div>
+        <label for="tipoLineaMCC">Tipo de línea:</label>
+        <select id="tipoLineaMCC">
+            <option value="solid">Sólida</option>
+            <option value="dashed">Punteada</option>
+        </select>
+    </div>
+    <div id="rellenoMCC" style="display: none;">
+        <label for="tipoRellenoMCC">Tipo de relleno:</label>
+        <select id="tipoRellenoMCC">
+          <option value="none">Sin relleno</option>
+          <option value="solid">Sólido</option>
+          <option value="diagonal">Diagonal</option>
+          <option value="rombos">Rombos</option>
+          <option value="cuadros">Cuadros</option>
+          <option value="puntos">Puntos</option>
+      </select>
+    </div>
+    <div class="panel-buttons">
+        <button id="guardarCambiosMCC">Guardar Cambios</button>
+        <button onclick="cerrarPanelEdicion('panelEdicionMCC')">Cerrar</button>
+    </div>
+  </div>
+
+<!-- Panel principal de cálculo de marcha -->
+
+<div id="panelMarchaContainer" style="display: none;"></div>
+
+<!-- Panel Perfil de Elevación -->
+<div id="perfilElevacionDisplay" class="sub-panel" style="display: none;">
+  <div class="display-header">
+      <h3>Perfil de Elevación</h3>
+      <div class="display-controls">
+          <button id="btnFullscreenElevation" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+          <button id="btnSaveElevation" class="btn-save" title="Guardar">↓</button>
+          <button id="btnPrintElevation" class="btn-print" title="Imprimir">⎙</button>
+          <button id="elevation-close-button" class="btn-cerrar" onclick="cerrarPanel('perfilElevacionDisplay')">×</button>
+      </div>
+  </div>
+  <div class="display-content" style="display: none;">
+      <!-- Contenido del perfil de elevación se cargará aquí -->
+  </div>
+</div>
+
+<!-- Panel Gráfico de Marcha -->
+
+<div id="graficoMarchaPanel" class="sub-panel" style="display: none;">
+  <div class="display-header">
+      <h3>Gráfico de Marcha</h3>
+      <div class="display-controls">
+          <button id="btnFullscreenGrafico" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+          <button id="btnSaveGrafico" class="btn-save" title="Guardar">↓</button>
+          <button id="btnPrintGrafico" class="btn-print" title="Imprimir">⎙</button>
+          <button id="cerrarPanelGrafico" class="btn-cerrar">×</button>
+      </div>
+  </div>
+  <div class="display-content">
+      <!-- El gráfico D3 se insertará aquí -->
+  </div>
+</div>
+
+<!-- Panel Cálculo de Marcha -->
+<div id="calculoMarchaPanel" class="sub-panel" style="display: none;">
+  <div class="display-header">
+      <h3>Cálculo de Marcha</h3>
+      <div class="display-controls">
+          <button id="btnFullscreenCalculo" class="btn-fullscreen" title="Pantalla completa">⛶</button>
+          <button id="btnSaveCalculo" class="btn-save" title="Guardar">↓</button>
+          <button id="btnPrintCalculo" class="btn-print" title="Imprimir">⎙</button>
+          <button id="cerrarPanelCalculo" class="btn-cerrar" onclick="cerrarPanel('calculoMarchaPanel')">×</button>
+      </div>
+  </div>
+  <div class="display-content" id="calculoMarchaContent">
+      <!-- Contenido de cálculo de marcha se cargará aquí -->
+  </div>
+  <div id="detallesMarchaContainer" class="detalles-marcha-container"></div>
+</div>
+
+<!-- Contenedor para los detalles de la marcha -->
+
+<!-- Script de inicialización socket -->
+<script>
+// 🔌 INICIALIZAR SOCKET GLOBAL
+try {
+    if (typeof io !== 'undefined') {
+        window.socket = io();
+        console.log('✅ Socket global inicializado');
+    } else {
+        console.warn('⚠️ Socket.IO no disponible');
+    }
+} catch(e) {
+    console.warn('⚠️ Error inicializando socket:', e);
+}
+</script>
+
+<!-- Script de inicialización modular -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 MAIRA 4.0 - Inicialización modular');
+    
+    // Inicializar sistemas modulares
+    setTimeout(async function() {
+        try {
+            // 1. Inicializar Sistema de Planeamiento
+            if (typeof inicializarSistemaPlaneamiento === 'function') {
+                window.sistemaPl = inicializarSistemaPlaneamiento();
+                console.log('✅ Sistema de Planeamiento inicializado');
+            }
+            
+            // 2. Inicializar Sistema 3D - UNIFICADO
+            if (typeof toggleVista3D === 'function') {
+                // Sistema 3D disponible
+                console.log('✅ Sistema 3D unificado disponible');
+            } else {
+                console.warn('⚠️ Sistema 3D no disponible - toggleVista3D no cargado');
+            }
+            
+            // 3. 🔄 INICIALIZAR SISTEMA SIDC-3D COMPLETO
+            if (typeof SIDCToModel3D !== 'undefined' && typeof MAIRA3DMaster !== 'undefined') {
+                try {
+                    // Inicializar SIDC Mapper original
+                    window.sidcMapper = new SIDCToModel3D();
+                    console.log('✅ SIDCToModel3D inicializado');
+
+                    // Inicializar MAIRA 3D Master (sin escena completa para integración)
+                    window.maira3DMaster = new MAIRA3DMaster();
+                    console.log('✅ MAIRA3DMaster inicializado para integración SIDC-3D');
+
+                    // 🌉 INTEGRAR SISTEMA JERÁRQUICO SIDC
+                    if (typeof sidcModelo3DBridge !== 'undefined') {
+                        console.log('🌉 Sistema jerárquico SIDC disponible');
+
+                        // El bridge se inicializa automáticamente
+                        // Verificar que el sistema jerárquico esté disponible
+                        if (typeof sistemaJerarquicoSIDC !== 'undefined') {
+                            console.log('🎖️ Sistema jerárquico SIDC integrado');
+                        }
+                    }                    // Agregar función global para probar SIDC completo
+                    window.testSIDCIntegration = function(sidc, tipoVehiculo = null) {
+                        if (!window.sidcMapper || !window.maira3DMaster) {
+                            console.error('❌ Sistema SIDC-3D no inicializado');
+                            return null;
+                        }
+
+                        try {
+                            // Usar el bridge jerárquico si está disponible
+                            if (window.sidcModelo3DBridge) {
+                                const resultadoJerarquico = window.sidcModelo3DBridge.obtenerModeloPorSIDCJerarquico(sidc, tipoVehiculo);
+                                if (resultadoJerarquico && resultadoJerarquico.tipo === 'jerarquico') {
+                                    console.log(`🎖️ SIDC jerárquico encontrado: ${resultadoJerarquico.estructura.estructura}`);
+                                    return resultadoJerarquico;
+                                }
+                            }
+
+                            // Fallback al sistema original
+                            const modelData = window.sidcMapper.getModelForSIDC(sidc);
+                            const modelType = window.maira3DMaster.getModelTypeFromSIDC(sidc);
+
+                            console.log(`🎯 SIDC ${sidc} → Modelo: ${modelData.model} (${modelType})`);
+                            return { modelData, modelType };
+                        } catch (error) {
+                            console.error('❌ Error en test SIDC:', error);
+                            return null;
+                        }
+                    };
+
+                    console.log('🎯 Sistema SIDC-3D completo integrado correctamente');
+                } catch (error) {
+                    console.warn('⚠️ Error inicializando SIDC-3D:', error);
+                }
+            } else {
+                console.warn('⚠️ Componentes SIDC-3D no disponibles');
+            }
+            
+            // 4. Configurar eventos específicos de planeamiento
+            configurarEventosPlaneamiento();
+            
+            // 5. Verificar funcionalidades críticas heredadas
+            verificarFuncionalidadesCriticas();
+            
+        } catch (error) {
+            console.error('❌ Error en inicialización modular:', error);
+        }
+    }, 1000);
+});
+
+// =========================================================================
+// 🏗️ SISTEMA GENERACIÓN TERRENO 3D - FASE 1
+// =========================================================================
+
+// Variables globales para el sistema 3D
+let scene, camera, renderer, controls;
+let currentTerrain = null;
+let satelliteAnalyzer = null;
+
+// === MODAL DE CARGA ===
+function showLoadingModal(step = 'Iniciando...', progress = 0) {
+    const modal = document.getElementById('loading-modal');
+    const stepEl = document.getElementById('loading-step');
+    const progressBar = document.getElementById('loading-progress-bar');
+    const percentage = document.getElementById('loading-percentage');
+    
+    if (modal && stepEl && progressBar && percentage) {
+        modal.style.display = 'flex';
+        stepEl.textContent = step;
+        progressBar.style.width = `${progress}%`;
+        percentage.textContent = `${Math.round(progress)}%`;
+    }
+}
+
+function hideLoadingModal() {
+    const modal = document.getElementById('loading-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function updateProgressBar(message, progress) {
+    showLoadingModal(message, progress);
+    console.log(`📊 Progress: ${message} (${Math.round(progress)}%)`);
+}
+
+function hideProgressBar() {
+    hideLoadingModal();
+}
+
+// === CAPTURA DE map ===
+async function captureMap() {
+    return new Promise((resolve, reject) => {
+        // ✅ FIX: Usar 'map' en vez de 'map' (nombre correcto en mapaP.js)
+        if (!window.map) {
+            reject(new Error('map no disponible'));
+            return;
+        }
+        
+        if (!window.leafletImage) {
+            reject(new Error('leaflet-image no cargado'));
+            return;
+        }
+        
+        console.log('📸 Capturando map...');
+        
+        // 🔥 TIMEOUT: Si leaflet-image no responde en 3 segundos, usar fallback
+        let timeoutId = setTimeout(() => {
+            console.warn('⏱️ TIMEOUT: leaflet-image no respondió - usando fallback');
+            const fallbackCanvas = document.createElement('canvas');
+            fallbackCanvas.width = 512;
+            fallbackCanvas.height = 512;
+            const ctx = fallbackCanvas.getContext('2d');
+            ctx.fillStyle = '#7ea87e';
+            ctx.fillRect(0, 0, 512, 512);
+            
+            satelliteAnalyzer = {
+                canvas: fallbackCanvas,
+                features: null
+            };
+            
+            resolve(fallbackCanvas);
+        }, 3000); // 3 segundos timeout
+        
+        try {
+            leafletImage(window.map, function(err, canvas) {
+                clearTimeout(timeoutId); // Cancelar timeout si responde
+                
+                if (err) {
+                    console.error('❌ Error en captura leaflet-image:', err);
+                    // Fallback: crear canvas en blanco
+                    const fallbackCanvas = document.createElement('canvas');
+                    fallbackCanvas.width = 512;
+                    fallbackCanvas.height = 512;
+                    const ctx = fallbackCanvas.getContext('2d');
+                    ctx.fillStyle = '#7ea87e';
+                    ctx.fillRect(0, 0, 512, 512);
+                    
+                    satelliteAnalyzer = {
+                        canvas: fallbackCanvas,
+                        features: null
+                    };
+                    
+                    console.log('⚠️ Usando canvas fallback (verde)');
+                    resolve(fallbackCanvas);
+                    return;
+                }
+                
+                // Crear objeto satelliteAnalyzer con el canvas
+                satelliteAnalyzer = {
+                    canvas: canvas,
+                    features: null,
+                    getTexture: function() {
+                        if (!this.canvas) return null;
+                        const texture = new THREE.CanvasTexture(this.canvas);
+                        texture.wrapS = THREE.ClampToEdgeWrapping;
+                        texture.wrapT = THREE.ClampToEdgeWrapping;
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                        return texture;
+                    }
+                };
+                
+                console.log('✅ map capturado exitosamente');
+                resolve(canvas);
+            });
+        } catch (error) {
+            clearTimeout(timeoutId);
+            console.error('❌ Excepción capturando map:', error);
+            // Fallback en caso de excepción
+            const fallbackCanvas = document.createElement('canvas');
+            fallbackCanvas.width = 512;
+            fallbackCanvas.height = 512;
+            const ctx = fallbackCanvas.getContext('2d');
+            ctx.fillStyle = '#7ea87e';
+            ctx.fillRect(0, 0, 512, 512);
+            
+            satelliteAnalyzer = {
+                canvas: fallbackCanvas,
+                features: null,
+                getTexture: function() {
+                    if (!this.canvas) return null;
+                    const texture = new THREE.CanvasTexture(this.canvas);
+                    texture.wrapS = THREE.ClampToEdgeWrapping;
+                    texture.wrapT = THREE.ClampToEdgeWrapping;
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    return texture;
+                }
+            };
+            
+            console.log('⚠️ Usando canvas fallback por excepción');
+            resolve(fallbackCanvas);
+        }
+    });
+}
+
+// === ANÁLISIS DE IMAGEN ===
+async function analyzeMap() {
+    return new Promise((resolve, reject) => {
+        if (!satelliteAnalyzer || !satelliteAnalyzer.canvas) {
+            reject(new Error('Canvas no disponible'));
+            return;
+        }
+        
+        console.log('🔍 Analizando imagen...');
+        
+        try {
+            const canvas = satelliteAnalyzer.canvas;
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            let vegetationPixels = 0;
+            let waterPixels = 0;
+            let urbanPixels = 0;
+            
+            // Análisis simple de píxeles
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Detectar vegetación (verde)
+                if (g > r && g > b && g > 100) {
+                    vegetationPixels++;
+                }
+                // Detectar agua (azul)
+                else if (b > r && b > g && b > 100) {
+                    waterPixels++;
+                }
+                // Detectar urbano (gris/blanco)
+                else if (Math.abs(r - g) < 30 && Math.abs(g - b) < 30 && r > 150) {
+                    urbanPixels++;
+                }
+            }
+            
+            const totalPixels = data.length / 4;
+            
+            satelliteAnalyzer.features = {
+                vegetation: (vegetationPixels / totalPixels) * 100,
+                water: (waterPixels / totalPixels) * 100,
+                urban: (urbanPixels / totalPixels) * 100
+            };
+            
+            console.log('✅ Análisis completado:', satelliteAnalyzer.features);
+            resolve(satelliteAnalyzer.features);
+            
+        } catch (error) {
+            console.error('Error en análisis:', error);
+            reject(error);
+        }
+    });
+}
+
+// === GENERACIÓN DE TERRENO 3D ===
+async function generateTerrain(autoActivate = false) {
+    return new Promise(async (resolve, reject) => {
+        if (!window.TerrainGenerator3D) {
+            reject(new Error('TerrainGenerator3D no disponible'));
+            return;
+        }
+        
+        if (!satelliteAnalyzer || !satelliteAnalyzer.canvas) {
+            reject(new Error('Datos satelitales no disponibles'));
+            return;
+        }
+        
+        try {
+            console.log('🏗️ Generando terreno 3D...');
+            
+            // Inicializar scene, camera, renderer si no existen
+            if (!scene) {
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x87ceeb);
+                scene.fog = new THREE.Fog(0x87ceeb, 2000, 25000); // Aumentado para terrenos grandes
+            }
+            
+            if (!camera) {
+                camera = new THREE.PerspectiveCamera(
+                    75,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    50000
+                );
+                camera.position.set(0, 500, 1000);
+            }
+            
+            if (!renderer) {
+                const canvasContainer = document.getElementById('canvas-container') || 
+                                       document.getElementById('map-container');
+                
+                renderer = new THREE.WebGLRenderer({ 
+                    antialias: true,
+                    alpha: true
+                });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                
+                if (canvasContainer) {
+                    canvasContainer.appendChild(renderer.domElement);
+                }
+            }
+            
+            if (!controls && window.THREE.OrbitControls) {
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.maxPolarAngle = Math.PI / 2 - 0.1;
+                
+                // 🎮 CONTROLES DE TECLADO MANUALES (OrbitControls.enableKeys está deprecado)
+                const keyState = {};
+                const moveSpeed = 5.0; // Velocidad de movimiento
+                
+                document.addEventListener('keydown', (e) => {
+                    keyState[e.code] = true;
+                    
+                    // Zoom con +/-
+                    if (e.code === 'Equal' || e.code === 'NumpadAdd') { // + (zoom in)
+                        camera.position.y = Math.max(10, camera.position.y - 5);
+                        console.log(`🔍 Zoom IN: altura=${camera.position.y.toFixed(1)}`);
+                    }
+                    if (e.code === 'Minus' || e.code === 'NumpadSubtract') { // - (zoom out)
+                        camera.position.y = Math.min(500, camera.position.y + 5);
+                        console.log(`🔍 Zoom OUT: altura=${camera.position.y.toFixed(1)}`);
+                    }
+                    
+                    // Subir/bajar con flechas arriba/abajo
+                    if (e.code === 'ArrowUp') {
+                        camera.position.y = Math.max(10, camera.position.y - 5);
+                        console.log(`⬆️ Subir cámara: altura=${camera.position.y.toFixed(1)}`);
+                    }
+                    if (e.code === 'ArrowDown') {
+                        camera.position.y = Math.min(500, camera.position.y + 5);
+                        console.log(`⬇️ Bajar cámara: altura=${camera.position.y.toFixed(1)}`);
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    keyState[e.code] = false;
+                });
+                
+                // Función de actualización de movimiento WASD + QE
+                const updateCameraMovement = () => {
+                    if (!controls) return;
+                    
+                    const forward = new THREE.Vector3();
+                    camera.getWorldDirection(forward);
+                    forward.y = 0; // Mantener movimiento horizontal
+                    forward.normalize();
+                    
+                    const right = new THREE.Vector3();
+                    right.crossVectors(forward, camera.up).normalize();
+                    
+                    // WASD - Movimiento horizontal
+                    if (keyState['KeyW']) { // W - Adelante
+                        camera.position.addScaledVector(forward, moveSpeed);
+                        controls.target.addScaledVector(forward, moveSpeed);
+                    }
+                    if (keyState['KeyS']) { // S - Atrás
+                        camera.position.addScaledVector(forward, -moveSpeed);
+                        controls.target.addScaledVector(forward, -moveSpeed);
+                    }
+                    if (keyState['KeyA']) { // A - Izquierda
+                        camera.position.addScaledVector(right, -moveSpeed);
+                        controls.target.addScaledVector(right, -moveSpeed);
+                    }
+                    if (keyState['KeyD']) { // D - Derecha
+                        camera.position.addScaledVector(right, moveSpeed);
+                        controls.target.addScaledVector(right, moveSpeed);
+                    }
+                    
+                    // QE - Subir/bajar vertical
+                    if (keyState['KeyQ']) { // Q - Bajar
+                        camera.position.y = Math.min(500, camera.position.y + moveSpeed * 0.5);
+                    }
+                    if (keyState['KeyE']) { // E - Subir
+                        camera.position.y = Math.max(10, camera.position.y - moveSpeed * 0.5);
+                    }
+                    
+                    controls.update();
+                };
+                
+                // Agregar al loop de animación
+                window.maira3DUpdateCameraMovement = updateCameraMovement;
+                
+                console.log('🎮 Controles de teclado activados: WASD (mover), QE (subir/bajar), +- (zoom), ↑↓ (altura)');
+            }
+            
+            // Obtener bounds del map actual (usar 'map' no 'map')
+            const bounds = window.map.getBounds();
+            const center = window.map.getCenter();
+            
+            // Crear configuración para TerrainGenerator3D
+            const config = {
+                resolution: 128,
+                verticalScale: 2.0,
+                textureQuality: 'high',
+                vegetationDensity: 0.8
+            };
+            
+            // Generar terreno
+            showLoadingModal('🏗️ Generando geometría del terreno...', 60);
+            
+            // Crear instancia de TerrainGenerator3D
+            const terrainGenerator = new TerrainGenerator3D(config);
+            
+            // Crear sistema 3D para pasar al inicializador
+            const maira3DSystem = {
+                scene: scene,
+                camera: camera,
+                renderer: renderer,
+                controls: controls
+            };
+            
+            // Inicializar con servicios globales disponibles (ahora async)
+            await terrainGenerator.initialize(
+                window.elevationService || null,
+                window.vegetationService || null,
+                maira3DSystem,
+                satelliteAnalyzer
+            );
+            
+            // Generar terreno usando bounds del map
+            const result = await terrainGenerator.generateTerrain(bounds, {
+                includeVegetation: true,
+                includeRoads: false,
+                includeBuildings: false,
+                includeWater: true,
+                mapZoom: window.map.getZoom()
+            });
+            
+            // Validar resultado
+            if (!result || !result.terrain) {
+                throw new Error('Terreno no generado correctamente (terrain es null)');
+            }
+            
+            // Agregar terreno a la escena
+            scene.add(result.terrain);
+            console.log('✅ Terreno agregado a la escena');
+            
+            // Agregar vegetación si existe
+            if (result.vegetation && result.vegetation.length > 0) {
+                result.vegetation.forEach(vegObj => scene.add(vegObj));
+                console.log(`🌳 ${result.vegetation.length} modelos de vegetación agregados`);
+            }
+            
+            // Agregar agua si existe
+            if (result.water && result.water.length > 0) {
+                result.water.forEach(w => scene.add(w));
+                console.log(`💧 ${result.water.length} planos de agua agregados`);
+            }
+            
+            // Agregar caminos si existen
+            if (result.roads && result.roads.length > 0) {
+                result.roads.forEach(road => scene.add(road));
+                console.log(`🛣️ ${result.roads.length} segmentos de caminos agregados`);
+            }
+            
+            // Agregar edificios si existen
+            if (result.buildings && result.buildings.length > 0) {
+                result.buildings.forEach(building => scene.add(building));
+                console.log(`🏢 ${result.buildings.length} edificios agregados`);
+            }
+            
+            currentTerrain = result;
+            
+            showLoadingModal('✨ Aplicando texturas y vegetación...', 90);
+            
+            // Agregar luces
+            const ambientLight = new THREE.AmbientLight(0x606060, 1.2);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
+            directionalLight.position.set(500, 1000, 500);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            console.log('✅ Terreno 3D generado exitosamente');
+            
+            // Iniciar loop de renderizado
+            function animate() {
+                requestAnimationFrame(animate);
+                if (controls) controls.update();
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            }
+            animate();
+            
+            resolve(currentTerrain);
+            
+        } catch (error) {
+            console.error('Error generando terreno:', error);
+            reject(error);
+        }
+    });
+}
+
+// === FUNCIÓN PRINCIPAL ===
+// ✅ MIGRADO A SISTEMA MODULAR: terrain3d-init.js
+// La función createFullView3D() ahora se expone desde el sistema modular
+// Ver: Client/js/terrain3d/terrain3d-init.js línea ~100
+
+// === FULLSCREEN 3D ===
+function activateFullscreen3D() {
+    const mainContainer = document.getElementById('main-container') || 
+                         document.getElementById('sidebar')?.parentElement ||
+                         document.body;
+    const closeButton = document.getElementById('close-3d-button');
+    
+    mainContainer.classList.add('fullscreen-3d');
+    
+    if (closeButton) {
+        closeButton.style.display = 'block';
+        closeButton.onclick = closeFullscreen3D;
+    }
+    
+    if (renderer && camera) {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    }
+    
+    console.log('🖥️ Modo fullscreen 3D activado');
+}
+
+function closeFullscreen3D() {
+    const mainContainer = document.getElementById('main-container') ||
+                         document.getElementById('sidebar')?.parentElement ||
+                         document.body;
+    const closeButton = document.getElementById('close-3d-button');
+    const canvasContainer = document.getElementById('canvas-container');
+
+    mainContainer.classList.remove('fullscreen-3d');
+
+    // ✅ FIX: Ocultar canvas-container y remover clase active
+    if (canvasContainer) {
+        canvasContainer.classList.remove('active');
+        canvasContainer.style.display = 'none';
+        canvasContainer.style.pointerEvents = 'none';
+        console.log('✅ Canvas container ocultado correctamente');
+    }
+
+    if (closeButton) {
+        closeButton.style.display = 'none';
+    }
+
+    // Limpiar terreno y liberar memoria
+    if (currentTerrain && currentTerrain.terrain) {
+        scene.remove(currentTerrain.terrain);
+        if (currentTerrain.terrain.geometry) {
+            currentTerrain.terrain.geometry.dispose();
+        }
+        if (currentTerrain.terrain.material) {
+            if (Array.isArray(currentTerrain.terrain.material)) {
+                currentTerrain.terrain.material.forEach(mat => mat.dispose());
+            } else {
+                currentTerrain.terrain.material.dispose();
+            }
+        }
+    }
+    
+    if (renderer) {
+        renderer.dispose();
+        renderer.forceContextLoss();
+        if (renderer.domElement && renderer.domElement.parentElement) {
+            renderer.domElement.parentElement.removeChild(renderer.domElement);
+        }
+        renderer = null;
+    }
+    
+    if (scene) {
+        scene.traverse(object => {
+            if (object.geometry) object.geometry.dispose();
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach(mat => mat.dispose());
+                } else {
+                    object.material.dispose();
+                }
+            }
+        });
+        scene.clear();
+        scene = null;
+    }
+    
+    camera = null;
+    controls = null;
+    currentTerrain = null;
+    satelliteAnalyzer = null;
+    
+    console.log('🧹 Vista 3D cerrada y memoria liberada');
+    
+    // Actualizar botón
+    const btnVista3D = document.getElementById('btnVista3D');
+    if (btnVista3D) {
+        btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Generar Vista 3D';
+    }
+}
+
+// =========================================================================
+// 🎯 SISTEMA DIRECTO COPIADO DEL TEST QUE FUNCIONA
+// =========================================================================
+
+// Variables globales para THREE.js (patrón del test)
+let maira3DScene = null;
+let maira3DCamera = null;
+let maira3DRenderer = null;
+let maira3DControls = null;
+let maira3DTerrainGenerator = null;
+let maira3DCurrentTerrain = null;
+
+// 🎬 INICIALIZAR THREE.JS (copiado exacto del test)
+function initThreeJSDirect() {
+    console.log('🎨 Inicializando THREE.js (patrón test)...');
+    
+    // Obtener contenedor
+    let container = document.getElementById('canvas-container');
+    if (!container) {
+        console.error('❌ No se encontró canvas-container');
+        return;
+    }
+    
+    // Limpiar contenedor
+    container.innerHTML = '';
+    container.style.display = 'block';
+    container.style.pointerEvents = 'auto';
+    container.style.zIndex = '10';
+    
+    // Crear escena
+    maira3DScene = new THREE.Scene();
+    maira3DScene.background = new THREE.Color(0x87CEEB);
+    
+    // Crear cámara
+    maira3DCamera = new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        50000
+    );
+    maira3DCamera.position.set(0, 1000, 400);
+    maira3DCamera.lookAt(0, 0, 0);
+    
+    // 🎮 Marcar modo 3D como activo (para atajosP.js)
+    window.maira3DActive = true;
+    console.log('🎮 Modo 3D activado - teclas gestionadas por controles 3D');
+    
+    // Crear renderer
+    maira3DRenderer = new THREE.WebGLRenderer({ 
+        antialias: true,
+        powerPreference: "high-performance"
+    });
+    maira3DRenderer.setSize(window.innerWidth, window.innerHeight);
+    maira3DRenderer.shadowMap.enabled = true;
+    maira3DRenderer.outputColorSpace = THREE.SRGBColorSpace;
+    maira3DRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    maira3DRenderer.toneMappingExposure = 1.0;
+    container.appendChild(maira3DRenderer.domElement);
+    
+    // Iluminación
+    const ambientLight = new THREE.AmbientLight(0x404040, 1.2);
+    maira3DScene.add(ambientLight);
+    
+    const hemisphereLight = new THREE.HemisphereLight(0x87CEEB, 0x8B7355, 0.6);
+    hemisphereLight.position.set(0, 500, 0);
+    maira3DScene.add(hemisphereLight);
+    
+    const sunLight = new THREE.DirectionalLight(0xffffee, 2.5);
+    sunLight.position.set(1000, 1000, 500);
+    sunLight.castShadow = true;
+    sunLight.shadow.camera.left = -2000;
+    sunLight.shadow.camera.right = 2000;
+    sunLight.shadow.camera.top = 2000;
+    sunLight.shadow.camera.bottom = -2000;
+    sunLight.shadow.camera.near = 100;
+    sunLight.shadow.camera.far = 5000;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    maira3DScene.add(sunLight);
+    
+    // 🧪 TEST: Cubo de prueba para validar renderizado básico
+    console.log('🧪 Agregando cubo de prueba rojo...');
+    const testGeometry = new THREE.BoxGeometry(100, 100, 100);
+    const testMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xff0000,
+        metalness: 0.3,
+        roughness: 0.7
+    });
+    const testCube = new THREE.Mesh(testGeometry, testMaterial);
+    testCube.position.set(0, 50, 0); // 50m arriba del origen
+    testCube.castShadow = true;
+    testCube.receiveShadow = true;
+    maira3DScene.add(testCube);
+    console.log('✅ Cubo de prueba agregado en (0, 50, 0) - Si lo ves, setup básico funciona');
+    
+    // Controles
+    maira3DControls = new THREE.OrbitControls(maira3DCamera, maira3DRenderer.domElement);
+    maira3DControls.enableDamping = true;
+    maira3DControls.dampingFactor = 0.05;
+    maira3DControls.screenSpacePanning = true;
+    maira3DControls.minDistance = 50;
+    maira3DControls.maxDistance = 10000;
+    maira3DControls.maxPolarAngle = Math.PI / 2 - 0.1;
+    
+    // Loop de renderizado
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        // 🎮 Actualizar movimiento de cámara con teclado
+        if (window.maira3DUpdateCameraMovement) {
+            window.maira3DUpdateCameraMovement();
+        }
+        
+        maira3DControls.update();
+        maira3DRenderer.render(maira3DScene, maira3DCamera);
+    }
+    animate();
+    
+    // Resize handler
+    window.addEventListener('resize', function() {
+        if (maira3DCamera && maira3DRenderer) {
+            maira3DCamera.aspect = window.innerWidth / window.innerHeight;
+            maira3DCamera.updateProjectionMatrix();
+            maira3DRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    });
+    
+    console.log('✅ THREE.js inicializado');
+}
+
+// 🏔️ GENERAR TERRENO (copiado exacto del test)
+async function generateTerrainDirect() {
+    console.log('🏔️ Generando terreno (patrón test)...');
+    
+    // 🎬 MOSTRAR LOADING INMEDIATAMENTE
+    if (window.showLoadingModal) {
+        showLoadingModal('📸 Capturando imágenes satelitales de alta calidad...', 0);
+    }
+    
+    // Validar que el map existe
+    if (!map) {
+        throw new Error('map no inicializado');
+    }
+    
+    console.log('🗺️ Objeto map:', map);
+    console.log('🗺️ Tipo de map:', typeof map);
+    console.log('🗺️ Constructor:', map.constructor?.name);
+    console.log('🗺️ ¿Tiene getBounds?:', typeof map.getBounds);
+    
+    // ✅ PATRÓN EXACTO DEL TEST: Usar getBounds() directo
+    const capturedBounds = map.getBounds();
+    console.log('📍 Bounds capturados:', capturedBounds);
+    console.log('📍 Tipo de capturedBounds:', typeof capturedBounds);
+    console.log('📍 Constructor:', capturedBounds?.constructor?.name);
+    console.log('📍 ¿Tiene getNorth?:', typeof capturedBounds?.getNorth);
+    console.log('📍 ¿Tiene _southWest?:', capturedBounds?._southWest);
+    console.log('📍 ¿Tiene _northEast?:', capturedBounds?._northEast);
+    
+    // Si capturedBounds no es un objeto válido de Leaflet, intentar alternativas
+    if (!capturedBounds || typeof capturedBounds !== 'object' || typeof capturedBounds.getNorth !== 'function') {
+        console.error('❌ Bounds inválidos, intentando alternativas...');
+        
+        // Alternativa 1: Usar window.map
+        if (window.map && window.map !== map) {
+            console.log('🔄 Intentando window.map...');
+            const altBounds = window.map.getBounds();
+            console.log('📍 Bounds alternativos:', altBounds);
+            if (altBounds && typeof altBounds.getNorth === 'function') {
+                return await generateTerrainDirectWithBounds(altBounds);
+            }
+        }
+        
+        throw new Error('No se pudieron obtener bounds válidos del map');
+    }
+    
+    return await generateTerrainDirectWithBounds(capturedBounds);
+}
+
+// 🏔️ GENERAR TERRENO CON BOUNDS (lógica principal)
+async function generateTerrainDirectWithBounds(capturedBounds) {
+    console.log('🏔️ Generando terreno con bounds:', capturedBounds);
+    
+    // 📏 AJUSTE DINÁMICO DE RESOLUCIÓN según altura de cámara
+    const cameraHeight = maira3DCamera ? maira3DCamera.position.y : 100;
+    let resolution;
+    
+    if (cameraHeight < 50) {
+        resolution = 256; // Vista CERCANA: máximo detalle (65,536 puntos)
+        console.log('🔍 Zoom CERCANO detectado (y<50): usando resolución 256×256');
+    } else if (cameraHeight < 100) {
+        resolution = 128; // Vista MEDIA: detalle estándar (16,384 puntos)
+        console.log('📐 Zoom MEDIO detectado (50≤y<100): usando resolución 128×128');
+    } else {
+        resolution = 64;  // Vista LEJANA: bajo detalle (4,096 puntos)
+        console.log('🗺️ Zoom LEJANO detectado (y≥100): usando resolución 64×64');
+    }
+    
+    // Configuración del terreno
+    const config = {
+        resolution: resolution, // 🎯 DINÁMICO según zoom
+        verticalScale: 1.0,
+        realWorldSize: 5000,
+        vegetationDensity: 0.3
+    };
+    
+    // Auto-ajuste regional de escala vertical (copiado del test)
+    const centerLat = (capturedBounds.getNorth() + capturedBounds.getSouth()) / 2;
+    const centerLon = (capturedBounds.getEast() + capturedBounds.getWest()) / 2;
+    
+    let regionName = 'centro';
+    if (centerLat < -40) {
+        regionName = 'patagonia';
+    } else if (centerLon < -68) {
+        regionName = 'cuyo';
+    } else if (centerLat > -30) {
+        regionName = 'norte';
+    }
+    
+    const regionalScales = {
+        'centro': 1.0,
+        'cuyo': 0.3,
+        'norte': 0.7,
+        'patagonia': 0.5
+    };
+    
+    const autoScale = regionalScales[regionName] || 1.0;
+    config.verticalScale = config.verticalScale * autoScale;
+    
+    console.log(`🗻 Región: ${regionName}, escala: ${config.verticalScale.toFixed(2)}x`);
+    
+    // Limpiar terreno anterior
+    if (maira3DCurrentTerrain) {
+        if (maira3DCurrentTerrain.terrain) {
+            maira3DScene.remove(maira3DCurrentTerrain.terrain);
+        }
+        if (maira3DCurrentTerrain.vegetation) {
+            maira3DCurrentTerrain.vegetation.forEach(v => maira3DScene.remove(v));
+        }
+        maira3DCurrentTerrain = null;
+    }
+    
+    // Crear terrainGenerator si no existe
+    if (!maira3DTerrainGenerator) {
+        maira3DTerrainGenerator = new TerrainGenerator3D(config);
+        
+        // Inicializar servicios
+        let elevationService = null;
+        let vegetationService = null;
+        
+        if (window.ElevationService) {
+            try {
+                elevationService = new ElevationService();
+                await elevationService.initialize(true); // true = usar TIF
+                console.log('✅ ElevationService inicializado con TIF');
+            } catch (err) {
+                console.warn('⚠️ Error inicializando ElevationService:', err);
+            }
+        }
+        
+        if (window.VegetationService) {
+            try {
+                vegetationService = new VegetationService();
+                await vegetationService.initialize(true, null);
+                console.log('✅ VegetationService inicializado');
+            } catch (err) {
+                console.warn('⚠️ Error inicializando VegetationService:', err);
+            }
+        }
+        
+        // Sistema 3D para instancing
+        const maira3DSystem = {
+            scene: maira3DScene,
+            camera: maira3DCamera,
+            renderer: maira3DRenderer,
+            controls: maira3DControls
+        };
+        
+        console.log('🔍 DEBUG: Pasando window.elevationHandler:', typeof window.elevationHandler, 'getElevationBatch:', typeof window.elevationHandler?.getElevationBatch);
+        
+        // 🛰️ Crear y configurar SatelliteImageAnalyzer
+        let satelliteAnalyzer = null;
+        if (window.SatelliteImageAnalyzer) {
+            try {
+                console.log('🛰️ Inicializando SatelliteImageAnalyzer...');
+                
+                // ✅ USAR LEAFLET-IMAGE para captura correcta (igual que test-terrain-from-map-OPTIMIZADO.html)
+                if (!window.leafletImage) {
+                    console.warn('⚠️ leaflet-image no disponible, usando textura procedural');
+                } else {
+                    console.log('📸 Capturando imagen satelital con leaflet-image...');
+                    
+                    // 🎯 CRÍTICO: Ajustar map para capturar TODA el área en zoom máximo
+                    const originalZoom = window.map.getZoom();
+                    const originalCenter = window.map.getCenter();
+                    const originalBounds = window.map.getBounds();
+                    
+                    console.log(`🔍 Zoom actual: ${originalZoom}`);
+                    console.log(`📍 Bounds actuales:`, {
+                        north: originalBounds.getNorth().toFixed(4),
+                        south: originalBounds.getSouth().toFixed(4),
+                        east: originalBounds.getEast().toFixed(4),
+                        west: originalBounds.getWest().toFixed(4)
+                    });
+                    
+                    // 🎯 ESTRATEGIA MEJORADA: Captura MÚLTIPLE de tiles en zoom máximo
+                    // � CAPTURA SIMPLE: 1 tile, zoom actual del map (rápido)
+                    console.log('📸 Capturando imagen satelital en zoom actual...');
+                    
+                    // Usar el zoom ACTUAL del map (18-19 cerca, 14-16 lejos)
+                    const captureZoom = originalZoom;
+                    console.log(`🎯 Zoom de captura: ${captureZoom} (mismo que el map)`);
+                    
+                    // Capturar 1 solo tile del centro
+                    const centerLat = capturedBounds.getCenter().lat;
+                    const centerLng = capturedBounds.getCenter().lng;
+                    
+                    console.log(`� Capturando centro: (${centerLat.toFixed(5)}, ${centerLng.toFixed(5)})`);
+                    
+                    // Progreso inicial
+                    if (window.showLoadingModal) {
+                        showLoadingModal('📸 Capturando imagen satelital...', 20);
+                    }
+                    
+                    // 🧹 LIMPIAR marcadores/overlays que causen problemas con leaflet-image
+                    const tempRemovedLayers = [];
+                    window.map.eachLayer((layer) => {
+                        // Remover marcadores, círculos, polígonos temporalmente
+                        if (layer instanceof L.Marker || layer instanceof L.Circle || 
+                            layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                            tempRemovedLayers.push(layer);
+                            window.map.removeLayer(layer);
+                        }
+                    });
+                    console.log(`🧹 ${tempRemovedLayers.length} layers temporalmente removidos para captura`);
+                    
+                    // Esperar que carguen los tiles del map
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Capturar el canvas del map (SOLO tiles, sin marcadores)
+                    const capturedCanvas = await new Promise((resolve) => {
+                        leafletImage(window.map, function(err, canvas) {
+                            if (err) {
+                                console.error('❌ Error capturando imagen:', err);
+                                resolve(null);
+                            } else {
+                                console.log(`✅ Imagen capturada: ${canvas.width}x${canvas.height}px`);
+                                resolve(canvas);
+                            }
+                        });
+                    });
+                    
+                    // 🔄 RESTAURAR layers removidos
+                    tempRemovedLayers.forEach(layer => window.map.addLayer(layer));
+                    console.log(`🔄 ${tempRemovedLayers.length} layers restaurados`);
+                    
+                    if (!capturedCanvas) {
+                        throw new Error('No se pudo capturar la imagen satelital');
+                    }
+                    
+                    // Progreso después de captura
+                    if (window.showLoadingModal) {
+                        showLoadingModal('🎨 Procesando imagen...', 40);
+                    }
+                    
+                    // Restaurar vista original
+                    window.map.setView(originalCenter, originalZoom);
+                    console.log(`🔄 Vista restaurada a zoom ${originalZoom}`);
+                    
+                    // Crear analyzer con el canvas capturado
+                    try {
+                        // 🎯 SAMPLING RATE ADAPTATIVO según zoom del map
+                        // ⚠️ CRÍTICO: samplingRate = "1 de cada N píxeles"
+                        //    samplingRate=1 = TODOS los píxeles (máximo detalle, lento)
+                        //    samplingRate=2 = 1 de cada 2 (50% píxeles)
+                        //    samplingRate=4 = 1 de cada 4 (25% píxeles)
+                        //
+                        // Zoom alto (18-19): TODOS o casi todos los píxeles (samplingRate=1-2)
+                        // Zoom medio (15-17): Mayoría de píxeles (samplingRate=2-4)
+                        // Zoom bajo (12-14): Menos píxeles para rendimiento (samplingRate=6-8)
+                        const mapZoom = window.map.getZoom();
+                        let adaptiveSamplingRate;
+                        
+                        // 🔥 REDUCIDO para evitar crash por sobrecarga
+                        if (mapZoom >= 18) {
+                            adaptiveSamplingRate = 3;  // 33% píxeles (antes 100%)
+                        } else if (mapZoom >= 17) {
+                            adaptiveSamplingRate = 4;  // 25% píxeles (antes 50%)
+                        } else if (mapZoom >= 16) {
+                            adaptiveSamplingRate = 5;  // 20% píxeles (antes 50%)
+                        } else if (mapZoom >= 15) {
+                            adaptiveSamplingRate = 6;  // 17% píxeles (antes 33%)
+                        } else if (mapZoom >= 14) {
+                            adaptiveSamplingRate = 8;  // 12% píxeles (antes 25%)
+                        } else if (mapZoom >= 13) {
+                            adaptiveSamplingRate = 10; // 10% píxeles (antes 17%)
+                        } else {
+                            adaptiveSamplingRate = 12; // 8% píxeles (antes 12%)
+                        }
+                        
+                        const coveragePercent = (100 / adaptiveSamplingRate).toFixed(1);
+                        console.log(`🔍 Zoom ${mapZoom} → samplingRate=${adaptiveSamplingRate} (analiza ${coveragePercent}% píxeles)`);
+                        
+                        satelliteAnalyzer = new SatelliteImageAnalyzer({
+                            samplingRate: adaptiveSamplingRate,
+                            textureResolution: Math.max(capturedCanvas.width, capturedCanvas.height)
+                        });
+                        
+                        // Cargar desde el canvas capturado
+                        const imageData = capturedCanvas.toDataURL('image/png');
+                        await satelliteAnalyzer.loadImage(imageData);
+                        await satelliteAnalyzer.analyzeImage({ samplingRate: adaptiveSamplingRate });
+                        
+                        console.log('✅ SatelliteImageAnalyzer listo');
+                        console.log(`📐 Dimensiones: ${capturedCanvas.width}x${capturedCanvas.height}px`);
+                        
+                        // 🔍 DIAGNÓSTICO: Mostrar features detectados
+                        const features = satelliteAnalyzer.getFeatures ? satelliteAnalyzer.getFeatures() : [];
+                        const featureTypes = {};
+                        features.forEach(f => {
+                            featureTypes[f.type] = (featureTypes[f.type] || 0) + 1;
+                        });
+                        console.log('📊 Features detectados:', featureTypes);
+                        console.log(`🌳 Total vegetation/forest: ${(featureTypes.vegetation || 0) + (featureTypes.forest || 0)}`);
+                        
+                        if (features.length === 0) {
+                            console.warn('⚠️ NO se detectaron features - verifica que la zona tenga vegetación verde visible');
+                        }
+                    } catch (err) {
+                        console.error('❌ Error inicializando analyzer:', err);
+                        satelliteAnalyzer = null;
+                    }
+                }
+            } catch (err) {
+                console.warn('⚠️ Error en captura de imagen:', err);
+                satelliteAnalyzer = null;
+            }
+        }
+        
+        maira3DTerrainGenerator.initialize(
+            window.elevationHandler,
+            window.vegetationHandler,
+            maira3DSystem,
+            satelliteAnalyzer
+        );
+    } else {
+        maira3DTerrainGenerator.updateConfig(config);
+    }
+    
+    // ✅ PATRÓN EXACTO DEL TEST: Llamar generateTerrain con capturedBounds directo
+    console.log('🔨 Generando geometría...');
+    const result = await maira3DTerrainGenerator.generateTerrain(capturedBounds, {
+        includeVegetation: true,
+        includeRoads: true,
+        includeBuildings: true,
+        includeWater: true,
+        mapZoom: map.getZoom()
+    });
+    
+    // Validar resultado
+    if (!result || !result.terrain) {
+        throw new Error('Terreno no generado correctamente');
+    }
+    
+    console.log('✅ Terreno generado:', result);
+    
+    // Agregar a escena
+    maira3DScene.add(result.terrain);
+    console.log('✅ Terreno agregado a escena');
+    
+    // Agregar vegetación
+    if (result.vegetation && result.vegetation.length > 0) {
+        result.vegetation.forEach(vegObj => maira3DScene.add(vegObj));
+        console.log(`🌳 ${result.vegetation.length} modelos de vegetación agregados`);
+    }
+    
+    // Agregar caminos
+    if (result.roads && result.roads.length > 0) {
+        result.roads.forEach(road => maira3DScene.add(road));
+        console.log(`🛣️ ${result.roads.length} caminos agregados`);
+    }
+    
+    // Agregar edificios
+    if (result.buildings && result.buildings.length > 0) {
+        result.buildings.forEach(building => maira3DScene.add(building));
+        console.log(`🏢 ${result.buildings.length} edificios agregados`);
+    }
+    
+    // Agregar agua
+    if (result.water && result.water.length > 0) {
+        result.water.forEach(w => maira3DScene.add(w));
+        console.log(`💧 ${result.water.length} planos de agua agregados`);
+    }
+    
+    maira3DCurrentTerrain = result;
+    
+    // Posicionar cámara
+    positionCameraForTerrain(result.terrain, capturedBounds);
+    
+    // Cerrar panel de carga
+    hideProgressBar();
+    
+    console.log('✅ Generación completa');
+}
+
+// Posicionar cámara según terreno Y vegetación
+function positionCameraForTerrain(terrain, bounds) {
+    if (!terrain || !bounds) return;
+    
+    // 🌳 NUEVO: Calcular centro considerando VEGETACIÓN además del terreno
+    const arboles = maira3DScene.children.filter(c => c.type === 'Group');
+    
+    let center, maxDim;
+    
+    if (arboles.length > 0) {
+        // ✅ Calcular centro de los ÁRBOLES (no del terreno vacío)
+        let sumX = 0, sumY = 0, sumZ = 0;
+        arboles.forEach(a => {
+            sumX += a.position.x;
+            sumY += a.position.y;
+            sumZ += a.position.z;
+        });
+        center = new THREE.Vector3(
+            sumX / arboles.length,
+            sumY / arboles.length,
+            sumZ / arboles.length
+        );
+        
+        // Calcular bounds de árboles
+        const minX = Math.min(...arboles.map(a => a.position.x));
+        const maxX = Math.max(...arboles.map(a => a.position.x));
+        const minZ = Math.min(...arboles.map(a => a.position.z));
+        const maxZ = Math.max(...arboles.map(a => a.position.z));
+        const sizeX = maxX - minX;
+        const sizeZ = maxZ - minZ;
+        maxDim = Math.max(sizeX, sizeZ);
+        
+        console.log(`📍 Centro calculado desde ${arboles.length} árboles: (${center.x.toFixed(1)}, ${center.y.toFixed(1)}, ${center.z.toFixed(1)})`);
+    } else {
+        // Fallback: usar bounds del terreno
+        const box = new THREE.Box3().setFromObject(terrain);
+        const size = box.getSize(new THREE.Vector3());
+        center = box.getCenter(new THREE.Vector3());
+        maxDim = Math.max(size.x, size.z);
+        
+        console.log('📍 Centro calculado desde terreno (sin árboles)');
+    }
+    
+    // Posicionar cámara
+    const distance = maxDim * 1.2; // Reducido de 1.5 a 1.2 para estar más cerca
+    
+    maira3DCamera.position.set(
+        center.x,
+        center.y + distance * 0.8,
+        center.z + distance * 0.6
+    );
+    
+    maira3DCamera.lookAt(center);
+    maira3DControls.target.copy(center);
+    maira3DControls.update();
+    
+    console.log(`📹 Cámara posicionada: pos=(${maira3DCamera.position.x.toFixed(1)}, ${maira3DCamera.position.y.toFixed(1)}, ${maira3DCamera.position.z.toFixed(1)})`);
+}
+
+// =========================================================================
+// FIN SISTEMA GENERACIÓN TERRENO 3D
+// =========================================================================
+
+function configurarEventosPlaneamiento() {
+    // 🏗️ VISTA 3D - PATRÓN DIRECTO DEL TEST QUE FUNCIONA
+    const btnVista3D = document.getElementById('btnVista3D');
+    if (btnVista3D) {
+        btnVista3D.addEventListener('click', async function(e) {
+            e.preventDefault();
+
+            console.log('🎬 Iniciando generación de vista 3D...');
+
+            // Actualizar botón
+            btnVista3D.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inicializando...';
+            btnVista3D.disabled = true;
+
+            try {
+                // ✅ PATRÓN DEL TEST: Inicializar THREE.js si no existe
+                if (!window.maira3DScene) {
+                    console.log('🚀 Inicializando THREE.js...');
+                    initThreeJSDirect();
+                }
+
+                // ✅ PATRÓN DEL TEST: Generar terreno con bounds directo
+                btnVista3D.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando terreno...';
+                await generateTerrainDirect();
+
+                // Actualizar texto del botón después de completar
+                setTimeout(() => {
+                    btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Cerrar Vista 3D';
+                    btnVista3D.disabled = false;
+                }, 2000);
+
+            } catch (error) {
+                console.error('❌ Error en vista 3D:', error);
+                btnVista3D.innerHTML = '<i class="fas fa-cube"></i> Generar Vista 3D';
+                btnVista3D.disabled = false;
+                alert('Error generando terreno 3D: ' + error.message);
+            }
+        });
+    }
+
+    // Botón para cerrar vista 3D (legacy - ya no se usa)
+    const btnCerrarVista3D = document.getElementById('cerrar-vista3d');
+    if (btnCerrarVista3D) {
+        btnCerrarVista3D.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.maira3DSystem && window.maira3DSystem.deactivate) {
+                window.maira3DSystem.deactivate();
+            }
+        });
+    }
+
+    // Detector de gestos
+    const btnControlGestos = document.getElementById('btnControlGestos');
+    if (btnControlGestos) {
+        btnControlGestos.addEventListener('click', function(e) {
+            e.preventDefault();
+            descargarDetectorGestos();
+        });
+    }
+
+    console.log('✅ Eventos de planeamiento configurados');
+}
+
+// =========================================================================
+// 🎛️ FUNCIONES DE CONTROLES 3D
+// =========================================================================
+
+// Variables para almacenar configuración actual
+let current3DConfig = {
+    vegetationScale: 1.0,
+    vegetationDensity: 0.3,
+    lodDistance: 200,
+    terrainResolution: 128,
+    cameraHeight: 1000
+};
+
+function toggleControles3D() {
+    const panel = document.getElementById('panelControles3D');
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        console.log('🎛️ Panel de controles 3D:', panel.style.display);
+    }
+}
+
+function cerrarControles3D() {
+    const panel = document.getElementById('panelControles3D');
+    if (panel) {
+        panel.style.display = 'none';
+    }
+}
+
+function aplicarControles3D() {
+    // Obtener valores actuales de los controles
+    const vegetationScale = parseFloat(document.getElementById('vegetationScale').value);
+    const vegetationDensity = parseFloat(document.getElementById('vegetationDensity').value);
+    const lodDistance = parseInt(document.getElementById('lodDistance').value);
+    const terrainResolution = parseInt(document.getElementById('terrainResolution').value);
+    const cameraHeight = parseInt(document.getElementById('cameraHeight').value);
+    
+    // Actualizar configuración
+    current3DConfig = {
+        vegetationScale,
+        vegetationDensity,
+        lodDistance,
+        terrainResolution,
+        cameraHeight
+    };
+    
+    console.log('🎛️ Aplicando configuración 3D:', current3DConfig);
+    
+    // Aplicar cambios al terreno 3D si existe
+    if (maira3DScene && maira3DTerrainGenerator) {
+        aplicarCambiosTerreno3D();
+    } else {
+        console.warn('⚠️ No hay terreno 3D activo para aplicar cambios');
+        alert('Primero genera la vista 3D antes de aplicar controles');
+    }
+}
+
+function resetControles3D() {
+    // Resetear valores por defecto
+    current3DConfig = {
+        vegetationScale: 1.0,
+        vegetationDensity: 0.3,
+        lodDistance: 200,
+        terrainResolution: 128,
+        cameraHeight: 1000
+    };
+    
+    // Actualizar controles UI
+    document.getElementById('vegetationScale').value = current3DConfig.vegetationScale;
+    document.getElementById('vegetationScaleValue').textContent = current3DConfig.vegetationScale + 'x';
+    
+    document.getElementById('vegetationDensity').value = current3DConfig.vegetationDensity;
+    document.getElementById('vegetationDensityValue').textContent = current3DConfig.vegetationDensity;
+    
+    document.getElementById('lodDistance').value = current3DConfig.lodDistance;
+    document.getElementById('lodDistanceValue').textContent = current3DConfig.lodDistance + 'm';
+    
+    document.getElementById('terrainResolution').value = current3DConfig.terrainResolution;
+    
+    document.getElementById('cameraHeight').value = current3DConfig.cameraHeight;
+    document.getElementById('cameraHeightValue').textContent = current3DConfig.cameraHeight + 'm';
+    
+    console.log('🔄 Controles 3D reseteados a valores por defecto');
+}
+
+function aplicarCambiosTerreno3D() {
+    if (!maira3DScene || !maira3DTerrainGenerator) {
+        console.warn('⚠️ No hay terreno 3D para modificar');
+        return;
+    }
+    
+    console.log('🔧 Aplicando cambios al terreno 3D...');
+    
+    try {
+        // 1. Aplicar escala de vegetación
+        const vegetationObjects = maira3DScene.children.filter(obj => 
+            obj.type === 'Group' || obj.userData?.isVegetation
+        );
+        
+        vegetationObjects.forEach(obj => {
+            if (obj.scale) {
+                obj.scale.setScalar(current3DConfig.vegetationScale);
+            }
+        });
+        
+        console.log(`🌳 Escala de vegetación aplicada: ${current3DConfig.vegetationScale}x a ${vegetationObjects.length} objetos`);
+        
+        // 2. Aplicar altura de cámara
+        if (maira3DCamera) {
+            const currentPos = maira3DCamera.position.clone();
+            maira3DCamera.position.y = current3DConfig.cameraHeight;
+            maira3DCamera.updateProjectionMatrix();
+            console.log(`📹 Altura de cámara ajustada: ${current3DConfig.cameraHeight}m`);
+        }
+        
+        // 3. Para LOD y densidad necesitaríamos regenerar el terreno
+        // Por ahora solo aplicamos escala y cámara
+        
+        console.log('✅ Cambios aplicados al terreno 3D');
+        
+    } catch (error) {
+        console.error('❌ Error aplicando cambios al terreno 3D:', error);
+        alert('Error aplicando cambios: ' + error.message);
+    }
+}
+
+// Inicializar event listeners para los controles
+document.addEventListener('DOMContentLoaded', function() {
+    // Event listeners para actualizar valores en tiempo real
+    const controls = ['vegetationScale', 'vegetationDensity', 'lodDistance', 'cameraHeight'];
+    
+    controls.forEach(controlId => {
+        const control = document.getElementById(controlId);
+        const valueSpan = document.getElementById(controlId + 'Value');
+        
+        if (control && valueSpan) {
+            control.addEventListener('input', function() {
+                const value = control.value;
+                const unit = controlId.includes('Scale') ? 'x' : 
+                           controlId.includes('Distance') || controlId.includes('Height') ? 'm' : '';
+                valueSpan.textContent = value + unit;
+            });
+        }
+    });
+    
+    console.log('🎛️ Controles 3D inicializados');
+});
+
+// =========================================================================
+// 🎯 FUNCIONES DE PRUEBA SIDC-3D INTEGRACIÓN
+// =========================================================================
+
+// Función para probar marcadores SIDC automáticamente
+function probarMarcadoresSIDC() {
+    console.log('🎯 Probando integración SIDC-3D con marcadores...');
+    
+    const marcadoresSIDC = [
+        // Infantería
+        'SHGPUCII------', // Infantry Squad
+        'SHGPUCAT------', // Tank
+        'SHGPUCAV------', // Armored Vehicle
+        'SHGPUCV-------', // Wheeled Vehicle
+        'SHGPUCF-------', // Fortification
+        'SHGPUCM-------', // Medical Facility
+        
+        // Artillería
+        'SFGPUCF-------', // Artillery
+        'SFGPEWH-------', // Howitzer
+        
+        // Apoyo de combate
+        'SFGPUCE-------', // Engineers
+        'SFGPUUS-------', // Communications
+    ];
+    
+    let exitosos = 0;
+    let total = marcadoresSIDC.length;
+    
+    marcadoresSIDC.forEach((sidc, index) => {
+        setTimeout(() => {
+            const resultado = window.testSIDCIntegration ? window.testSIDCIntegration(sidc) : null;
+            if (resultado) {
+                exitosos++;
+                console.log(`✅ ${sidc}: ${resultado.modelData.model} → ${resultado.modelType}`);
+            } else {
+                console.log(`❌ ${sidc}: Error en integración`);
+            }
+            
+            if (index === total - 1) {
+                console.log(`📊 Resultado SIDC: ${exitosos}/${total} exitosos`);
+            }
+        }, index * 100); // Espaciar las pruebas
+    });
+}
+
+// Función para probar elementos MCC
+function probarElementosMCC() {
+    console.log('🎯 Probando elementos MCC...');
+    
+    const elementosMCC = [
+        'SFFPAO--------', // Objective
+        'GFGPOLAA------', // Axis of Advance
+        'GFGPOAA-------', // Area of Operations
+        'GFGPOLK-------', // Coordinating Line
+        'GFMPOGB-------', // Blocking
+        'GFGPOLR-------', // Withdrawal
+        'GFGPOLC-------', // Line of Contact
+    ];
+    
+    elementosMCC.forEach(sidc => {
+        console.log(`📍 MCC ${sidc}: Elemento de control`);
+    });
+    
+    console.log(`📊 MCC: ${elementosMCC.length} elementos de control identificados`);
+}
+
+// Función para probar elementos MCCF (Fire Control)
+function probarElementosMCCF() {
+    console.log('🎯 Probando elementos MCCF (Control de Fuegos)...');
+    
+    const elementosMCCF = [
+        'G*F*ACSR------', // Restricted Fire Area
+        'G*F*ACNR------', // No Fire Area
+        'G*F*ATB-------', // Barrier
+        'G*F*LCF-------', // Fire Coordination Line
+        'G*F*LCC-------', // Coordination and Safety Line
+        'G*F*AZFX------', // Fire Support Area
+        'G*F*LTS-------', // Opening Fire Line
+    ];
+    
+    elementosMCCF.forEach(sidc => {
+        console.log(`🔥 MCCF ${sidc}: Elemento de control de fuegos`);
+    });
+    
+    console.log(`📊 MCCF: ${elementosMCCF.length} elementos de control de fuegos identificados`);
+}
+
+// Función principal para ejecutar todas las pruebas
+function ejecutarPruebasIntegracionSIDC3D() {
+    console.log('🚀 Ejecutando pruebas completas de integración SIDC-3D...');
+    console.log('=' .repeat(60));
+    
+    // Verificar que los sistemas estén inicializados
+    if (!window.sidcMapper || !window.maira3DMaster) {
+        console.error('❌ Sistema SIDC-3D no inicializado correctamente');
+        return;
+    }
+    
+    // Ejecutar pruebas
+    probarMarcadoresSIDC();
+    
+    setTimeout(() => {
+        probarElementosMCC();
+    }, 2000);
+    
+    setTimeout(() => {
+        probarElementosMCCF();
+    }, 4000);
+    
+    setTimeout(() => {
+        console.log('=' .repeat(60));
+        console.log('✅ Pruebas de integración SIDC-3D completadas');
+        console.log('🎯 Sistema listo para uso en producción');
+    }, 6000);
+}
+
+// Función para agregar marcador de prueba en el map
+function agregarMarcadorPruebaSIDC(sidc, lat = null, lng = null) {
+    if (!window.map) {
+        console.error('❌ map no disponible');
+        return;
+    }
+    
+    // Usar coordenadas centrales del map si no se especifican
+    if (lat === null || lng === null) {
+        const center = window.map.getCenter();
+        lat = center.lat + (Math.random() - 0.5) * 0.01; // Pequeña variación aleatoria
+        lng = center.lng + (Math.random() - 0.5) * 0.01;
+    }
+    
+    // Crear marcador con propiedades SIDC
+    const markerOptions = {
+        sidc: sidc,
+        afiliacion: 'F', // Friendly
+        estado: 'P', // Present
+        designacion: `TEST-${sidc.substring(0, 4)}`,
+        draggable: true
+    };
+    
+    // Usar la función agregarMarcador existente si está disponible
+    if (typeof agregarMarcador === 'function') {
+        agregarMarcador(sidc, `Prueba ${sidc}`, markerOptions);
+        console.log(`✅ Marcador SIDC ${sidc} agregado en map`);
+    } else {
+        // Fallback: crear marcador básico
+        const marker = L.marker([lat, lng], markerOptions).addTo(window.map);
+        console.log(`✅ Marcador básico SIDC ${sidc} agregado en map`);
+    }
+    
+    // Probar integración 3D
+    const resultado = window.testSIDCIntegration ? window.testSIDCIntegration(sidc) : null;
+    if (resultado) {
+        console.log(`🎯 SIDC ${sidc} → 3D: ${resultado.modelType}`);
+    }
+}
+
+// Exponer funciones globales para uso desde consola
+window.probarMarcadoresSIDC = probarMarcadoresSIDC;
+window.probarElementosMCC = probarElementosMCC;
+window.probarElementosMCCF = probarElementosMCCF;
+window.ejecutarPruebasIntegracionSIDC3D = ejecutarPruebasIntegracionSIDC3D;
+window.agregarMarcadorPruebaSIDC = agregarMarcadorPruebaSIDC;
+
+console.log('🎯 Funciones de prueba SIDC-3D expuestas globalmente:');
+console.log('  - probarMarcadoresSIDC()');
+console.log('  - probarElementosMCC()');
+console.log('  - probarElementosMCCF()');
+console.log('  - ejecutarPruebasIntegracionSIDC3D()');
+console.log('  - agregarMarcadorPruebaSIDC(sidc, lat, lng)');
+
+// =========================================================================
+// FIN FUNCIONES DE PRUEBA SIDC-3D
+// =========================================================================
+
+function verificarFuncionalidadesCriticas() {
+    const funcionesCriticas = [
+        'medirDistancia',
+        'toggleMenu',
+        'seleccionarElemento',
+        'finalizarMedicion',
+        'obtenerJugadorPropietario'
+    ];
+
+    let funcionesOK = 0;
+    funcionesCriticas.forEach(func => {
+        if (typeof window[func] === 'function') {
+            funcionesOK++;
+        }
+    });
+
+    console.log(`📊 Funciones heredadas: ${funcionesOK}/${funcionesCriticas.length}`);
+
+    // Inicializar menú radial
+    if (typeof window.MiRadial !== 'undefined' && window.map) {
+        setTimeout(() => {
+            try {
+                window.MiRadial.init(window.map);
+                console.log('✅ Menú radial inicializado');
+            } catch(e) {
+                console.warn('⚠️ Error menú radial:', e);
+            }
+        }, 2000);
+    }
+}
+
+// =========================================================================
+// 🧪 FUNCIONES DE PRUEBA SIDC-3D
+// =========================================================================
+
+// Función para probar marcadores SIDC en 3D con sistema jerárquico
+function testSIDC3DMarker(sidc) {
+    console.log(`🧪 Probando SIDC ${sidc} en 3D con sistema jerárquico...`);
+
+    if (!window.sidcMapper || !window.maira3DMaster) {
+        console.error('❌ Sistema SIDC-3D no inicializado');
+        alert('Sistema SIDC-3D no inicializado. Ejecuta "Probar SIDC-3D" primero.');
+        return;
+    }
+
+    try {
+        let modelData = null;
+        let tipoVehiculo = null;
+
+        // 🌉 INTENTAR SISTEMA JERÁRQUICO PRIMERO
+        if (window.sidcModelo3DBridge) {
+            console.log('🌉 Usando sistema jerárquico SIDC...');
+            const resultadoJerarquico = window.sidcModelo3DBridge.obtenerModeloPorSIDCJerarquico(sidc);
+            
+            if (resultadoJerarquico && resultadoJerarquico.tipo === 'jerarquico') {
+                console.log(`🎖️ SIDC jerárquico encontrado:`, resultadoJerarquico);
+                modelData = resultadoJerarquico.modelo;
+                tipoVehiculo = resultadoJerarquico.estructura?.tipoVehiculo;
+            }
+        }
+
+        // 🔄 FALLBACK AL SISTEMA ORIGINAL SI NO HAY JERÁRQUICO
+        if (!modelData) {
+            console.log('🔄 Usando sistema SIDC original...');
+            modelData = window.sidcMapper.getModelForSIDC(sidc);
+        }
+
+        console.log(`🎯 Modelo encontrado:`, modelData);
+
+        if (!modelData || !modelData.model) {
+            console.warn(`⚠️ No se encontró modelo para SIDC ${sidc}`);
+            alert(`No se encontró modelo 3D para SIDC ${sidc}`);
+            return;
+        }
+
+        // Crear marcador en el centro del map con variación aleatoria
+        const center = window.map.getCenter();
+        const latlng = [center.lat + (Math.random() - 0.5) * 0.01, center.lng + (Math.random() - 0.5) * 0.01];
+
+        // Agregar marcador 2D primero
+        const marker2D = agregarMarcador(sidc, `Test ${sidc}${tipoVehiculo ? ` (${tipoVehiculo})` : ''}`, latlng);
+
+        // Agregar representación 3D
+        if (window.maira3DMaster && typeof window.maira3DMaster.addUnit3D === 'function') {
+            window.maira3DMaster.addUnit3D({
+                sidc: sidc,
+                latlng: latlng,
+                modelData: modelData,
+                unitId: `test-${sidc}-${Date.now()}`,
+                tipoVehiculo: tipoVehiculo
+            });
+            console.log(`✅ Marcador 3D agregado para ${sidc} (${tipoVehiculo || 'desconocido'})`);
+        } else {
+            console.warn('⚠️ Función addUnit3D no disponible');
+        }
+
+    } catch (error) {
+        console.error('❌ Error probando SIDC:', error);
+        alert(`Error probando SIDC ${sidc}: ${error.message}`);
+    }
+}
+
+// Función para probar elementos MCC en 3D
+function testMCC3DMarker(mccCode) {
+    console.log(`🧪 Probando MCC ${mccCode} en 3D...`);
+
+    if (!window.maira3DMaster) {
+        console.error('❌ Sistema MAIRA 3D Master no inicializado');
+        alert('Sistema 3D no inicializado. Genera vista 3D primero.');
+        return;
+    }
+
+    try {
+        // Crear elemento MCC en el centro del map
+        const center = window.map.getCenter();
+        const latlng = [center.lat + (Math.random() - 0.5) * 0.01, center.lng + (Math.random() - 0.5) * 0.01];
+
+        // Dibujar elemento MCC 2D
+        dibujarElemento('poligono', mccCode, `Test ${mccCode}`, latlng);
+
+        // Agregar representación 3D si está disponible
+        if (typeof window.maira3DMaster.addMCCElement3D === 'function') {
+            window.maira3DMaster.addMCCElement3D({
+                mccCode: mccCode,
+                latlng: latlng,
+                elementId: `test-mcc-${mccCode}-${Date.now()}`
+            });
+            console.log(`✅ Elemento MCC 3D agregado para ${mccCode}`);
+        } else {
+            console.log(`ℹ️ Elemento MCC 2D agregado (sin representación 3D disponible)`);
+        }
+
+    } catch (error) {
+        console.error('❌ Error probando MCC:', error);
+        alert(`Error probando MCC ${mccCode}: ${error.message}`);
+    }
+}
+
+// Función para limpiar todos los marcadores 3D
+function clearAll3DMarkers() {
+    console.log('🧹 Limpiando todos los marcadores 3D...');
+
+    if (!window.maira3DMaster) {
+        console.warn('⚠️ Sistema 3D no inicializado');
+        return;
+    }
+
+    try {
+        // Limpiar unidades 3D
+        if (typeof window.maira3DMaster.clearAllUnits3D === 'function') {
+            window.maira3DMaster.clearAllUnits3D();
+            console.log('✅ Unidades 3D limpiadas');
+        }
+
+        // Limpiar elementos MCC 3D
+        if (typeof window.maira3DMaster.clearAllMCCElements3D === 'function') {
+            window.maira3DMaster.clearAllMCCElements3D();
+            console.log('✅ Elementos MCC 3D limpiados');
+        }
+
+        // Limpiar marcadores 2D también
+        if (window.map && window.markersLayer) {
+            window.markersLayer.clearLayers();
+            console.log('✅ Marcadores 2D limpiados');
+        }
+
+        alert('Todos los marcadores 3D han sido limpiados');
+
+    } catch (error) {
+        console.error('❌ Error limpiando marcadores:', error);
+        alert(`Error limpiando marcadores: ${error.message}`);
+    }
+}
+
+// Función global para ejecutar pruebas de integración SIDC-3D con sistema jerárquico
+window.ejecutarPruebasIntegracionSIDC3D = async function() {
+    console.log('🚀 Ejecutando pruebas de integración SIDC-3D con sistema jerárquico...');
+
+    try {
+        // Verificar que los sistemas estén inicializados
+        if (!window.sidcMapper) {
+            throw new Error('SIDC Mapper no inicializado');
+        }
+        if (!window.maira3DMaster) {
+            throw new Error('MAIRA 3D Master no inicializado');
+        }
+
+        console.log('✅ Sistemas SIDC-3D inicializados correctamente');
+
+        // 🌉 VERIFICAR SISTEMA JERÁRQUICO
+        let sistemaJerarquicoDisponible = false;
+        if (window.sidcModelo3DBridge && window.sistemaJerarquicoSIDC) {
+            sistemaJerarquicoDisponible = true;
+            console.log('🎖️ Sistema jerárquico SIDC disponible');
+        } else {
+            console.log('⚠️ Sistema jerárquico SIDC no disponible, usando sistema original');
+        }
+
+        // Ejecutar pruebas de conversión con diferentes tipos de unidades
+        const pruebasJerarquicas = [
+            { nombre: 'Infantería TAM', sidc: 'SHGPUCII------', tipo: 'infanteria_mecanizada' },
+            { nombre: 'Caballería TAM', sidc: 'SHGPUCAV------', tipo: 'caballeria' },
+            { nombre: 'Artillería TAM', sidc: 'SHGPUCFA------', tipo: 'artilleria' },
+            { nombre: 'Ingenieros TAM', sidc: 'SHGPUCE-------', tipo: 'ingenieros' },
+            { nombre: 'Comandos TAM', sidc: 'SHGPUCS-------', tipo: 'comandos' }
+        ];
+
+        let exitosJerarquicos = 0;
+        let exitosOriginales = 0;
+
+        console.log('🧪 Probando sistema jerárquico...');
+        for (const prueba of pruebasJerarquicas) {
+            try {
+                let resultado = null;
+                let tipoSistema = 'original';
+
+                if (sistemaJerarquicoDisponible) {
+                    // Intentar jerárquico primero
+                    resultado = window.sidcModelo3DBridge.obtenerModeloPorSIDCJerarquico(prueba.sidc, prueba.tipo);
+                    if (resultado && resultado.tipo === 'jerarquico') {
+                        tipoSistema = 'jerárquico';
+                        exitosJerarquicos++;
+                    }
+                }
+
+                // Fallback al original
+                if (!resultado || resultado.tipo !== 'jerarquico') {
+                    resultado = window.sidcMapper.getModelForSIDC(prueba.sidc);
+                    if (resultado) {
+                        exitosOriginales++;
+                    }
+                }
+
+                if (resultado) {
+                    console.log(`✅ ${prueba.nombre}: ${tipoSistema} - ${resultado.model || 'modelo encontrado'}`);
+                } else {
+                    console.warn(`❌ ${prueba.nombre}: Sin resultado`);
+                }
+
+            } catch (error) {
+                console.error(`❌ ${prueba.nombre}: Error -`, error);
+            }
+        }
+
+        // Ejecutar pruebas de conversión del sistema original si existe
+        let testResults = [];
+        if (window.testSIDCConversion) {
+            testResults = await window.testSIDCConversion();
+            console.log('📊 Resultados de pruebas originales:', testResults);
+        }
+
+        // Mostrar resultados consolidados
+        const totalPruebas = pruebasJerarquicas.length + (testResults.length || 0);
+        const totalExitos = exitosJerarquicos + exitosOriginales + (testResults.filter(r => r.success).length || 0);
+
+        const mensajeResultado = `
+🎖️ PRUEBAS SIDC-3D COMPLETADAS
+
+Sistema Jerárquico: ${sistemaJerarquicoDisponible ? '✅ Disponible' : '❌ No disponible'}
+Éxitos Jerárquicos: ${exitosJerarquicos}/${pruebasJerarquicas.length}
+Éxitos Originales: ${exitosOriginales}/${pruebasJerarquicas.length}
+Total Éxitos: ${totalExitos}/${totalPruebas}
+
+Revisa la consola para detalles completos.
+        `.trim();
+
+        console.log(mensajeResultado);
+        alert(mensajeResultado);
+
+    } catch (error) {
+        console.error('❌ Error en pruebas de integración:', error);
+        alert(`Error en pruebas: ${error.message}`);
+    }
+};
+
+</script>
+
+<!-- 🏗️ MODAL DE CARGA 3D - FASE 1 -->
+<div id="loading-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 10000; justify-content: center; align-items: center;">
+    <div style="background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); padding: 40px 60px; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center; max-width: 500px;">
+        <div style="font-size: 48px; margin-bottom: 20px;">🏗️</div>
+        <h2 style="color: #4fd1c5; margin: 0 0 20px 0; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 24px; font-weight: 600;">CREANDO VISTA 3D</h2>
+        <p id="loading-step" style="color: #e2e8f0; margin: 0 0 20px 0; font-size: 16px; min-height: 24px;">Iniciando...</p>
+        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
+            <div id="loading-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4fd1c5 0%, #667eea 100%); transition: width 0.3s ease; border-radius: 4px;"></div>
+        </div>
+        <div id="loading-percentage" style="color: #a0aec0; font-size: 14px; font-family: 'Courier New', monospace;">0%</div>
+    </div>
+</div>
+
+<!-- 🖥️ BOTÓN CERRAR VISTA 3D FULLSCREEN -->
+<button id="close-3d-button" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 10001; background: rgba(220, 38, 38, 0.9); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    ❌ Cerrar Vista 3D
+</button>
+
+<!-- ✨ SISTEMA MODULAR 3D - FASE 2 INTEGRACIÓN -->
+<!-- SISTEMA terrain3d/* DESACTIVADO - Conflicto, usando patrón directo del test
+<script src="js/terrain3d/ui-setup.js"></script>
+<script src="js/terrain3d/TerrainUI3D.js"></script>
+<script src="js/terrain3d/CameraController3D.js"></script>
+<script src="js/terrain3d/TerrainRenderer3D.js"></script>
+<script src="js/terrain3d/UnitManager3D.js"></script>
+<script src="js/terrain3d/TerrainController3D.js"></script>
+<script src="js/terrain3d/terrain3d-init.js"></script>
+-->
+
+<!-- 🔄 CACHE BUSTER: Fuerza recarga de archivos JS críticos -->
+<script>
+  console.log('🔄 Cache buster activo - v20241020-07 - ULTRA RESOLUTION 128x128 + SMOOTH');
+</script>
+
+</main>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+[
+  {
+    "_class": "Transporte",
+    "alto": 4,
+    "ancho": "6",
+    "largo": "10",
+    "nombre": "Camion",
+    "descripcion": "camion standar",
+    "pesoMaximoDeCarga": "8000"
+  },
+  {
+    "_class": "Transporte",
+    "alto": 4,
+    "ancho": 10,
+    "largo": 5,
+    "nombre": "Camion standar",
+    "descripcion": "",
+    "pesoMaximoDeCarga": 8000
+  }
+]

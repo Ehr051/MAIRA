@@ -1,0 +1,290 @@
+{
+  "version": "1.0.0",
+  "source": "Mapeo BV8 → SIDC/APP-6 para MAIRA",
+  "descripcion": "Conversión de tipos BV8 a códigos SIDC estándar de 15 caracteres",
+  
+  "estructura_sidc": {
+    "formato": "SAFFUUCCNN-MM--",
+    "posiciones": {
+      "1": "S (Estándar APP-6)",
+      "2": "A (Afiliación: F=Amigo, H=Enemigo, N=Neutral, U=Desconocido, J=Joker)",
+      "3": "F (Dimensión: G=Terrestre, A=Aéreo, S=Mar)",
+      "4": "F (Estado: P=Present, A=Anticipated)",
+      "5-10": "UUCCNN (Función: Unidad-Combate-Arma-Tipo-Características)",
+      "11-12": "MM (Modificadores: tamaño/puesto comando/etc)",
+      "13-15": "--- (Reservado)"
+    }
+  },
+  
+  "afiliacion": {
+    "F": {
+      "nombre": "Friendly (Amigo)",
+      "color": "rgb(128,224,255)",
+      "bv8_bando": "azul",
+      "descripcion": "Fuerzas propias"
+    },
+    "J": {
+      "nombre": "Joker (Ejercicio/Oponente)",
+      "color": "rgb(255,128,255)",
+      "bv8_bando": "rojo",
+      "descripcion": "Usado para enemigo en ejercicios - escritura más natural en español"
+    },
+    "N": {
+      "nombre": "Neutral",
+      "color": "rgb(170,255,170)",
+      "bv8_bando": "neutral",
+      "descripcion": "Fuerzas neutrales"
+    },
+    "U": {
+      "nombre": "Unknown (Desconocido)",
+      "color": "rgb(255,255,128)",
+      "bv8_bando": "desconocido",
+      "descripcion": "Identidad sin confirmar"
+    }
+  },
+  
+  "magnitud": {
+    "H": {
+      "nombre": "Team/Crew",
+      "tamaño": "3-4",
+      "bv8_nivel": "equipo",
+      "simbolo": "••"
+    },
+    "G": {
+      "nombre": "Squad",
+      "tamaño": "8-13",
+      "bv8_nivel": "grupo",
+      "simbolo": "•••"
+    },
+    "F": {
+      "nombre": "Section",
+      "tamaño": "30-40",
+      "bv8_nivel": "seccion",
+      "simbolo": "||||"
+    },
+    "E": {
+      "nombre": "Platoon",
+      "tamaño": "16-44",
+      "bv8_nivel": "peloton",
+      "simbolo": "••••"
+    },
+    "D": {
+      "nombre": "Company/Battery",
+      "tamaño": "60-200",
+      "bv8_nivel": "compania",
+      "simbolo": "|"
+    },
+    "C": {
+      "nombre": "Battalion",
+      "tamaño": "300-1000",
+      "bv8_nivel": "batallon",
+      "simbolo": "||"
+    },
+    "B": {
+      "nombre": "Regiment/Group",
+      "tamaño": "2000-3000",
+      "bv8_nivel": "regimiento",
+      "simbolo": "|||"
+    },
+    "A": {
+      "nombre": "Brigade",
+      "tamaño": "3000-5000",
+      "bv8_nivel": "brigada",
+      "simbolo": "X"
+    }
+  },
+  
+  "mapeo_infanteria": {
+    "grupo_fusileros": {
+      "sidc_base": "S*GPUCII---*G---",
+      "descripcion": "Grupo de fusileros (infantería ligera)",
+      "bv8_tipo": "Grupo de tiradores",
+      "magnitud": "G"
+    },
+    "seccion_fusileros": {
+      "sidc_base": "S*GPUCII---*F---",
+      "descripcion": "Sección de fusileros",
+      "bv8_tipo": "Seccion de infanteria",
+      "magnitud": "F"
+    },
+    "compania_fusileros": {
+      "sidc_base": "S*GPUCII---*D---",
+      "descripcion": "Compañía de infantería",
+      "bv8_tipo": "Compania de infanteria",
+      "magnitud": "D"
+    },
+    "grupo_fusileros_mecanizado": {
+      "sidc_base": "S*GPUCIIM--*G---",
+      "descripcion": "Grupo mecanizado (M113)",
+      "bv8_tipo": "Grupo de infanter mecanizado",
+      "magnitud": "G"
+    },
+    "seccion_mecanizada": {
+      "sidc_base": "S*GPUCIIM--*F---",
+      "descripcion": "Sección mecanizada",
+      "bv8_tipo": "Seccion mecanizada",
+      "magnitud": "F"
+    }
+  },
+  
+  "mapeo_caballeria": {
+    "escuadron_exploracion": {
+      "sidc_base": "S*GPUCR----*B---",
+      "descripcion": "Escuadrón de caballería exploración",
+      "bv8_tipo": "Escuadron de caballeria",
+      "magnitud": "B"
+    },
+    "seccion_tanques": {
+      "sidc_base": "S*GPUCRT---*F---",
+      "descripcion": "Sección de tanques (3 TAM)",
+      "bv8_tipo": "Seccion de tanques",
+      "magnitud": "F",
+      "vehiculo": "TAM"
+    },
+    "grupo_tanques": {
+      "sidc_base": "S*GPUCRT---*G---",
+      "descripcion": "Grupo de tanques",
+      "bv8_tipo": "Grupo de tanques",
+      "magnitud": "G",
+      "vehiculo": "TAM"
+    }
+  },
+  
+  "mapeo_artilleria": {
+    "seccion_morteros_81mm": {
+      "sidc_base": "S*GPUCFM---*F---",
+      "descripcion": "Sección de morteros 81mm",
+      "bv8_tipo": "Seccion de morteros",
+      "magnitud": "F"
+    },
+    "bateria_artilleria_155mm": {
+      "sidc_base": "S*GPUCFH---*D---",
+      "descripcion": "Batería de artillería 155mm",
+      "bv8_tipo": "Bateria de artilleria",
+      "magnitud": "D"
+    }
+  },
+  
+  "mapeo_ingenieros": {
+    "grupo_ingenieros": {
+      "sidc_base": "S*GPUCE----*G---",
+      "descripcion": "Grupo de ingenieros",
+      "bv8_tipo": "Grupo de ingenieros",
+      "magnitud": "G"
+    },
+    "seccion_ingenieros_mecanizada": {
+      "sidc_base": "S*GPUCEM---*F---",
+      "descripcion": "Sección de ingenieros mecanizada",
+      "bv8_tipo": "Grupo de ingenieros mecanizado",
+      "magnitud": "F"
+    }
+  },
+  
+  "mapeo_apoyo": {
+    "seccion_comunicaciones": {
+      "sidc_base": "S*GPUUS----*F---",
+      "descripcion": "Sección de comunicaciones",
+      "bv8_tipo": "Grupo de comunicaciones",
+      "magnitud": "F"
+    },
+    "seccion_sanidad": {
+      "sidc_base": "S*GPUSM----*F---",
+      "descripcion": "Sección de sanidad",
+      "bv8_tipo": "Grupo Sanidad",
+      "magnitud": "F"
+    },
+    "seccion_abastecimiento": {
+      "sidc_base": "S*GPUSS----*F---",
+      "descripcion": "Sección de abastecimiento",
+      "bv8_tipo": "Grupo Ab",
+      "magnitud": "F"
+    }
+  },
+  
+  "vehiculos_sidc": {
+    "m113": {
+      "sidc": "S*GPUCV----*----",
+      "descripcion": "M113 APC",
+      "tipo_icono": "armored_personnel_carrier"
+    },
+    "tam": {
+      "sidc": "S*GPUCRT---*----",
+      "descripcion": "TAM (Tanque Argentino Mediano)",
+      "tipo_icono": "main_battle_tank"
+    },
+    "vctp_tam": {
+      "sidc": "S*GPUCVI---*----",
+      "descripcion": "VCTP TAM (IFV)",
+      "tipo_icono": "infantry_fighting_vehicle"
+    },
+    "vlega": {
+      "sidc": "S*GPUCW----*----",
+      "descripcion": "VLEGA (vehículo ligero)",
+      "tipo_icono": "wheeled_vehicle"
+    },
+    "unimog": {
+      "sidc": "S*GPUST----*----",
+      "descripcion": "UNIMOG (camión transporte)",
+      "tipo_icono": "truck"
+    }
+  },
+  
+  "modificadores": {
+    "puesto_comando": {
+      "posicion": 11,
+      "codigo": "A",
+      "descripcion": "Headquarters/Puesto Comando"
+    },
+    "fuerza_tarea": {
+      "posicion": 11,
+      "codigo": "E",
+      "descripcion": "Task Force/Fuerza de Tareas"
+    },
+    "pc_fuerza_tarea": {
+      "posicion": 11,
+      "codigo": "D",
+      "descripcion": "Task Force HQ/PC Fuerza de Tareas"
+    }
+  },
+  
+  "generador_sidc": {
+    "descripcion": "Función para generar SIDC dinámicamente",
+    "ejemplo_uso": {
+      "entrada": {
+        "tipo": "seccion_mecanizada",
+        "afiliacion": "F",
+        "magnitud": "F"
+      },
+      "salida": "SFGPUCIIM--F---"
+    },
+    "plantilla": "S{AFILIACION}GP{FUNCION}--{MAGNITUD}---",
+    "funciones": {
+      "UCII": "Infantería",
+      "UCIIM": "Infantería Mecanizada",
+      "UCR": "Caballería",
+      "UCRT": "Caballería (Tanques)",
+      "UCF": "Artillería de Campaña",
+      "UCFM": "Morteros",
+      "UCFH": "Obuses",
+      "UCE": "Ingenieros",
+      "UCEM": "Ingenieros Mecanizados",
+      "UUS": "Comunicaciones",
+      "USM": "Sanidad",
+      "USS": "Abastecimiento"
+    }
+  },
+  
+  "notas": [
+    "Posición 1: Siempre 'S' (APP-6 Standard)",
+    "Posición 2: Afiliación (F/H/N/U) - se actualiza según equipo",
+    "Posición 3: Siempre 'G' (Ground/Terrestre)",
+    "Posición 4: Siempre 'P' (Present/Actual)",
+    "Posiciones 5-10: Código de función (UCII = Infantería, UCR = Caballería, etc.)",
+    "Posición 11: Modificador principal (A=PC, E=Fuerza Tarea, etc.)",
+    "Posición 12: Magnitud (A-H según tamaño)",
+    "Posiciones 13-15: Reservadas (siempre '---')",
+    "",
+    "IMPORTANTE: milsymbol.js requiere exactamente 15 caracteres",
+    "Usar .padEnd(15, '-') para completar"
+  ]
+}

@@ -296,7 +296,35 @@ class ORBATManager {
             formacion
         );
 
-        // Crear cada subordinado
+        // 🔍 VALIDAR: Verificar si subordinados ya existen antes de crear
+        // Si el padre ya tiene subordinados desplegados, restaurarlos en lugar de crear nuevos
+        if (unidadPadre.subordinadosDesplegados && unidadPadre.subordinadosDesplegados.length > 0) {
+            console.log('⚠️ Subordinados ya desplegados - restaurando en lugar de crear nuevos');
+            
+            // Restaurar subordinados existentes al mapa
+            for (const subordinado of unidadPadre.subordinadosDesplegados) {
+                if (subordinado && !this.map.hasLayer(subordinado)) {
+                    subordinado.addTo(this.map);
+                    subordinados.push(subordinado);
+                    
+                    // Restaurar estado guardado si existe
+                    if (subordinado.unidadId && window.estadosUnidades) {
+                        const estadoGuardado = window.estadosUnidades.get(subordinado.unidadId);
+                        if (estadoGuardado) {
+                            subordinado.estadoCombate = estadoGuardado;
+                            console.log(`💾 Estado restaurado: ${subordinado.unidadId}`, estadoGuardado);
+                        }
+                    }
+                }
+            }
+            
+            unidadPadre.estaDesplegado = true;
+            this.actualizarIconoPadre(unidadPadre, true);
+            console.log(`✅ Restaurados ${subordinados.length} subordinados existentes`);
+            return subordinados;
+        }
+
+        // Crear cada subordinado (SOLO si no existen)
         for (let i = 0; i < plantilla.subordinados.length; i++) {
             const subData = plantilla.subordinados[i];
             const posicion = posiciones[i];
@@ -309,7 +337,7 @@ class ORBATManager {
             );
 
             // 🏷️ NOMENCLATURA AUTOMÁTICA: Generar nombre según doctrina argentina
-            const nombreSubordinado = this.generarNombreSubordinado(
+            const nomenclatura = this.generarNombreSubordinado(
                 unidadPadre,
                 subData,
                 i
@@ -318,12 +346,15 @@ class ORBATManager {
             // Crear marcador subordinado
             const subordinado = this.crearMarcadorSubordinado({
                 sidc: sidcSubordinado,
-                nombre: nombreSubordinado,
+                nombre: nomenclatura.nombreCompleto,    // "A/21"
+                asignacion: nomenclatura.asignacion,     // "A"
+                dependencia: nomenclatura.dependencia,   // "21
                 posicion: posicion,
                 equipoPadre: unidadPadre.options.equipo,
                 jugadorPadre: unidadPadre.options.jugador, // ✅ AGREGADO: jugador propietario
                 comandante: unidadPadre.options.id || unidadPadre.options.nombre,
-                designacionPadre: unidadPadre.options.designacion
+                designacionPadre: unidadPadre.options.designacion, // Padre (ej: "11/XX")
+                dependenciaPadre: unidadPadre.options.dependencia // ✅ Heredar dependencia recursiva
             });
 
             if (subordinado) {
@@ -345,7 +376,7 @@ class ORBATManager {
         // Actualizar icono del padre para indicar que está desplegado
         this.actualizarIconoPadre(unidadPadre, true);
 
-        // Emitir evento
+        // ✅ Emitir evento via EventBus
         if (window.eventBus) {
             window.eventBus.emit('subordinadosDesplegados', {
                 comandante: unidadPadre,
@@ -353,6 +384,17 @@ class ORBATManager {
                 formacion: formacion
             });
         }
+
+        // ✅ NUEVO: CustomEvent (compatible con document.addEventListener)
+        const eventoDespliegue = new CustomEvent('subordinadosDesplegados', {
+            detail: {
+                comandante: unidadPadre,
+                subordinados: subordinados,
+                formacion: formacion
+            }
+        });
+        document.dispatchEvent(eventoDespliegue);
+        console.log('📡 CustomEvent subordinadosDesplegados disparado');
 
         return subordinados;
     }
@@ -367,22 +409,31 @@ class ORBATManager {
         }
 
         try {
-            // Crear símbolo militar
-            const symbol = new ms.Symbol(config.sidc, { size: 30 });
+            // Crear símbolo militar (sin texto, lo agregamos después)
+            const symbol = new ms.Symbol(config.sidc, { size: 35 });
 
             // Crear marcador con todas las propiedades necesarias
             const marcador = L.marker(config.posicion, {
                 icon: L.divIcon({
                     className: 'milsymbol-marker',
                     html: symbol.asSVG(),
-                    iconSize: [30, 30],
-                    iconAnchor: [15, 15]
+                    iconSize: [70, 50],
+                    iconAnchor: [35, 25]
                 }),
-                draggable: true, // ✅ Hacer draggable
+                draggable: (function() {
+                    // ✅ RESPETAR FASE al crear hijo
+                    if (window.faseManager) {
+                        const fase = (window.faseManager.fase || '').toLowerCase();
+                        const permitido = fase === 'preparacion' || fase === 'despliegue';
+                        console.log(`🔍 Creando hijo - Fase: ${fase}, Draggable: ${permitido}`);
+                        return permitido;
+                    }
+                    return true;
+                })(), // ✅ Hacer draggable SOLO en prep/despliegue
                 sidc: config.sidc,
-                nombre: config.nombre,
-                designacion: config.nombre, // 🏷️ Designación (ej: "1/14")
-                asignacion: config.designacionPadre || config.comandante, // 🏷️ Asignación (unidad padre)
+                nombre: config.nombre, // Nombre completo "A/21" para display
+                designacion: config.asignacion, // 🏷️ Asignación del hijo (ej: "A", "1")
+                dependencia: config.dependencia, // 🏷️ Dependencia = padre (ej: "21", "11/XX")
                 equipo: config.equipoPadre,
                 jugador: config.jugadorPadre,
                 comandante: config.comandante,
@@ -398,11 +449,18 @@ class ORBATManager {
                 marcador.addTo(this.map);
             }
 
-            // Tooltip con designación y asignación
-            const tooltipText = `${config.nombre}\n${config.designacionPadre || config.comandante}`;
+            // 🏷️ ETIQUETA: Agregar texto designación/dependencia (como edicioncompleto.js)
+            this.actualizarEtiquetaUnidad(marcador);
+
+            // 🏷️ Tooltip: Asignación + Dependencia (properties separadas)
+            // Ejemplo: "A 21" donde A es asignación, 21 es dependencia
+            const asignacionTooltip = config.asignacion || 'S/N';
+            const dependenciaTooltip = config.dependencia || '-';
+            const tooltipText = `${asignacionTooltip} ${dependenciaTooltip}`;
             marcador.bindTooltip(tooltipText, {
                 permanent: false,
-                direction: 'top'
+                direction: 'top',
+                className: 'tooltip-militar'
             });
 
             // ✅ DISPARAR EVENTO para que aparezca en lista de elementos
@@ -419,6 +477,29 @@ class ORBATManager {
                 document.dispatchEvent(evento);
                 console.log('📡 Subordinado agregado al panel:', config.nombre);
             }
+
+            // 🎖️ SISTEMA DE ESTADO PERSISTENTE
+            // Inicializar estado de combate del subordinado
+            marcador.estadoCombate = {
+                salud: 100,          // 0-100%
+                combustible: 100,    // 0-100%
+                municion: 100,       // 0-100%
+                moral: 100,          // 0-100%
+                fatiga: 0,           // 0-100%
+                bajas: 0,            // Número absoluto
+                tiempoCreacion: Date.now(),
+                ultimaActualizacion: Date.now()
+            };
+            
+            // 🔑 ID único persistente basado en SIDC + nombre
+            marcador.unidadId = `${config.sidc}-${config.nombre}`.replace(/[^a-zA-Z0-9-]/g, '_');
+            
+            // Guardar en registro global de estados
+            if (!window.estadosUnidades) {
+                window.estadosUnidades = new Map();
+            }
+            window.estadosUnidades.set(marcador.unidadId, marcador.estadoCombate);
+            console.log(`💾 Estado inicial guardado: ${marcador.unidadId}`, marcador.estadoCombate);
 
             return marcador;
 
@@ -499,12 +580,18 @@ class ORBATManager {
             }
         }
 
-        // 3. Construir nombre final: letra/designacion_padre
-        const nombreFinal = `${letraSubordinado}/${designacionPadre}`;
+        // 3. Retornar OBJETO con asignación y dependencia SEPARADAS
+        // Asignación = letra del hijo (A, B, 1, 2, etc)
+        // Dependencia = designación del padre (21, 11/XX, etc)
+        const nomenclatura = {
+            asignacion: letraSubordinado,      // "A", "B", "1", etc.
+            dependencia: designacionPadre,     // "21", "11/XX", etc.
+            nombreCompleto: `${letraSubordinado}/${designacionPadre}` // "A/21" (para display)
+        };
 
-        console.log(`📝 Nomenclatura: Padre="${designacionPadre}" + Letra="${letraSubordinado}" → "${nombreFinal}"`);
+        console.log(`📝 Nomenclatura: Asignación="${nomenclatura.asignacion}" Dependencia="${nomenclatura.dependencia}" → "${nomenclatura.nombreCompleto}"`);
 
-        return nombreFinal;
+        return nomenclatura;
     }
 
     /**
@@ -540,13 +627,23 @@ class ORBATManager {
         // Actualizar icono del padre
         this.actualizarIconoPadre(unidadPadre, false);
 
-        // Emitir evento
+        // ✅ Emitir evento via EventBus
         if (window.eventBus) {
             window.eventBus.emit('subordinadosReagrupados', {
                 comandante: unidadPadre,
                 cantidad: cantidad
             });
         }
+
+        // ✅ NUEVO: CustomEvent (compatible con document.addEventListener)
+        const eventoReagrupacion = new CustomEvent('subordinadosReagrupados', {
+            detail: {
+                comandante: unidadPadre,
+                cantidad: cantidad
+            }
+        });
+        document.dispatchEvent(eventoReagrupacion);
+        console.log('📡 CustomEvent subordinadosReagrupados disparado');
 
         console.log(`✅ ${cantidad} subordinados reagrupados`);
         return cantidad;
@@ -560,6 +657,80 @@ class ORBATManager {
                unidad.subordinadosDesplegados &&
                unidad.subordinadosDesplegados.length > 0;
     }
+
+    /**
+     * 🏷️ Actualizar etiqueta de unidad con designación/dependencia
+     * EXACTAMENTE como edicioncompleto.js
+     */
+    actualizarEtiquetaUnidad(elemento) {
+        if (!elemento || !elemento.options) return;
+
+        // Remover etiqueta existente
+        if (elemento.etiquetaPersonalizada) {
+            if (this.map && this.map.hasLayer(elemento.etiquetaPersonalizada)) {
+                this.map.removeLayer(elemento.etiquetaPersonalizada);
+            }
+            elemento.etiquetaPersonalizada = null;
+        }
+
+        // Construir etiqueta con formato correcto
+        const designacion = elemento.options.designacion || '';
+        const dependencia = elemento.options.dependencia || '';
+        let etiqueta = '';
+        
+        if (designacion && dependencia) {
+            etiqueta = `${designacion}/${dependencia}`;
+        } else if (designacion) {
+            etiqueta = designacion;
+        } else if (dependencia) {
+            etiqueta = dependencia;
+        }
+
+        // No crear etiqueta si no hay texto
+        if (!etiqueta.trim()) return;
+
+        // Guardar texto original
+        elemento.etiquetaTexto = etiqueta;
+        
+        // Función que actualiza la posición de la etiqueta
+        const actualizarPosicionEtiqueta = function() {
+            if (!elemento || !elemento._icon) return;
+            
+            // Crear o actualizar el div de etiqueta
+            let etiquetaDiv = elemento._icon.querySelector('.etiqueta-unidad');
+            if (!etiquetaDiv) {
+                etiquetaDiv = document.createElement('div');
+                etiquetaDiv.className = 'etiqueta-unidad';
+                etiquetaDiv.style.cssText = `
+                    position: absolute;
+                    bottom: -10px;
+                    right: -5px;
+                    color: black;
+                    font-weight: bold;
+                    white-space: nowrap;
+                    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+                    pointer-events: none;
+                    z-index: 1000;
+                `;
+                elemento._icon.appendChild(etiquetaDiv);
+            }
+            
+            etiquetaDiv.textContent = elemento.etiquetaTexto;
+        };
+        
+        // Aplicar inicialmente
+        actualizarPosicionEtiqueta();
+        
+        // Actualizar cuando cambie el zoom o se agregue al mapa
+        elemento.off('add');
+        elemento.on('add', actualizarPosicionEtiqueta);
+        
+        if (this.map) {
+            this.map.off('zoomend', actualizarPosicionEtiqueta);
+            this.map.on('zoomend', actualizarPosicionEtiqueta);
+        }
+    }
+
 
     /**
      * Actualiza el icono del padre para indicar si está desplegado

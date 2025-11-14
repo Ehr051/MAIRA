@@ -999,7 +999,7 @@ class InicializadorJuegoV2 {
         } else {
             // Cambiar a layout HORIZONTAL tipo grid/tarjetas
             listaContainer.style.display = 'grid';
-            listaContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
+            listaContainer.style.gridTemplateColumns = 'repeat(auto-fill, 200px)';
             listaContainer.style.gap = '10px';
             
             listaContainer.innerHTML = elementos.map((elem, index) => {
@@ -1180,6 +1180,49 @@ class InicializadorJuegoV2 {
                 this.agregarElementoAPanel(e.detail);
             });
 
+            // ✅ NUEVO: Actualizar referencia cuando se modifica elemento
+            document.addEventListener('elementoModificado', (e) => {
+                console.log('📡 Evento elementoModificado recibido:', e.detail);
+                
+                // Actualizar referencia del marcador en this.elementos
+                if (e.detail && e.detail.id && e.detail.marcador) {
+                    const equipo = e.detail.equipo;
+                    if (equipo && this.elementos[equipo]) {
+                        // Buscar elemento por ID y actualizar marcador
+                        const elem = this.elementos[equipo].find(el => {
+                            return el.marcador && el.marcador.options && el.marcador.options.id === e.detail.id;
+                        });
+                        if (elem) {
+                            console.log(`🔄 Actualizando referencia de marcador: ${e.detail.id}`);
+                            elem.marcador = e.detail.marcador; // ✅ Actualizar a nuevo marcador
+                            elem.sidc = e.detail.sidc; // Actualizar SIDC
+                            elem.nombre = e.detail.marcador.options.nombre; // Actualizar nombre
+                        }
+                    }
+                }
+                
+                this.actualizarListaElementosPanel();
+            });
+
+            // ✅ NUEVO: Actualizar lista cuando se despliegan subordinados
+            document.addEventListener('subordinadosDesplegados', (e) => {
+                console.log('📡 subordinadosDesplegados - actualizando lista');
+                this.actualizarListaElementosPanel();
+            });
+
+            // ✅ NUEVO: Actualizar lista cuando se reagrupan subordinados
+            document.addEventListener('subordinadosReagrupados', (e) => {
+                console.log('📡 subordinadosReagrupados - actualizando lista');
+                this.actualizarListaElementosPanel();
+            });
+
+            // ✅ CRÍTICO: Actualizar lista cuando cambia el turno (cambio de jugador)
+            document.addEventListener('cambioTurno', (e) => {
+                console.log('📡 cambioTurno detectado - actualizando lista elementos por jugador');
+                this.actualizarListaElementosPanel();
+                this.actualizarPanelEstado();
+            });
+
             console.log('✅ FaseManager inicializado');
 
         } catch (error) {
@@ -1228,7 +1271,7 @@ class InicializadorJuegoV2 {
                             // Notificar (usando función global)
                             if (typeof window.mostrarNotificacion === 'function') {
                                 window.mostrarNotificacion(
-                                    `Ahora es turno de <strong>${siguienteJugador.nombre}</strong> (${siguienteJugador.equipo.toUpperCase()})`,
+                                    `Ahora es turno de ${siguienteJugador.nombre} (${siguienteJugador.equipo.toUpperCase()})`,
                                     'info',
                                     4000,
                                     true
@@ -1498,18 +1541,18 @@ class InicializadorJuegoV2 {
                     // ✅ Usar métodos del panel en lugar de manipular DOM directamente
                     const panelCoordinacion = document.getElementById('panelCoordinacionOrdenes');
 
-                    if (panelCoordinacion && window.gestorOrdenes?.panelCoordinacion) {
+                    if (panelCoordinacion && window.gestorOrdenesV2?.panelCoordinacion) {
                         // Verificar estado actual
                         const estaOculto = window.getComputedStyle(panelCoordinacion).display === 'none';
 
                         if (estaOculto) {
                             // Mostrar panel usando el método correcto
-                            window.gestorOrdenes.panelCoordinacion.mostrar();
+                            window.gestorOrdenesV2.panelCoordinacion.mostrar();
                             btnToggleCoordinacion.innerHTML = '📊 Ocultar Matriz';
                             console.log('📊 Matriz de coordinación MOSTRADA');
                         } else {
                             // Ocultar panel usando el método correcto
-                            window.gestorOrdenes.panelCoordinacion.ocultar();
+                            window.gestorOrdenesV2.panelCoordinacion.ocultar();
                             btnToggleCoordinacion.innerHTML = '📊 Matriz de Coordinación';
                             console.log('📕 Matriz de coordinación OCULTADA');
                         }
@@ -1707,8 +1750,15 @@ class InicializadorJuegoV2 {
      * ✅ Actualiza la lista visual de elementos en el panel central
      */
     actualizarListaElementosPanel() {
+        console.log('🔍 actualizarListaElementosPanel LLAMADO');
+        
         const listaContainer = document.getElementById('panel-lista-elementos');
-        if (!listaContainer) return;
+        if (!listaContainer) {
+            console.warn('⚠️ No se encontró #panel-lista-elementos');
+            return;
+        }
+
+        console.log('✅ Container encontrado:', listaContainer);
 
         // ✅ DIFERENCIA LOCAL vs ONLINE
         let elementosAMostrar = [];
@@ -1749,6 +1799,22 @@ class InicializadorJuegoV2 {
             }
         }
 
+        // ✅ FILTRAR elementos reagrupados (ocultos del mapa)
+        elementosAMostrar = elementosAMostrar.filter(elem => {
+            if (!elem.marcador) return true; // Sin marcador, mantener
+            
+            // Verificar si el marcador está visible en el mapa
+            let visible = false;
+            if (window.map && elem.marcador._map) {
+                visible = true; // Marcador está en el mapa
+            }
+            
+            if (!visible) {
+                console.log(`👻 Elemento ${elem.nombre} reagrupado - ocultando del panel`);
+            }
+            return visible;
+        });
+        
         if (elementosAMostrar.length === 0) {
             listaContainer.innerHTML = `
                 <div style="
@@ -1767,45 +1833,137 @@ class InicializadorJuegoV2 {
                 </div>
             `;
         } else {
-            listaContainer.innerHTML = elementosAMostrar.map((elem, index) => `
-                <div style="
-                    background: rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.1);
-                    border-left: 3px solid ${elem.equipo === 'azul' ? '#0066ff' : '#ff0000'};
-                    border-radius: 4px;
-                    padding: 8px 12px;
-                    margin-bottom: 6px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    transition: all 0.2s;
-                    cursor: pointer;
-                " onmouseenter="this.style.background='rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.2)'"
-                   onmouseleave="this.style.background='rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.1)'"
-                   onclick="window.inicializadorV2.centrarElemento(${index}, '${elem.equipo}')">
+            // ✅ Grid layout horizontal con scroll
+            // ✅ FLEX HORIZONTAL - NO WRAPPEAR
+            listaContainer.style.display = 'flex';
+            listaContainer.style.flexDirection = 'row';
+            listaContainer.style.flexWrap = 'nowrap';  // Mantener horizontal
+            listaContainer.style.gap = '10px';
+            listaContainer.style.padding = '10px';
+            listaContainer.style.overflowX = 'auto';   // Scroll horizontal
+            listaContainer.style.overflowY = 'hidden'; // NO scroll vertical
+            listaContainer.style.height = '220px';     // Altura fija
+            
+                        listaContainer.innerHTML = elementosAMostrar.map((elem, index) => {
+                // Calcular porcentajes de stats
+                const salud = elem.salud || 100;
+                const combustible = elem.combustible || 100;
+                const municion = elem.municion || 100;
+                const moral = elem.moral || 100;
+                
+                return `
                     <div style="
-                        width: 32px;
-                        height: 32px;
-                        background: rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.3);
-                        border: 1px solid ${elem.equipo === 'azul' ? '#0066ff' : '#ff0000'};
-                        border-radius: 4px;
+                        background: linear-gradient(135deg, rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.15) 0%, rgba(${elem.equipo === 'azul' ? '0, 102, 255' : '255, 0, 0'}, 0.05) 100%);
+                        border: 2px solid ${elem.equipo === 'azul' ? '#0066ff' : '#ff0000'};
+                        border-radius: 8px;
+                        padding: 12px;
                         display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 18px;
-                    ">
-                        ${elem.equipo === 'azul' ? '🔵' : '🔴'}
-                    </div>
-                    <div style="flex: 1;">
-                        <div style="font-size: 13px; color: white; font-weight: bold;">${elem.nombre || 'Sin nombre'}</div>
-                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">
-                            ${elem.equipo.toUpperCase()}
-                            ${elem.sidc ? ` | SIDC: <span style="font-family: monospace; color: rgba(255, 255, 255, 0.7);">${elem.sidc}</span>` : ''}
-                            ${elem.jugador ? ` | Jugador: ${elem.jugador}` : ''}
+                        flex-direction: column;
+                        gap: 10px;
+                        transition: all 0.3s;
+                        cursor: pointer;
+                        width: 200px;
+                        height: 200px;
+                    " onmouseenter="this.style.transform='scale(1.05)'"
+                       onmouseleave="this.style.transform='scale(1)'"
+                       onclick="window.inicializadorV2.centrarElemento(${index}, '${elem.equipo}')">
+                        
+                        <!-- HEADER: Símbolo grande 48x48 + Nombre -->
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="elemento-symbol-container" 
+                                 data-sidc="${elem.sidc}" 
+                                 data-elem-index="${index}"
+                                 data-equipo="${elem.equipo}"
+                                 style="
+                                    width: 60px;
+                                    height: 60px;
+                                    flex-shrink: 0;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                ">
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 14px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    ${elem.nombre || 'Sin nombre'}
+                                </div>
+                                <div style="font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 2px;">
+                                    ${elem.jugador || ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- STATS: 4 Barras con iconos Font Awesome -->
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <!-- Salud -->
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-heart" style="color: #ff4444; width: 14px; font-size: 11px;"></i>
+                                <div style="flex: 1; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; overflow: hidden;">
+                                    <div style="width: ${salud}%; height: 100%; background: linear-gradient(90deg, #ff4444, #ff8888); transition: width 0.3s;"></div>
+                                </div>
+                                <span style="font-size: 9px; color: rgba(255,255,255,0.5); min-width: 28px;">${salud}%</span>
+                            </div>
+                            
+                            <!-- Combustible -->
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-gas-pump" style="color: #ffaa00; width: 14px; font-size: 11px;"></i>
+                                <div style="flex: 1; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; overflow: hidden;">
+                                    <div style="width: ${combustible}%; height: 100%; background: linear-gradient(90deg, #ffaa00, #ffdd88); transition: width 0.3s;"></div>
+                                </div>
+                                <span style="font-size: 9px; color: rgba(255,255,255,0.5); min-width: 28px;">${combustible}%</span>
+                            </div>
+                            
+                            <!-- Munición -->
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-bullseye" style="color: #44ff44; width: 14px; font-size: 11px;"></i>
+                                <div style="flex: 1; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; overflow: hidden;">
+                                    <div style="width: ${municion}%; height: 100%; background: linear-gradient(90deg, #44ff44, #88ff88); transition: width 0.3s;"></div>
+                                </div>
+                                <span style="font-size: 9px; color: rgba(255,255,255,0.5); min-width: 28px;">${municion}%</span>
+                            </div>
+                            
+                            <!-- Moral -->
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-shield-alt" style="color: #4444ff; width: 14px; font-size: 11px;"></i>
+                                <div style="flex: 1; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; overflow: hidden;">
+                                    <div style="width: ${moral}%; height: 100%; background: linear-gradient(90deg, #4444ff, #8888ff); transition: width 0.3s;"></div>
+                                </div>
+                                <span style="font-size: 9px; color: rgba(255,255,255,0.5); min-width: 28px;">${moral}%</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+            
+            // ✅ NUEVO: Renderizar símbolos militares con milsymbol
+            setTimeout(() => {
+                const containers = listaContainer.querySelectorAll('.elemento-symbol-container');
+                containers.forEach(container => {
+                    const sidc = container.dataset.sidc;
+                    if (sidc && window.ms) {
+                        try {
+                            const symbol = new ms.Symbol(sidc, {
+                                size: 32,
+                                frame: true,
+                                fill: true,
+                                strokeWidth: 3
+                            });
+                            const canvas = symbol.asCanvas();
+                            canvas.style.width = '100%';
+                            canvas.style.height = '100%';
+                            canvas.style.objectFit = 'contain';
+                            container.innerHTML = '';
+                            container.appendChild(canvas);
+                        } catch(e) {
+                            console.warn('❌ Error renderizando símbolo:', sidc, e);
+                            container.innerHTML = '<i class="fas fa-question" style="color: rgba(255,255,255,0.3);"></i>';
+                        }
+                    }
+                });
+            }, 50);
         }
+        
+        console.log(`✅ actualizarListaElementosPanel COMPLETADO - ${elementosAMostrar.length} elementos mostrados`);
     }
 
     /**

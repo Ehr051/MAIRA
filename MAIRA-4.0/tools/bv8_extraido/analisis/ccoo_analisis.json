@@ -1,0 +1,627 @@
+{
+  "module": "ccoo",
+  "size_mb": 8.122859001159668,
+  "total_strings": 470079,
+  "classes": {
+    "SortedCollection": 2,
+    "Cancelar": 16,
+    "Aceptar": 16,
+    "SDWORD": 2,
+    "Copiar": 2,
+    "Arma": 3,
+    "Conectar": 2,
+    "ExternalAddress": 2,
+    "ClassificationTable": 2,
+    "EsAcademico": 2,
+    "RolPrincipalId": 2,
+    "EsIngeniero": 2,
+    "Quitar": 6,
+    "Vehiculo": 2,
+    "CLSID": 2,
+    "NombreClase": 2,
+    "EsSubunidadAbstracta": 2,
+    "TipoFuncionId": 2,
+    "BasicListAbstract": 2,
+    "OrganizacionCombateId": 2,
+    "DOUBLE": 2,
+    "NeedsOuter": 2,
+    "NeedsSelfMask": 2,
+    "Aplicar": 4,
+    "Ocultar": 2,
+    "Simple": 2,
+    "Escala": 2,
+    "BYTE": 2,
+    "UNION": 2,
+    "Current": 14,
+    "CURRENCY": 2,
+    "ContainerCreditosOperaciones": 2,
+    "Ejecutar": 3,
+    "Seleccionar": 3,
+    "Salir": 4,
+    "Cambiar": 7,
+    "DefaultInstance": 2,
+    "DeseleccionarTodos": 2,
+    "Elemento": 2,
+    "ReadOnlyMask": 2,
+    "Aplicacion": 2,
+    "GUID": 2,
+    "HRESULT": 2,
+    "Exportar": 2,
+    "Modificar": 4,
+    "Rectangle": 2,
+    "DELETE": 3,
+    "Debug": 3,
+    "Shared": 2,
+    "VARIANT": 2,
+    "LPWSTR": 2,
+    "Shell": 2,
+    "Path": 2,
+    "Clipboard": 2,
+    "Volver": 6,
+    "AlignmentMap": 4,
+    "Help": 2,
+    "IgnoreCaseMask": 2,
+    "TransientMask": 2,
+    "Cancel": 9,
+    "Persona": 2,
+    "Animal": 2,
+    "Agregar": 7,
+    "Armas": 2,
+    "DdoIt": 3,
+    "Pegar": 2,
+    "Eliminar": 2,
+    "Selector": 3,
+    "Change": 2,
+    "Paste": 5,
+    "Find": 5,
+    "Print": 2,
+    "Package": 4,
+    "Remove": 5,
+    "Save": 3,
+    "False": 2,
+    "Copy": 6,
+    "Delete": 6,
+    "Forward": 4,
+    "Aborted": 2,
+    "EncoderQuality": 2,
+    "Width": 2,
+    "Default": 3,
+    "PixelFormat": 2,
+    "Play": 2,
+    "HotspotMask": 2,
+    "Time": 2,
+    "DolphinSureCertificateInfoR": 4,
+    "Catenate": 2,
+    "Match": 2,
+    "Open": 2,
+    "Modify": 2,
+    "Graphic": 4,
+    "Heading": 3,
+    "AutoCompleteDwell": 2,
+    "Steps": 2,
+    "Scribble": 2,
+    "Refresh": 2,
+    "Browse": 5,
+    "Protocols": 4,
+    "Methods": 2,
+    "Tutorials": 8,
+    "Classes": 2,
+    "Test": 2,
+    "Changed": 2,
+    "Back": 2,
+    "Disassembly": 2,
+    "Project": 4,
+    "Blessing": 5,
+    "Comparison": 3,
+    "Packages": 4,
+    "Developer": 8,
+    "SearchForm": 2,
+    "Value": 2,
+    "Owned": 2,
+    "Property": 2,
+    "Edit": 2,
+    "Timestamp": 4,
+    "Dolphin": 2,
+    "Inspector": 2,
+    "Before": 2,
+    "DtoolsSlidey": 2,
+    "Playground": 2,
+    "PersonalMoney": 2,
+    "Class": 3,
+    "AgentObjects": 2,
+    "Left": 2,
+    "Language": 2,
+    "Expression": 2,
+    "NotSignedCertificateR": 2,
+    "RunAll": 2,
+    "ResourceLib": 3,
+    "Exit": 2,
+    "Date": 2,
+    "Undo": 3,
+    "Title": 2,
+    "Reset": 3,
+    "Index": 2,
+    "Filter": 2,
+    "Restore": 2,
+    "Redo": 2,
+    "System": 2
+  },
+  "numeric_values": [
+    {
+      "method": "Â",
+      "value": 0.0,
+      "context": "â\u0001Â:0,Ï"
+    },
+    {
+      "method": "í",
+      "value": 0.0,
+      "context": "à\u0001í:0Óó\u0003 \u0012\u0005\u0010\r"
+    },
+    {
+      "method": "Ì",
+      "value": 8.0,
+      "context": "â\u0001Ì:8Ù«\n \u0012\u0005\u0010\u0004"
+    },
+    {
+      "method": "d",
+      "value": 8.0,
+      "context": "â\u0001d:8JË\u0005@\u0011\u0005\u0010\u0004"
+    },
+    {
+      "method": "ª",
+      "value": 0.0,
+      "context": "ð\u0001ª:0Û«\n@\u0011\u0005\u0010\b"
+    },
+    {
+      "method": "à",
+      "value": 8.0,
+      "context": "ð\u000fà:8?q\u0005@\u0011\u0005\u0010\b"
+    },
+    {
+      "method": "³",
+      "value": 0.0,
+      "context": "ð\u0001³:0st\u00050\u0012\u0005\u0010\r"
+    },
+    {
+      "method": "e",
+      "value": 0.0,
+      "context": "â\u0001e:0âÉ\u0005`\u0012\u0005\u0010P"
+    },
+    {
+      "method": "n",
+      "value": 0.0,
+      "context": "à\u0001n:0u\u00050\u0012\u0005\u0010\t"
+    },
+    {
+      "method": "5",
+      "value": 0.0,
+      "context": "â\u00025:0sv\u00050\u0012\u0005\u0010\u000f"
+    },
+    {
+      "method": "ç",
+      "value": 0.0,
+      "context": "à\u0001ç:0S{\u0005@\u0012\u0005\u0010\u0011"
+    },
+    {
+      "method": "Õ",
+      "value": 8.0,
+      "context": "ð\u0005Õ:8i~\u0005`\u0012\u0005\u0010$"
+    },
+    {
+      "method": "T",
+      "value": 0.0,
+      "context": "â\u0001T:0wÅ\u0005\u0010\u0012\u0005\u0010\b"
+    },
+    {
+      "method": "ß",
+      "value": 8.0,
+      "context": "â\u0001ß:8GÅ\u0005`\u0012\u0005\u0010\u0014"
+    },
+    {
+      "method": "³",
+      "value": 8.0,
+      "context": "â\u0001³:8 ¢\u0005ðH\u001f\u00104"
+    },
+    {
+      "method": "ú",
+      "value": 8.0,
+      "context": "ð\u0001ú:8§£\u0005à\b\u0010T"
+    },
+    {
+      "method": "ÿ",
+      "value": 0.0,
+      "context": "â\u0001ÿ:0v\u0005@\u0012\u0005\u0010,"
+    },
+    {
+      "method": "ç",
+      "value": 0.0,
+      "context": "à\u0001ç:0Ù\u0005`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "C",
+      "value": 0.0,
+      "context": "ð\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+    },
+    {
+      "method": "Ó",
+      "value": 0.0,
+      "context": "à\u0001Ó:0f\u0005`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "unknown",
+      "value": 3.51,
+      "context": "3.51"
+    },
+    {
+      "method": "unknown",
+      "value": 2019.0,
+      "context": "2019"
+    },
+    {
+      "method": "10",
+      "value": 41.0,
+      "context": "\u0005\u00100ú\r\u0010e\n\u001010:41:13 p.m."
+    },
+    {
+      "method": "unknown",
+      "value": 7.01,
+      "context": "7.01"
+    },
+    {
+      "method": "bitOr",
+      "value": 0.0,
+      "context": "0²\u0014\u0010\u0010²\u0014\u0010``@arg bitOr: 0"
+    },
+    {
+      "method": "bitAnd",
+      "value": 0.0,
+      "context": "\u0005\u0010m\u0004i``@arg bitAnd: 0"
+    },
+    {
+      "method": "l9",
+      "value": 0.0,
+      "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+    },
+    {
+      "method": "N",
+      "value": 1.0,
+      "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "`@collection at: 1"
+    },
+    {
+      "method": "Ý",
+      "value": 0.0,
+      "context": "àx\u0019\u0010°²\u001d\u0010«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "õ\t\u0010Uses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+    },
+    {
+      "method": "00",
+      "value": 0.0,
+      "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+    },
+    {
+      "method": "max",
+      "value": 2.0,
+      "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "\u0005\u0010Ð \u001f\u0010[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "PS\u001c\u0010`ì\u001e\u0010[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "P¤\u001f\u00100Û\u0013\u0010[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "t\u001f\u0010pt\u001f\u0010`\u001f\u0010t\u001f\u0010°t\u001f\u0010[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "primitive",
+      "value": 1.0,
+      "context": "Primitive or external call tag, e.g. <primitive: 1>"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "ä \u0010[:a | a at: 2]"
+    },
+    {
+      "method": "Î",
+      "value": 9.0,
+      "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+    },
+    {
+      "method": "Version",
+      "value": 1.0,
+      "context": "I%\u0010à\u001d%\u0010MIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+    },
+    {
+      "method": "12",
+      "value": 0.0,
+      "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+    },
+    {
+      "method": "t6ÍÃM",
+      "value": 7.0,
+      "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+    },
+    {
+      "method": "rating",
+      "value": 2.0,
+      "context": "\u0005\u0010mÌ\u0001i[ :recording :val | recording rating: 2]"
+    },
+    {
+      "method": "t",
+      "value": 4.0,
+      "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+    },
+    {
+      "method": "rating",
+      "value": 3.0,
+      "context": "\u0005\u0010\u0018+\u0010p§\u0010\u0010Ðd\u0005\u0010[ :recording :val | recording rating: 3]"
+    },
+    {
+      "method": "rating",
+      "value": 1.0,
+      "context": "\u0005\u0010[ :recording :val | recording rating: 1]"
+    },
+    {
+      "method": "19",
+      "value": 0.0,
+      "context": "19:00"
+    },
+    {
+      "method": "17",
+      "value": 15.0,
+      "context": "17:15"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:o | o at: 3]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:o | o at: 2]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "[:o | o at: 1]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "c\u000f\u0010[:o | o at: 4]"
+    }
+  ],
+  "keywords_found": {
+    "combustible": [
+      "\u0005\u0010ð£$\u0010combustible",
+      "\u0012Î\u0012qâ\u0003¢jµaâ&xç\u0007a\u0011×DxB¹O\u0011×MxBºP\u0011×YzB»å\"j<j¼a?9\u001aä\u0002ØMØ.\u0019Ø/Ü\u0003ç\u0007a9\u0019\u001aä\u0002Øqicombustible",
+      "combustible:"
+    ],
+    "transporte": [
+      " Ì>J2mediodetransporte"
+    ],
+    "elemento": [
+      "materialelemento:",
+      "\u0005\u0010\u0012\u0005\u0010nuevoVehiculo:enElemento:tipo:",
+      "0=\u0005\u0010Ð\u0012\u0005\u0010SELECT * FROM nivelelemento",
+      "\u0005\u0010SELECT * FROM materialelemento",
+      "\u0005\u0010ðS\t\u0010ð\u0004\b\u0010copiarElemento:",
+      "õ\t\u0010importarPelotones:subElementos:sin:",
+      "\u0005\u0010pO\u0005\u0010À\f\u0010Ð{\u0007\u0010À\n\u0010ð[\u000b\u0010Ð\u000f\u0010@_\n\u0010°d\b\u0010importarSeccion:subElementos:sin:",
+      "nuevaPersona:enElemento:",
+      "\u0005\u0010\u0010\u0014\u0005\u0010À¢\u0013\u0010`Z\u0005\u0010actualizarElemento:enElemento:",
+      "Quitar elemento",
+      "nivelelemento",
+      "â jpersonasElemento:",
+      "dameSubElemento:nivel:",
+      "H\u0005\u0010importarMaterialElemento",
+      "subelementos:",
+      "A°[Cß\u0003\u0012i\u0002\u0013\\\u0002\u0013<K\u0013²a\u0014iimportarGrupos:subElementos:sin:",
+      "k\u0007\u0010g\u0007\u00100d\u0005\u0010=\u000e\u0010cambiarId:elemento:",
+      "vehiculosElemento:",
+      "borrarVehiculo:elemento:",
+      "numeracionElementoIndividual:"
+    ],
+    "organizacion": [
+      "?F9d\u0012Û\u0010BdÞ\u0007[é\u0002\u0002\u0012LùÑ\u0001ÝíalagregarPersonasYVehiculosSinOrganizacionDelElemento:",
+      "\u0005\u0010\u0010g\b\u00100û\u0005\u0010pc\u0005\u0010Ðe\u0005\u0010OrganizacionCombate",
+      "°\u0005\u0010datosOrganizacion:",
+      "`¢ÖÄÐ×L²¨×9+-.esUnCuadroOrganizacionValido:",
+      "Ù\u0005\u0010ÐU\u0007\u0010elementosOrganizacionCombate",
+      "elementosOrganizacionCombate",
+      "inicializarElementosOrganizacionCombate",
+      "elementosOrganizacionCombate:",
+      "organizacionId:",
+      "OrganizacionCombateId",
+      "datosOrganizacion",
+      "À\"\u0005\u0010organizacioncombate",
+      "cargarOrganizaciones:",
+      "datosOrganizacion",
+      "\u0005\u0010@d\n\u0010cuadroorganizacion",
+      "arbolOrganizacion",
+      "\u0005\u0010P\u0012\u0006\u0010Þ\t\u0010À\u0007\u0010ð°\t\u0010organizaciones",
+      "\u0005\u0010À§\r\u0010¯\t\u0010À\u0007\u0010 ­\u0005\u0010ElementoOrganizacionCombate",
+      "asignarOrganizacionCombate:a:",
+      "asignarOrganizacionCombate:aVehiculo:"
+    ],
+    "cuadro": [
+      "C:\\Users\\Pmur\\Desktop\\Pruebas\\Ejecutables\\HACCOO_7_01_004.tmp",
+      "\u0005\u0010à×\u0006\u0010p\u0007\u0010C:\\Users\\Pmur\\Desktop\\Pruebas\\Ejecutables\\HACCOO_7_01_004.exe",
+      "é é1j±JiEjecutables\\HACCOO_7_01_004.exe",
+      "AdministracionDeCCOO",
+      "Administración de CCOO",
+      "`¢ÖÄÐ×L²¨×9+-.esUnCuadroOrganizacionValido:",
+      "\u0005\u0010@d\n\u0010cuadroorganizacion",
+      "misCCOO",
+      "\u0005\u0010P\u0001\u000f\u0010ÐK\u0006\u0010À\u001c\u000f\u0010pathMisCCOO",
+      "\u000f\u0010¢\u0005\u0010Manuales\\Ayuda\\ayudaHACCOO.chm",
+      "Si presiona ATL+h podrá habilitar el cuadro de texto para ingresar el nombre de usuario de la base de datos que desee.",
+      "\u0005\u0010ý\u000f\u0010ð_\u0010\u0010Ð{\u0007\u0010P4\u0005\u0010 ¥\u0006\u0010\u0010ë\n\u0010Ð\r\u0006\u0010Splash\\CreditosHACCOO.bmp",
+      "\u0005\u0010\u0001-i0(\u0011\u0010Splash\\SplashHACCOO.bmp",
+      "[\u0010\u0010°§\u0006\u0010`Î\u0006\u0010\u0010d\u0005\u0010Licencia\\LicenciaHACCOO.pdf",
+      "HACCOO",
+      "D`I\u0010\u0010 U\r\u0010pathMisCCOO:",
+      "resetearPathMisCCOO",
+      "\\Mis CCOO",
+      "DManuales\\UltimasMejoras\\ultimasMejorasHACCOO.pdf",
+      "ConfiguracionAdministracionDeCCOO"
+    ],
+    "personal": [
+      "ðN\u000e\u0010Asignar Personal",
+      "\u0005\u0010 É\u0006\u0010Ðò\u000b\u0010àX\u0005\u0010àW\u0005\u0010ÀA\u000b\u0010P¡\u0005\u0010°d\u0005\u0010Ðe\u0005\u0010tieneTodosLosVehiculosConPersonalDesde:",
+      "\u0005\u0010@\f\u0010 \u0006\n\u00100d\u0005\u0010@¸\n\u0010personalCompletoParaInstanciar",
+      "personal",
+      "personal:",
+      "\u0005\u0010¨\b\u0010asignarPersonalAEmbarquesEn:",
+      "Aé2\u0012ØjØ.lpersonal",
+      "ctrlArbolPersonalEmbarcado",
+      "¼\u000b\u0010ðà\b\u0010\u0001\u00011DExisten Material de tipo Motorizada, Blindada o Mecanizada con personal sin asignar a vehículos.",
+      "DExisten vehículos sin personal asignado.",
+      "arbolPersonalDesembarcado",
+      "ctrlArbolPersonalDesembarcado",
+      "Personal desembarcado",
+      "\u0005\u0010àÅ\u0005\u0010p8\u0005\u0010 §\u0005\u0010pM\u0007\u0010Asignar Personal",
+      " DAsignar Personal",
+      "\u0005\u0010Ð\u0014\u0011\u0010°í\u000b\u0010DLI del Personal seleccionado:",
+      "\u0004ØdÜ\u0004. £aetieneTodosLosVehiculosConPersonal:",
+      "arbolPersonalDesembarcado",
+      "arbolPersonalEmbarcado",
+      "seSueltaObjetoEnArbolPersonalEmbarcado:"
+    ],
+    "baja": [
+      "Ð\u0007\u0010bajarAlpha:",
+      "bajarAlpha",
+      "ð\u0016\t\u0010pC\u000f\u0010À\u0017\u0010\u0010 \u0005\u00100®\r\u0010 ¦\u0005\u0010bajarUno",
+      "\u0005\u0010¥\u000e\u0010w\u0014\u0010à¦\u000e\u0010P\"\u000f\u0010\u0010¦\u000e\u0010¦\u000e\u0010°¦\u000e\u0010Ë\u000e\u0010 ¦\u000e\u0010àª\u000e\u0010Bajar al fondo",
+      "\u0005\u0010\u001b\u0011\u0010°~\u000f\u0010àÕ\u000e\u0010À\u0007\u0010à\u0019\u0011\u0010ðp\f\u00100d\u0005\u0010`\u001b\u0011\u0010Bajar uno",
+      "\u0005\u0010°¼\u0012\u0010\u0010N\u0012\u0010trabajarSinConectar"
+    ],
+    "prisionero": [
+      "ð\u00060PGÎ",
+      "â\u0001ëµPGÏ",
+      "ð\u0006PGà\u001b\tP\u0014\u0005\u0010 ",
+      "â3oQPG×",
+      "ð\r\u0018PGL\u00050\u0012\u0005\u0010\u0015",
+      "â\u0001|PG\u0019\t@\u0012\u0005\u0010\u000b",
+      "â\u0001?ºPG\u001d\t0\u0012\u0005\u0010\n",
+      "â\u0001gªPGô\u0003@\u0012\u0005\u0010\n",
+      "ð\u0004~bPGi\u00050\u0012\u0005\u0010\u0011",
+      "â\u0001@²PGC\b\u0010\u0012\u0005\u0010\f",
+      "à\u0001RÕPGk\u0005PV\n\u0010\u0010",
+      "\u0001oºPGË\u0005@\u0011\u0005\u0010\u0004",
+      "â\u0001\u0013¢PGl\u00050\u0012\u0005\u0010\u000b",
+      "â\u0001PGÐÏl\u00050\u0012\u0005\u0010\r",
+      "â\u00010­PG¬\n@\u0012\u0005\u0010,",
+      "ð\u0006è×PGn\u0005`\u0012\u0005\u0010\u0018",
+      "à\u00019êPGo\u0005`\u0012\u0005\u0010\u0014",
+      "à\u0001²ePGp\u00050\u0012\u0005\u0010\u000e",
+      "ð\u0003¡PGu\u0005@\u0011\u0005\u0010\b",
+      "ð\u0003¥éPGÉ\u0005@\u0012\u0005\u0010\u0014"
+    ],
+    "combate": [
+      "Org combate",
+      "\u0005\u0010\u0010g\b\u00100û\u0005\u0010pc\u0005\u0010Ðe\u0005\u0010OrganizacionCombate",
+      "Org. combate",
+      "Ù\u0005\u0010ÐU\u0007\u0010elementosOrganizacionCombate",
+      "9- ³d\u0011´ai\u0001=Ö?iorgCombate",
+      "orgCombate:",
+      "?F«d\u0012Û\u0017B[é\u0002a\u0013/|âDyC\u0011ÃadùÑ\u0001Ýæalàì\u0005\u0010Ðì\u0005\u0010Àì\u0005\u0010orgCombate",
+      "elementosOrganizacionCombate",
+      "inicializarElementosOrganizacionCombate",
+      "elementosOrganizacionCombate:",
+      "OrganizacionCombateId",
+      "À\"\u0005\u0010organizacioncombate",
+      "\u0005\u0010pf\b\u0010quitarOrgCombate:",
+      "\u0005\u0010Ventanas\\vehiculo_combate.ico",
+      "\u0005\u0010À§\r\u0010¯\t\u0010À\u0007\u0010 ­\u0005\u0010ElementoOrganizacionCombate",
+      "asignarOrganizacionCombate:a:",
+      "\u0005\u0010@µ\u0005\u0010\u0010\u0011\u000b\u0010p¥\u0007\u0010°C\u0014\u0010@X\u0010\u0010°\u001e\u0010\u0010modificarOrgCombatePersona:",
+      "asignarOrganizacionCombate:aVehiculo:",
+      "\u0005\u0010Existen personas o vehículos sin una Organización para el Combate asignada.",
+      "organizacionCombateCO"
+    ],
+    "falla": [
+      "\u0005\u0010ð1\u0005\u0010@\"\u0005\u0010Q\u0006\u0010Ocurrió un error al aplicar el color. Algunos colores fallan al intentar aplicarlos a ciertos símbolos. Pruebe con otro color similar."
+    ],
+    "pendiente": [
+      "SubUnidad_Independiente",
+      "\u0006\u0010`¹\u0005\u0010ê\u0005\u0010esIndependiente",
+      "tipoSubUnidadIndependiente",
+      "esSubUnidadIndependiente",
+      "\u0005\u0010 m\r\u0010 \u0017\u0005\u0010 N\u0005\u0010p\u0006\u0010p2\u0005\u0010@ò\n\u0010\u0005\u0010Pd\u0005\u0010 ¹\u0005\u0010SubUnidad_Independiente",
+      "VehiculoIndependiente"
+    ],
+    "vehiculo": [
+      "\u0005\u0010\u0012\u0005\u0010nuevoVehiculo:enElemento:tipo:",
+      "\u0005\u0010°Ý*\u00100W\n\u0010@T\u0007\u0010@i\u0007\u0010p{\u000b\u0010ðl\u0007\u0010vehiculoId",
+      "\u0005\u0010P\u0013\u0005\u0010vehiculos",
+      "\u0005\u00100\u0014\u0005\u0010ctrlListaVehiculos",
+      "Z.\u0012²veA\u0012Âl\u001d[<Ñ\u0004\\\u0002Ý6\u0002\u001fÝ$\u0002¡\\¯K\u0011µ[\u0002\u001f¶{\u0002¡]¯Û\u001d9Ö!\u0014ç\bc¹ØJaç\bcÑ\u0004Û\u000b\u0002(|\u0002¡Hb]¯aBç\ré2\u0015ØnØOipersonasVehiculo:",
+      "ctrlCantTotalVehiculos",
+      "ctrlVehiculo",
+      "Ð¨\u0005\u0010ð\u0005\u0010containerEdicionVehiculo",
+      "Ðj\f\u0010\u0010\u001a\f\u0010ctrlCantVehiculos",
+      "A²j³j´lcontainerConsultaVehiculos",
+      "\u0005\u0010@r\u0005\u0010borrarVehiculo:",
+      "\u0005\u0010\u0010y\t\u0010Ðì\u0006\u0010°e\u0005\u0010À\u001e\u0006\u0010vehiculos:",
+      "buscarVehiculoConPersona:",
+      "\u0005\u0010modificarVehiculo",
+      "\u0005\u0010à,\t\u0010pã\u0006\u0010°i\u0007\u0010buscarVehiculoConPersona:resultado:",
+      "vehiculosElemento:",
+      "borrarVehiculo:elemento:",
+      "e\u0012\u0010b\u0012\u0010\u000f\u0010\u0010\n\u000f\u0010vehiculoActual",
+      "?F9d\u0012Û\u0010BdÞ\u0007[é\u0002\u0002\u0012LùÑ\u0001ÝíalagregarPersonasYVehiculosSinOrganizacionDelElemento:",
+      "\u0005\u0010\u0011Ó\tebuscarVehiculo:en:"
+    ],
+    "velocidad": [
+      "\u0005\u0010 \b\u0010°§\u0006\u0010 °\u0005\u0010Pd\u0005\u0010ª\u0005\u00100d\u0005\u0010\u0010®\u0005\u0010cantidadCuadrados:extentCuadrado:circular:color:velocidadRefresco:radio:",
+      "velocidadRefresco",
+      "-­³E>y-¢i\u0011icantidadCuadrados:extentCuadrado:porcentajeCuadradoGrande:circular:color:velocidadRefresco:",
+      "velocidadRefresco",
+      "\u0005\u0010Y\u000b\u0010velocidadRefresco:"
+    ]
+  },
+  "methods_of_interest": []
+}

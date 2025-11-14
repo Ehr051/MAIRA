@@ -880,7 +880,10 @@ function actualizarEtiquetaEquipo(elemento) {
 }
 
 function validarDatosElemento(designacion, dependencia) {
-    return designacion?.trim() && dependencia?.trim();
+    // ✅ CORREGIDO: Convertir a string ANTES de validar
+    const desigStr = String(designacion || '').trim();
+    const depStr = String(dependencia || '').trim();
+    return desigStr && depStr;
 }
 
 function obtenerTipoDeElemento(sidc) {
@@ -1156,20 +1159,8 @@ function guardarCambiosUnidad() {
         // Eliminar el marcador actual del calco
         window.calcoActivo.removeLayer(elementoSeleccionado);
         
-        // Crear un nuevo símbolo con el SIDC actualizado
-        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
-        
-        // Crear un nuevo icono
-        const icon = L.divIcon({
-            className: `custom-div-icon equipo-${equipoElemento}`,
-            html: sym.asSVG(),
-            iconSize: [70, 50],
-            iconAnchor: [35, 25]
-        });
-        
-        // Crear un nuevo marcador con todas las propiedades actualizadas
+        // Crear un nuevo marcador con todas las propiedades actualizadas PRIMERO
         const nuevoMarcador = L.marker(posicionActual, {
-            icon: icon,
             draggable: true,
             id: idElemento,
             sidc: nuevoSidc,
@@ -1184,14 +1175,54 @@ function guardarCambiosUnidad() {
             nombre: `${designacion}${dependencia ? '/' + dependencia : ''}` // ✅ CORREGIDO: nombre completo
         });
         
+        // ✅ AHORA sí crear el símbolo con las propiedades ya guardadas
+        const sym = new ms.Symbol(nuevoSidc, { size: 35 });
+        
+        // Crear el icono y asignarlo al marcador
+        const icon = L.divIcon({
+            className: `custom-div-icon equipo-${equipoElemento}`,
+            html: sym.asSVG(),
+            iconSize: [70, 50],
+            iconAnchor: [35, 25]
+        });
+        
+        nuevoMarcador.setIcon(icon);
+        
         // Añadir el nuevo marcador al calco
         nuevoMarcador.addTo(window.calcoActivo);
+        
+        // ✅ DISPARAR EVENTO: Elemento modificado
+        const eventoModificado = new CustomEvent('elementoModificado', {
+            detail: {
+                id: idElemento,
+                sidc: nuevoSidc,
+                jugador: jugadorElemento,
+                equipo: equipoElemento,
+                marcador: nuevoMarcador
+            }
+        });
+        document.dispatchEvent(eventoModificado);
+        console.log('📡 Evento elementoModificado disparado:', idElemento);
         
         // ✅ ACTUALIZAR LISTA DE ELEMENTOS DEL CALCO
         if (typeof window.actualizarElementosCalco === 'function') {
             window.actualizarElementosCalco();
             console.log('✅ Lista de elementos del calco actualizada después de crear marcador');
         }
+        
+        // ✅ ACTUALIZAR PANEL JUEGO V2 con DELAY (esperar a setIcon)
+        setTimeout(() => {
+            try {
+                if (window.inicializadorV2 && 
+                    typeof window.inicializadorV2.actualizarListaElementosPanel === 'function') {
+                    console.log('🔍 Actualizando panel JuegoV2 con símbolo actualizado...');
+                    window.inicializadorV2.actualizarListaElementosPanel();
+                    console.log('✅ Panel JuegoV2 actualizado');
+                }
+            } catch(e) {
+                console.warn('⚠️ Error actualizando panel JuegoV2:', e);
+            }
+        }, 150); // Delay para que setIcon complete el renderizado
         
         // Actualizar etiqueta
         actualizarEtiquetaUnidad(nuevoMarcador);
@@ -1379,6 +1410,20 @@ function guardarCambiosEquipo() {
         // Actualizar la lista de elementos del calco activo
         if (typeof window.actualizarElementosCalco === 'function') {
             window.actualizarElementosCalco();
+        }
+        
+        // ✅ ACTUALIZAR PANEL JUEGO V2 (SIEMPRE si existe)
+        try {
+            if (window.inicializadorV2 && 
+                typeof window.inicializadorV2.actualizarListaElementosPanel === 'function') {
+                console.log('🔍 Intentando actualizar panel JuegoV2 después de editar equipo...');
+                window.inicializadorV2.actualizarListaElementosPanel();
+                console.log('✅ Panel JuegoV2 actualizado después de editar equipo');
+            } else {
+                console.log('⏭️ Panel JuegoV2 no disponible después de editar equipo');
+            }
+        } catch(e) {
+            console.warn('⚠️ Error actualizando panel JuegoV2 después de editar equipo:', e);
         }
         
         // Actualizar botón listo si es necesario

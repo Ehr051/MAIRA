@@ -1,0 +1,941 @@
+{
+  "module": "terreno",
+  "size_mb": 8.659006118774414,
+  "total_strings": 503858,
+  "classes": {
+    "Referencias": 2,
+    "CAMPO": 4,
+    "SDWORD": 2,
+    "Bioma": 2,
+    "VALOR": 3,
+    "OPERADOR": 3,
+    "TITULO": 2,
+    "BSTR": 2,
+    "ExternalAddress": 2,
+    "ClassificationTable": 2,
+    "SALIR": 2,
+    "GUID": 9,
+    "DdoIt": 5,
+    "Quitar": 2,
+    "Ayuda": 2,
+    "Layer": 2,
+    "MapObjects2": 6,
+    "Suelo": 2,
+    "ContainerToolBar": 2,
+    "MapObjects2Constants": 3,
+    "LegendControl": 3,
+    "NeedsSelfMask": 2,
+    "Cancelar": 11,
+    "Siguiente": 2,
+    "DNombre": 2,
+    "Salir": 13,
+    "Aceptar": 12,
+    "Current": 14,
+    "CURRENCY": 2,
+    "ContainerBotones": 3,
+    "CCOEtiqueta": 2,
+    "Mostrar": 5,
+    "ContainerLongitudTotal": 2,
+    "Category": 2,
+    "Campos": 3,
+    "Nombre": 2,
+    "Datos": 2,
+    "ContainerIngresarDimensionSecundario": 2,
+    "Table": 2,
+    "Buscar": 2,
+    "ReadOnlyMask": 2,
+    "LPVOID": 2,
+    "Rectangle": 2,
+    "ImageStripper": 2,
+    "Categories": 3,
+    "Default": 4,
+    "DELETE": 2,
+    "CTRL": 2,
+    "Shared": 2,
+    "VARIANT": 2,
+    "SamplingInterval": 2,
+    "LPWSTR": 2,
+    "OptimizedSelectors": 2,
+    "Aplicar": 5,
+    "Escala": 2,
+    "Shell": 2,
+    "DSNLibrary": 2,
+    "System": 3,
+    "AlignmentMap": 4,
+    "IgnoreCaseMask": 2,
+    "TransientMask": 2,
+    "Cancel": 10,
+    "BUTTON": 2,
+    "CLSID": 2,
+    "IconicListAbstract": 2,
+    "ContainerVersionesAnteriores": 2,
+    "Usuarios": 2,
+    "Ocultar": 4,
+    "SeleccionarTodos": 2,
+    "Paste": 5,
+    "Find": 5,
+    "Print": 2,
+    "Copy": 8,
+    "Cambiar": 5,
+    "Save": 4,
+    "False": 2,
+    "Delete": 5,
+    "Forward": 3,
+    "Aborted": 2,
+    "EncoderQuality": 2,
+    "Aplicacion": 2,
+    "Seleccionar": 2,
+    "Width": 2,
+    "Limpiar": 2,
+    "Text": 4,
+    "Actualizar": 2,
+    "OPTION": 2,
+    "Match": 2,
+    "Open": 2,
+    "Remove": 5,
+    "AutoCompleteDwell": 2,
+    "Refresh": 3,
+    "Browse": 2,
+    "Owned": 2,
+    "Property": 2,
+    "Packages": 4,
+    "Edit": 2,
+    "Changed": 2,
+    "Methods": 2,
+    "Clear": 2,
+    "Selector": 5,
+    "Tutorials": 11,
+    "DolphinSureCertificateInfoR": 4,
+    "Catenate": 2,
+    "Views": 2,
+    "Graphic": 4,
+    "Heading": 6,
+    "Title": 2,
+    "Steps": 2,
+    "Class": 4,
+    "Disassembly": 2,
+    "Project": 2,
+    "Timestamp": 7,
+    "Developer": 4,
+    "Blessing": 3,
+    "Edition": 2,
+    "Dolphin": 2,
+    "Language": 2,
+    "Expression": 2,
+    "Package": 3,
+    "AgentObjects": 2,
+    "NotSignedCertificateR": 2,
+    "Debug": 3,
+    "RunAll": 2,
+    "Before": 3,
+    "SlidingBallDemo": 2,
+    "Name": 3,
+    "Object": 2,
+    "ResourceLib": 3,
+    "OmniBase": 2,
+    "Date": 2,
+    "Undo": 3,
+    "Reset": 2,
+    "Differences": 2,
+    "Index": 2,
+    "Filter": 2,
+    "Restore": 2,
+    "Other": 2,
+    "BBC1": 2
+  },
+  "numeric_values": [
+    {
+      "method": "¼",
+      "value": 81.0,
+      "context": "â\u0001¼:81â\u00030\u0012\u0005\u0010\u0011"
+    },
+    {
+      "method": "º",
+      "value": 0.0,
+      "context": "â\u0001º:0Pä\u0003`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "ú",
+      "value": 0.0,
+      "context": "â\u0001ú:0Ós\u0005`\u0012\u0005\u0010\u0014"
+    },
+    {
+      "method": "y",
+      "value": 8.0,
+      "context": "â\u0001y:8Îs\u0005`\u0012\u0005\u0010$"
+    },
+    {
+      "method": "Æ",
+      "value": 8.0,
+      "context": "ð\u0001Æ:8Ñv\u0005`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "v",
+      "value": 0.0,
+      "context": "ð\u0001v:0þÕ"
+    },
+    {
+      "method": "5",
+      "value": 0.0,
+      "context": "â\u00025:0~\u00050\u0012\u0005\u0010\u000f"
+    },
+    {
+      "method": "Á",
+      "value": 0.0,
+      "context": "ð`Á:0¦\u0005`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "a",
+      "value": 8.0,
+      "context": "â\u0001a: 8\u0005P\u0014\u0005\u0010 "
+    },
+    {
+      "method": "P",
+      "value": 0.0,
+      "context": "ð\u0006P:0<\u00050\u0012\u0005\u0010\u000e"
+    },
+    {
+      "method": "P",
+      "value": 0.0,
+      "context": "ð\u0001P:0\u0005 \u0012\u0005\u0010\u000e"
+    },
+    {
+      "method": "ç",
+      "value": 8.0,
+      "context": "ð\u0001ç:8\rÌ\u0005 \u0012\u0005\u0010\u0013"
+    },
+    {
+      "method": "º",
+      "value": 0.0,
+      "context": "â\u0001º:0©Ë\u0005p\u0014\u0005\u0010\u0014"
+    },
+    {
+      "method": "C",
+      "value": 0.0,
+      "context": "ð\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+    },
+    {
+      "method": "ç",
+      "value": 8.0,
+      "context": "à\u0001ç:8\u0005@\u0012\u0005\u0010\u0005"
+    },
+    {
+      "method": "bp",
+      "value": 4.0,
+      "context": "â\u0001bp:4\u0005@\u0012\u0005\u0010"
+    },
+    {
+      "method": "C",
+      "value": 0.0,
+      "context": "ð\u0004C:0\u0012\u00050\u0012\u0005\u0010'"
+    },
+    {
+      "method": "Í",
+      "value": 0.0,
+      "context": "â\u0001Í:0ç¦\u0005@\u0012\u0005\u0010#"
+    },
+    {
+      "method": "x",
+      "value": 0.0,
+      "context": "ð\u0001x:0À¡\u0005@\u0012\u0005\u0010\u0011"
+    },
+    {
+      "method": "K",
+      "value": 8.0,
+      "context": "â\u0001K:8Ç¡\u00050\u0012\u0005\u0010\u0013"
+    },
+    {
+      "method": "U",
+      "value": 8.0,
+      "context": "ð\u0005U:8½ \u0005@\u0012\u0005\u0010A"
+    },
+    {
+      "method": "unknown",
+      "value": 7.01,
+      "context": "7.01"
+    },
+    {
+      "method": "µÝ",
+      "value": 3.0,
+      "context": "µÝ:3¥%&ØJxç\u000bu3¥Ø\rç\u000eØ/Fß\u0001eÏ\u0010Ø\u0011é\u0010ü"
+    },
+    {
+      "method": "DCompletado",
+      "value": 0.0,
+      "context": "DCompletado: 0%"
+    },
+    {
+      "method": "l9",
+      "value": 0.0,
+      "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+    },
+    {
+      "method": "N",
+      "value": 1.0,
+      "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+    },
+    {
+      "method": "unknown",
+      "value": 1.02,
+      "context": "1.02"
+    },
+    {
+      "method": "10",
+      "value": 41.0,
+      "context": "10:41:13 p.m."
+    },
+    {
+      "method": "00",
+      "value": 0.0,
+      "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+    },
+    {
+      "method": "unknown",
+      "value": 2019.0,
+      "context": "2019"
+    },
+    {
+      "method": "bitOr",
+      "value": 0.0,
+      "context": "\u0005\u0010 S\u001f\u0010``@arg bitOr: 0"
+    },
+    {
+      "method": "bitAnd",
+      "value": 0.0,
+      "context": "\u0005\u0010``@arg bitAnd: 0"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u0010`@collection at: 1"
+    },
+    {
+      "method": "Ý",
+      "value": 0.0,
+      "context": "«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "FÎªã9¸LnÙ¿@{úUses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+    },
+    {
+      "method": "primitive",
+      "value": 1.0,
+      "context": "Primitive or external call tag, e.g. <primitive: 1>"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "ä \u0010[:a | a at: 2]"
+    },
+    {
+      "method": "Î",
+      "value": 9.0,
+      "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+    },
+    {
+      "method": "max",
+      "value": 2.0,
+      "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "À±%\u0010 %\u0010`!%\u0010 Ñ&\u0010 Ü\u0013\u0010[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "½\n\u0010Ð\u0015%\u0010ÀA%\u0010 ­\u0005\u0010[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "12",
+      "value": 0.0,
+      "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+    },
+    {
+      "method": "t6ÍÃM",
+      "value": 7.0,
+      "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+    },
+    {
+      "method": "t",
+      "value": 4.0,
+      "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+    },
+    {
+      "method": "Version",
+      "value": 1.0,
+      "context": "\u0005\u0010 Ï+\u0010\u0010v+\u0010\u0010%+\u0010@x\u0006\u0010 \u0006\u0010Ô+\u0010Pd\u0005\u0010 Ô+\u0010MIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:o | o at: 3]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "\u0005\u0010PH+\u0010Pú-\u0010\u001d.\u0010Pd\u0005\u0010[:o | o at: 2]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "[:o | o at: 1]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "\u0011k¿i[:o | o at: 4]"
+    },
+    {
+      "method": "17",
+      "value": 15.0,
+      "context": "17:15"
+    },
+    {
+      "method": "19",
+      "value": 0.0,
+      "context": "19:00"
+    },
+    {
+      "method": "rating",
+      "value": 1.0,
+      "context": "\u0005\u0010«a¬Ü\u0006®F\u0011Ý÷é\u0010Ü\t9\"â\u0006·%·¹ae[ :recording :val | recording rating: 1]"
+    },
+    {
+      "method": "rating",
+      "value": 3.0,
+      "context": "\u0010\u0010à¦\u0005\u0010[ :recording :val | recording rating: 3]"
+    },
+    {
+      "method": "rating",
+      "value": 2.0,
+      "context": "[ :recording :val | recording rating: 2]"
+    }
+  ],
+  "keywords_found": {
+    "capacidad": [
+      "transitabilidadPuenteCapacidad:ancho:id:columna:",
+      "capacidadDelPuente:"
+    ],
+    "elemento": [
+      "habilitarIrAElementoSIG",
+      "C\u0007\u00100[\u0006\u0010p2\u000b\u00100î\u0006\u0010Pd\u0005\u0010°d\u0005\u0010ð¢\u0006\u0010ð\t\u0010Elemento del SIG",
+      "\u0005\u0010\u00119°i@p\u0005\u0010Elemento posicionado",
+      "habilitarIrAElementoPosicionado",
+      "abrirCalcoDeElementosUbicados:",
+      "irAElementoSIG",
+      "ð\u0006\u0010ðÖ\u0006\u0010irAElementoPosicionado",
+      "sacarElementosMO",
+      "\u0005\u0010@V\b\u0010àÞ\u000b\u0010ÐØ\u0013\u0010 ¾\u0005\u0010ÐL\u0006\u0010\u0010d\u0005\u0010Pd\u0005\u0010\u0010È\u000f\u0010\b\u0010 >\t\u0010instanciarElementosMO",
+      "elemento:",
+      "-\u0011±Zâ\"Ü\b\f1\u0012µ¶aÛôeelemento",
+      "Ir a elemento SIG",
+      "elemento",
+      "elementos",
+      "\u0005\u0010@C\u000e\u0010Elementos",
+      "elementos",
+      "\u0005\u0010@â,\u0010àî\f\u0010Ir a elemento posicionado",
+      "n<Ó\u000feNO se puede localizar este elemento porque no está ubicado",
+      "\u001b\f\u0010p8\u0005\u0010P\n\f\u00100>\u0005\u00100?\u0005\u001003\u0005\u0010localizarElemento:",
+      "Seleccione un elemento:"
+    ],
+    "organizacion": [
+      " î\u0016\u0010cuadroorganizacion"
+    ],
+    "cuadro": [
+      "\u0005\u0010cuadro",
+      " î\u0016\u0010cuadroorganizacion"
+    ],
+    "personal": [
+      "\u0011«\u0011G\u0011w>iC\u0012Àipersonalizado",
+      "\u0005\u0010°\u001e\r\u0010 (\u0018\u0010P¥\f\u0010ª\u0005\u0010escalaPersonalizada",
+      "\u001d¬ ¡¢µipersonalizado",
+      "Colores personalizados",
+      "Escala personalizada",
+      "DolphinSurePersonalCertificate",
+      "DResources/DolphinSurePersonalCert.jpg",
+      "PersonalMoney",
+      "PersonalMoneyShell",
+      "PersonalAccount",
+      "Personal Account Details",
+      "\u0005\u00100è)\u0010`'+\u0010\u001b*\u0010PersonalAccountTransactionDialog",
+      "PersonalAccountTransaction",
+      "\u0005\u0010à\u001c\u0010PersonalMoney",
+      "o\u001e\u0010o\u001e\u0010Ð'\u0016\u0010 5*\u0010à=)\u0010Personal Money files (*.pm)",
+      "à#\u0010PersonalAccountShell",
+      "Personal Money Application"
+    ],
+    "baja": [
+      "Bajar layer",
+      "bajarLayer",
+      "bajarCalco:",
+      ":\f\u0010@_\n\u0010Bajar calco",
+      "bajarCalco",
+      "ç\u0013\u0010>\b\u0010à5\r\u0010bajarAlpha",
+      "bajarAlpha:"
+    ],
+    "prisionero": [
+      "ð\tÈÏPGÜ\u0003@\u0012\u0005\u0010\u0010",
+      "ð\u0001´)PGÝ\u00030\u0012\u0005\u0010\n",
+      "â\u0001\u0010iPGß\u0003`\u0012\u0005\u0010\u0018",
+      "ð\u0001ÐGPGÜ",
+      "ð\u0006PGæÑ",
+      "ð\u0006Ö+PGä\u00030\u0012\u0005\u0010\t",
+      "ð\u0001±NPGÛ",
+      "ð/PGPC\b@\u0011\u0005\u0010\u0004",
+      "à\u00018PGq\u0005`\u0012\u0005\u0010\u0014",
+      "â\u0001ÛJPGs\u0005@\u0012\u0005\u0010\f",
+      "â\u0001PGà¿t\u00050\u0012\u0005\u0010\r",
+      "â\u0001lÏPGØ",
+      "â\u0001ÈþPGy\u0005`\u0012\u0005\u0010H",
+      "â\u0001áêPG}\u0005\u0010\u0012\u0005\u0010\u0014",
+      "à\u0001î;PG\u0005`\u0012\u0005\u0010\u0018",
+      "ð\u0001ÇePGÓ\u0001à\b\u0010H",
+      "â\u0001OPG\u0005PV\n\u0010\u0010",
+      "ð\u0001óëPGÑ",
+      "\u0001\u0013äPG\bpH\t\u0010\u0004",
+      "ð\u0003ücPG\u0005@\u0012\u0005\u0010\r"
+    ],
+    "falla": [
+      "Ö\u0006\u0010Ocurrió un error al aplicar el color. Algunos colores fallan al intentar aplicarlos a ciertos símbolos. Pruebe con otro color similar."
+    ],
+    "terreno": [
+      "Estudio Terreno",
+      "A\u0005\u0010 \u0013\u0005\u0010ToolbarEstudioDelTerreno\\transitabilidad.bmp",
+      "\u0005\u0010mÌ\u0004irecorrerTerreno3D:Shift:X:Y:",
+      "\u0005\u0010\u00119°i¨\u0007\u0010Marcar Terrenos Llaves",
+      "Marcar Terrenos Llaves",
+      "\u0005\u0010\u0010¡)\u0010\u0005\u0010 (\u0018\u0010Ï\n\u0010Pd\u0005\u0010recorrerTerreno3D",
+      "\u0005\u0010\u00119°i`\n\u0006\u0010Ingrese un nuevo nombre para el terreno llave:",
+      "\u0005\u0010\u0011Ó>etoolbarTerreno",
+      "\u0012Ó\u000b\u0011Ð\tj³ltoolbarTerreno2",
+      "ToolbarEstudioDelTerreno\\perfil.bmp",
+      "\u0011>}\u0011\u0003y\u0011Ð\u0001lA²iToolbarEstudioDelTerreno\\vueloVirtual.bmp",
+      "=´\u0005\u000fååÌAÒNC\u0005ªûToolbarEstudioDelTerreno\\historicoTransitabilidad.bmp",
+      "t°ù³xøN§¯¯*Uk\u001aPH\f\u0010pathTerreno3D",
+      "\u0005\u0010Software\\CIDESO\\Terreno3D",
+      "iConsultar terreno",
+      "\u0005\u0010estudioterreno",
+      "Medir terreno",
+      "configuracionBarraTerreno",
+      "\u0005\u0010Estudio del Terreno ",
+      "é\u0001°J×=±K\u0011´\u0012°J× ±jµK ¤\u0011°I×=±K9 ¤´\u0011°I×)±lvalidarTerreno:"
+    ],
+    "transitabilidad": [
+      "resetearModeloTransitabilidad",
+      "A\u0005\u0010 \u0013\u0005\u0010ToolbarEstudioDelTerreno\\transitabilidad.bmp",
+      "mensajeTransitabilidadPoligono:",
+      "¿ Desea consultar la transitabilidad sobre la zona marcada con un área de ",
+      "transitabilidad",
+      "Transitabilidad",
+      "=´\u0005\u000fååÌAÒNC\u0005ªûToolbarEstudioDelTerreno\\historicoTransitabilidad.bmp",
+      ";\u0005\u0010P£\u0006\u0010 §\u0005\u0010Pd\u0005\u0010 \u0006\u0010Consultar transitabilidad",
+      "Ö\u0010iColores de referencia de la transitabilidad",
+      "Registro de calculos de transitabilidad ",
+      "99iNo hay ningún registro histórico de transitabilidad",
+      "\u0005\u0010Ð\u0007\u0010P¯\u0007\u0010 5\u000f\u0010 ´\u0007\u0010\u0011b[>ZÖ\u0003H>d\u0014Û\u000e\u0012Ö\bC\u0014~~ZdûÑ\u0003ÝïaJipÌ\u0019\u0010`¹\u0007\u0010`\u0019\u0010Ðo\u0007\u0010datosTransitabilidadCollection:",
+      "a\u0007\u0010Pd\u0005\u0010c\u0005\u0010\u0010d\u0005\u0010datosTransitabilidadCollection",
+      "\u0005\u0010Consulta de transitabilidad",
+      "transitabilidadSueloTipo:columna:climas:",
+      "historicoTransitabilidad.bmp",
+      "registroTransitabilidad",
+      "PÙ\u0007\u0010Ø\u0007\u0010`Ø\u0007\u0010transitabilidadColumna:climas:suelo:",
+      "@\u001a\u0007\u0010`r\b\u0010datosTransitabilidad",
+      "transitabilidad.bmp"
+    ],
+    "suelo": [
+      "cantidadSuelo",
+      "\u0005\u0010`w\u0007\u0010listadoDeSuelos",
+      "Calculando zonas: Suelos",
+      "\u0005\u0010¿Desea realizar el filtrado de suelos?",
+      "\u0005\u0010\u0011Ó\u0011eFiltrado de suelos",
+      "\u0005\u0010pV\u0006\u0010suelo",
+      "\u0005\u0010Ì\b\u0010°d\u0005\u00100d\u0005\u0010suelo",
+      "ctrlSuelo",
+      "ctrlListaDeSuelos",
+      "ctrlCantidadSuelo",
+      "seleccionDeSuelos",
+      "\u001b\u0011(Âjµj³a\u0019¤ve\u0019)sâ\bâ(j¹M9\u0019ºlcoleccionNaranjaSuelos",
+      "coleccionRojaPoligonosSuelos",
+      "ç\nzâ\u000b\u0013¼iâ\u000b¢\u0013¼i,Y9Ñ\u0006?d\u0017Û\u000f\u0011Î\u0011ã\u0006Ø2©~YdûÑ\u0006ÝîaIionCtrlSueloCambio",
+      "sueloContainer",
+      "agregarSuelos",
+      "Suelo",
+      "avanzadoSuelo",
+      "Suelo",
+      "D«w\u0011i\u0011 îè\u0003icalcularZonaDeMarcadoParaSuelo:seleccionSuelos:coleccionNoApto:"
+    ],
+    "pendiente": [
+      "componentePendienteReferencias",
+      "containerReferenciasPendiente",
+      "componentePendienteMapa",
+      "componentePendienteMapa",
+      "componentePendienteReferencias",
+      "\u0005\u00109@²i\u0005\u0007\u00100d\u0005\u0010ð÷\n\u0010    * Imagen visual del modelo de pendientes",
+      "\u0005\u0010f\u0005\u0010nodoPendiente",
+      "\u0005\u0010\u0010à\u0006\u0010\u0010d\u0005\u0010Pendientes",
+      "nodoPendiente",
+      "ctrlMapaPendiente",
+      "ctrlCantidadMapaPendientes",
+      "configurarControladorPuntosPorPendientes",
+      "KRemapaPendientes",
+      "Mapa de pendientes",
+      "mapaPendientes",
+      "¿Desea guardar la imagen del Modelo de Pendientes?",
+      "\u0005\u0010p\u001c\u0006\u0010Mostrar en el mapa el Modelo Pendientes",
+      "cantidadMapaPendiente",
+      "containerReferenciasPendiente",
+      "\u0005\u0010\u0011«±l0W\n\u0010@t\b\u0010Pendiente Maxima Superable (%):"
+    ],
+    "vehiculo": [
+      "\u0005\u0010À\u0005\u0010Ðì\u0006\u0010À\u001e\u0006\u0010ðD\u0005\u0010î\u0006\u0010\u0010d\u0005\u0010vehiculo.ico",
+      "«Ü\u0003A±a0\u0012?Ö\n~[1£B\u0013ØfG1£¥¸HÆ}\u0011d\u0013¹a'¹l\u0011d\u0014c\u0013?Øla×.½a\u0013]é4z\u0011×0½lé#b×ez\u0011×0½aé\u0002\u0014é#bØll-El vehículo no puede atravesar este afluente",
+      "99°9°i-El vehículo puede transitar por este suelo",
+      "-El vehículo puede atravesar este afluente",
+      "õ\t\u0010-El vehículo no puede transitar por este suelo",
+      "-El vehículo no puede transitar por este camino",
+      "-El vehículo puede transitar por este camino",
+      "AÙ j±lcantidadVehiculos",
+      "\u0007\u00100d\t\u0010habilitarAgregarVehiculo",
+      "\u0005\u0010ctrlVehiculos",
+      "Ì\u0016>aÌ\u0014>aÌ\u0018>aÌ\u0019>aÌ\u0017>lcontainerVehiculos",
+      "\u0005\u0010P)\u0006\u0010°&\f\u00100c\u0005\u0010\b\u0010Pd\u0005\u0010limpiarListaVehiculos",
+      "\u0001d9±K ±lConformación de la columna de vehículos:",
+      "\u0005\u0010vehiculos",
+      " Ì>J2importarVehiculos",
+      "vehiculo",
+      "\u0005\u0010àç\r\u0010PÃ\u0005\u0010Pd\u0005\u0010cantidadVehiculos",
+      "ctrlVehiculo:",
+      "ctrlCantidadVehiculos",
+      "\u0005\u00109\u001d±i°æ\u0016\u0010 a\u0017\u0010ctrlVehiculo"
+    ],
+    "velocidad": [
+      "    * Mayor velocidad al buscar caminos",
+      "\u0005\u0010\u0011Ó?egenerarXMLDelVueloVirtual:altura:velocidad:",
+      "A!o-jÙAj²G-x\u0012i\u0013iVelocidad del viento (m/s)\r\n(0 - 50):",
+      "velocidadDelViento",
+      "velocidadViento",
+      "\u0004ß\u0002«ie-\u0001=Y?S¬Ü\r\u0003Z®I\u0001\u0012\u0003cÂµaÛð\u0011i[:o1 :o2 | o1 velocidadDelViento  < o2 velocidadDelViento ]",
+      "[:o| o velocidadDelViento ]",
+      "velocidad del viento",
+      "\u0005\u0010Ðo\u0007\u0010velocidadDelViento",
+      "velocidadDelViento",
+      "\u0005\u0010\u0010Y\u0007\u0010Pd\u0005\u0010ª\u0005\u0010velocidadDelViento:",
+      "velocidadDelViento",
+      "Velocidad [km/h]:",
+      "velocidad",
+      "velocidad",
+      "\u0005\u0010é\u0005\u0010ÐH\u0006\u00100d\u0005\u0010 \u000e\u0010velocidad",
+      "moverMapaPorDirecciones:conVelocidad:",
+      "velocidad",
+      "\u0006\u0010`o\u0005\u0010À(\u0006\u0010velocidad:",
+      "\u0005\u0010°\u0007\u0010ctrlVelocidad"
+    ],
+    "peso": [
+      "peso",
+      "\u0005\u0010à\n\u0010ð4\u0005\u0010@o\u0006\u0010°e\u0005\u0010 ^\u0006\u0010@­\u0005\u0010Ðe\u0005\u0010Ý\u0005\u0010 °\u0005\u0010 tiene demasiado peso para el puente, ",
+      "\u0005\u0010peso:",
+      "\u0001D\u0002ß\u00069\u0001~R\u0002ipeso",
+      "\t \u0001DÐ½\t\u0010Peso"
+    ]
+  },
+  "methods_of_interest": [
+    {
+      "method": "transitabilidad",
+      "string": "A\u0005\u0010 \u0013\u0005\u0010ToolbarEstudioDelTerreno\\transitabilidad.bmp",
+      "context_before": [
+        "\u0002\u0001DStream",
+        "modeloEDT"
+      ],
+      "context_after": [
+        " \\\u0005\u0010\u0010",
+        "\u0005\u0010Ðc-\u0010^\t\u0010\u0010"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "¿ Desea consultar la transitabilidad sobre la zona marcada con un área de ",
+      "context_before": [
+        "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÑ",
+        "skipWhileMatchAll:"
+      ],
+      "context_after": [
+        "\u0004``t\f\u0010àû\b\u0010\u0010",
+        "\u0005\u0010­i"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "transitabilidad",
+      "context_before": [
+        "`X\n\u0010@Â\u0005\u0010\u0010",
+        "\u0005\u0010°÷\u0005\u0010 J\u0006\u0010*.cco"
+      ],
+      "context_after": [
+        "ÐÞ\u0005\u0010@B\u0007\u0010\u0010",
+        "\u0005\u0010«\u001e²iàm\u0019\u0010å\u0005\u00100³\u0005\u0010\u0001"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": ";\u0005\u0010P£\u0006\u0010 §\u0005\u0010Pd\u0005\u0010 \u0006\u0010Consultar transitabilidad",
+      "context_before": [
+        " \u0012\u0005\u0010°ì\u0006\u0010\u0010",
+        "\u0005\u0010\u0010\u0003\b\u0010p8\u0005\u0010°\n\u0010¦\u0005\u00100^\u0006\u0010Ðì\u0006\u0010°e\u0005\u0010ðì\u0006\u0010°d\u0005\u0010À\u001e\u0006\u0010pÍ\u0005\u0010 °\u0005\u0010"
+      ],
+      "context_after": [
+        " ï\u0006\u00100V\u0006\u0010«a« I?ó",
+        "«¡Ñ\u0004Þz¯a«\u0015\"Ñ\u0006Äa4Ñ\u0005%&a\u0016'(a\u0016)(a\u0016*Ï\u000eØ\u000fa\u0016Î\u0010Ï\u0011î"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "Ö\u0010iColores de referencia de la transitabilidad",
+      "context_before": [
+        "\u0012cbi«ÿÿÿ",
+        "¬ÿÿÿ"
+      ],
+      "context_after": [
+        "\u0004`àÞ\t\u0010",
+        "l\u0005\u0010\u0010"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "Registro de calculos de transitabilidad ",
+      "context_before": [
+        "\u0001\u0007Ö\u0007\u0010°?\u000e\u0010\u0010",
+        "\u0005\u0010\u0011Qe"
+      ],
+      "context_after": [
+        "°\u0011\u0005\u0010\u0010\u0006\u0010\u0010",
+        "\u0005\u00109«±i \u0006\u0010\u0006\u0010"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "99iNo hay ningún registro histórico de transitabilidad",
+      "context_before": [
+        "K.²a®a¯aç\u0005lcamino",
+        "newUnique"
+      ],
+      "context_after": [
+        "Ài\f\u0010ÀX\u0007\u0010\u0010",
+        "\u0005\u0010`7\u0007\u0010ÀX\u0007\u0010ðÖ\u0006\u0010lpReserved2"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "\u0005\u0010Consulta de transitabilidad",
+      "context_before": [
+        "\u0005\u0010mÌ",
+        "iSortedCollection"
+      ],
+      "context_after": [
+        "\u0002P\u0012\u0005\u0010­\u0006\u0010\u0010",
+        "\u0005\u0010mf"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "transitabilidadSueloTipo:columna:climas:",
+      "context_before": [
+        "shapes",
+        "tipoDeSueloSegunClase:"
+      ],
+      "context_after": [
+        "readsStatic:",
+        "ctrlProfundidad"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "PÙ\u0007\u0010Ø\u0007\u0010`Ø\u0007\u0010transitabilidadColumna:climas:suelo:",
+      "context_before": [
+        "Enter",
+        "traductorSuelosXML"
+      ],
+      "context_after": [
+        "@\u0013\u0005\u0010î\u0006\u0010\u0010",
+        "\u0005\u0010«i"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "transitabilidad.bmp",
+      "context_before": [
+        "<ZA°\u001eÜ\u0005A° {¯\u0011µFÛ\u0012A°$z¯\u0011¸Fu6¨(6¨ªØMJß\u0001eç\u000fØ\u0010\u0012Ø1a\u000f¢\u0012Ø2a\u000f\u0012Ø3aç\u0014l,",
+        "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ"
+      ],
+      "context_after": [
+        "D\f\u0010À\u001e\u0006\u0010\u0010",
+        "\u0005\u0010Ð|\b\u00100Å\u0005\u0010i\u0005\u0010defaultSearchPolicy"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "transitabilidadPuenteCapacidad:ancho:id:columna:",
+      "context_before": [
+        "\u0005\u0010«i",
+        "i\u0005\u0010pü\u0005\u0010origin:extent:"
+      ],
+      "context_after": [
+        "\u0005PN\f\u0010Pá\n\u0010\u0010",
+        "\u0005\u0010\u001di"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "Calcular transitabilidad caminos",
+      "context_before": [
+        "«Zé\u0001ü\u0002",
+        "é b\u0012¿j²Jji"
+      ],
+      "context_after": [
+        "\u0003\u0006ÿÿ",
+        "rename"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "El poligono seleccionado no contiene ningun layer apto para evaluar su transitabilidad",
+      "context_before": [
+        "closure",
+        " \u0001Dtoolbar"
+      ],
+      "context_after": [
+        "\u0001Þ\u0005«¬ ³aefileOutDefinitionOfClass:",
+        "Pn\n\u0010\b\u0010\u0010"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "\u0005\u0010pL\t\u0010Calcular transitabilidad suelos",
+      "context_before": [
+        "\u0005\u0010P[\b\u0010ð'\t\u0010Ðþ\t\u0010@Æ\b\u0010\u0010",
+        "\u0005\u0010ðy\t\u0010ðÔ\b\u0010\u0010"
+      ],
+      "context_after": [
+        "©¿³#Ò\u0011B¥Ì^sb+\u0011Q:R:Se\u0003",
+        "Ðç\u000b\u0010"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": " +\u000e\u0010Consulta de transitabilidad",
+      "context_before": [
+        "\u0005&\u000b\u0010à]\u0005\u0010\u0010",
+        "\u0005\u0010\u001di"
+      ],
+      "context_after": [
+        "contenedorFoto",
+        "\u0007\n\u0007HeapCompact"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "transitabilidadColumna:climas:rio:areaCuenca:",
+      "context_before": [
+        " ²\u0012\u0010a\u0005",
+        " O\t\u0010E"
+      ],
+      "context_after": [
+        "habilitarBotonProyectar",
+        "-AÀi\u0001"
+      ]
+    },
+    {
+      "method": "transitabilidad",
+      "string": "Histórico transitabilidad",
+      "context_before": [
+        "\u0005\u0010@ÿ\r\u0010ps\n\u00100\u0001\u0006\u0010 ?\n\u0010\u0003",
+        "\u0003ø\n\u0010\u0010R\n\u0010\u0010"
+      ],
+      "context_after": [
+        " ô\n\u0010p3\u000f\u0010\u0003@8",
+        "P1\u000f\u0010\u0010"
+      ]
+    },
+    {
+      "method": "peso",
+      "string": "peso",
+      "context_before": [
+        "p¨\u0005\u0010 ",
+        "\u0005\u0010ðÉ\u0019\u0010Pª\u0007\u0010ancho"
+      ],
+      "context_after": [
+        "packageName:",
+        "profundidadTransitable"
+      ]
+    },
+    {
+      "method": "peso",
+      "string": "\u0005\u0010à\n\u0010ð4\u0005\u0010@o\u0006\u0010°e\u0005\u0010 ^\u0006\u0010@­\u0005\u0010Ðe\u0005\u0010Ý\u0005\u0010 °\u0005\u0010 tiene demasiado peso para el puente, ",
+      "context_before": [
+        "\u0005\u0010-¬²ip\u0017\n\u0010à]\u0005\u0010 \u000b\u0010\u0003\u0004\u0001",
+        "@\u0011\u0005\u0010À"
+      ],
+      "context_after": [
+        "±Kâ\u0002³lrightToLeftBlock:",
+        "el vehículo "
+      ]
+    },
+    {
+      "method": "peso",
+      "string": "\u0005\u0010peso:",
+      "context_before": [
+        "Menor escala   1 :",
+        "½\u000bÿÿ"
+      ],
+      "context_after": [
+        "0\u0014\b\u0010",
+        "Ò\b\u0010\u0010"
+      ]
+    },
+    {
+      "method": "peso",
+      "string": "\u0001D\u0002ß\u00069\u0001~R\u0002ipeso",
+      "context_before": [
+        "à\t\u0010",
+        "õ\t\u0010"
+      ],
+      "context_after": [
+        "\u0002y­¡Ü\u0002¯iç\u0006Y\u0002¥Zç\baç\t\u0011ç\n\u0012Øki\u0010",
+        "primitives"
+      ]
+    }
+  ]
+}

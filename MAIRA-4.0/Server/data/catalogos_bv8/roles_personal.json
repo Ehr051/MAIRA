@@ -1,0 +1,383 @@
+{
+  "version": "0.1-DRAFT",
+  "source": "BV8 - Catálogo roles PRELIMINAR (NO VALIDADO)",
+  "descripcion": "Roles individuales con armamento y dotaciones iniciales",
+  
+  "ADVERTENCIA": "⚠️ DATOS NO VALIDADOS - Municiones y dotaciones ESTIMADAS, NO extraídas de dbDatos.data",
+  "estado": "DRAFT - Requiere validación con base de datos CCOO real antes de usar",
+  "pendiente_validar": [
+    "Munición inicial por rol (¿100 o 300 cart?)",
+    "Dotaciones diarias exactas (agua, viveres)",
+    "Armamento secundario",
+    "Carga adicional (auxiliares)",
+    "Grados típicos",
+    "OrganizacionCombate ID"
+  ],
+  
+  "roles": {
+    "tirador_fal": {
+      "id": 1,
+      "nombre": "Tirador FAL",
+      "rolPrincipal": "tirador_fal",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm",
+          "bdId": 101,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 100,
+          "descripcion": "5 cargadores x 20 cartuchos"
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "nota": "Carga en cargadores: 100 cart. Resto en cajas (mochila/reserva unidad)"
+    },
+    
+    "tirador_fal_para": {
+      "id": 2,
+      "nombre": "Tirador FAL PARA",
+      "rolPrincipal": "tirador_fal_para",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 5.56mm PARA",
+          "bdId": 102,
+          "municion_tipo": "municion_556",
+          "municion_inicial": 300
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      }
+    },
+    
+    "ametrallador_mag": {
+      "id": 3,
+      "nombre": "Ametrallador MAG",
+      "rolPrincipal": "ametrallador_mag",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "MAG 7.62mm",
+          "bdId": 103,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 600,
+          "descripcion": "Cintas de munición"
+        },
+        "secundario": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45,
+          "descripcion": "3 cargadores x 15 cartuchos"
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "requiere_auxiliar": true
+    },
+    
+    "apuntador_mag": {
+      "id": 4,
+      "nombre": "Apuntador MAG",
+      "rolPrincipal": "apuntador_mag",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "MAG 7.62mm",
+          "bdId": 103,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 600
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      }
+    },
+    
+    "auxiliar_mag": {
+      "id": 5,
+      "nombre": "Auxiliar MAG",
+      "rolPrincipal": "auxiliar_mag",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm",
+          "bdId": 101,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 100,
+          "descripcion": "5 cargadores x 20 cartuchos"
+        }
+      },
+      "carga_adicional": {
+        "municion_762": 300,
+        "descripcion": "Munición adicional para MAG (cintas)"
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      }
+    },
+    
+    "tirador_especial": {
+      "id": 6,
+      "nombre": "Tirador Especial",
+      "rolPrincipal": "tirador_especial",
+      "grado_tipico": "cabo",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "Fusil Tirador Especial 7.62mm",
+          "bdId": 104,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 200,
+          "descripcion": "Munición de precisión"
+        },
+        "secundario": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      }
+    },
+    
+    "apuntador_at": {
+      "id": 7,
+      "nombre": "Apuntador Antitanque",
+      "rolPrincipal": "apuntador_at",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "LAW 88.9mm",
+          "bdId": 105,
+          "municion_tipo": "cohetes_889",
+          "municion_inicial": 4,
+          "descripcion": "4 cohetes antitanque"
+        },
+        "secundario": {
+          "tipo": "FAL 7.62mm",
+          "bdId": 101,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 150
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      }
+    },
+    
+    "jefe_equipo": {
+      "id": 8,
+      "nombre": "Jefe de Equipo",
+      "rolPrincipal": "jefe_equipo",
+      "grado_tipico": "cabo",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm",
+          "bdId": 101,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 300
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "comandante": true
+    },
+    
+    "jefe_grupo": {
+      "id": 9,
+      "nombre": "Jefe de Grupo",
+      "rolPrincipal": "jefe_grupo",
+      "grado_tipico": "sargento",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm",
+          "bdId": 101,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 300
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "comandante": true
+    },
+    
+    "jefe_seccion": {
+      "id": 10,
+      "nombre": "Jefe de Sección",
+      "rolPrincipal": "jefe_seccion",
+      "grado_tipico": "subteniente",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "FAL 7.62mm",
+          "bdId": 101,
+          "municion_tipo": "municion_762",
+          "municion_inicial": 300
+        },
+        "secundario": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "comandante": true
+    },
+    
+    "conductor_m113": {
+      "id": 11,
+      "nombre": "Conductor M113",
+      "rolPrincipal": "conductor_m113",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "es_conductor": true
+    },
+    
+    "jefe_m113": {
+      "id": 12,
+      "nombre": "Jefe de Vehículo M113",
+      "rolPrincipal": "jefe_m113",
+      "grado_tipico": "cabo",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "comandante_vehiculo": true
+    },
+    
+    "tirador_tam": {
+      "id": 13,
+      "nombre": "Tirador TAM (cañonero)",
+      "rolPrincipal": "tirador_tam",
+      "grado_tipico": "cabo",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      }
+    },
+    
+    "cargador_tam": {
+      "id": 14,
+      "nombre": "Cargador TAM",
+      "rolPrincipal": "cargador_tam",
+      "grado_tipico": "soldado",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      }
+    },
+    
+    "jefe_tam": {
+      "id": 15,
+      "nombre": "Jefe de Tanque TAM",
+      "rolPrincipal": "jefe_tam",
+      "grado_tipico": "sargento",
+      "orgComb": 1,
+      "sidc_modificador": "R",
+      "armamento": {
+        "principal": {
+          "tipo": "Pistola 9mm",
+          "bdId": 201,
+          "municion_tipo": "municion_9mm",
+          "municion_inicial": 45
+        }
+      },
+      "dotacion_diaria": {
+        "agua": 3.5,
+        "viveres": 3
+      },
+      "comandante_vehiculo": true
+    }
+  },
+  
+  "notas": [
+    "Dotaciones son estimadas según estándares militares argentinos",
+    "municion_inicial es carga individual del soldado, NO incluye reservas de unidad",
+    "agua: 3.5 litros/día por persona (clima templado)",
+    "viveres: 3 raciones/día",
+    "sidc_categoria: Código de función APP-6 (UCII=Infantería, UCRT=Tanques, etc.)",
+    "SIDC se genera dinámicamente combinando: afiliación + sidc_categoria + magnitud",
+    "Requiere validación con datos completos de CCOO dbDatos.data"
+  ]
+}

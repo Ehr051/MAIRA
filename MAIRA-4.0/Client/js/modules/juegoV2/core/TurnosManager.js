@@ -50,64 +50,13 @@ class TurnosManager {
     }
 
     /**
-     * Crea el reloj visual en pantalla
-     */
-    crearReloj() {
-        this.relojElement = document.createElement('div');
-        this.relojElement.id = 'reloj-turno-v2';
-        this.relojElement.style.cssText = `
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            padding: 12px 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ff00;
-            border-radius: 8px;
-            color: #00ff00;
-            font-weight: bold;
-            font-size: 24px;
-            font-family: 'Courier New', monospace;
-            z-index: 3000;
-            box-shadow: 0 4px 12px rgba(0, 255, 0, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            align-items: center;
-        `;
-
-        this.relojElement.innerHTML = `
-            <div style="font-size: 14px; color: rgba(255, 255, 255, 0.7);">Turno ${this.turnoActual}</div>
-            <div id="tiempo-display">${this.formatearTiempo(this.tiempoRestante)}</div>
-            <div style="display: flex; gap: 8px;">
-                <button id="btn-finalizar-turno" style="
-                    padding: 4px 12px;
-                    background: rgba(76, 175, 80, 0.8);
-                    border: 1px solid #4CAF50;
-                    border-radius: 4px;
-                    color: white;
-                    font-size: 12px;
-                    cursor: pointer;
-                    font-weight: bold;
-                ">✅ Pasar Turno</button>
-            </div>
-        `;
-
-        document.body.appendChild(this.relojElement);
-
-        // Event listeners (sin pausa - una vez iniciado, se juega)
-        document.getElementById('btn-finalizar-turno').addEventListener('click', () => this.finalizarTurnoManual());
-    }
-
-    /**
      * Actualiza el display del reloj
      */
     actualizarReloj() {
         // 🔒 PROTECCIÓN: Verificar que relojElement existe
-        if (!this.relojElement) {
-            console.warn('⚠️ relojElement no existe aún, creándolo...');
-            this.crearReloj();
-        }
+        // ✅ RELOJ INTEGRADO EN PANEL - No crear flotante
+        const relojElement = document.querySelector('#panel-inferior-unificado .reloj-turno') || 
+                            document.getElementById('reloj-turno');
 
         const tiempoDisplay = document.getElementById('tiempo-display');
         if (tiempoDisplay) {

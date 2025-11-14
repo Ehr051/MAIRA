@@ -1,0 +1,91 @@
+{
+  "fecha_extraccion": "2025-01-XX",
+  "fuente": "BV8 2019 - Dolphin Smalltalk 7",
+  "metodo": "Extracción RCDATA + análisis binario correlaciones",
+  "valores": {
+    "dotaciones_personal": {
+      "agua_litros_dia": {
+        "valor": 3,
+        "confianza": 85,
+        "fuente": "logistica_smalltalk.img - dotacionInicial a 26 bytes",
+        "contexto": "[:o|o dotacionInicial kg printDecimals: 2]"
+      },
+      "viveres_raciones_dia": {
+        "valor": 3,
+        "confianza": 70,
+        "fuente": "Inferido por analogía con agua",
+        "contexto": "Mismo patrón que agua en método"
+      },
+      "municion_fal_cartuchos": {
+        "valor": 100,
+        "confianza": 80,
+        "fuente": "220 ocurrencias en logistica_smalltalk.img",
+        "contexto": "5 cargadores x 20 cartuchos (estándar AR)"
+      },
+      "municion_fal_cargadores": {
+        "valor": 5,
+        "confianza": 60,
+        "fuente": "Correlación + estándar militar AR",
+        "contexto": "Valor 5 a 118 bytes de dotacionInicial"
+      }
+    },
+    "combustible_vehiculos": {
+      "tam_capacidad_litros": {
+        "valor": 620,
+        "confianza": 90,
+        "fuente": "1 ocurrencia en logistica_smalltalk.img",
+        "contexto": "Coincide con documentación técnica TAM"
+      },
+      "m113_capacidad_litros": {
+        "valor": 360,
+        "confianza": 85,
+        "fuente": "76 ocurrencias en logistica_smalltalk.img",
+        "contexto": "Estándar conocido M113 APC"
+      },
+      "liviano_consumo_100km": {
+        "valor": 20,
+        "confianza": 70,
+        "fuente": "295 bytes de consumoCombustibleBase",
+        "contexto": "consumoPorVehiculoTotal: asCharacter"
+      },
+      "mediano_consumo_100km": {
+        "valor": 25,
+        "confianza": 70,
+        "fuente": "265 bytes de consumoCombustibleBase",
+        "contexto": "consumoCombustibleBaseDatos"
+      }
+    },
+    "otros": {
+      "aceite_motor_litros": {
+        "valor": 160,
+        "confianza": 75,
+        "fuente": "122 bytes de dotacionInicial",
+        "contexto": "DIAS DE ABASTECIMIENTO Aceite Motor"
+      }
+    }
+  },
+  "errores_confirmados": {
+    "roles_con_fal_300": [
+      "jefe_equipo",
+      "jefe_grupo",
+      "jefe_seccion",
+      "apuntador_at",
+      "tirador_especial"
+    ],
+    "valor_incorrecto": 300,
+    "valor_correcto": 100,
+    "descripcion_incorrecta": "10 cargadores x 30 cartuchos",
+    "descripcion_correcta": "5 cargadores x 20 cartuchos"
+  },
+  "proximos_pasos": [
+    "Validar agua 3L contra dbDatos.data si existe",
+    "Validar TAM 620L contra configuracionCajones.xml",
+    "Validar M113 360L contra configuracionCajones.xml",
+    "Ejecutar BV8 Planeamiento Logístico para confirmar",
+    "Corregir 5 roles con FAL 300 → 100",
+    "Integrar dotaciones agua/víveres en roles_personal.json",
+    "Integrar capacidades combustible en vehiculos.json",
+    "Marcar valores VALIDADO vs ESTIMADO",
+    "Versión: 0.2-PARTIAL-VALIDATED"
+  ]
+}

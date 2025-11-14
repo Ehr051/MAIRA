@@ -1,0 +1,423 @@
+{
+  "version": "1.0.0",
+  "source": "BV8 ORBAT - Unidades Tipo basadas en CCOO argentino",
+  "descripcion": "Templates de unidades con composición bottom-up y dotaciones agregadas",
+  
+  "equipo_fusileros": {
+    "id": "equipo_fusileros",
+    "nombre": "Equipo de Fusileros",
+    "nivel": "equipo",
+    "magnitud_sidc": "H",
+    "sidc_categoria": "UCII",
+    "personal_total": 5,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_equipo", "cantidad": 1},
+        {"rol": "tirador_fal", "cantidad": 3},
+        {"rol": "ametrallador_mag", "cantidad": 1}
+      ],
+      "vehiculos": []
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "Suma automática de dotaciones individuales × cantidad",
+      "agua": 17.5,
+      "viveres": 15,
+      "municion_762": 1500,
+      "municion_9mm": 0
+    },
+    
+    "frente_metros": 50,
+    "profundidad_metros": 30
+  },
+  
+  "grupo_fusileros": {
+    "id": "grupo_fusileros",
+    "nombre": "Grupo de Fusileros",
+    "nivel": "grupo",
+    "magnitud_sidc": "G",
+    "sidc_categoria": "UCII",
+    "personal_total": 10,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_grupo", "cantidad": 1}
+      ],
+      "subunidades": [
+        {"tipo": "equipo_fusileros", "cantidad": 2}
+      ],
+      "vehiculos": []
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "Jefe + (2 × equipo_fusileros)",
+      "agua": 38.5,
+      "viveres": 33,
+      "municion_762": 3300,
+      "municion_9mm": 0
+    },
+    
+    "frente_metros": 100,
+    "profundidad_metros": 50
+  },
+  
+  "seccion_fusileros": {
+    "id": "seccion_fusileros",
+    "nombre": "Sección de Fusileros",
+    "nivel": "seccion",
+    "magnitud_sidc": "F",
+    "sidc_categoria": "UCII",
+    "personal_total": 31,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_seccion", "cantidad": 1}
+      ],
+      "subunidades": [
+        {"tipo": "grupo_fusileros", "cantidad": 3}
+      ],
+      "vehiculos": []
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "Jefe + (3 × grupo_fusileros)",
+      "agua": 119.0,
+      "viveres": 102,
+      "municion_762": 10200,
+      "municion_9mm": 45
+    },
+    
+    "frente_metros": 300,
+    "profundidad_metros": 100
+  },
+  
+  "grupo_mecanizado_m113": {
+    "id": "grupo_mecanizado_m113",
+    "nombre": "Grupo Mecanizado (M113)",
+    "nivel": "grupo",
+    "magnitud_sidc": "G",
+    "sidc_categoria": "UCIIM",
+    "personal_total": 13,
+    "vehiculos_total": 1,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_grupo", "cantidad": 1},
+        {"rol": "tirador_fal", "cantidad": 8},
+        {"rol": "ametrallador_mag", "cantidad": 2}
+      ],
+      "tripulacion_vehiculos": [
+        {"rol": "jefe_m113", "cantidad": 1},
+        {"rol": "conductor_m113", "cantidad": 1}
+      ],
+      "vehiculos": [
+        {"tipo": "m113", "cantidad": 1}
+      ]
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "11 pasajeros + 2 tripulación + 1 M113",
+      "agua": 45.5,
+      "viveres": 39,
+      "municion_762": 3900,
+      "municion_127": 2000,
+      "municion_9mm": 90,
+      "gasoil": 360
+    },
+    
+    "frente_metros": 150,
+    "profundidad_metros": 80
+  },
+  
+  "seccion_mecanizada_m113": {
+    "id": "seccion_mecanizada_m113",
+    "nombre": "Sección Mecanizada (M113)",
+    "nivel": "seccion",
+    "magnitud_sidc": "F",
+    "sidc_categoria": "UCIIM",
+    "personal_total": 36,
+    "vehiculos_total": 3,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_seccion", "cantidad": 1}
+      ],
+      "subunidades": [
+        {"tipo": "grupo_mecanizado_m113", "cantidad": 3}
+      ],
+      "vehiculos": []
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "Jefe + (3 × grupo_mecanizado_m113)",
+      "agua": 140.0,
+      "viveres": 120,
+      "municion_762": 12000,
+      "municion_127": 6000,
+      "municion_9mm": 315,
+      "gasoil": 1080
+    },
+    
+    "frente_metros": 400,
+    "profundidad_metros": 200
+  },
+  
+  "seccion_tanques_tam": {
+    "id": "seccion_tanques_tam",
+    "nombre": "Sección de Tanques (TAM)",
+    "nivel": "seccion",
+    "magnitud_sidc": "F",
+    "sidc_categoria": "UCRT",
+    "personal_total": 12,
+    "vehiculos_total": 3,
+    
+    "composicion": {
+      "personal": [],
+      "tripulacion_vehiculos": [
+        {"rol": "jefe_tam", "cantidad": 3},
+        {"rol": "tirador_tam", "cantidad": 3},
+        {"rol": "cargador_tam", "cantidad": 3},
+        {"rol": "conductor_tam", "cantidad": 3}
+      ],
+      "vehiculos": [
+        {"tipo": "tam_tanque", "cantidad": 3}
+      ]
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "3 TAM × (4 tripulantes + dotación vehicular)",
+      "agua": 42.0,
+      "viveres": 36,
+      "municion_9mm": 540,
+      "proyectil_105mm": 150,
+      "municion_762": 18000,
+      "municion_127": 3000,
+      "gasoil": 1950
+    },
+    
+    "frente_metros": 500,
+    "profundidad_metros": 300
+  },
+  
+  "grupo_morteros_81mm": {
+    "id": "grupo_morteros_81mm",
+    "nombre": "Grupo de Morteros 81mm",
+    "nivel": "grupo",
+    "magnitud_sidc": "G",
+    "sidc_categoria": "UCFM",
+    "personal_total": 9,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_grupo", "cantidad": 1},
+        {"rol": "apuntador_mortero_81mm", "cantidad": 3},
+        {"rol": "auxiliar_mortero", "cantidad": 5}
+      ],
+      "vehiculos": []
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "3 morteros 81mm con dotación",
+      "agua": 31.5,
+      "viveres": 27,
+      "municion_762": 900,
+      "proyectil_81mm": 120,
+      "comentario": "40 proyectiles por mortero"
+    },
+    
+    "frente_metros": 50,
+    "profundidad_metros": 50
+  },
+  
+  "grupo_ingenieros": {
+    "id": "grupo_ingenieros",
+    "nombre": "Grupo de Ingenieros",
+    "nivel": "grupo",
+    "magnitud_sidc": "G",
+    "sidc_categoria": "UCE",
+    "personal_total": 10,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_grupo", "cantidad": 1},
+        {"rol": "ingeniero_zapador", "cantidad": 8},
+        {"rol": "demoledor", "cantidad": 1}
+      ],
+      "vehiculos": [
+        {"tipo": "unimog", "cantidad": 1}
+      ]
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "Equipo con explosivos y herramientas",
+      "agua": 35.0,
+      "viveres": 30,
+      "municion_762": 3000,
+      "explosivo_c4": 20,
+      "explosivo_tnt": 50,
+      "gasoil": 200,
+      "comentario": "Explosivos en kg"
+    },
+    
+    "frente_metros": 100,
+    "profundidad_metros": 100
+  },
+  
+  "seccion_exploracion_vlega": {
+    "id": "seccion_exploracion_vlega",
+    "nombre": "Sección de Exploración (VLEGA)",
+    "nivel": "seccion",
+    "magnitud_sidc": "F",
+    "sidc_categoria": "UCR",
+    "personal_total": 12,
+    "vehiculos_total": 4,
+    
+    "composicion": {
+      "personal": [
+        {"rol": "jefe_seccion", "cantidad": 1},
+        {"rol": "tirador_fal", "cantidad": 8},
+        {"rol": "ametrallador_mag", "cantidad": 3}
+      ],
+      "tripulacion_vehiculos": [
+        {"rol": "conductor_vlega", "cantidad": 4}
+      ],
+      "vehiculos": [
+        {"tipo": "vlega", "cantidad": 4}
+      ]
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "4 VLEGA con 3 pasajeros c/u",
+      "agua": 56.0,
+      "viveres": 48,
+      "municion_762": 5400,
+      "municion_9mm": 45,
+      "nafta": 260
+    },
+    
+    "frente_metros": 800,
+    "profundidad_metros": 400
+  },
+  
+  "bateria_artilleria_155mm": {
+    "id": "bateria_artilleria_155mm",
+    "nombre": "Batería de Artillería 155mm (VCA TAM)",
+    "nivel": "bateria",
+    "magnitud_sidc": "D",
+    "sidc_categoria": "UCFH",
+    "personal_total": 30,
+    "vehiculos_total": 6,
+    
+    "composicion": {
+      "personal": [],
+      "tripulacion_vehiculos": [
+        {"rol": "jefe_artilleria", "cantidad": 6},
+        {"rol": "apuntador_artilleria", "cantidad": 6},
+        {"rol": "cargador_artilleria", "cantidad": 12},
+        {"rol": "conductor_tam", "cantidad": 6}
+      ],
+      "vehiculos": [
+        {"tipo": "vca_155mm_tam", "cantidad": 6}
+      ]
+    },
+    
+    "dotacion_agregada": {
+      "descripcion": "6 VCA 155mm autopropulsados",
+      "agua": 105.0,
+      "viveres": 90,
+      "municion_9mm": 0,
+      "proyectil_155mm": 180,
+      "gasoil": 3900,
+      "comentario": "30 proyectiles por obús"
+    },
+    
+    "frente_metros": 300,
+    "profundidad_metros": 500
+  },
+  
+  "algoritmo_agregacion": {
+    "descripcion": "Cálculo bottom-up de dotaciones totales",
+    "pasos": [
+      "1. Resolver composicion.personal[] multiplicando dotacion_diaria × cantidad",
+      "2. Resolver composicion.tripulacion_vehiculos[] igual que personal",
+      "3. Resolver composicion.subunidades[] recursivamente (buscar plantilla → calcular)",
+      "4. Resolver composicion.vehiculos[] sumando dotacion_inicial de cada vehículo",
+      "5. Sumar todos los resultados anteriores → dotacion_agregada"
+    ],
+    "ejemplo": {
+      "input": "seccion_mecanizada_m113",
+      "calculo": {
+        "jefe_seccion": {
+          "agua": 3.5,
+          "viveres": 3,
+          "municion_762": 300,
+          "municion_9mm": 45
+        },
+        "subunidad_1_grupo_mecanizado": {
+          "agua": 45.5,
+          "viveres": 39,
+          "municion_762": 3900,
+          "municion_127": 2000,
+          "municion_9mm": 90,
+          "gasoil": 360
+        },
+        "subunidad_2_grupo_mecanizado": {
+          "agua": 45.5,
+          "viveres": 39,
+          "municion_762": 3900,
+          "municion_127": 2000,
+          "municion_9mm": 90,
+          "gasoil": 360
+        },
+        "subunidad_3_grupo_mecanizado": {
+          "agua": 45.5,
+          "viveres": 39,
+          "municion_762": 3900,
+          "municion_127": 2000,
+          "municion_9mm": 90,
+          "gasoil": 360
+        },
+        "total": {
+          "agua": 140.0,
+          "viveres": 120,
+          "municion_762": 12000,
+          "municion_127": 6000,
+          "municion_9mm": 315,
+          "gasoil": 1080
+        }
+      }
+    }
+  },
+  
+  "generacion_sidc": {
+    "descripcion": "SIDC dinámico basado en plantilla",
+    "formato": "S{AFILIACION}GP{CATEGORIA}--{MAGNITUD}---",
+    "ejemplo": {
+      "plantilla": "seccion_mecanizada_m113",
+      "afiliacion": "F",
+      "sidc_generado": "SFGPUCIIM--F---",
+      "breakdown": {
+        "pos1_S": "APP-6 Standard",
+        "pos2_F": "Friendly (parametrizable)",
+        "pos3_G": "Ground",
+        "pos4_P": "Present",
+        "pos5_10_UCIIM": "Infantry Mechanized (de sidc_categoria)",
+        "pos11_12": "Sin modificador (--)",
+        "pos12_F": "Section (de magnitud_sidc)",
+        "pos13_15": "Reservado (---)"
+      }
+    }
+  },
+  
+  "notas_implementacion": [
+    "dotacion_agregada es PRE-CALCULADA en este JSON para validación",
+    "ORBATBuilder.py debe RECALCULAR dinámicamente siguiendo algoritmo_agregacion",
+    "Si dotacion_agregada calculada ≠ JSON → WARNING (error en plantilla)",
+    "frente_metros y profundidad_metros son valores doctrinarios argentinos",
+    "personal_total y vehiculos_total son sumas para validación rápida",
+    "Roles como 'apuntador_mortero_81mm', 'ingeniero_zapador', etc. deben agregarse a roles_personal.json",
+    "SIDC se genera con afiliación 'F' por defecto, actualizable según equipo",
+    "composicion.subunidades permite recursión ilimitada (batallón → compañías → secciones → grupos)"
+  ]
+}

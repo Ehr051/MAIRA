@@ -1,0 +1,330 @@
+[
+  {
+    "_class": "Cajon",
+    "id": 1,
+    "volumen": 56.0,
+    "peso": 0.0,
+    "nombre": "Cart 7,62",
+    "descripcion": "Caja del cartucho 7.62"
+  },
+  {
+    "_class": "Cajon",
+    "id": 2,
+    "volumen": 63.0,
+    "peso": 0.0,
+    "nombre": "Cart 9x19",
+    "descripcion": "Caja del cartucho 9x19"
+  },
+  {
+    "_class": "Cajon",
+    "id": 3,
+    "volumen": 17.6,
+    "peso": 0.0,
+    "nombre": "Cart 12,7x9",
+    "descripcion": "Caja del cartucho 12,7x9"
+  },
+  {
+    "_class": "Cajon",
+    "id": 4,
+    "volumen": 36.0,
+    "peso": 0.0,
+    "nombre": "Cart 5,56x45",
+    "descripcion": "Caja del cartucho 5,56x45"
+  },
+  {
+    "_class": "Cajon",
+    "id": 5,
+    "volumen": 0.195,
+    "peso": 0.0,
+    "nombre": "Coh 88.9",
+    "descripcion": "Cajon del Coh 88,9"
+  },
+  {
+    "_class": "Cajon",
+    "id": 6,
+    "volumen": 0.05,
+    "peso": 0.0,
+    "nombre": "Proy Mun 60 EF",
+    "descripcion": "Cajon del Proy Mun 60 EF"
+  },
+  {
+    "_class": "Cajon",
+    "id": 7,
+    "volumen": 0.83,
+    "peso": 0.0,
+    "nombre": "Proy Mun 81",
+    "descripcion": "Cajon del Proy Mun 81"
+  },
+  {
+    "_class": "Cajon",
+    "id": 8,
+    "volumen": 0.492,
+    "peso": 0.0,
+    "nombre": "Proy Mun 120 EF CN",
+    "descripcion": "Cajon del Proy Mun 120 EF CN"
+  },
+  {
+    "_class": "Cajon",
+    "id": 9,
+    "volumen": 0.6,
+    "peso": 0.0,
+    "nombre": "Proy Mun 120 EF GC",
+    "descripcion": "Cajon del Proy Mun 120"
+  },
+  {
+    "_class": "Cajon",
+    "id": 10,
+    "volumen": 0.272,
+    "peso": 0.0,
+    "nombre": "Proy Mun 120 IL",
+    "descripcion": "Cajon del Proy Mun 120 IL"
+  },
+  {
+    "_class": "Cajon",
+    "id": 11,
+    "volumen": 3.15,
+    "peso": 0.0,
+    "nombre": "Gran ATAN PDEF40",
+    "descripcion": "Cajon de Gran ATAN PDEF40"
+  },
+  {
+    "_class": "Cajon",
+    "id": 12,
+    "volumen": 3.75,
+    "peso": 0.0,
+    "nombre": "Gran ATAN PAF62",
+    "descripcion": "Cajon de Gran ATAN PAF62"
+  },
+  {
+    "_class": "Cajon",
+    "id": 13,
+    "volumen": 1.25,
+    "peso": 0.0,
+    "nombre": "Gran de mano FMK2",
+    "descripcion": "Cajon de Gran de mano FMK2"
+  },
+  {
+    "_class": "Cajon",
+    "id": 14,
+    "volumen": 0.084,
+    "peso": 0.0,
+    "nombre": "Cart 90",
+    "descripcion": "Cajon del Cart 90"
+  },
+  {
+    "_class": "Cajon",
+    "id": 15,
+    "volumen": 0.49,
+    "peso": 0.0,
+    "nombre": "Cart 105",
+    "descripcion": "Cajon del Cart 105 EF,ECH,H-Inc"
+  },
+  {
+    "_class": "Cajon",
+    "id": 16,
+    "volumen": 0.49,
+    "peso": 0.0,
+    "nombre": "Cart 105",
+    "descripcion": "Cajon del Cart Flecha,\"P\",H-Inc"
+  },
+  {
+    "_class": "Cajon",
+    "id": 17,
+    "volumen": 0.35,
+    "peso": 0.0,
+    "nombre": "Proy 155",
+    "descripcion": "Cajon del Proy 155"
+  },
+  {
+    "_class": "Cajon",
+    "id": 18,
+    "volumen": 0.6,
+    "peso": 0.0,
+    "nombre": "Carga Verde",
+    "descripcion": "cajon de Carga Verde"
+  },
+  {
+    "_class": "Cajon",
+    "id": 19,
+    "volumen": 0.2,
+    "peso": 0.0,
+    "nombre": "Carga Blanca",
+    "descripcion": "cajon de Carga Verde"
+  },
+  {
+    "_class": "Cajon",
+    "id": 20,
+    "volumen": 0.36,
+    "peso": 0.0,
+    "nombre": "Espoleta PDM557",
+    "descripcion": "cajon de Espoleta PDM557"
+  },
+  {
+    "_class": "Cajon",
+    "id": 21,
+    "volumen": 12.0,
+    "peso": 0.0,
+    "nombre": "Estopin MK2A4",
+    "descripcion": "cajon de Estopin MK2A4"
+  },
+  {
+    "_class": "Cajon",
+    "id": 22,
+    "volumen": 2.0,
+    "peso": 0.0,
+    "nombre": "Cart 26",
+    "descripcion": "cajon de Cart 26"
+  },
+  {
+    "_class": "Cajon",
+    "id": 23,
+    "volumen": 0.768,
+    "peso": 0.0,
+    "nombre": "Cilindro Hum Lza Fum",
+    "descripcion": "cajon del Cilindro Hum Lza Fum"
+  },
+  {
+    "_class": "Cajon",
+    "id": 24,
+    "volumen": 28.2,
+    "peso": 0.0,
+    "nombre": "Cart 20",
+    "descripcion": "cajon de Cart 20"
+  },
+  {
+    "_class": "Cajon",
+    "id": 25,
+    "volumen": 0.375,
+    "peso": 0.0,
+    "nombre": "Bengala Mano (4 Col)",
+    "descripcion": "cajon de la Bengala Mano (4 Col)"
+  },
+  {
+    "_class": "Cajon",
+    "id": 26,
+    "volumen": 0.375,
+    "peso": 0.0,
+    "nombre": "Señal Lum c/Parac (4 Col)",
+    "descripcion": "cajon de la Señal Lum c/Parac (4 Col)"
+  },
+  {
+    "_class": "Cajon",
+    "id": 27,
+    "volumen": 0.768,
+    "peso": 0.0,
+    "nombre": "Cilindro Nro 1",
+    "descripcion": "cajon del Cilindro Nro 1"
+  },
+  {
+    "_class": "Cajon",
+    "id": 28,
+    "volumen": 0.092,
+    "peso": 0.0,
+    "nombre": "Cilindro Nro 5",
+    "descripcion": "cajon del Cilindro Nro 5"
+  },
+  {
+    "_class": "Cajon",
+    "id": 29,
+    "volumen": 0.112,
+    "peso": 0.0,
+    "nombre": "Cilindro Nro 10",
+    "descripcion": "cajon del Cilindro Nro 10"
+  },
+  {
+    "_class": "Cajon",
+    "id": 30,
+    "volumen": 0.24,
+    "peso": 0.0,
+    "nombre": "Cart 38,1",
+    "descripcion": "cajon del Cart 38,1"
+  },
+  {
+    "_class": "Cajon",
+    "id": 31,
+    "volumen": 0.064,
+    "peso": 0.0,
+    "nombre": "Mina ATAN EXPAL",
+    "descripcion": "cajon del Mina ATAN EXPAL"
+  },
+  {
+    "_class": "Cajon",
+    "id": 32,
+    "volumen": 21.2,
+    "peso": 0.0,
+    "nombre": "Mina APERS s/Det",
+    "descripcion": "cajon del Mina APERS s/Det"
+  },
+  {
+    "_class": "Cajon",
+    "id": 33,
+    "volumen": 2.2,
+    "peso": 0.0,
+    "nombre": "Carga Demol 454Grs",
+    "descripcion": "cajon de la Carga Demol 454Grs"
+  },
+  {
+    "_class": "Cajon",
+    "id": 34,
+    "volumen": 435.0,
+    "peso": 0.0,
+    "nombre": "Capsula Det Nro 8",
+    "descripcion": "cajon de la Capsula Det Nro 8"
+  },
+  {
+    "_class": "Cajon",
+    "id": 35,
+    "volumen": 435.0,
+    "peso": 0.0,
+    "nombre": "Capsula Det Nro 8 Elect",
+    "descripcion": "cajon de la Capsula Det Nro 8 Elect"
+  },
+  {
+    "_class": "Cajon",
+    "id": 36,
+    "volumen": 11.5,
+    "peso": 0.0,
+    "nombre": "Mecha Lenta (5 rollos x100m)",
+    "descripcion": "cajon de la Mecha Lenta (5 rollos x100m)"
+  },
+  {
+    "_class": "Cajon",
+    "id": 37,
+    "volumen": 106.5,
+    "peso": 0.0,
+    "nombre": "Mecha Lenta (5 rollos x100m)",
+    "descripcion": "cajon de la Mecha Lenta (5 rollos x100m)"
+  },
+  {
+    "_class": "Cajon",
+    "id": 38,
+    "volumen": 1.3,
+    "peso": 0.0,
+    "nombre": "Proy Mun 81 EF GC",
+    "descripcion": "Cajon del Proy Mun 81 EF GC"
+  },
+  {
+    "_class": "Cajon",
+    "id": 39,
+    "volumen": 0.52,
+    "peso": 0.0,
+    "nombre": "Coh 70mm EF",
+    "descripcion": "Cajon del Coh 70mm EF"
+  },
+  {
+    "_class": "Cajon",
+    "id": 40,
+    "volumen": 0.12,
+    "peso": 0.0,
+    "nombre": "Coh 105mm EF",
+    "descripcion": "Cajon del Coh 105mm EF"
+  },
+  {
+    "_class": "Cajon",
+    "id": 41,
+    "volumen": 1.16,
+    "peso": 0.0,
+    "nombre": "Coh 105mm EF",
+    "descripcion": "Cajon del Coh 105mm EF"
+  }
+]

@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="css/common/planeamiento.css">
   <link rel="stylesheet" href="css/common/CYGMarcha.css">
   <link rel="stylesheet" href="css/common/graficomarcha.css">
-  <!-- ✅ CSS HEXÁGONOS - Faltaba para colores correctos -->
-  <link rel="stylesheet" href="css/modules/juegodeguerra/hexgrid.css">
+  <!-- ✅ CSS HEXÁGONOS - Ruta corregida -->
+  <link rel="stylesheet" href="css/hexgrid.css">
   <!-- ✅ CSS MENU RADIAL - Movido ARRIBA antes de scripts -->
   <link rel="stylesheet" href="css/common/mairaRadialMenu.css">
   
@@ -291,7 +291,7 @@
   <script src="../node_modules/geotiff/dist-browser/geotiff.js"></script>
   <script src="../node_modules/leaflet-control-geocoder/dist/Control.Geocoder.min.js"></script>
   <script src="../node_modules/proj4/dist/proj4.js"></script>
-  <!-- <script src="/node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
+  <!-- <script src="../node_modules/leaflet-utfgrid/dist/leaflet.utfgrid.js"></script> -->
   
   <!-- Three.js para visualización 3D - Sistema simplificado y robusto -->
   <script>
@@ -337,7 +337,7 @@
       async function initializeThreeJS() {
         try {
           // 1. Cargar THREE.js local (más rápido y confiable que CDN)
-          await loadScript('Libs/mythree/three.min.js', 'THREE.js');
+          await loadScript('/Client/Libs/mythree/three.min.js', 'THREE.js');
 
           // Verificar que THREE esté disponible
           if (typeof THREE === 'undefined') {
@@ -346,14 +346,14 @@
 
           // 2. Cargar GLTFLoader (para modelos 3D)
           try {
-            await loadScript('Libs/mythree/GLTFLoader.js', 'GLTFLoader');
+            await loadScript('/Client/Libs/mythree/GLTFLoader.js', 'GLTFLoader');
           } catch (error) {
             console.warn('⚠️ GLTFLoader no disponible - solo modelos procedurales');
           }
 
           // 3. Cargar OrbitControls (para navegación 3D)
           try {
-            await loadScript('Libs/mythree/OrbitControlsBrowser.js', 'OrbitControls');
+            await loadScript('/Client/Libs/mythree/OrbitControls.js', 'OrbitControls');
           } catch (error) {
             console.warn('⚠️ OrbitControls no disponible - navegación limitada');
           }
@@ -394,7 +394,7 @@
 
   <!-- 🏗️ TERRENO 3D - FASE 1: Generación desde map -->
   <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
-  <script src="js/services/TerrainGenerator3D.js?v=20241020-02"></script>
+  <script src="js/services/TerrainGenerator3D.js?v=20241106-v5-posfix"></script>
 
 
   
@@ -439,9 +439,9 @@
   
   <!-- 🆕 SISTEMA GEOESPACIAL UNIFICADO v4.0 (Optimizado con Workers, Cache, Batch) -->
   <script src="js/services/GeospatialDataService.js?v=20241020-02"></script>
-  <script src="js/services/ElevationService.js?v=20241020-02"></script>
+  <script src="js/services/ElevationService.js?v=20241105"></script>
   <script src="js/services/VegetationService.js?v=20241020-02"></script>
-  <script src="js/services/GLTFModelLoader.js?v=20241020-02"></script>
+  <script src="js/services/GLTFModelLoader.js?v=20241105-fix"></script>
   <script src="js/utils/VegetationInstancer.js?v=20241020-02"></script>
   <script src="js/adapters/ElevationAdapter.js?v=20241020-02"></script>
   <script src="js/adapters/VegetationAdapter.js?v=20241020-02"></script>
@@ -457,7 +457,7 @@
   <script src="js/modules/shared/sistemaZoomMultiNivel.js"></script>
   
   <!-- Handlers de terreno -->
-  <script src="js/handlers/elevationHandler.js?v=20241020-05"></script>
+  <script src="js/handlers/elevationHandlerBackend.js?v=20241105"></script>
   <script src="js/handlers/vegetacionhandler.js?v=20241020-04"></script>
   
   <!-- Handlers refactorizados -->
@@ -2048,17 +2048,26 @@ function activateFullscreen3D() {
 }
 
 function closeFullscreen3D() {
-    const mainContainer = document.getElementById('main-container') || 
+    const mainContainer = document.getElementById('main-container') ||
                          document.getElementById('sidebar')?.parentElement ||
                          document.body;
     const closeButton = document.getElementById('close-3d-button');
-    
+    const canvasContainer = document.getElementById('canvas-container');
+
     mainContainer.classList.remove('fullscreen-3d');
-    
+
+    // ✅ FIX: Ocultar canvas-container y remover clase active
+    if (canvasContainer) {
+        canvasContainer.classList.remove('active');
+        canvasContainer.style.display = 'none';
+        canvasContainer.style.pointerEvents = 'none';
+        console.log('✅ Canvas container ocultado correctamente');
+    }
+
     if (closeButton) {
         closeButton.style.display = 'none';
     }
-    
+
     // Limpiar terreno y liberar memoria
     if (currentTerrain && currentTerrain.terrain) {
         scene.remove(currentTerrain.terrain);
@@ -2191,6 +2200,21 @@ function initThreeJSDirect() {
     sunLight.shadow.mapSize.width = 2048;
     sunLight.shadow.mapSize.height = 2048;
     maira3DScene.add(sunLight);
+    
+    // 🧪 TEST: Cubo de prueba para validar renderizado básico
+    console.log('🧪 Agregando cubo de prueba rojo...');
+    const testGeometry = new THREE.BoxGeometry(100, 100, 100);
+    const testMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xff0000,
+        metalness: 0.3,
+        roughness: 0.7
+    });
+    const testCube = new THREE.Mesh(testGeometry, testMaterial);
+    testCube.position.set(0, 50, 0); // 50m arriba del origen
+    testCube.castShadow = true;
+    testCube.receiveShadow = true;
+    maira3DScene.add(testCube);
+    console.log('✅ Cubo de prueba agregado en (0, 50, 0) - Si lo ves, setup básico funciona');
     
     // Controles
     maira3DControls = new THREE.OrbitControls(maira3DCamera, maira3DRenderer.domElement);

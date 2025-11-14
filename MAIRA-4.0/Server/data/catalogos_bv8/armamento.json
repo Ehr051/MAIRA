@@ -1,0 +1,663 @@
+{
+  "version": "1.0.0",
+  "source": "BV8 cajones.json + Especificaciones técnicas argentinas",
+  "descripcion": "Catálogo completo de armamento con alcances, daño y características de combate",
+  
+  "armamento_personal": {
+    "fal_762": {
+      "id": 101,
+      "nombre": "FAL 7.62mm",
+      "categoria": "fusil_asalto",
+      "calibre": 7.62,
+      "alcance_efectivo": 400,
+      "alcance_maximo": 800,
+      "cadencia_disparo": 650,
+      "tipo_fuego": ["semiautomatico", "automatico"],
+      "municion": {
+        "tipo": "municion_762",
+        "cajon_id": 1,
+        "cartuchos_por_cargador": 20,
+        "cargadores_iniciales": 5,
+        "municion_inicial": 100
+      },
+      "danio": {
+        "vs_personal": 45,
+        "vs_blindado_ligero": 5,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 2
+      },
+      "precision": {
+        "0_100m": 0.95,
+        "100_300m": 0.85,
+        "300_500m": 0.60,
+        "500_800m": 0.30
+      },
+      "peso_kg": 4.3,
+      "longitud_mm": 1050,
+      "usuarios": ["tirador_fal", "jefe_equipo", "jefe_grupo", "jefe_seccion"]
+    },
+    
+    "fal_para_556": {
+      "id": 102,
+      "nombre": "FAL PARA 5.56mm",
+      "categoria": "fusil_asalto",
+      "calibre": 5.56,
+      "alcance_efectivo": 300,
+      "alcance_maximo": 550,
+      "cadencia_disparo": 700,
+      "tipo_fuego": ["semiautomatico", "automatico"],
+      "municion": {
+        "tipo": "municion_556",
+        "cajon_id": 4,
+        "cartuchos_por_cargador": 30,
+        "cargadores_iniciales": 10,
+        "municion_inicial": 300
+      },
+      "danio": {
+        "vs_personal": 35,
+        "vs_blindado_ligero": 3,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 2
+      },
+      "precision": {
+        "0_100m": 0.90,
+        "100_300m": 0.75,
+        "300_500m": 0.40,
+        "500_550m": 0.20
+      },
+      "peso_kg": 3.8,
+      "longitud_mm": 950,
+      "usuarios": ["tirador_fal_para", "paracaidista"]
+    },
+    
+    "mag_762": {
+      "id": 103,
+      "nombre": "MAG 7.62mm",
+      "categoria": "ametralladora_media",
+      "calibre": 7.62,
+      "alcance_efectivo": 800,
+      "alcance_maximo": 1800,
+      "cadencia_disparo": 850,
+      "tipo_fuego": ["automatico"],
+      "municion": {
+        "tipo": "municion_762",
+        "cajon_id": 1,
+        "cartuchos_por_cinta": 200,
+        "cintas_iniciales": 3,
+        "municion_inicial": 600
+      },
+      "danio": {
+        "vs_personal": 50,
+        "vs_blindado_ligero": 8,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 5
+      },
+      "precision": {
+        "0_200m": 0.85,
+        "200_500m": 0.70,
+        "500_1000m": 0.50,
+        "1000_1800m": 0.25
+      },
+      "peso_kg": 11.8,
+      "longitud_mm": 1260,
+      "tripulacion": 2,
+      "usuarios": ["ametrallador_mag", "apuntador_mag"],
+      "requiere_auxiliar": true
+    },
+    
+    "pistola_9mm": {
+      "id": 201,
+      "nombre": "Pistola 9mm",
+      "categoria": "pistola",
+      "calibre": 9,
+      "alcance_efectivo": 25,
+      "alcance_maximo": 50,
+      "cadencia_disparo": null,
+      "tipo_fuego": ["semiautomatico"],
+      "municion": {
+        "tipo": "municion_9mm",
+        "cajon_id": 2,
+        "cartuchos_por_cargador": 15,
+        "cargadores_iniciales": 3,
+        "municion_inicial": 45
+      },
+      "danio": {
+        "vs_personal": 20,
+        "vs_blindado_ligero": 0,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 0
+      },
+      "precision": {
+        "0_25m": 0.80,
+        "25_50m": 0.40
+      },
+      "peso_kg": 0.9,
+      "longitud_mm": 200,
+      "usuarios": ["jefe_tam", "conductor_m113", "tirador_tam", "cargador_tam", "oficiales"]
+    },
+    
+    "fusil_tirador_762": {
+      "id": 104,
+      "nombre": "Fusil Tirador Especial 7.62mm",
+      "categoria": "fusil_precision",
+      "calibre": 7.62,
+      "alcance_efectivo": 800,
+      "alcance_maximo": 1200,
+      "cadencia_disparo": null,
+      "tipo_fuego": ["semiautomatico"],
+      "municion": {
+        "tipo": "municion_762",
+        "cajon_id": 1,
+        "cartuchos_por_cargador": 20,
+        "cargadores_iniciales": 10,
+        "municion_inicial": 200
+      },
+      "danio": {
+        "vs_personal": 60,
+        "vs_blindado_ligero": 10,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 0
+      },
+      "precision": {
+        "0_200m": 0.98,
+        "200_500m": 0.90,
+        "500_800m": 0.75,
+        "800_1200m": 0.50
+      },
+      "peso_kg": 5.2,
+      "longitud_mm": 1100,
+      "equipamiento_adicional": ["mira_telescopica", "bipode"],
+      "usuarios": ["tirador_especial"]
+    }
+  },
+  
+  "armamento_antitanque": {
+    "law_889": {
+      "id": 105,
+      "nombre": "LAW 88.9mm",
+      "categoria": "lanzacohetes_at",
+      "calibre": 88.9,
+      "alcance_efectivo": 200,
+      "alcance_maximo": 1000,
+      "cadencia_disparo": null,
+      "tipo_fuego": ["un_disparo"],
+      "municion": {
+        "tipo": "cohetes_889",
+        "cajon_id": 5,
+        "cohetes_iniciales": 4,
+        "municion_inicial": 4
+      },
+      "danio": {
+        "vs_personal": 10,
+        "vs_blindado_ligero": 85,
+        "vs_blindado_pesado": 95,
+        "vs_aereo": 0
+      },
+      "penetracion_mm": 350,
+      "precision": {
+        "0_100m": 0.85,
+        "100_200m": 0.70,
+        "200_500m": 0.40
+      },
+      "peso_kg": 2.8,
+      "longitud_mm": 1000,
+      "usuarios": ["apuntador_at"],
+      "desechable": true
+    },
+    
+    "c90_c": {
+      "id": 106,
+      "nombre": "C-90-C",
+      "categoria": "lanzacohetes_at",
+      "calibre": 90,
+      "alcance_efectivo": 300,
+      "alcance_maximo": 600,
+      "cadencia_disparo": null,
+      "tipo_fuego": ["un_disparo"],
+      "municion": {
+        "tipo": "cohetes_90",
+        "cajon_id": 14,
+        "cohetes_iniciales": 2,
+        "municion_inicial": 2
+      },
+      "danio": {
+        "vs_personal": 15,
+        "vs_blindado_ligero": 90,
+        "vs_blindado_pesado": 98,
+        "vs_aereo": 0
+      },
+      "penetracion_mm": 400,
+      "precision": {
+        "0_100m": 0.90,
+        "100_300m": 0.75,
+        "300_600m": 0.45
+      },
+      "peso_kg": 4.5,
+      "longitud_mm": 950,
+      "usuarios": ["apuntador_at"],
+      "desechable": true
+    },
+    
+    "rb_57": {
+      "id": 107,
+      "nombre": "RB-57 90mm",
+      "categoria": "cañon_sin_retroceso",
+      "calibre": 90,
+      "alcance_efectivo": 400,
+      "alcance_maximo": 1500,
+      "cadencia_disparo": 6,
+      "tipo_fuego": ["semiautomatico"],
+      "municion": {
+        "tipo": "proyectil_90mm",
+        "cajon_id": 15,
+        "proyectiles_iniciales": 12,
+        "municion_inicial": 12
+      },
+      "danio": {
+        "vs_personal": 20,
+        "vs_blindado_ligero": 92,
+        "vs_blindado_pesado": 95,
+        "vs_aereo": 0
+      },
+      "penetracion_mm": 380,
+      "precision": {
+        "0_200m": 0.85,
+        "200_500m": 0.70,
+        "500_1000m": 0.40
+      },
+      "peso_kg": 14.5,
+      "tripulacion": 3,
+      "usuarios": ["seccion_at"]
+    }
+  },
+  
+  "morteros": {
+    "mortero_60mm": {
+      "id": 301,
+      "nombre": "Mortero 60mm",
+      "categoria": "mortero_ligero",
+      "calibre": 60,
+      "alcance_minimo": 70,
+      "alcance_efectivo": 1200,
+      "alcance_maximo": 1800,
+      "cadencia_disparo": 18,
+      "tipo_fuego": ["indirecto"],
+      "municion": {
+        "tipo": "proy_60mm",
+        "cajon_id": 6,
+        "proyectiles_iniciales": 30,
+        "municion_inicial": 30
+      },
+      "danio": {
+        "vs_personal": 70,
+        "vs_blindado_ligero": 20,
+        "vs_blindado_pesado": 5,
+        "vs_aereo": 0
+      },
+      "radio_explosion": 15,
+      "precision": {
+        "0_500m": 0.70,
+        "500_1000m": 0.55,
+        "1000_1800m": 0.35
+      },
+      "peso_kg": 19.5,
+      "tripulacion": 3,
+      "usuarios": ["seccion_morteros_60"]
+    },
+    
+    "mortero_81mm": {
+      "id": 302,
+      "nombre": "Mortero 81mm",
+      "categoria": "mortero_medio",
+      "calibre": 81,
+      "alcance_minimo": 100,
+      "alcance_efectivo": 3000,
+      "alcance_maximo": 4500,
+      "cadencia_disparo": 15,
+      "tipo_fuego": ["indirecto"],
+      "municion": {
+        "tipo": "proy_81mm",
+        "cajon_id": 7,
+        "proyectiles_iniciales": 40,
+        "municion_inicial": 40
+      },
+      "danio": {
+        "vs_personal": 85,
+        "vs_blindado_ligero": 30,
+        "vs_blindado_pesado": 10,
+        "vs_aereo": 0
+      },
+      "radio_explosion": 25,
+      "precision": {
+        "0_1000m": 0.75,
+        "1000_3000m": 0.60,
+        "3000_4500m": 0.40
+      },
+      "peso_kg": 41.0,
+      "tripulacion": 4,
+      "usuarios": ["seccion_morteros_81"]
+    },
+    
+    "mortero_120mm": {
+      "id": 303,
+      "nombre": "Mortero 120mm",
+      "categoria": "mortero_pesado",
+      "calibre": 120,
+      "alcance_minimo": 500,
+      "alcance_efectivo": 5000,
+      "alcance_maximo": 7200,
+      "cadencia_disparo": 6,
+      "tipo_fuego": ["indirecto"],
+      "municion": {
+        "tipo": "proy_120mm",
+        "cajon_id": 8,
+        "proyectiles_iniciales": 25,
+        "municion_inicial": 25
+      },
+      "danio": {
+        "vs_personal": 95,
+        "vs_blindado_ligero": 45,
+        "vs_blindado_pesado": 15,
+        "vs_aereo": 0
+      },
+      "radio_explosion": 40,
+      "precision": {
+        "500_2000m": 0.75,
+        "2000_5000m": 0.60,
+        "5000_7200m": 0.35
+      },
+      "peso_kg": 275.0,
+      "tripulacion": 5,
+      "usuarios": ["seccion_morteros_120"],
+      "remolcado": true
+    }
+  },
+  
+  "armamento_vehiculos": {
+    "canon_tam_105mm": {
+      "id": 401,
+      "nombre": "Cañón 105mm L7",
+      "categoria": "canon_tanque",
+      "calibre": 105,
+      "alcance_minimo": 300,
+      "alcance_efectivo": 2000,
+      "alcance_maximo": 4000,
+      "cadencia_disparo": 6,
+      "tipo_fuego": ["directo"],
+      "municion": {
+        "tipo": "proyectil_105mm",
+        "cajon_id": 16,
+        "proyectiles_almacenados": 50,
+        "municion_inicial": 50
+      },
+      "danio": {
+        "vs_personal": 30,
+        "vs_blindado_ligero": 95,
+        "vs_blindado_pesado": 98,
+        "vs_aereo": 0
+      },
+      "penetracion_mm": 420,
+      "precision": {
+        "300_1000m": 0.90,
+        "1000_2000m": 0.75,
+        "2000_4000m": 0.45
+      },
+      "usuarios_vehiculo": ["tam_tanque"],
+      "tripulacion": 3,
+      "estabilizado": false
+    },
+    
+    "canon_vctp_20mm": {
+      "id": 402,
+      "nombre": "Cañón Oerlikon 20mm",
+      "categoria": "canon_autocarga",
+      "calibre": 20,
+      "alcance_efectivo": 1000,
+      "alcance_maximo": 2000,
+      "cadencia_disparo": 1000,
+      "tipo_fuego": ["automatico"],
+      "municion": {
+        "tipo": "municion_20mm",
+        "cajon_id": 17,
+        "proyectiles_almacenados": 800,
+        "municion_inicial": 800
+      },
+      "danio": {
+        "vs_personal": 60,
+        "vs_blindado_ligero": 25,
+        "vs_blindado_pesado": 5,
+        "vs_aereo": 40
+      },
+      "penetracion_mm": 40,
+      "precision": {
+        "0_500m": 0.80,
+        "500_1000m": 0.60,
+        "1000_2000m": 0.30
+      },
+      "usuarios_vehiculo": ["vctp_tam"],
+      "tripulacion": 2,
+      "estabilizado": true
+    },
+    
+    "m2_127mm": {
+      "id": 403,
+      "nombre": "M2 12.7mm",
+      "categoria": "ametralladora_pesada",
+      "calibre": 12.7,
+      "alcance_efectivo": 1500,
+      "alcance_maximo": 2000,
+      "cadencia_disparo": 550,
+      "tipo_fuego": ["automatico"],
+      "municion": {
+        "tipo": "municion_127",
+        "cajon_id": 3,
+        "cartuchos_almacenados": 1000,
+        "municion_inicial": 1000
+      },
+      "danio": {
+        "vs_personal": 70,
+        "vs_blindado_ligero": 15,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 30
+      },
+      "penetracion_mm": 25,
+      "precision": {
+        "0_500m": 0.85,
+        "500_1000m": 0.70,
+        "1000_1500m": 0.50,
+        "1500_2000m": 0.25
+      },
+      "usuarios_vehiculo": ["tam_tanque", "m113", "vctp_tam"],
+      "montaje": "cupula"
+    },
+    
+    "mag_coaxial_762": {
+      "id": 404,
+      "nombre": "MAG 7.62mm Coaxial",
+      "categoria": "ametralladora_media",
+      "calibre": 7.62,
+      "alcance_efectivo": 800,
+      "alcance_maximo": 1800,
+      "cadencia_disparo": 850,
+      "tipo_fuego": ["automatico"],
+      "municion": {
+        "tipo": "municion_762",
+        "cajon_id": 1,
+        "cartuchos_almacenados": 6000,
+        "municion_inicial": 6000
+      },
+      "danio": {
+        "vs_personal": 50,
+        "vs_blindado_ligero": 8,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 5
+      },
+      "precision": {
+        "0_200m": 0.90,
+        "200_500m": 0.75,
+        "500_1000m": 0.55,
+        "1000_1800m": 0.30
+      },
+      "usuarios_vehiculo": ["tam_tanque", "vctp_tam"],
+      "montaje": "coaxial"
+    }
+  },
+  
+  "artilleria": {
+    "obus_155mm": {
+      "id": 501,
+      "nombre": "Obús 155mm/39cal",
+      "categoria": "artilleria_pesada",
+      "calibre": 155,
+      "alcance_minimo": 1000,
+      "alcance_efectivo": 18000,
+      "alcance_maximo": 30000,
+      "cadencia_disparo": 4,
+      "tipo_fuego": ["indirecto"],
+      "municion": {
+        "tipo": "proyectil_155mm",
+        "cajon_id": 18,
+        "proyectiles_almacenados": 30,
+        "municion_inicial": 30
+      },
+      "danio": {
+        "vs_personal": 98,
+        "vs_blindado_ligero": 80,
+        "vs_blindado_pesado": 40,
+        "vs_aereo": 0
+      },
+      "radio_explosion": 80,
+      "precision": {
+        "1000_5000m": 0.70,
+        "5000_15000m": 0.55,
+        "15000_30000m": 0.30
+      },
+      "peso_kg": 8200,
+      "tripulacion": 8,
+      "usuarios_vehiculo": ["vca_155mm_tam"],
+      "autopropulsado": true
+    },
+    
+    "citer_155mm": {
+      "id": 502,
+      "nombre": "CITER 155mm",
+      "categoria": "artilleria_remolcada",
+      "calibre": 155,
+      "alcance_minimo": 1000,
+      "alcance_efectivo": 20000,
+      "alcance_maximo": 32000,
+      "cadencia_disparo": 3,
+      "tipo_fuego": ["indirecto"],
+      "municion": {
+        "tipo": "proyectil_155mm",
+        "cajon_id": 18,
+        "proyectiles_almacenados": 40,
+        "municion_inicial": 40
+      },
+      "danio": {
+        "vs_personal": 98,
+        "vs_blindado_ligero": 80,
+        "vs_blindado_pesado": 40,
+        "vs_aereo": 0
+      },
+      "radio_explosion": 80,
+      "precision": {
+        "1000_5000m": 0.75,
+        "5000_20000m": 0.60,
+        "20000_32000m": 0.35
+      },
+      "peso_kg": 9500,
+      "tripulacion": 10,
+      "remolcado": true,
+      "vehiculo_remolque": "unimog"
+    }
+  },
+  
+  "granadas": {
+    "granada_mano": {
+      "id": 601,
+      "nombre": "Granada de Mano",
+      "categoria": "granada_fragmentacion",
+      "alcance_efectivo": 30,
+      "alcance_maximo": 40,
+      "municion": {
+        "tipo": "granadas_mano",
+        "cajon_id": 19,
+        "granadas_iniciales": 4,
+        "municion_inicial": 4
+      },
+      "danio": {
+        "vs_personal": 75,
+        "vs_blindado_ligero": 5,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 0
+      },
+      "radio_explosion": 10,
+      "peso_kg": 0.4,
+      "usuarios": ["todos"]
+    },
+    
+    "granada_rifle": {
+      "id": 602,
+      "nombre": "Granada de Rifle",
+      "categoria": "granada_proyectil",
+      "alcance_efectivo": 150,
+      "alcance_maximo": 250,
+      "municion": {
+        "tipo": "granadas_rifle",
+        "cajon_id": 20,
+        "granadas_iniciales": 10,
+        "municion_inicial": 10
+      },
+      "danio": {
+        "vs_personal": 80,
+        "vs_blindado_ligero": 20,
+        "vs_blindado_pesado": 0,
+        "vs_aereo": 0
+      },
+      "radio_explosion": 15,
+      "peso_kg": 0.6,
+      "usuarios": ["tirador_fal", "granadero"]
+    },
+    
+    "granada_atan_pdef40": {
+      "id": 603,
+      "nombre": "Granada ATAN PDEF40",
+      "categoria": "granada_antitanque",
+      "alcance_efectivo": 30,
+      "alcance_maximo": 40,
+      "municion": {
+        "tipo": "gran_atan_pdef40",
+        "cajon_id": 11,
+        "granadas_iniciales": 3,
+        "municion_inicial": 3
+      },
+      "danio": {
+        "vs_personal": 10,
+        "vs_blindado_ligero": 75,
+        "vs_blindado_pesado": 85,
+        "vs_aereo": 0
+      },
+      "penetracion_mm": 300,
+      "peso_kg": 1.2,
+      "usuarios": ["seccion_at"]
+    }
+  },
+  
+  "notas_implementacion": [
+    "alcance_efectivo: distancia donde probabilidad impacto > 70%",
+    "alcance_maximo: distancia máxima teórica del proyectil",
+    "cadencia_disparo: disparos por minuto (rpm)",
+    "danio: escala 0-100 (100 = destrucción total garantizada)",
+    "vs_personal: daño contra infantería sin protección",
+    "vs_blindado_ligero: daño contra vehículos <30mm blindaje",
+    "vs_blindado_pesado: daño contra tanques >50mm blindaje",
+    "vs_aereo: eficacia contra helicópteros/aviones",
+    "penetracion_mm: milímetros de blindaje penetrados (AT)",
+    "radio_explosion: metros de radio letal",
+    "precision: probabilidad impacto por rango de distancia",
+    "cajon_id: referencia a cajones.json de BV8",
+    "usuarios: roles que pueden usar el arma (roles_personal.json)",
+    "tripulacion: cantidad de personal necesario para operar"
+  ]
+}

@@ -1,0 +1,601 @@
+/**
+ * 🗺️ MÓDULO ANÁLISIS DE TERRENO - MAIRA 4.0
+ * 
+ * Sistema de capas múltiples para análisis integral del terreno:
+ * - 📐 Altimetría (pendientes, COTA, talud)
+ * - 🌳 Vegetación (bosque, arboleda, matorrales)
+ * - 🚧 Obstáculos (ríos, edificaciones, minas)
+ * - 🛣️ Avenidas de aproximación
+ * - 📊 Análisis combinado
+ * 
+ * Integra algoritmos BV8:
+ * - Algoritmo Horn (pendientes 3x3)
+ * - OCOTA (intervisibilidad)
+ * - Transitabilidad (suelo×clima×vehículo×pendiente)
+ */
+
+class AnalisisTerreno {
+    constructor(map) {
+        this.map = map;
+        this.modalActivo = false;
+        this.poligonoActual = null;
+        this.capaResultados = null;
+        this.drawControl = null;
+        
+        // Configuración
+        this.config = {
+            apiUrl: 'http://localhost:5001/api/terreno',
+            coloresPendientes: {
+                '0-5': '#2ecc71',      // Verde - Transitable
+                '5-15': '#f1c40f',     // Amarillo - Precaución
+                '15-30': '#e67e22',    // Naranja - Difícil
+                '30+': '#e74c3c'       // Rojo - Muy difícil
+            }
+        };
+        
+        console.log('🗺️ Módulo Análisis de Terreno inicializado');
+    }
+
+    /**
+     * Inicializa el módulo
+     */
+    inicializar() {
+        this.crearBotonHerramientas();
+        this.crearModal();
+        this.inicializarLeafletDraw();
+        console.log('✅ Análisis de Terreno listo');
+    }
+
+    /**
+     * Crea el botón en el menú de Herramientas
+     */
+    crearBotonHerramientas() {
+        const menuHerramientas = document.getElementById('herramientas-menu');
+        if (!menuHerramientas) {
+            console.warn('⚠️ No se encontró el menú de herramientas');
+            return;
+        }
+
+        // Crear botón después de "Cálculo de Marcha"
+        const btnCalculoMarcha = document.getElementById('btnCalculoMarcha');
+        if (btnCalculoMarcha) {
+            const btnAnalisisTerreno = document.createElement('a');
+            btnAnalisisTerreno.href = '#';
+            btnAnalisisTerreno.id = 'btnAnalisisTerreno';
+            btnAnalisisTerreno.innerHTML = '<i class="fas fa-mountain"></i> Análisis de Terreno';
+            btnAnalisisTerreno.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.abrirModal();
+            });
+
+            btnCalculoMarcha.insertAdjacentElement('afterend', btnAnalisisTerreno);
+            console.log('✅ Botón "Análisis de Terreno" agregado al menú');
+        }
+    }
+
+    /**
+     * Crea el modal de análisis de terreno
+     */
+    crearModal() {
+        const modalHTML = `
+            <div id="modalAnalisisTerreno" class="modal-analisis-terreno" style="display: none;">
+                <div class="modal-analisis-content">
+                    <!-- Header -->
+                    <div class="modal-analisis-header">
+                        <h2><i class="fas fa-mountain"></i> Análisis de Terreno</h2>
+                        <button class="btn-cerrar-modal" onclick="window.analisisTerreno.cerrarModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Instrucciones -->
+                    <div class="modal-analisis-instrucciones">
+                        <p>
+                            <i class="fas fa-info-circle"></i>
+                            <strong>1.</strong> Dibuje un polígono en el mapa delimitando la zona a analizar
+                        </p>
+                        <p>
+                            <strong>2.</strong> Configure los parámetros del análisis
+                        </p>
+                        <p>
+                            <strong>3.</strong> Presione "Analizar Terreno"
+                        </p>
+                    </div>
+
+                    <!-- Panel de parámetros -->
+                    <div class="modal-analisis-parametros">
+                        <h3>⚙️ Parámetros del Análisis</h3>
+                        
+                        <div class="param-group">
+                            <label for="selectTipoVehiculo">
+                                <i class="fas fa-truck-military"></i> Tipo de Vehículo:
+                            </label>
+                            <select id="selectTipoVehiculo">
+                                <option value="Infanteria">Infantería (a pie)</option>
+                                <option value="TAM">TAM (Tanque Argentino Mediano)</option>
+                                <option value="VCTP">VCTP (Vehículo Combate Transporte Personal)</option>
+                                <option value="VLEGA">VLEGA (Vehículo Ligero Ejército Argentino)</option>
+                                <option value="Unimog">Unimog (Camión todo terreno)</option>
+                                <option value="VCPC">VCPC (Vehículo Combate Puesto Comando)</option>
+                            </select>
+                        </div>
+
+                        <div class="param-group">
+                            <label for="selectClima">
+                                <i class="fas fa-cloud-sun"></i> Condiciones Climáticas:
+                            </label>
+                            <select id="selectClima">
+                                <option value="seco">Seco (normal)</option>
+                                <option value="lluvioso">Lluvioso (reducida transitabilidad)</option>
+                                <option value="nieve">Nieve (muy reducida)</option>
+                            </select>
+                        </div>
+
+                        <div class="param-group">
+                            <label for="selectTipoAnalisis">
+                                <i class="fas fa-layer-group"></i> Capas a Analizar:
+                            </label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="checkPendientes" checked>
+                                    📐 Pendientes y Talud
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="checkTransitabilidad" checked>
+                                    🚗 Transitabilidad
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="checkIntervisibilidad">
+                                    👁️ Intervisibilidad (OCOTA)
+                                </label>
+                                <label>
+                                    <input type="checkbox" id="checkVegetacion">
+                                    🌳 Vegetación (si disponible)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="modal-analisis-acciones">
+                        <button id="btnDibujarPoligono" class="btn-primary">
+                            <i class="fas fa-draw-polygon"></i> Dibujar Polígono
+                        </button>
+                        <button id="btnAnalizarTerreno" class="btn-success" disabled>
+                            <i class="fas fa-chart-area"></i> Analizar Terreno
+                        </button>
+                        <button id="btnLimpiarAnalisis" class="btn-secondary">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                    </div>
+
+                    <!-- Panel de resultados (inicialmente oculto) -->
+                    <div id="panelResultados" class="modal-analisis-resultados" style="display: none;">
+                        <h3>📊 Resultados del Análisis</h3>
+                        
+                        <div id="estadisticasTerreno" class="estadisticas-grid">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+
+                        <div id="graficoDistribucion" class="grafico-container">
+                            <canvas id="chartPendientes"></canvas>
+                        </div>
+
+                        <div id="tablaPuntosCriticos" class="tabla-criticos">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Indicador de carga -->
+                    <div id="loadingAnalisis" class="loading-overlay" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Analizando terreno...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Insertar modal en el body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // Configurar eventos
+        this.configurarEventosModal();
+    }
+
+    /**
+     * Configura los eventos del modal
+     */
+    configurarEventosModal() {
+        const btnDibujar = document.getElementById('btnDibujarPoligono');
+        const btnAnalizar = document.getElementById('btnAnalizarTerreno');
+        const btnLimpiar = document.getElementById('btnLimpiarAnalisis');
+
+        if (btnDibujar) {
+            btnDibujar.addEventListener('click', () => this.activarDibujoPoligono());
+        }
+
+        if (btnAnalizar) {
+            btnAnalizar.addEventListener('click', () => this.analizarTerreno());
+        }
+
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', () => this.limpiarAnalisis());
+        }
+    }
+
+    /**
+     * Inicializa Leaflet.draw para dibujar polígonos
+     */
+    inicializarLeafletDraw() {
+        if (!L.Draw) {
+            console.warn('⚠️ Leaflet.draw no está cargado. Agregue la biblioteca.');
+            return;
+        }
+
+        // Crear capa para los dibujos
+        this.capaResultados = new L.FeatureGroup();
+        this.map.addLayer(this.capaResultados);
+
+        // Configurar control de dibujo
+        this.drawControl = new L.Control.Draw({
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    showArea: true,
+                    shapeOptions: {
+                        color: '#3498db',
+                        weight: 3,
+                        fillOpacity: 0.2
+                    }
+                },
+                polyline: false,
+                circle: false,
+                rectangle: false,
+                marker: false,
+                circlemarker: false
+            },
+            edit: {
+                featureGroup: this.capaResultados,
+                remove: true
+            }
+        });
+
+        // Eventos de dibujo
+        this.map.on(L.Draw.Event.CREATED, (e) => {
+            this.capaResultados.clearLayers();
+            this.poligonoActual = e.layer;
+            this.capaResultados.addLayer(this.poligonoActual);
+            
+            // Habilitar botón de análisis
+            document.getElementById('btnAnalizarTerreno').disabled = false;
+            
+            console.log('✅ Polígono dibujado:', this.poligonoActual.toGeoJSON());
+        });
+
+        this.map.on(L.Draw.Event.DELETED, () => {
+            this.poligonoActual = null;
+            document.getElementById('btnAnalizarTerreno').disabled = true;
+        });
+    }
+
+    /**
+     * Abre el modal de análisis
+     */
+    abrirModal() {
+        const modal = document.getElementById('modalAnalisisTerreno');
+        if (modal) {
+            modal.style.display = 'block';
+            this.modalActivo = true;
+            document.body.classList.add('analisis-terreno-activo');
+            console.log('🗺️ Modal de Análisis de Terreno abierto');
+        }
+    }
+
+    /**
+     * Cierra el modal de análisis
+     */
+    cerrarModal() {
+        const modal = document.getElementById('modalAnalisisTerreno');
+        if (modal) {
+            modal.style.display = 'none';
+            this.modalActivo = false;
+            document.body.classList.remove('analisis-terreno-activo');
+            this.desactivarDibujoPoligono();
+        }
+    }
+
+    /**
+     * Activa el modo de dibujo de polígono
+     */
+    activarDibujoPoligono() {
+        if (!this.drawControl) {
+            alert('Leaflet.draw no está disponible. Verifique la carga de bibliotecas.');
+            return;
+        }
+
+        // Agregar control si no está en el mapa
+        if (!this.map.hasLayer(this.drawControl)) {
+            this.map.addControl(this.drawControl);
+        }
+
+        // Activar herramienta de polígono
+        new L.Draw.Polygon(this.map, this.drawControl.options.draw.polygon).enable();
+        
+        console.log('🖊️ Modo dibujo de polígono activado');
+    }
+
+    /**
+     * Desactiva el modo de dibujo
+     */
+    desactivarDibujoPoligono() {
+        if (this.drawControl && this.map.hasLayer(this.drawControl)) {
+            this.map.removeControl(this.drawControl);
+        }
+    }
+
+    /**
+     * Genera una grilla de puntos dentro de un polígono
+     * @param {Array} polygonCoords - Coordenadas del polígono [[lng, lat], ...]
+     * @param {Number} resolution - Resolución en metros (default: 100m)
+     * @returns {Array} - Array de puntos {lat, lon}
+     */
+    generarGrillaPuntos(polygonCoords, resolution = 100) {
+        // Calcular bounds del polígono
+        const lngs = polygonCoords.map(p => p[0]);
+        const lats = polygonCoords.map(p => p[1]);
+        
+        const minLng = Math.min(...lngs);
+        const maxLng = Math.max(...lngs);
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+        
+        // Calcular centro para ajuste de longitud
+        const centerLat = (minLat + maxLat) / 2;
+        
+        // Conversión metros a grados
+        const metersPerDegreeLat = 111320;
+        const metersPerDegreeLon = 111320 * Math.cos(centerLat * Math.PI / 180);
+        
+        const latStep = resolution / metersPerDegreeLat;
+        const lonStep = resolution / metersPerDegreeLon;
+        
+        console.log(`📐 Resolución: ${resolution}m → ${latStep.toFixed(6)}° lat, ${lonStep.toFixed(6)}° lon`);
+        
+        // Generar puntos
+        const points = [];
+        const polygon = L.polygon(polygonCoords.map(p => [p[1], p[0]])); // Leaflet usa [lat, lng]
+        
+        for (let lat = minLat; lat <= maxLat; lat += latStep) {
+            for (let lon = minLng; lon <= maxLng; lon += lonStep) {
+                // Verificar si el punto está dentro del polígono
+                if (polygon.getBounds().contains([lat, lon])) {
+                    // Verificación más precisa con contains (requiere que el polígono esté en el mapa)
+                    const latLng = L.latLng(lat, lon);
+                    
+                    // Usar algoritmo punto-en-polígono simple
+                    if (this.puntoEnPoligono(lat, lon, polygonCoords)) {
+                        points.push({ lat, lon });
+                    }
+                }
+            }
+        }
+        
+        console.log(`✅ Grilla: ${points.length} puntos generados (resolución ${resolution}m)`);
+        return points;
+    }
+
+    /**
+     * Algoritmo punto-en-polígono (Ray Casting)
+     * @param {Number} lat - Latitud del punto
+     * @param {Number} lon - Longitud del punto
+     * @param {Array} polygonCoords - Coordenadas del polígono [[lng, lat], ...]
+     * @returns {Boolean}
+     */
+    puntoEnPoligono(lat, lon, polygonCoords) {
+        let inside = false;
+        
+        for (let i = 0, j = polygonCoords.length - 1; i < polygonCoords.length; j = i++) {
+            const xi = polygonCoords[i][0], yi = polygonCoords[i][1];
+            const xj = polygonCoords[j][0], yj = polygonCoords[j][1];
+            
+            const intersect = ((yi > lat) !== (yj > lat))
+                && (lon < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+            
+            if (intersect) inside = !inside;
+        }
+        
+        return inside;
+    }
+
+    /**
+     * Ejecuta el análisis de terreno
+     */
+    async analizarTerreno() {
+        if (!this.poligonoActual) {
+            alert('Primero debe dibujar un polígono en el mapa.');
+            return;
+        }
+
+        // Obtener parámetros
+        const vehiculo = document.getElementById('selectTipoVehiculo').value;
+        const clima = document.getElementById('selectClima').value;
+        const checkPendientes = document.getElementById('checkPendientes').checked;
+        const checkTransitabilidad = document.getElementById('checkTransitabilidad').checked;
+
+        // Mostrar indicador de carga
+        document.getElementById('loadingAnalisis').style.display = 'flex';
+
+        try {
+            // 🎯 PASO 1: Generar grilla de puntos dentro del polígono
+            const geoJSON = this.poligonoActual.toGeoJSON();
+            const gridPoints = this.generarGrillaPuntos(geoJSON.geometry.coordinates[0], 100); // 100m resolución
+            
+            console.log(`📐 Grilla generada: ${gridPoints.length} puntos para análisis`);
+            
+            // Preparar datos para API
+            const requestData = {
+                poligono: geoJSON.geometry.coordinates,
+                puntos: gridPoints, // ← Puntos de la grilla
+                vehiculo: vehiculo,
+                clima: clima,
+                capas: {
+                    pendientes: checkPendientes,
+                    transitabilidad: checkTransitabilidad
+                }
+            };
+
+            console.log('📡 Enviando solicitud de análisis:', requestData);
+
+            // Llamar a la API
+            const response = await fetch(`${this.config.apiUrl}/analizar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+
+            const resultados = await response.json();
+            console.log('✅ Resultados recibidos:', resultados);
+
+            // Mostrar resultados
+            this.mostrarResultados(resultados);
+
+            // Pintar overlay en el mapa
+            if (checkPendientes) {
+                this.pintarMapaCalor(resultados);
+            }
+
+        } catch (error) {
+            console.error('❌ Error en análisis de terreno:', error);
+            alert(`Error al analizar el terreno: ${error.message}\n\nVerifique que el servidor API esté corriendo.`);
+        } finally {
+            // Ocultar indicador de carga
+            document.getElementById('loadingAnalisis').style.display = 'none';
+        }
+    }
+
+    /**
+     * Muestra los resultados del análisis
+     */
+    mostrarResultados(resultados) {
+        const panelResultados = document.getElementById('panelResultados');
+        const estadisticas = document.getElementById('estadisticasTerreno');
+
+        // Mostrar panel
+        panelResultados.style.display = 'block';
+
+        // Generar estadísticas
+        const statsHTML = `
+            <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <h4>Pendiente Promedio</h4>
+                <p class="stat-value">${resultados.pendiente_promedio?.toFixed(2) || 'N/A'}°</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-angle-double-up"></i>
+                <h4>Pendiente Máxima</h4>
+                <p class="stat-value">${resultados.pendiente_maxima?.toFixed(2) || 'N/A'}°</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-road"></i>
+                <h4>% Transitable</h4>
+                <p class="stat-value">${resultados.pct_transitable?.toFixed(1) || 'N/A'}%</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h4>Puntos Críticos</h4>
+                <p class="stat-value">${resultados.puntos_criticos?.length || 0}</p>
+            </div>
+        `;
+
+        estadisticas.innerHTML = statsHTML;
+
+        // Generar gráfico de distribución (si Chart.js está disponible)
+        if (typeof Chart !== 'undefined' && resultados.distribucion_pendientes) {
+            this.generarGraficoPendientes(resultados.distribucion_pendientes);
+        }
+    }
+
+    /**
+     * Genera el gráfico de distribución de pendientes
+     */
+    generarGraficoPendientes(distribucion) {
+        const ctx = document.getElementById('chartPendientes');
+        if (!ctx) return;
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['0-5°', '5-15°', '15-30°', '>30°'],
+                datasets: [{
+                    label: 'Distribución de Pendientes (%)',
+                    data: [
+                        distribucion['0-5'] || 0,
+                        distribucion['5-15'] || 0,
+                        distribucion['15-30'] || 0,
+                        distribucion['30+'] || 0
+                    ],
+                    backgroundColor: [
+                        this.config.coloresPendientes['0-5'],
+                        this.config.coloresPendientes['5-15'],
+                        this.config.coloresPendientes['15-30'],
+                        this.config.coloresPendientes['30+']
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Porcentaje (%)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Pinta un mapa de calor sobre el polígono analizado
+     */
+    pintarMapaCalor(resultados) {
+        // TODO: Implementar overlay de colores según pendientes
+        console.log('🎨 Pintando mapa de calor (PENDIENTE)');
+    }
+
+    /**
+     * Limpia el análisis actual
+     */
+    limpiarAnalisis() {
+        if (this.capaResultados) {
+            this.capaResultados.clearLayers();
+        }
+        this.poligonoActual = null;
+        
+        document.getElementById('panelResultados').style.display = 'none';
+        document.getElementById('btnAnalizarTerreno').disabled = true;
+        
+        console.log('🧹 Análisis limpiado');
+    }
+}
+
+// Inicializar automáticamente cuando el mapa esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    // Esperar a que el mapa esté disponible
+    const checkMap = setInterval(() => {
+        if (window.map) {
+            window.analisisTerreno = new AnalisisTerreno(window.map);
+            window.analisisTerreno.inicializar();
+            clearInterval(checkMap);
+        }
+    }, 100);
+});

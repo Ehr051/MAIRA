@@ -1,0 +1,94 @@
+[
+  {
+    "key": "Apoyo De Material",
+    "value": "apoyoDeMaterial"
+  },
+  {
+    "key": "Apoyo De Personal",
+    "value": "apoyoDePersonal"
+  },
+  {
+    "key": "Apoyo Naval",
+    "value": "apoyoNaval"
+  },
+  {
+    "key": "Empleo",
+    "value": "empleo"
+  },
+  {
+    "key": "Obstaculo Natural",
+    "value": "obstaculoNatural"
+  },
+  {
+    "key": "PCR",
+    "value": "pcr"
+  },
+  {
+    "key": "Posicion Organizada",
+    "value": "posicionOrganizada"
+  },
+  {
+    "key": "Situacion Aerea",
+    "value": "situacionAerea"
+  },
+  {
+    "key": "Tipo De GUC",
+    "value": "tipoDeGUC"
+  },
+  {
+    "key": "Tipo De Operacion",
+    "value": "tipoDeOperacion"
+  },
+  {
+    "key": "Tropas Especiales",
+    "value": "tropasEspeciales"
+  },
+  {
+    "key": "Vision Nocturna",
+    "value": "visionNocturna"
+  },
+  {
+    "key": "%BajasCombate",
+    "value": 0.9
+  },
+  {
+    "key": "%BajasNoCombate",
+    "value": 0.1
+  },
+  {
+    "key": "%DesaparecidosComb",
+    "value": 0.1
+  },
+  {
+    "key": "%Heridos+72",
+    "value": 0.6
+  },
+  {
+    "key": "%Heridos-72",
+    "value": 0.4
+  },
+  {
+    "key": "%HeridosComb",
+    "value": 0.7
+  },
+  {
+    "key": "%HeridosNoComb",
+    "value": 0.9
+  },
+  {
+    "key": "%MuertosNoComb",
+    "value": 0.1
+  },
+  {
+    "key": "%MuertosComb",
+    "value": 0.2
+  },
+  {
+    "key": "%PG",
+    "value": 0.05
+  },
+  {
+    "key": "%Profugos",
+    "value": 0.2
+  }
+]

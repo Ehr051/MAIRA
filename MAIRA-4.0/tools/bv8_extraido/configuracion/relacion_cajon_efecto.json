@@ -1,0 +1,173 @@
+[
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 1,
+    "listaIdEfectos": [
+      23,
+      24,
+      25
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 2,
+    "listaIdEfectos": [
+      29,
+      30
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 3,
+    "listaIdEfectos": [
+      11
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 4,
+    "listaIdEfectos": [
+      22
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 5,
+    "listaIdEfectos": [
+      22
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 7,
+    "listaIdEfectos": [
+      46,
+      48,
+      49
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 8,
+    "listaIdEfectos": [
+      43
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 9,
+    "listaIdEfectos": [
+      44
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 10,
+    "listaIdEfectos": [
+      45
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 11,
+    "listaIdEfectos": [
+      43
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 15,
+    "listaIdEfectos": [
+      6,
+      5,
+      10
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 16,
+    "listaIdEfectos": [
+      9,
+      4,
+      7
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 21,
+    "listaIdEfectos": [
+      56
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 24,
+    "listaIdEfectos": [
+      14,
+      17,
+      16,
+      15
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 41,
+    "listaIdEfectos": [
+      21
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 17,
+    "listaIdEfectos": [
+      51,
+      41,
+      42
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 20,
+    "listaIdEfectos": [
+      55
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 21,
+    "listaIdEfectos": [
+      56
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 24,
+    "listaIdEfectos": [
+      16,
+      15,
+      14,
+      17
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 39,
+    "listaIdEfectos": [
+      52
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 40,
+    "listaIdEfectos": [
+      31
+    ]
+  },
+  {
+    "_class": "RelacionIdCajonIdEfecto",
+    "idCajon": 38,
+    "listaIdEfectos": [
+      47
+    ]
+  }
+]

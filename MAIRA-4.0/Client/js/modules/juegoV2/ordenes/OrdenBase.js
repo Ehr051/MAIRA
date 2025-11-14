@@ -6,7 +6,7 @@
  */
 
 class OrdenBase {
-    constructor(unidad, tipo) {
+    constructor(unidadRefOrConfig, tipo) {
         if (this.constructor === OrdenBase) {
             throw new Error('OrdenBase es una clase abstracta y no puede ser instanciada directamente');
         }
@@ -14,7 +14,17 @@ class OrdenBase {
         // Identificación
         this.id = this.generarId();
         this.tipo = tipo; // 'movimiento', 'ataque', 'defensa', 'reconocimiento'
+        // 🎯 DECLARAR unidad PRIMERO (antes de usarla)
+        const unidad = unidadRefOrConfig.unidadRef || unidadRefOrConfig;
+        const configUnidadId = unidadRefOrConfig.unidadId;
         this.unidad = unidad;
+        this.unidadId = configUnidadId || unidad.id || unidad.options?.id || `unidad_${Date.now()}`;
+        this.unidadNombre = unidad.options?.designacion || unidad.options?.nombre || 'Sin designación';
+        
+        // DEBUG
+        if (this.unidadId === 'unidad_desconocida') {
+            console.warn('[OrdenBase] UNIDAD SIN ID:', unidad);
+        }
 
         // Estado
         this.estado = 'pendiente'; // 'pendiente', 'validando', 'valida', 'invalida', 'ejecutando', 'completada', 'cancelada'

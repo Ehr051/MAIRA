@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Bajas - BV8</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .panel h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="number"]:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group input[type="range"] {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .range-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .range-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card.combat {
+            border-left-color: #e74c3c;
+        }
+        
+        .stat-card.non-combat {
+            border-left-color: #f39c12;
+        }
+        
+        .stat-card.otros {
+            border-left-color: #3498db;
+        }
+        
+        .stat-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .stat-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .stat-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-list .label {
+            color: #666;
+        }
+        
+        .stat-list .value {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            height: 300px;
+        }
+        
+        .final-strength {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .final-strength h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            opacity: 0.95;
+        }
+        
+        .final-strength .number {
+            font-size: 3em;
+            font-weight: bold;
+        }
+        
+        .bv8-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ Calculadora de Bajas de Combate</h1>
+            <p>Basada en ratios del Ejército Argentino (BV8)</p>
+            <span class="bv8-badge">🎖️ Batalla Virtual 8 - Módulo Estimación de Bajas</span>
+        </header>
+        
+        <div class="content">
+            <!-- Panel de Entrada -->
+            <div class="panel">
+                <h2>📊 Parámetros de Combate</h2>
+                
+                <form id="calculadora-form">
+                    <div class="form-group">
+                        <label for="efectivos">Efectivos Iniciales</label>
+                        <input type="number" id="efectivos" value="100" min="1" max="10000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="intensidad">Intensidad del Combate</label>
+                        <input type="range" id="intensidad" min="1" max="100" value="20">
+                        <div class="range-display">
+                            <span>Baja</span>
+                            <span class="range-value" id="intensidad-valor">20%</span>
+                            <span>Alta</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tipo-combate">Tipo de Combate</label>
+                        <select id="tipo-combate">
+                            <option value="defensivo">🛡️ Defensivo (-30% bajas)</option>
+                            <option value="encuentro" selected>⚔️ Encuentro (normal)</option>
+                            <option value="ofensivo">🗡️ Ofensivo (+30% bajas)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="apoyo-fuego">Apoyo de Fuego</label>
+                        <select id="apoyo-fuego">
+                            <option value="ninguno">Ninguno</option>
+                            <option value="artilleria">🎯 Artillería (+20% bajas enemigas)</option>
+                            <option value="aereo">✈️ Aéreo (+30% bajas enemigas)</option>
+                            <option value="ambos">💥 Artillería + Aéreo (+50%)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="terreno">Tipo de Terreno</label>
+                        <select id="terreno">
+                            <option value="abierto">Campo Abierto (+10% bajas)</option>
+                            <option value="mixto" selected>Mixto (normal)</option>
+                            <option value="urbano">Urbano (-20% bajas)</option>
+                            <option value="montanoso">Montañoso (-15% bajas)</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit">🔥 Calcular Bajas</button>
+                    <button type="button" id="reset-btn" style="background: #95a5a6;">🔄 Reiniciar</button>
+                </form>
+            </div>
+            
+            <!-- Panel de Resultados -->
+            <div class="panel results" id="resultados">
+                <h2>📈 Resultados</h2>
+                
+                <div class="stat-card">
+                    <h3>Total de Bajas</h3>
+                    <div class="stat-number" id="total-bajas">0</div>
+                    <div class="range-display">
+                        <span>Efectivos iniciales: <strong id="display-efectivos">0</strong></span>
+                    </div>
+                </div>
+                
+                <div class="stat-card combat">
+                    <h3>💥 Bajas de Combate (90%)</h3>
+                    <div class="stat-number" id="bajas-combate">0</div>
+                    <ul class="stat-list">
+                        <li>
+                            <span class="label">☠️ Muertos (20%)</span>
+                            <span class="value" id="muertos-combate">0</span>
+                        </li>
+                        <li>
+                            <span class="label">🩹 Heridos (70%)</span>
+                            <span class="value" id="heridos-combate">0</span>
+                        </li>
+                        <li style="padding-left: 20px;">
+                            <span class="label">🚑 Evacuación >72h (60%)</span>
+                            <span class="value" id="heridos-graves">0</span>
+                        </li>
+                        <li style="padding-left: 20px;">
+                            <span class="label">🏥 Evacuación <72h (40%)</span>
+                            <span class="value" id="heridos-leves">0</span>
+                        </li>
+                        <li>
+                            <span class="label">❓ Desaparecidos (10%)</span>
+                            <span class="value" id="desaparecidos">0</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="stat-card non-combat">
+                    <h3>🏥 Bajas No Combate (10%)</h3>
+                    <div class="stat-number" id="bajas-no-combate">0</div>
+                    <ul class="stat-list">
+                        <li>
+                            <span class="label">🩹 Heridos (90%)</span>
+                            <span class="value" id="heridos-no-combate">0</span>
+                        </li>
+                        <li>
+                            <span class="label">☠️ Muertos (10%)</span>
+                            <span class="value" id="muertos-no-combate">0</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="stat-card otros">
+                    <h3>📋 Otros</h3>
+                    <ul class="stat-list">
+                        <li>
+                            <span class="label">⛓️ Prisioneros (5%)</span>
+                            <span class="value" id="prisioneros">0</span>
+                        </li>
+                        <li>
+                            <span class="label">🏃 Prófugos (20%)</span>
+                            <span class="value" id="profugos">0</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="final-strength">
+                    <h3>Efectivos Resultantes</h3>
+                    <div class="number" id="efectivos-finales">0</div>
+                    <div class="bv8-badge">
+                        Reducción: <span id="porcentaje-reduccion">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Ratios de BV8 (extraídos de estimacion_bajas_arbol.json)
+        const ratiosBV8 = {
+            bajasCombate: 0.9,
+            bajasNoCombate: 0.1,
+            muertosCombate: 0.2,
+            heridosCombate: 0.7,
+            desaparecidosCombate: 0.1,
+            heridos72Plus: 0.6,
+            heridos72Minus: 0.4,
+            heridosNoCombate: 0.9,
+            muertosNoCombate: 0.1,
+            prisioneros: 0.05,
+            profugos: 0.2
+        };
+        
+        // Modificadores por tipo de combate
+        const modificadoresCombate = {
+            defensivo: 0.7,    // 30% menos bajas
+            encuentro: 1.0,    // Normal
+            ofensivo: 1.3      // 30% más bajas
+        };
+        
+        // Modificadores por apoyo de fuego
+        const modificadoresApoyo = {
+            ninguno: 1.0,
+            artilleria: 1.2,   // 20% más bajas al enemigo
+            aereo: 1.3,        // 30% más bajas
+            ambos: 1.5         // 50% más bajas
+        };
+        
+        // Modificadores por terreno
+        const modificadoresTerreno = {
+            abierto: 1.1,      // 10% más bajas
+            mixto: 1.0,        // Normal
+            urbano: 0.8,       // 20% menos bajas
+            montanoso: 0.85    // 15% menos bajas
+        };
+        
+        // Elementos DOM
+        const form = document.getElementById('calculadora-form');
+        const intensidadSlider = document.getElementById('intensidad');
+        const intensidadValor = document.getElementById('intensidad-valor');
+        const resultados = document.getElementById('resultados');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // Actualizar valor del slider
+        intensidadSlider.addEventListener('input', (e) => {
+            intensidadValor.textContent = `${e.target.value}%`;
+        });
+        
+        // Calcular bajas
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const efectivos = parseInt(document.getElementById('efectivos').value);
+            const intensidad = parseInt(intensidadSlider.value) / 100;
+            const tipoCombate = document.getElementById('tipo-combate').value;
+            const apoyoFuego = document.getElementById('apoyo-fuego').value;
+            const terreno = document.getElementById('terreno').value;
+            
+            const resultado = calcularBajas(efectivos, intensidad, tipoCombate, apoyoFuego, terreno);
+            mostrarResultados(resultado, efectivos);
+        });
+        
+        // Función principal de cálculo
+        function calcularBajas(efectivos, intensidad, tipoCombate, apoyoFuego, terreno) {
+            // Calcular bajas base con modificadores
+            const modificadorCombate = modificadoresCombate[tipoCombate];
+            const modificadorApoyo = modificadoresApoyo[apoyoFuego];
+            const modificadorTerreno = modificadoresTerreno[terreno];
+            
+            const totalBajasBase = efectivos * intensidad * modificadorCombate * modificadorApoyo * modificadorTerreno;
+            
+            // Aplicar ratios BV8
+            const bajasCombate = totalBajasBase * ratiosBV8.bajasCombate;
+            const muertosCombate = Math.round(bajasCombate * ratiosBV8.muertosCombate);
+            const heridosCombate = Math.round(bajasCombate * ratiosBV8.heridosCombate);
+            const desaparecidos = Math.round(bajasCombate * ratiosBV8.desaparecidosCombate);
+            
+            const heridosGraves = Math.round(heridosCombate * ratiosBV8.heridos72Plus);
+            const heridosLeves = Math.round(heridosCombate * ratiosBV8.heridos72Minus);
+            
+            const bajasNoCombate = totalBajasBase * ratiosBV8.bajasNoCombate;
+            const heridosNoCombate = Math.round(bajasNoCombate * ratiosBV8.heridosNoCombate);
+            const muertosNoCombate = Math.round(bajasNoCombate * ratiosBV8.muertosNoCombate);
+            
+            const prisioneros = Math.round(totalBajasBase * ratiosBV8.prisioneros);
+            const profugos = Math.round(totalBajasBase * ratiosBV8.profugos);
+            
+            const totalBajas = Math.round(totalBajasBase);
+            const efectivosFinales = Math.max(0, efectivos - totalBajas);
+            
+            return {
+                totalBajas,
+                bajasCombate: Math.round(bajasCombate),
+                muertosCombate,
+                heridosCombate,
+                heridosGraves,
+                heridosLeves,
+                desaparecidos,
+                bajasNoCombate: Math.round(bajasNoCombate),
+                heridosNoCombate,
+                muertosNoCombate,
+                prisioneros,
+                profugos,
+                efectivosFinales
+            };
+        }
+        
+        // Mostrar resultados
+        function mostrarResultados(resultado, efectivosIniciales) {
+            document.getElementById('total-bajas').textContent = resultado.totalBajas;
+            document.getElementById('display-efectivos').textContent = efectivosIniciales;
+            
+            document.getElementById('bajas-combate').textContent = resultado.bajasCombate;
+            document.getElementById('muertos-combate').textContent = resultado.muertosCombate;
+            document.getElementById('heridos-combate').textContent = resultado.heridosCombate;
+            document.getElementById('heridos-graves').textContent = resultado.heridosGraves;
+            document.getElementById('heridos-leves').textContent = resultado.heridosLeves;
+            document.getElementById('desaparecidos').textContent = resultado.desaparecidos;
+            
+            document.getElementById('bajas-no-combate').textContent = resultado.bajasNoCombate;
+            document.getElementById('heridos-no-combate').textContent = resultado.heridosNoCombate;
+            document.getElementById('muertos-no-combate').textContent = resultado.muertosNoCombate;
+            
+            document.getElementById('prisioneros').textContent = resultado.prisioneros;
+            document.getElementById('profugos').textContent = resultado.profugos;
+            
+            document.getElementById('efectivos-finales').textContent = resultado.efectivosFinales;
+            
+            const porcentajeReduccion = ((resultado.totalBajas / efectivosIniciales) * 100).toFixed(1);
+            document.getElementById('porcentaje-reduccion').textContent = `${porcentajeReduccion}%`;
+            
+            resultados.classList.add('show');
+            resultados.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Reiniciar formulario
+        resetBtn.addEventListener('click', () => {
+            form.reset();
+            intensidadValor.textContent = '20%';
+            resultados.classList.remove('show');
+        });
+    </script>
+</body>
+</html>

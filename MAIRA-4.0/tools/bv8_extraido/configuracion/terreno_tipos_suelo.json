@@ -1,0 +1,82 @@
+[
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Playa de arena"
+    }
+  },
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Cordones o acumulación de conchilla"
+    }
+  },
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Uso de tierra mixto (16 + 28)."
+    }
+  },
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Escorial"
+    }
+  },
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Cañadas."
+    }
+  },
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Mallin A7"
+    }
+  },
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Playa de piedra o restinga"
+    }
+  },
+  {
+    "_class": "TipoSueloModelado",
+    "nombre": {
+      "_class": ""
+    },
+    "suelosReales": {
+      "_class": "",
+      "object": "Playa de grava A1"
+    }
+  }
+]

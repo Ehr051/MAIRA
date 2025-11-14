@@ -1,0 +1,636 @@
+{
+  "module": "bajas",
+  "size_mb": 7.589784622192383,
+  "total_strings": 429800,
+  "classes": {
+    "SortedCollection": 2,
+    "Muertos": 2,
+    "SDWORD": 2,
+    "Cancelar": 8,
+    "Aceptar": 9,
+    "ExternalAddress": 2,
+    "Salir": 9,
+    "ClassificationTable": 2,
+    "DSNLibrary": 2,
+    "Current": 13,
+    "NeedsSelfMask": 2,
+    "Seleccionar": 2,
+    "ContainerCreditosOperaciones": 2,
+    "Actualizar": 2,
+    "DeseleccionarTodos": 2,
+    "Cambiar": 5,
+    "BSTR": 2,
+    "CURRENCY": 2,
+    "Unknown": 2,
+    "Versiones": 2,
+    "EscapeChars": 2,
+    "Category": 2,
+    "OPTION": 2,
+    "ReadOnlyMask": 3,
+    "LEFT": 2,
+    "Debug": 5,
+    "StandardCommands": 2,
+    "VARIANT": 2,
+    "LPWSTR": 2,
+    "Error": 2,
+    "SpecialSelectors": 2,
+    "Tutorials": 12,
+    "Remove": 4,
+    "Clipboard": 2,
+    "AlignmentMap": 5,
+    "Help": 2,
+    "IgnoreCaseMask": 2,
+    "TransientMask": 2,
+    "Cancel": 11,
+    "Instance": 2,
+    "DolphinSureCertificateInfoR": 4,
+    "CLSID": 2,
+    "IconicListAbstract": 2,
+    "ViewModes": 2,
+    "Graphic": 4,
+    "Heading": 2,
+    "Find": 4,
+    "Copy": 5,
+    "Paste": 4,
+    "Delete": 4,
+    "Forward": 4,
+    "Aborted": 2,
+    "EncoderQuality": 2,
+    "Width": 2,
+    "Default": 4,
+    "Scribble": 2,
+    "Classes": 3,
+    "PixelFormat": 2,
+    "Protocol": 2,
+    "Methods": 4,
+    "Protocols": 4,
+    "Categories": 2,
+    "Variables": 2,
+    "Views": 2,
+    "Test": 2,
+    "Project": 2,
+    "Blessing": 2,
+    "Packages": 4,
+    "Comparison": 2,
+    "Timestamp": 5,
+    "Developer": 2,
+    "Text": 2,
+    "HotspotMask": 2,
+    "PredefinedStyleNames": 2,
+    "Dolphin": 2,
+    "Class": 3,
+    "Changed": 2,
+    "Package": 4,
+    "DdoIt": 2,
+    "Before": 3,
+    "Playground": 2,
+    "Open": 2,
+    "AgentObjects": 2,
+    "AutoCompleteDwell": 2,
+    "Browse": 4,
+    "Owned": 2,
+    "Property": 2,
+    "Edit": 3,
+    "Selector": 3,
+    "BBC1": 2,
+    "Exit": 3,
+    "Height": 2,
+    "Undo": 3,
+    "Save": 3,
+    "Reset": 2,
+    "System": 3,
+    "Sources": 2,
+    "Language": 2,
+    "Expression": 2,
+    "Result": 2,
+    "Restore": 2,
+    "NotSignedCertificateR": 2,
+    "RunAll": 2,
+    "ResourceLib": 3
+  },
+  "numeric_values": [
+    {
+      "method": "w",
+      "value": 8.0,
+      "context": "æ\u0001w:8ÎÜ\u0003@\u0012\u0005\u00106"
+    },
+    {
+      "method": "¼",
+      "value": 81.0,
+      "context": "æ\u0001¼:81á\u00030\u0012\u0005\u0010\u0011"
+    },
+    {
+      "method": "º",
+      "value": 0.0,
+      "context": "æ\u0001º:0Pã\u0003`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "¹",
+      "value": 0.0,
+      "context": "ô\u001d¹:0ÃÏ\u0005@\u0012\u0005\u0010,"
+    },
+    {
+      "method": "5",
+      "value": 0.0,
+      "context": "æ\u00025:0~\u00050\u0012\u0005\u0010\u000f"
+    },
+    {
+      "method": "Á",
+      "value": 0.0,
+      "context": "ô`Á:0¦\u0005`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "2",
+      "value": 0.0,
+      "context": "ä\u00012:0°\u00050\u0012\u0005\u0010\u000b"
+    },
+    {
+      "method": "ô",
+      "value": 6.0,
+      "context": "æ\u0001ô:06\u0005`\u0012\u0005\u0010\u0018"
+    },
+    {
+      "method": "Ê",
+      "value": 0.0,
+      "context": "æ\u0001Ê:0;\u0005@\u0012\u0005\u0010\u000e"
+    },
+    {
+      "method": "a",
+      "value": 8.0,
+      "context": "æ\u0001a: 8\u0005P\u0014\u0005\u0010 "
+    },
+    {
+      "method": "Í",
+      "value": 0.0,
+      "context": "æ\u0001Í:0ç¦\u0005@\u0012\u0005\u0010#"
+    },
+    {
+      "method": "ê",
+      "value": 0.0,
+      "context": "æ\u0001ê:0ð¦\u0005`\u0012\u0005\u0010\u0014"
+    },
+    {
+      "method": "P",
+      "value": 0.0,
+      "context": "ô\u0006P:0<\u00050\u0012\u0005\u0010\u000e"
+    },
+    {
+      "method": "P",
+      "value": 0.0,
+      "context": "ô\u0001P:0\u0005 \u0012\u0005\u0010\u000e"
+    },
+    {
+      "method": "9",
+      "value": 0.0,
+      "context": "ô\u00059:0¦¢\u0005PV\n\u0010\u0010"
+    },
+    {
+      "method": "º",
+      "value": 0.0,
+      "context": "æ\u0001º:0\u0015¢\u00050\u0012\u0005\u0010\b"
+    },
+    {
+      "method": "C",
+      "value": 0.0,
+      "context": "ô\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+    },
+    {
+      "method": "1",
+      "value": 5.0,
+      "context": "\u0005\u0010 É\u0006\u0010Ðò\u000b\u0010àX\u0005\u0010àW\u0005\u0010ÀA\u000b\u0010P¡\u0005\u0010°d\u0005\u0010Ðe\u0005\u00101:5"
+    },
+    {
+      "method": "1",
+      "value": 6.0,
+      "context": "\u0005\u0010i\u0010\u0010 \u0006\u0010pð\u0006\u0010à¦\u0005\u00101:6"
+    },
+    {
+      "method": "3",
+      "value": 1.0,
+      "context": "\u0005\u0010ÀÂ\u0005\u00103:1"
+    },
+    {
+      "method": "4",
+      "value": 1.0,
+      "context": "\u0005\u00104:1"
+    },
+    {
+      "method": "Ýæal5",
+      "value": 1.0,
+      "context": "?F«d\u0012Û\u0017B[é\u0002a\u0013/|âDyC\u0011ÃadùÑ\u0001Ýæal5:1"
+    },
+    {
+      "method": "unknown",
+      "value": 7.01,
+      "context": "7.01"
+    },
+    {
+      "method": "unknown",
+      "value": 1.02,
+      "context": "1.02"
+    },
+    {
+      "method": "12",
+      "value": 0.0,
+      "context": "12:00:00 a.m."
+    },
+    {
+      "method": "12",
+      "value": 0.0,
+      "context": "\u0005\u001012:00:00 a.m."
+    },
+    {
+      "method": "10",
+      "value": 41.0,
+      "context": "\u001b\u000b\u0010@}\f\u0010°¯\f\u001010:41:13 p.m."
+    },
+    {
+      "method": "12",
+      "value": 0.0,
+      "context": "12:00:00 a.m."
+    },
+    {
+      "method": "unknown",
+      "value": 3306.0,
+      "context": "3306"
+    },
+    {
+      "method": "bitOr",
+      "value": 0.0,
+      "context": "à9\r\u0010°9\r\u0010``@arg bitOr: 0"
+    },
+    {
+      "method": "bitAnd",
+      "value": 0.0,
+      "context": "Ü\u0001e­Gâ\u0003´Fß\f\u0013â\u0003\u0011a\u0013â\u0003´Fs\u0012;¶J\u0011J:¶l``@arg bitAnd: 0"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u0010À\u000e\u0010`@collection at: 1"
+    },
+    {
+      "method": "Ý",
+      "value": 0.0,
+      "context": "«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "Uses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "|9â\u0001²a®aAÙ%i\"Literal arrays are created at parse time:\"\r\n\r\n#(1 2 3).\r\n\r\n#( 1 2 3 #(4 5 6)) size.\r\n\r\n"
+    },
+    {
+      "method": "max",
+      "value": 2.0,
+      "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+    },
+    {
+      "method": "l9",
+      "value": 0.0,
+      "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+    },
+    {
+      "method": "N",
+      "value": 1.0,
+      "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "6\u0017\u0010ðµ\u0016\u0010ð\u0019\u0018\u0010`x\n\u0010\u0010d\u0005\u0010ÀÆ\u0005\u0010[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "-[. ®\u0011ÂF>Ü\u00052#\u0012Åie[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "l\u0012\u0010@O\u0012\u0010[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "00",
+      "value": 0.0,
+      "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+    },
+    {
+      "method": "Version",
+      "value": 1.0,
+      "context": "MIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+    },
+    {
+      "method": "primitive",
+      "value": 1.0,
+      "context": "Primitive or external call tag, e.g. <primitive: 1>"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "ä \u0010[:a | a at: 2]"
+    },
+    {
+      "method": "Î",
+      "value": 9.0,
+      "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+    },
+    {
+      "method": "rating",
+      "value": 2.0,
+      "context": "\u001ei\u0011@°j\t \u0001D[ :recording :val | recording rating: 2]"
+    },
+    {
+      "method": "rating",
+      "value": 3.0,
+      "context": "\u0005\u0010n$\u0010p§\u0010\u0010Ðd\u0005\u0010[ :recording :val | recording rating: 3]"
+    },
+    {
+      "method": "rating",
+      "value": 1.0,
+      "context": "[ :recording :val | recording rating: 1]"
+    },
+    {
+      "method": "19",
+      "value": 0.0,
+      "context": "19:00"
+    },
+    {
+      "method": "17",
+      "value": 15.0,
+      "context": "17:15"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": ";\u0005\u0010[:o | o at: 4]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "à&\u0010°²\u001d\u0010[:o | o at: 1]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:o | o at: 2]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "2&\u0010%\u0010î'\u0010 ¶'\u00100¢&\u0010[:o | o at: 3]"
+    },
+    {
+      "method": "12",
+      "value": 0.0,
+      "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+    },
+    {
+      "method": "t6ÍÃM",
+      "value": 7.0,
+      "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+    },
+    {
+      "method": "t",
+      "value": 4.0,
+      "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+    }
+  ],
+  "keywords_found": {
+    "elemento": [
+      "p\u0002\u0005\u0010elementoSeleccionado",
+      "i\u0007\u0010ÀÁ!\u0010@\u0005\u0010Seleccione un elemento:",
+      "Seleccione un elemento:",
+      "mostrarElementos:",
+      "mostrarCon:y:elementos:conTextBlock:",
+      "\b\u0010°î\u000b\u0010@p\u0005\u0010ð¢\u0006\u0010°.\n\u0010ð¥\u0006\u0010 \u0006\u0010mostrarCon:y:elementos:validateSelectionBlock:conTextBlock:",
+      "mostrarCon:y:elementos:",
+      "Seleccione un elemento:",
+      "\u0005\u0010ðA\f\u0010mostrarCon:elementos:",
+      "elementos",
+      "\u0005\u0010 \b\u0010seleccionarElemento:",
+      "No es posible seleccionar el elemento",
+      "mostrarCon:elementos:conTextBlock:",
+      "iElemento",
+      "\u0005\u0010\t\u00100d\u0005\u0010Pd\u0005\u0010ª\u0005\u0010removerDe:todosLosElementosQueEstanEn:",
+      "Elemento",
+      "Ã\b\u0010\u0010 \b\u0010tipoElemento",
+      "\u0005\u00109>°lðá\t\u0010No se pudo seleccionar el elemento en la lista debido a que este no se encuentra contenido por ella.",
+      "reiniciarElemento",
+      "\u0005\u0010PÆ\u0007\u0010Ð©\u0006\u0010p©\u0005\u00100d\u0005\u0010Seleccione un elemento"
+    ],
+    "organizacion": [
+      "cuadroorganizacion"
+    ],
+    "cuadro": [
+      " 0\u0007\u0010dibujarCuadroDescripcionesEn:",
+      "cuadroorganizacion"
+    ],
+    "personal": [
+      "\u0005\u0010mÌ\u0010iApoyo De Personal: ",
+      "õ\t\u0010ctrlApoyoPersonal",
+      "ctrlApoyoPersonal:",
+      "SELECT * FROM rel_oper_apoyodepersonal",
+      "rel_oper_apoyodepersonal:",
+      "rel_oper_apoyodepersonal",
+      "\u0005\u00109iÐ\n\b\u0010apoyoDePersonal",
+      "ctrlApoyoPersonal",
+      "\u0005\u0010apoyodepersonal",
+      "apoyoDePersonal",
+      "Ì\u0005\u0010 °\u0012\u0010Apoyo De Personal",
+      "\u0005\u00109>°ipÐ\b\u0010importarApoyoDePersonal",
+      "\u0010Zr%JúGºÎöKSâ\u001dU<TA\u0001²³limportarRel_oper_apoyodepersonal",
+      "ú\u000b\u0010\r\u0010À\u0007\u0010P\r\u0010PÛ\r\u0010@\r\u0010À\r\u0010\u0010Ö\u000b\u00100d\u0005\u0010apoyoDePersonal",
+      "rel_oper_apoyodepersonal",
+      "\u0005\u0010°\u001b\u0010\u0013\u0006\u0010 °\u0005\u0010apoyodepersonal",
+      "j± ³lSELECT * FROM apoyodepersonal",
+      "\u0005\u0010\u0011«±l\u0010ç\u0007\u0010pÈ\u0007\u0010apoyodepersonal:",
+      "\u0007\u0011³w:j\b\u0011³jµigPersonalMoney",
+      "DolphinSurePersonalCertificate"
+    ],
+    "efectivo": [
+      "t\u0005\u0010p\u0013\u0005\u0010ctrlTotalEfectivos:",
+      "\u0005\u0010ctrlEfectivosContacto:",
+      "cantidadDeEfectivos",
+      "guardarEfectivosDisponibles:",
+      "k\u0007\u0010g\u0007\u00100d\u0005\u0010=\u000e\u0010Efectivos de Contacto: ",
+      "actualizarEfectivos:",
+      "efectivosActualizados:",
+      "efectivosActualizados",
+      "\u0005\u0010mÌ\u0001icantidadDeEfectivos:",
+      "DcantEfectivosContacto",
+      "guardarEfectivosContacto:",
+      "efectivosContacto:",
+      "guardarEfectivosContacto:en:",
+      "\u0005\u00109>²i`\t\n\u00100d\u0005\u0010÷\u0005\u0010guardarEfectivosDisponibles:en:",
+      "Efectivo",
+      "õ\t\u0010estimar:enDia:conEfectivos:conBajasAcum:yProfugos:",
+      "efectivosDisponibles:",
+      "\u0001Þ\u0003\u0001ve\u0001¡icantTotalEfectivos",
+      "ðN\u000e\u0010Efectivos Degradados",
+      " U\n\u0010crearCampaniaConEfectivos:YMomentos:"
+    ],
+    "baja": [
+      "Ð\u0005\u0010 §\u0005\u0010ðÖ\u0006\u0010EstimacionDeBajas",
+      "\u0005\u0010[:dia | dia obtener: 'Bajas No Combate']",
+      " \u0001DBajas",
+      "7CÓBajas No Combate",
+      "D« «¡iBajas",
+      "`6\u0005\u0010`\u0012\u0005\u0010[:dia | dia obtener: 'Bajas Combate']",
+      "\u0005\u0010 \u000b\u0010Bajas Combate",
+      "\u0005\u0010P_\u0005\u0010p9\u0005\u0010\u0012\u0005\u0010bajasEnCombate",
+      "Bajas No En Combate",
+      "\u0005\u0010[:dia1 :dia2 | dia1 obtenerBajasDelDia <= dia2 obtenerBajasDelDia]",
+      "\u0005\u0010[:dia1 :dia2 | dia1 obtenerBajasDelDia <= dia2 obtenerBajasDelDia]",
+      "\u0005\u0010à\u0013\u0005\u0010Bajas En Combate",
+      "-\u0001>@ØblòËwê»\f¾O¬{©¬%\u001dJParámetros de la Estimación de Bajas",
+      "Bajas Acumuladas",
+      "õ\t\u0010ctrlBajasNoCombate:",
+      "Àc\u000e\u0010pV\u0005\u0010habilitarEstimarBajas",
+      "Bajas En Combate",
+      "A°K\u0011±K\u0011Ù\"a®l°b\u0005\u0010Ðb\u0005\u0010pa\u0005\u0010obtenerBajasAcumuladas",
+      "Þ\u000b\u0010pÒ\u0005\u0010?F9d\u0012Û\u0010BdÞ\u0007[é\u0002\u0002\u0012LùÑ\u0001ÝíalobtenerBajasDelMomento",
+      "DctrlBajasCombate:"
+    ],
+    "herido": [
+      "Total Heridos",
+      "[:dia | dia obtener: 'Heridos Combate']",
+      "\u0005\u0010À§\u0006\u0010\u0010\u0011\u000b\u0010ï\u0006\u0010ÀM\u0005\u0010P¢\u0005\u0010 Ý\u0005\u0010`Ç\u0010\u0010Í\u0010\u0010Pc\n\u00100o\b\u0010à?\u0005\u0010ðT\u0005\u0010À\u0010\u0010Heridos + 72 Hs.",
+      "Heridos Combate",
+      "«ve\u0001 E>x\u0001¡Y\u0011>Ý\u001491£dç\u0006·L%¹L\u0011ºL(¹aª½aeHeridos Combate",
+      "¥\u0006\u0010\u000f\u00100\u0006\u0010ª\u0005\u0010Total Heridos",
+      "\u0005\u0010P÷\r\u0010à\u000b\u0010pë\t\u0010[:dia | dia obtener: 'Heridos No Combate']",
+      "Heridos No Combate",
+      "Heridos + 72 Hs.",
+      ";\u0005\u0010ª\u0005\u0010À¹\u0005\u0010 §\u0005\u0010\u0003\b\u0010[:dia | dia obtener: 'Heridos + 72 No Combate']",
+      "ª\u0005\u0005tHeridos + 72 No Combate",
+      "Heridos - 72 Hs.",
+      "Heridos + 72 No Combate",
+      "%HeridosNoComb",
+      "\u0005\u0010 \n\t\u0010Heridos No Combate",
+      "[:dia | dia obtener: 'Heridos - 72 No Combate']",
+      "Heridos + 72 No Combate",
+      "\u0005\u00109i°¶\u0005\u0010\u0011\\>]éAÝ\u0014\u0014Þ\u0011âa Þ\fé#aâd\\øÔ\u0004ÛçeHeridos - 72 No Combate",
+      "\u0005\u0010mÌ\u0011iHeridos No Combate",
+      "ctrlHeridosMenos72NoCombate"
+    ],
+    "muerto": [
+      "Muertos",
+      "Muertos",
+      "õ\t\u0010[:dia | dia obtener: 'Muertos Combate']",
+      "\u0005\u0010 \u0013\u0005\u0010Muertos Combate",
+      "«\u0001\u0002¿iMuertos Combate",
+      "[:dia | dia obtener: 'Muertos No Combate']",
+      "\u0005\u0010\u0010 \u000e\u0010ðV\u000e\u0010\u0010d\u0005\u00100W\u000e\u0010Pd\u0005\u0010@¿\u0006\u0010\u0010W\u000e\u0010@x\u0006\u0010`\u0006\u0010`x\u0006\u0010°d\u000e\u0010Ð\u001c\r\u0010\u0010\u0013\u0007\u0010Muertos No Combate",
+      "\u0005\u0010ctrlMuertosCombate:",
+      "ctrlMuertosNoCombate:",
+      "«Y9Ù\u0001I\u001f0¢£¤ÅI%0¢£¤Ål%MuertosComb",
+      "ÎPN\u0005°@F¡\u0005½ÿ='ctrlMuertosCombate",
+      "\u0005\u0010à\u000e\u0006\u0010ctrlMuertosNoCombate",
+      "ctrlMuertosNoCombate",
+      "\u0005\u00100Ñ\b\u0010¥\u0005\u0010°1\u0007\u0010 m\u0005\u0010obtenerMuertosCombate",
+      "obtenerMuertosNoCombate",
+      "Muertos No Combate",
+      "\u0005\u0010\u0006\u0010«x¬ aeMuertos No Combate",
+      "¼\u000b\u0010ðà\b\u0010%MuertosNoComb",
+      "Muertos Combate",
+      "ctrlMuertosCombate"
+    ],
+    "desaparecido": [
+      "\u0005\u0010Desaparecidos",
+      "ctrlDesaparecidos:",
+      "\u0005\u0010Desaparecidos",
+      "\u0005\u0010ða\u0005\u0010-YA²aâ\u0003ictrlDesaparecidos",
+      "ctrlDesaparecidos",
+      "\u0005\u0010AÙ i\u0010`\u0005\u0010obtenerDesaparecidos",
+      "\u0005\u0010@Ñ\u0006\u0010P\u0005\u0010@\u0005\u0010à\u0005\u0010@\u0006\u0010`z\u0006\u0010Desaparecidos",
+      "\u0005\u0010ð»\u0006\u0010%DesaparecidosComb",
+      "\u0005\u0010r\n\u0010\u0004Þ\u000e\u0004-± Ü\u00041\u0004µy9#·ae[:dia | dia obtener: 'Desaparecidos']",
+      "\u0005\u0010 \u0006\u0010PÃ\u0005\u0010Pd\u0005\u0010Desaparecidos"
+    ],
+    "prisionero": [
+      "ô\tÈÏPGÛ\u0003@\u0012\u0005\u0010\u0010",
+      "æ\u0001õ¬PG\u0001@\u0012\u0005\u0010\u0011",
+      "ä\u0001lPGÜ\u00030\u0012\u0005\u0010\n",
+      "ä\u0002îÈ&\u0001PG\b\u00104",
+      "ô\u0017¾XPGÞ\u0003`\u0012\u0005\u0010\u0018",
+      "ô\u0003\u0003»PG\u001a",
+      "ô\u0006PG",
+      "ö\u0001W1PGã\u00030\u0012\u0005\u0010\t",
+      "ô\u0004´UPG\u00010\u0012\u0005\u0010\n",
+      "ä\u00018PGC\u0005`\u0012\u0005\u0010\u0014",
+      "æ\u0001ÛJPGs\u0005@\u0012\u0005\u0010\f",
+      "æ\u0001PGà¿t\u00050\u0012\u0005\u0010\r",
+      "æ\u0001ÈþPGy\u0005`\u0012\u0005\u0010H",
+      "æ\u0001ÍûPGÌ\u0005 \u0012\u0005\u0010\u0006",
+      "æ\u0001áêPG}\u0005\u0010\u0012\u0005\u0010\u0014",
+      "ä\u0001î;PG\u0005`\u0012\u0005\u0010\u0018",
+      "ö\u0001{9PG©\u0005`\u0012\u0005\u0010H",
+      "æ\u0001OPG\u0005PV\n\u0010\u0010",
+      "æ\u0001Ë\fPGå\u0003\u0010\u0012\u0005\u0010\b",
+      "ö\u0001PGx\u000f\u0005@\u0011\u0005\u0010\b"
+    ],
+    "combate": [
+      "\u0005\u0010[:dia | dia obtener: 'Bajas No Combate']",
+      "7CÓBajas No Combate",
+      "`6\u0005\u0010`\u0012\u0005\u0010[:dia | dia obtener: 'Bajas Combate']",
+      "\u0005\u0010 \u000b\u0010Bajas Combate",
+      "\u0005\u0010P_\u0005\u0010p9\u0005\u0010\u0012\u0005\u0010bajasEnCombate",
+      "Bajas No En Combate",
+      "õ\t\u0010[:dia | dia obtener: 'Muertos Combate']",
+      "\u0005\u0010 \u0013\u0005\u0010Muertos Combate",
+      "\u0005\u0010à\u0013\u0005\u0010Bajas En Combate",
+      "«\u0001\u0002¿iMuertos Combate",
+      "[:dia | dia obtener: 'Heridos Combate']",
+      "Heridos Combate",
+      "«ve\u0001 E>x\u0001¡Y\u0011>Ý\u001491£dç\u0006·L%¹L\u0011ºL(¹aª½aeHeridos Combate",
+      "[:dia | dia obtener: 'Muertos No Combate']",
+      "\u0005\u0010\u0010 \u000e\u0010ðV\u000e\u0010\u0010d\u0005\u00100W\u000e\u0010Pd\u0005\u0010@¿\u0006\u0010\u0010W\u000e\u0010@x\u0006\u0010`\u0006\u0010`x\u0006\u0010°d\u000e\u0010Ð\u001c\r\u0010\u0010\u0013\u0007\u0010Muertos No Combate",
+      "\u0005\u0010P÷\r\u0010à\u000b\u0010pë\t\u0010[:dia | dia obtener: 'Heridos No Combate']",
+      "Heridos No Combate",
+      "õ\t\u0010ctrlBajasNoCombate:",
+      ";\u0005\u0010ª\u0005\u0010À¹\u0005\u0010 §\u0005\u0010\u0003\b\u0010[:dia | dia obtener: 'Heridos + 72 No Combate']",
+      "ª\u0005\u0005tHeridos + 72 No Combate"
+    ],
+    "vehiculo": [
+      "iconoVehiculo"
+    ],
+    "velocidad": [
+      "A\u0013éjT\u000eÜB³\u0015ºW\u001aö!velocidadRefresco",
+      "velocidadRefresco:",
+      "!\u0005\u0010@X\n\u0010cantidadCuadrados:extentCuadrado:porcentajeCuadradoGrande:circular:color:velocidadRefresco:",
+      "cantidadCuadrados:extentCuadrado:circular:color:velocidadRefresco:radio:",
+      "velocidadRefresco"
+    ]
+  },
+  "methods_of_interest": []
+}

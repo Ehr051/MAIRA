@@ -1,0 +1,42 @@
+{
+  "vehiculos": {
+    "blindado": {
+      "velocidadPromedio": 40,
+      "consumoPromedio": 3.0,
+      "capacidadCombustible": 500,
+      "descripcion": "Vehículos blindados de combate (TAM, etc)"
+    },
+    "mecanizado": {
+      "velocidadPromedio": 35,
+      "consumoPromedio": 2.5,
+      "capacidadCombustible": 400,
+      "descripcion": "Vehículos de combate de infantería (VCTP, M113, etc)"
+    },
+    "motorizado": {
+      "velocidadPromedio": 60,
+      "consumoPromedio": 0.15,
+      "capacidadCombustible": 80,
+      "descripcion": "Vehículos de ruedas (camiones, jeeps, etc)"
+    },
+    "remolcado": {
+      "velocidadPromedio": 40,
+      "consumoPromedio": 0.2,
+      "capacidadCombustible": 80,
+      "descripcion": "Artillería remolcada, obuses, etc"
+    }
+  },
+  "personal": {
+    "apie": {
+      "velocidadPromedio": 4,
+      "consumoPromedio": 0,
+      "capacidadCombustible": 0,
+      "descripcion": "Personal a pie (paso normal)"
+    },
+    "trote": {
+      "velocidadPromedio": 8,
+      "consumoPromedio": 0,
+      "capacidadCombustible": 0,
+      "descripcion": "Personal en movimiento rápido"
+    }
+  }
+}

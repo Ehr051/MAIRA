@@ -94,7 +94,8 @@ class GestorOrdenesV2 {
             if (typeof PanelCoordinacionOrdenes !== 'undefined') {
                 this.panelCoordinacion = new PanelCoordinacionOrdenes({
                     contenedor: opciones.contenedorPanel || 'panel-coordinacion-container',
-                    duracionTurnoMinutos: this.config.duracionTurnoMinutos
+                    duracionTurnoMinutos: this.config.duracionTurnoMinutos,
+                    gestorOrdenes: this // ✅ CRÍTICO: Pasar referencia al GestorOrdenesV2
                 });
 
                 // Asignar la cola del primer equipo (típicamente 'azul')
@@ -103,6 +104,7 @@ class GestorOrdenesV2 {
                 const colaEquipo = this.colasOrdenes.get(primerEquipo);
                 if (colaEquipo) {
                     this.panelCoordinacion.asignarCola(colaEquipo);
+                    this.panelCoordinacion.setGestorOrdenes(this); // ✅ Doble asignación por seguridad
                     this.panelCoordinacion.inicializar();
                     this.log(`✅ Panel de coordinación inicializado (equipo: ${primerEquipo})`);
                 } else {
@@ -247,6 +249,9 @@ class GestorOrdenesV2 {
                     break;
                 case 'ordenEsperar':
                     window.ordenEsperar(elemento);
+                    break;
+                case 'ordenReconocimiento':
+                    window.ordenReconocimiento(elemento);
                     break;
                 case 'verOrdenesUnidad':
                     window.verOrdenesUnidad(elemento);
@@ -495,36 +500,47 @@ class GestorOrdenesV2 {
             const hexDestino = this.hexGrid ? this.hexGrid.getHexagonAt(destino) : destino;
 
             if (!hexDestino) {
-                this.mostrarNotificacion('⚠️ Posición inválida', 'warning');
+                this.mostrarNotificacion('⚠️ Posición de destino inválida', 'warning');
                 return;
             }
 
-            // Obtener ID y equipo del marcador
-            const unidadId = unidad.options?.id || unidad.id || `unidad_${Date.now()}`;
-            const equipo = unidad.options?.equipo || unidad.equipo || 'azul';
+            // 🎯 USAR FUNCIÓN CENTRALIZADA
+            const datosElemento = window.obtenerDatosElemento(unidad);
+            
+            if (!datosElemento || !window.validarDatosElemento(datosElemento)) {
+                this.mostrarNotificacion('⚠️ Datos de elemento inválidos', 'error');
+                return;
+            }
 
-            // Crear instancia de OrdenMovimiento
+            // 🎯 ID REAL del marcador (para poder buscarlo después)
+            const unidadId = `${datosElemento.designacion}/${datosElemento.dependencia}`;
+            
+            if (!unidadId) {
+                console.error('❌ Marcador sin ID válido');
+                this.mostrarNotificacion('⚠️ Marcador sin ID', 'error');
+                return;
+            }
+
+            // Crear instancia de OrdenMovimiento con datos completos
             const orden = new OrdenMovimiento({
                 unidadId: unidadId,
                 origen: origen,
                 destino: hexDestino,
                 prioridad: 1,
-                unidadRef: unidad // Guardar referencia al marcador
+                unidadRef: unidad,
+                datosElemento: datosElemento // 🎯 Del marcador REAL
             });
 
             // Agregar a cola del equipo
-            const cola = this.colasOrdenes.get(equipo);
+            const cola = this.colasOrdenes.get(datosElemento.equipo);
             if (cola) {
                 cola.agregarOrden(orden);
-                this.log(`✅ Orden de movimiento agregada para ${unidadId}`);
+                this.log(`✅ Orden de movimiento: ${datosElemento.nombreCompleto}`);
 
-                // Actualizar panel
                 this.actualizarPanelCoordinacion();
-
-                // Notificar
-                this.mostrarNotificacion(`✅ Orden de movimiento agregada`, 'success');
+                this.mostrarNotificacion(`✅ Orden de movimiento: ${datosElemento.nombreCompleto}`, 'success');
             } else {
-                this.mostrarNotificacion(`⚠️ Equipo ${equipo} no encontrado`, 'warning');
+                this.mostrarNotificacion(`⚠️ Equipo ${datosElemento.equipo} no encontrado`, 'warning');
             }
 
         } catch (error) {
@@ -532,10 +548,6 @@ class GestorOrdenesV2 {
             this.mostrarNotificacion('❌ Error creando orden', 'error');
         }
     }
-
-    /**
-     * Crea una orden de ataque
-     */
     crearOrdenAtaque(unidad, objetivo) {
         try {
             const origen = this.obtenerPosicionUnidad(unidad);
@@ -546,9 +558,22 @@ class GestorOrdenesV2 {
                 return;
             }
 
-            // Obtener ID y equipo del marcador
-            const unidadId = unidad.options?.id || unidad.id || `unidad_${Date.now()}`;
-            const equipo = unidad.options?.equipo || unidad.equipo || 'azul';
+            // 🎯 USAR FUNCIÓN CENTRALIZADA
+            const datosElemento = window.obtenerDatosElemento(unidad);
+            
+            if (!datosElemento || !window.validarDatosElemento(datosElemento)) {
+                this.mostrarNotificacion('⚠️ Datos de elemento inválidos', 'error');
+                return;
+            }
+
+            // 🎯 ID REAL del marcador (para poder buscarlo después)
+            const unidadId = `${datosElemento.designacion}/${datosElemento.dependencia}`;
+            
+            if (!unidadId) {
+                console.error('❌ Marcador sin ID válido');
+                this.mostrarNotificacion('⚠️ Marcador sin ID', 'error');
+                return;
+            }
 
             // Crear instancia de OrdenAtaque
             const orden = new OrdenAtaque({
@@ -560,15 +585,15 @@ class GestorOrdenesV2 {
             });
 
             // Agregar a cola
-            const cola = this.colasOrdenes.get(equipo);
+            const cola = this.colasOrdenes.get(datosElemento.equipo);
             if (cola) {
                 cola.agregarOrden(orden);
-                this.log(`✅ Orden de ataque agregada para ${unidadId}`);
+                this.log(`✅ Orden de ataque: ${datosElemento.nombreCompleto}`);
 
                 this.actualizarPanelCoordinacion();
-                this.mostrarNotificacion(`✅ Orden de ataque agregada`, 'success');
+                this.mostrarNotificacion(`✅ Orden de ataque: ${datosElemento.nombreCompleto}`, 'success');
             } else {
-                this.mostrarNotificacion(`⚠️ Equipo ${equipo} no encontrado`, 'warning');
+                this.mostrarNotificacion(`⚠️ Equipo ${datosElemento.equipo} no encontrado`, 'warning');
             }
 
         } catch (error) {
@@ -589,6 +614,23 @@ class GestorOrdenesV2 {
         }
 
         try {
+            // 🎯 USAR FUNCIÓN CENTRALIZADA
+            const datosElemento = window.obtenerDatosElemento(unidad);
+            
+            if (!datosElemento || !window.validarDatosElemento(datosElemento)) {
+                this.mostrarNotificacion('⚠️ Datos de elemento inválidos', 'error');
+                return null;
+            }
+
+            // 🎯 ID REAL del marcador (para poder buscarlo después)
+            const unidadId = `${datosElemento.designacion}/${datosElemento.dependencia}`;
+            
+            if (!unidadId) {
+                console.error('❌ Marcador sin ID válido');
+                this.mostrarNotificacion('⚠️ Marcador sin ID', 'error');
+                return null;
+            }
+
             // Obtener posición actual de la unidad
             const posicion = unidad.getLatLng ? unidad.getLatLng() : null;
 
@@ -605,7 +647,8 @@ class GestorOrdenesV2 {
                 if (esValida) {
                     // Agregar a la cola del equipo
                     const equipo = unidad.options?.equipo || 'azul';
-                    this.agregarOrden(orden, equipo);
+                    const cola = this.colasOrdenes.get(datosElemento.equipo);
+                    if (cola) cola.agregarOrden(orden);
                     this.mostrarNotificacion(`✅ Orden de defensa agregada (${orden.tipoDefensa})`, 'success');
                 } else {
                     this.mostrarNotificacion(`❌ Orden inválida: ${orden.mensajesValidacion.join(', ')}`, 'error');
@@ -633,6 +676,23 @@ class GestorOrdenesV2 {
         }
 
         try {
+            // 🎯 USAR FUNCIÓN CENTRALIZADA
+            const datosElemento = window.obtenerDatosElemento(unidad);
+            
+            if (!datosElemento || !window.validarDatosElemento(datosElemento)) {
+                this.mostrarNotificacion('⚠️ Datos de elemento inválidos', 'error');
+                return null;
+            }
+
+            // 🎯 ID REAL del marcador (para poder buscarlo después)
+            const unidadId = `${datosElemento.designacion}/${datosElemento.dependencia}`;
+            
+            if (!unidadId) {
+                console.error('❌ Marcador sin ID válido');
+                this.mostrarNotificacion('⚠️ Marcador sin ID', 'error');
+                return null;
+            }
+
             // Crear instancia de orden
             const orden = new OrdenEspera(unidad, opciones);
 
@@ -641,7 +701,8 @@ class GestorOrdenesV2 {
                 if (esValida) {
                     // Agregar a la cola del equipo
                     const equipo = unidad.options?.equipo || 'azul';
-                    this.agregarOrden(orden, equipo);
+                    const cola = this.colasOrdenes.get(datosElemento.equipo);
+                    if (cola) cola.agregarOrden(orden);
                     this.mostrarNotificacion(`✅ Orden de espera agregada (${orden.modalidad}, ${orden.duracion}s)`, 'success');
                 } else {
                     this.mostrarNotificacion(`❌ Orden inválida: ${orden.mensajesValidacion.join(', ')}`, 'error');
@@ -669,6 +730,23 @@ class GestorOrdenesV2 {
         }
 
         try {
+            // 🎯 USAR FUNCIÓN CENTRALIZADA
+            const datosElemento = window.obtenerDatosElemento(unidad);
+            
+            if (!datosElemento || !window.validarDatosElemento(datosElemento)) {
+                this.mostrarNotificacion('⚠️ Datos de elemento inválidos', 'error');
+                return null;
+            }
+
+            // 🎯 ID REAL del marcador (para poder buscarlo después)
+            const unidadId = `${datosElemento.designacion}/${datosElemento.dependencia}`;
+            
+            if (!unidadId) {
+                console.error('❌ Marcador sin ID válido');
+                this.mostrarNotificacion('⚠️ Marcador sin ID', 'error');
+                return null;
+            }
+
             // Crear instancia de orden
             const orden = new OrdenReconocimiento(unidad, objetivo, opciones);
 
@@ -677,7 +755,8 @@ class GestorOrdenesV2 {
                 if (esValida) {
                     // Agregar a la cola del equipo
                     const equipo = unidad.options?.equipo || 'azul';
-                    this.agregarOrden(orden, equipo);
+                    const cola = this.colasOrdenes.get(datosElemento.equipo);
+                    if (cola) cola.agregarOrden(orden);
                     this.mostrarNotificacion(`✅ Orden de reconocimiento agregada (${orden.tipoReconocimiento})`, 'success');
                 } else {
                     this.mostrarNotificacion(`❌ Orden inválida: ${orden.mensajesValidacion.join(', ')}`, 'error');
@@ -1248,6 +1327,107 @@ class GestorOrdenesV2 {
             this.panelCoordinacion.destruir();
         }
         this.log('🗑️ GestorOrdenesV2 destruido');
+    }
+
+    modificarOrden(ordenId, modificaciones) {
+        console.log(`🔧 Modificar orden ${ordenId}`, modificaciones);
+        let ordenEncontrada = null, equipoOrden = null;
+        for (const [equipo, queue] of this.colasOrdenes.entries()) {
+            const ordenes = queue.obtenerTodasLasOrdenes();
+            const orden = ordenes.find(o => o.id === ordenId);
+            if (orden) { ordenEncontrada = orden; equipoOrden = equipo; break; }
+        }
+        if (!ordenEncontrada) return console.error(`❌ Orden ${ordenId} no encontrada`);
+        if (modificaciones.turnoInicio !== undefined) ordenEncontrada.turnoInicio = modificaciones.turnoInicio;
+        if (modificaciones.insertarFase) {
+            const { indice, fase } = modificaciones.insertarFase;
+            ordenEncontrada.insertarFase && ordenEncontrada.insertarFase(indice, fase);
+        }
+        if (modificaciones.modificarFase) {
+            const { indice, cambios } = modificaciones.modificarFase;
+            if (ordenEncontrada.fases?.[indice]) {
+                Object.assign(ordenEncontrada.fases[indice], cambios);
+                ordenEncontrada.calcularDuracionTotal?.();
+            }
+        }
+        if (modificaciones.eliminarFase !== undefined) ordenEncontrada.eliminarFase?.(modificaciones.eliminarFase);
+        if (modificaciones.nuevoDestino) {
+            ordenEncontrada.destino = modificaciones.nuevoDestino;
+            ordenEncontrada.inicializar?.();
+        }
+        window.eventBus?.emit('ordenModificada', { ordenId, equipo: equipoOrden, modificaciones });
+        this.panelCoordinacion?.renderizar();
+        return true;
+    }
+
+    /**
+     * ⚡ Ejecutar órdenes del turno actual
+     * Delega la ejecución a la cola activa (equipoActual)
+     */
+    async ejecutarTurno() {
+        if (!this.equipoActual) {
+            console.error('❌ No hay equipo activo para ejecutar turno');
+            return { exito: false, error: 'Sin equipo activo' };
+        }
+
+
+        // ✅ EJECUTAR ÓRDENES DEL EQUIPO CONTRARIO
+        // Mientras un equipo imparte, se ejecutan las del otro
+        const equipoAEjecutar = this.equipoActual === 'azul' ? 'rojo' : 'azul';
+
+        const cola = this.colasOrdenes.get(equipoAEjecutar);
+        if (!cola) {
+            console.warn(`⚠️ No hay cola de órdenes para equipo ${equipoAEjecutar} (puede ser primera jugada)`);
+            return { exito: true, ejecutadas: 0, mensaje: 'Sin órdenes previas' };
+        }
+
+        console.log(`🚀 Ejecutando turno ${this.turnoActual} del equipo ${equipoAEjecutar.toUpperCase()} (mientras ${this.equipoActual.toUpperCase()} imparte órdenes)...`);
+
+        try {
+            // Delegar a OrdenesQueueV2
+            const resultado = await cola.ejecutarTurno(this.turnoActual);
+
+            // Actualizar panel de coordinación
+            if (this.panelCoordinacion) {
+                this.panelCoordinacion.renderizar();
+            }
+
+            // Emitir evento
+            this.emit('turnoEjecutado', {
+                turno: this.turnoActual,
+                equipoEjecutado: equipoAEjecutar,      // El que ejecutó sus órdenes
+                equipoImpartiendo: this.equipoActual,  // El que está impartiendo ahora
+                resultado
+            });
+
+            console.log(`✅ Turno ${this.turnoActual} ejecutado para ${equipoAEjecutar.toUpperCase()}:`, resultado);
+            return resultado;
+
+        } catch (error) {
+            console.error('❌ Error ejecutando turno:', error);
+            return { exito: false, error: error.message };
+        }
+    }
+
+    cancelarOrden(ordenId, motivo = 'Cancelada por jugador') {
+        console.log(`❌ Cancelar orden ${ordenId}: ${motivo}`);
+        let ordenEncontrada = null, queueOrden = null, equipoOrden = null;
+        for (const [equipo, queue] of this.colasOrdenes.entries()) {
+            const ordenes = queue.obtenerTodasLasOrdenes();
+            const orden = ordenes.find(o => o.id === ordenId);
+            if (orden) { ordenEncontrada = orden; equipoOrden = equipo; queueOrden = queue; break; }
+        }
+        if (!ordenEncontrada) return console.error(`❌ Orden ${ordenId} no encontrada`);
+        ordenEncontrada.cancelar?.();
+        if (ordenEncontrada.estado === 'ejecutando' && ordenEncontrada.faseActual >= 0) {
+            ordenEncontrada.fases?.[ordenEncontrada.faseActual] && (ordenEncontrada.fases[ordenEncontrada.faseActual].estado = 'fallida');
+        }
+        const ordenes = queueOrden.obtenerTodasLasOrdenes();
+        const indice = ordenes.indexOf(ordenEncontrada);
+        if (indice !== -1) ordenes.splice(indice, 1);
+        window.eventBus?.emit('ordenCancelada', { ordenId, equipo: equipoOrden, motivo });
+        this.panelCoordinacion?.renderizar();
+        return true;
     }
 }
 

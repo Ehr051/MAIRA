@@ -108,6 +108,23 @@ function actualizarElementosList(nombreCalco) {
             lista.appendChild(item);
         }
     });
+    
+    // ✅ Renderizar símbolos DESPUÉS (como en JuegoV2)
+    setTimeout(() => {
+        const containers = lista.querySelectorAll('.calco-symbol-container');
+        containers.forEach(container => {
+            const sidc = container.dataset.sidc;
+            if (sidc && window.ms) {
+                try {
+                    const symbol = new ms.Symbol(sidc, { size: 20 });
+                    container.innerHTML = symbol.asSVG();
+                } catch(e) {
+                    console.warn('Error renderizando símbolo en lista calco:', sidc, e);
+                    container.innerHTML = '?';
+                }
+            }
+        });
+    }, 50);
 }
 
 function obtenerTipoElemento(layer) {
@@ -124,8 +141,8 @@ function obtenerTipoElemento(layer) {
 
 function obtenerIconoElemento(layer) {
     if (layer instanceof L.Marker && layer.options.sidc) {
-        var sym = new ms.Symbol(layer.options.sidc, {size: 20});
-        return sym.asSVG();
+        // ✅ Usar container con dataset para renderizar después (como JuegoV2)
+        return `<span class="calco-symbol-container" data-sidc="${layer.options.sidc}" style="display: inline-block; width: 30px; height: 20px;"></span>`;
     }
     if (layer instanceof L.Polygon) return '&#9633;'; // Cuadrado
     if (layer instanceof L.Polyline) return '&#9585;'; // Línea diagonal

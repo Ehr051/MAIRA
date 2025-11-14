@@ -20,7 +20,7 @@ class FaseManager {
 
         // Estado actual
         this.faseActual = 'preparacion'; // preparacion | despliegue | combate
-        this.subfaseActual = null; // Para combate: imparticion | ejecucion | revision
+        this.subfaseActual = null; // Para combate: imparticion | ejecucion 
         this.turnoActual = 0;
 
         // Datos de la partida
@@ -219,10 +219,6 @@ class FaseManager {
                     case 'ejecucion':
                         texto = `⚔️ COMBATE - Turno ${this.turnoActual} - ⚡ Ejecución`;
                         gradiente = 'linear-gradient(135deg, #f44336, #d32f2f)';
-                        break;
-                    case 'revision':
-                        texto = `⚔️ COMBATE - Turno ${this.turnoActual} - 📊 Revisión`;
-                        gradiente = 'linear-gradient(135deg, #4CAF50, #388E3C)';
                         break;
                     default:
                         texto = `⚔️ COMBATE - Turno ${this.turnoActual}`;
@@ -1109,47 +1105,10 @@ class FaseManager {
         // Evento para panelInferiorUnificado
         this.dispatchCambioFase();
 
-        console.log('✅ Ejecución completa - Pasando a REVISIÓN');
+        console.log('✅ Ejecución completa - Pasando a siguiente turno');
 
         // Pasar automáticamente a revisión
-        await this.iniciarRevision();
-    }
-
-    /**
-     * Subfase de Revisión (activa durante turno enemigo)
-     */
-    async iniciarRevision() {
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`📊 SUBFASE: REVISIÓN - Turno ${this.turnoActual}`);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-        this.subfaseActual = 'revision';
-        this.actualizarIndicadorFase();
-
-        // Mostrar resultados
-        this.mostrarNotificacion({
-            tipo: 'success',
-            titulo: `Turno ${this.turnoActual} completado`,
-            mensaje: `
-                Revisa los resultados:<br>
-                - Unidades movidas<br>
-                - Combates resueltos<br>
-                - Bajas reportadas<br>
-                <br>
-                Durante el turno enemigo puedes seleccionar elementos para revisarlos.<br>
-                <br>
-                <button onclick="window.faseManager.siguienteTurno()">Siguiente Turno</button>
-            `,
-            duracion: null // No auto-cerrar
-        });
-
-        // Callback
-        this.callbacks.onSubfaseChange('revision');
-
-        // Evento para panelInferiorUnificado
-        this.dispatchCambioFase();
-
-        console.log('✅ Revisión iniciada - Puedes seleccionar elementos durante turno enemigo');
+        await this.siguienteTurno();
     }
 
     /**

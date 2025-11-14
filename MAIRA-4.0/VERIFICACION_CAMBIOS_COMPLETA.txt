@@ -1,0 +1,76 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║           VERIFICACIÓN COMPLETA DE CAMBIOS APLICADOS                  ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+✅ CAMBIO 1: simbolosP.js - FIX DRAGGABLE
+   🔧 window.faseManager.fase → window.faseManager.faseActual
+   📍 Líneas: 161, 293, 357
+   ⚡ IMPACTO: Ahora los elementos SON draggable en DESPLIEGUE
+
+✅ CAMBIO 2: elementoUtils.js - LOG EXTENDIDO  
+   🔧 Agregado id y coordenadas al log
+   📍 Línea: ~136
+   ⚡ IMPACTO: Ahora podemos ver si coordenadas es null
+
+✅ CAMBIO 3: InicializadorJuegoV2.js - LISTENER
+   🔧 Listener 'elementoModificado' agregado
+   📍 Línea: ~1184
+   ⚡ IMPACTO: Cards persisten al editar elementos
+
+✅ CAMBIO 4: edicioncompleto.js - EVENTO
+   🔧 Dispara 'elementoModificado' al editar
+   📍 Línea: ~1195
+   ⚡ IMPACTO: Notifica cambios de marcadores
+
+✅ CAMBIO 5: PanelCoordinacionOrdenes.js - ORDENES
+   �� ordenes → ordenesPorUnidad
+   📍 Líneas: 395, 396, 403, 502, 512
+   ⚡ IMPACTO: Matriz lee correctamente las órdenes
+
+╔══════════════════════════════════════════════════════════════════════╗
+║              FLUJO COMPLETO: MARCADOR → ORDEN                         ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+1. Usuario selecciona elemento → window.elementoSeleccionado
+2. Click "Orden Movimiento" → GestorOrdenesV2.activarModoOrden()
+3. Click destino → procesarClickOrden(e)
+4. Extraer datos → obtenerDatosElemento(marcador)
+   RETORNA: {id, sidc, designacion, dependencia, coordenadas, ...}
+5. Validar → validarDatosElemento()
+   VERIFICA: id ✓, designacion ✓, coordenadas ✓
+6. Crear orden → new OrdenMovimiento({...})
+7. Agregar → ordenesPorUnidad.set(unidadId, orden)
+8. Renderizar → PanelCoordinacionOrdenes actualiza canvas
+
+╔══════════════════════════════════════════════════════════════════════╗
+║                    TESTING CHECKLIST                                  ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+🔄 REFRESCAR NAVEGADOR (Cmd+Shift+R)
+
+TEST 1 - Draggable en DESPLIEGUE:
+  □ Ir a fase DESPLIEGUE  
+  □ Intentar arrastrar elemento
+  □ ✅ DEBE PODER ARRASTRAR
+  □ Ver log: "🔍 Creando marcador - Fase: despliegue, Draggable: true"
+
+TEST 2 - Editar elemento:
+  □ Editar símbolo/nombre
+  □ Guardar
+  □ ✅ Card SIGUE visible en panel
+  □ Ver logs:
+    📡 Evento elementoModificado disparado
+    📡 Evento elementoModificado recibido
+    🔄 Actualizando referencia de marcador
+
+TEST 3 - Crear orden (CRÍTICO):
+  □ Ir a fase COMBATE
+  □ Seleccionar elemento
+  □ Abrir Panel Coordinación
+  □ Click "Orden de Movimiento"
+  □ Click en destino
+  □ COPIAR LOGS COMPLETOS:
+    ✅ obtenerDatosElemento: {id, designacion, coordenadas, ...}
+    ⚠️ Datos incompletos (si falla)
+    ✅ Orden agregada a cola (si funciona)
+

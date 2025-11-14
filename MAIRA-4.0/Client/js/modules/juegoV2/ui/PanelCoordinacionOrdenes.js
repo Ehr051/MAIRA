@@ -14,6 +14,7 @@ class PanelCoordinacionOrdenes {
     constructor(opciones = {}) {
         // Aceptar cola de órdenes o null (se asignará después)
         this.cola = opciones.cola || null;
+        this.gestorOrdenes = opciones.gestorOrdenes || null; // ✅ CRÍTICO: Referencia al gestor
         this.container = null;
         this.timelineCanvas = null;
         this.ctx = null;
@@ -56,6 +57,15 @@ class PanelCoordinacionOrdenes {
      */
     asignarCola(cola) {
         this.cola = cola;
+        return this;
+    }
+
+    /**
+     * ✅ Asigna el gestor de órdenes (necesario para acceder a equipoActual y colasOrdenes)
+     */
+    setGestorOrdenes(gestor) {
+        this.gestorOrdenes = gestor;
+        console.log('✅ PanelCoordinacion: GestorOrdenes asignado');
         return this;
     }
 
@@ -428,12 +438,85 @@ class PanelCoordinacionOrdenes {
             window.eventBus.on('ordenAgregada', () => this.renderizar());
             window.eventBus.on('ordenCancelada', () => this.renderizar());
         }
+
+        // ✅ NUEVO: Escuchar cambios de fase/turno/jugador
+        document.addEventListener('cambioFase', () => {
+            console.log('📡 PanelCoordinacion: Cambio de fase detectado');
+            this.renderizar();
+        });
+
+        document.addEventListener('cambioTurno', () => {
+            console.log('📡 PanelCoordinacion: Cambio de turno detectado');
+            this.renderizar();
+        });
+
+        // ✅ NUEVO: Escuchar eventos de elementos (agregar/eliminar/modificar)
+        document.addEventListener('elementoAgregado', () => {
+            console.log('📡 PanelCoordinacion: Elemento agregado');
+            this.renderizar();
+        });
+
+        document.addEventListener('elementoModificado', () => {
+            console.log('📡 PanelCoordinacion: Elemento modificado');
+            this.renderizar();
+        });
+
+        document.addEventListener('elementoEliminado', () => {
+            console.log('📡 PanelCoordinacion: Elemento eliminado');
+            this.renderizar();
+        });
+
+        document.addEventListener('subordinadosDesplegados', () => {
+            console.log('📡 PanelCoordinacion: Subordinados desplegados');
+            this.renderizar();
+        });
+
+        document.addEventListener('subordinadosReagrupados', () => {
+            console.log('📡 PanelCoordinacion: Subordinados reagrupados');
+            this.renderizar();
+        });
     }
 
     /**
      * Renderiza todo el panel
      */
     renderizar() {
+        
+        
+        // 🎯 FILTRAR ÓRDENES POR EQUIPO ACTIVO
+        // ✅ Usar this.cola si gestorOrdenes no está disponible
+        let equipoActual = 'azul';
+        let colaEquipo = null;
+        
+        if (this.gestorOrdenes) {
+            // Modo completo: usar gestor de órdenes
+            equipoActual = this.gestorOrdenes.equipoActual || 'azul';
+            colaEquipo = this.gestorOrdenes.colasOrdenes?.get(equipoActual);
+        } else if (this.cola) {
+            // Modo fallback: usar cola asignada directamente
+            equipoActual = this.cola.equipo || 'azul';
+            colaEquipo = this.cola;
+            console.log('📊 Panel Matriz: Usando cola directa (sin gestorOrdenes)');
+        }
+        
+        if (!colaEquipo || !colaEquipo.ordenesPorUnidad || colaEquipo.ordenesPorUnidad.size === 0) {
+            // Si no hay órdenes del equipo activo, limpiar canvas
+            this.limpiarCanvas();
+            this.actualizarListaUnidades();
+            console.log(`📊 Panel Matriz: Sin órdenes para equipo ${equipoActual} (cola:${!!colaEquipo}, gestor:${!!this.gestorOrdenes})`);
+            return;
+        }
+        
+        // Agrupar órdenes por unidadId (cada unidad = 1 carril)
+        const ordenesAgrupadas = new Map();
+        for (const [unidadId, ordenes] of colaEquipo.ordenesPorUnidad.entries()) {
+            if (ordenes && ordenes.length > 0) {
+                ordenesAgrupadas.set(unidadId, ordenes);
+            }
+        }
+        
+        console.log(`📊 Panel Matriz: ${ordenesAgrupadas.size} elementos del equipo ${equipoActual}`);
+
         this.limpiarCanvas();
         this.renderizarCabecera();
         this.renderizarFilasUnidades();
@@ -442,7 +525,6 @@ class PanelCoordinacionOrdenes {
         this.actualizarListaUnidades();
         this.actualizarFooter();
     }
-
     /**
      * ✅ Limpia el canvas - TEMA OSCURO
      */
@@ -519,31 +601,48 @@ class PanelCoordinacionOrdenes {
     }
 
     /**
-     * ✅ Renderiza las filas de unidades (fondo) - TEMA OSCURO
+     * 🎯 Renderiza carriles separados por elemento - MATRIZ
+     * Cada elemento tiene su propia fila horizontal con separación visual clara
      */
     renderizarFilasUnidades() {
         const ctx = this.ctx;
         const unidades = Array.from(this.cola.ordenesPorUnidad.keys());
         const h = this.config.alturaUnidad;
         const yInicio = this.config.alturaCabecera;
-
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(0, 255, 0, 0.15)';
+        const margen = 4; // Margen entre carriles
 
         unidades.forEach((unidadId, index) => {
             const y = yInicio + (index * h);
 
-            // Fondo alternado oscuro
-            if (index % 2 === 0) {
-                ctx.fillStyle = 'rgba(20, 20, 20, 0.5)';
-                ctx.fillRect(0, y, this.timelineCanvas.width, h);
-            }
+            // 🎨 Fondo de carril con borde
+            ctx.fillStyle = index % 2 === 0 ? 'rgba(25, 25, 35, 0.7)' : 'rgba(15, 15, 25, 0.7)';
+            ctx.fillRect(0, y + margen, this.timelineCanvas.width, h - (margen * 2));
 
-            // Línea divisoria verde tenue
+            // 📏 Borde superior del carril (más visible)
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.25)';
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(0, y + h);
-            ctx.lineTo(this.timelineCanvas.width, y + h);
+            ctx.moveTo(0, y + margen);
+            ctx.lineTo(this.timelineCanvas.width, y + margen);
             ctx.stroke();
+
+            // 📏 Borde inferior del carril (separación entre elementos)
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, y + h - margen);
+            ctx.lineTo(this.timelineCanvas.width, y + h - margen);
+            ctx.stroke();
+
+            // 🏷️ Etiqueta de elemento (izquierda del canvas)
+            const elemento = window.elementosPorId?.get(unidadId);
+            if (elemento) {
+                const nombre = elemento.options?.nombre || unidadId;
+                ctx.fillStyle = '#00ff00';
+                ctx.font = 'bold 12px "Courier New", monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(nombre, 5, y + h / 2 + 4);
+            }
         });
     }
 
@@ -621,8 +720,14 @@ class PanelCoordinacionOrdenes {
         for (const [unidadId, ordenes] of this.cola.ordenesPorUnidad) {
             const item = document.createElement('div');
             item.className = 'unidad-item';
+            // Obtener nombre de la primera orden (todas deberían tener el mismo unidadNombre)
+            const marcador = window.buscarMarcadorPorId(unidadId);
+            if (marcador) {
+                const datosElemento = window.obtenerDatosElemento(marcador);
+                nombreUnidad = datosElemento.nombreCompleto; // ✅ Del marcador REAL
+            }
             item.innerHTML = `
-                <div class="unidad-nombre">${unidadId}</div>
+                <div class="unidad-nombre">${nombreUnidad}</div>
                 <div class="unidad-ordenes">${ordenes.length} orden(es)</div>
             `;
 
@@ -684,15 +789,85 @@ class PanelCoordinacionOrdenes {
     }
 
     onCanvasMouseMove(e) {
-        // TODO: Implementar tooltip al pasar sobre órdenes
+        const rect = this.timelineCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Si estamos arrastrando
+        if (this.dragging) {
+            this.previsualizarDrag(x, y);
+            return;
+        }
+
+        // Si no estamos arrastrando, mostrar tooltip
+        this.mostrarTooltip(e, x, y);
     }
 
     onCanvasMouseDown(e) {
-        // TODO: Implementar drag & drop de órdenes
+        const rect = this.timelineCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Buscar orden clickeada
+        for (const [unidadId, ordenes] of this.cola.ordenesPorUnidad) {
+            for (const orden of ordenes) {
+                if (orden._bounds) {
+                    const b = orden._bounds;
+                    if (x >= b.x && x <= b.x + b.width && y >= b.y && y <= b.y + b.height) {
+                        // Iniciar drag
+                        this.dragging = {
+                            orden: orden,
+                            unidadId: unidadId,
+                            ordenesArray: ordenes,
+                            offsetX: x - b.x,
+                            offsetY: y - b.y,
+                            posicionOriginal: ordenes.indexOf(orden),
+                            tiempoOriginal: this.calcularTiempoAcumuladoHasta(ordenes, orden)
+                        };
+
+                        console.log(`🎯 Drag iniciado: ${orden.tipo} de ${unidadId}`);
+                        this.timelineCanvas.style.cursor = 'grabbing';
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     onCanvasMouseUp(e) {
-        // TODO: Finalizar drag & drop
+        if (!this.dragging) return;
+
+        const rect = this.timelineCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+
+        // Calcular nueva posición temporal
+        const pixelesPorSegundo = this.config.pixelesPorSegundo * this.zoom;
+        const nuevoTiempoSegundos = Math.max(0, (x - this.dragging.offsetX) / pixelesPorSegundo);
+
+        console.log(`🎯 Drag finalizado: tiempo nuevo = ${nuevoTiempoSegundos}s`);
+
+        // Calcular nueva posición en el array basada en tiempo
+        const nuevaPosicion = this.calcularNuevaPosicionEnCola(
+            this.dragging.ordenesArray,
+            this.dragging.orden,
+            nuevoTiempoSegundos
+        );
+
+        // Reordenar
+        this.reordenarOrdenEnCola(
+            this.dragging.unidadId,
+            this.dragging.posicionOriginal,
+            nuevaPosicion
+        );
+
+        // Limpiar drag
+        this.dragging = null;
+        this.timelineCanvas.style.cursor = 'default';
+
+        // Re-renderizar
+        this.renderizar();
+
+        console.log(`✅ Orden reordenada a posición ${nuevaPosicion}`);
     }
 
     /**
@@ -767,6 +942,217 @@ class PanelCoordinacionOrdenes {
     ocultar() {
         this.container.style.display = 'none';
     }
+
+    /**
+     * 🎯 Previsualizar posición durante drag
+     */
+    previsualizarDrag(x, y) {
+        // Calcular nueva posición temporal
+        const pixelesPorSegundo = this.config.pixelesPorSegundo * this.zoom;
+        const nuevoTiempoSegundos = (x - this.dragging.offsetX) / pixelesPorSegundo;
+
+        // Renderizar con preview
+        this.renderizar();
+
+        // Dibujar orden en posición de drag (semi-transparente)
+        const ctx = this.ctx;
+        const b = this.dragging.orden._bounds;
+        
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        ctx.fillStyle = this.config.coloresOrden[this.dragging.orden.tipo] || '#999';
+        ctx.fillRect(x - this.dragging.offsetX, y - this.dragging.offsetY, b.width, b.height);
+        
+        // Borde amarillo indicando drag
+        ctx.strokeStyle = '#ffff00';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x - this.dragging.offsetX, y - this.dragging.offsetY, b.width, b.height);
+        ctx.restore();
+
+        // Mostrar tiempo calculado
+        ctx.fillStyle = '#ffff00';
+        ctx.font = 'bold 12px "Courier New", monospace';
+        ctx.fillText(`T+${Math.floor(nuevoTiempoSegundos / 60)}min`, x + 5, y - 10);
+
+        this.timelineCanvas.style.cursor = 'grabbing';
+    }
+
+    /**
+     * 🎯 Mostrar tooltip al pasar sobre orden
+     */
+    mostrarTooltip(e, x, y) {
+        // Buscar orden bajo el cursor
+        let ordenEncontrada = null;
+        let unidadIdEncontrada = null;
+
+        for (const [unidadId, ordenes] of this.cola.ordenesPorUnidad) {
+            for (const orden of ordenes) {
+                if (orden._bounds) {
+                    const b = orden._bounds;
+                    if (x >= b.x && x <= b.x + b.width && y >= b.y && y <= b.y + b.height) {
+                        ordenEncontrada = orden;
+                        unidadIdEncontrada = unidadId;
+                        break;
+                    }
+                }
+            }
+            if (ordenEncontrada) break;
+        }
+
+        // Actualizar o eliminar tooltip
+        this.actualizarTooltip(e, ordenEncontrada, unidadIdEncontrada);
+        
+        // Cambiar cursor
+        this.timelineCanvas.style.cursor = ordenEncontrada ? 'grab' : 'default';
+    }
+
+    /**
+     * 🎯 Actualizar tooltip
+     */
+    actualizarTooltip(e, orden, unidadId) {
+        let tooltip = document.getElementById('orden-tooltip');
+
+        if (!orden) {
+            // Eliminar tooltip si existe
+            if (tooltip) {
+                tooltip.remove();
+            }
+            return;
+        }
+
+        // Crear tooltip si no existe
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'orden-tooltip';
+            tooltip.className = 'orden-tooltip';
+            document.body.appendChild(tooltip);
+        }
+
+        // Calcular tiempo de inicio
+        const ordenes = this.cola.getOrdenesDeUnidad(unidadId);
+        const tiempoInicio = this.calcularTiempoAcumuladoHasta(ordenes, orden);
+        const tiempoFin = tiempoInicio + (orden.tiempoRealSegundos || 600);
+
+        // Formatear tiempos
+        const formatoTiempo = (segundos) => {
+            const horas = Math.floor(segundos / 3600);
+            const minutos = Math.floor((segundos % 3600) / 60);
+            return `${horas}h ${minutos}m`;
+        };
+
+        // Contenido del tooltip
+        const elemento = window.elementosPorId?.get(unidadId);
+        // 🎯 BUSCAR MARCADOR REAL
+            const marcador = window.buscarMarcadorPorId(unidadId);
+            let nombreUnidad = unidadId;
+            
+            if (marcador) {
+                const datosElemento = window.obtenerDatosElemento(marcador);
+                if (datosElemento) {
+                    nombreUnidad = datosElemento.nombreCompleto; // ✅ Del marcador REAL
+                }
+            } else if (ordenes[0]) {
+                nombreUnidad = ordenes[0].unidadNombre || unidadId;
+                console.warn(`⚠️ Marcador no encontrado para ${unidadId}, usando datos de orden`);
+            }
+
+        tooltip.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 4px;">
+                ${orden.tipo.toUpperCase()} - ${nombreUnidad}
+            </div>
+            <div style="font-size: 11px; opacity: 0.9;">
+                📍 Inicio: ${formatoTiempo(tiempoInicio)}<br>
+                ⏱️ Duración: ${formatoTiempo(orden.tiempoRealSegundos || 600)}<br>
+                🏁 Fin: ${formatoTiempo(tiempoFin)}<br>
+                📊 Estado: ${orden.estado || 'pendiente'}
+            </div>
+        `;
+
+        // Posicionar tooltip
+        tooltip.style.left = (e.clientX + 15) + 'px';
+        tooltip.style.top = (e.clientY + 15) + 'px';
+        tooltip.style.display = 'block';
+    }
+
+    /**
+     * 🎯 Calcula tiempo acumulado hasta una orden
+     */
+    calcularTiempoAcumuladoHasta(ordenes, ordenBuscada) {
+        let tiempoAcumulado = 0;
+
+        for (const orden of ordenes) {
+            if (orden === ordenBuscada) {
+                return tiempoAcumulado;
+            }
+            tiempoAcumulado += orden.tiempoRealSegundos || 600;
+        }
+
+        return tiempoAcumulado;
+    }
+
+    /**
+     * 🎯 Calcula nueva posición en cola basada en tiempo deseado
+     */
+    calcularNuevaPosicionEnCola(ordenes, ordenArrastrada, tiempoDeseadoSegundos) {
+        let tiempoAcumulado = 0;
+        let nuevaPosicion = 0;
+
+        for (let i = 0; i < ordenes.length; i++) {
+            const orden = ordenes[i];
+            
+            // Ignorar la orden que estamos arrastrando
+            if (orden === ordenArrastrada) {
+                continue;
+            }
+
+            const duracionOrden = orden.tiempoRealSegundos || 600;
+
+            // Si el tiempo deseado cae antes de esta orden, insertamos aquí
+            if (tiempoDeseadoSegundos < tiempoAcumulado + duracionOrden) {
+                return nuevaPosicion;
+            }
+
+            tiempoAcumulado += duracionOrden;
+            nuevaPosicion++;
+        }
+
+        // Si llegamos al final, va al último
+        return ordenes.length - 1;
+    }
+
+    /**
+     * 🎯 Reordena una orden en la cola
+     */
+    reordenarOrdenEnCola(unidadId, posicionVieja, posicionNueva) {
+        const ordenes = this.cola.ordenesPorUnidad.get(unidadId);
+        if (!ordenes) return false;
+
+        // Validar posiciones
+        if (posicionVieja === posicionNueva) {
+            console.log('⚠️ Posición sin cambios');
+            return false;
+        }
+
+        // Mover orden
+        const [orden] = ordenes.splice(posicionVieja, 1);
+        ordenes.splice(posicionNueva, 0, orden);
+
+        // Recalcular timeline
+        this.cola.recalcularTimeline();
+
+        // Emitir evento
+        if (window.eventBus) {
+            window.eventBus.emit('ordenReordenada', {
+                unidadId,
+                ordenId: orden.id,
+                posicionVieja,
+                posicionNueva
+            });
+        }
+
+        return true;
+    }
+
 }
 
 // Exportar

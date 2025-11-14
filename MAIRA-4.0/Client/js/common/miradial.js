@@ -324,7 +324,15 @@
             const radius = 80;
             const innerRadius = 30;
             path.setAttribute("d", this.describeArc(100, 100, innerRadius, radius, startAngle, endAngle));
-            path.setAttribute("fill", MENU_STYLES[tipo].normal);
+            
+            // ✅ Validar que MENU_STYLES[tipo] existe antes de acceder
+            const menuStyle = MENU_STYLES[tipo] || MENU_STYLES['elemento'];
+            if (!menuStyle || !menuStyle.normal) {
+                console.error('❌ MENU_STYLES inválido para tipo:', tipo, 'Disponibles:', Object.keys(MENU_STYLES));
+                path.setAttribute("fill", 'rgba(128, 128, 128, 0.8)'); // Fallback gris
+            } else {
+                path.setAttribute("fill", menuStyle.normal);
+            }
 
             // Crear contenedor para el ícono
             const textPoint = this.polarToCartesian(100, 100, 55, (startAngle + endAngle) / 2);
@@ -355,12 +363,17 @@
                 this.handleMenuClick(item.action, item.submenu);
             });
 
+            // ✅ Validación en eventos hover
             g.addEventListener("mouseover", () => {
-                path.setAttribute("fill", MENU_STYLES[tipo].hover);
+                if (menuStyle && menuStyle.hover) {
+                    path.setAttribute("fill", menuStyle.hover);
+                }
             });
 
             g.addEventListener("mouseout", () => {
-                path.setAttribute("fill", MENU_STYLES[tipo].normal);
+                if (menuStyle && menuStyle.normal) {
+                    path.setAttribute("fill", menuStyle.normal);
+                }
             });
 
             return g;
@@ -474,7 +487,8 @@
                     { title: 'Atacar', action: 'ordenAtaque', icon: 'fas fa-crosshairs', tooltip: 'Dar orden de ataque' },
                     { title: 'Defender', action: 'ordenDefensa', icon: 'fas fa-shield-alt', tooltip: 'Dar orden de defensa' },
                     { title: 'Reconocer', action: 'ordenReconocimiento', icon: 'fas fa-binoculars', tooltip: 'Orden de reconocimiento' },
-                    { title: 'Esperar', action: 'ordenEspera', icon: 'fas fa-pause', tooltip: 'Esperar este turno' }
+                    { title: 'Esperar', action: 'ordenEspera', icon: 'fas fa-pause', tooltip: 'Esperar este turno' },
+                    { title: 'Info', action: 'mostrarInfo', icon: 'fas fa-info-circle', tooltip: 'Ver información del elemento' }
                 ];
             }
 

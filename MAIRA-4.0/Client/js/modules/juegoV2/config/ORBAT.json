@@ -3,248 +3,675 @@
   "version": "2.0.0",
   "fecha": "2025-11-08",
   "fuente": "Basado en TOE argentino real y doctrina vigente",
-
   "magnitudes": {
-    "A": { "nombre": "Equipo/Tripulación", "simbolo": "●", "personal_promedio": 4 },
-    "B": { "nombre": "Pelotón", "simbolo": "●●", "personal_promedio": 10 },
-    "C": { "nombre": "Grupo", "simbolo": "●●●", "personal_promedio": 10 },
-    "D": { "nombre": "Sección", "simbolo": "●", "personal_promedio": 30 },
-    "E": { "nombre": "Compañía/Escuadrón/Batería", "simbolo": "I", "personal_promedio": 120 },
-    "F": { "nombre": "Regimiento/Batallón/Grupo", "simbolo": "II", "personal_promedio": 600 },
-    "H": { "nombre": "Brigada", "simbolo": "X", "personal_promedio": 4000 },
-    "I": { "nombre": "División", "simbolo": "XX", "personal_promedio": 15000 },
-    "J": { "nombre": "Cuerpo de Ejército", "simbolo": "XXX", "personal_promedio": 40000 },
-    "K": { "nombre": "Ejército", "simbolo": "XXXX", "personal_promedio": 100000 }
+    "A": {
+      "nombre": "Equipo/Tripulación",
+      "simbolo": "●",
+      "personal_promedio": 4
+    },
+    "B": {
+      "nombre": "Pelotón",
+      "simbolo": "●●",
+      "personal_promedio": 10
+    },
+    "C": {
+      "nombre": "Grupo",
+      "simbolo": "●●●",
+      "personal_promedio": 10
+    },
+    "D": {
+      "nombre": "Sección",
+      "simbolo": "●",
+      "personal_promedio": 30
+    },
+    "E": {
+      "nombre": "Compañía/Escuadrón/Batería",
+      "simbolo": "I",
+      "personal_promedio": 120
+    },
+    "F": {
+      "nombre": "Regimiento/Batallón/Grupo",
+      "simbolo": "II",
+      "personal_promedio": 600
+    },
+    "H": {
+      "nombre": "Brigada",
+      "simbolo": "X",
+      "personal_promedio": 4000
+    },
+    "I": {
+      "nombre": "División",
+      "simbolo": "XX",
+      "personal_promedio": 15000
+    },
+    "J": {
+      "nombre": "Cuerpo de Ejército",
+      "simbolo": "XXX",
+      "personal_promedio": 40000
+    },
+    "K": {
+      "nombre": "Ejército",
+      "simbolo": "XXXX",
+      "personal_promedio": 100000
+    }
   },
-
   "plantillas": {
     "_comentario": "Plantillas de despliegue según arma y magnitud. Código SIDC posiciones 4-6 + posición 11",
-
     "UCI": {
       "_nombre": "Infantería",
       "_fuente": "Reglamento de Infantería Argentina",
-
       "F": {
         "_magnitud": "Batallón de Infantería",
         "_personal": 600,
         "_nomenclatura": "letra",
         "subordinados": [
-          { "tipo": "UCI", "magnitud": "E", "letra": "A", "cantidad": 1, "personal": 90 },
-          { "tipo": "UCI", "magnitud": "E", "letra": "B", "cantidad": 1, "personal": 90 },
-          { "tipo": "UCI", "magnitud": "E", "letra": "C", "cantidad": 1, "personal": 90 },
-          { "tipo": "UCI", "magnitud": "E", "nombre": "Mor", "cantidad": 1, "personal": 40, "observacion": "Sección Morteros" },
-          { "tipo": "UCI", "magnitud": "D", "nombre": "Expl", "cantidad": 1, "personal": 20, "observacion": "Sección Exploración" },
-          { "tipo": "USS", "magnitud": "D", "nombre": "Log", "cantidad": 1, "personal": 30, "observacion": "Sección Logística" }
+          {
+            "tipo": "UCI",
+            "magnitud": "E",
+            "letra": "A",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "E",
+            "letra": "B",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "E",
+            "letra": "C",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "E",
+            "nombre": "Mor",
+            "cantidad": 1
+          }
         ]
       },
-
       "E": {
         "_magnitud": "Compañía de Infantería",
-        "_personal": 90,
-        "_vehiculos": ["M113", "M113", "M113"],
-        "_nomenclatura": "letra",
+        "_personal": 120,
+        "_vehiculos": 3,
+        "_nomenclatura": "numero",
         "subordinados": [
-          { "tipo": "UCI", "magnitud": "D", "letra": "1", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
-          { "tipo": "UCI", "magnitud": "D", "letra": "2", "cantidad": 1, "personal": 30, "vehiculo": "M113" },
-          { "tipo": "UCI", "magnitud": "D", "letra": "3", "cantidad": 1, "personal": 30, "vehiculo": "M113" }
+          {
+            "tipo": "UCI",
+            "magnitud": "D",
+            "letra": "1",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "D",
+            "letra": "2",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "D",
+            "letra": "3",
+            "cantidad": 1
+          }
         ]
       },
-
       "D": {
-        "_magnitud": "Sección de Infantería",
-        "_personal": 10,
-        "_composicion_detallada": {
-          "jefe_seccion": 1,
-          "grupos": 2
-        },
-        "_nomenclatura": "letra",
+        "_magnitud": "Sección de Infantería (M113)",
+        "_personal": 30,
+        "_vehiculos": 1,
+        "_nomenclatura": "numero",
         "subordinados": [
-          { "tipo": "UCI", "magnitud": "C", "letra": "1", "cantidad": 1, "personal": 5 },
-          { "tipo": "UCI", "magnitud": "C", "letra": "2", "cantidad": 1, "personal": 5 }
+          {
+            "tipo": "UCI",
+            "magnitud": "C",
+            "letra": "1",
+            "cantidad": 1,
+            "vehiculo": "M113"
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "C",
+            "letra": "2",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "C",
+            "letra": "3",
+            "cantidad": 1
+          }
         ]
       },
-
       "C": {
-        "_magnitud": "Grupo de Infantería",
+        "_magnitud": "Grupo de Infantería (5 soldados)",
         "_personal": 5,
-        "_roles": [
-          { "nombre": "Jefe de Grupo", "rol_id": 8, "arma": "FAL" },
-          { "nombre": "Tirador FAL", "rol_id": 1, "arma": "FAL", "cantidad": 2 },
-          { "nombre": "Tirador MAG", "rol_id": 2, "arma": "MAG" },
-          { "nombre": "Tirador ATAN", "rol_id": 5, "arma": "M72 LAW" }
-        ],
+        "_nomenclatura": "rol",
         "subordinados": [
-          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 1", "cantidad": 1, "rol": "Jefe Grupo" },
-          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 2", "cantidad": 1, "rol": "FAL" },
-          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 3", "cantidad": 1, "rol": "FAL" },
-          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 4", "cantidad": 1, "rol": "MAG" },
-          { "tipo": "UCI", "magnitud": "A", "nombre": "Tirador 5", "cantidad": 1, "rol": "ATAN" }
+          {
+            "tipo": "UCI",
+            "magnitud": "A",
+            "nombre": "Jefe Grupo",
+            "cantidad": 1,
+            "arma": "FAL"
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "A",
+            "nombre": "Tirador FAL",
+            "cantidad": 2,
+            "arma": "FAL"
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "A",
+            "nombre": "Ametrallador",
+            "cantidad": 1,
+            "arma": "MAG"
+          },
+          {
+            "tipo": "UCI",
+            "magnitud": "A",
+            "nombre": "ATAN",
+            "cantidad": 1,
+            "arma": "M72"
+          }
         ]
       }
     },
-
     "UCR": {
       "_nombre": "Caballería/Blindados",
       "_fuente": "TOE Caballería Blindada Argentina - TAM",
-
       "F": {
+        "_magnitud": "Regimiento de Caballería (TAM)",
+        "_personal": 600,
+        "_nomenclatura": "letra",
+        "subordinados": [
+          {
+            "tipo": "UCR",
+            "magnitud": "E",
+            "letra": "A",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "E",
+            "letra": "B",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "E",
+            "letra": "C",
+            "cantidad": 1
+          },
+          {
+            "tipo": "USS",
+            "magnitud": "D",
+            "nombre": "Log",
+            "cantidad": 1
+          }
+        ]
+      },
+      "E": {
         "_magnitud": "Escuadrón de Caballería (TAM)",
-        "_personal": 40,
-        "_vehiculos_totales": { "TAM": 10, "UNIMOG": 1 },
-        "_nomenclatura": "letra",
+        "_personal": 120,
+        "_vehiculos": 10,
+        "_nomenclatura": "numero",
         "subordinados": [
-          { "tipo": "UCR", "magnitud": "D", "letra": "1", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
-          { "tipo": "UCR", "magnitud": "D", "letra": "2", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
-          { "tipo": "UCR", "magnitud": "D", "letra": "3", "cantidad": 1, "vehiculos": ["TAM", "TAM", "TAM"] },
-          { "tipo": "UCR", "magnitud": "A", "nombre": "PC", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Escuadrón" },
-          { "tipo": "USS", "magnitud": "A", "nombre": "Tren", "cantidad": 1, "vehiculo": "UNIMOG" }
+          {
+            "tipo": "UCR",
+            "magnitud": "D",
+            "letra": "1",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "D",
+            "letra": "2",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "D",
+            "letra": "3",
+            "cantidad": 1
+          }
         ]
       },
-
       "D": {
-        "_magnitud": "Sección de Caballería (TAM)",
+        "_magnitud": "Sección de Tanques (3 TAM)",
         "_personal": 12,
-        "_vehiculos": ["TAM", "TAM", "TAM"],
-        "_nomenclatura": "letra",
+        "_vehiculos": 3,
+        "_nomenclatura": "numero",
         "subordinados": [
-          { "tipo": "UCR", "magnitud": "A", "letra": "1", "cantidad": 1, "vehiculo": "TAM", "rol": "Jefe Sección" },
-          { "tipo": "UCR", "magnitud": "A", "letra": "2", "cantidad": 1, "vehiculo": "TAM" },
-          { "tipo": "UCR", "magnitud": "A", "letra": "3", "cantidad": 1, "vehiculo": "TAM" }
+          {
+            "tipo": "UCR",
+            "magnitud": "B",
+            "nombre": "TAM-1",
+            "cantidad": 1,
+            "vehiculo": "TAM"
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "B",
+            "nombre": "TAM-2",
+            "cantidad": 1,
+            "vehiculo": "TAM"
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "B",
+            "nombre": "TAM-3",
+            "cantidad": 1,
+            "vehiculo": "TAM"
+          }
         ]
       },
-
-      "A": {
+      "B": {
         "_magnitud": "Tanque TAM (Tripulación)",
         "_personal": 4,
         "_vehiculo": "TAM",
-        "_roles": [
-          { "nombre": "Jefe de Tanque", "rol_id": 25 },
-          { "nombre": "Conductor", "rol_id": 22 },
-          { "nombre": "Apuntador", "rol_id": 23 },
-          { "nombre": "Cargador", "rol_id": 24 }
-        ],
-        "subordinados": []
+        "_nomenclatura": "rol",
+        "subordinados": [
+          {
+            "tipo": "UCR",
+            "magnitud": "A",
+            "nombre": "Comandante",
+            "cantidad": 1,
+            "rol": "Comandante"
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "A",
+            "nombre": "Tirador",
+            "cantidad": 1,
+            "rol": "Tirador"
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "A",
+            "nombre": "Conductor",
+            "cantidad": 1,
+            "rol": "Conductor"
+          },
+          {
+            "tipo": "UCR",
+            "magnitud": "A",
+            "nombre": "Cargador",
+            "cantidad": 1,
+            "rol": "Cargador"
+          }
+        ]
       }
     },
-
     "UCF": {
       "_nombre": "Artillería",
       "_fuente": "Reglamento de Artillería Argentina",
-
       "F": {
         "_magnitud": "Grupo de Artillería",
         "_personal": 300,
         "_piezas_totales": 18,
         "subordinados": [
-          { "tipo": "UCF", "magnitud": "E", "nombre": "Batería 1", "cantidad": 1, "piezas": 6 },
-          { "tipo": "UCF", "magnitud": "E", "nombre": "Batería 2", "cantidad": 1, "piezas": 6 },
-          { "tipo": "UCF", "magnitud": "E", "nombre": "Batería 3", "cantidad": 1, "piezas": 6 },
-          { "tipo": "UCF", "magnitud": "D", "nombre": "Sección Dirección Tiro", "cantidad": 1 }
+          {
+            "tipo": "UCF",
+            "magnitud": "E",
+            "nombre": "Batería 1",
+            "cantidad": 1,
+            "piezas": 6
+          },
+          {
+            "tipo": "UCF",
+            "magnitud": "E",
+            "nombre": "Batería 2",
+            "cantidad": 1,
+            "piezas": 6
+          },
+          {
+            "tipo": "UCF",
+            "magnitud": "E",
+            "nombre": "Batería 3",
+            "cantidad": 1,
+            "piezas": 6
+          },
+          {
+            "tipo": "UCF",
+            "magnitud": "D",
+            "nombre": "Sección Dirección Tiro",
+            "cantidad": 1
+          }
         ]
       },
-
       "E": {
         "_magnitud": "Batería de Artillería",
         "_personal": 80,
         "_piezas": 6,
         "subordinados": [
-          { "tipo": "UCF", "magnitud": "D", "nombre": "Sección 1", "cantidad": 1, "piezas": 2 },
-          { "tipo": "UCF", "magnitud": "D", "nombre": "Sección 2", "cantidad": 1, "piezas": 2 },
-          { "tipo": "UCF", "magnitud": "D", "nombre": "Sección 3", "cantidad": 1, "piezas": 2 },
-          { "tipo": "UCF", "magnitud": "C", "nombre": "Dirección Tiro", "cantidad": 1 }
+          {
+            "tipo": "UCF",
+            "magnitud": "D",
+            "nombre": "Sección 1",
+            "cantidad": 1,
+            "piezas": 2
+          },
+          {
+            "tipo": "UCF",
+            "magnitud": "D",
+            "nombre": "Sección 2",
+            "cantidad": 1,
+            "piezas": 2
+          },
+          {
+            "tipo": "UCF",
+            "magnitud": "D",
+            "nombre": "Sección 3",
+            "cantidad": 1,
+            "piezas": 2
+          },
+          {
+            "tipo": "UCF",
+            "magnitud": "C",
+            "nombre": "Dirección Tiro",
+            "cantidad": 1
+          }
         ]
       },
-
       "D": {
         "_magnitud": "Sección de Artillería",
         "_personal": 20,
         "_piezas": 2,
         "subordinados": [
-          { "tipo": "UCF", "magnitud": "A", "nombre": "Pieza 1", "cantidad": 1, "personal": 8 },
-          { "tipo": "UCF", "magnitud": "A", "nombre": "Pieza 2", "cantidad": 1, "personal": 8 }
+          {
+            "tipo": "UCF",
+            "magnitud": "A",
+            "nombre": "Pieza 1",
+            "cantidad": 1,
+            "personal": 8
+          },
+          {
+            "tipo": "UCF",
+            "magnitud": "A",
+            "nombre": "Pieza 2",
+            "cantidad": 1,
+            "personal": 8
+          }
         ]
       }
     },
-
     "UCE": {
       "_nombre": "Ingenieros",
       "_fuente": "Reglamento de Ingenieros Argentina",
-
       "F": {
         "_magnitud": "Batallón de Ingenieros",
         "_personal": 500,
         "subordinados": [
-          { "tipo": "UCE", "magnitud": "E", "nombre": "Compañía Zapadores 1", "cantidad": 1 },
-          { "tipo": "UCE", "magnitud": "E", "nombre": "Compañía Zapadores 2", "cantidad": 1 },
-          { "tipo": "UCE", "magnitud": "E", "nombre": "Compañía Pontones", "cantidad": 1 },
-          { "tipo": "UCE", "magnitud": "B", "nombre": "Plana Mayor", "cantidad": 1 }
+          {
+            "tipo": "UCE",
+            "magnitud": "E",
+            "nombre": "Compañía Zapadores 1",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCE",
+            "magnitud": "E",
+            "nombre": "Compañía Zapadores 2",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCE",
+            "magnitud": "E",
+            "nombre": "Compañía Pontones",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCE",
+            "magnitud": "B",
+            "nombre": "Plana Mayor",
+            "cantidad": 1
+          }
         ]
       },
-
       "E": {
         "_magnitud": "Compañía de Ingenieros",
         "_personal": 100,
         "subordinados": [
-          { "tipo": "UCE", "magnitud": "B", "nombre": "Pelotón Zapadores 1", "cantidad": 1 },
-          { "tipo": "UCE", "magnitud": "B", "nombre": "Pelotón Zapadores 2", "cantidad": 1 },
-          { "tipo": "UCE", "magnitud": "B", "nombre": "Pelotón Zapadores 3", "cantidad": 1 }
+          {
+            "tipo": "UCE",
+            "magnitud": "B",
+            "nombre": "Pelotón Zapadores 1",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCE",
+            "magnitud": "B",
+            "nombre": "Pelotón Zapadores 2",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCE",
+            "magnitud": "B",
+            "nombre": "Pelotón Zapadores 3",
+            "cantidad": 1
+          }
         ]
       },
-
       "B": {
         "_magnitud": "Pelotón de Ingenieros",
         "_personal": 30,
         "subordinados": [
-          { "tipo": "UCE", "magnitud": "D", "nombre": "Sección 1", "cantidad": 1 },
-          { "tipo": "UCE", "magnitud": "D", "nombre": "Sección 2", "cantidad": 1 }
+          {
+            "tipo": "UCE",
+            "magnitud": "D",
+            "nombre": "Sección 1",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCE",
+            "magnitud": "D",
+            "nombre": "Sección 2",
+            "cantidad": 1
+          }
         ]
       }
     },
-
     "UUS": {
       "_nombre": "Comunicaciones",
-
       "E": {
         "_magnitud": "Compañía de Comunicaciones",
         "_personal": 80,
         "subordinados": [
-          { "tipo": "UUS", "magnitud": "B", "nombre": "Pelotón Radio 1", "cantidad": 1 },
-          { "tipo": "UUS", "magnitud": "B", "nombre": "Pelotón Radio 2", "cantidad": 1 },
-          { "tipo": "UUS", "magnitud": "D", "nombre": "Sección Enlaces", "cantidad": 1 }
+          {
+            "tipo": "UUS",
+            "magnitud": "B",
+            "nombre": "Pelotón Radio 1",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UUS",
+            "magnitud": "B",
+            "nombre": "Pelotón Radio 2",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UUS",
+            "magnitud": "D",
+            "nombre": "Sección Enlaces",
+            "cantidad": 1
+          }
         ]
       }
     },
-
     "USM": {
       "_nombre": "Sanidad",
-
       "E": {
         "_magnitud": "Compañía de Sanidad",
         "_personal": 60,
         "subordinados": [
-          { "tipo": "USM", "magnitud": "B", "nombre": "Pelotón Evacuación", "cantidad": 1 },
-          { "tipo": "USM", "magnitud": "B", "nombre": "Pelotón Tratamiento", "cantidad": 1 },
-          { "tipo": "USM", "magnitud": "D", "nombre": "Puesto Socorro", "cantidad": 1 }
+          {
+            "tipo": "USM",
+            "magnitud": "B",
+            "nombre": "Pelotón Evacuación",
+            "cantidad": 1
+          },
+          {
+            "tipo": "USM",
+            "magnitud": "B",
+            "nombre": "Pelotón Tratamiento",
+            "cantidad": 1
+          },
+          {
+            "tipo": "USM",
+            "magnitud": "D",
+            "nombre": "Puesto Socorro",
+            "cantidad": 1
+          }
         ]
       }
     },
-
     "USS": {
       "_nombre": "Abastecimiento",
-
       "E": {
         "_magnitud": "Compañía de Abastecimiento",
         "_personal": 80,
-        "_vehiculos": ["Camión", "Camión", "Camión"],
+        "_vehiculos": [
+          "Camión",
+          "Camión",
+          "Camión"
+        ],
         "subordinados": [
-          { "tipo": "USS", "magnitud": "B", "nombre": "Pelotón Municiones", "cantidad": 1 },
-          { "tipo": "USS", "magnitud": "B", "nombre": "Pelotón Combustible", "cantidad": 1 },
-          { "tipo": "USS", "magnitud": "B", "nombre": "Pelotón Víveres", "cantidad": 1 }
+          {
+            "tipo": "USS",
+            "magnitud": "B",
+            "nombre": "Pelotón Municiones",
+            "cantidad": 1
+          },
+          {
+            "tipo": "USS",
+            "magnitud": "B",
+            "nombre": "Pelotón Combustible",
+            "cantidad": 1
+          },
+          {
+            "tipo": "USS",
+            "magnitud": "B",
+            "nombre": "Pelotón Víveres",
+            "cantidad": 1
+          }
+        ]
+      }
+    },
+    "UCA": {
+      "_nombre": "Artillería",
+      "_fuente": "Reglamento de Artillería Argentina",
+      "F": {
+        "_magnitud": "Grupo de Artillería",
+        "_personal": 400,
+        "_nomenclatura": "letra",
+        "subordinados": [
+          {
+            "tipo": "UCA",
+            "magnitud": "E",
+            "letra": "A",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "E",
+            "letra": "B",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "E",
+            "letra": "C",
+            "cantidad": 1
+          }
+        ]
+      },
+      "E": {
+        "_magnitud": "Batería de Artillería (6 piezas)",
+        "_personal": 80,
+        "_piezas": 6,
+        "_nomenclatura": "numero",
+        "subordinados": [
+          {
+            "tipo": "UCA",
+            "magnitud": "D",
+            "letra": "1",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "D",
+            "letra": "2",
+            "cantidad": 1
+          }
+        ]
+      },
+      "D": {
+        "_magnitud": "Sección de Artillería (3 piezas)",
+        "_personal": 21,
+        "_piezas": 3,
+        "_nomenclatura": "numero",
+        "subordinados": [
+          {
+            "tipo": "UCA",
+            "magnitud": "B",
+            "nombre": "OTO-1",
+            "cantidad": 1,
+            "arma": "OTO 105mm"
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "B",
+            "nombre": "OTO-2",
+            "cantidad": 1,
+            "arma": "OTO 105mm"
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "B",
+            "nombre": "OTO-3",
+            "cantidad": 1,
+            "arma": "OTO 105mm"
+          }
+        ]
+      },
+      "B": {
+        "_magnitud": "Pieza de Artillería (Dotación)",
+        "_personal": 7,
+        "_arma": "OTO Melara 105mm",
+        "_nomenclatura": "rol",
+        "subordinados": [
+          {
+            "tipo": "UCA",
+            "magnitud": "A",
+            "nombre": "Jefe Pieza",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "A",
+            "nombre": "Apuntador",
+            "cantidad": 1
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "A",
+            "nombre": "Cargador",
+            "cantidad": 2
+          },
+          {
+            "tipo": "UCA",
+            "magnitud": "A",
+            "nombre": "Municionero",
+            "cantidad": 3
+          }
         ]
       }
     }
   },
-
   "configuracion": {
     "desplieguePorDefecto": {
       "_comentario": "Configuración de despliegue automático",
@@ -255,7 +682,6 @@
       "offsetDesdeComandante": 200,
       "comentario_offset": "Distancia del comandante al primer subordinado (metros)"
     },
-
     "formaciones": {
       "linea": {
         "descripcion": "Subordinados desplegados en línea horizontal",
@@ -307,7 +733,6 @@
         "separacion_elementos": 20
       }
     },
-
     "separacionPorTipo": {
       "_comentario": "Separación táctica según tipo de elemento (metros)",
       "infanteria_pie": 5,
@@ -320,7 +745,6 @@
       "vehiculos_logistica": 50
     }
   },
-
   "notas": [
     "Plantillas basadas en TOE argentino real (TAM, M113, FAL, MAG)",
     "La posición 11 del SIDC indica la magnitud (A-K)",
@@ -330,7 +754,6 @@
     "Separación de elementos según tipo de terreno y amenaza",
     "Personal y vehículos son promedios, pueden variar según misión"
   ],
-
   "referencias": {
     "reglamentos": [
       "RC-3-2 Reglamento de Conducción para las Fuerzas Terrestres",

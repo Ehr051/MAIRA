@@ -14,6 +14,70 @@
  * - Transitabilidad (suelo×clima×vehículo×pendiente)
  */
 
+/**
+ * 🔢 MinHeap - Priority Queue para Dijkstra
+ * Complejidad: O(log n) para insert/extractMin
+ */
+class MinHeap {
+    constructor() {
+        this.heap = [];
+    }
+
+    insert(item) {
+        this.heap.push(item);
+        this.bubbleUp(this.heap.length - 1);
+    }
+
+    extractMin() {
+        if (this.heap.length === 0) return null;
+        if (this.heap.length === 1) return this.heap.pop();
+
+        const min = this.heap[0];
+        this.heap[0] = this.heap.pop();
+        this.bubbleDown(0);
+        return min;
+    }
+
+    bubbleUp(index) {
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            if (this.heap[index].distancia >= this.heap[parentIndex].distancia) break;
+            
+            [this.heap[index], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[index]];
+            index = parentIndex;
+        }
+    }
+
+    bubbleDown(index) {
+        while (true) {
+            let minIndex = index;
+            const leftChild = 2 * index + 1;
+            const rightChild = 2 * index + 2;
+
+            if (leftChild < this.heap.length && this.heap[leftChild].distancia < this.heap[minIndex].distancia) {
+                minIndex = leftChild;
+            }
+
+            if (rightChild < this.heap.length && this.heap[rightChild].distancia < this.heap[minIndex].distancia) {
+                minIndex = rightChild;
+            }
+
+            if (minIndex === index) break;
+
+            [this.heap[index], this.heap[minIndex]] = [this.heap[minIndex], this.heap[index]];
+            index = minIndex;
+        }
+    }
+
+    isEmpty() {
+        return this.heap.length === 0;
+    }
+
+    size() {
+        return this.heap.length;
+    }
+}
+
 class AnalisisTerreno {
     constructor(map) {
         this.map = map;
@@ -704,6 +768,7 @@ class AnalisisTerreno {
             this.crearCalcoVegetacion(resultados.puntos_detalle);
             this.crearCalcoTransitabilidad(resultados.puntos_detalle);
             this.crearCalcoOCOTA(resultados.puntos_detalle); // 🔭 NUEVO: OCOTA
+            this.crearCalcoAvenidas(resultados.puntos_detalle); // 🛣️ NUEVO: Avenidas Aproximación
             
             // 🗑️ ELIMINAR POLÍGONO ORIGINAL - Solo quedan cuadrados en calcos separados
             this.eliminarPoligonoOriginal();
@@ -1369,6 +1434,384 @@ class AnalisisTerreno {
         // Convertir a metros cuadrados (aproximado)
         // 1 grado ≈ 111,320 metros
         return area * 111320 * 111320;
+    }
+
+    /**
+     * 🛣️ CREAR CALCO AVENIDAS DE APROXIMACIÓN
+     * Identifica corredores óptimos de movimiento usando Dijkstra
+     */
+    crearCalcoAvenidas(puntos_detalle) {
+        console.log('🛣️ Creando calco Avenidas de Aproximación (Dijkstra)...');
+        
+        // Timestamp para nombre único
+        const timestamp = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const nombreCalco = `🛣️ Avenidas Aproximación ${timestamp}`;
+        
+        // Construir grafo de conectividad
+        console.log('📊 Construyendo grafo de conectividad...');
+        const grafo = this.construirGrafo(puntos_detalle);
+        
+        // Identificar puntos de entrada/salida (bordes del área)
+        const puntosExtremos = this.identificarPuntosExtremos(puntos_detalle);
+        console.log(`🎯 Puntos extremos: ${puntosExtremos.length}`);
+        
+        // Calcular rutas óptimas entre extremos
+        console.log('🔍 Calculando rutas óptimas (Dijkstra)...');
+        const rutas = [];
+        
+        // Tomar pares de puntos extremos para generar rutas
+        for (let i = 0; i < Math.min(puntosExtremos.length - 1, 10); i++) {
+            const origen = puntosExtremos[i];
+            const destino = puntosExtremos[puntosExtremos.length - 1 - i];
+            
+            const ruta = this.calcularRutaDijkstra(grafo, origen, destino, puntos_detalle);
+            
+            if (ruta && ruta.length > 5) { // Solo rutas con mínimo 5 nodos
+                rutas.push(ruta);
+            }
+        }
+        
+        console.log(`✅ ${rutas.length} rutas óptimas calculadas`);
+        
+        // Analizar ancho de cada ruta
+        console.log('📏 Analizando ancho de avenidas...');
+        const avenidas = rutas.map(ruta => {
+            const ancho = this.calcularAnchoAvenida(ruta, puntos_detalle);
+            return { ruta, ancho };
+        });
+        
+        // Crear calco
+        if (typeof window.crearNuevoCalco === 'function') {
+            const calcosAnteriores = Object.keys(window.calcos || {}).length;
+            window.crearNuevoCalco();
+            
+            const nuevoNombre = `Calco ${calcosAnteriores + 1}`;
+            if (window.calcos && window.calcos[nuevoNombre]) {
+                window.calcos[nombreCalco] = window.calcos[nuevoNombre];
+                delete window.calcos[nuevoNombre];
+                
+                // Pintar avenidas
+                avenidas.forEach((avenida, idx) => {
+                    const { ruta, ancho } = avenida;
+                    
+                    // Clasificar por ancho
+                    let color, grosor, magnitud;
+                    if (ancho.metros > 200) {
+                        color = '#00FF00'; // Verde
+                        grosor = 8;
+                        magnitud = 'Batallón';
+                    } else if (ancho.metros > 100) {
+                        color = '#FFFF00'; // Amarillo
+                        grosor = 6;
+                        magnitud = 'Compañía';
+                    } else {
+                        color = '#FFA500'; // Naranja
+                        grosor = 4;
+                        magnitud = 'Pelotón';
+                    }
+                    
+                    // Crear polyline
+                    const coordenadas = ruta.map(nodo => [nodo.lat, nodo.lon]);
+                    const polyline = L.polyline(coordenadas, {
+                        color: color,
+                        weight: grosor,
+                        opacity: 0.8,
+                        className: 'avenida-aproximacion'
+                    }).bindTooltip(
+                        `<strong>🛣️ Avenida ${idx + 1}</strong><br>` +
+                        `<hr style="margin: 5px 0; border-color: #ccc;">` +
+                        `<strong>📏 Ancho:</strong> ${ancho.metros.toFixed(0)}m<br>` +
+                        `<strong>⚔️ Magnitud:</strong> ${magnitud}<br>` +
+                        `<strong>📐 Pendiente promedio:</strong> ${ancho.pendientePromedio.toFixed(1)}°<br>` +
+                        `<strong>🚶 Transitabilidad:</strong> ${ancho.transitabilidad.toFixed(0)}%<br>` +
+                        `<strong>📍 Longitud:</strong> ${ruta.length} nodos`,
+                        { permanent: false, direction: 'top', opacity: 0.95 }
+                    );
+                    
+                    polyline.addTo(window.calcos[nombreCalco]);
+                });
+                
+                console.log(`✅ Calco Avenidas: ${avenidas.length} rutas visualizadas`);
+            }
+        } else {
+            console.error('❌ Sistema de calcos no disponible');
+        }
+    }
+
+    /**
+     * 🏗️ Construir grafo de conectividad entre puntos
+     */
+    construirGrafo(puntos) {
+        const grafo = new Map();
+        
+        puntos.forEach((punto, idx) => {
+            const vecinos = [];
+            
+            // Buscar vecinos en radio de ~100m (8-conectividad)
+            puntos.forEach((otroPunto, otroIdx) => {
+                if (idx === otroIdx) return;
+                
+                const distancia = this.calcularDistanciaMetros(
+                    punto.lat, punto.lon,
+                    otroPunto.lat, otroPunto.lon
+                );
+                
+                // Conectar si está dentro del radio de resolución * 1.5
+                if (distancia < this.resolucion * 1.5) {
+                    // Calcular costo del movimiento
+                    const costo = this.calcularCostoMovimiento(punto, otroPunto, distancia);
+                    
+                    vecinos.push({
+                        idx: otroIdx,
+                        costo: costo,
+                        distancia: distancia
+                    });
+                }
+            });
+            
+            grafo.set(idx, vecinos);
+        });
+        
+        return grafo;
+    }
+
+    /**
+     * 💰 Calcular costo de movimiento entre dos puntos
+     */
+    calcularCostoMovimiento(puntoA, puntoB, distancia) {
+        // Factores que afectan el costo:
+        // 1. Distancia euclidiana (base)
+        let costo = distancia;
+        
+        // 2. Pendiente promedio (penalizar pendientes altas)
+        const pendientePromedio = (puntoA.pendiente + puntoB.pendiente) / 2;
+        if (pendientePromedio > 30) {
+            costo *= 10; // Muy difícil
+        } else if (pendientePromedio > 15) {
+            costo *= 3; // Difícil
+        } else if (pendientePromedio > 5) {
+            costo *= 1.5; // Moderado
+        }
+        
+        // 3. NDVI (vegetación densa dificulta movimiento)
+        const ndviPromedio = (puntoA.ndvi + puntoB.ndvi) / 2;
+        if (ndviPromedio > 0.6) {
+            costo *= 2; // Vegetación densa
+        } else if (ndviPromedio > 0.3) {
+            costo *= 1.3; // Vegetación moderada
+        }
+        
+        // 4. Diferencia de elevación (penalizar cambios bruscos)
+        const deltaElevacion = Math.abs(puntoA.elevation - puntoB.elevation);
+        costo += deltaElevacion * 0.5;
+        
+        return costo;
+    }
+
+    /**
+     * 🎯 Identificar puntos extremos (bordes del área)
+     */
+    identificarPuntosExtremos(puntos) {
+        // Encontrar límites del área
+        const lats = puntos.map(p => p.lat);
+        const lons = puntos.map(p => p.lon);
+        
+        const latMin = Math.min(...lats);
+        const latMax = Math.max(...lats);
+        const lonMin = Math.min(...lons);
+        const lonMax = Math.max(...lons);
+        
+        const margen = 0.001; // ~100m
+        
+        // Puntos en los bordes
+        const extremos = puntos.filter(p => {
+            return p.lat < latMin + margen || p.lat > latMax - margen ||
+                   p.lon < lonMin + margen || p.lon > lonMax - margen;
+        });
+        
+        return extremos;
+    }
+
+    /**
+     * 🔍 Algoritmo de Dijkstra para encontrar ruta óptima
+     * Optimizado con MinHeap - O(E log V)
+     */
+    calcularRutaDijkstra(grafo, puntoOrigen, puntoDestino, todosPuntos) {
+        // Encontrar índices
+        const idxOrigen = todosPuntos.findIndex(p => 
+            p.lat === puntoOrigen.lat && p.lon === puntoOrigen.lon
+        );
+        const idxDestino = todosPuntos.findIndex(p => 
+            p.lat === puntoDestino.lat && p.lon === puntoDestino.lon
+        );
+        
+        if (idxOrigen === -1 || idxDestino === -1) {
+            console.warn('⚠️ No se encontraron índices origen/destino');
+            return null;
+        }
+        
+        console.log(`🔍 Dijkstra: ${idxOrigen} → ${idxDestino} (${grafo.size} nodos)`);
+        
+        // Inicializar estructuras de Dijkstra
+        const distancias = new Map();
+        const previos = new Map();
+        const visitados = new Set();
+        const heap = new MinHeap(); // 🚀 Priority Queue optimizada
+        
+        // Inicializar distancias a infinito
+        grafo.forEach((_, idx) => {
+            distancias.set(idx, Infinity);
+        });
+        distancias.set(idxOrigen, 0);
+        
+        // Heap inicial
+        heap.insert({ idx: idxOrigen, distancia: 0 });
+        
+        let nodosExplorados = 0;
+        
+        // Algoritmo principal
+        while (!heap.isEmpty()) {
+            // Extraer nodo con menor distancia - O(log n)
+            const { idx: actualIdx, distancia: distanciaActual } = heap.extractMin();
+            
+            nodosExplorados++;
+            
+            // Early termination: Si ya llegamos al destino
+            if (actualIdx === idxDestino) {
+                console.log(`✅ Ruta encontrada! Nodos explorados: ${nodosExplorados}/${grafo.size}`);
+                break;
+            }
+            
+            // Skip si ya visitado (puede haber duplicados en heap)
+            if (visitados.has(actualIdx)) continue;
+            visitados.add(actualIdx);
+            
+            // Skip si distancia obsoleta
+            if (distanciaActual > distancias.get(actualIdx)) continue;
+            
+            // Explorar vecinos
+            const vecinos = grafo.get(actualIdx) || [];
+            
+            vecinos.forEach(vecino => {
+                if (visitados.has(vecino.idx)) return;
+                
+                const nuevaDistancia = distancias.get(actualIdx) + vecino.costo;
+                
+                if (nuevaDistancia < distancias.get(vecino.idx)) {
+                    distancias.set(vecino.idx, nuevaDistancia);
+                    previos.set(vecino.idx, actualIdx);
+                    heap.insert({ idx: vecino.idx, distancia: nuevaDistancia });
+                }
+            });
+        }
+        
+        // Reconstruir ruta
+        if (!previos.has(idxDestino)) {
+            console.warn('⚠️ No se encontró ruta entre puntos');
+            return null;
+        }
+        
+        const ruta = [];
+        let actualIdx = idxDestino;
+        let pasos = 0;
+        
+        while (actualIdx !== undefined && pasos < 10000) { // Safety limit
+            ruta.unshift(todosPuntos[actualIdx]);
+            actualIdx = previos.get(actualIdx);
+            pasos++;
+        }
+        
+        console.log(`📍 Ruta reconstruida: ${ruta.length} nodos`);
+        
+        return ruta;
+    }
+
+    /**
+     * 📏 Calcular ancho de una avenida de aproximación
+     */
+    calcularAnchoAvenida(ruta, todosPuntos) {
+        let anchoTotal = 0;
+        let pendienteTotal = 0;
+        let transitabilidadTotal = 0;
+        let muestras = 0;
+        
+        ruta.forEach((nodo, idx) => {
+            if (idx === 0 || idx === ruta.length - 1) return;
+            
+            // Calcular perpendicular a la ruta
+            const anterior = ruta[idx - 1];
+            const siguiente = ruta[idx + 1];
+            
+            // Vector dirección
+            const dirLat = siguiente.lat - anterior.lat;
+            const dirLon = siguiente.lon - anterior.lon;
+            
+            // Vector perpendicular (rotación 90°)
+            const perpLat = -dirLon;
+            const perpLon = dirLat;
+            
+            // Normalizar
+            const mag = Math.sqrt(perpLat * perpLat + perpLon * perpLon);
+            const perpLatNorm = perpLat / mag;
+            const perpLonNorm = perpLon / mag;
+            
+            // Buscar puntos transitables a los lados
+            let anchoIzq = 0;
+            let anchoDer = 0;
+            
+            // Explorar hasta 500m a cada lado
+            for (let dist = 50; dist <= 500; dist += 50) {
+                const offsetLat = perpLatNorm * (dist / 111320);
+                const offsetLon = perpLonNorm * (dist / (111320 * Math.cos(nodo.lat * Math.PI / 180)));
+                
+                // Lado izquierdo
+                const puntoIzq = todosPuntos.find(p => 
+                    Math.abs(p.lat - (nodo.lat + offsetLat)) < 0.0005 &&
+                    Math.abs(p.lon - (nodo.lon + offsetLon)) < 0.0005
+                );
+                
+                if (puntoIzq && puntoIzq.pendiente < 30) {
+                    anchoIzq = dist;
+                }
+                
+                // Lado derecho
+                const puntoDer = todosPuntos.find(p => 
+                    Math.abs(p.lat - (nodo.lat - offsetLat)) < 0.0005 &&
+                    Math.abs(p.lon - (nodo.lon - offsetLon)) < 0.0005
+                );
+                
+                if (puntoDer && puntoDer.pendiente < 30) {
+                    anchoDer = dist;
+                }
+            }
+            
+            anchoTotal += anchoIzq + anchoDer;
+            pendienteTotal += nodo.pendiente;
+            transitabilidadTotal += nodo.pendiente < 30 ? 100 : 0;
+            muestras++;
+        });
+        
+        return {
+            metros: muestras > 0 ? anchoTotal / muestras : 0,
+            pendientePromedio: muestras > 0 ? pendienteTotal / muestras : 0,
+            transitabilidad: muestras > 0 ? transitabilidadTotal / muestras : 0
+        };
+    }
+
+    /**
+     * 📍 Calcular distancia entre dos coordenadas (metros)
+     */
+    calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
+        const R = 6371000; // Radio de la Tierra en metros
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 
 }

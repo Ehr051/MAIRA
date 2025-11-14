@@ -1,0 +1,709 @@
+{
+  "module": "fallas",
+  "size_mb": 7.835814476013184,
+  "total_strings": 466600,
+  "classes": {
+    "Message": 2,
+    "ExternalAddress": 2,
+    "ClassificationTable": 2,
+    "CLSID": 3,
+    "Conectar": 2,
+    "NeedsSelfMask": 2,
+    "BasicListAbstract": 3,
+    "Seccion": 2,
+    "Current": 12,
+    "Salir": 7,
+    "Protocols": 2,
+    "ContainerVersionesAnteriores": 2,
+    "Aceptar": 5,
+    "ContainerLicenciasEspeciales": 2,
+    "Cancelar": 5,
+    "Seleccionar": 2,
+    "GUID": 3,
+    "Table": 4,
+    "Instructions": 2,
+    "Cambiar": 3,
+    "CURRENCY": 2,
+    "Aplicar": 2,
+    "Actualizar": 2,
+    "Versiones": 2,
+    "DefaultInstance": 2,
+    "Registry": 2,
+    "Elemento": 3,
+    "Debug": 5,
+    "FechaUltimaModBds": 2,
+    "Rectangle": 2,
+    "Categories": 3,
+    "INSERT": 2,
+    "LEFT": 2,
+    "Shared": 2,
+    "VARIANT": 2,
+    "UNION": 2,
+    "SamplingInterval": 2,
+    "OPTION": 2,
+    "Fail": 2,
+    "LPWSTR": 2,
+    "Shell": 2,
+    "Volver": 8,
+    "Leyenda": 2,
+    "Imprimir": 2,
+    "AlignmentMap": 5,
+    "Help": 2,
+    "IgnoreCaseMask": 2,
+    "Default": 5,
+    "Cancel": 7,
+    "False": 2,
+    "None": 2,
+    "ViewModes": 2,
+    "Find": 5,
+    "Print": 2,
+    "Instance": 2,
+    "Play": 2,
+    "Copy": 6,
+    "Save": 2,
+    "DolphinSureCertificateInfoR": 4,
+    "Paste": 4,
+    "Delete": 4,
+    "Aborted": 2,
+    "FrameDimensionPage": 2,
+    "PixelFormat": 2,
+    "Text": 2,
+    "Graphic": 3,
+    "Heading": 5,
+    "DregularExpression": 2,
+    "Match": 2,
+    "Steps": 2,
+    "Package": 6,
+    "Remove": 3,
+    "Methods": 3,
+    "Tutorials": 9,
+    "Modify": 2,
+    "Class": 4,
+    "Test": 2,
+    "Disassembly": 2,
+    "Developer": 8,
+    "Timestamp": 8,
+    "Changed": 3,
+    "AutoCompleteDwell": 2,
+    "Blessing": 3,
+    "Selector": 3,
+    "Classes": 2,
+    "Inspector": 2,
+    "DdoIt": 3,
+    "After": 2,
+    "Playground": 2,
+    "Owned": 2,
+    "Property": 2,
+    "Packages": 3,
+    "Before": 2,
+    "Edit": 2,
+    "OmniBase": 2,
+    "Dolphin": 2,
+    "AgentObjects": 2,
+    "Name": 4,
+    "Language": 2,
+    "BBC1": 2,
+    "Expression": 3,
+    "NotSignedCertificateR": 2,
+    "RunAll": 2,
+    "Exit": 3,
+    "ResourceLib": 3,
+    "Height": 2,
+    "Programme": 2,
+    "Redo": 2,
+    "Undo": 2,
+    "Reset": 2,
+    "Index": 2
+  },
+  "numeric_values": [
+    {
+      "method": "r",
+      "value": 8.0,
+      "context": "æ\u0001r:8ZÏ"
+    },
+    {
+      "method": "æ",
+      "value": 0.0,
+      "context": "ä\u0001æ:0\u0017Ò"
+    },
+    {
+      "method": "Â",
+      "value": 0.0,
+      "context": "æ\u0001Â:0,Ó"
+    },
+    {
+      "method": "3",
+      "value": 0.0,
+      "context": "æ\u00013:0pé\b0\u0012\u0005\u0010\n"
+    },
+    {
+      "method": "Ù",
+      "value": 0.0,
+      "context": "ä\u0001Ù:0Ô×"
+    },
+    {
+      "method": "í",
+      "value": 0.0,
+      "context": "ä\u0001í:0ÓÙ"
+    },
+    {
+      "method": "µ",
+      "value": 8.0,
+      "context": "ä\u0001µ:8\u0014Ê\u0005@\u0012\u0005\u0010'"
+    },
+    {
+      "method": "ä",
+      "value": 8.0,
+      "context": "ä\u0001ä:8É{\u0004`\u0012\u0005\u0010$"
+    },
+    {
+      "method": "ß",
+      "value": 0.0,
+      "context": "ô\u0001ß:0}\u0004p\u0011\u0005\u0010\b"
+    },
+    {
+      "method": "ä",
+      "value": 6.0,
+      "context": "ä\u0001ä: 6x\u0005@\u0012\u0005\u0010\u001e"
+    },
+    {
+      "method": "º",
+      "value": 0.0,
+      "context": "ö\u0001º:0²z\u0005`\u0012\u0005\u0010$"
+    },
+    {
+      "method": "ê",
+      "value": 8.0,
+      "context": "æ\u0001ê:8=Ä\u0005@\u0012\u0005\u0010\u0007"
+    },
+    {
+      "method": "ß",
+      "value": 0.0,
+      "context": "æ\u0001ß:0ë¢\u0005 \u0012\u0005\u0010\r"
+    },
+    {
+      "method": "ö",
+      "value": 0.0,
+      "context": "ô\u0004ö:0ù \u0005 \u0012\u0005\u0010\f"
+    },
+    {
+      "method": "P",
+      "value": 0.0,
+      "context": "ô\u0006P:0,\u00050\u0012\u0005\u0010\u000e"
+    },
+    {
+      "method": "µ",
+      "value": 8.0,
+      "context": "æ\u0002µ:8u\u0005@\u0012\u0005\u0010\u0007"
+    },
+    {
+      "method": "P",
+      "value": 0.0,
+      "context": "ô\u0001P:0\u0005 \u0012\u0005\u0010\u000e"
+    },
+    {
+      "method": "9",
+      "value": 0.0,
+      "context": "ô\u00059:0\u0005PV\n\u0010\u0010"
+    },
+    {
+      "method": "C",
+      "value": 0.0,
+      "context": "ô\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+    },
+    {
+      "method": "10",
+      "value": 41.0,
+      "context": "\n\u0010À\u0012\u000f\u001010:41:13 p.m."
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:a :b | (a at: 2) < (b at: 2)]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:a :b | (a at: 2) < (b at: 2)]"
+    },
+    {
+      "method": "unknown",
+      "value": 7.01,
+      "context": "7.01"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "[:a :b | (a at: 1) combustible < (b at: 1) combustible]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "[:a :b | (a at: 1) combustible < (b at: 1) combustible]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "[:a :b | (a at: 1) movimiento < (b at: 1) movimiento]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "[:a :b | (a at: 1) movimiento < (b at: 1) movimiento]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u0010[:o | (o at: 1) movimiento]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u0010 Ý\u000f\u0010`\b\u0006\u0010àÕ\u000e\u0010À\u0007\u0010@ò\u0006\u0010àÛ\u000f\u0010ðÞ\b\u0010[:a :b | (a at: 1) descripcion < (b at: 1) descripcion]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u0010 Ý\u000f\u0010`\b\u0006\u0010àÕ\u000e\u0010À\u0007\u0010@ò\u0006\u0010àÛ\u000f\u0010ðÞ\b\u0010[:a :b | (a at: 1) descripcion < (b at: 1) descripcion]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "[:o | (o at: 1) descripcion]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u001ei\u0011?\u0012?j[:a :b | (a at: 1) nombre < (b at: 1) nombre]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u001ei\u0011?\u0012?j[:a :b | (a at: 1) nombre < (b at: 1) nombre]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "õ\t\u0010\u001ei\u0011?jÀ\u000b\u000f\u0010 \u0003\u000f\u0010[:o | (o at: 1) nombre]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:o | (o at: 2)]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u0010ðú\u000e\u0010¯\t\u0010À\u0007\u0010@ò\u0006\u00100î\u000e\u0010[:o | (o at: 1) combustible]"
+    },
+    {
+      "method": "bitOr",
+      "value": 0.0,
+      "context": "\u0011\u0010@\u0011\u0010``@arg bitOr: 0"
+    },
+    {
+      "method": "bitAnd",
+      "value": 0.0,
+      "context": "\u0005\u0010-\u001e²iÐ\u000f\u0010 ­\u0011\u0010Ð%\b\u0010``@arg bitAnd: 0"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u0010àÌ\u0012\u0010\u0010\u001a\u0005\u0010Ä\u0012\u0010 \u0017\u0013\u0010ð\u0012\u0010`@collection at: 1"
+    },
+    {
+      "method": "Ý",
+      "value": 0.0,
+      "context": "\u0005\u0010pT\u0013\u0010R\u0013\u0010L\u0013\u0010ª\u0005\u0010 j\u0013\u0010«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "Uses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+    },
+    {
+      "method": "l9",
+      "value": 0.0,
+      "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+    },
+    {
+      "method": "N",
+      "value": 1.0,
+      "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "\u0005\u0010 r\u0016\u0010\"Literal arrays are created at parse time:\"\r\n\r\n#(1 2 3).\r\n\r\n#( 1 2 3 #(4 5 6)) size.\r\n\r\n#(1 2 "
+    },
+    {
+      "method": "max",
+      "value": 2.0,
+      "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+    },
+    {
+      "method": "00",
+      "value": 0.0,
+      "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "9±IQe[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "[:each | (each at: 2) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "\u0005\u0010°å\u001d\u0010[:each | (each at: 3) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "[:each | (each at: 4) displayString]"
+    },
+    {
+      "method": "at",
+      "value": 5.0,
+      "context": "[:each | (each at: 5) displayString]"
+    },
+    {
+      "method": "primitive",
+      "value": 1.0,
+      "context": "Primitive or external call tag, e.g. <primitive: 1>"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "ä \u0010[:a | a at: 2]"
+    },
+    {
+      "method": "Î",
+      "value": 9.0,
+      "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+    },
+    {
+      "method": "Version",
+      "value": 1.0,
+      "context": "\u0005\u0010u\u000f\u0010p$\t\u0010Pd\u0005\u0010«\u0011w­igMIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+    },
+    {
+      "method": "rating",
+      "value": 2.0,
+      "context": "\u0005\u0010`(\u0010À<&\u0010\u0010'\u0010[ :recording :val | recording rating: 2]"
+    },
+    {
+      "method": "rating",
+      "value": 3.0,
+      "context": "[ :recording :val | recording rating: 3]"
+    },
+    {
+      "method": "rating",
+      "value": 1.0,
+      "context": "[ :recording :val | recording rating: 1]"
+    },
+    {
+      "method": "12",
+      "value": 0.0,
+      "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+    },
+    {
+      "method": "19",
+      "value": 0.0,
+      "context": "19:00"
+    },
+    {
+      "method": "17",
+      "value": 15.0,
+      "context": "\u0005\u0010\u0010ê*\u001017:15"
+    },
+    {
+      "method": "t6ÍÃM",
+      "value": 7.0,
+      "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+    },
+    {
+      "method": "t",
+      "value": 4.0,
+      "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+    },
+    {
+      "method": "at",
+      "value": 4.0,
+      "context": "\u0005\u0010 \u0010,\u00100Q\u000f\u0010@X\n\u0010Ó\u0007\u00100d\u0005\u0010[:o | o at: 4]"
+    },
+    {
+      "method": "at",
+      "value": 1.0,
+      "context": "\u0005\u00109\u001d±l\u0010\u001e\u001d\u0010 \u001b\b\u0010[:o | o at: 1]"
+    },
+    {
+      "method": "at",
+      "value": 2.0,
+      "context": "â\t\u0010p'\u0006\u0010 ½\u0011\u0010àI\n\u0010à¦\u0005\u0010[:o | o at: 2]"
+    },
+    {
+      "method": "at",
+      "value": 3.0,
+      "context": "D<Q;Se\u0007ß\u0002«W\u0007i[:o | o at: 3]"
+    }
+  ],
+  "keywords_found": {
+    "combustible": [
+      "\u0005\u00100e\u000e\u0010combustible",
+      "pÁ\f\u0010°\u0003\n\u0010combustible:",
+      "\u0005\u0010À1\u001c\u0010Ð\u0014\u0010`X\u0006\u0010 ã#\u0010combustible",
+      "tipocombustible",
+      "\u0005\u0010pµ\u000e\u0010À7\u0005\u0010consultarNombreCombustible:",
+      "SELECT * FROM tipocombustible",
+      "[:a :b | (a at: 1) combustible < (b at: 1) combustible]",
+      "tipocombustible:",
+      ";\u0005\u0010ª\u0005\u0010\u0010¹\u000e\u0010 §\u0005\u0010ª\b\u0010Representa la cantidad de ocurrencia por cada tipo de combustible. (Valor promedio en función en la cantidad de iteraciones)",
+      "\u0005\u0010Þ\u0006\u0010`\u0006\u0010ÐG\u0006\u0010\u0018\n\u00100ä\u0005\u0010 \u0006\u0006\u0010Ðj\b\u0010°¬\u0005\u0010 Æ\r\u0010ocurrenciaPorTipoDeCombustible",
+      "\u0005\u0010 Þ\u000f\u0010 Ù\u000e\u0010àÕ\u000e\u0010À\u0007\u0010@ò\u0006\u0010 Ï\u000f\u0010ðp\f\u0010\u0010d\u0005\u0010°~\u0007\u0010- y1£¤ig ×\u000e\u0010 á\u001b\u0010Gráfico de ocurrencia por tipo de combustible",
+      "Combustible",
+      "Ocurrencia por tipo de combustible",
+      "importarTipoCombustible",
+      "\u0005\u0010ð¤\u000e\u0010consultarCombustibleDelVehiculo:",
+      "TipoCombustible",
+      "\u0011Ö\u0010y@\u0011°n>Z9­\u0012c0 ~iTipoCombustibleId",
+      "\u0005\u0010^\u000f\u0010@:\u000f\u0010tipocombustible",
+      "\u0005\u0010ðú\u000e\u0010¯\t\u0010À\u0007\u0010@ò\u0006\u00100î\u000e\u0010[:o | (o at: 1) combustible]"
+    ],
+    "transporte": [
+      "\u0005\u0010àÓ\u0005\u0010Ð£\u001d\u0010mediodetransporte",
+      "\n\u0010`p\n\u0010 `\u000b\u0010Ð\b\u0010@Ò\u000f\u0010mediodetransporte",
+      "SELECT * FROM mediodetransporte",
+      "\u0005\u0010\u0011Ó\u0016emediodetransporte:",
+      "@X\u0010\u0010Ð\u000f\u0010importarMedioDeTransporte",
+      "mediodetransporte"
+    ],
+    "elemento": [
+      "cambiarIdElemento:",
+      "\u0011\u0005\u0010@_\n\u0010\u0010>\u0005\u0010à\u0012\u0005\u0010moverElemento:de:a:y:",
+      "elementosCargados:",
+      "\u0005\u0010«\u0011±i\u0010\u000b\u0010Àµ\n\u0010cambiarId:elemento:",
+      "idNuevoElementoResultado:",
+      "cantidadVehiculosMasSubelementos",
+      "\b\u0006\u0010p8\u0005\u0010 u\u0005\u0010@\u001f\b\u0010 \f\u0014\u0010 §\u0005\u0010ª\u0005\u0010cargarSubElemento:y:",
+      "tipoelemento",
+      "\u0005\u0010 \u0006\u0010 °\f\u0010ð[\u000b\u0010Ð\u0006\u0010@)\n\u0010Pd\u0005\u0010\u0003@\u0011¾SequitarPersonaSinVehiculo:deElemento:y:",
+      "borrarPersonasElemento:",
+      "materialelemento",
+      "\u0005\u0010à\u000e\u0015\u0010ð7\u0010\u0010pc\u0005\u0010ð\u0005\u0010È\u0014\u0010 t\u0005\u0010Pd\u0005\u0010ð¤\u0010\u0010À\r\u0010\u0010SELECT t.nombre AS tropa FROM  materialelemento t \r\n\t\t\t WHERE t.Id=",
+      "\u0005\u0010h\u0005\u0010à,\n\u0010À\u0007\u00100j\t\u0010Àû\u0005\u0010quitarSubElemento:",
+      "Às\f\u0010elementosComunicacion",
+      "\u0005\u0010mÌ\u0002iSELECT co.*, n.nombre AS nivel FROM co co INNER JOIN nivelelemento n ON co.nivelElementoId =n.id WHERE upper(nombreClase)=",
+      "\u0005\u0010\t\u0010°Ü\t\u0010Ð{\u0007\u0010¥\u0005\u0010`\u0005\u0010\u0010d\u0005\u0010idElemento:",
+      "\u0005\u0010 \f\u0010\u0010m\f\u0010Ð{\u0007\u0010\u0010\n\u0010Elemento de Apoyo",
+      "' AND co.nivelElementoId=n.id",
+      "idElemento",
+      "\u0005\u0010mÌ\u0001iSELECT VehiculoId FROM vehiculosxelemento WHERE ElementoId="
+    ],
+    "organizacion": [
+      "\u0005\u0010Ð\u0007\u0010b\t\u0010°x\t\u0010esUnCuadroOrganizacionValido:",
+      "\u0005\u0010 z+\u0010 s\u001d\u0010datosOrganizacion",
+      "OrganizacionCombateId",
+      "cuadroorganizacion",
+      "ip\u000b\u0010ElementoOrganizacionCombate",
+      "cargarOrganizaciones:",
+      "\u0005\u0010 \u0005\u0010àv\u001d\u0010organizacioncombate",
+      "`\u001d\u0010 3\u001e\u0010elementosOrganizacionCombate",
+      "datosOrganizacion",
+      "\u0005\u0010½\r\u0010Põ\b\u0010P{\u0007\u0010inicializarElementosOrganizacionCombate",
+      " \r\u0010§\r\u0010p\r\u0010\r\u0010Ð?\r\u0010p.\u000e\u0010\u0010\r\u0010elementosOrganizacionCombate",
+      "\u0005\u00109-<é\u0001\u0013Ø²i9z\u0011aÛøhelementosOrganizacionCombate:",
+      "\u0005\u00100G\u0007\u0010À¸\b\u0010ð\u0006\u0010°¹\b\u0010organizacionId:",
+      "K\u0004!pâ\u0001j²³ldatosOrganizacion:",
+      "OrganizacionCombate"
+    ],
+    "cuadro": [
+      "\u0005\u0010Ð\u0007\u0010b\t\u0010°x\t\u0010esUnCuadroOrganizacionValido:",
+      "cuadroorganizacion",
+      "\u0005\u0010dibujarCuadroDescripcionesEn:",
+      "-i«Z. \u0011@\u0011cÁ\u0012ÂGÆÜ\u00042\u0013¶a\u0012iAdministración de CCOO",
+      "\u0005\u0010`y\n\u0010ð\u000f\u00100\b\u0010\u0010PO\t\u0010Procesando los CCOO..."
+    ],
+    "personal": [
+      "\u0005\u0010pr\t\u0010P8\b\u0010-\u0001Ö\u0004~@Âi\u0001\u0002\u0003~\u0004°ipersonal:",
+      "\u0005\u0010-¬²ip\u0017\n\u0010@í\n\u0010À,\f\u0010personal",
+      "personalCompletoParaInstanciar",
+      "personal",
+      "\u0005\u00100Í\u0007\u0010ðD\u0005\u0010pH\u0006\u0010asignarPersonalAEmbarquesEn:",
+      "Existen Material de tipo Motorizada, Blindada o Mecanizada con personal sin asignar a vehículos.",
+      "tieneTodosLosVehiculosConPersonalDesde:",
+      "N\u000e\u0010 ï\t\u0010À\r\u0010Existen vehículos sin personal asignado.",
+      "PersonalMoney",
+      "DolphinSurePersonalCertificate",
+      "Resources/DolphinSurePersonalCert.jpg",
+      "PersonalMoneyShell",
+      "ð\u0006\u0010PersonalAccount",
+      "Personal Account Details",
+      "ð\u0006\u0010ª\u0005\u0010PersonalAccountTransactionDialog",
+      "PersonalAccountTransaction",
+      "\u0005\u0010@M\u0005\u0010ð\u0005\u0010\u0010J\b\u0010à¯\b\u0010@#\t\u0010Pó\t\u0010ð4\n\u0010À\n\u0010@\u0003\u000b\u0010àÈ\u000f\u0010\u0010\u000b\u0010\u0010\u0010\u0005\u0013\u0010`\u0003\u0017\u0010 Ç\u0017\u0010@j\u0018\u0010`Ø\u0019\u00100|\u001c\u0010ð¸$\u0010às%\u0010p%\u0010ÐÃ+\u0010<,\u0010\u0010s*\u0010ð\u001d\u0010$\u001d\u0010ð\n\u0010ài\t\u0010P\u0005\u0010-?.ÀiPersonalMoney",
+      " 5*\u0010à=)\u0010Personal Money files (*.pm)",
+      "à#\u0010PersonalAccountShell",
+      "Personal Money Application"
+    ],
+    "baja": [
+      "\u0005\u0010`w\u001c\u0010bajarAlpha:",
+      "bajarAlpha"
+    ],
+    "prisionero": [
+      "æ\u0001µ­PGé\b0\u0012\u0005\u0010\u000b",
+      "æ\u0001@îPGÜ",
+      "ô\u00060PGÒ",
+      "æ\u0001:PGÓ",
+      "ô\u0006PGXåæ\b0\u0012\u0005\u0010\u0012",
+      "ä\u0001:þPGì\b`\u0012\u0005\u0010\u0018",
+      "æ3oQPG×",
+      "æ\u0001KEPGh\u0004 \u0012\u0005\u0010\u000b",
+      "ô\u0001~ PGÚ",
+      "æ\u0001óºPGB\b`\u0012\u0005\u0010\u0018",
+      "æ\u0001uPGq\u0004`\u0012\u0005\u0010\u0014",
+      "ô\u0001u>PGs\u0004 \u0012\u0005\u0010\u000e",
+      "æ\u0001PGð¿t\u00040\u0012\u0005\u0010\r",
+      "ô\u00011PGv\u0004`\u0012\u0005\u0010\u0014",
+      "æ\u0001|¨PGx\u00040\u0012\u0005\u0010\u0010",
+      "æ\u0001°PGy\u0004 0\u0013\u0010\u0010",
+      "ä\u0001\u000bÄPGÉ\u0005`\u0012\u0005\u0010\u0018",
+      "æ\u0001Ã\u001fPGu\u0005@\u0011\u0005\u0010\b",
+      "ô\u0001]ëPGz\u00050\u0012\u0005\u0010\n",
+      "ô\u0014 PGÅ\u0005`\u0012\u0005\u0010\u0014"
+    ],
+    "combate": [
+      "\u0005\u0010orgCombate",
+      "OrganizacionCombateId",
+      "ip\u000b\u0010ElementoOrganizacionCombate",
+      "\u0005\u0010 \u0005\u0010àv\u001d\u0010organizacioncombate",
+      "`\u001d\u0010 3\u001e\u0010elementosOrganizacionCombate",
+      "k\r\u0010Ã\t\u0010Ð{\u0007\u0010 7\t\u0010P\r\u0010à¶\t\u0010Pè\r\u0010á\r\u0010ð»\r\u0010p\r\u0010p\r\u0010°y\r\u0010orgCombate:",
+      "\u0005\u0010½\r\u0010Põ\b\u0010P{\u0007\u0010inicializarElementosOrganizacionCombate",
+      " \r\u0010§\r\u0010p\r\u0010\r\u0010Ð?\r\u0010p.\u000e\u0010\u0010\r\u0010elementosOrganizacionCombate",
+      "\u0005\u00109-<é\u0001\u0013Ø²i9z\u0011aÛøhelementosOrganizacionCombate:",
+      "\u0005\u0010«vehP£\u0006\u0010Pd\u0005\u0010orgCombate",
+      "a>Q>ReExisten personas o vehículos sin una Organización para el Combate asignada.",
+      "OrganizacionCombate"
+    ],
+    "falla": [
+      "EstimacionDeFallas",
+      "\u0005\u0010 å\u001e\u0010 s\u001d\u0010consultarEpsilonDeLaFalla:",
+      "\u0005\u0010 $\r\u0010Ð#\r\u0010@\u0005\u00109- ¡´iNo ocurrieron fallas en los vehículos",
+      "B\u000fNo hubo fallas en los vehículos.",
+      "\u001bbO\u0012â\u0005¶K\u0011·J\u001b\u0013Öd¦j¹jºlctrlFallaDeVehiculo",
+      "ctrlAvisoDeFallaNula",
+      "DlistaFallas",
+      "A²jÁictrListaFallas",
+      "\u0005\u0010mÌ\u0001iVehiculoFallas",
+      "consultarNombreDeFalla:",
+      "\u0005\u0010\u000e\u0010 ¬\u0006\u0010à£\u0007\u0010@<\u0005\u0010ctrlFallaDeVehiculo:",
+      "\u0005\u00100\u000e\u0010Àx\u000e\u0010ð¢\u0006\u0010pc\u0005\u0010 ¬\u0006\u0010Pd\u0005\u0010fallaDeVehiculo",
+      "7\u0014\u0010°#\u0005\u0010à¦\u0005\u0010Cantidad de Fallas Por Vehículo",
+      "\u0011\u001e²¡¢âDµÝ\t\u0011$²¡¢â$µj;j&o<jØHiEstimacionDeFallasShell",
+      "avisoDeFallaNula",
+      "Estimación de Fallas",
+      "Estimación De Fallas",
+      "õ\t\u0010falla",
+      "\u0005\u0010El tiempo promedio de reparación de todas las fallas que se produzcan durante el recorrido será: ",
+      "Ö\u0006\u001003\u0005\u00100Ý\u000e\u0010ctrlAvisoDeFallaNula:"
+    ],
+    "mantenimiento": [
+      "nivelDeMantenimiento:",
+      "nivelDeMantenimiento",
+      "nivelDeMantenimiento",
+      "[:o|o nivelDeMantenimiento]",
+      "Nivel de mantenimiento: ",
+      "Ocurrencia por tipo de nivel de mantenimiento",
+      "-­â\u0003â\u0004<ØiRepresenta la cantidad de ocurrencia por cada tipo de nivel de mantenimiento. (Valor promedio en función en la cantidad de iteraciones)",
+      " ,\u000e\u0010estimarNivelDeMantenimiento",
+      "Gráfico de ocurrencia por tipo de nivel de mantenimiento",
+      "\u0005\u0010[:a :b | (a nivelDeMantenimiento) > (b  nivelDeMantenimiento)]",
+      "<æÚ-%ó³G«ÃKØNéNivel de mantenimiento",
+      "9>>°\u0011±²¡iocurrenciaPorTipoDeNivelDeMantenimiento"
+    ],
+    "reparacion": [
+      "tiempoDeReparacion",
+      "õ\t\u0010masInfoTiempoPromedioReparacion",
+      "\u0005\u0010tiempoDeReparacion:",
+      "\u0005\u0010°ð\u0011\u0010à\b\u0010Pd\u0005\u0010ðÔ\u000f\u0010\u0010\u0011\u000f\u00100G\u0010\u00100u\u0010\u0010[:o|o tiempoDeReparacionEnHorasYMinutos]",
+      "\u0005\u0010El tiempo promedio de reparación de todas las fallas que se produzcan durante el recorrido será: ",
+      "TiempoPromedioDeReparacionDialog",
+      "tiempoDeReparacion",
+      "\u0005\u0010p»\u000e\u0010consultarTiempoMinimoDeReparacion:",
+      "tiempoDeReparacionEnHorasYMinutos",
+      "Tiempo de reparacion: ",
+      "[:a :b | (a tiempoDeReparacion) > (b tiempoDeReparacion)]",
+      "estimarTiempoDeReparacion:",
+      "\u0005\u0010À§\r\u0010¯\t\u0010À\u0007\u0010 ­\u0005\u0010Tiempo promedio de reparación",
+      "\u0005\u0010@N\u000f\u0010tiempoPromedioDeReparacion",
+      "calcularTiempoDeReparacion:",
+      "9-w¬i9-³EZâ\u0004JiTiempo de reparación"
+    ],
+    "pendiente": [
+      "\u0005\u0010p°\u0007\u0010ð¢\u0006\u0010ð\u0005\u0010pc\u0005\u0010esIndependiente",
+      "esSubUnidadIndependiente",
+      "\u0005\u0010tipoSubUnidadIndependiente",
+      "SubUnidad_Independiente",
+      "°i\u0005\u0010SubUnidad_Independiente"
+    ],
+    "vehiculo": [
+      "\u0005\u0010(\u00100W\n\u0010@T\u0007\u0010@i\u0007\u0010p{\u000b\u0010ðl\u0007\u0010quitarVehiculo:de:y:",
+      "\u0005\u0010actualizarVehiculo:enVehiculo:y:",
+      "\u0005\u0010dvocomunicacionxvehiculo",
+      "S\u001d\u0010P¦\u001c\u0010ÀD\u0013\u0010quitarPersonaVehiculo",
+      "\u0005\u0010!\u0006\u00100;\u0006\u0010P¦\u001c\u0010ÀD\u0013\u0010idNuevoVehiculoResultado:",
+      "cantidadVehiculosMasSubelementos",
+      "\u0005\u0010°²\u0006\u0010pÈ\u0006\u0010Ð£\u001d\u0010ÀD\u0013\u0010consultarMovimientoDelVehiculo:",
+      "\u0005\u0010 \u0006\u0010 °\f\u0010ð[\u000b\u0010Ð\u0006\u0010@)\n\u0010Pd\u0005\u0010\u0003@\u0011¾SequitarPersonaSinVehiculo:deElemento:y:",
+      "\u0004±Z9d\u0012²L\u0012³L\u0012´L\u0012µL\u0012¶L\u0012·L\u0012¸L\u0012¹L\u0012ºJ»J)½Iâ.Ø/lcargarVehiculosDesde:y:",
+      "-\u0011±y\u0002\u0011µj<j·l6¨(\u0001¼*¼Ï\u000eØ\u000f¼Î\u0010¼6¨Ø\u0011ØRa6¨Ø\u0013Ø\u0014a\u00026¨Ø\u0013Ø\u0015²a\u0002¡¢lbdIdVehiculo",
+      "\u0002\u0007\u0010bdIdVehiculo:",
+      "p\u0015\u0007\u0010buscarVehiculoParaPersona:",
+      "\u0005\u0010SELECT VehiculoId FROM personasxvehiculo WHERE PersonaId=",
+      "VehiculoId",
+      "-d­³L¯³Lç\u0005³Lç\u0006³L9$¸³LA¹³Lç\n³Lç\u000b³Lç\f³Lç\r³Lç\u000e³aªiSELECT * FROM vehiculotropa WHERE Id=",
+      "\u0005\u0010mÌ\u0001iSELECT VehiculoId FROM vehiculosxelemento WHERE ElementoId=",
+      " Ì>J2importarVehiculos:",
+      "­\u0005\u0010°%\u0007\u0010\u0010®\u0005\u0010idEmbarque:yCodVehiculoBD:",
+      "\u0005\u0010à:\u0007\u0010Pr\u0006\u0010 Ð\b\u0010Ã\t\u0010Ð{\u0007\u0010p2\u000b\u0010`#\t\u0010°d\b\u00109«±ibuscarComParaVehiculo:",
+      "buscarAcopladoParaVehiculo:"
+    ],
+    "velocidad": [
+      ";\u0005\u0010P£\u0006\u0010 §\u0005\u0010Pd\u0005\u0010 \u0006\u0010ctrlVelocidadDeMarcha",
+      "â\rÝ\u000eé\u0001·aâ\bz\u0011â)ºj<j<jØ.aevelocidadRefresco",
+      "velocidadRefresco",
+      "cantidadCuadrados:extentCuadrado:circular:color:velocidadRefresco:radio:",
+      "ðR\f\u0010°6\f\u0010velocidadRefresco:",
+      "cantidadCuadrados:extentCuadrado:porcentajeCuadradoGrande:circular:color:velocidadRefresco:",
+      "Ð\u0013\u0007\u0010La velocidad ingresada debe ser mayor que 0",
+      "\u0005\u0010\u001a\u000b\u0010Àg\u0010\u0010b\u0010\u0010c\u0010\u0010velocidadDeMarcha",
+      "\u0005\u0010Velocidad de marcha: ",
+      "¢\u0006\u0010P\t\u0010validarVelocidad",
+      "La velocidad ingresada debe ser menor que 200",
+      "\u0005\u00109\u0010\u00100!\u001f\u0010p¡\b\u0010P²\u0006\u0010 ?\u0010\u00100d\u0005\u0010 Ð\u0005\u0010\n\u0010pQ\u0010\u0010\u0012\u0010\u0010à¦\u0005\u0010velocidadDeMarcha",
+      "\u0005\u0010Velocidad de marcha: ",
+      "Pc\n\u0010velocidadDeMarcha"
+    ]
+  },
+  "methods_of_interest": []
+}

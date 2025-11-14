@@ -157,6 +157,19 @@ window.agregarMarcador = function(sidc, nombre) {
 
         // ✅ JUEGO DE GUERRA V2: Validación SIDC y zona
         if (window.faseManager && typeof ValidacionesGeometricas !== 'undefined') {
+            // ✅ VALIDACIÓN DE FASE: Solo permitir agregar en PREPARACION y DESPLIEGUE
+            let faseActual = window.faseManager.faseActual || window.faseManager.obtenerFaseActual?.() || '';
+            faseActual = faseActual.toLowerCase(); // Normalizar a minúsculas
+            
+            // Bloquear en COMBATE y cualquier fase que no sea preparacion/despliegue
+            if (faseActual && faseActual !== 'preparacion' && faseActual !== 'despliegue') {
+                alert(`❌ No se pueden agregar elementos en fase ${faseActual.toUpperCase()}\n\nSolo puedes agregar elementos durante:\n• PREPARACIÓN\n• DESPLIEGUE`);
+                console.log(`🚫 BLOQUEADO: Intento de agregar en fase ${faseActual}`);
+                return;
+            }
+            
+            console.log(`✅ Validación de fase: ${faseActual} - Permitido agregar`);
+            
             // Obtener afiliado del SIDC
             const afiliado = ValidacionesGeometricas.obtenerAfiliadoSIDC(sidc);
 
@@ -277,8 +290,10 @@ window.agregarMarcador = function(sidc, nombre) {
             draggable: (function() {
                 // JuegoV2: Solo draggable en fase PREPARACIÓN o DESPLIEGUE
                 if (window.faseManager) {
-                    const fase = window.faseManager.faseActual;
-                    return fase === 'preparacion' || fase === 'despliegue';
+                    const fase = (window.faseManager.faseActual || '').toLowerCase();
+                    const permitido = fase === 'preparacion' || fase === 'despliegue';
+                    console.log(`🔍 Creando marcador - Fase: ${fase}, Draggable: ${permitido}`);
+                    return permitido;
                 }
                 // JuegoGuerra clásico
                 if (modoJuegoGuerra) {
@@ -337,7 +352,14 @@ window.agregarMarcador = function(sidc, nombre) {
             });
 
             marcador.on('dragstart', function() {
-                if (window.gestorJuego?.gestorFases?.fase !== 'preparacion') {
+                // Bloquear drag fuera de preparacion/despliegue
+                if (window.faseManager) {
+                    const fase = (window.faseManager.faseActual || '').toLowerCase();
+                    if (fase !== 'preparacion' && fase !== 'despliegue') {
+                        console.log(`🚫 Drag bloqueado en fase: ${fase}`);
+                        return false;
+                    }
+                } else if (window.gestorJuego?.gestorFases?.fase !== 'preparacion') {
                     return false;
                 }
                 this._origLatLng = this.getLatLng();
@@ -801,7 +823,9 @@ function actualizarDraggableSegunFase(fase) {
 
     // En COMBATE: marcadores NO son draggable
     // En PREPARACIÓN o DESPLIEGUE: marcadores SÍ son draggable
-    const permitirDrag = fase === 'preparacion' || fase === 'despliegue';
+    const faseNorm = (fase || '').toLowerCase();
+    const permitirDrag = faseNorm === 'preparacion' || faseNorm === 'despliegue';
+    console.log(`🔒 Fase: ${faseNorm}, Permitir drag: ${permitirDrag}`);
 
     // Iterar sobre todas las capas del mapa
     window.map.eachLayer(function(layer) {

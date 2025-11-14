@@ -1,0 +1,505 @@
+{
+  "version": "1.0.0",
+  "source": "BV8 - dbDatos.data + ejercicio.xml",
+  "descripcion": "Catálogo completo de vehículos argentinos con dotaciones y SIDC",
+  
+  "tam_tanque": {
+    "id": "tam_tanque",
+    "bdId": "TAMTanque",
+    "nombre": "TAM (Tanque Argentino Mediano)",
+    "tipo": "main_battle_tank",
+    "sidc_base": "SFGPUCRT---*----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "jefe_tam": 1,
+      "tirador_tam": 1,
+      "cargador_tam": 1,
+      "conductor_tam": 1
+    },
+    "tripulacion_total": 4,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "Cañón 105mm L7",
+        "calibre": 105,
+        "municion_tipo": "proyectil_105mm",
+        "capacidad_municion": 50
+      },
+      "secundario": [
+        {
+          "tipo": "MAG 7.62mm coaxial",
+          "calibre": 7.62,
+          "municion_tipo": "municion_762",
+          "capacidad_municion": 6000
+        },
+        {
+          "tipo": "M2 12.7mm antiaéreo",
+          "calibre": 12.7,
+          "municion_tipo": "municion_127",
+          "capacidad_municion": 1000
+        }
+      ]
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 650,
+        "unidad": "litros",
+        "autonomia_km": 550
+      },
+      "municion": {
+        "proyectil_105mm": 50,
+        "municion_762": 6000,
+        "municion_127": 1000
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 30500,
+      "velocidad_max": 75,
+      "autonomia": 550,
+      "consumo_km": 1.18,
+      "blindaje_frontal": 50,
+      "tripulantes": 4
+    }
+  },
+  
+  "vctp_tam": {
+    "id": "vctp_tam",
+    "bdId": "VCTPTAM",
+    "nombre": "VCTP TAM (Vehículo Combate Transporte Personal)",
+    "tipo": "infantry_fighting_vehicle",
+    "sidc_base": "SFGPUCVI---*----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "jefe_vctp": 1,
+      "tirador_vctp": 1,
+      "conductor_vctp": 1
+    },
+    "tripulacion_total": 3,
+    "capacidad_pasajeros": 8,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "Cañón 20mm Oerlikon",
+        "calibre": 20,
+        "municion_tipo": "municion_20mm",
+        "capacidad_municion": 800
+      },
+      "secundario": [
+        {
+          "tipo": "MAG 7.62mm coaxial",
+          "calibre": 7.62,
+          "municion_tipo": "municion_762",
+          "capacidad_municion": 2000
+        }
+      ]
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 510,
+        "unidad": "litros",
+        "autonomia_km": 500
+      },
+      "municion": {
+        "municion_20mm": 800,
+        "municion_762": 2000
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 28000,
+      "velocidad_max": 75,
+      "autonomia": 500,
+      "consumo_km": 1.02,
+      "blindaje_frontal": 40,
+      "tripulantes": 3,
+      "pasajeros": 8
+    }
+  },
+  
+  "vca_155mm_tam": {
+    "id": "vca_155mm_tam",
+    "bdId": "VCA155mmTAM",
+    "nombre": "VCA 155mm TAM (Autopropulsado)",
+    "tipo": "self_propelled_artillery",
+    "sidc_base": "SFGPUCFH---*----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "jefe_artilleria": 1,
+      "apuntador_artilleria": 1,
+      "cargador_artilleria": 2,
+      "conductor_tam": 1
+    },
+    "tripulacion_total": 5,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "Obús 155mm/39cal",
+        "calibre": 155,
+        "municion_tipo": "proyectil_155mm",
+        "capacidad_municion": 30
+      }
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 650,
+        "unidad": "litros",
+        "autonomia_km": 550
+      },
+      "municion": {
+        "proyectil_155mm": 30
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 31000,
+      "velocidad_max": 70,
+      "autonomia": 550,
+      "consumo_km": 1.18,
+      "alcance_max_km": 30,
+      "tripulantes": 5
+    }
+  },
+  
+  "m113": {
+    "id": "m113",
+    "bdId": "M113",
+    "nombre": "M113 APC",
+    "tipo": "armored_personnel_carrier",
+    "sidc_base": "SFGPUCV----*----",
+    "nacionalidad": "usa",
+    
+    "tripulacion_roles": {
+      "jefe_m113": 1,
+      "conductor_m113": 1
+    },
+    "tripulacion_total": 2,
+    "capacidad_pasajeros": 11,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "M2 12.7mm",
+        "calibre": 12.7,
+        "municion_tipo": "municion_127",
+        "capacidad_municion": 2000
+      }
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 360,
+        "unidad": "litros",
+        "autonomia_km": 480
+      },
+      "municion": {
+        "municion_127": 2000
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 12300,
+      "velocidad_max": 65,
+      "autonomia": 480,
+      "consumo_km": 0.75,
+      "blindaje_frontal": 25,
+      "tripulantes": 2,
+      "pasajeros": 11
+    }
+  },
+  
+  "vcpc_m113": {
+    "id": "vcpc_m113",
+    "bdId": "VCPCM113",
+    "nombre": "VCPC M113 (Puesto Comando)",
+    "tipo": "command_vehicle",
+    "sidc_base": "SFGPUCV----A----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "jefe_m113": 1,
+      "conductor_m113": 1,
+      "operador_radio": 2
+    },
+    "tripulacion_total": 4,
+    "capacidad_pasajeros": 7,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "M2 12.7mm",
+        "calibre": 12.7,
+        "municion_tipo": "municion_127",
+        "capacidad_municion": 1000
+      }
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 360,
+        "unidad": "litros",
+        "autonomia_km": 480
+      },
+      "municion": {
+        "municion_127": 1000
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 12800,
+      "velocidad_max": 65,
+      "autonomia": 480,
+      "consumo_km": 0.75,
+      "tripulantes": 4,
+      "pasajeros": 7,
+      "equipamiento_especial": ["radio_largo_alcance", "mesa_trabajo", "mapas"]
+    }
+  },
+  
+  "vcamb_m113": {
+    "id": "vcamb_m113",
+    "bdId": "VCAmbBlM113",
+    "nombre": "VC Ambulancia M113",
+    "tipo": "ambulance",
+    "sidc_base": "SFGPUSM----*----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "conductor_m113": 1,
+      "enfermero": 2
+    },
+    "tripulacion_total": 3,
+    "capacidad_camillas": 4,
+    
+    "armamento": {
+      "principal": null
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 360,
+        "unidad": "litros",
+        "autonomia_km": 480
+      },
+      "equipamiento_medico": {
+        "botiquin_avanzado": 1,
+        "camillas": 4,
+        "morfina": 20,
+        "vendas": 50
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 12500,
+      "velocidad_max": 65,
+      "autonomia": 480,
+      "consumo_km": 0.75,
+      "tripulantes": 3,
+      "camillas": 4,
+      "equipamiento_especial": ["equipo_medico", "camillas", "botiquin"]
+    }
+  },
+  
+  "vcrecup_m113": {
+    "id": "vcrecup_m113",
+    "bdId": "VCRecupM113",
+    "nombre": "VC Recuperación M113",
+    "tipo": "recovery_vehicle",
+    "sidc_base": "SFGPUSS----*----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "jefe_m113": 1,
+      "conductor_m113": 1,
+      "mecanico": 2
+    },
+    "tripulacion_total": 4,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "M2 12.7mm",
+        "calibre": 12.7,
+        "municion_tipo": "municion_127",
+        "capacidad_municion": 1000
+      }
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 360,
+        "unidad": "litros",
+        "autonomia_km": 480
+      },
+      "municion": {
+        "municion_127": 1000
+      },
+      "repuestos": {
+        "kit_herramientas": 1,
+        "aceite_motor": 40,
+        "filtros": 5
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 13500,
+      "velocidad_max": 60,
+      "autonomia": 480,
+      "consumo_km": 0.75,
+      "tripulantes": 4,
+      "capacidad_remolque": 20000,
+      "equipamiento_especial": ["grúa", "herramientas", "soldadora"]
+    }
+  },
+  
+  "vlega": {
+    "id": "vlega",
+    "bdId": "VLEGA",
+    "nombre": "VLEGA (Vehículo Ligero del Ejército Argentino)",
+    "tipo": "light_utility_vehicle",
+    "sidc_base": "SFGPUCW----*----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "conductor_vlega": 1
+    },
+    "tripulacion_total": 1,
+    "capacidad_pasajeros": 3,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "MAG 7.62mm (montada)",
+        "calibre": 7.62,
+        "municion_tipo": "municion_762",
+        "capacidad_municion": 1000
+      }
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "nafta",
+        "capacidad": 65,
+        "unidad": "litros",
+        "autonomia_km": 650
+      },
+      "municion": {
+        "municion_762": 1000
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 1850,
+      "velocidad_max": 120,
+      "autonomia": 650,
+      "consumo_km": 0.1,
+      "tripulantes": 1,
+      "pasajeros": 3
+    }
+  },
+  
+  "unimog": {
+    "id": "unimog",
+    "bdId": "UNIMOG",
+    "nombre": "UNIMOG (Camión Transporte)",
+    "tipo": "truck",
+    "sidc_base": "SFGPUST----*----",
+    "nacionalidad": "alemania",
+    
+    "tripulacion_roles": {
+      "conductor_unimog": 1
+    },
+    "tripulacion_total": 1,
+    "capacidad_pasajeros": 20,
+    
+    "armamento": {
+      "principal": null
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 200,
+        "unidad": "litros",
+        "autonomia_km": 800
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 7500,
+      "velocidad_max": 90,
+      "autonomia": 800,
+      "consumo_km": 0.25,
+      "tripulantes": 1,
+      "pasajeros": 20,
+      "carga_kg": 4000
+    }
+  },
+  
+  "vcdt_tam": {
+    "id": "vcdt_tam",
+    "bdId": "VCDTTAM",
+    "nombre": "VCDT TAM (Director de Tiro)",
+    "tipo": "fire_direction_center",
+    "sidc_base": "SFGPUCFH---A----",
+    "nacionalidad": "argentina",
+    
+    "tripulacion_roles": {
+      "jefe_vcdt": 1,
+      "calculista": 2,
+      "operador_radio": 1,
+      "conductor_tam": 1
+    },
+    "tripulacion_total": 5,
+    
+    "armamento": {
+      "principal": {
+        "tipo": "M2 12.7mm",
+        "calibre": 12.7,
+        "municion_tipo": "municion_127",
+        "capacidad_municion": 1000
+      }
+    },
+    
+    "dotacion_inicial": {
+      "combustible": {
+        "tipo": "gasoil",
+        "capacidad": 650,
+        "unidad": "litros",
+        "autonomia_km": 550
+      },
+      "municion": {
+        "municion_127": 1000
+      }
+    },
+    
+    "caracteristicas": {
+      "peso": 29500,
+      "velocidad_max": 75,
+      "autonomia": 550,
+      "consumo_km": 1.18,
+      "tripulantes": 5,
+      "equipamiento_especial": ["computador_balístico", "radio_largo_alcance", "teodolito"]
+    }
+  },
+  
+  "notas_implementacion": [
+    "sidc_base usa afiliación 'F' (Friendly) por defecto",
+    "Actualizar posición 2 del SIDC según equipo (F/H/N/U)",
+    "Posición 11 'A' indica vehículo de Puesto Comando",
+    "tripulacion_roles lista los IDs de roles_personal.json necesarios",
+    "dotacion_inicial son valores por vehículo (no agregados)",
+    "capacidad_pasajeros NO incluye tripulación",
+    "consumo_km en litros/km (consumo promedio terreno mixto)",
+    "autonomia_km calculada como: capacidad / consumo_km"
+  ]
+}

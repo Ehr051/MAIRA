@@ -1,0 +1,740 @@
+{
+  "version": "1.0.0",
+  "fuente": "BV8 2019 - Administración de CCOO",
+  "archivo": "dbDatos.data",
+  "fecha_extraccion": "2025-11-12T19:59:41.190203",
+  "metodo": "smalltalk_parser",
+  "datos": {
+    "patterns": {
+      "elementos": [
+        "GrupoElectrogeno.ico",
+        "Brigada(EA).ico1",
+        "GrupoTarea(ARA).ico3",
+        "Brigada",
+        "Seccion",
+        "Grupo",
+        "Seccion_Independiente",
+        "n de equipo de mantenimiento m",
+        "n de equipo de mantenimiento m",
+        "n, grupo de artiller",
+        "n, grupo de artiller",
+        "Brigada (EA)R",
+        "Brigada (EA)R",
+        "Brigada a",
+        "Brigada a",
+        "Brigada blindadaR",
+        "Brigada blindadaR",
+        "Brigada de asalto a",
+        "Brigada de asalto a",
+        "Brigada de monta",
+        "Brigada de monta",
+        "Brigada de monteR",
+        "Brigada de monteR",
+        "Brigada mecanizadaR",
+        "Brigada mecanizadaR",
+        "Brigada motorizadaR",
+        "Brigada motorizadaR",
+        "Brigada paracaidistaR",
+        "Brigada paracaidistaR",
+        "Cabina transportable con equipo de radioR",
+        "Cabina transportable con equipo de radioR",
+        "Centro de comunicaciones de brigada blindadaR",
+        "Centro de comunicaciones de brigada blindadaR",
+        "Centro de comunicaciones de brigada de monta",
+        "Centro de comunicaciones de brigada de monta",
+        "Centro de comunicaciones de brigada de monteR",
+        "Centro de comunicaciones de brigada de monteR",
+        "Centro de comunicaciones de brigada mecanizadaR",
+        "Centro de comunicaciones de brigada mecanizadaR",
+        "Centro de comunicaciones de brigada motorizadaR",
+        "Centro de comunicaciones de brigada motorizadaR",
+        "Centro de comunicaciones de brigada paracaidistaR",
+        "Centro de comunicaciones de brigada paracaidistaR",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "Centro de comunicaciones de grupo de artiller",
+        "n de tiro del grupo de artiller",
+        "n de tiro del grupo de artiller",
+        "Equipo de arsenalesR",
+        "Equipo de arsenalesR",
+        "Equipo de caballer",
+        "Equipo de caballer",
+        "Equipo de caballer",
+        "Equipo de caballer",
+        "Equipo de caballer",
+        "Equipo de caballer",
+        "Equipo de cazadores de monta",
+        "Equipo de cazadores de monta",
+        "Equipo de cazadores de monteR",
+        "Equipo de cazadores de monteR",
+        "Equipo de comandosR",
+        "Equipo de comandosR",
+        "Equipo de combate blindadoR",
+        "Equipo de combate blindadoR",
+        "Equipo de combate de infanter",
+        "Equipo de combate de infanter",
+        "Equipo de combate de infanter",
+        "Equipo de combate de infanter",
+        "Equipo de combate de infanter",
+        "Equipo de combate de infanter",
+        "Equipo de combate de infanter",
+        "Equipo de combate de infanter",
+        "Equipo de combate de tanquesR",
+        "Equipo de combate de tanquesR",
+        "Equipo de combate mecanizadoR",
+        "Equipo de combate mecanizadoR",
+        "Equipo de faxR",
+        "Equipo de faxR",
+        "Equipo de fuerzas especialesR",
+        "Equipo de fuerzas especialesR",
+        "Equipo de infanter",
+        "Equipo de infanter",
+        "Equipo de infanter",
+        "Equipo de infanter",
+        "Equipo de ingenierosR",
+        "Equipo de ingenierosR",
+        "Equipo de ingenieros anfibiosR",
+        "Equipo de ingenieros anfibiosR",
+        "Equipo de ingenieros blindadoR",
+        "Equipo de ingenieros blindadoR",
+        "Equipo de ingenieros de monta",
+        "Equipo de ingenieros de monta",
+        "Equipo de ingenieros de monteR",
+        "Equipo de ingenieros de monteR",
+        "Equipo de ingenieros mecanizadoR",
+        "Equipo de ingenieros mecanizadoR",
+        "Equipo de ingenieros paracaidistaR",
+        "Equipo de ingenieros paracaidistaR",
+        "Equipo de inteligencia militarR",
+        "Equipo de inteligencia militarR",
+        "Equipo de intendenciaR",
+        "Equipo de intendenciaR",
+        "Equipo de interferencia radioel",
+        "Equipo de interferencia radioel",
+        "Equipo de intregaci",
+        "Equipo de intregaci",
+        "Equipo de radar de aproximaci",
+        "Equipo de radar de aproximaci",
+        "Equipo de sanidadR",
+        "Equipo de sanidadR",
+        "Equipo de sanidad motorizadoR",
+        "Equipo de sanidad motorizadoR",
+        "Equipo de tiradoresR",
+        "Equipo de tiradoresR",
+        "Equipo de tiradores de monta",
+        "Equipo de tiradores de monta",
+        "Equipo de tiradores de monteR",
+        "Equipo de tiradores de monteR",
+        "Equipo de tiradores motorizadoR",
+        "Equipo de tiradores motorizadoR",
+        "Equipos de EmergenciasR",
+        "Equipos de EmergenciasR",
+        "Equipos de EmergenciasR",
+        "Equipos de EmergenciasR",
+        "Equipos de EmergenciasR",
+        "Equipos de EmergenciasR",
+        "Equipos de EmergenciasR",
+        "Equipos de EmergenciasR",
+        "n Equipo de Emergencia M",
+        "n Equipo de Emergencia M",
+        "n Equipo de Emergencia M",
+        "n Equipo de Emergencia M",
+        "n Equipo de Emergencia M",
+        "n Equipo de Emergencia M",
+        "n Equipo de Emergencia M",
+        "n Equipo de Emergencia M",
+        "GrupoR",
+        "GrupoR",
+        "Grupo AbR",
+        "Grupo AbR",
+        "Grupo Ab Cl IR",
+        "Grupo Ab Cl IR",
+        "Grupo Ab CL II y IVR",
+        "Grupo Ab CL II y IVR",
+        "Grupo Ab Cl II, IV y VR",
+        "Grupo Ab Cl II, IV y VR",
+        "Grupo Ab Cl IIIR",
+        "Grupo Ab Cl IIIR",
+        "Grupo ComandoR",
+        "Grupo ComandoR",
+        "Grupo de arsenalesR",
+        "Grupo de arsenalesR",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de artiller",
+        "Grupo de aviaci",
+        "Grupo de aviaci",
+        "Grupo de caballer",
+        "Grupo de caballer",
+        "Grupo de caballer",
+        "Grupo de caballer",
+        "Grupo de caballer",
+        "Grupo de caballer",
+        "Grupo de cazadores de monta",
+        "Grupo de cazadores de monta",
+        "Grupo de cazadores de monteR",
+        "Grupo de cazadores de monteR",
+        "Grupo de comandosR",
+        "Grupo de comandosR",
+        "Grupo de comunicacionesR",
+        "Grupo de comunicacionesR",
+        "Grupo de comunicaciones blindadoR",
+        "Grupo de comunicaciones blindadoR",
+        "Grupo de comunicaciones de monta",
+        "Grupo de comunicaciones de monta",
+        "Grupo de comunicaciones de monteR",
+        "Grupo de comunicaciones de monteR",
+        "Grupo de comunicaciones mecanizadoR",
+        "Grupo de comunicaciones mecanizadoR",
+        "Grupo de comunicaciones paracaidistaR",
+        "Grupo de comunicaciones paracaidistaR",
+        "Grupo de fuerzas especialesR",
+        "Grupo de fuerzas especialesR",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de infanter",
+        "Grupo de ingenierosR",
+        "Grupo de ingenierosR",
+        "Grupo de ingenieros anfibiosR",
+        "Grupo de ingenieros anfibiosR",
+        "Grupo de ingenieros blindadoR",
+        "Grupo de ingenieros blindadoR",
+        "Grupo de ingenieros de monta",
+        "Grupo de ingenieros de monta",
+        "Grupo de ingenieros de monteR",
+        "Grupo de ingenieros de monteR",
+        "Grupo de ingenieros mecanizadoR",
+        "Grupo de ingenieros mecanizadoR",
+        "Grupo de ingenieros paracaidistaR",
+        "Grupo de ingenieros paracaidistaR",
+        "Grupo de policia militarR",
+        "Grupo de policia militarR",
+        "Grupo de tareas (ARA)R",
+        "Grupo de tareas (ARA)R",
+        "Grupo de tiradoresR",
+        "Grupo de tiradoresR",
+        "Grupo de tiradores motorizadoR",
+        "Grupo de tiradores motorizadoR",
+        "Grupo de transporteR",
+        "Grupo de transporteR",
+        "Grupo electr",
+        "Grupo electr",
+        "Grupo Evacuaci",
+        "Grupo Evacuaci",
+        "Grupo Instalaci",
+        "Grupo Instalaci",
+        "Grupo Log",
+        "Grupo Log",
+        "Grupo MantenimientoR",
+        "Grupo MantenimientoR",
+        "Grupo Mantenimiento Veh",
+        "Grupo Mantenimiento Veh",
+        "Grupo o base a",
+        "Grupo o base a",
+        "Grupo o patrulla de inteligenciaR",
+        "Grupo o patrulla de inteligenciaR",
+        "Grupo radar de aproximaci",
+        "Grupo radar de aproximaci",
+        "Grupo SanidadR",
+        "Grupo SanidadR",
+        "Grupo Transporte de Munici",
+        "Grupo Transporte de Munici",
+        "Puesto comando de grupo de aviaci",
+        "Puesto comando de grupo de aviaci",
+        "Puesto comando de grupo de aviaci",
+        "Puesto comando de grupo de aviaci",
+        "Puesto comando de grupo de aviaci",
+        "Puesto comando de grupo de aviaci",
+        "Puesto comando de retaguardia de una brigada blindadaR",
+        "Puesto comando de retaguardia de una brigada blindadaR",
+        "Puesto comando de retaguardia de una brigada mecanizadaR",
+        "Puesto comando de retaguardia de una brigada mecanizadaR",
+        "Puesto comando de retaguardia de una brigada monta",
+        "Puesto comando de retaguardia de una brigada monta",
+        "Puesto comando de retaguardia de una brigada monteR",
+        "Puesto comando de retaguardia de una brigada monteR",
+        "Puesto comando de retaguardia de una brigada motorizadaR",
+        "Puesto comando de retaguardia de una brigada motorizadaR",
+        "Puesto comando de retaguardia de una brigada paracaidistaR",
+        "Puesto comando de retaguardia de una brigada paracaidistaR",
+        "a de brigadaR",
+        "a de brigadaR",
+        "Puesto comando de una brigada blindadaR",
+        "Puesto comando de una brigada blindadaR",
+        "Puesto comando de una brigada de monta",
+        "Puesto comando de una brigada de monta",
+        "Puesto comando de una brigada de monteR",
+        "Puesto comando de una brigada de monteR",
+        "Puesto comando de una brigada mecanizadaR",
+        "Puesto comando de una brigada mecanizadaR",
+        "Puesto comando de una brigada motorizadaR",
+        "Puesto comando de una brigada motorizadaR",
+        "Puesto comando de una brigada paracaidistaR",
+        "Puesto comando de una brigada paracaidistaR",
+        "Puesto comando principal de una brigada blindadaR",
+        "Puesto comando principal de una brigada blindadaR",
+        "Puesto comando principal de una brigada de monta",
+        "Puesto comando principal de una brigada de monta",
+        "Puesto comando principal de una brigada de monteR",
+        "Puesto comando principal de una brigada de monteR",
+        "Puesto comando principal de una brigada mecanizadaR",
+        "Puesto comando principal de una brigada mecanizadaR",
+        "Puesto comando principal de una brigada motorizadaR",
+        "Puesto comando principal de una brigada motorizadaR",
+        "Puesto comando principal de una brigada paracaidistaR",
+        "Puesto comando principal de una brigada paracaidistaR",
+        "ctico de una brigada blindadaR",
+        "ctico de una brigada blindadaR",
+        "ctico de una brigada mecanizadaR",
+        "ctico de una brigada mecanizadaR",
+        "ctico de una brigada monta",
+        "ctico de una brigada monta",
+        "ctico de una brigada monteR",
+        "ctico de una brigada monteR",
+        "ctico de una brigada motorizadaR",
+        "ctico de una brigada motorizadaR",
+        "ctico de una brigada paracaidistaR",
+        "ctico de una brigada paracaidistaR",
+        "Puesto de Comando Grupo de Artiller",
+        "Puesto de Comando Grupo de Artiller",
+        "rcito de brigadaR",
+        "rcito de brigadaR",
+        "Trenes de brigadaR",
+        "Trenes de brigadaR"
+      ],
+      "personas": [
+        "FusilParaTiradorEspecial762mm",
+        "FusilParaTiradorEspecial127mm",
+        "Ametralladora (MAG)R",
+        "Ametralladora (MAG)R",
+        "Ametralladora antia",
+        "Ametralladora antia",
+        "Ametralladora Pesada (M2 BMG)R",
+        "Ametralladora Pesada (M2 BMG)R",
+        "Ametralladora pesada antia",
+        "Ametralladora pesada antia",
+        "Equipo de tiradoresR",
+        "Equipo de tiradoresR",
+        "Equipo de tiradores de monta",
+        "Equipo de tiradores de monta",
+        "Equipo de tiradores de monteR",
+        "Equipo de tiradores de monteR",
+        "Equipo de tiradores motorizadoR",
+        "Equipo de tiradores motorizadoR",
+        "Fusil ametrallador (FAP)R",
+        "Fusil ametrallador (FAP)R",
+        "Grupo de tiradoresR",
+        "Grupo de tiradoresR",
+        "Grupo de tiradores motorizadoR",
+        "Grupo de tiradores motorizadoR",
+        "n de tiradoresR",
+        "n de tiradoresR",
+        "n de tiradores motorizadaR",
+        "n de tiradores motorizadaR",
+        "n de tiradoresR",
+        "n de tiradoresR",
+        "n de tiradores motorizadoR",
+        "n de tiradores motorizadoR"
+      ],
+      "vehiculos": [
+        "VUG4X415TAmb",
+        "CnPPTAM155mm/",
+        "VEE4X415TAmby",
+        "VCAmbBlTAM",
+        "VCAmunTAM",
+        "VCDTTAM",
+        "VCPCTAM",
+        "VCRecupTAM",
+        "VCTanTAM",
+        "VCTMTAM",
+        "VCTPTAM",
+        "VCTPTAM",
+        "VCA155mmTAM",
+        "VCDTAMX",
+        "VCTPAMX",
+        "VCAmbBlM113",
+        "VCM113Descont",
+        "VCPCM113",
+        "VCRecupM113",
+        "VCTPM113",
+        "VCTPM113",
+        " 105 TAM;",
+        "Cn20mmVCTAM",
+        "SimbolosDataManager",
+        "Area ContaminadaR",
+        "Area ContaminadaR",
+        "Area ContaminadaR",
+        "Area ContaminadaR",
+        "Area ContaminadaR",
+        "Area ContaminadaR",
+        "Area ContaminadaR",
+        "Area ContaminadaR",
+        "Departamento de JusticiaR",
+        "Departamento de JusticiaR",
+        "Departamento de JusticiaR",
+        "Departamento de JusticiaR",
+        "Departamento de JusticiaR",
+        "Departamento de JusticiaR",
+        "Departamento de JusticiaR",
+        "Departamento de JusticiaR",
+        "Departamento Lucha contra la DrogaR",
+        "Departamento Lucha contra la DrogaR",
+        "Departamento Lucha contra la DrogaR",
+        "Departamento Lucha contra la DrogaR",
+        "Departamento Lucha contra la DrogaR",
+        "Departamento Lucha contra la DrogaR",
+        "Departamento Lucha contra la DrogaR",
+        "Departamento Lucha contra la DrogaR",
+        "n Departamento de SaludR",
+        "n Departamento de SaludR",
+        "n Departamento de SaludR",
+        "n Departamento de SaludR",
+        "n Departamento de SaludR",
+        "n Departamento de SaludR",
+        "n Departamento de SaludR",
+        "n Departamento de SaludR",
+        "Instalaciones para Tratamiento de AguaR",
+        "Instalaciones para Tratamiento de AguaR",
+        "Instalaciones para Tratamiento de AguaR",
+        "Instalaciones para Tratamiento de AguaR",
+        "Instalaciones para Tratamiento de AguaR",
+        "Instalaciones para Tratamiento de AguaR",
+        "Instalaciones para Tratamiento de AguaR",
+        "Instalaciones para Tratamiento de AguaR",
+        "tamanio:"
+      ],
+      "simbolos": []
+    },
+    "records": [
+      [
+        "!STB 1 "
+      ],
+      [
+        "DBDatos"
+      ],
+      [
+        "AgrA.ico"
+      ],
+      [
+        "AgrAAA.ico"
+      ],
+      [
+        "GpoA.ico"
+      ],
+      [
+        "GpoAAA.ico"
+      ],
+      [
+        "GpoAParac.ico"
+      ],
+      [
+        "GpoABl.ico"
+      ],
+      [
+        "GpoAM.ico"
+      ],
+      [
+        "GpoAMte.ico"
+      ],
+      [
+        "BaA.ico"
+      ],
+      [
+        "BaAAA.ico"
+      ],
+      [
+        "BaAParac.ico"
+      ],
+      [
+        "BaABl.ico"
+      ],
+      [
+        "BaAM.ico"
+      ],
+      [
+        "BaAMte.ico"
+      ],
+      [
+        "SecA.ico!"
+      ],
+      [
+        "SecAAA.ico#"
+      ],
+      [
+        "SecAParac.ico%"
+      ],
+      [
+        "SecABl.ico'"
+      ],
+      [
+        "SecAM.ico)"
+      ],
+      [
+        "SecAMte.ico+"
+      ],
+      [
+        "CenDirTirGpoA.ico-"
+      ],
+      [
+        "BaAdqBlanACamp.ico/"
+      ],
+      [
+        "Radar.ico1"
+      ],
+      [
+        "RadarVigTerr.ico3"
+      ],
+      [
+        "RadarAdqBlan.ico5"
+      ],
+      [
+        "Blan.ico7"
+      ],
+      [
+        "ObsAdelA.ico9"
+      ],
+      [
+        "ObsAdelMorPes.ico;"
+      ],
+      [
+        "OfEnlA.ico="
+      ],
+      [
+        "Obs.ico?"
+      ],
+      [
+        "PosRadar.icoA"
+      ],
+      [
+        "PosObsAdel.icoC"
+      ],
+      [
+        "BaCoh.icoE"
+      ],
+      [
+        "SecCoh.icoG"
+      ],
+      [
+        "Cohetera.icoI"
+      ],
+      [
+        "FTTan.icoK"
+      ],
+      [
+        "EqCombTan.icoM"
+      ],
+      [
+        "AgrC.icoO"
+      ],
+      [
+        "AgrTan.icoQ"
+      ],
+      [
+        "AgrCBl.icoS"
+      ],
+      [
+        "AgrCM.icoU"
+      ],
+      [
+        "RC.icoW"
+      ],
+      [
+        "RTan.icoY"
+      ],
+      [
+        "RCBl.ico["
+      ],
+      [
+        "RCM.ico]"
+      ],
+      [
+        "EscC.ico_"
+      ],
+      [
+        "EscTan.icoa"
+      ],
+      [
+        "EscCBl.icoc"
+      ],
+      [
+        "EscCM.icoe"
+      ],
+      [
+        "SecC.icog"
+      ],
+      [
+        "SecTan.icoi"
+      ],
+      [
+        "SecCBl.icok"
+      ],
+      [
+        "SecCM.icom"
+      ],
+      [
+        "GpoC.icoo"
+      ],
+      [
+        "GpoCM.icoq"
+      ],
+      [
+        "PelC.icos"
+      ],
+      [
+        "PelCM.icou"
+      ],
+      [
+        "EqC.icow"
+      ],
+      [
+        "EqCM.icoy"
+      ],
+      [
+        "EscCLig.ico{"
+      ],
+      [
+        "RCLig.ico}"
+      ],
+      [
+        "AgrCLig.ico"
+      ],
+      [
+        "SecCLig.ico"
+      ],
+      [
+        "EscCExpl.ico"
+      ],
+      [
+        "RCExpl.ico"
+      ],
+      [
+        "AgrCExpl.ico"
+      ],
+      [
+        "PelCExpl.ico"
+      ],
+      [
+        "GpoCExpl.ico"
+      ],
+      [
+        "SecCExpl.ico"
+      ],
+      [
+        "EqCExpl.ico"
+      ],
+      [
+        "FTBl.ico"
+      ],
+      [
+        "EqCombBl.ico"
+      ],
+      [
+        "SecCBlExpl.ico"
+      ],
+      [
+        "AgrCom.ico"
+      ],
+      [
+        "Bcom.ico"
+      ],
+      [
+        "CaCom.ico"
+      ],
+      [
+        "CaComBl.ico"
+      ],
+      [
+        "CaComM.ico"
+      ],
+      [
+        "CaComMte.ico"
+      ],
+      [
+        "SecCom.ico"
+      ],
+      [
+        "SecComBl.ico"
+      ],
+      [
+        "SecComM.ico"
+      ],
+      [
+        "SecComMte.ico"
+      ],
+      [
+        "GpoCom.ico"
+      ],
+      [
+        "GpoComBl.ico"
+      ],
+      [
+        "GpoComM.ico"
+      ],
+      [
+        "GpoComMte.ico"
+      ],
+      [
+        "PelCom.ico"
+      ],
+      [
+        "PelComAeromNoOrg.ico"
+      ],
+      [
+        "PelComBl.ico"
+      ],
+      [
+        "PelComM.ico"
+      ],
+      [
+        "PelComMte.ico"
+      ],
+      [
+        "GpoComMec.ico"
+      ],
+      [
+        "SecComMec.ico"
+      ],
+      [
+        "CaComMec.ico"
+      ],
+      [
+        "GpoComParac.ico"
+      ],
+      [
+        "SecComParac.ico"
+      ],
+      [
+        "CaComParac.ico"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,4527 @@
+{
+  "fecha_analisis": "2025-11-13",
+  "modulos_analizados": 5,
+  "resultados": {
+    "ccoo": {
+      "module": "ccoo",
+      "size_mb": 8.122859001159668,
+      "total_strings": 470079,
+      "classes": {
+        "SortedCollection": 2,
+        "Cancelar": 16,
+        "Aceptar": 16,
+        "SDWORD": 2,
+        "Copiar": 2,
+        "Arma": 3,
+        "Conectar": 2,
+        "ExternalAddress": 2,
+        "ClassificationTable": 2,
+        "EsAcademico": 2,
+        "RolPrincipalId": 2,
+        "EsIngeniero": 2,
+        "Quitar": 6,
+        "Vehiculo": 2,
+        "CLSID": 2,
+        "NombreClase": 2,
+        "EsSubunidadAbstracta": 2,
+        "TipoFuncionId": 2,
+        "BasicListAbstract": 2,
+        "OrganizacionCombateId": 2,
+        "DOUBLE": 2,
+        "NeedsOuter": 2,
+        "NeedsSelfMask": 2,
+        "Aplicar": 4,
+        "Ocultar": 2,
+        "Simple": 2,
+        "Escala": 2,
+        "BYTE": 2,
+        "UNION": 2,
+        "Current": 14,
+        "CURRENCY": 2,
+        "ContainerCreditosOperaciones": 2,
+        "Ejecutar": 3,
+        "Seleccionar": 3,
+        "Salir": 4,
+        "Cambiar": 7,
+        "DefaultInstance": 2,
+        "DeseleccionarTodos": 2,
+        "Elemento": 2,
+        "ReadOnlyMask": 2,
+        "Aplicacion": 2,
+        "GUID": 2,
+        "HRESULT": 2,
+        "Exportar": 2,
+        "Modificar": 4,
+        "Rectangle": 2,
+        "DELETE": 3,
+        "Debug": 3,
+        "Shared": 2,
+        "VARIANT": 2,
+        "LPWSTR": 2,
+        "Shell": 2,
+        "Path": 2,
+        "Clipboard": 2,
+        "Volver": 6,
+        "AlignmentMap": 4,
+        "Help": 2,
+        "IgnoreCaseMask": 2,
+        "TransientMask": 2,
+        "Cancel": 9,
+        "Persona": 2,
+        "Animal": 2,
+        "Agregar": 7,
+        "Armas": 2,
+        "DdoIt": 3,
+        "Pegar": 2,
+        "Eliminar": 2,
+        "Selector": 3,
+        "Change": 2,
+        "Paste": 5,
+        "Find": 5,
+        "Print": 2,
+        "Package": 4,
+        "Remove": 5,
+        "Save": 3,
+        "False": 2,
+        "Copy": 6,
+        "Delete": 6,
+        "Forward": 4,
+        "Aborted": 2,
+        "EncoderQuality": 2,
+        "Width": 2,
+        "Default": 3,
+        "PixelFormat": 2,
+        "Play": 2,
+        "HotspotMask": 2,
+        "Time": 2,
+        "DolphinSureCertificateInfoR": 4,
+        "Catenate": 2,
+        "Match": 2,
+        "Open": 2,
+        "Modify": 2,
+        "Graphic": 4,
+        "Heading": 3,
+        "AutoCompleteDwell": 2,
+        "Steps": 2,
+        "Scribble": 2,
+        "Refresh": 2,
+        "Browse": 5,
+        "Protocols": 4,
+        "Methods": 2,
+        "Tutorials": 8,
+        "Classes": 2,
+        "Test": 2,
+        "Changed": 2,
+        "Back": 2,
+        "Disassembly": 2,
+        "Project": 4,
+        "Blessing": 5,
+        "Comparison": 3,
+        "Packages": 4,
+        "Developer": 8,
+        "SearchForm": 2,
+        "Value": 2,
+        "Owned": 2,
+        "Property": 2,
+        "Edit": 2,
+        "Timestamp": 4,
+        "Dolphin": 2,
+        "Inspector": 2,
+        "Before": 2,
+        "DtoolsSlidey": 2,
+        "Playground": 2,
+        "PersonalMoney": 2,
+        "Class": 3,
+        "AgentObjects": 2,
+        "Left": 2,
+        "Language": 2,
+        "Expression": 2,
+        "NotSignedCertificateR": 2,
+        "RunAll": 2,
+        "ResourceLib": 3,
+        "Exit": 2,
+        "Date": 2,
+        "Undo": 3,
+        "Title": 2,
+        "Reset": 3,
+        "Index": 2,
+        "Filter": 2,
+        "Restore": 2,
+        "Redo": 2,
+        "System": 2
+      },
+      "numeric_values": [
+        {
+          "method": "Â",
+          "value": 0.0,
+          "context": "â\u0001Â:0,Ï"
+        },
+        {
+          "method": "í",
+          "value": 0.0,
+          "context": "à\u0001í:0Óó\u0003 \u0012\u0005\u0010\r"
+        },
+        {
+          "method": "Ì",
+          "value": 8.0,
+          "context": "â\u0001Ì:8Ù«\n \u0012\u0005\u0010\u0004"
+        },
+        {
+          "method": "d",
+          "value": 8.0,
+          "context": "â\u0001d:8JË\u0005@\u0011\u0005\u0010\u0004"
+        },
+        {
+          "method": "ª",
+          "value": 0.0,
+          "context": "ð\u0001ª:0Û«\n@\u0011\u0005\u0010\b"
+        },
+        {
+          "method": "à",
+          "value": 8.0,
+          "context": "ð\u000fà:8?q\u0005@\u0011\u0005\u0010\b"
+        },
+        {
+          "method": "³",
+          "value": 0.0,
+          "context": "ð\u0001³:0st\u00050\u0012\u0005\u0010\r"
+        },
+        {
+          "method": "e",
+          "value": 0.0,
+          "context": "â\u0001e:0âÉ\u0005`\u0012\u0005\u0010P"
+        },
+        {
+          "method": "n",
+          "value": 0.0,
+          "context": "à\u0001n:0u\u00050\u0012\u0005\u0010\t"
+        },
+        {
+          "method": "5",
+          "value": 0.0,
+          "context": "â\u00025:0sv\u00050\u0012\u0005\u0010\u000f"
+        },
+        {
+          "method": "ç",
+          "value": 0.0,
+          "context": "à\u0001ç:0S{\u0005@\u0012\u0005\u0010\u0011"
+        },
+        {
+          "method": "Õ",
+          "value": 8.0,
+          "context": "ð\u0005Õ:8i~\u0005`\u0012\u0005\u0010$"
+        },
+        {
+          "method": "T",
+          "value": 0.0,
+          "context": "â\u0001T:0wÅ\u0005\u0010\u0012\u0005\u0010\b"
+        },
+        {
+          "method": "ß",
+          "value": 8.0,
+          "context": "â\u0001ß:8GÅ\u0005`\u0012\u0005\u0010\u0014"
+        },
+        {
+          "method": "³",
+          "value": 8.0,
+          "context": "â\u0001³:8 ¢\u0005ðH\u001f\u00104"
+        },
+        {
+          "method": "ú",
+          "value": 8.0,
+          "context": "ð\u0001ú:8§£\u0005à\b\u0010T"
+        },
+        {
+          "method": "ÿ",
+          "value": 0.0,
+          "context": "â\u0001ÿ:0v\u0005@\u0012\u0005\u0010,"
+        },
+        {
+          "method": "ç",
+          "value": 0.0,
+          "context": "à\u0001ç:0Ù\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "C",
+          "value": 0.0,
+          "context": "ð\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+        },
+        {
+          "method": "Ó",
+          "value": 0.0,
+          "context": "à\u0001Ó:0f\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "unknown",
+          "value": 3.51,
+          "context": "3.51"
+        },
+        {
+          "method": "unknown",
+          "value": 2019.0,
+          "context": "2019"
+        },
+        {
+          "method": "10",
+          "value": 41.0,
+          "context": "\u0005\u00100ú\r\u0010e\n\u001010:41:13 p.m."
+        },
+        {
+          "method": "unknown",
+          "value": 7.01,
+          "context": "7.01"
+        },
+        {
+          "method": "bitOr",
+          "value": 0.0,
+          "context": "0²\u0014\u0010\u0010²\u0014\u0010``@arg bitOr: 0"
+        },
+        {
+          "method": "bitAnd",
+          "value": 0.0,
+          "context": "\u0005\u0010m\u0004i``@arg bitAnd: 0"
+        },
+        {
+          "method": "l9",
+          "value": 0.0,
+          "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+        },
+        {
+          "method": "N",
+          "value": 1.0,
+          "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "`@collection at: 1"
+        },
+        {
+          "method": "Ý",
+          "value": 0.0,
+          "context": "àx\u0019\u0010°²\u001d\u0010«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "õ\t\u0010Uses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+        },
+        {
+          "method": "00",
+          "value": 0.0,
+          "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+        },
+        {
+          "method": "max",
+          "value": 2.0,
+          "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "\u0005\u0010Ð \u001f\u0010[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "PS\u001c\u0010`ì\u001e\u0010[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "P¤\u001f\u00100Û\u0013\u0010[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "t\u001f\u0010pt\u001f\u0010`\u001f\u0010t\u001f\u0010°t\u001f\u0010[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "primitive",
+          "value": 1.0,
+          "context": "Primitive or external call tag, e.g. <primitive: 1>"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "ä \u0010[:a | a at: 2]"
+        },
+        {
+          "method": "Î",
+          "value": 9.0,
+          "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+        },
+        {
+          "method": "Version",
+          "value": 1.0,
+          "context": "I%\u0010à\u001d%\u0010MIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+        },
+        {
+          "method": "t6ÍÃM",
+          "value": 7.0,
+          "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+        },
+        {
+          "method": "rating",
+          "value": 2.0,
+          "context": "\u0005\u0010mÌ\u0001i[ :recording :val | recording rating: 2]"
+        },
+        {
+          "method": "t",
+          "value": 4.0,
+          "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+        },
+        {
+          "method": "rating",
+          "value": 3.0,
+          "context": "\u0005\u0010\u0018+\u0010p§\u0010\u0010Ðd\u0005\u0010[ :recording :val | recording rating: 3]"
+        },
+        {
+          "method": "rating",
+          "value": 1.0,
+          "context": "\u0005\u0010[ :recording :val | recording rating: 1]"
+        },
+        {
+          "method": "19",
+          "value": 0.0,
+          "context": "19:00"
+        },
+        {
+          "method": "17",
+          "value": 15.0,
+          "context": "17:15"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:o | o at: 3]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:o | o at: 2]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:o | o at: 1]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "c\u000f\u0010[:o | o at: 4]"
+        }
+      ],
+      "keywords_found": {
+        "combustible": [
+          "\u0005\u0010ð£$\u0010combustible",
+          "\u0012Î\u0012qâ\u0003¢jµaâ&xç\u0007a\u0011×DxB¹O\u0011×MxBºP\u0011×YzB»å\"j<j¼a?9\u001aä\u0002ØMØ.\u0019Ø/Ü\u0003ç\u0007a9\u0019\u001aä\u0002Øqicombustible",
+          "combustible:"
+        ],
+        "transporte": [
+          " Ì>J2mediodetransporte"
+        ],
+        "elemento": [
+          "materialelemento:",
+          "\u0005\u0010\u0012\u0005\u0010nuevoVehiculo:enElemento:tipo:",
+          "0=\u0005\u0010Ð\u0012\u0005\u0010SELECT * FROM nivelelemento",
+          "\u0005\u0010SELECT * FROM materialelemento",
+          "\u0005\u0010ðS\t\u0010ð\u0004\b\u0010copiarElemento:",
+          "õ\t\u0010importarPelotones:subElementos:sin:",
+          "\u0005\u0010pO\u0005\u0010À\f\u0010Ð{\u0007\u0010À\n\u0010ð[\u000b\u0010Ð\u000f\u0010@_\n\u0010°d\b\u0010importarSeccion:subElementos:sin:",
+          "nuevaPersona:enElemento:",
+          "\u0005\u0010\u0010\u0014\u0005\u0010À¢\u0013\u0010`Z\u0005\u0010actualizarElemento:enElemento:",
+          "Quitar elemento",
+          "nivelelemento",
+          "â jpersonasElemento:",
+          "dameSubElemento:nivel:",
+          "H\u0005\u0010importarMaterialElemento",
+          "subelementos:",
+          "A°[Cß\u0003\u0012i\u0002\u0013\\\u0002\u0013<K\u0013²a\u0014iimportarGrupos:subElementos:sin:",
+          "k\u0007\u0010g\u0007\u00100d\u0005\u0010=\u000e\u0010cambiarId:elemento:",
+          "vehiculosElemento:",
+          "borrarVehiculo:elemento:",
+          "numeracionElementoIndividual:"
+        ],
+        "organizacion": [
+          "?F9d\u0012Û\u0010BdÞ\u0007[é\u0002\u0002\u0012LùÑ\u0001ÝíalagregarPersonasYVehiculosSinOrganizacionDelElemento:",
+          "\u0005\u0010\u0010g\b\u00100û\u0005\u0010pc\u0005\u0010Ðe\u0005\u0010OrganizacionCombate",
+          "°\u0005\u0010datosOrganizacion:",
+          "`¢ÖÄÐ×L²¨×9+-.esUnCuadroOrganizacionValido:",
+          "Ù\u0005\u0010ÐU\u0007\u0010elementosOrganizacionCombate",
+          "elementosOrganizacionCombate",
+          "inicializarElementosOrganizacionCombate",
+          "elementosOrganizacionCombate:",
+          "organizacionId:",
+          "OrganizacionCombateId",
+          "datosOrganizacion",
+          "À\"\u0005\u0010organizacioncombate",
+          "cargarOrganizaciones:",
+          "datosOrganizacion",
+          "\u0005\u0010@d\n\u0010cuadroorganizacion",
+          "arbolOrganizacion",
+          "\u0005\u0010P\u0012\u0006\u0010Þ\t\u0010À\u0007\u0010ð°\t\u0010organizaciones",
+          "\u0005\u0010À§\r\u0010¯\t\u0010À\u0007\u0010 ­\u0005\u0010ElementoOrganizacionCombate",
+          "asignarOrganizacionCombate:a:",
+          "asignarOrganizacionCombate:aVehiculo:"
+        ],
+        "cuadro": [
+          "C:\\Users\\Pmur\\Desktop\\Pruebas\\Ejecutables\\HACCOO_7_01_004.tmp",
+          "\u0005\u0010à×\u0006\u0010p\u0007\u0010C:\\Users\\Pmur\\Desktop\\Pruebas\\Ejecutables\\HACCOO_7_01_004.exe",
+          "é é1j±JiEjecutables\\HACCOO_7_01_004.exe",
+          "AdministracionDeCCOO",
+          "Administración de CCOO",
+          "`¢ÖÄÐ×L²¨×9+-.esUnCuadroOrganizacionValido:",
+          "\u0005\u0010@d\n\u0010cuadroorganizacion",
+          "misCCOO",
+          "\u0005\u0010P\u0001\u000f\u0010ÐK\u0006\u0010À\u001c\u000f\u0010pathMisCCOO",
+          "\u000f\u0010¢\u0005\u0010Manuales\\Ayuda\\ayudaHACCOO.chm",
+          "Si presiona ATL+h podrá habilitar el cuadro de texto para ingresar el nombre de usuario de la base de datos que desee.",
+          "\u0005\u0010ý\u000f\u0010ð_\u0010\u0010Ð{\u0007\u0010P4\u0005\u0010 ¥\u0006\u0010\u0010ë\n\u0010Ð\r\u0006\u0010Splash\\CreditosHACCOO.bmp",
+          "\u0005\u0010\u0001-i0(\u0011\u0010Splash\\SplashHACCOO.bmp",
+          "[\u0010\u0010°§\u0006\u0010`Î\u0006\u0010\u0010d\u0005\u0010Licencia\\LicenciaHACCOO.pdf",
+          "HACCOO",
+          "D`I\u0010\u0010 U\r\u0010pathMisCCOO:",
+          "resetearPathMisCCOO",
+          "\\Mis CCOO",
+          "DManuales\\UltimasMejoras\\ultimasMejorasHACCOO.pdf",
+          "ConfiguracionAdministracionDeCCOO"
+        ],
+        "personal": [
+          "ðN\u000e\u0010Asignar Personal",
+          "\u0005\u0010 É\u0006\u0010Ðò\u000b\u0010àX\u0005\u0010àW\u0005\u0010ÀA\u000b\u0010P¡\u0005\u0010°d\u0005\u0010Ðe\u0005\u0010tieneTodosLosVehiculosConPersonalDesde:",
+          "\u0005\u0010@\f\u0010 \u0006\n\u00100d\u0005\u0010@¸\n\u0010personalCompletoParaInstanciar",
+          "personal",
+          "personal:",
+          "\u0005\u0010¨\b\u0010asignarPersonalAEmbarquesEn:",
+          "Aé2\u0012ØjØ.lpersonal",
+          "ctrlArbolPersonalEmbarcado",
+          "¼\u000b\u0010ðà\b\u0010\u0001\u00011DExisten Material de tipo Motorizada, Blindada o Mecanizada con personal sin asignar a vehículos.",
+          "DExisten vehículos sin personal asignado.",
+          "arbolPersonalDesembarcado",
+          "ctrlArbolPersonalDesembarcado",
+          "Personal desembarcado",
+          "\u0005\u0010àÅ\u0005\u0010p8\u0005\u0010 §\u0005\u0010pM\u0007\u0010Asignar Personal",
+          " DAsignar Personal",
+          "\u0005\u0010Ð\u0014\u0011\u0010°í\u000b\u0010DLI del Personal seleccionado:",
+          "\u0004ØdÜ\u0004. £aetieneTodosLosVehiculosConPersonal:",
+          "arbolPersonalDesembarcado",
+          "arbolPersonalEmbarcado",
+          "seSueltaObjetoEnArbolPersonalEmbarcado:"
+        ],
+        "baja": [
+          "Ð\u0007\u0010bajarAlpha:",
+          "bajarAlpha",
+          "ð\u0016\t\u0010pC\u000f\u0010À\u0017\u0010\u0010 \u0005\u00100®\r\u0010 ¦\u0005\u0010bajarUno",
+          "\u0005\u0010¥\u000e\u0010w\u0014\u0010à¦\u000e\u0010P\"\u000f\u0010\u0010¦\u000e\u0010¦\u000e\u0010°¦\u000e\u0010Ë\u000e\u0010 ¦\u000e\u0010àª\u000e\u0010Bajar al fondo",
+          "\u0005\u0010\u001b\u0011\u0010°~\u000f\u0010àÕ\u000e\u0010À\u0007\u0010à\u0019\u0011\u0010ðp\f\u00100d\u0005\u0010`\u001b\u0011\u0010Bajar uno",
+          "\u0005\u0010°¼\u0012\u0010\u0010N\u0012\u0010trabajarSinConectar"
+        ],
+        "prisionero": [
+          "ð\u00060PGÎ",
+          "â\u0001ëµPGÏ",
+          "ð\u0006PGà\u001b\tP\u0014\u0005\u0010 ",
+          "â3oQPG×",
+          "ð\r\u0018PGL\u00050\u0012\u0005\u0010\u0015",
+          "â\u0001|PG\u0019\t@\u0012\u0005\u0010\u000b",
+          "â\u0001?ºPG\u001d\t0\u0012\u0005\u0010\n",
+          "â\u0001gªPGô\u0003@\u0012\u0005\u0010\n",
+          "ð\u0004~bPGi\u00050\u0012\u0005\u0010\u0011",
+          "â\u0001@²PGC\b\u0010\u0012\u0005\u0010\f",
+          "à\u0001RÕPGk\u0005PV\n\u0010\u0010",
+          "\u0001oºPGË\u0005@\u0011\u0005\u0010\u0004",
+          "â\u0001\u0013¢PGl\u00050\u0012\u0005\u0010\u000b",
+          "â\u0001PGÐÏl\u00050\u0012\u0005\u0010\r",
+          "â\u00010­PG¬\n@\u0012\u0005\u0010,",
+          "ð\u0006è×PGn\u0005`\u0012\u0005\u0010\u0018",
+          "à\u00019êPGo\u0005`\u0012\u0005\u0010\u0014",
+          "à\u0001²ePGp\u00050\u0012\u0005\u0010\u000e",
+          "ð\u0003¡PGu\u0005@\u0011\u0005\u0010\b",
+          "ð\u0003¥éPGÉ\u0005@\u0012\u0005\u0010\u0014"
+        ],
+        "combate": [
+          "Org combate",
+          "\u0005\u0010\u0010g\b\u00100û\u0005\u0010pc\u0005\u0010Ðe\u0005\u0010OrganizacionCombate",
+          "Org. combate",
+          "Ù\u0005\u0010ÐU\u0007\u0010elementosOrganizacionCombate",
+          "9- ³d\u0011´ai\u0001=Ö?iorgCombate",
+          "orgCombate:",
+          "?F«d\u0012Û\u0017B[é\u0002a\u0013/|âDyC\u0011ÃadùÑ\u0001Ýæalàì\u0005\u0010Ðì\u0005\u0010Àì\u0005\u0010orgCombate",
+          "elementosOrganizacionCombate",
+          "inicializarElementosOrganizacionCombate",
+          "elementosOrganizacionCombate:",
+          "OrganizacionCombateId",
+          "À\"\u0005\u0010organizacioncombate",
+          "\u0005\u0010pf\b\u0010quitarOrgCombate:",
+          "\u0005\u0010Ventanas\\vehiculo_combate.ico",
+          "\u0005\u0010À§\r\u0010¯\t\u0010À\u0007\u0010 ­\u0005\u0010ElementoOrganizacionCombate",
+          "asignarOrganizacionCombate:a:",
+          "\u0005\u0010@µ\u0005\u0010\u0010\u0011\u000b\u0010p¥\u0007\u0010°C\u0014\u0010@X\u0010\u0010°\u001e\u0010\u0010modificarOrgCombatePersona:",
+          "asignarOrganizacionCombate:aVehiculo:",
+          "\u0005\u0010Existen personas o vehículos sin una Organización para el Combate asignada.",
+          "organizacionCombateCO"
+        ],
+        "falla": [
+          "\u0005\u0010ð1\u0005\u0010@\"\u0005\u0010Q\u0006\u0010Ocurrió un error al aplicar el color. Algunos colores fallan al intentar aplicarlos a ciertos símbolos. Pruebe con otro color similar."
+        ],
+        "pendiente": [
+          "SubUnidad_Independiente",
+          "\u0006\u0010`¹\u0005\u0010ê\u0005\u0010esIndependiente",
+          "tipoSubUnidadIndependiente",
+          "esSubUnidadIndependiente",
+          "\u0005\u0010 m\r\u0010 \u0017\u0005\u0010 N\u0005\u0010p\u0006\u0010p2\u0005\u0010@ò\n\u0010\u0005\u0010Pd\u0005\u0010 ¹\u0005\u0010SubUnidad_Independiente",
+          "VehiculoIndependiente"
+        ],
+        "vehiculo": [
+          "\u0005\u0010\u0012\u0005\u0010nuevoVehiculo:enElemento:tipo:",
+          "\u0005\u0010°Ý*\u00100W\n\u0010@T\u0007\u0010@i\u0007\u0010p{\u000b\u0010ðl\u0007\u0010vehiculoId",
+          "\u0005\u0010P\u0013\u0005\u0010vehiculos",
+          "\u0005\u00100\u0014\u0005\u0010ctrlListaVehiculos",
+          "Z.\u0012²veA\u0012Âl\u001d[<Ñ\u0004\\\u0002Ý6\u0002\u001fÝ$\u0002¡\\¯K\u0011µ[\u0002\u001f¶{\u0002¡]¯Û\u001d9Ö!\u0014ç\bc¹ØJaç\bcÑ\u0004Û\u000b\u0002(|\u0002¡Hb]¯aBç\ré2\u0015ØnØOipersonasVehiculo:",
+          "ctrlCantTotalVehiculos",
+          "ctrlVehiculo",
+          "Ð¨\u0005\u0010ð\u0005\u0010containerEdicionVehiculo",
+          "Ðj\f\u0010\u0010\u001a\f\u0010ctrlCantVehiculos",
+          "A²j³j´lcontainerConsultaVehiculos",
+          "\u0005\u0010@r\u0005\u0010borrarVehiculo:",
+          "\u0005\u0010\u0010y\t\u0010Ðì\u0006\u0010°e\u0005\u0010À\u001e\u0006\u0010vehiculos:",
+          "buscarVehiculoConPersona:",
+          "\u0005\u0010modificarVehiculo",
+          "\u0005\u0010à,\t\u0010pã\u0006\u0010°i\u0007\u0010buscarVehiculoConPersona:resultado:",
+          "vehiculosElemento:",
+          "borrarVehiculo:elemento:",
+          "e\u0012\u0010b\u0012\u0010\u000f\u0010\u0010\n\u000f\u0010vehiculoActual",
+          "?F9d\u0012Û\u0010BdÞ\u0007[é\u0002\u0002\u0012LùÑ\u0001ÝíalagregarPersonasYVehiculosSinOrganizacionDelElemento:",
+          "\u0005\u0010\u0011Ó\tebuscarVehiculo:en:"
+        ],
+        "velocidad": [
+          "\u0005\u0010 \b\u0010°§\u0006\u0010 °\u0005\u0010Pd\u0005\u0010ª\u0005\u00100d\u0005\u0010\u0010®\u0005\u0010cantidadCuadrados:extentCuadrado:circular:color:velocidadRefresco:radio:",
+          "velocidadRefresco",
+          "-­³E>y-¢i\u0011icantidadCuadrados:extentCuadrado:porcentajeCuadradoGrande:circular:color:velocidadRefresco:",
+          "velocidadRefresco",
+          "\u0005\u0010Y\u000b\u0010velocidadRefresco:"
+        ]
+      },
+      "methods_of_interest": []
+    },
+    "logistica": {
+      "module": "logistica",
+      "size_mb": 8.092329978942871,
+      "total_strings": 461710,
+      "classes": {
+        "SortedCollection": 3,
+        "Editar": 3,
+        "DdoIt": 11,
+        "Imprimir": 2,
+        "Guardar": 3,
+        "Eliminar": 2,
+        "SDWORD": 2,
+        "Armamento": 7,
+        "ExternalAddress": 2,
+        "Efecto": 10,
+        "ClassificationTable": 2,
+        "Cajones": 5,
+        "Tipo": 4,
+        "DEliminar": 2,
+        "Archivo": 3,
+        "Salir": 14,
+        "Modificar": 2,
+        "BasicListAbstract": 4,
+        "Aceptar": 5,
+        "Gasoil": 2,
+        "Cancelar": 8,
+        "DOUBLE": 2,
+        "Limpiar": 3,
+        "NeedsOuter": 2,
+        "NeedsSelfMask": 2,
+        "Cambiar": 5,
+        "DECIMAL": 2,
+        "CURRENCY": 2,
+        "SubUnidad": 2,
+        "Grupo": 2,
+        "Elemento": 2,
+        "Category": 2,
+        "Table": 2,
+        "Current": 15,
+        "MapObjects2": 2,
+        "GUID": 3,
+        "Rectangle": 3,
+        "LEFT": 2,
+        "CTRL": 2,
+        "VARIANT": 2,
+        "LPWSTR": 2,
+        "Ocultar": 2,
+        "ContainerLicenciasEspeciales": 2,
+        "DeseleccionarTodos": 2,
+        "Shell": 2,
+        "FechaUltimaModBds": 2,
+        "System": 3,
+        "AlignmentMap": 4,
+        "IgnoreCaseMask": 2,
+        "TransientMask": 2,
+        "Cancel": 9,
+        "Debug": 4,
+        "BUTTON": 2,
+        "CLSID": 2,
+        "IconicListAbstract": 2,
+        "Tutorials": 10,
+        "Package": 4,
+        "Paste": 4,
+        "Find": 6,
+        "Print": 2,
+        "Copy": 7,
+        "Save": 2,
+        "Delete": 4,
+        "Forward": 3,
+        "Aborted": 2,
+        "FrameDimensionPage": 2,
+        "Width": 2,
+        "Default": 3,
+        "PixelFormat": 2,
+        "Text": 2,
+        "Clear": 2,
+        "Time": 3,
+        "DolphinSureCertificateInfoR": 4,
+        "PredefinedStyleNames": 2,
+        "WordWrap": 2,
+        "Modify": 2,
+        "Graphic": 5,
+        "Heading": 2,
+        "AutoCompleteDwell": 2,
+        "Intro": 2,
+        "List": 2,
+        "Refresh": 3,
+        "Scribble": 2,
+        "Protocol": 2,
+        "Methods": 4,
+        "Browse": 4,
+        "Views": 2,
+        "Test": 2,
+        "TdoIt": 2,
+        "Back": 3,
+        "Remove": 2,
+        "Project": 4,
+        "Blessing": 4,
+        "Comparison": 3,
+        "Timestamp": 6,
+        "Developer": 6,
+        "Value": 2,
+        "Owned": 2,
+        "Property": 2,
+        "Packages": 2,
+        "Edit": 2,
+        "Changed": 2,
+        "Selector": 2,
+        "Edition": 2,
+        "Class": 4,
+        "DimageTools": 2,
+        "SlidingBallDemo": 2,
+        "EnumRECT": 2,
+        "Object": 2,
+        "Before": 2,
+        "AgentObjects": 2,
+        "Name": 3,
+        "Left": 2,
+        "Language": 2,
+        "Expression": 2,
+        "Result": 2,
+        "NotSignedCertificateR": 2,
+        "RunAll": 2,
+        "ResourceLib": 3,
+        "Exit": 2,
+        "Undo": 2,
+        "Reset": 2,
+        "Index": 2,
+        "Restore": 2,
+        "Other": 2
+      },
+      "numeric_values": [
+        {
+          "method": "Y",
+          "value": 0.0,
+          "context": "æ\u0001Y:0¶\u0014\t`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "¼",
+          "value": 81.0,
+          "context": "æ\u0001¼:81â\u00030\u0012\u0005\u0010\u0011"
+        },
+        {
+          "method": "º",
+          "value": 0.0,
+          "context": "æ\u0001º:0Pä\u0003`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "ù",
+          "value": 0.0,
+          "context": "æ\u0001ù:0\u0002å\u0003\f\f\u00104"
+        },
+        {
+          "method": "8",
+          "value": 5.0,
+          "context": "æ\u0001\u001d»8:5\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "LP",
+          "value": 5.0,
+          "context": "æ\u0001LP:5\u0005@\u0012\u0005\u0010\u0016"
+        },
+        {
+          "method": "h",
+          "value": 5.0,
+          "context": "ä\u0001{\u0002h:5\u0005@\u0012\u0005\u0010\u0015"
+        },
+        {
+          "method": "È",
+          "value": 5.0,
+          "context": "æ\u0001k\u0007È:5\u00050\u0012\u0005\u0010\u0015"
+        },
+        {
+          "method": "ËVø",
+          "value": 5.0,
+          "context": "æ\u0001ËVø:5\u0005@\u0012\u0005\u0010\u0013"
+        },
+        {
+          "method": "Îm8",
+          "value": 7.0,
+          "context": "ô\u0001Îm8:7\u0005@\u0012\u0005\u0010\u0014"
+        },
+        {
+          "method": "P",
+          "value": 7.0,
+          "context": "ä\u0001x±P:7\u00050\u0012\u0005\u0010\u0014"
+        },
+        {
+          "method": "h",
+          "value": 7.0,
+          "context": "ä\u0001\n\u001bh:7\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "È",
+          "value": 7.0,
+          "context": "æ\u0001\u001e?È:7\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "à",
+          "value": 7.0,
+          "context": "ô\u0004¸\u0006à:7\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "³uø",
+          "value": 7.0,
+          "context": "æ\u0001³uø:7\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "ë",
+          "value": 8.0,
+          "context": "ô\u0005ë:8=â\u00030\u0012\u0005\u0010\u0014"
+        },
+        {
+          "method": "é",
+          "value": 0.0,
+          "context": "æ\u0001é:0ëæ\b \u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "5",
+          "value": 0.0,
+          "context": "æ\u00025:0~\u00050\u0012\u0005\u0010\u000f"
+        },
+        {
+          "method": "Á",
+          "value": 0.0,
+          "context": "ô`Á:0¦\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "ç",
+          "value": 8.0,
+          "context": "ö\u0001ç:8Ê\u0005"
+        },
+        {
+          "method": "ç",
+          "value": 0.0,
+          "context": "ô\u0001ç:0\u0012\u0005`\u0012\u0005\u0010$"
+        },
+        {
+          "method": "a",
+          "value": 8.0,
+          "context": "æ\u0001a: 8\u0005P\u0014\u0005\u0010 "
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ô\u0006P:0<\u00050\u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ô\u0001P:0\u0005 \u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "Â",
+          "value": 8.0,
+          "context": "ä\u0001Â:8½§\u00050\u0012\u0005\u0010\u0014"
+        },
+        {
+          "method": "î",
+          "value": 8.0,
+          "context": "æ\u0001î: 8\u0005 Û\u0012\u0010\b"
+        },
+        {
+          "method": "Í",
+          "value": 0.0,
+          "context": "æ\u0001Í:0ç¦\u0005@\u0012\u0005\u0010#"
+        },
+        {
+          "method": "C",
+          "value": 0.0,
+          "context": "ô\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+        },
+        {
+          "method": "9",
+          "value": 0.0,
+          "context": "ô\u00059:0¦¢\u0005PV\n\u0010\u0010"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o|o cajones printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o|o kg printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 4.0,
+          "context": "[:o| o m3 printDecimals: 4]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 4.0,
+          "context": "Z\u0001â!z\u0002â#ig[:o|o m3 printDecimals: 4]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o|o resultadoGeneral cajones printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o|o resultadoGeneral kg printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 4.0,
+          "context": "[:o|o resultadoGeneral m3 printDecimals: 4]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "°i\u0005\u0010[:o|o kg printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "@±j[:o|o cajones printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o|o diasDeAbastecimiento cajones printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o|o cajones printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 4.0,
+          "context": "[:o|o m3 printDecimals: 4]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "õ\t\u0010[:o|o kg printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010àó\u0007\u0010[:o|o diasDeAbastecimiento kg printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0011\u0003Ö\u0004Ødµl[:o| o cantCombustibleXkm printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o| o aceiteMotorXkm printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010\u001d9i {\u0007\u0010[:o| o aceiteCajaXkm printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010ý\u0007\u0010\u0001Ý\u0010\u0001y\u0011\u001f³p\u0011\"³I9¤·l\u0011d9¸L&³a\u0002ºl[:o | o liquidoRefrigeranteXkm printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o | o grasasVariasXkm printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010ðL\u000e\u0010 \u0015\u0005\u0010\u00103\u0007\u0010Ð©\u0006\u0010Ð\u000f\u0006\u0010`\u0005\u0010à5\r\u0010[:o|o recargasDeTanque printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010°\r\u0010 \n\u00109dal[:o |(o at:'Grasas Varias') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010Ú\u000e\u0010`õ\u000e\u0010¤\u0005\u0010àÙ\u000e\u0010àß\u000e\u0010ª\u0005\u0010[:o |(o at:'Liquido Refrigerante') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o |(o at:'Gasoil') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o1 :o2| (o1 cantCombustibleXkmXcant printDecimals: 2) < (o2  cantCombustibleXkmXcant printDecimals"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o1 :o2| (o1 cantCombustibleXkmXcant printDecimals: 2) < (o2  cantCombustibleXkmXcant printDecimals"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": ";\u0005\u0010Àd\n\u0010[:o |(o at:'Nafta') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o| o aceiteMotorXkmXcant printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "g\t\u0010ðx\t\u0010ðÁ\u000e\u0010à\u0005\u0012\u0010\u0010ä\u0016\u0010Pù\u0019\u0010 =\u001c\u0010à®\u001c\u0010p¸ \u0010Æ\"\u0010p¦$\u0010p$*\u0010Ì,\u0010ð>,\u0010P\u0018,\u0010 ô+\u0010ð\n\u0010àì\n\u0010 ×\b\u0010àó\u0006\u0010[:o| o kmQuePuedeRec"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o|o dotacionInicial  kg printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o |(o at:'Aceite Caja') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o |(o at: 'Aceite Motor') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 4.0,
+          "context": "[:o| o dotacionInicial  m3 printDecimals: 4]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o |(o at:'Mezcla') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o| o cantCombAsignadoACadaUno printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o| o aceiteCajaXkmXcant printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 4.0,
+          "context": "\u0005\u0010°é\u0007\u0010À¦\u0007\u0010[:o|o diasDeAbastecimiento  m3 printDecimals: 4]"
+        },
+        {
+          "method": "red",
+          "value": 255.0,
+          "context": "[:o|  (o view presenter parentPresenter esElMinimo: o item) ifTrue:[o font beBold. o forecolor: (RGB"
+        },
+        {
+          "method": "green",
+          "value": 255.0,
+          "context": "[:o|  (o view presenter parentPresenter esElMinimo: o item) ifTrue:[o font beBold. o forecolor: (RGB"
+        },
+        {
+          "method": "blue",
+          "value": 128.0,
+          "context": "[:o|  (o view presenter parentPresenter esElMinimo: o item) ifTrue:[o font beBold. o forecolor: (RGB"
+        },
+        {
+          "method": "unknown",
+          "value": 3306.0,
+          "context": "3306"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010mÌ\u0003i[:o|o dotacionInicial cajones printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o| o cantCombustibleXkmXcant printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "\u0005\u0010 Z\u0006\u0010[:o | o grasasVariasXkmXcant printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o |(o at:'Nafta Especial') printDecimals: 2]"
+        },
+        {
+          "method": "printDecimals",
+          "value": 2.0,
+          "context": "[:o | o liquidoRefrigeranteXkmXcant printDecimals: 2]"
+        },
+        {
+          "method": "unknown",
+          "value": 2019.0,
+          "context": "2019"
+        },
+        {
+          "method": "10",
+          "value": 41.0,
+          "context": "\u0005\u00100W$\u001010:41:13 p.m."
+        },
+        {
+          "method": "bitOr",
+          "value": 0.0,
+          "context": "2\u0015\u0010Ph\u0010\u0010``@arg bitOr: 0"
+        },
+        {
+          "method": "bitAnd",
+          "value": 0.0,
+          "context": "``@arg bitAnd: 0"
+        },
+        {
+          "method": "l9",
+          "value": 0.0,
+          "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+        },
+        {
+          "method": "N",
+          "value": 1.0,
+          "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "`@collection at: 1"
+        },
+        {
+          "method": "Ý",
+          "value": 0.0,
+          "context": "«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "o\u001e\u0010o\u001e\u0010Ð'\u0016\u0010°á'\u0010P(\u0010Ð-\u001c\u0010'\u001c\u00100é'\u0010\u0010º(\u0010àÇ%\u0010ò'\u0010î'\u0010@Ý\u001e\u0010Ða\u001c\u0010Uses \"size = 0\", \"= nil\",  or \"at: 1\" instead"
+        },
+        {
+          "method": "00",
+          "value": 0.0,
+          "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+        },
+        {
+          "method": "max",
+          "value": 2.0,
+          "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "primitive",
+          "value": 1.0,
+          "context": "Primitive or external call tag, e.g. <primitive: 1>"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "ä \u0010[:a | a at: 2]"
+        },
+        {
+          "method": "Î",
+          "value": 9.0,
+          "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+        },
+        {
+          "method": "Version",
+          "value": 1.0,
+          "context": "MIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+        },
+        {
+          "method": "t6ÍÃM",
+          "value": 7.0,
+          "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+        },
+        {
+          "method": "t",
+          "value": 4.0,
+          "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+        },
+        {
+          "method": "rating",
+          "value": 2.0,
+          "context": "[ :recording :val | recording rating: 2]"
+        },
+        {
+          "method": "rating",
+          "value": 3.0,
+          "context": "[ :recording :val | recording rating: 3]"
+        },
+        {
+          "method": "rating",
+          "value": 1.0,
+          "context": "\u0005\u0010[ :recording :val | recording rating: 1]"
+        },
+        {
+          "method": "i19",
+          "value": 0.0,
+          "context": "±i19:00"
+        },
+        {
+          "method": "17",
+          "value": 15.0,
+          "context": "\u0005\u0010\u0010+\u0010¿+\u001017:15"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:o | o at: 3]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "\u0010\u0011\u000b\u0010°³,\u0010[:o | o at: 2]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:o | o at: 1]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:o | o at: 4]"
+        }
+      ],
+      "keywords_found": {
+        "dotacion": [
+          "listaDotacionInicialEfecto",
+          "\u0005\u0010 R\u0006\u0010 J\u0006\u0010ð\u0005\u0010dotacionInicialEfecto",
+          "listaDotacionInicial:",
+          "\u000b\u0010Pd\u0005\u0010à5\r\u0010dotacionInicial",
+          "listaDotacionInicialEfecto:",
+          "[:o1 :o2 | o1 dotacionInicial  cajones < o2  dotacionInicial  cajones]",
+          "[:o1 :o2 | o1 dotacionInicial  kg < o2 dotacionInicial  kg]",
+          "[:o|o dotacionInicial  kg printDecimals: 2]",
+          "[:o| o dotacionInicial  m3 printDecimals: 4]",
+          "i[:o|o dotacionInicial efs asInteger]",
+          "[:o1 :o2 | o1 dotacionInicial efs < o2 dotacionInicial efs]",
+          "listaDotacionInicial",
+          "[:o1 :o2 | o1 dotacionInicial  m3 < o2 dotacionInicial  m3]",
+          "â jlistaDotacionInicialEfecto",
+          "listaDotacionInicial",
+          "listaDotacionInicial",
+          "P÷\b\u0010listaDotacionInicial",
+          "listaDotacionInicialEfecto",
+          "dotacionInicial",
+          " $Êp¼¹\u001b²4¨H¨ìB|Øì±ïctrlDotacionInicial:"
+        ],
+        "combustible": [
+          "\u0005\u0010Ð\u0007\u0010b\t\u0010°x\t\u0010Gasto de Combustible",
+          "etiquetaCombustible",
+          "à¾\b\u0010Combustibles",
+          "àV\u0005\u0010p\u0014\u0005\u0010computarDistanciaDeCombustible",
+          "tablaCombustibles",
+          "Total Combustible ($):",
+          "D Combustibles",
+          "l\u0007\u0010Ð\u0019\b\u0010Àa\u0006\u0010\u0010\u0011\u000b\u0010Pû\u0006\u0010@\u0006\u0010Ç\u0007\u0010ð¢\u0006\u0010 C\b\u00100´\u0011\u0010ðc\u0005\u0010 ¡\u000e\u0010Ð{\u0007\u0010p]\u0005\u0010 t\u0005\u0010combustibles",
+          "\u0005\u00100F\u0005\u0010°·\u0007\u0010editarVehiCombustible",
+          "\u0005\u0010@o\u0005\u0010`.\u0006\u0010\u0011\u0010 b\u0007\u0010\u0010\u0011\u000b\u0010 s\b\u0010Ð\u001f\b\u0010/\b\u0010\u0010\u0007\u00100´\u0011\u0010p·\u0007\u0010\u0010K\b\u0010p/(\u0010@Ó\b\u0010ð2\u0006\u00100.\u0006\u0010`\u0005\u0010listCOCombustibleAgregados",
+          "\u0005\u0010titulosCombustibles",
+          "totalCombustibles",
+          "Dcombustible",
+          "\u0005\u0010à,\t\u0010pã\u0006\u0010°i\u0007\u0010«.²a«¡¢d«£¶a«¥¸a6«ºllistCOCombustibleAgregados",
+          "eliminarDeCombustibleVehi",
+          "eliminaTodoCombustibles",
+          "DPlaneamiento Combustible",
+          "Tipo Combustibles",
+          "listCOCombustibleAgregados",
+          "mostrarConsumoDeCombustibles"
+        ],
+        "municion": [
+          "ingresarDeMuniciones",
+          "eliminaTodoMuniciones",
+          "consumoDeMuniciones",
+          "A°[Cß\u0003\u0012i\u0002\u0013\\\u0002\u0013<K\u0013²a\u0014imostrarVentanaMuniciones",
+          "botonMuniciones",
+          "botonCorregirDatosMunicion",
+          " â  jÌ\u0011Þ59Ì\u0011±Y­â\u0003¢aç\u0005â\u0006¢aç\u0007â\bß\u0002&pâ\b©aç\fAç\fØMaç\u000eâ\bß\u0002&pâ\b¤n<YehabilitarBotonComputarDeMuniciones",
+          "\u0005\u0010\u0001>°i\u0005\u0007\u0010habilitarBotonEliminarTodoDeMuniciones",
+          "botonCorregirDatosMunicion",
+          "\u0005\u00100\u0005\u0010°`\u0010\u0010 \u0005\u0010°»\u0005\u0010ðÎ\u000f\u0010Pd\u0005\u0010 a\u0006\u0010²\u0005\u0010`\u0005\u0010\u0005\u0010í\u0006\u0010\u0010\u0005\u0010\u0010M\u0005\u0010¼\u0005\u0010`C\u0005\u0010 ¦\u0005\u0010D\u0005\u0010\u0010\u0005\u0010`\u0007\u0010N\u0005\u0010\u0010\n\u000f\u0010-\u0011±{9â\u0003´£igctrlBotonCorregirDatosMunicion:",
+          "\t\u0010Municiones",
+          "etiquetaMuniciones",
+          "\u0005\u0010 à\u0005\u0010p2\u0005\u0010@\u0005\u0010habilitarBotonEditarDeMuniciones",
+          "etiquetaMuniciones",
+          "@²jhabilitarBotonEliminarDeMuniciones",
+          " \u0001DcorregirDatosMunicion",
+          "Computo Municiones Por Armamento",
+          "\u0005\u0010`Ü\u0005\u0010Pû\u0006\u0010°X\u0012\u0010ð¢\u0006\u0010\u0010d\u0005\u0010ctrlBotonCorregirDatosMunicion",
+          "consumoDeMuniciones",
+          " \u0001DbotonMuniciones"
+        ],
+        "abastecimiento": [
+          "Total General: Dotación Inicial con Días de Abastecimiento",
+          "Total General: Dotación Inicial con Días de Abastecimiento",
+          "[:o|o diasDeAbastecimiento cajones printDecimals: 2]",
+          "diasDeAbastecimientoEfecto:",
+          "\u0005\u0010Ì\b\u0010°d\u0005\u00100d\u0005\u0010[:o1 :o2 | o1 diasDeAbastecimiento efs < o2 diasDeAbastecimiento efs]",
+          "diasDeAbastecimientoEfecto",
+          "[:o|o diasDeAbastecimiento efs asInteger]",
+          "abastecimientoEfecto",
+          "3Þ\u00033©aç\bj¹aÛèÏ\fØ\rØ.d,Ø0aÕ\u0004ediaDeAbastecimientoEfecto",
+          "\r\nDías de abastecimiento:",
+          "diasDeAbastecimientoEfecto",
+          "\u0005\u0010àó\u0007\u0010[:o|o diasDeAbastecimiento kg printDecimals: 2]",
+          "\u001di<jdiasDeAbastecimiento",
+          "diaDeAbastecimiento",
+          "abastecimiento",
+          "Ö\u0006\u0010[:o1 :o2 | o1 diasDeAbastecimiento  m3 < o2 diasDeAbastecimiento m3]",
+          "Días de Abastecimiento:",
+          "DdiaDeAbastecimientoEfecto:",
+          "diaDeAbastecimiento:",
+          "\u0005\u0010À²\f\u0010ÀG\u000e\u0010PV\u0005\u0010p\u001d\b\u0010@\u0005\u0010diaDeAbastecimiento"
+        ],
+        "cajon": [
+          "ctrlBotonCajon",
+          "habilitarBotonCambiarCajon",
+          "\u0005\u0010P\u0005\u0010°ê\u000b\u0010ª\u0005\u0010°#\n\u0010ctrlLabelPesoCajon:",
+          "\u0005\u0010àO\u0005\u0010p8\u0005\u0010\u0010\u0011\u000b\u00100N\r\u0010p\u0001\t\u00100´\u0011\u0010PÏ\u0007\u0010 -\u000f\u0010°\u0006\u0010@Þ\u0012\u0010°¶\u0005\u0010 §\u0005\u00100d\u0005\u0010 ÿ\u0005\u0010ª\u0005\u0010\u0010\u0006\u0010°&\u0005\u0010°\u0006\u0010\u0010{\u0006\u0010P\t\u0010Pd\u0005\u0010Este Efecto no tiene Cajon Asignado",
+          "DEl volumen del cajón debe ser mayor de 0",
+          "DlabelVolumenCajon",
+          "ctrlLabelNombreCajon",
+          "ctrlLabelVolumenCajon",
+          "ctrlLabelPesoCajon",
+          "\u0005\u0010À\b\u0010ctrlLabelNombreCajon:",
+          "Cajon",
+          "«\u001e²¡!y2\n¶aelabelPesoCajon",
+          "labelVolumenCajon",
+          "DlabelNombreCajon",
+          "jlabelPesoCajon",
+          "Cajones",
+          "[:o|o cajones printDecimals: 2]",
+          "[:o1 :o2 | o1 cajones < o2 cajones]",
+          "C\u0012\u0010ctrlLabelVolumenCajon:",
+          "DCajones"
+        ],
+        "transporte": [
+          "\u0005\u0010°÷\u0005\u0010 J\u0006\u0010ctrlComboBoxNombreTransporte",
+          "Resultado De Transporte Asignado",
+          "Cantidad Transporte Por Volumen Total",
+          "~\u0007\u0010\f\u0010â Ü\u0005â!HÛ\u001cé\u0010\\?Ñ\u0004\u0011d\u0015Û\né4é\u0004LùÑ\u0004Ýóaa?Ñ\u0005â$d\u0016Û\u0013é%Ñ\u0006>µ|é5é\u0006¶ÅadùÑ\u0005Ýêaa\u0014iCantidad Transporte Por Kg Maximo de Carga ",
+          "No hay un Transporte Asignado",
+          "\u0002â\u0001²iagreagraInfoTransporte:",
+          "comboBoxNombreTransporte",
+          "\u0005\u0010Transporte",
+          "\u0012ÆxA°i\u0012ß\u00049<²iA\u00120¢ØellabelCantidadTransporte",
+          "ctrlLabelCantidadTransporte",
+          "ctrlLabelCantidadTransportePorKg",
+          "calcularCantidadDeTransporteSegunTransporteSeleccionado",
+          "ctrlLabelCantidadTransportePorKg:",
+          "\t\n\u0010ðD\u0005\u0010î\u0006\u0010@­\u0007\u0010textEditAnchoTransporte",
+          "\u0003?\u0011¾SetextEditAltoTransporte",
+          "textEditNombreTransporte",
+          "\u0005\u0010\u0010é\n\u0010àÈ\n\u0010°Þ\u000b\u0010textEditPesoMaximoDeCargaTransporte",
+          "ctrlLabelCantidadTransporte:",
+          "textEditLargoTransporte",
+          "P\f\u0010\u0010e\u0014\u0010°0\u0005\u0010°Á\u0006\u0010«a. ®¯ç\u0005\b9ç\u0006·ç\bØÉT\u0004=y. ¨aectrlListaTransporte"
+        ],
+        "volumen": [
+          "DEl volumen del cajón debe ser mayor de 0",
+          "Volumen (m3)",
+          "DlabelVolumenCajon",
+          "ctrlLabelVolumenCajon",
+          "labelVolumenCajon",
+          "ðN\u000e\u0010\r\u0011\u001d@±aÌ\u0011\u0011\u001f@±a\u000f\u0011 @±aÌ\u0014\u0011!@±aÌ\u0018\u0011\"@±aÌ\u001b\u0011#@±aÌ\u001e\u0011$@±aÌ!\u0011%@±llabelVolumenEfecto",
+          "C\u0012\u0010ctrlLabelVolumenCajon:",
+          "\u0005\u0010 j,\u0010î\u0006\u0010ðì\u0006\u0010I\u0010\u0001DctrlLabelVolumenEfecto:",
+          "Cantidad Transporte Por Volumen Total",
+          "Àu\u0005\u0010labelVolumenEfecto",
+          "Volumen (m3)",
+          "Volumen (m3):",
+          "labelVolumen",
+          "Ð\n\u0010ü\u0005\u00109\u001d±a­K>³lctrlLabelVolumen",
+          "ctrlVolumenCarga:",
+          "ctrlVolumen",
+          "\u0005\u00109@iverificarValorVolumen",
+          "\u001c\u0005\u0010P¡\u0005\u0010\u0010\u0005\u00100d\u0005\u0010`'\t\u0010\u0018\u0005\u00100³\u0005\u0010&\u0006\u0010 t\u0005\u0010ctrlLabelWarningVolumenCarga:",
+          "volumenDeLaCarga",
+          "warningVolumen"
+        ],
+        "elemento": [
+          "\u0005\u0010P\u0013\u0005\u0010verElementosAgregados",
+          "pedirVehiculosDeElementos:",
+          "\u0005\u0010o\u0006\u00100\u0015\u0005\u0010 X\u0006\u0010obtenerVehiculosDeElemento:",
+          "obtenerArmasDeElemento:",
+          "Las columnas no estan completas, faltan elementos en alguna de las filas",
+          " WHERE elementoId=",
+          "[\t\u0010À\b\u0010personasElemento:",
+          "\u0005\u00100l\b\u0010nivelelemento",
+          "borrarVehiculo:elemento:",
+          "\u0005\u0010ðÁ\u0012\u0010 å\t\u0010 ã\b\u0010vehiculosElemento:",
+          "subelementos:",
+          "ª\u0007\u0010 WHERE padreelementoid=",
+          "\u0005\u0010p@\u0006\u0010Àû\u0005\u00100û\u0005\u0010Pû\u0005\u0010Àù\u0005\u00100d\u0005\u0010 S\u0006\u0010Pd\u0005\u00100|\u0005\u0010ð \u0006\u0010importarSubUn:subElementos:sin:",
+          "tieneTodosLosElementosOrganizadosDesde:",
+          "\u0005\u0010°.\b\u0010_\u0005\u0010g\u0005\u0010importarMaterialElemento",
+          "ìQ¸\u001eë±?importarNivelElemento",
+          "dameElementoPadre",
+          " Ì>J2quitarDependenciaElemento:",
+          "subElementos:",
+          "buscarElemento:en:"
+        ],
+        "organizacion": [
+          "esUnCuadroOrganizacionValido:",
+          "\u0005\u0010OrganizacionCombate",
+          "datosOrganizacion",
+          "datosOrganizacion:",
+          "elementosOrganizacionCombate",
+          "é\u0010²j³j´IicargarOrganizaciones:",
+          "\u0005\u0010datosOrganizacion",
+          "yA\u0013ÁiBµiinicializarElementosOrganizacionCombate",
+          "\u0012\u0010organizacionId:",
+          "\u0005\u0010õ\u000f\u0010P¦\u001c\u0010elementosOrganizacionCombate",
+          "\u0005\u0010@4\t\u0010°\u0016\n\u0010_î§Ü§ÜF\u001cM§½;­elementosOrganizacionCombate:",
+          "\u0005\u0010organizacioncombate",
+          "\u0005\u0010Ð\t\u000b\u0010p\u0017\n\u0010àÂ\u000b\u0010Ð\n\u0010°d\u0005\u0010  \u0006\u0010Pd\u0005\u0010 ¾\u000b\u0010\u000b\u0010ð\u000b\u00100d\u0005\u0010\u0010\u0007\u0010p\n\u0010à¥\n\u0010p~\n\u0010 /\n\u0010 \n\u0010OrganizacionCombateId",
+          "Ì\f\u0010°\u0016\u000e\u0010°\u0002\u000e\u00100\u0006\u0013\u0010\u00119°Ý\u0012\u0001â\u0001Ý\u000b\u0003â\u0003{9\u0011igAÙ%i«@\u0011lcuadroorganizacion",
+          "@\u000e\u0010ElementoOrganizacionCombate"
+        ],
+        "cuadro": [
+          "\u0005\u0010mÌ\u0002iCCOO Agregados",
+          "CCOO Agregados",
+          "esUnCuadroOrganizacionValido:",
+          "E\t\u0010à\u001d\t\u00100g\t\u0010 D\t\u0010ª\u0005\u0010 \t\u0010ðC\t\u0010À\t\u0010 C\t\u0010Administración de CCOO",
+          "Ì\f\u0010°\u0016\u000e\u0010°\u0002\u000e\u00100\u0006\u0013\u0010\u00119°Ý\u0012\u0001â\u0001Ý\u000b\u0003â\u0003{9\u0011igAÙ%i«@\u0011lcuadroorganizacion"
+        ],
+        "personal": [
+          "\u0005\u0010ð7\u000e\u0010\u0010p\u0005\u0010tieneTodosLosVehiculosConPersonalDesde:",
+          "à%\t\u0010Existen Material de tipo Motorizada, Blindada o Mecanizada con personal sin asignar a vehículos.",
+          "\u0005\u00109\u001e²lÀ9\u000b\u0010p\u0006\u0010ðt\n\u0010Existen vehículos sin personal asignado.",
+          "personal",
+          "personalCompletoParaInstanciar",
+          "asignarPersonalAEmbarquesEn:",
+          "°\u0013\u0010personal",
+          "personal:",
+          "PersonalMoney",
+          "DolphinSurePersonalCertificate",
+          "Resources/DolphinSurePersonalCert.jpg",
+          "PersonalMoneyShell",
+          "é\u0001°j±lPersonalAccount",
+          "Personal Account Details",
+          "PersonalAccountTransactionDialog",
+          "PersonalAccountTransaction",
+          "\u0005\u0010 s*\u0010Ð\u0007\u0010@a*\u0010ú(\u0010\u0010á(\u0010ð[\u000b\u0010Â\u000e\u0010Àc\b\u0010°d\b\u0010PersonalMoney",
+          " 5*\u0010à=)\u0010Personal Money files (*.pm)",
+          "à#\u0010PersonalAccountShell",
+          "Personal Money Application"
+        ],
+        "baja": [
+          "bajarAlpha",
+          "bajarAlpha:"
+        ],
+        "prisionero": [
+          "ô\tÈÏPGÅ",
+          "æ\u0001Ú*PGÆ",
+          "æ\u0001{\u0011PG\u0015\t \u0012\u0005\u0010\u0014",
+          "æ\u0001ü2PGÞ\u0003`\u0012\u0005\u0010\u0018",
+          "æ\u0001_\u000ePGß\u0003`\u0012\u0005\u0010\u0018",
+          "ô\u0006PGÄ\u0014\t`\u0012\u0005\u0010\u0018",
+          "æ\u0001ô@PGz\u0005 0\u0013\u0010\u0010",
+          "ô\u0003\u001ehPG\b@\u0012\u0005\u0010\b",
+          "ô\u0001$#PG\u0014\t`\u0012\u0005\u0010,",
+          "ä\u0001Ä²PGä\u00030\u0012\u0005\u0010\t",
+          "ô\u0003ÒPGß\u0001",
+          "æ\u0001^ºPGí\b`\u0012\u0005\u0010\u0014",
+          "ä\u00018PGè\u0003`\u0012\u0005\u0010\u0014",
+          "æ\u0001ÛJPG5\u0005@\u0012\u0005\u0010\f",
+          "ä\u0001\u0013\u0013PGç\b`\u0012\u0005\u0010D",
+          "æ\u0001PGà¿6\u00050\u0012\u0005\u0010\r",
+          "æ\u0001ÈþPGy\u0005`\u0012\u0005\u0010H",
+          "æ\u0001áêPG}\u0005\u0010\u0012\u0005\u0010\u0014",
+          "ä\u0001î;PG\u0005`\u0012\u0005\u0010\u0018",
+          "æ\u0001OPG\u0005PV\n\u0010\u0010"
+        ],
+        "combate": [
+          "-\u0011¬\u0012ØbiExisten personas o vehículos sin una Organización para el Combate asignada.",
+          "\u0005\u0010OrganizacionCombate",
+          "\u0005\u0010mÌ\u0001iorgCombate:",
+          "orgCombate",
+          "\u0005\u0010P\"\u0005\u00100Õ\u0006\u0010Ô\u0005\u0010orgCombate",
+          "elementosOrganizacionCombate",
+          "yA\u0013ÁiBµiinicializarElementosOrganizacionCombate",
+          "\u0005\u0010õ\u000f\u0010P¦\u001c\u0010elementosOrganizacionCombate",
+          "\u0005\u0010@4\t\u0010°\u0016\n\u0010_î§Ü§ÜF\u001cM§½;­elementosOrganizacionCombate:",
+          "\u0005\u0010organizacioncombate",
+          "\u0005\u0010Ð\t\u000b\u0010p\u0017\n\u0010àÂ\u000b\u0010Ð\n\u0010°d\u0005\u0010  \u0006\u0010Pd\u0005\u0010 ¾\u000b\u0010\u000b\u0010ð\u000b\u00100d\u0005\u0010\u0010\u0007\u0010p\n\u0010à¥\n\u0010p~\n\u0010 /\n\u0010 \n\u0010OrganizacionCombateId",
+          "@\u000e\u0010ElementoOrganizacionCombate"
+        ],
+        "pendiente": [
+          "\u0005\u0010àD\u000e\u0010\u0010Ð\u0006\u00100d\u0005\u0010ð¢\u0006\u0010p©\u0005\u0010Pd\u0005\u0010\u0010%\f\u0010°a\u0007\u0010àÁ\u0005\u0010SubUnidad_Independiente",
+          "\u0005\u0010«¬i°<\u0010\u0010°¤\f\u0010-A± ÀiB\u0011¾ltipoSubUnidadIndependiente",
+          "esSubUnidadIndependiente",
+          " Â\u0006\u0010esIndependiente",
+          "iSubUnidad_Independiente"
+        ],
+        "vehiculo": [
+          "\u0014\u0010p§\u0010\u0010Ðd\u0005\u0010`I\u0005\u0010 \u0013\u0005\u0010Ya existe un vehículo con la denominación seleccionada. Si desea modificarlo, selecciónelo de la lista y pulse el botón \"Editar\".",
+          "\u0005\u0010à\u0013\u0005\u0010modificarVehiculoExistente",
+          "¿Desea eliminar el vehículo?",
+          "agregarVehiculosDeUnaUnidad",
+          "F\u0005a\u0006[:o1 :o2 | o1 vehiculo denominacion nombre < o2 vehiculo denominacion nombre]",
+          "pedirVehiculosDeElementos:",
+          "\u0005\u0010\u0011Ó\u0016e[:o | o vehiculo denominacion nombre]",
+          "[:o1 :o2 | o1  vehiculo nombreVehiculo  <  o2  vehiculo nombreVehiculo]",
+          "[:o | o vehiculo nombreVehiculo ]",
+          "\u0005\u0010o\u0006\u00100\u0015\u0005\u0010 X\u0006\u0010obtenerVehiculosDeElemento:",
+          "\u0005\u0010El vehículo ya ha sido cargado. Si necesita modificarlo, por favor elija el vehículo deseado y pulse 'Editar'",
+          "\u0005\u0010mÌ\tionVehiculoYaIngresado",
+          " \u0001DingresarVehiculoNuevo",
+          "listaVehiculos:",
+          " â  j[:o1 :o2 | o1 vehiculo denominacion nombre < o2 vehiculo denominacion nombre]",
+          "\u0005\u0010\u00119°i\t\u0006\u0010[:o | o vehiculo denominacion nombre]",
+          "â j[:o1 :o2 |o1 vehiculo nombreVehiculo  < o2 vehiculo nombreVehiculo]",
+          "j9@\u0011Àl[:o | o vehiculo nombreVehiculo]",
+          "àr\u0006\u0010Consumo de cada vehículo en función de los Km a recorrer",
+          "\u0005\u0010pê\u000b\u0010\u0010¼\u0006\u0010à,\n\u0010À\u0007\u0010@4\b\u0010Consumo de cada vehículo en función de los Km a recorrer por la cantidad de vehículos"
+        ],
+        "velocidad": [
+          "cantidadCuadrados:extentCuadrado:circular:color:velocidadRefresco:radio:",
+          ".[é\u0012\u0011Àa\u0013jÁivelocidadRefresco:",
+          "velocidadRefresco",
+          "cantidadCuadrados:extentCuadrado:porcentajeCuadradoGrande:circular:color:velocidadRefresco:",
+          "\u0005\u0010 \u0017\t\u0010ÐË\u0010\u0010pÒ\u0013\u0010@b\r\u0010velocidadRefresco"
+        ],
+        "autonomia": [
+          "\u0005\u0010Ð\u0014\u0011\u0010pÖ\b\u0010autonomiaEnLts:",
+          "\u0005\u0010autonomiaEnLts",
+          "autonomiaEnLts"
+        ],
+        "peso": [
+          "\u0005\u0010Peso (kg)",
+          "\u0005\u0010P\u0005\u0010°ê\u000b\u0010ª\u0005\u0010°#\n\u0010ctrlLabelPesoCajon:",
+          "ctrlLabelPesoEfecto:",
+          "ctrlLabelPesoEfecto",
+          "ctrlLabelPesoCajon",
+          "Peso (kg)",
+          "«\u001e²¡!y2\n¶aelabelPesoCajon",
+          "labelPesoEfecto",
+          "\u0005\u0010>\u0005\u0010\u0010H\u0005\u0010°·\u0007\u0010labelPesoEfecto",
+          "jlabelPesoCajon",
+          "iPeso Máximo",
+          "\u0005\u0010\u0010é\n\u0010àÈ\n\u0010°Þ\u000b\u0010textEditPesoMaximoDeCargaTransporte",
+          "Peso (kg):",
+          "labelPeso",
+          "ð\u0006\u0010ðÖ\u0006\u0010textPresenterPeso",
+          "labelPesoActual",
+          "\u0005\u0010ú\n\u0010P.\u000e\u0010à¬\u0005\u00100³\u0005\u0010à?\u0006\u0010@)\n\u0010agregarPesoActual",
+          "ctrlLabelPesoActual:",
+          "ctrlLabelPeso:",
+          "\u0005\u0010 w\t\u0010°Ï\u0005\u0010 5\u0005\u0010ÀÊ\u0005\u0010°\u0006\u0010p\u0007\u0007\u0010ctrlLabelPeso"
+        ]
+      },
+      "methods_of_interest": [
+        {
+          "method": "dotacionInicial",
+          "string": "\u0005\u0010 R\u0006\u0010 J\u0006\u0010ð\u0005\u0010dotacionInicialEfecto",
+          "context_before": [
+            "9:±j²i\u0011i\u0003",
+            "Ë\u000b\u0010àf\n\u0010\u0010"
+          ],
+          "context_after": [
+            "ÐP\f\u0010`¼\n\u0010\u0010",
+            "\u0005\u00100í\u0007\u0010à\u0005\u0010Ð¼\u000b\u0010broadcast:with:"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "\u000b\u0010Pd\u0005\u0010à5\r\u0010dotacionInicial",
+          "context_before": [
+            "\u0005\u0010ÐÝ\r\u0010P<\u0005\u0010°\b\f\u0010\u0018\u0005\u0010 §\u0005\u0010ª\u0005\u0010P\u0003\u000b\u0010",
+            "7\b\u0010"
+          ],
+          "context_after": [
+            "\u0017\f× Ã_F¬bkÙèDÉ\u0001",
+            "p\u0010\u0005\u0010Ð¦\u0007\u0010\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "[:o1 :o2 | o1 dotacionInicial  cajones < o2  dotacionInicial  cajones]",
+          "context_before": [
+            "\u0005\u00100\u000b\u0010 Â\u0006\u0010Ào\u000b\u0010Ð±\u0006\u0010Ó\u0002ÿÿ",
+            "doIt"
+          ],
+          "context_after": [
+            "calcularCantidadDeTransporteSegunTransporteSeleccionado",
+            "à\u001c\u0006\u0010àr\u000e\u0010\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "[:o1 :o2 | o1 dotacionInicial  kg < o2 dotacionInicial  kg]",
+          "context_before": [
+            "\u0001\u0007ÀD\b\u0010Ðv\u0007\u0010\u0010",
+            "\u0005\u0010\u0011Te"
+          ],
+          "context_after": [
+            "ð»\u000b\u0010p\u0006\u0010\u0010",
+            "\u0005\u0010°*\u0010\u0010\r\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "[:o|o dotacionInicial  kg printDecimals: 2]",
+          "context_before": [
+            " ²\u0012\u0010\u0001\u000f",
+            " \u0011\u0007\u0010E"
+          ],
+          "context_after": [
+            "A\u0012\u001d¿i\u0003",
+            "\u0006PL\u0007\u0010=\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "[:o| o dotacionInicial  m3 printDecimals: 4]",
+          "context_before": [
+            "key:value:",
+            "[:o |(o at: 'Aceite Motor') printDecimals: 2]"
+          ],
+          "context_after": [
+            "-¬ ¡´ldoIt",
+            "compileExpression:in:"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "i[:o|o dotacionInicial efs asInteger]",
+          "context_before": [
+            "\u0006ð\u0016\n\u0010 )\n\u0010\u0010",
+            "\u0005\u0010mÌ"
+          ],
+          "context_after": [
+            "cantidadD",
+            "p\u0010\u0005\u0010x\r\u0010\u0019@"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "[:o1 :o2 | o1 dotacionInicial efs < o2 dotacionInicial efs]",
+          "context_before": [
+            " ²\u0012\u0010\u0001\u0006",
+            "ö\u0007\u0010E"
+          ],
+          "context_after": [
+            "suspendedFrame:",
+            "à\u0003\f\u0010`'\u0005\u0010\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "[:o1 :o2 | o1 dotacionInicial  m3 < o2 dotacionInicial  m3]",
+          "context_before": [
+            "\u0005\u0010A?¾lÐ^\u000b\u0010StaticPath",
+            "removeAll"
+          ],
+          "context_after": [
+            "Totales de cada efecto clase III, con respecto a la tabla del medio:",
+            "PV\n\u00100[\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "dotacionInicial",
+          "context_before": [
+            "\u0005\u0010ð6\u0007\u0010`P\u0007\u0010ðÖ\u0006\u0010",
+            "\nStdOut"
+          ],
+          "context_after": [
+            "p\u000b\u0006\u0010 f\u0006\u0010\u0007@",
+            "\u0005\u0010Ð\n\u0010\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "\u0005\u0010dotacionInicial",
+          "context_before": [
+            "\u0005\u0010 \u001a\f\u0010PZ\u0005\u0010\u0001",
+            "`3\u0007\u0010\u0010"
+          ],
+          "context_after": [
+            "overlap",
+            "debugPrintString"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "\u0005\u0010mÌ\u0003i[:o|o dotacionInicial cajones printDecimals: 2]",
+          "context_before": [
+            "\t\u0010\u0003",
+            "\u00060K\b\u0010 ½\u0007\u0010\u0010"
+          ],
+          "context_after": [
+            "«Ö\b²a®Ö\b²lsourceIndexFromDescriptor:",
+            "àý\u0007\u0010Ð¾\u0007\u0010\u0010"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "dotacionInicial",
+          "context_before": [
+            "\u0005\u0010P£$\u0010p$\u00100Q\u000f\u0010Ã\u000b\u0010à¹\u0010\u0010",
+            "\u000b\u0010à¦\u0005\u0010Pd\u0005\u0010diasDeAbastecimiento"
+          ],
+          "context_after": [
+            "cantidad",
+            "efecto"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "dotacionInicial",
+          "context_before": [
+            "SELECT * FROM municion",
+            "diasDeAbastecimiento"
+          ],
+          "context_after": [
+            "±Å´n\u0002Ó\u0011×",
+            " Ì>J2Dotación inicial"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "dotacionInicial:",
+          "context_before": [
+            "À\u0019\u0007\u00100Å\u000b\u0010\u0010",
+            "\u0005\u0010\u0006\u0010`\u000b\n\u0010 O\u0006\u0010à&\n\u0010nodesDo:"
+          ],
+          "context_after": [
+            "\u0001\u0007°×\u0007\u0010pX\b\u0010\u0010",
+            "\u0005\u0010\u0011Ue"
+          ]
+        },
+        {
+          "method": "dotacionInicial",
+          "string": "\u0005\u0010À\u0007\u0010¥\u0005\u0010°d\u0005\u0010°e\u0005\u0010dotacionInicial",
+          "context_before": [
+            "\u0005\u0010@,\n\u0010z\u000b\u0010V\b\u0010ÀD\u0013\u0010\u0003\u0004\u0003",
+            "p7\n\u0010°;\u0007\u0010\u0010"
+          ],
+          "context_after": [
+            "0\u0014\u0005\u0010 \u0018\u0005\u0010\u0010",
+            "\u0005\u0010«i"
+          ]
+        },
+        {
+          "method": "consumoCombustibleBase",
+          "string": "consumoCombustibleBaseDatos",
+          "context_before": [
+            "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ¦",
+            "asFraction"
+          ],
+          "context_after": [
+            "ð$\f\u0010ð2\u000b\u0010\u0010",
+            "\u0005\u0010@Ì\u0005\u0010à,\n\u0010À\u0007\u0010À%\t\u0010"
+          ]
+        },
+        {
+          "method": "consumoCombustibleBase",
+          "string": "consumoCombustibleBase",
+          "context_before": [
+            "Dâ [9d\u0013±L Lé\u0001ÁL\u0013´a£l,",
+            "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ"
+          ],
+          "context_after": [
+            "°\u0011\u0005\u0010ð\u0006\u0010\u0010",
+            "\u0005\u0010p'\n\u0010  \u0006\u0010°\u0006\u0010\u0001"
+          ]
+        },
+        {
+          "method": "consumoCombustibleBase",
+          "string": "\u0005\u0010mÌ\u0001iconsumoCombustibleBaseDatos",
+          "context_before": [
+            "\u0005\u0010PG\u0006\u0010\u0001",
+            "\u0006ð$\f\u0010P¯\u0005\u0010\u0010"
+          ],
+          "context_after": [
+            "pushSelf",
+            "\u0006`Y\u0007\u0010Pö\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "consumoCombustibleBase",
+          "string": "°\u0019\n\u0010]\u001e\u0010consumoCombustibleBase:",
+          "context_before": [
+            "combustibleTotal",
+            "asWarning"
+          ],
+          "context_after": [
+            "gasoilTotal",
+            "resumeUnconditionally"
+          ]
+        },
+        {
+          "method": "consumoCombustibleBase",
+          "string": " Ì>J2consumoCombustibleBase",
+          "context_before": [
+            "D\u0004ß\u0002«ie-\u0001=Y?S¬Ü\r\u0003Z®I\u0001\u0012\u0003cÂµaÛð\u0011iagregarPeso",
+            "bÄ´n\u0002Ó\u0011×"
+          ],
+          "context_after": [
+            "importarEfectoclasev",
+            "newUnique"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "consumoCombustibleBaseDatos",
+          "context_before": [
+            "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ¦",
+            "asFraction"
+          ],
+          "context_after": [
+            "ð$\f\u0010ð2\u000b\u0010\u0010",
+            "\u0005\u0010@Ì\u0005\u0010à,\n\u0010À\u0007\u0010À%\t\u0010"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "\u0005\u0010mÌ\u0002iconsumoCombustible",
+          "context_before": [
+            "beFatalError",
+            "\u0006`r\b\u0010À7\u0005\u0010\u0010"
+          ],
+          "context_after": [
+            "@£\u000b\u0010ÐF\u000e\u0010\u0010",
+            "\u0005\u0010`F\u000e\u0010"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "consumoCombustibleBase",
+          "context_before": [
+            "Dâ [9d\u0013±L Lé\u0001ÁL\u0013´a£l,",
+            "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ"
+          ],
+          "context_after": [
+            "°\u0011\u0005\u0010ð\u0006\u0010\u0010",
+            "\u0005\u0010p'\n\u0010  \u0006\u0010°\u0006\u0010\u0001"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "\u0005\u0010\u00119°i03\u0006\u0010consumoCombustible",
+          "context_before": [
+            "\u0002ß\b- Q\u0001!i\u0002Y<R\u0011iEste archivo ya existe, desea reemplazarlo?",
+            "\u0001­p\u0013\u0005\u0010\u0010®\u0005\u0010\u0010"
+          ],
+          "context_after": [
+            "\u0001`àÞ\t\u0010Àï\u0007\u0010\u0010",
+            "\u0005\u0010m¬i"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "DconsumoCombustible:",
+          "context_before": [
+            "\u0005\u0010Aü\u0002",
+            "é \u0012jÙ l"
+          ],
+          "context_after": [
+            "ctrlListaArmaEfecto:",
+            "PÉ\u0006\u0010À>\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "\u0005\u0010`Q\u0006\u0010 m\u0006\u0010ðJ\u0006\u0010consumoCombustible",
+          "context_before": [
+            "°\u0006\u0010 d\u0006\u0010`C\u0006\u0010P#\u0007\u0010\u0010",
+            "\u0005\u00100\u0006\u0010Ðà\u0006\u0010@\u0017\u0007\u0010 \u0006\u0010Àò\u0006\u0010\u0010"
+          ],
+          "context_after": [
+            "z\u000b\u0010À \u0007\u0010\u0010",
+            "\u0005\u0010mÌ\fiaddAll:before:"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "\u0005\u0010mÌ\u0001iconsumoCombustibleBaseDatos",
+          "context_before": [
+            "\u0005\u0010PG\u0006\u0010\u0001",
+            "\u0006ð$\f\u0010P¯\u0005\u0010\u0010"
+          ],
+          "context_after": [
+            "pushSelf",
+            "\u0006`Y\u0007\u0010Pö\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "°\u0019\n\u0010]\u001e\u0010consumoCombustibleBase:",
+          "context_before": [
+            "combustibleTotal",
+            "asWarning"
+          ],
+          "context_after": [
+            "gasoilTotal",
+            "resumeUnconditionally"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": " Ì>J2consumoCombustibleBase",
+          "context_before": [
+            "D\u0004ß\u0002«ie-\u0001=Y?S¬Ü\r\u0003Z®I\u0001\u0012\u0003cÂµaÛð\u0011iagregarPeso",
+            "bÄ´n\u0002Ó\u0011×"
+          ],
+          "context_after": [
+            "importarEfectoclasev",
+            "newUnique"
+          ]
+        },
+        {
+          "method": "consumoCombustible",
+          "string": "consumoCombustible",
+          "context_before": [
+            "\u0005\u0010`7\u0007\u0010ÀX\u0007\u0010ðÖ\u0006\u0010lpReserved2",
+            "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ"
+          ],
+          "context_after": [
+            "9«\u0011±i\u0001",
+            "°,\f\u0010ðã\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "autonomia",
+          "string": "\u0005\u0010Ð\u0014\u0011\u0010pÖ\b\u0010autonomiaEnLts:",
+          "context_before": [
+            "\u0005\u0010mh",
+            "PH\f\u0010Àá\b\u0010\u0010"
+          ],
+          "context_after": [
+            "isGetter",
+            "copy:from:"
+          ]
+        },
+        {
+          "method": "autonomia",
+          "string": "\u0005\u0010autonomiaEnLts",
+          "context_before": [
+            " Ì>J2Ü®gNjaAK6fí}s=\u0010",
+            "\u0005\u0010I\b\u0010°>\b\u0010\u0010"
+          ],
+          "context_after": [
+            "A\u0013\u0005\u0010À\u001e\u0006\u0010\u0010",
+            "\u0005\u0010¯\u0006\u0010^\t\u00100d\u0005\u0010\u0003"
+          ]
+        },
+        {
+          "method": "autonomia",
+          "string": "autonomiaEnLts",
+          "context_before": [
+            "\u0005\u0010A°i",
+            " è\n\u0010instanceVariableNames:"
+          ],
+          "context_after": [
+            "Kü.[`u°C\u000fpÜó}\u0005\u0001",
+            "Ð%\f\u0010 §\u0005\u0010\u0010"
+          ]
+        },
+        {
+          "method": "volumen",
+          "string": "DEl volumen del cajón debe ser mayor de 0",
+          "context_before": [
+            "\u0005\u0010ps*\u0010@X\n\u0010instanceClass",
+            "x/¡iç\u0005#ç\u0007\u0011ØHi\u0001\u0001"
+          ],
+          "context_after": [
+            "DContext",
+            "targetOfMessage:"
+          ]
+        },
+        {
+          "method": "volumen",
+          "string": "volumenDeLaCarga",
+          "context_before": [
+            "\u0005ÿÿ",
+            "À5\u0007\u0010P\u001f\u0007\u0010mostrarListaPorArmamento"
+          ],
+          "context_after": [
+            "new64",
+            "z\u000b\u00100\u0001\u0013\u0010\u0010"
+          ]
+        },
+        {
+          "method": "volumen",
+          "string": "volumenDeLaCarga",
+          "context_before": [
+            "\u0005\u0010«l",
+            "Ð\u001a\n\u0010refForObject:"
+          ],
+          "context_after": [
+            "\u0001\u0011cÖ\b\u0012¾i\u0003\u0001\u0001",
+            "\u0010\u001e\u0005\u0010ðä\u0005\u0010\u0010"
+          ]
+        },
+        {
+          "method": "volumen",
+          "string": "volumen:",
+          "context_before": [
+            "isUserBreakRequested",
+            "tituloUsuario"
+          ],
+          "context_after": [
+            "optionPrefixChars",
+            "peso:"
+          ]
+        },
+        {
+          "method": "volumen",
+          "string": "volumen",
+          "context_before": [
+            "\u0005\u0010Py$\u0010à%\u0011\u0010",
+            "¼\u000b\u00100\u0005\u0007\u0010peso"
+          ],
+          "context_after": [
+            "nombre",
+            "descripcion"
+          ]
+        },
+        {
+          "method": "volumen",
+          "string": "volumen",
+          "context_before": [
+            "\u0005\u0010ð\u0019\b\u0010\u000b",
+            "\u0005\u0010pass"
+          ],
+          "context_after": [
+            "periods",
+            "P¼\n\u0010ð\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "volumen",
+          "string": "volumen",
+          "context_before": [
+            "ð\u0010\u0005\u0010 \u0013\u0010\u0010",
+            "\u0005\u0010«\u0011±ii\u0005\u0010 \u0013\u0010cant"
+          ],
+          "context_after": [
+            "P\u0007\u0010\u0010",
+            "\u0005\u0010Ð\r\u0010à3\t\u0010°\u0007\b\u0010\u0010"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "pesoCarga",
+          "context_before": [
+            "oÅ´n\u0002Ó\u0011×",
+            " Ì>J2asDays"
+          ],
+          "context_after": [
+            "\u00050\u0011\u0005\u0010Ðb\u0005\u0010\u0010",
+            "\u0005\u0010m>i"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "õ\t\u0010pesoCarga",
+          "context_before": [
+            "\u0005\u0010m¬i",
+            "à\t\u0010"
+          ],
+          "context_after": [
+            "èÆ´n\u0002Ó\u0011×",
+            " Ì>J2\u0001\u0001"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "pesoMaximoDeCarga:",
+          "context_before": [
+            "consumoPorVehiculoTotal",
+            "allBehaviors"
+          ],
+          "context_after": [
+            "allBehaviorsDo:",
+            "dwY:"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "pesoMaximoDeCarga",
+          "context_before": [
+            "\u0002P\u0012\u0005\u0010­\u0006\u0010\u0010",
+            "\u0005\u0010mf"
+          ],
+          "context_after": [
+            "scanSymbol",
+            "<\f\u0010®\u0007\u0010\u0010"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "peso:",
+          "context_before": [
+            "volumen:",
+            "optionPrefixChars"
+          ],
+          "context_after": [
+            "\u0006`Y\u0007\u0010°a\t\u0010\u0010",
+            "\u0005\u0010mÌ\u0012i\u0003"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "¼\u000b\u00100\u0005\u0007\u0010peso",
+          "context_before": [
+            "Ð\u000e\u0010à%\u0011\u0010\u0010",
+            "\u0005\u0010Py$\u0010à%\u0011\u0010"
+          ],
+          "context_after": [
+            "volumen",
+            "nombre"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "peso",
+          "context_before": [
+            "CoeficientePotenciaFuego",
+            "validateForModify"
+          ],
+          "context_after": [
+            "getProcAddress:ifAbsent:",
+            "à\u0010\u0005\u0010Ö\u0006\u0010\u0010"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "pesoMaximoDeCarga",
+          "context_before": [
+            "\u0005\u0010\u0011Qe",
+            "instanceSpecWithFixedPointers:"
+          ],
+          "context_after": [
+            "nombre",
+            "Ð%\f\u0010"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "\u0011\u001d± [\u0012\u001d± \\\u0011 ± ]91£¤$¸¹K7»a­Ï\f*\u0015ØNØ/a­Ï\fÎ\u0010\u0013ØNØ/aç\u0011K1£¤Î\u0012¸¹a­Ï\fÎ\u0013\u0014ØNØ/a­*Ø4aç\u0011lpeso",
+          "context_before": [
+            "\u0005\u0010«\u0011±i\u000e\t\u0010@ä\b\u0010getCursor",
+            "inSendMessage"
+          ],
+          "context_after": [
+            "interruptHotKey",
+            "5\f\u0010Àè\u0007\u0010\u0010"
+          ]
+        }
+      ]
+    },
+    "bajas": {
+      "module": "bajas",
+      "size_mb": 7.589784622192383,
+      "total_strings": 429800,
+      "classes": {
+        "SortedCollection": 2,
+        "Muertos": 2,
+        "SDWORD": 2,
+        "Cancelar": 8,
+        "Aceptar": 9,
+        "ExternalAddress": 2,
+        "Salir": 9,
+        "ClassificationTable": 2,
+        "DSNLibrary": 2,
+        "Current": 13,
+        "NeedsSelfMask": 2,
+        "Seleccionar": 2,
+        "ContainerCreditosOperaciones": 2,
+        "Actualizar": 2,
+        "DeseleccionarTodos": 2,
+        "Cambiar": 5,
+        "BSTR": 2,
+        "CURRENCY": 2,
+        "Unknown": 2,
+        "Versiones": 2,
+        "EscapeChars": 2,
+        "Category": 2,
+        "OPTION": 2,
+        "ReadOnlyMask": 3,
+        "LEFT": 2,
+        "Debug": 5,
+        "StandardCommands": 2,
+        "VARIANT": 2,
+        "LPWSTR": 2,
+        "Error": 2,
+        "SpecialSelectors": 2,
+        "Tutorials": 12,
+        "Remove": 4,
+        "Clipboard": 2,
+        "AlignmentMap": 5,
+        "Help": 2,
+        "IgnoreCaseMask": 2,
+        "TransientMask": 2,
+        "Cancel": 11,
+        "Instance": 2,
+        "DolphinSureCertificateInfoR": 4,
+        "CLSID": 2,
+        "IconicListAbstract": 2,
+        "ViewModes": 2,
+        "Graphic": 4,
+        "Heading": 2,
+        "Find": 4,
+        "Copy": 5,
+        "Paste": 4,
+        "Delete": 4,
+        "Forward": 4,
+        "Aborted": 2,
+        "EncoderQuality": 2,
+        "Width": 2,
+        "Default": 4,
+        "Scribble": 2,
+        "Classes": 3,
+        "PixelFormat": 2,
+        "Protocol": 2,
+        "Methods": 4,
+        "Protocols": 4,
+        "Categories": 2,
+        "Variables": 2,
+        "Views": 2,
+        "Test": 2,
+        "Project": 2,
+        "Blessing": 2,
+        "Packages": 4,
+        "Comparison": 2,
+        "Timestamp": 5,
+        "Developer": 2,
+        "Text": 2,
+        "HotspotMask": 2,
+        "PredefinedStyleNames": 2,
+        "Dolphin": 2,
+        "Class": 3,
+        "Changed": 2,
+        "Package": 4,
+        "DdoIt": 2,
+        "Before": 3,
+        "Playground": 2,
+        "Open": 2,
+        "AgentObjects": 2,
+        "AutoCompleteDwell": 2,
+        "Browse": 4,
+        "Owned": 2,
+        "Property": 2,
+        "Edit": 3,
+        "Selector": 3,
+        "BBC1": 2,
+        "Exit": 3,
+        "Height": 2,
+        "Undo": 3,
+        "Save": 3,
+        "Reset": 2,
+        "System": 3,
+        "Sources": 2,
+        "Language": 2,
+        "Expression": 2,
+        "Result": 2,
+        "Restore": 2,
+        "NotSignedCertificateR": 2,
+        "RunAll": 2,
+        "ResourceLib": 3
+      },
+      "numeric_values": [
+        {
+          "method": "w",
+          "value": 8.0,
+          "context": "æ\u0001w:8ÎÜ\u0003@\u0012\u0005\u00106"
+        },
+        {
+          "method": "¼",
+          "value": 81.0,
+          "context": "æ\u0001¼:81á\u00030\u0012\u0005\u0010\u0011"
+        },
+        {
+          "method": "º",
+          "value": 0.0,
+          "context": "æ\u0001º:0Pã\u0003`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "¹",
+          "value": 0.0,
+          "context": "ô\u001d¹:0ÃÏ\u0005@\u0012\u0005\u0010,"
+        },
+        {
+          "method": "5",
+          "value": 0.0,
+          "context": "æ\u00025:0~\u00050\u0012\u0005\u0010\u000f"
+        },
+        {
+          "method": "Á",
+          "value": 0.0,
+          "context": "ô`Á:0¦\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "2",
+          "value": 0.0,
+          "context": "ä\u00012:0°\u00050\u0012\u0005\u0010\u000b"
+        },
+        {
+          "method": "ô",
+          "value": 6.0,
+          "context": "æ\u0001ô:06\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "Ê",
+          "value": 0.0,
+          "context": "æ\u0001Ê:0;\u0005@\u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "a",
+          "value": 8.0,
+          "context": "æ\u0001a: 8\u0005P\u0014\u0005\u0010 "
+        },
+        {
+          "method": "Í",
+          "value": 0.0,
+          "context": "æ\u0001Í:0ç¦\u0005@\u0012\u0005\u0010#"
+        },
+        {
+          "method": "ê",
+          "value": 0.0,
+          "context": "æ\u0001ê:0ð¦\u0005`\u0012\u0005\u0010\u0014"
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ô\u0006P:0<\u00050\u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ô\u0001P:0\u0005 \u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "9",
+          "value": 0.0,
+          "context": "ô\u00059:0¦¢\u0005PV\n\u0010\u0010"
+        },
+        {
+          "method": "º",
+          "value": 0.0,
+          "context": "æ\u0001º:0\u0015¢\u00050\u0012\u0005\u0010\b"
+        },
+        {
+          "method": "C",
+          "value": 0.0,
+          "context": "ô\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+        },
+        {
+          "method": "1",
+          "value": 5.0,
+          "context": "\u0005\u0010 É\u0006\u0010Ðò\u000b\u0010àX\u0005\u0010àW\u0005\u0010ÀA\u000b\u0010P¡\u0005\u0010°d\u0005\u0010Ðe\u0005\u00101:5"
+        },
+        {
+          "method": "1",
+          "value": 6.0,
+          "context": "\u0005\u0010i\u0010\u0010 \u0006\u0010pð\u0006\u0010à¦\u0005\u00101:6"
+        },
+        {
+          "method": "3",
+          "value": 1.0,
+          "context": "\u0005\u0010ÀÂ\u0005\u00103:1"
+        },
+        {
+          "method": "4",
+          "value": 1.0,
+          "context": "\u0005\u00104:1"
+        },
+        {
+          "method": "Ýæal5",
+          "value": 1.0,
+          "context": "?F«d\u0012Û\u0017B[é\u0002a\u0013/|âDyC\u0011ÃadùÑ\u0001Ýæal5:1"
+        },
+        {
+          "method": "unknown",
+          "value": 7.01,
+          "context": "7.01"
+        },
+        {
+          "method": "unknown",
+          "value": 1.02,
+          "context": "1.02"
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "12:00:00 a.m."
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "\u0005\u001012:00:00 a.m."
+        },
+        {
+          "method": "10",
+          "value": 41.0,
+          "context": "\u001b\u000b\u0010@}\f\u0010°¯\f\u001010:41:13 p.m."
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "12:00:00 a.m."
+        },
+        {
+          "method": "unknown",
+          "value": 3306.0,
+          "context": "3306"
+        },
+        {
+          "method": "bitOr",
+          "value": 0.0,
+          "context": "à9\r\u0010°9\r\u0010``@arg bitOr: 0"
+        },
+        {
+          "method": "bitAnd",
+          "value": 0.0,
+          "context": "Ü\u0001e­Gâ\u0003´Fß\f\u0013â\u0003\u0011a\u0013â\u0003´Fs\u0012;¶J\u0011J:¶l``@arg bitAnd: 0"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u0010À\u000e\u0010`@collection at: 1"
+        },
+        {
+          "method": "Ý",
+          "value": 0.0,
+          "context": "«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "Uses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "|9â\u0001²a®aAÙ%i\"Literal arrays are created at parse time:\"\r\n\r\n#(1 2 3).\r\n\r\n#( 1 2 3 #(4 5 6)) size.\r\n\r\n"
+        },
+        {
+          "method": "max",
+          "value": 2.0,
+          "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+        },
+        {
+          "method": "l9",
+          "value": 0.0,
+          "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+        },
+        {
+          "method": "N",
+          "value": 1.0,
+          "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "6\u0017\u0010ðµ\u0016\u0010ð\u0019\u0018\u0010`x\n\u0010\u0010d\u0005\u0010ÀÆ\u0005\u0010[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "-[. ®\u0011ÂF>Ü\u00052#\u0012Åie[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "l\u0012\u0010@O\u0012\u0010[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "00",
+          "value": 0.0,
+          "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+        },
+        {
+          "method": "Version",
+          "value": 1.0,
+          "context": "MIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+        },
+        {
+          "method": "primitive",
+          "value": 1.0,
+          "context": "Primitive or external call tag, e.g. <primitive: 1>"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "ä \u0010[:a | a at: 2]"
+        },
+        {
+          "method": "Î",
+          "value": 9.0,
+          "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+        },
+        {
+          "method": "rating",
+          "value": 2.0,
+          "context": "\u001ei\u0011@°j\t \u0001D[ :recording :val | recording rating: 2]"
+        },
+        {
+          "method": "rating",
+          "value": 3.0,
+          "context": "\u0005\u0010n$\u0010p§\u0010\u0010Ðd\u0005\u0010[ :recording :val | recording rating: 3]"
+        },
+        {
+          "method": "rating",
+          "value": 1.0,
+          "context": "[ :recording :val | recording rating: 1]"
+        },
+        {
+          "method": "19",
+          "value": 0.0,
+          "context": "19:00"
+        },
+        {
+          "method": "17",
+          "value": 15.0,
+          "context": "17:15"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": ";\u0005\u0010[:o | o at: 4]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "à&\u0010°²\u001d\u0010[:o | o at: 1]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:o | o at: 2]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "2&\u0010%\u0010î'\u0010 ¶'\u00100¢&\u0010[:o | o at: 3]"
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+        },
+        {
+          "method": "t6ÍÃM",
+          "value": 7.0,
+          "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+        },
+        {
+          "method": "t",
+          "value": 4.0,
+          "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+        }
+      ],
+      "keywords_found": {
+        "elemento": [
+          "p\u0002\u0005\u0010elementoSeleccionado",
+          "i\u0007\u0010ÀÁ!\u0010@\u0005\u0010Seleccione un elemento:",
+          "Seleccione un elemento:",
+          "mostrarElementos:",
+          "mostrarCon:y:elementos:conTextBlock:",
+          "\b\u0010°î\u000b\u0010@p\u0005\u0010ð¢\u0006\u0010°.\n\u0010ð¥\u0006\u0010 \u0006\u0010mostrarCon:y:elementos:validateSelectionBlock:conTextBlock:",
+          "mostrarCon:y:elementos:",
+          "Seleccione un elemento:",
+          "\u0005\u0010ðA\f\u0010mostrarCon:elementos:",
+          "elementos",
+          "\u0005\u0010 \b\u0010seleccionarElemento:",
+          "No es posible seleccionar el elemento",
+          "mostrarCon:elementos:conTextBlock:",
+          "iElemento",
+          "\u0005\u0010\t\u00100d\u0005\u0010Pd\u0005\u0010ª\u0005\u0010removerDe:todosLosElementosQueEstanEn:",
+          "Elemento",
+          "Ã\b\u0010\u0010 \b\u0010tipoElemento",
+          "\u0005\u00109>°lðá\t\u0010No se pudo seleccionar el elemento en la lista debido a que este no se encuentra contenido por ella.",
+          "reiniciarElemento",
+          "\u0005\u0010PÆ\u0007\u0010Ð©\u0006\u0010p©\u0005\u00100d\u0005\u0010Seleccione un elemento"
+        ],
+        "organizacion": [
+          "cuadroorganizacion"
+        ],
+        "cuadro": [
+          " 0\u0007\u0010dibujarCuadroDescripcionesEn:",
+          "cuadroorganizacion"
+        ],
+        "personal": [
+          "\u0005\u0010mÌ\u0010iApoyo De Personal: ",
+          "õ\t\u0010ctrlApoyoPersonal",
+          "ctrlApoyoPersonal:",
+          "SELECT * FROM rel_oper_apoyodepersonal",
+          "rel_oper_apoyodepersonal:",
+          "rel_oper_apoyodepersonal",
+          "\u0005\u00109iÐ\n\b\u0010apoyoDePersonal",
+          "ctrlApoyoPersonal",
+          "\u0005\u0010apoyodepersonal",
+          "apoyoDePersonal",
+          "Ì\u0005\u0010 °\u0012\u0010Apoyo De Personal",
+          "\u0005\u00109>°ipÐ\b\u0010importarApoyoDePersonal",
+          "\u0010Zr%JúGºÎöKSâ\u001dU<TA\u0001²³limportarRel_oper_apoyodepersonal",
+          "ú\u000b\u0010\r\u0010À\u0007\u0010P\r\u0010PÛ\r\u0010@\r\u0010À\r\u0010\u0010Ö\u000b\u00100d\u0005\u0010apoyoDePersonal",
+          "rel_oper_apoyodepersonal",
+          "\u0005\u0010°\u001b\u0010\u0013\u0006\u0010 °\u0005\u0010apoyodepersonal",
+          "j± ³lSELECT * FROM apoyodepersonal",
+          "\u0005\u0010\u0011«±l\u0010ç\u0007\u0010pÈ\u0007\u0010apoyodepersonal:",
+          "\u0007\u0011³w:j\b\u0011³jµigPersonalMoney",
+          "DolphinSurePersonalCertificate"
+        ],
+        "efectivo": [
+          "t\u0005\u0010p\u0013\u0005\u0010ctrlTotalEfectivos:",
+          "\u0005\u0010ctrlEfectivosContacto:",
+          "cantidadDeEfectivos",
+          "guardarEfectivosDisponibles:",
+          "k\u0007\u0010g\u0007\u00100d\u0005\u0010=\u000e\u0010Efectivos de Contacto: ",
+          "actualizarEfectivos:",
+          "efectivosActualizados:",
+          "efectivosActualizados",
+          "\u0005\u0010mÌ\u0001icantidadDeEfectivos:",
+          "DcantEfectivosContacto",
+          "guardarEfectivosContacto:",
+          "efectivosContacto:",
+          "guardarEfectivosContacto:en:",
+          "\u0005\u00109>²i`\t\n\u00100d\u0005\u0010÷\u0005\u0010guardarEfectivosDisponibles:en:",
+          "Efectivo",
+          "õ\t\u0010estimar:enDia:conEfectivos:conBajasAcum:yProfugos:",
+          "efectivosDisponibles:",
+          "\u0001Þ\u0003\u0001ve\u0001¡icantTotalEfectivos",
+          "ðN\u000e\u0010Efectivos Degradados",
+          " U\n\u0010crearCampaniaConEfectivos:YMomentos:"
+        ],
+        "baja": [
+          "Ð\u0005\u0010 §\u0005\u0010ðÖ\u0006\u0010EstimacionDeBajas",
+          "\u0005\u0010[:dia | dia obtener: 'Bajas No Combate']",
+          " \u0001DBajas",
+          "7CÓBajas No Combate",
+          "D« «¡iBajas",
+          "`6\u0005\u0010`\u0012\u0005\u0010[:dia | dia obtener: 'Bajas Combate']",
+          "\u0005\u0010 \u000b\u0010Bajas Combate",
+          "\u0005\u0010P_\u0005\u0010p9\u0005\u0010\u0012\u0005\u0010bajasEnCombate",
+          "Bajas No En Combate",
+          "\u0005\u0010[:dia1 :dia2 | dia1 obtenerBajasDelDia <= dia2 obtenerBajasDelDia]",
+          "\u0005\u0010[:dia1 :dia2 | dia1 obtenerBajasDelDia <= dia2 obtenerBajasDelDia]",
+          "\u0005\u0010à\u0013\u0005\u0010Bajas En Combate",
+          "-\u0001>@ØblòËwê»\f¾O¬{©¬%\u001dJParámetros de la Estimación de Bajas",
+          "Bajas Acumuladas",
+          "õ\t\u0010ctrlBajasNoCombate:",
+          "Àc\u000e\u0010pV\u0005\u0010habilitarEstimarBajas",
+          "Bajas En Combate",
+          "A°K\u0011±K\u0011Ù\"a®l°b\u0005\u0010Ðb\u0005\u0010pa\u0005\u0010obtenerBajasAcumuladas",
+          "Þ\u000b\u0010pÒ\u0005\u0010?F9d\u0012Û\u0010BdÞ\u0007[é\u0002\u0002\u0012LùÑ\u0001ÝíalobtenerBajasDelMomento",
+          "DctrlBajasCombate:"
+        ],
+        "herido": [
+          "Total Heridos",
+          "[:dia | dia obtener: 'Heridos Combate']",
+          "\u0005\u0010À§\u0006\u0010\u0010\u0011\u000b\u0010ï\u0006\u0010ÀM\u0005\u0010P¢\u0005\u0010 Ý\u0005\u0010`Ç\u0010\u0010Í\u0010\u0010Pc\n\u00100o\b\u0010à?\u0005\u0010ðT\u0005\u0010À\u0010\u0010Heridos + 72 Hs.",
+          "Heridos Combate",
+          "«ve\u0001 E>x\u0001¡Y\u0011>Ý\u001491£dç\u0006·L%¹L\u0011ºL(¹aª½aeHeridos Combate",
+          "¥\u0006\u0010\u000f\u00100\u0006\u0010ª\u0005\u0010Total Heridos",
+          "\u0005\u0010P÷\r\u0010à\u000b\u0010pë\t\u0010[:dia | dia obtener: 'Heridos No Combate']",
+          "Heridos No Combate",
+          "Heridos + 72 Hs.",
+          ";\u0005\u0010ª\u0005\u0010À¹\u0005\u0010 §\u0005\u0010\u0003\b\u0010[:dia | dia obtener: 'Heridos + 72 No Combate']",
+          "ª\u0005\u0005tHeridos + 72 No Combate",
+          "Heridos - 72 Hs.",
+          "Heridos + 72 No Combate",
+          "%HeridosNoComb",
+          "\u0005\u0010 \n\t\u0010Heridos No Combate",
+          "[:dia | dia obtener: 'Heridos - 72 No Combate']",
+          "Heridos + 72 No Combate",
+          "\u0005\u00109i°¶\u0005\u0010\u0011\\>]éAÝ\u0014\u0014Þ\u0011âa Þ\fé#aâd\\øÔ\u0004ÛçeHeridos - 72 No Combate",
+          "\u0005\u0010mÌ\u0011iHeridos No Combate",
+          "ctrlHeridosMenos72NoCombate"
+        ],
+        "muerto": [
+          "Muertos",
+          "Muertos",
+          "õ\t\u0010[:dia | dia obtener: 'Muertos Combate']",
+          "\u0005\u0010 \u0013\u0005\u0010Muertos Combate",
+          "«\u0001\u0002¿iMuertos Combate",
+          "[:dia | dia obtener: 'Muertos No Combate']",
+          "\u0005\u0010\u0010 \u000e\u0010ðV\u000e\u0010\u0010d\u0005\u00100W\u000e\u0010Pd\u0005\u0010@¿\u0006\u0010\u0010W\u000e\u0010@x\u0006\u0010`\u0006\u0010`x\u0006\u0010°d\u000e\u0010Ð\u001c\r\u0010\u0010\u0013\u0007\u0010Muertos No Combate",
+          "\u0005\u0010ctrlMuertosCombate:",
+          "ctrlMuertosNoCombate:",
+          "«Y9Ù\u0001I\u001f0¢£¤ÅI%0¢£¤Ål%MuertosComb",
+          "ÎPN\u0005°@F¡\u0005½ÿ='ctrlMuertosCombate",
+          "\u0005\u0010à\u000e\u0006\u0010ctrlMuertosNoCombate",
+          "ctrlMuertosNoCombate",
+          "\u0005\u00100Ñ\b\u0010¥\u0005\u0010°1\u0007\u0010 m\u0005\u0010obtenerMuertosCombate",
+          "obtenerMuertosNoCombate",
+          "Muertos No Combate",
+          "\u0005\u0010\u0006\u0010«x¬ aeMuertos No Combate",
+          "¼\u000b\u0010ðà\b\u0010%MuertosNoComb",
+          "Muertos Combate",
+          "ctrlMuertosCombate"
+        ],
+        "desaparecido": [
+          "\u0005\u0010Desaparecidos",
+          "ctrlDesaparecidos:",
+          "\u0005\u0010Desaparecidos",
+          "\u0005\u0010ða\u0005\u0010-YA²aâ\u0003ictrlDesaparecidos",
+          "ctrlDesaparecidos",
+          "\u0005\u0010AÙ i\u0010`\u0005\u0010obtenerDesaparecidos",
+          "\u0005\u0010@Ñ\u0006\u0010P\u0005\u0010@\u0005\u0010à\u0005\u0010@\u0006\u0010`z\u0006\u0010Desaparecidos",
+          "\u0005\u0010ð»\u0006\u0010%DesaparecidosComb",
+          "\u0005\u0010r\n\u0010\u0004Þ\u000e\u0004-± Ü\u00041\u0004µy9#·ae[:dia | dia obtener: 'Desaparecidos']",
+          "\u0005\u0010 \u0006\u0010PÃ\u0005\u0010Pd\u0005\u0010Desaparecidos"
+        ],
+        "prisionero": [
+          "ô\tÈÏPGÛ\u0003@\u0012\u0005\u0010\u0010",
+          "æ\u0001õ¬PG\u0001@\u0012\u0005\u0010\u0011",
+          "ä\u0001lPGÜ\u00030\u0012\u0005\u0010\n",
+          "ä\u0002îÈ&\u0001PG\b\u00104",
+          "ô\u0017¾XPGÞ\u0003`\u0012\u0005\u0010\u0018",
+          "ô\u0003\u0003»PG\u001a",
+          "ô\u0006PG",
+          "ö\u0001W1PGã\u00030\u0012\u0005\u0010\t",
+          "ô\u0004´UPG\u00010\u0012\u0005\u0010\n",
+          "ä\u00018PGC\u0005`\u0012\u0005\u0010\u0014",
+          "æ\u0001ÛJPGs\u0005@\u0012\u0005\u0010\f",
+          "æ\u0001PGà¿t\u00050\u0012\u0005\u0010\r",
+          "æ\u0001ÈþPGy\u0005`\u0012\u0005\u0010H",
+          "æ\u0001ÍûPGÌ\u0005 \u0012\u0005\u0010\u0006",
+          "æ\u0001áêPG}\u0005\u0010\u0012\u0005\u0010\u0014",
+          "ä\u0001î;PG\u0005`\u0012\u0005\u0010\u0018",
+          "ö\u0001{9PG©\u0005`\u0012\u0005\u0010H",
+          "æ\u0001OPG\u0005PV\n\u0010\u0010",
+          "æ\u0001Ë\fPGå\u0003\u0010\u0012\u0005\u0010\b",
+          "ö\u0001PGx\u000f\u0005@\u0011\u0005\u0010\b"
+        ],
+        "combate": [
+          "\u0005\u0010[:dia | dia obtener: 'Bajas No Combate']",
+          "7CÓBajas No Combate",
+          "`6\u0005\u0010`\u0012\u0005\u0010[:dia | dia obtener: 'Bajas Combate']",
+          "\u0005\u0010 \u000b\u0010Bajas Combate",
+          "\u0005\u0010P_\u0005\u0010p9\u0005\u0010\u0012\u0005\u0010bajasEnCombate",
+          "Bajas No En Combate",
+          "õ\t\u0010[:dia | dia obtener: 'Muertos Combate']",
+          "\u0005\u0010 \u0013\u0005\u0010Muertos Combate",
+          "\u0005\u0010à\u0013\u0005\u0010Bajas En Combate",
+          "«\u0001\u0002¿iMuertos Combate",
+          "[:dia | dia obtener: 'Heridos Combate']",
+          "Heridos Combate",
+          "«ve\u0001 E>x\u0001¡Y\u0011>Ý\u001491£dç\u0006·L%¹L\u0011ºL(¹aª½aeHeridos Combate",
+          "[:dia | dia obtener: 'Muertos No Combate']",
+          "\u0005\u0010\u0010 \u000e\u0010ðV\u000e\u0010\u0010d\u0005\u00100W\u000e\u0010Pd\u0005\u0010@¿\u0006\u0010\u0010W\u000e\u0010@x\u0006\u0010`\u0006\u0010`x\u0006\u0010°d\u000e\u0010Ð\u001c\r\u0010\u0010\u0013\u0007\u0010Muertos No Combate",
+          "\u0005\u0010P÷\r\u0010à\u000b\u0010pë\t\u0010[:dia | dia obtener: 'Heridos No Combate']",
+          "Heridos No Combate",
+          "õ\t\u0010ctrlBajasNoCombate:",
+          ";\u0005\u0010ª\u0005\u0010À¹\u0005\u0010 §\u0005\u0010\u0003\b\u0010[:dia | dia obtener: 'Heridos + 72 No Combate']",
+          "ª\u0005\u0005tHeridos + 72 No Combate"
+        ],
+        "vehiculo": [
+          "iconoVehiculo"
+        ],
+        "velocidad": [
+          "A\u0013éjT\u000eÜB³\u0015ºW\u001aö!velocidadRefresco",
+          "velocidadRefresco:",
+          "!\u0005\u0010@X\n\u0010cantidadCuadrados:extentCuadrado:porcentajeCuadradoGrande:circular:color:velocidadRefresco:",
+          "cantidadCuadrados:extentCuadrado:circular:color:velocidadRefresco:radio:",
+          "velocidadRefresco"
+        ]
+      },
+      "methods_of_interest": []
+    },
+    "fallas": {
+      "module": "fallas",
+      "size_mb": 7.835814476013184,
+      "total_strings": 466600,
+      "classes": {
+        "Message": 2,
+        "ExternalAddress": 2,
+        "ClassificationTable": 2,
+        "CLSID": 3,
+        "Conectar": 2,
+        "NeedsSelfMask": 2,
+        "BasicListAbstract": 3,
+        "Seccion": 2,
+        "Current": 12,
+        "Salir": 7,
+        "Protocols": 2,
+        "ContainerVersionesAnteriores": 2,
+        "Aceptar": 5,
+        "ContainerLicenciasEspeciales": 2,
+        "Cancelar": 5,
+        "Seleccionar": 2,
+        "GUID": 3,
+        "Table": 4,
+        "Instructions": 2,
+        "Cambiar": 3,
+        "CURRENCY": 2,
+        "Aplicar": 2,
+        "Actualizar": 2,
+        "Versiones": 2,
+        "DefaultInstance": 2,
+        "Registry": 2,
+        "Elemento": 3,
+        "Debug": 5,
+        "FechaUltimaModBds": 2,
+        "Rectangle": 2,
+        "Categories": 3,
+        "INSERT": 2,
+        "LEFT": 2,
+        "Shared": 2,
+        "VARIANT": 2,
+        "UNION": 2,
+        "SamplingInterval": 2,
+        "OPTION": 2,
+        "Fail": 2,
+        "LPWSTR": 2,
+        "Shell": 2,
+        "Volver": 8,
+        "Leyenda": 2,
+        "Imprimir": 2,
+        "AlignmentMap": 5,
+        "Help": 2,
+        "IgnoreCaseMask": 2,
+        "Default": 5,
+        "Cancel": 7,
+        "False": 2,
+        "None": 2,
+        "ViewModes": 2,
+        "Find": 5,
+        "Print": 2,
+        "Instance": 2,
+        "Play": 2,
+        "Copy": 6,
+        "Save": 2,
+        "DolphinSureCertificateInfoR": 4,
+        "Paste": 4,
+        "Delete": 4,
+        "Aborted": 2,
+        "FrameDimensionPage": 2,
+        "PixelFormat": 2,
+        "Text": 2,
+        "Graphic": 3,
+        "Heading": 5,
+        "DregularExpression": 2,
+        "Match": 2,
+        "Steps": 2,
+        "Package": 6,
+        "Remove": 3,
+        "Methods": 3,
+        "Tutorials": 9,
+        "Modify": 2,
+        "Class": 4,
+        "Test": 2,
+        "Disassembly": 2,
+        "Developer": 8,
+        "Timestamp": 8,
+        "Changed": 3,
+        "AutoCompleteDwell": 2,
+        "Blessing": 3,
+        "Selector": 3,
+        "Classes": 2,
+        "Inspector": 2,
+        "DdoIt": 3,
+        "After": 2,
+        "Playground": 2,
+        "Owned": 2,
+        "Property": 2,
+        "Packages": 3,
+        "Before": 2,
+        "Edit": 2,
+        "OmniBase": 2,
+        "Dolphin": 2,
+        "AgentObjects": 2,
+        "Name": 4,
+        "Language": 2,
+        "BBC1": 2,
+        "Expression": 3,
+        "NotSignedCertificateR": 2,
+        "RunAll": 2,
+        "Exit": 3,
+        "ResourceLib": 3,
+        "Height": 2,
+        "Programme": 2,
+        "Redo": 2,
+        "Undo": 2,
+        "Reset": 2,
+        "Index": 2
+      },
+      "numeric_values": [
+        {
+          "method": "r",
+          "value": 8.0,
+          "context": "æ\u0001r:8ZÏ"
+        },
+        {
+          "method": "æ",
+          "value": 0.0,
+          "context": "ä\u0001æ:0\u0017Ò"
+        },
+        {
+          "method": "Â",
+          "value": 0.0,
+          "context": "æ\u0001Â:0,Ó"
+        },
+        {
+          "method": "3",
+          "value": 0.0,
+          "context": "æ\u00013:0pé\b0\u0012\u0005\u0010\n"
+        },
+        {
+          "method": "Ù",
+          "value": 0.0,
+          "context": "ä\u0001Ù:0Ô×"
+        },
+        {
+          "method": "í",
+          "value": 0.0,
+          "context": "ä\u0001í:0ÓÙ"
+        },
+        {
+          "method": "µ",
+          "value": 8.0,
+          "context": "ä\u0001µ:8\u0014Ê\u0005@\u0012\u0005\u0010'"
+        },
+        {
+          "method": "ä",
+          "value": 8.0,
+          "context": "ä\u0001ä:8É{\u0004`\u0012\u0005\u0010$"
+        },
+        {
+          "method": "ß",
+          "value": 0.0,
+          "context": "ô\u0001ß:0}\u0004p\u0011\u0005\u0010\b"
+        },
+        {
+          "method": "ä",
+          "value": 6.0,
+          "context": "ä\u0001ä: 6x\u0005@\u0012\u0005\u0010\u001e"
+        },
+        {
+          "method": "º",
+          "value": 0.0,
+          "context": "ö\u0001º:0²z\u0005`\u0012\u0005\u0010$"
+        },
+        {
+          "method": "ê",
+          "value": 8.0,
+          "context": "æ\u0001ê:8=Ä\u0005@\u0012\u0005\u0010\u0007"
+        },
+        {
+          "method": "ß",
+          "value": 0.0,
+          "context": "æ\u0001ß:0ë¢\u0005 \u0012\u0005\u0010\r"
+        },
+        {
+          "method": "ö",
+          "value": 0.0,
+          "context": "ô\u0004ö:0ù \u0005 \u0012\u0005\u0010\f"
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ô\u0006P:0,\u00050\u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "µ",
+          "value": 8.0,
+          "context": "æ\u0002µ:8u\u0005@\u0012\u0005\u0010\u0007"
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ô\u0001P:0\u0005 \u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "9",
+          "value": 0.0,
+          "context": "ô\u00059:0\u0005PV\n\u0010\u0010"
+        },
+        {
+          "method": "C",
+          "value": 0.0,
+          "context": "ô\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+        },
+        {
+          "method": "10",
+          "value": 41.0,
+          "context": "\n\u0010À\u0012\u000f\u001010:41:13 p.m."
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:a :b | (a at: 2) < (b at: 2)]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:a :b | (a at: 2) < (b at: 2)]"
+        },
+        {
+          "method": "unknown",
+          "value": 7.01,
+          "context": "7.01"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:a :b | (a at: 1) combustible < (b at: 1) combustible]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:a :b | (a at: 1) combustible < (b at: 1) combustible]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:a :b | (a at: 1) movimiento < (b at: 1) movimiento]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:a :b | (a at: 1) movimiento < (b at: 1) movimiento]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u0010[:o | (o at: 1) movimiento]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u0010 Ý\u000f\u0010`\b\u0006\u0010àÕ\u000e\u0010À\u0007\u0010@ò\u0006\u0010àÛ\u000f\u0010ðÞ\b\u0010[:a :b | (a at: 1) descripcion < (b at: 1) descripcion]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u0010 Ý\u000f\u0010`\b\u0006\u0010àÕ\u000e\u0010À\u0007\u0010@ò\u0006\u0010àÛ\u000f\u0010ðÞ\b\u0010[:a :b | (a at: 1) descripcion < (b at: 1) descripcion]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:o | (o at: 1) descripcion]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u001ei\u0011?\u0012?j[:a :b | (a at: 1) nombre < (b at: 1) nombre]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u001ei\u0011?\u0012?j[:a :b | (a at: 1) nombre < (b at: 1) nombre]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "õ\t\u0010\u001ei\u0011?jÀ\u000b\u000f\u0010 \u0003\u000f\u0010[:o | (o at: 1) nombre]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:o | (o at: 2)]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u0010ðú\u000e\u0010¯\t\u0010À\u0007\u0010@ò\u0006\u00100î\u000e\u0010[:o | (o at: 1) combustible]"
+        },
+        {
+          "method": "bitOr",
+          "value": 0.0,
+          "context": "\u0011\u0010@\u0011\u0010``@arg bitOr: 0"
+        },
+        {
+          "method": "bitAnd",
+          "value": 0.0,
+          "context": "\u0005\u0010-\u001e²iÐ\u000f\u0010 ­\u0011\u0010Ð%\b\u0010``@arg bitAnd: 0"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u0010àÌ\u0012\u0010\u0010\u001a\u0005\u0010Ä\u0012\u0010 \u0017\u0013\u0010ð\u0012\u0010`@collection at: 1"
+        },
+        {
+          "method": "Ý",
+          "value": 0.0,
+          "context": "\u0005\u0010pT\u0013\u0010R\u0013\u0010L\u0013\u0010ª\u0005\u0010 j\u0013\u0010«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "Uses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+        },
+        {
+          "method": "l9",
+          "value": 0.0,
+          "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+        },
+        {
+          "method": "N",
+          "value": 1.0,
+          "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "\u0005\u0010 r\u0016\u0010\"Literal arrays are created at parse time:\"\r\n\r\n#(1 2 3).\r\n\r\n#( 1 2 3 #(4 5 6)) size.\r\n\r\n#(1 2 "
+        },
+        {
+          "method": "max",
+          "value": 2.0,
+          "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+        },
+        {
+          "method": "00",
+          "value": 0.0,
+          "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "9±IQe[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "\u0005\u0010°å\u001d\u0010[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "primitive",
+          "value": 1.0,
+          "context": "Primitive or external call tag, e.g. <primitive: 1>"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "ä \u0010[:a | a at: 2]"
+        },
+        {
+          "method": "Î",
+          "value": 9.0,
+          "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+        },
+        {
+          "method": "Version",
+          "value": 1.0,
+          "context": "\u0005\u0010u\u000f\u0010p$\t\u0010Pd\u0005\u0010«\u0011w­igMIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+        },
+        {
+          "method": "rating",
+          "value": 2.0,
+          "context": "\u0005\u0010`(\u0010À<&\u0010\u0010'\u0010[ :recording :val | recording rating: 2]"
+        },
+        {
+          "method": "rating",
+          "value": 3.0,
+          "context": "[ :recording :val | recording rating: 3]"
+        },
+        {
+          "method": "rating",
+          "value": 1.0,
+          "context": "[ :recording :val | recording rating: 1]"
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+        },
+        {
+          "method": "19",
+          "value": 0.0,
+          "context": "19:00"
+        },
+        {
+          "method": "17",
+          "value": 15.0,
+          "context": "\u0005\u0010\u0010ê*\u001017:15"
+        },
+        {
+          "method": "t6ÍÃM",
+          "value": 7.0,
+          "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+        },
+        {
+          "method": "t",
+          "value": 4.0,
+          "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "\u0005\u0010 \u0010,\u00100Q\u000f\u0010@X\n\u0010Ó\u0007\u00100d\u0005\u0010[:o | o at: 4]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u00109\u001d±l\u0010\u001e\u001d\u0010 \u001b\b\u0010[:o | o at: 1]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "â\t\u0010p'\u0006\u0010 ½\u0011\u0010àI\n\u0010à¦\u0005\u0010[:o | o at: 2]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "D<Q;Se\u0007ß\u0002«W\u0007i[:o | o at: 3]"
+        }
+      ],
+      "keywords_found": {
+        "combustible": [
+          "\u0005\u00100e\u000e\u0010combustible",
+          "pÁ\f\u0010°\u0003\n\u0010combustible:",
+          "\u0005\u0010À1\u001c\u0010Ð\u0014\u0010`X\u0006\u0010 ã#\u0010combustible",
+          "tipocombustible",
+          "\u0005\u0010pµ\u000e\u0010À7\u0005\u0010consultarNombreCombustible:",
+          "SELECT * FROM tipocombustible",
+          "[:a :b | (a at: 1) combustible < (b at: 1) combustible]",
+          "tipocombustible:",
+          ";\u0005\u0010ª\u0005\u0010\u0010¹\u000e\u0010 §\u0005\u0010ª\b\u0010Representa la cantidad de ocurrencia por cada tipo de combustible. (Valor promedio en función en la cantidad de iteraciones)",
+          "\u0005\u0010Þ\u0006\u0010`\u0006\u0010ÐG\u0006\u0010\u0018\n\u00100ä\u0005\u0010 \u0006\u0006\u0010Ðj\b\u0010°¬\u0005\u0010 Æ\r\u0010ocurrenciaPorTipoDeCombustible",
+          "\u0005\u0010 Þ\u000f\u0010 Ù\u000e\u0010àÕ\u000e\u0010À\u0007\u0010@ò\u0006\u0010 Ï\u000f\u0010ðp\f\u0010\u0010d\u0005\u0010°~\u0007\u0010- y1£¤ig ×\u000e\u0010 á\u001b\u0010Gráfico de ocurrencia por tipo de combustible",
+          "Combustible",
+          "Ocurrencia por tipo de combustible",
+          "importarTipoCombustible",
+          "\u0005\u0010ð¤\u000e\u0010consultarCombustibleDelVehiculo:",
+          "TipoCombustible",
+          "\u0011Ö\u0010y@\u0011°n>Z9­\u0012c0 ~iTipoCombustibleId",
+          "\u0005\u0010^\u000f\u0010@:\u000f\u0010tipocombustible",
+          "\u0005\u0010ðú\u000e\u0010¯\t\u0010À\u0007\u0010@ò\u0006\u00100î\u000e\u0010[:o | (o at: 1) combustible]"
+        ],
+        "transporte": [
+          "\u0005\u0010àÓ\u0005\u0010Ð£\u001d\u0010mediodetransporte",
+          "\n\u0010`p\n\u0010 `\u000b\u0010Ð\b\u0010@Ò\u000f\u0010mediodetransporte",
+          "SELECT * FROM mediodetransporte",
+          "\u0005\u0010\u0011Ó\u0016emediodetransporte:",
+          "@X\u0010\u0010Ð\u000f\u0010importarMedioDeTransporte",
+          "mediodetransporte"
+        ],
+        "elemento": [
+          "cambiarIdElemento:",
+          "\u0011\u0005\u0010@_\n\u0010\u0010>\u0005\u0010à\u0012\u0005\u0010moverElemento:de:a:y:",
+          "elementosCargados:",
+          "\u0005\u0010«\u0011±i\u0010\u000b\u0010Àµ\n\u0010cambiarId:elemento:",
+          "idNuevoElementoResultado:",
+          "cantidadVehiculosMasSubelementos",
+          "\b\u0006\u0010p8\u0005\u0010 u\u0005\u0010@\u001f\b\u0010 \f\u0014\u0010 §\u0005\u0010ª\u0005\u0010cargarSubElemento:y:",
+          "tipoelemento",
+          "\u0005\u0010 \u0006\u0010 °\f\u0010ð[\u000b\u0010Ð\u0006\u0010@)\n\u0010Pd\u0005\u0010\u0003@\u0011¾SequitarPersonaSinVehiculo:deElemento:y:",
+          "borrarPersonasElemento:",
+          "materialelemento",
+          "\u0005\u0010à\u000e\u0015\u0010ð7\u0010\u0010pc\u0005\u0010ð\u0005\u0010È\u0014\u0010 t\u0005\u0010Pd\u0005\u0010ð¤\u0010\u0010À\r\u0010\u0010SELECT t.nombre AS tropa FROM  materialelemento t \r\n\t\t\t WHERE t.Id=",
+          "\u0005\u0010h\u0005\u0010à,\n\u0010À\u0007\u00100j\t\u0010Àû\u0005\u0010quitarSubElemento:",
+          "Às\f\u0010elementosComunicacion",
+          "\u0005\u0010mÌ\u0002iSELECT co.*, n.nombre AS nivel FROM co co INNER JOIN nivelelemento n ON co.nivelElementoId =n.id WHERE upper(nombreClase)=",
+          "\u0005\u0010\t\u0010°Ü\t\u0010Ð{\u0007\u0010¥\u0005\u0010`\u0005\u0010\u0010d\u0005\u0010idElemento:",
+          "\u0005\u0010 \f\u0010\u0010m\f\u0010Ð{\u0007\u0010\u0010\n\u0010Elemento de Apoyo",
+          "' AND co.nivelElementoId=n.id",
+          "idElemento",
+          "\u0005\u0010mÌ\u0001iSELECT VehiculoId FROM vehiculosxelemento WHERE ElementoId="
+        ],
+        "organizacion": [
+          "\u0005\u0010Ð\u0007\u0010b\t\u0010°x\t\u0010esUnCuadroOrganizacionValido:",
+          "\u0005\u0010 z+\u0010 s\u001d\u0010datosOrganizacion",
+          "OrganizacionCombateId",
+          "cuadroorganizacion",
+          "ip\u000b\u0010ElementoOrganizacionCombate",
+          "cargarOrganizaciones:",
+          "\u0005\u0010 \u0005\u0010àv\u001d\u0010organizacioncombate",
+          "`\u001d\u0010 3\u001e\u0010elementosOrganizacionCombate",
+          "datosOrganizacion",
+          "\u0005\u0010½\r\u0010Põ\b\u0010P{\u0007\u0010inicializarElementosOrganizacionCombate",
+          " \r\u0010§\r\u0010p\r\u0010\r\u0010Ð?\r\u0010p.\u000e\u0010\u0010\r\u0010elementosOrganizacionCombate",
+          "\u0005\u00109-<é\u0001\u0013Ø²i9z\u0011aÛøhelementosOrganizacionCombate:",
+          "\u0005\u00100G\u0007\u0010À¸\b\u0010ð\u0006\u0010°¹\b\u0010organizacionId:",
+          "K\u0004!pâ\u0001j²³ldatosOrganizacion:",
+          "OrganizacionCombate"
+        ],
+        "cuadro": [
+          "\u0005\u0010Ð\u0007\u0010b\t\u0010°x\t\u0010esUnCuadroOrganizacionValido:",
+          "cuadroorganizacion",
+          "\u0005\u0010dibujarCuadroDescripcionesEn:",
+          "-i«Z. \u0011@\u0011cÁ\u0012ÂGÆÜ\u00042\u0013¶a\u0012iAdministración de CCOO",
+          "\u0005\u0010`y\n\u0010ð\u000f\u00100\b\u0010\u0010PO\t\u0010Procesando los CCOO..."
+        ],
+        "personal": [
+          "\u0005\u0010pr\t\u0010P8\b\u0010-\u0001Ö\u0004~@Âi\u0001\u0002\u0003~\u0004°ipersonal:",
+          "\u0005\u0010-¬²ip\u0017\n\u0010@í\n\u0010À,\f\u0010personal",
+          "personalCompletoParaInstanciar",
+          "personal",
+          "\u0005\u00100Í\u0007\u0010ðD\u0005\u0010pH\u0006\u0010asignarPersonalAEmbarquesEn:",
+          "Existen Material de tipo Motorizada, Blindada o Mecanizada con personal sin asignar a vehículos.",
+          "tieneTodosLosVehiculosConPersonalDesde:",
+          "N\u000e\u0010 ï\t\u0010À\r\u0010Existen vehículos sin personal asignado.",
+          "PersonalMoney",
+          "DolphinSurePersonalCertificate",
+          "Resources/DolphinSurePersonalCert.jpg",
+          "PersonalMoneyShell",
+          "ð\u0006\u0010PersonalAccount",
+          "Personal Account Details",
+          "ð\u0006\u0010ª\u0005\u0010PersonalAccountTransactionDialog",
+          "PersonalAccountTransaction",
+          "\u0005\u0010@M\u0005\u0010ð\u0005\u0010\u0010J\b\u0010à¯\b\u0010@#\t\u0010Pó\t\u0010ð4\n\u0010À\n\u0010@\u0003\u000b\u0010àÈ\u000f\u0010\u0010\u000b\u0010\u0010\u0010\u0005\u0013\u0010`\u0003\u0017\u0010 Ç\u0017\u0010@j\u0018\u0010`Ø\u0019\u00100|\u001c\u0010ð¸$\u0010às%\u0010p%\u0010ÐÃ+\u0010<,\u0010\u0010s*\u0010ð\u001d\u0010$\u001d\u0010ð\n\u0010ài\t\u0010P\u0005\u0010-?.ÀiPersonalMoney",
+          " 5*\u0010à=)\u0010Personal Money files (*.pm)",
+          "à#\u0010PersonalAccountShell",
+          "Personal Money Application"
+        ],
+        "baja": [
+          "\u0005\u0010`w\u001c\u0010bajarAlpha:",
+          "bajarAlpha"
+        ],
+        "prisionero": [
+          "æ\u0001µ­PGé\b0\u0012\u0005\u0010\u000b",
+          "æ\u0001@îPGÜ",
+          "ô\u00060PGÒ",
+          "æ\u0001:PGÓ",
+          "ô\u0006PGXåæ\b0\u0012\u0005\u0010\u0012",
+          "ä\u0001:þPGì\b`\u0012\u0005\u0010\u0018",
+          "æ3oQPG×",
+          "æ\u0001KEPGh\u0004 \u0012\u0005\u0010\u000b",
+          "ô\u0001~ PGÚ",
+          "æ\u0001óºPGB\b`\u0012\u0005\u0010\u0018",
+          "æ\u0001uPGq\u0004`\u0012\u0005\u0010\u0014",
+          "ô\u0001u>PGs\u0004 \u0012\u0005\u0010\u000e",
+          "æ\u0001PGð¿t\u00040\u0012\u0005\u0010\r",
+          "ô\u00011PGv\u0004`\u0012\u0005\u0010\u0014",
+          "æ\u0001|¨PGx\u00040\u0012\u0005\u0010\u0010",
+          "æ\u0001°PGy\u0004 0\u0013\u0010\u0010",
+          "ä\u0001\u000bÄPGÉ\u0005`\u0012\u0005\u0010\u0018",
+          "æ\u0001Ã\u001fPGu\u0005@\u0011\u0005\u0010\b",
+          "ô\u0001]ëPGz\u00050\u0012\u0005\u0010\n",
+          "ô\u0014 PGÅ\u0005`\u0012\u0005\u0010\u0014"
+        ],
+        "combate": [
+          "\u0005\u0010orgCombate",
+          "OrganizacionCombateId",
+          "ip\u000b\u0010ElementoOrganizacionCombate",
+          "\u0005\u0010 \u0005\u0010àv\u001d\u0010organizacioncombate",
+          "`\u001d\u0010 3\u001e\u0010elementosOrganizacionCombate",
+          "k\r\u0010Ã\t\u0010Ð{\u0007\u0010 7\t\u0010P\r\u0010à¶\t\u0010Pè\r\u0010á\r\u0010ð»\r\u0010p\r\u0010p\r\u0010°y\r\u0010orgCombate:",
+          "\u0005\u0010½\r\u0010Põ\b\u0010P{\u0007\u0010inicializarElementosOrganizacionCombate",
+          " \r\u0010§\r\u0010p\r\u0010\r\u0010Ð?\r\u0010p.\u000e\u0010\u0010\r\u0010elementosOrganizacionCombate",
+          "\u0005\u00109-<é\u0001\u0013Ø²i9z\u0011aÛøhelementosOrganizacionCombate:",
+          "\u0005\u0010«vehP£\u0006\u0010Pd\u0005\u0010orgCombate",
+          "a>Q>ReExisten personas o vehículos sin una Organización para el Combate asignada.",
+          "OrganizacionCombate"
+        ],
+        "falla": [
+          "EstimacionDeFallas",
+          "\u0005\u0010 å\u001e\u0010 s\u001d\u0010consultarEpsilonDeLaFalla:",
+          "\u0005\u0010 $\r\u0010Ð#\r\u0010@\u0005\u00109- ¡´iNo ocurrieron fallas en los vehículos",
+          "B\u000fNo hubo fallas en los vehículos.",
+          "\u001bbO\u0012â\u0005¶K\u0011·J\u001b\u0013Öd¦j¹jºlctrlFallaDeVehiculo",
+          "ctrlAvisoDeFallaNula",
+          "DlistaFallas",
+          "A²jÁictrListaFallas",
+          "\u0005\u0010mÌ\u0001iVehiculoFallas",
+          "consultarNombreDeFalla:",
+          "\u0005\u0010\u000e\u0010 ¬\u0006\u0010à£\u0007\u0010@<\u0005\u0010ctrlFallaDeVehiculo:",
+          "\u0005\u00100\u000e\u0010Àx\u000e\u0010ð¢\u0006\u0010pc\u0005\u0010 ¬\u0006\u0010Pd\u0005\u0010fallaDeVehiculo",
+          "7\u0014\u0010°#\u0005\u0010à¦\u0005\u0010Cantidad de Fallas Por Vehículo",
+          "\u0011\u001e²¡¢âDµÝ\t\u0011$²¡¢â$µj;j&o<jØHiEstimacionDeFallasShell",
+          "avisoDeFallaNula",
+          "Estimación de Fallas",
+          "Estimación De Fallas",
+          "õ\t\u0010falla",
+          "\u0005\u0010El tiempo promedio de reparación de todas las fallas que se produzcan durante el recorrido será: ",
+          "Ö\u0006\u001003\u0005\u00100Ý\u000e\u0010ctrlAvisoDeFallaNula:"
+        ],
+        "mantenimiento": [
+          "nivelDeMantenimiento:",
+          "nivelDeMantenimiento",
+          "nivelDeMantenimiento",
+          "[:o|o nivelDeMantenimiento]",
+          "Nivel de mantenimiento: ",
+          "Ocurrencia por tipo de nivel de mantenimiento",
+          "-­â\u0003â\u0004<ØiRepresenta la cantidad de ocurrencia por cada tipo de nivel de mantenimiento. (Valor promedio en función en la cantidad de iteraciones)",
+          " ,\u000e\u0010estimarNivelDeMantenimiento",
+          "Gráfico de ocurrencia por tipo de nivel de mantenimiento",
+          "\u0005\u0010[:a :b | (a nivelDeMantenimiento) > (b  nivelDeMantenimiento)]",
+          "<æÚ-%ó³G«ÃKØNéNivel de mantenimiento",
+          "9>>°\u0011±²¡iocurrenciaPorTipoDeNivelDeMantenimiento"
+        ],
+        "reparacion": [
+          "tiempoDeReparacion",
+          "õ\t\u0010masInfoTiempoPromedioReparacion",
+          "\u0005\u0010tiempoDeReparacion:",
+          "\u0005\u0010°ð\u0011\u0010à\b\u0010Pd\u0005\u0010ðÔ\u000f\u0010\u0010\u0011\u000f\u00100G\u0010\u00100u\u0010\u0010[:o|o tiempoDeReparacionEnHorasYMinutos]",
+          "\u0005\u0010El tiempo promedio de reparación de todas las fallas que se produzcan durante el recorrido será: ",
+          "TiempoPromedioDeReparacionDialog",
+          "tiempoDeReparacion",
+          "\u0005\u0010p»\u000e\u0010consultarTiempoMinimoDeReparacion:",
+          "tiempoDeReparacionEnHorasYMinutos",
+          "Tiempo de reparacion: ",
+          "[:a :b | (a tiempoDeReparacion) > (b tiempoDeReparacion)]",
+          "estimarTiempoDeReparacion:",
+          "\u0005\u0010À§\r\u0010¯\t\u0010À\u0007\u0010 ­\u0005\u0010Tiempo promedio de reparación",
+          "\u0005\u0010@N\u000f\u0010tiempoPromedioDeReparacion",
+          "calcularTiempoDeReparacion:",
+          "9-w¬i9-³EZâ\u0004JiTiempo de reparación"
+        ],
+        "pendiente": [
+          "\u0005\u0010p°\u0007\u0010ð¢\u0006\u0010ð\u0005\u0010pc\u0005\u0010esIndependiente",
+          "esSubUnidadIndependiente",
+          "\u0005\u0010tipoSubUnidadIndependiente",
+          "SubUnidad_Independiente",
+          "°i\u0005\u0010SubUnidad_Independiente"
+        ],
+        "vehiculo": [
+          "\u0005\u0010(\u00100W\n\u0010@T\u0007\u0010@i\u0007\u0010p{\u000b\u0010ðl\u0007\u0010quitarVehiculo:de:y:",
+          "\u0005\u0010actualizarVehiculo:enVehiculo:y:",
+          "\u0005\u0010dvocomunicacionxvehiculo",
+          "S\u001d\u0010P¦\u001c\u0010ÀD\u0013\u0010quitarPersonaVehiculo",
+          "\u0005\u0010!\u0006\u00100;\u0006\u0010P¦\u001c\u0010ÀD\u0013\u0010idNuevoVehiculoResultado:",
+          "cantidadVehiculosMasSubelementos",
+          "\u0005\u0010°²\u0006\u0010pÈ\u0006\u0010Ð£\u001d\u0010ÀD\u0013\u0010consultarMovimientoDelVehiculo:",
+          "\u0005\u0010 \u0006\u0010 °\f\u0010ð[\u000b\u0010Ð\u0006\u0010@)\n\u0010Pd\u0005\u0010\u0003@\u0011¾SequitarPersonaSinVehiculo:deElemento:y:",
+          "\u0004±Z9d\u0012²L\u0012³L\u0012´L\u0012µL\u0012¶L\u0012·L\u0012¸L\u0012¹L\u0012ºJ»J)½Iâ.Ø/lcargarVehiculosDesde:y:",
+          "-\u0011±y\u0002\u0011µj<j·l6¨(\u0001¼*¼Ï\u000eØ\u000f¼Î\u0010¼6¨Ø\u0011ØRa6¨Ø\u0013Ø\u0014a\u00026¨Ø\u0013Ø\u0015²a\u0002¡¢lbdIdVehiculo",
+          "\u0002\u0007\u0010bdIdVehiculo:",
+          "p\u0015\u0007\u0010buscarVehiculoParaPersona:",
+          "\u0005\u0010SELECT VehiculoId FROM personasxvehiculo WHERE PersonaId=",
+          "VehiculoId",
+          "-d­³L¯³Lç\u0005³Lç\u0006³L9$¸³LA¹³Lç\n³Lç\u000b³Lç\f³Lç\r³Lç\u000e³aªiSELECT * FROM vehiculotropa WHERE Id=",
+          "\u0005\u0010mÌ\u0001iSELECT VehiculoId FROM vehiculosxelemento WHERE ElementoId=",
+          " Ì>J2importarVehiculos:",
+          "­\u0005\u0010°%\u0007\u0010\u0010®\u0005\u0010idEmbarque:yCodVehiculoBD:",
+          "\u0005\u0010à:\u0007\u0010Pr\u0006\u0010 Ð\b\u0010Ã\t\u0010Ð{\u0007\u0010p2\u000b\u0010`#\t\u0010°d\b\u00109«±ibuscarComParaVehiculo:",
+          "buscarAcopladoParaVehiculo:"
+        ],
+        "velocidad": [
+          ";\u0005\u0010P£\u0006\u0010 §\u0005\u0010Pd\u0005\u0010 \u0006\u0010ctrlVelocidadDeMarcha",
+          "â\rÝ\u000eé\u0001·aâ\bz\u0011â)ºj<j<jØ.aevelocidadRefresco",
+          "velocidadRefresco",
+          "cantidadCuadrados:extentCuadrado:circular:color:velocidadRefresco:radio:",
+          "ðR\f\u0010°6\f\u0010velocidadRefresco:",
+          "cantidadCuadrados:extentCuadrado:porcentajeCuadradoGrande:circular:color:velocidadRefresco:",
+          "Ð\u0013\u0007\u0010La velocidad ingresada debe ser mayor que 0",
+          "\u0005\u0010\u001a\u000b\u0010Àg\u0010\u0010b\u0010\u0010c\u0010\u0010velocidadDeMarcha",
+          "\u0005\u0010Velocidad de marcha: ",
+          "¢\u0006\u0010P\t\u0010validarVelocidad",
+          "La velocidad ingresada debe ser menor que 200",
+          "\u0005\u00109\u0010\u00100!\u001f\u0010p¡\b\u0010P²\u0006\u0010 ?\u0010\u00100d\u0005\u0010 Ð\u0005\u0010\n\u0010pQ\u0010\u0010\u0012\u0010\u0010à¦\u0005\u0010velocidadDeMarcha",
+          "\u0005\u0010Velocidad de marcha: ",
+          "Pc\n\u0010velocidadDeMarcha"
+        ]
+      },
+      "methods_of_interest": []
+    },
+    "terreno": {
+      "module": "terreno",
+      "size_mb": 8.659006118774414,
+      "total_strings": 503858,
+      "classes": {
+        "Referencias": 2,
+        "CAMPO": 4,
+        "SDWORD": 2,
+        "Bioma": 2,
+        "VALOR": 3,
+        "OPERADOR": 3,
+        "TITULO": 2,
+        "BSTR": 2,
+        "ExternalAddress": 2,
+        "ClassificationTable": 2,
+        "SALIR": 2,
+        "GUID": 9,
+        "DdoIt": 5,
+        "Quitar": 2,
+        "Ayuda": 2,
+        "Layer": 2,
+        "MapObjects2": 6,
+        "Suelo": 2,
+        "ContainerToolBar": 2,
+        "MapObjects2Constants": 3,
+        "LegendControl": 3,
+        "NeedsSelfMask": 2,
+        "Cancelar": 11,
+        "Siguiente": 2,
+        "DNombre": 2,
+        "Salir": 13,
+        "Aceptar": 12,
+        "Current": 14,
+        "CURRENCY": 2,
+        "ContainerBotones": 3,
+        "CCOEtiqueta": 2,
+        "Mostrar": 5,
+        "ContainerLongitudTotal": 2,
+        "Category": 2,
+        "Campos": 3,
+        "Nombre": 2,
+        "Datos": 2,
+        "ContainerIngresarDimensionSecundario": 2,
+        "Table": 2,
+        "Buscar": 2,
+        "ReadOnlyMask": 2,
+        "LPVOID": 2,
+        "Rectangle": 2,
+        "ImageStripper": 2,
+        "Categories": 3,
+        "Default": 4,
+        "DELETE": 2,
+        "CTRL": 2,
+        "Shared": 2,
+        "VARIANT": 2,
+        "SamplingInterval": 2,
+        "LPWSTR": 2,
+        "OptimizedSelectors": 2,
+        "Aplicar": 5,
+        "Escala": 2,
+        "Shell": 2,
+        "DSNLibrary": 2,
+        "System": 3,
+        "AlignmentMap": 4,
+        "IgnoreCaseMask": 2,
+        "TransientMask": 2,
+        "Cancel": 10,
+        "BUTTON": 2,
+        "CLSID": 2,
+        "IconicListAbstract": 2,
+        "ContainerVersionesAnteriores": 2,
+        "Usuarios": 2,
+        "Ocultar": 4,
+        "SeleccionarTodos": 2,
+        "Paste": 5,
+        "Find": 5,
+        "Print": 2,
+        "Copy": 8,
+        "Cambiar": 5,
+        "Save": 4,
+        "False": 2,
+        "Delete": 5,
+        "Forward": 3,
+        "Aborted": 2,
+        "EncoderQuality": 2,
+        "Aplicacion": 2,
+        "Seleccionar": 2,
+        "Width": 2,
+        "Limpiar": 2,
+        "Text": 4,
+        "Actualizar": 2,
+        "OPTION": 2,
+        "Match": 2,
+        "Open": 2,
+        "Remove": 5,
+        "AutoCompleteDwell": 2,
+        "Refresh": 3,
+        "Browse": 2,
+        "Owned": 2,
+        "Property": 2,
+        "Packages": 4,
+        "Edit": 2,
+        "Changed": 2,
+        "Methods": 2,
+        "Clear": 2,
+        "Selector": 5,
+        "Tutorials": 11,
+        "DolphinSureCertificateInfoR": 4,
+        "Catenate": 2,
+        "Views": 2,
+        "Graphic": 4,
+        "Heading": 6,
+        "Title": 2,
+        "Steps": 2,
+        "Class": 4,
+        "Disassembly": 2,
+        "Project": 2,
+        "Timestamp": 7,
+        "Developer": 4,
+        "Blessing": 3,
+        "Edition": 2,
+        "Dolphin": 2,
+        "Language": 2,
+        "Expression": 2,
+        "Package": 3,
+        "AgentObjects": 2,
+        "NotSignedCertificateR": 2,
+        "Debug": 3,
+        "RunAll": 2,
+        "Before": 3,
+        "SlidingBallDemo": 2,
+        "Name": 3,
+        "Object": 2,
+        "ResourceLib": 3,
+        "OmniBase": 2,
+        "Date": 2,
+        "Undo": 3,
+        "Reset": 2,
+        "Differences": 2,
+        "Index": 2,
+        "Filter": 2,
+        "Restore": 2,
+        "Other": 2,
+        "BBC1": 2
+      },
+      "numeric_values": [
+        {
+          "method": "¼",
+          "value": 81.0,
+          "context": "â\u0001¼:81â\u00030\u0012\u0005\u0010\u0011"
+        },
+        {
+          "method": "º",
+          "value": 0.0,
+          "context": "â\u0001º:0Pä\u0003`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "ú",
+          "value": 0.0,
+          "context": "â\u0001ú:0Ós\u0005`\u0012\u0005\u0010\u0014"
+        },
+        {
+          "method": "y",
+          "value": 8.0,
+          "context": "â\u0001y:8Îs\u0005`\u0012\u0005\u0010$"
+        },
+        {
+          "method": "Æ",
+          "value": 8.0,
+          "context": "ð\u0001Æ:8Ñv\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "v",
+          "value": 0.0,
+          "context": "ð\u0001v:0þÕ"
+        },
+        {
+          "method": "5",
+          "value": 0.0,
+          "context": "â\u00025:0~\u00050\u0012\u0005\u0010\u000f"
+        },
+        {
+          "method": "Á",
+          "value": 0.0,
+          "context": "ð`Á:0¦\u0005`\u0012\u0005\u0010\u0018"
+        },
+        {
+          "method": "a",
+          "value": 8.0,
+          "context": "â\u0001a: 8\u0005P\u0014\u0005\u0010 "
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ð\u0006P:0<\u00050\u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "P",
+          "value": 0.0,
+          "context": "ð\u0001P:0\u0005 \u0012\u0005\u0010\u000e"
+        },
+        {
+          "method": "ç",
+          "value": 8.0,
+          "context": "ð\u0001ç:8\rÌ\u0005 \u0012\u0005\u0010\u0013"
+        },
+        {
+          "method": "º",
+          "value": 0.0,
+          "context": "â\u0001º:0©Ë\u0005p\u0014\u0005\u0010\u0014"
+        },
+        {
+          "method": "C",
+          "value": 0.0,
+          "context": "ð\u0001C:0ê\u0005@\u0012\u0005\u0010\r"
+        },
+        {
+          "method": "ç",
+          "value": 8.0,
+          "context": "à\u0001ç:8\u0005@\u0012\u0005\u0010\u0005"
+        },
+        {
+          "method": "bp",
+          "value": 4.0,
+          "context": "â\u0001bp:4\u0005@\u0012\u0005\u0010"
+        },
+        {
+          "method": "C",
+          "value": 0.0,
+          "context": "ð\u0004C:0\u0012\u00050\u0012\u0005\u0010'"
+        },
+        {
+          "method": "Í",
+          "value": 0.0,
+          "context": "â\u0001Í:0ç¦\u0005@\u0012\u0005\u0010#"
+        },
+        {
+          "method": "x",
+          "value": 0.0,
+          "context": "ð\u0001x:0À¡\u0005@\u0012\u0005\u0010\u0011"
+        },
+        {
+          "method": "K",
+          "value": 8.0,
+          "context": "â\u0001K:8Ç¡\u00050\u0012\u0005\u0010\u0013"
+        },
+        {
+          "method": "U",
+          "value": 8.0,
+          "context": "ð\u0005U:8½ \u0005@\u0012\u0005\u0010A"
+        },
+        {
+          "method": "unknown",
+          "value": 7.01,
+          "context": "7.01"
+        },
+        {
+          "method": "µÝ",
+          "value": 3.0,
+          "context": "µÝ:3¥%&ØJxç\u000bu3¥Ø\rç\u000eØ/Fß\u0001eÏ\u0010Ø\u0011é\u0010ü"
+        },
+        {
+          "method": "DCompletado",
+          "value": 0.0,
+          "context": "DCompletado: 0%"
+        },
+        {
+          "method": "l9",
+          "value": 0.0,
+          "context": "\u0005\u0010ð\u0017\u001d\u0010ÀX\u0007\u0010«{Bc\u0012c¿l9:0\u0011´\u0012cØelThumbnails"
+        },
+        {
+          "method": "N",
+          "value": 1.0,
+          "context": "a&N:\t1VN6BÁVçÜútbIndeterminate:state:"
+        },
+        {
+          "method": "unknown",
+          "value": 1.02,
+          "context": "1.02"
+        },
+        {
+          "method": "10",
+          "value": 41.0,
+          "context": "10:41:13 p.m."
+        },
+        {
+          "method": "00",
+          "value": 0.0,
+          "context": "\u0005\u0010Pø\u0018\u0010pË\u000f\u0010ð\u0005\u0010Àõ\u0018\u001000:00:00"
+        },
+        {
+          "method": "unknown",
+          "value": 2019.0,
+          "context": "2019"
+        },
+        {
+          "method": "bitOr",
+          "value": 0.0,
+          "context": "\u0005\u0010 S\u001f\u0010``@arg bitOr: 0"
+        },
+        {
+          "method": "bitAnd",
+          "value": 0.0,
+          "context": "\u0005\u0010``@arg bitAnd: 0"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "\u0005\u0010`@collection at: 1"
+        },
+        {
+          "method": "Ý",
+          "value": 0.0,
+          "context": "«[A\u0013¿ZâBÖ\u0014Ý:0¢Hd\"¶aâ\u0007¸aé2\u0012ü\u0001\u0001\u0002\u0004 "
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "FÎªã9¸LnÙ¿@{úUses \"size = 0\", \"= nil\",  or \"at: 1\" instead of \"isEmpty\",  \"isNil\", or \"first\""
+        },
+        {
+          "method": "primitive",
+          "value": 1.0,
+          "context": "Primitive or external call tag, e.g. <primitive: 1>"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "ä \u0010[:a | a at: 2]"
+        },
+        {
+          "method": "Î",
+          "value": 9.0,
+          "context": "2dÎ3Î49ØcaÎ5Î69ØcaÌ\u0013d#Î79ØcL%(9ØcLÎ8Î99ØcL)Î:9ØcLÎ\u0010Î;9ï"
+        },
+        {
+          "method": "max",
+          "value": 2.0,
+          "context": "\"Use parentheses to change order of evaluation\"\r\n\r\n(2.5 + 3.8) rounded.\r\n\r\n(3 max: 2) + 2.\r\n\r\nProfSt"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "[:each | (each at: 2) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "À±%\u0010 %\u0010`!%\u0010 Ñ&\u0010 Ü\u0013\u0010[:each | (each at: 3) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "[:each | (each at: 4) displayString]"
+        },
+        {
+          "method": "at",
+          "value": 5.0,
+          "context": "½\n\u0010Ð\u0015%\u0010ÀA%\u0010 ­\u0005\u0010[:each | (each at: 5) displayString]"
+        },
+        {
+          "method": "12",
+          "value": 0.0,
+          "context": "\u0005\u0010«\u0011±làý(\u0010@´(\u001012:00AM"
+        },
+        {
+          "method": "t6ÍÃM",
+          "value": 7.0,
+          "context": "\u0002ìÅ)ÐJ!Lu`£7YX-\u0006©¤L4\u001cID¹ L\u0012ta\u001cëÁ¨4¨4\u0007{Öx¡e?ÚkæâÜ¶Ptì\bÅå\u0010\\ß\u001dï\u000f\u00176ÖîÃ\u0004dAÒ°\u0001\u0010¢_F!\u00163\t\u0014lL%"
+        },
+        {
+          "method": "t",
+          "value": 4.0,
+          "context": "XFÂ\u0013<C!õ\u001d\u0001EÀ8(\u0007GC=t:4,%Íù0\\\u0004«¸\u0002:Í©}Æv8dÕÃ!ï ì\u001cBÜCh¿ä\b,óAÿ\u001e\u0014ù'Aùïg\u0002Àh`?_\u0002@S\u0007:àÖ¥$y\u000fÂo"
+        },
+        {
+          "method": "Version",
+          "value": 1.0,
+          "context": "\u0005\u0010 Ï+\u0010\u0010v+\u0010\u0010%+\u0010@x\u0006\u0010 \u0006\u0010Ô+\u0010Pd\u0005\u0010 Ô+\u0010MIME-Version: 1.0\r\nContent-type: multipart/mixed; Boundary=\""
+        },
+        {
+          "method": "at",
+          "value": 3.0,
+          "context": "[:o | o at: 3]"
+        },
+        {
+          "method": "at",
+          "value": 2.0,
+          "context": "\u0005\u0010PH+\u0010Pú-\u0010\u001d.\u0010Pd\u0005\u0010[:o | o at: 2]"
+        },
+        {
+          "method": "at",
+          "value": 1.0,
+          "context": "[:o | o at: 1]"
+        },
+        {
+          "method": "at",
+          "value": 4.0,
+          "context": "\u0011k¿i[:o | o at: 4]"
+        },
+        {
+          "method": "17",
+          "value": 15.0,
+          "context": "17:15"
+        },
+        {
+          "method": "19",
+          "value": 0.0,
+          "context": "19:00"
+        },
+        {
+          "method": "rating",
+          "value": 1.0,
+          "context": "\u0005\u0010«a¬Ü\u0006®F\u0011Ý÷é\u0010Ü\t9\"â\u0006·%·¹ae[ :recording :val | recording rating: 1]"
+        },
+        {
+          "method": "rating",
+          "value": 3.0,
+          "context": "\u0010\u0010à¦\u0005\u0010[ :recording :val | recording rating: 3]"
+        },
+        {
+          "method": "rating",
+          "value": 2.0,
+          "context": "[ :recording :val | recording rating: 2]"
+        }
+      ],
+      "keywords_found": {
+        "capacidad": [
+          "transitabilidadPuenteCapacidad:ancho:id:columna:",
+          "capacidadDelPuente:"
+        ],
+        "elemento": [
+          "habilitarIrAElementoSIG",
+          "C\u0007\u00100[\u0006\u0010p2\u000b\u00100î\u0006\u0010Pd\u0005\u0010°d\u0005\u0010ð¢\u0006\u0010ð\t\u0010Elemento del SIG",
+          "\u0005\u0010\u00119°i@p\u0005\u0010Elemento posicionado",
+          "habilitarIrAElementoPosicionado",
+          "abrirCalcoDeElementosUbicados:",
+          "irAElementoSIG",
+          "ð\u0006\u0010ðÖ\u0006\u0010irAElementoPosicionado",
+          "sacarElementosMO",
+          "\u0005\u0010@V\b\u0010àÞ\u000b\u0010ÐØ\u0013\u0010 ¾\u0005\u0010ÐL\u0006\u0010\u0010d\u0005\u0010Pd\u0005\u0010\u0010È\u000f\u0010\b\u0010 >\t\u0010instanciarElementosMO",
+          "elemento:",
+          "-\u0011±Zâ\"Ü\b\f1\u0012µ¶aÛôeelemento",
+          "Ir a elemento SIG",
+          "elemento",
+          "elementos",
+          "\u0005\u0010@C\u000e\u0010Elementos",
+          "elementos",
+          "\u0005\u0010@â,\u0010àî\f\u0010Ir a elemento posicionado",
+          "n<Ó\u000feNO se puede localizar este elemento porque no está ubicado",
+          "\u001b\f\u0010p8\u0005\u0010P\n\f\u00100>\u0005\u00100?\u0005\u001003\u0005\u0010localizarElemento:",
+          "Seleccione un elemento:"
+        ],
+        "organizacion": [
+          " î\u0016\u0010cuadroorganizacion"
+        ],
+        "cuadro": [
+          "\u0005\u0010cuadro",
+          " î\u0016\u0010cuadroorganizacion"
+        ],
+        "personal": [
+          "\u0011«\u0011G\u0011w>iC\u0012Àipersonalizado",
+          "\u0005\u0010°\u001e\r\u0010 (\u0018\u0010P¥\f\u0010ª\u0005\u0010escalaPersonalizada",
+          "\u001d¬ ¡¢µipersonalizado",
+          "Colores personalizados",
+          "Escala personalizada",
+          "DolphinSurePersonalCertificate",
+          "DResources/DolphinSurePersonalCert.jpg",
+          "PersonalMoney",
+          "PersonalMoneyShell",
+          "PersonalAccount",
+          "Personal Account Details",
+          "\u0005\u00100è)\u0010`'+\u0010\u001b*\u0010PersonalAccountTransactionDialog",
+          "PersonalAccountTransaction",
+          "\u0005\u0010à\u001c\u0010PersonalMoney",
+          "o\u001e\u0010o\u001e\u0010Ð'\u0016\u0010 5*\u0010à=)\u0010Personal Money files (*.pm)",
+          "à#\u0010PersonalAccountShell",
+          "Personal Money Application"
+        ],
+        "baja": [
+          "Bajar layer",
+          "bajarLayer",
+          "bajarCalco:",
+          ":\f\u0010@_\n\u0010Bajar calco",
+          "bajarCalco",
+          "ç\u0013\u0010>\b\u0010à5\r\u0010bajarAlpha",
+          "bajarAlpha:"
+        ],
+        "prisionero": [
+          "ð\tÈÏPGÜ\u0003@\u0012\u0005\u0010\u0010",
+          "ð\u0001´)PGÝ\u00030\u0012\u0005\u0010\n",
+          "â\u0001\u0010iPGß\u0003`\u0012\u0005\u0010\u0018",
+          "ð\u0001ÐGPGÜ",
+          "ð\u0006PGæÑ",
+          "ð\u0006Ö+PGä\u00030\u0012\u0005\u0010\t",
+          "ð\u0001±NPGÛ",
+          "ð/PGPC\b@\u0011\u0005\u0010\u0004",
+          "à\u00018PGq\u0005`\u0012\u0005\u0010\u0014",
+          "â\u0001ÛJPGs\u0005@\u0012\u0005\u0010\f",
+          "â\u0001PGà¿t\u00050\u0012\u0005\u0010\r",
+          "â\u0001lÏPGØ",
+          "â\u0001ÈþPGy\u0005`\u0012\u0005\u0010H",
+          "â\u0001áêPG}\u0005\u0010\u0012\u0005\u0010\u0014",
+          "à\u0001î;PG\u0005`\u0012\u0005\u0010\u0018",
+          "ð\u0001ÇePGÓ\u0001à\b\u0010H",
+          "â\u0001OPG\u0005PV\n\u0010\u0010",
+          "ð\u0001óëPGÑ",
+          "\u0001\u0013äPG\bpH\t\u0010\u0004",
+          "ð\u0003ücPG\u0005@\u0012\u0005\u0010\r"
+        ],
+        "falla": [
+          "Ö\u0006\u0010Ocurrió un error al aplicar el color. Algunos colores fallan al intentar aplicarlos a ciertos símbolos. Pruebe con otro color similar."
+        ],
+        "terreno": [
+          "Estudio Terreno",
+          "A\u0005\u0010 \u0013\u0005\u0010ToolbarEstudioDelTerreno\\transitabilidad.bmp",
+          "\u0005\u0010mÌ\u0004irecorrerTerreno3D:Shift:X:Y:",
+          "\u0005\u0010\u00119°i¨\u0007\u0010Marcar Terrenos Llaves",
+          "Marcar Terrenos Llaves",
+          "\u0005\u0010\u0010¡)\u0010\u0005\u0010 (\u0018\u0010Ï\n\u0010Pd\u0005\u0010recorrerTerreno3D",
+          "\u0005\u0010\u00119°i`\n\u0006\u0010Ingrese un nuevo nombre para el terreno llave:",
+          "\u0005\u0010\u0011Ó>etoolbarTerreno",
+          "\u0012Ó\u000b\u0011Ð\tj³ltoolbarTerreno2",
+          "ToolbarEstudioDelTerreno\\perfil.bmp",
+          "\u0011>}\u0011\u0003y\u0011Ð\u0001lA²iToolbarEstudioDelTerreno\\vueloVirtual.bmp",
+          "=´\u0005\u000fååÌAÒNC\u0005ªûToolbarEstudioDelTerreno\\historicoTransitabilidad.bmp",
+          "t°ù³xøN§¯¯*Uk\u001aPH\f\u0010pathTerreno3D",
+          "\u0005\u0010Software\\CIDESO\\Terreno3D",
+          "iConsultar terreno",
+          "\u0005\u0010estudioterreno",
+          "Medir terreno",
+          "configuracionBarraTerreno",
+          "\u0005\u0010Estudio del Terreno ",
+          "é\u0001°J×=±K\u0011´\u0012°J× ±jµK ¤\u0011°I×=±K9 ¤´\u0011°I×)±lvalidarTerreno:"
+        ],
+        "transitabilidad": [
+          "resetearModeloTransitabilidad",
+          "A\u0005\u0010 \u0013\u0005\u0010ToolbarEstudioDelTerreno\\transitabilidad.bmp",
+          "mensajeTransitabilidadPoligono:",
+          "¿ Desea consultar la transitabilidad sobre la zona marcada con un área de ",
+          "transitabilidad",
+          "Transitabilidad",
+          "=´\u0005\u000fååÌAÒNC\u0005ªûToolbarEstudioDelTerreno\\historicoTransitabilidad.bmp",
+          ";\u0005\u0010P£\u0006\u0010 §\u0005\u0010Pd\u0005\u0010 \u0006\u0010Consultar transitabilidad",
+          "Ö\u0010iColores de referencia de la transitabilidad",
+          "Registro de calculos de transitabilidad ",
+          "99iNo hay ningún registro histórico de transitabilidad",
+          "\u0005\u0010Ð\u0007\u0010P¯\u0007\u0010 5\u000f\u0010 ´\u0007\u0010\u0011b[>ZÖ\u0003H>d\u0014Û\u000e\u0012Ö\bC\u0014~~ZdûÑ\u0003ÝïaJipÌ\u0019\u0010`¹\u0007\u0010`\u0019\u0010Ðo\u0007\u0010datosTransitabilidadCollection:",
+          "a\u0007\u0010Pd\u0005\u0010c\u0005\u0010\u0010d\u0005\u0010datosTransitabilidadCollection",
+          "\u0005\u0010Consulta de transitabilidad",
+          "transitabilidadSueloTipo:columna:climas:",
+          "historicoTransitabilidad.bmp",
+          "registroTransitabilidad",
+          "PÙ\u0007\u0010Ø\u0007\u0010`Ø\u0007\u0010transitabilidadColumna:climas:suelo:",
+          "@\u001a\u0007\u0010`r\b\u0010datosTransitabilidad",
+          "transitabilidad.bmp"
+        ],
+        "suelo": [
+          "cantidadSuelo",
+          "\u0005\u0010`w\u0007\u0010listadoDeSuelos",
+          "Calculando zonas: Suelos",
+          "\u0005\u0010¿Desea realizar el filtrado de suelos?",
+          "\u0005\u0010\u0011Ó\u0011eFiltrado de suelos",
+          "\u0005\u0010pV\u0006\u0010suelo",
+          "\u0005\u0010Ì\b\u0010°d\u0005\u00100d\u0005\u0010suelo",
+          "ctrlSuelo",
+          "ctrlListaDeSuelos",
+          "ctrlCantidadSuelo",
+          "seleccionDeSuelos",
+          "\u001b\u0011(Âjµj³a\u0019¤ve\u0019)sâ\bâ(j¹M9\u0019ºlcoleccionNaranjaSuelos",
+          "coleccionRojaPoligonosSuelos",
+          "ç\nzâ\u000b\u0013¼iâ\u000b¢\u0013¼i,Y9Ñ\u0006?d\u0017Û\u000f\u0011Î\u0011ã\u0006Ø2©~YdûÑ\u0006ÝîaIionCtrlSueloCambio",
+          "sueloContainer",
+          "agregarSuelos",
+          "Suelo",
+          "avanzadoSuelo",
+          "Suelo",
+          "D«w\u0011i\u0011 îè\u0003icalcularZonaDeMarcadoParaSuelo:seleccionSuelos:coleccionNoApto:"
+        ],
+        "pendiente": [
+          "componentePendienteReferencias",
+          "containerReferenciasPendiente",
+          "componentePendienteMapa",
+          "componentePendienteMapa",
+          "componentePendienteReferencias",
+          "\u0005\u00109@²i\u0005\u0007\u00100d\u0005\u0010ð÷\n\u0010    * Imagen visual del modelo de pendientes",
+          "\u0005\u0010f\u0005\u0010nodoPendiente",
+          "\u0005\u0010\u0010à\u0006\u0010\u0010d\u0005\u0010Pendientes",
+          "nodoPendiente",
+          "ctrlMapaPendiente",
+          "ctrlCantidadMapaPendientes",
+          "configurarControladorPuntosPorPendientes",
+          "KRemapaPendientes",
+          "Mapa de pendientes",
+          "mapaPendientes",
+          "¿Desea guardar la imagen del Modelo de Pendientes?",
+          "\u0005\u0010p\u001c\u0006\u0010Mostrar en el mapa el Modelo Pendientes",
+          "cantidadMapaPendiente",
+          "containerReferenciasPendiente",
+          "\u0005\u0010\u0011«±l0W\n\u0010@t\b\u0010Pendiente Maxima Superable (%):"
+        ],
+        "vehiculo": [
+          "\u0005\u0010À\u0005\u0010Ðì\u0006\u0010À\u001e\u0006\u0010ðD\u0005\u0010î\u0006\u0010\u0010d\u0005\u0010vehiculo.ico",
+          "«Ü\u0003A±a0\u0012?Ö\n~[1£B\u0013ØfG1£¥¸HÆ}\u0011d\u0013¹a'¹l\u0011d\u0014c\u0013?Øla×.½a\u0013]é4z\u0011×0½lé#b×ez\u0011×0½aé\u0002\u0014é#bØll-El vehículo no puede atravesar este afluente",
+          "99°9°i-El vehículo puede transitar por este suelo",
+          "-El vehículo puede atravesar este afluente",
+          "õ\t\u0010-El vehículo no puede transitar por este suelo",
+          "-El vehículo no puede transitar por este camino",
+          "-El vehículo puede transitar por este camino",
+          "AÙ j±lcantidadVehiculos",
+          "\u0007\u00100d\t\u0010habilitarAgregarVehiculo",
+          "\u0005\u0010ctrlVehiculos",
+          "Ì\u0016>aÌ\u0014>aÌ\u0018>aÌ\u0019>aÌ\u0017>lcontainerVehiculos",
+          "\u0005\u0010P)\u0006\u0010°&\f\u00100c\u0005\u0010\b\u0010Pd\u0005\u0010limpiarListaVehiculos",
+          "\u0001d9±K ±lConformación de la columna de vehículos:",
+          "\u0005\u0010vehiculos",
+          " Ì>J2importarVehiculos",
+          "vehiculo",
+          "\u0005\u0010àç\r\u0010PÃ\u0005\u0010Pd\u0005\u0010cantidadVehiculos",
+          "ctrlVehiculo:",
+          "ctrlCantidadVehiculos",
+          "\u0005\u00109\u001d±i°æ\u0016\u0010 a\u0017\u0010ctrlVehiculo"
+        ],
+        "velocidad": [
+          "    * Mayor velocidad al buscar caminos",
+          "\u0005\u0010\u0011Ó?egenerarXMLDelVueloVirtual:altura:velocidad:",
+          "A!o-jÙAj²G-x\u0012i\u0013iVelocidad del viento (m/s)\r\n(0 - 50):",
+          "velocidadDelViento",
+          "velocidadViento",
+          "\u0004ß\u0002«ie-\u0001=Y?S¬Ü\r\u0003Z®I\u0001\u0012\u0003cÂµaÛð\u0011i[:o1 :o2 | o1 velocidadDelViento  < o2 velocidadDelViento ]",
+          "[:o| o velocidadDelViento ]",
+          "velocidad del viento",
+          "\u0005\u0010Ðo\u0007\u0010velocidadDelViento",
+          "velocidadDelViento",
+          "\u0005\u0010\u0010Y\u0007\u0010Pd\u0005\u0010ª\u0005\u0010velocidadDelViento:",
+          "velocidadDelViento",
+          "Velocidad [km/h]:",
+          "velocidad",
+          "velocidad",
+          "\u0005\u0010é\u0005\u0010ÐH\u0006\u00100d\u0005\u0010 \u000e\u0010velocidad",
+          "moverMapaPorDirecciones:conVelocidad:",
+          "velocidad",
+          "\u0006\u0010`o\u0005\u0010À(\u0006\u0010velocidad:",
+          "\u0005\u0010°\u0007\u0010ctrlVelocidad"
+        ],
+        "peso": [
+          "peso",
+          "\u0005\u0010à\n\u0010ð4\u0005\u0010@o\u0006\u0010°e\u0005\u0010 ^\u0006\u0010@­\u0005\u0010Ðe\u0005\u0010Ý\u0005\u0010 °\u0005\u0010 tiene demasiado peso para el puente, ",
+          "\u0005\u0010peso:",
+          "\u0001D\u0002ß\u00069\u0001~R\u0002ipeso",
+          "\t \u0001DÐ½\t\u0010Peso"
+        ]
+      },
+      "methods_of_interest": [
+        {
+          "method": "transitabilidad",
+          "string": "A\u0005\u0010 \u0013\u0005\u0010ToolbarEstudioDelTerreno\\transitabilidad.bmp",
+          "context_before": [
+            "\u0002\u0001DStream",
+            "modeloEDT"
+          ],
+          "context_after": [
+            " \\\u0005\u0010\u0010",
+            "\u0005\u0010Ðc-\u0010^\t\u0010\u0010"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "¿ Desea consultar la transitabilidad sobre la zona marcada con un área de ",
+          "context_before": [
+            "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÑ",
+            "skipWhileMatchAll:"
+          ],
+          "context_after": [
+            "\u0004``t\f\u0010àû\b\u0010\u0010",
+            "\u0005\u0010­i"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "transitabilidad",
+          "context_before": [
+            "`X\n\u0010@Â\u0005\u0010\u0010",
+            "\u0005\u0010°÷\u0005\u0010 J\u0006\u0010*.cco"
+          ],
+          "context_after": [
+            "ÐÞ\u0005\u0010@B\u0007\u0010\u0010",
+            "\u0005\u0010«\u001e²iàm\u0019\u0010å\u0005\u00100³\u0005\u0010\u0001"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": ";\u0005\u0010P£\u0006\u0010 §\u0005\u0010Pd\u0005\u0010 \u0006\u0010Consultar transitabilidad",
+          "context_before": [
+            " \u0012\u0005\u0010°ì\u0006\u0010\u0010",
+            "\u0005\u0010\u0010\u0003\b\u0010p8\u0005\u0010°\n\u0010¦\u0005\u00100^\u0006\u0010Ðì\u0006\u0010°e\u0005\u0010ðì\u0006\u0010°d\u0005\u0010À\u001e\u0006\u0010pÍ\u0005\u0010 °\u0005\u0010"
+          ],
+          "context_after": [
+            " ï\u0006\u00100V\u0006\u0010«a« I?ó",
+            "«¡Ñ\u0004Þz¯a«\u0015\"Ñ\u0006Äa4Ñ\u0005%&a\u0016'(a\u0016)(a\u0016*Ï\u000eØ\u000fa\u0016Î\u0010Ï\u0011î"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "Ö\u0010iColores de referencia de la transitabilidad",
+          "context_before": [
+            "\u0012cbi«ÿÿÿ",
+            "¬ÿÿÿ"
+          ],
+          "context_after": [
+            "\u0004`àÞ\t\u0010",
+            "l\u0005\u0010\u0010"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "Registro de calculos de transitabilidad ",
+          "context_before": [
+            "\u0001\u0007Ö\u0007\u0010°?\u000e\u0010\u0010",
+            "\u0005\u0010\u0011Qe"
+          ],
+          "context_after": [
+            "°\u0011\u0005\u0010\u0010\u0006\u0010\u0010",
+            "\u0005\u00109«±i \u0006\u0010\u0006\u0010"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "99iNo hay ningún registro histórico de transitabilidad",
+          "context_before": [
+            "K.²a®a¯aç\u0005lcamino",
+            "newUnique"
+          ],
+          "context_after": [
+            "Ài\f\u0010ÀX\u0007\u0010\u0010",
+            "\u0005\u0010`7\u0007\u0010ÀX\u0007\u0010ðÖ\u0006\u0010lpReserved2"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "\u0005\u0010Consulta de transitabilidad",
+          "context_before": [
+            "\u0005\u0010mÌ",
+            "iSortedCollection"
+          ],
+          "context_after": [
+            "\u0002P\u0012\u0005\u0010­\u0006\u0010\u0010",
+            "\u0005\u0010mf"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "transitabilidadSueloTipo:columna:climas:",
+          "context_before": [
+            "shapes",
+            "tipoDeSueloSegunClase:"
+          ],
+          "context_after": [
+            "readsStatic:",
+            "ctrlProfundidad"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "PÙ\u0007\u0010Ø\u0007\u0010`Ø\u0007\u0010transitabilidadColumna:climas:suelo:",
+          "context_before": [
+            "Enter",
+            "traductorSuelosXML"
+          ],
+          "context_after": [
+            "@\u0013\u0005\u0010î\u0006\u0010\u0010",
+            "\u0005\u0010«i"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "transitabilidad.bmp",
+          "context_before": [
+            "<ZA°\u001eÜ\u0005A° {¯\u0011µFÛ\u0012A°$z¯\u0011¸Fu6¨(6¨ªØMJß\u0001eç\u000fØ\u0010\u0012Ø1a\u000f¢\u0012Ø2a\u000f\u0012Ø3aç\u0014l,",
+            "ÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿÿ"
+          ],
+          "context_after": [
+            "D\f\u0010À\u001e\u0006\u0010\u0010",
+            "\u0005\u0010Ð|\b\u00100Å\u0005\u0010i\u0005\u0010defaultSearchPolicy"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "transitabilidadPuenteCapacidad:ancho:id:columna:",
+          "context_before": [
+            "\u0005\u0010«i",
+            "i\u0005\u0010pü\u0005\u0010origin:extent:"
+          ],
+          "context_after": [
+            "\u0005PN\f\u0010Pá\n\u0010\u0010",
+            "\u0005\u0010\u001di"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "Calcular transitabilidad caminos",
+          "context_before": [
+            "«Zé\u0001ü\u0002",
+            "é b\u0012¿j²Jji"
+          ],
+          "context_after": [
+            "\u0003\u0006ÿÿ",
+            "rename"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "El poligono seleccionado no contiene ningun layer apto para evaluar su transitabilidad",
+          "context_before": [
+            "closure",
+            " \u0001Dtoolbar"
+          ],
+          "context_after": [
+            "\u0001Þ\u0005«¬ ³aefileOutDefinitionOfClass:",
+            "Pn\n\u0010\b\u0010\u0010"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "\u0005\u0010pL\t\u0010Calcular transitabilidad suelos",
+          "context_before": [
+            "\u0005\u0010P[\b\u0010ð'\t\u0010Ðþ\t\u0010@Æ\b\u0010\u0010",
+            "\u0005\u0010ðy\t\u0010ðÔ\b\u0010\u0010"
+          ],
+          "context_after": [
+            "©¿³#Ò\u0011B¥Ì^sb+\u0011Q:R:Se\u0003",
+            "Ðç\u000b\u0010"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": " +\u000e\u0010Consulta de transitabilidad",
+          "context_before": [
+            "\u0005&\u000b\u0010à]\u0005\u0010\u0010",
+            "\u0005\u0010\u001di"
+          ],
+          "context_after": [
+            "contenedorFoto",
+            "\u0007\n\u0007HeapCompact"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "transitabilidadColumna:climas:rio:areaCuenca:",
+          "context_before": [
+            " ²\u0012\u0010a\u0005",
+            " O\t\u0010E"
+          ],
+          "context_after": [
+            "habilitarBotonProyectar",
+            "-AÀi\u0001"
+          ]
+        },
+        {
+          "method": "transitabilidad",
+          "string": "Histórico transitabilidad",
+          "context_before": [
+            "\u0005\u0010@ÿ\r\u0010ps\n\u00100\u0001\u0006\u0010 ?\n\u0010\u0003",
+            "\u0003ø\n\u0010\u0010R\n\u0010\u0010"
+          ],
+          "context_after": [
+            " ô\n\u0010p3\u000f\u0010\u0003@8",
+            "P1\u000f\u0010\u0010"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "peso",
+          "context_before": [
+            "p¨\u0005\u0010 ",
+            "\u0005\u0010ðÉ\u0019\u0010Pª\u0007\u0010ancho"
+          ],
+          "context_after": [
+            "packageName:",
+            "profundidadTransitable"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "\u0005\u0010à\n\u0010ð4\u0005\u0010@o\u0006\u0010°e\u0005\u0010 ^\u0006\u0010@­\u0005\u0010Ðe\u0005\u0010Ý\u0005\u0010 °\u0005\u0010 tiene demasiado peso para el puente, ",
+          "context_before": [
+            "\u0005\u0010-¬²ip\u0017\n\u0010à]\u0005\u0010 \u000b\u0010\u0003\u0004\u0001",
+            "@\u0011\u0005\u0010À"
+          ],
+          "context_after": [
+            "±Kâ\u0002³lrightToLeftBlock:",
+            "el vehículo "
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "\u0005\u0010peso:",
+          "context_before": [
+            "Menor escala   1 :",
+            "½\u000bÿÿ"
+          ],
+          "context_after": [
+            "0\u0014\b\u0010",
+            "Ò\b\u0010\u0010"
+          ]
+        },
+        {
+          "method": "peso",
+          "string": "\u0001D\u0002ß\u00069\u0001~R\u0002ipeso",
+          "context_before": [
+            "à\t\u0010",
+            "õ\t\u0010"
+          ],
+          "context_after": [
+            "\u0002y­¡Ü\u0002¯iç\u0006Y\u0002¥Zç\baç\t\u0011ç\n\u0012Øki\u0010",
+            "primitives"
+          ]
+        }
+      ]
+    }
+  }
+}
