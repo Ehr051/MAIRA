@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Calculadora Logística</title>
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --maira-dark-bg: #1a1a2e;
+            --maira-card-bg: #16213e;
+            --maira-accent: #0f3460;
+            --maira-primary: #16a085;
+            --maira-success: #27ae60;
+            --maira-warning: #f39c12;
+            --maira-danger: #e74c3c;
+            --maira-text: #ecf0f1;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--maira-dark-bg) 0%, #0a4c3e 100%);
+            color: var(--maira-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--maira-card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            color: var(--maira-primary);
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            color: var(--maira-text);
+            opacity: 0.8;
+            margin: 10px 0 0 0;
+        }
+
+        .card {
+            background: var(--maira-card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            color: var(--maira-primary);
+            border-bottom: 2px solid var(--maira-primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: var(--maira-text);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            background: var(--maira-accent);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--maira-text);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--maira-accent);
+            border-color: var(--maira-primary);
+            color: var(--maira-text);
+            box-shadow: 0 0 0 0.2rem rgba(22, 160, 133, 0.25);
+        }
+
+        .btn-calculate {
+            background: var(--maira-primary);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-calculate:hover {
+            background: #138d75;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(22, 160, 133, 0.4);
+        }
+
+        .btn-reset {
+            background: #95a5a6;
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-reset:hover {
+            background: #7f8c8d;
+        }
+
+        .results-container {
+            background: var(--maira-accent);
+            border: 2px solid var(--maira-primary);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: var(--maira-card-bg);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--maira-primary);
+        }
+
+        .result-label {
+            color: var(--maira-text);
+            opacity: 0.8;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: var(--maira-primary);
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+
+        .resource-row {
+            background: var(--maira-accent);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .resource-row label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-box {
+            background: rgba(52, 152, 219, 0.2);
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .info-box i {
+            color: #3498db;
+            margin-right: 10px;
+        }
+
+        .progress-bar-custom {
+            height: 25px;
+            background: var(--maira-accent);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--maira-success);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .alert-box {
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.3);
+            border-left: 4px solid var(--maira-success);
+        }
+
+        .alert-warning {
+            background: rgba(243, 156, 18, 0.3);
+            border-left: 4px solid var(--maira-warning);
+        }
+
+        .alert-danger {
+            background: rgba(231, 76, 60, 0.3);
+            border-left: 4px solid var(--maira-danger);
+        }
+    </style>
+
+    <!-- Core JavaScript Libraries -->
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="calculator-container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-gas-pump"></i> Calculadora Logística (BV8)</h1>
+            <p>Herramienta de planeamiento para cálculo de consumos y reabastecimientos</p>
+        </div>
+
+        <div class="row">
+            <!-- Configuración de Unidad -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <h3><i class="fas fa-users"></i> Configuración de Unidad</h3>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <small>Configure los datos de la unidad para calcular necesidades logísticas</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Unidad</label>
+                        <select class="form-select" id="tipoUnidad" onchange="actualizarValoresDefecto()">
+                            <option value="seccion_inf">Sección Infantería (30 pers)</option>
+                            <option value="peloton_inf">Pelotón Infantería (100 pers)</option>
+                            <option value="seccion_mec">Sección Mecanizada (30 pers + 3 VCTP)</option>
+                            <option value="peloton_mec">Pelotón Mecanizado (100 pers + 10 VCTP)</option>
+                            <option value="compania_tanque">Compañía Tanques (15 TAM)</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Personal Total</label>
+                        <input type="number" class="form-control" id="personalTotal" value="100" min="1">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad de Vehículos</label>
+                        <input type="number" class="form-control" id="cantidadVehiculos" value="10" min="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Vehículo</label>
+                        <select class="form-select" id="tipoVehiculo">
+                            <option value="vctp">VCTP TAM</option>
+                            <option value="tam">TAM (Tanque)</option>
+                            <option value="m113">M113</option>
+                            <option value="unimog">Unimog</option>
+                            <option value="camion">Camión 6x6</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Duración Operación (días)</label>
+                        <input type="number" class="form-control" id="duracionDias" value="3" min="1" max="30">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Distancia a Recorrer (km)</label>
+                        <input type="number" class="form-control" id="distanciaKm" value="150" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consumos Calculados -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Parámetros de Consumo</h3>
+
+                    <div class="resource-row">
+                        <label><i class="fas fa-user"></i> Consumo Personal por Día</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Agua (L/día)</small>
+                                <input type="number" class="form-control form-control-sm" id="aguaPorPersona" value="3.5" step="0.5">
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Raciones (unidades)</small>
+                                <input type="number" class="form-control form-control-sm" id="racionesPorPersona" value="3" step="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resource-row">
+                        <label><i class="fas fa-gas-pump"></i> Consumo Vehículo</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">L/km</small>
+                                <input type="number" class="form-control form-control-sm" id="consumoVehiculo" value="0.5" step="0.1">
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Capacidad (L)</small>
+                                <input type="number" class="form-control form-control-sm" id="capacidadVehiculo" value="600" step="10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resource-row">
+                        <label><i class="fas fa-bullseye"></i> Munición por Vehículo</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Proyectiles</small>
+                                <input type="number" class="form-control form-control-sm" id="municionProyectiles" value="60" step="5">
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Tiros armas</small>
+                                <input type="number" class="form-control form-control-sm" id="municionArmas" value="2000" step="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularLogistica()">
+                        <i class="fas fa-calculator"></i> Calcular Necesidades
+                    </button>
+                    <button class="btn-reset" onclick="resetearFormulario()">
+                        <i class="fas fa-redo"></i> Resetear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            <div class="col-lg-4">
+                <div class="card" id="resultadosCard" style="display: none;">
+                    <h3><i class="fas fa-clipboard-list"></i> Necesidades Totales</h3>
+
+                    <div class="results-container">
+                        <!-- Combustible -->
+                        <div class="result-item">
+                            <div class="result-label"><i class="fas fa-gas-pump"></i> Combustible</div>
+                            <div class="result-value" id="combustibleTotal">0 L</div>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" id="combustibleProgress" style="width: 0%;">0%</div>
+                            </div>
+                            <small class="text-muted" id="combustibleDetalle"></small>
+                        </div>
+
+                        <!-- Agua -->
+                        <div class="result-item">
+                            <div class="result-label"><i class="fas fa-tint"></i> Agua</div>
+                            <div class="result-value" id="aguaTotal">0 L</div>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" id="aguaProgress" style="width: 0%;">0%</div>
+                            </div>
+                            <small class="text-muted" id="aguaDetalle"></small>
+                        </div>
+
+                        <!-- Raciones -->
+                        <div class="result-item">
+                            <div class="result-label"><i class="fas fa-utensils"></i> Raciones</div>
+                            <div class="result-value" id="racionesTotal">0 unidades</div>
+                            <small class="text-muted" id="racionesDetalle"></small>
+                        </div>
+
+                        <!-- Munición -->
+                        <div class="result-item">
+                            <div class="result-label"><i class="fas fa-bullseye"></i> Munición</div>
+                            <div class="result-value" id="municionTotal">0</div>
+                            <small class="text-muted" id="municionDetalle"></small>
+                        </div>
+
+                        <!-- Viajes Reabastecimiento -->
+                        <div class="result-item">
+                            <div class="result-label"><i class="fas fa-truck"></i> Viajes Necesarios</div>
+                            <div class="result-value" id="viajesReabastecimiento">0</div>
+                            <small class="text-muted">Viajes de camión 6x6 (5000kg capacidad)</small>
+                        </div>
+
+                        <!-- Estado Logístico -->
+                        <div id="alertaLogistica"></div>
+                    </div>
+                </div>
+
+                <!-- Recomendaciones -->
+                <div class="card" id="recomendacionesCard" style="display: none;">
+                    <h3><i class="fas fa-lightbulb"></i> Recomendaciones</h3>
+                    <div id="recomendaciones"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // CALCULADORA LOGÍSTICA - LÓGICA BV8
+        // ================================================================
+
+        // Datos BV8 de vehículos
+        const datosBV8Vehiculos = {
+            'vctp': {
+                nombre: 'VCTP TAM',
+                consumo_km: 0.5,
+                capacidad_combustible: 600,
+                municion_proyectiles: 60,
+                municion_762mm: 2000,
+                peso_vacio: 9000
+            },
+            'tam': {
+                nombre: 'TAM (Tanque)',
+                consumo_km: 0.8,
+                capacidad_combustible: 650,
+                municion_proyectiles: 50,
+                municion_762mm: 3000,
+                peso_vacio: 30000
+            },
+            'm113': {
+                nombre: 'M113',
+                consumo_km: 0.4,
+                capacidad_combustible: 360,
+                municion_proyectiles: 0,
+                municion_762mm: 4000,
+                peso_vacio: 11000
+            },
+            'unimog': {
+                nombre: 'Unimog',
+                consumo_km: 0.3,
+                capacidad_combustible: 200,
+                municion_proyectiles: 0,
+                municion_762mm: 0,
+                peso_vacio: 5000
+            },
+            'camion': {
+                nombre: 'Camión 6x6',
+                consumo_km: 0.4,
+                capacidad_combustible: 300,
+                municion_proyectiles: 0,
+                municion_762mm: 0,
+                peso_vacio: 8000
+            }
+        };
+
+        function actualizarValoresDefecto() {
+            const tipo = document.getElementById('tipoUnidad').value;
+
+            const configs = {
+                'seccion_inf': { personal: 30, vehiculos: 0, tipo: 'vctp' },
+                'peloton_inf': { personal: 100, vehiculos: 0, tipo: 'vctp' },
+                'seccion_mec': { personal: 30, vehiculos: 3, tipo: 'vctp' },
+                'peloton_mec': { personal: 100, vehiculos: 10, tipo: 'vctp' },
+                'compania_tanque': { personal: 60, vehiculos: 15, tipo: 'tam' }
+            };
+
+            if (configs[tipo]) {
+                document.getElementById('personalTotal').value = configs[tipo].personal;
+                document.getElementById('cantidadVehiculos').value = configs[tipo].vehiculos;
+                document.getElementById('tipoVehiculo').value = configs[tipo].tipo;
+                actualizarParametrosVehiculo();
+            }
+        }
+
+        function actualizarParametrosVehiculo() {
+            const tipoVeh = document.getElementById('tipoVehiculo').value;
+            const datos = datosBV8Vehiculos[tipoVeh];
+
+            if (datos) {
+                document.getElementById('consumoVehiculo').value = datos.consumo_km;
+                document.getElementById('capacidadVehiculo').value = datos.capacidad_combustible;
+                document.getElementById('municionProyectiles').value = datos.municion_proyectiles;
+                document.getElementById('municionArmas').value = datos.municion_762mm;
+            }
+        }
+
+        // Event listener para cambio de vehículo
+        document.getElementById('tipoVehiculo').addEventListener('change', actualizarParametrosVehiculo);
+
+        function calcularLogistica() {
+            // Obtener valores
+            const personalTotal = parseInt(document.getElementById('personalTotal').value);
+            const cantidadVehiculos = parseInt(document.getElementById('cantidadVehiculos').value);
+            const duracionDias = parseInt(document.getElementById('duracionDias').value);
+            const distanciaKm = parseFloat(document.getElementById('distanciaKm').value);
+
+            const aguaPorPersona = parseFloat(document.getElementById('aguaPorPersona').value);
+            const racionesPorPersona = parseInt(document.getElementById('racionesPorPersona').value);
+            const consumoVehiculo = parseFloat(document.getElementById('consumoVehiculo').value);
+            const capacidadVehiculo = parseFloat(document.getElementById('capacidadVehiculo').value);
+            const municionProyectiles = parseInt(document.getElementById('municionProyectiles').value);
+            const municionArmas = parseInt(document.getElementById('municionArmas').value);
+
+            // CÁLCULOS
+            // Combustible total
+            const combustibleMovimiento = cantidadVehiculos * distanciaKm * consumoVehiculo;
+            const combustibleReserva = cantidadVehiculos * capacidadVehiculo * 0.1; // 10% reserva
+            const combustibleTotal = combustibleMovimiento + combustibleReserva;
+
+            // Agua total
+            const aguaTotal = personalTotal * aguaPorPersona * duracionDias;
+
+            // Raciones totales
+            const racionesTotal = personalTotal * racionesPorPersona * duracionDias;
+
+            // Munición total
+            const municionTotalProyectiles = cantidadVehiculos * municionProyectiles;
+            const municionTotalArmas = cantidadVehiculos * municionArmas;
+
+            // Viajes de reabastecimiento (camión 6x6 carga 5000kg)
+            const pesoTotal = (combustibleTotal * 0.85) + (aguaTotal * 1.0) + (racionesTotal * 1.5);
+            const viajesNecesarios = Math.ceil(pesoTotal / 5000);
+
+            // MOSTRAR RESULTADOS
+            // Combustible
+            document.getElementById('combustibleTotal').textContent = combustibleTotal.toFixed(0) + ' L';
+            const porcentajeCombustible = Math.min(100, (combustibleTotal / (cantidadVehiculos * capacidadVehiculo)) * 100);
+            document.getElementById('combustibleProgress').style.width = porcentajeCombustible + '%';
+            document.getElementById('combustibleProgress').textContent = porcentajeCombustible.toFixed(0) + '%';
+            document.getElementById('combustibleDetalle').textContent =
+                `Movimiento: ${combustibleMovimiento.toFixed(0)}L + Reserva: ${combustibleReserva.toFixed(0)}L`;
+
+            // Color según capacidad
+            const combustibleElem = document.getElementById('combustibleProgress');
+            if (porcentajeCombustible > 80) {
+                combustibleElem.style.background = '#e74c3c';
+            } else if (porcentajeCombustible > 50) {
+                combustibleElem.style.background = '#f39c12';
+            } else {
+                combustibleElem.style.background = '#27ae60';
+            }
+
+            // Agua
+            document.getElementById('aguaTotal').textContent = aguaTotal.toFixed(0) + ' L';
+            const porcentajeAgua = Math.min(100, (aguaTotal / (personalTotal * 10 * duracionDias)) * 100);
+            document.getElementById('aguaProgress').style.width = porcentajeAgua + '%';
+            document.getElementById('aguaProgress').textContent = porcentajeAgua.toFixed(0) + '%';
+            document.getElementById('aguaDetalle').textContent =
+                `${personalTotal} personas × ${aguaPorPersona}L/día × ${duracionDias} días`;
+
+            // Raciones
+            document.getElementById('racionesTotal').textContent = racionesTotal + ' unidades';
+            document.getElementById('racionesDetalle').textContent =
+                `${personalTotal} personas × ${racionesPorPersona} raciones/día × ${duracionDias} días`;
+
+            // Munición
+            document.getElementById('municionTotal').textContent =
+                `${municionTotalProyectiles} proyectiles / ${municionTotalArmas.toLocaleString()} tiros`;
+            document.getElementById('municionDetalle').textContent =
+                `${cantidadVehiculos} vehículos × dotación estándar`;
+
+            // Viajes
+            document.getElementById('viajesReabastecimiento').textContent = viajesNecesarios;
+
+            // ALERTAS LOGÍSTICAS
+            let alertaHTML = '';
+            if (combustibleTotal > cantidadVehiculos * capacidadVehiculo * 0.8) {
+                alertaHTML += '<div class="alert-box alert-danger"><i class="fas fa-exclamation-triangle"></i> Combustible insuficiente: Requiere reabastecimiento intermedio</div>';
+            } else if (combustibleTotal > cantidadVehiculos * capacidadVehiculo * 0.5) {
+                alertaHTML += '<div class="alert-box alert-warning"><i class="fas fa-exclamation-circle"></i> Combustible ajustado: Monitorear consumo</div>';
+            } else {
+                alertaHTML += '<div class="alert-box alert-success"><i class="fas fa-check-circle"></i> Combustible suficiente para la operación</div>';
+            }
+
+            document.getElementById('alertaLogistica').innerHTML = alertaHTML;
+
+            // RECOMENDACIONES
+            let recHTML = '<ul style="padding-left: 20px;">';
+
+            if (duracionDias > 3) {
+                recHTML += `<li>Operación extendida (${duracionDias} días): Planificar reabastecimiento en D+2</li>`;
+            }
+
+            if (viajesNecesarios > 3) {
+                recHTML += `<li>Se requieren ${viajesNecesarios} viajes de reabastecimiento: Considerar punto de reabastecimiento avanzado</li>`;
+            }
+
+            if (distanciaKm > 200) {
+                recHTML += `<li>Distancia extendida (${distanciaKm}km): Revisar autonomía de vehículos</li>`;
+            }
+
+            recHTML += `<li>Peso total estimado: ${pesoTotal.toFixed(0)}kg</li>`;
+            recHTML += `<li>Tiempo estimado reabastecimiento: ${(viajesNecesarios * 2).toFixed(0)} horas</li>`;
+            recHTML += '</ul>';
+
+            document.getElementById('recomendaciones').innerHTML = recHTML;
+
+            // Mostrar cards
+            document.getElementById('resultadosCard').style.display = 'block';
+            document.getElementById('recomendacionesCard').style.display = 'block';
+
+            // Scroll
+            document.getElementById('resultadosCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetearFormulario() {
+            document.getElementById('tipoUnidad').value = 'peloton_mec';
+            actualizarValoresDefecto();
+            document.getElementById('duracionDias').value = '3';
+            document.getElementById('distanciaKm').value = '150';
+            document.getElementById('aguaPorPersona').value = '3.5';
+            document.getElementById('racionesPorPersona').value = '3';
+
+            document.getElementById('resultadosCard').style.display = 'none';
+            document.getElementById('recomendacionesCard').style.display = 'none';
+        }
+
+        // Inicializar con valores por defecto
+        actualizarValoresDefecto();
+
+        console.log('✅ Calculadora Logística BV8 cargada');
+    </script>
+</body>
+</html>

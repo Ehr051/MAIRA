@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAIRA - Calculadora de Bajas</title>
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --maira-dark-bg: #1a1a2e;
+            --maira-card-bg: #16213e;
+            --maira-accent: #0f3460;
+            --maira-primary: #e94560;
+            --maira-success: #27ae60;
+            --maira-warning: #f39c12;
+            --maira-text: #ecf0f1;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--maira-dark-bg) 0%, var(--maira-accent) 100%);
+            color: var(--maira-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--maira-card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            color: var(--maira-primary);
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            color: var(--maira-text);
+            opacity: 0.8;
+            margin: 10px 0 0 0;
+        }
+
+        .card {
+            background: var(--maira-card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h3 {
+            color: var(--maira-primary);
+            border-bottom: 2px solid var(--maira-primary);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: var(--maira-text);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            background: var(--maira-accent);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--maira-text);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--maira-accent);
+            border-color: var(--maira-primary);
+            color: var(--maira-text);
+            box-shadow: 0 0 0 0.2rem rgba(233, 69, 96, 0.25);
+        }
+
+        .btn-calculate {
+            background: var(--maira-primary);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-calculate:hover {
+            background: #d63447;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-reset {
+            background: #95a5a6;
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-reset:hover {
+            background: #7f8c8d;
+        }
+
+        .results-container {
+            background: var(--maira-accent);
+            border: 2px solid var(--maira-primary);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: var(--maira-card-bg);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--maira-primary);
+        }
+
+        .result-label {
+            color: var(--maira-text);
+            opacity: 0.8;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: var(--maira-primary);
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .modifier-item {
+            background: var(--maira-accent);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modifier-value {
+            color: var(--maira-warning);
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: rgba(52, 152, 219, 0.2);
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .info-box i {
+            color: #3498db;
+            margin-right: 10px;
+        }
+    </style>
+
+    <!-- Core JavaScript Libraries -->
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="calculator-container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-calculator"></i> Calculadora de Bajas (BV8)</h1>
+            <p>Herramienta de planeamiento para estimar bajas en combate según doctrina BV8</p>
+        </div>
+
+        <div class="row">
+            <!-- Formulario de Entrada -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <h3><i class="fas fa-user-shield"></i> Unidad Atacante</h3>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <small>Ingrese los datos de la unidad que está realizando el ataque</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Unidad</label>
+                        <select class="form-select" id="tipoAtacante">
+                            <option value="infanteria">Infantería</option>
+                            <option value="mecanizado">Infantería Mecanizada</option>
+                            <option value="blindado">Blindado</option>
+                            <option value="artilleria">Artillería</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Personal Total</label>
+                        <input type="number" class="form-control" id="personalAtacante" value="100" min="1">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Moral (%)</label>
+                        <input type="range" class="form-range" id="moralAtacante" min="0" max="100" value="80">
+                        <div class="text-center mt-2">
+                            <span id="moralAtacanteValue" style="color: var(--maira-warning); font-weight: bold;">80%</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Apoyo de Fuego</label>
+                        <select class="form-select" id="apoyoFuego">
+                            <option value="0">Sin apoyo</option>
+                            <option value="0.15">Morteros</option>
+                            <option value="0.25">Artillería</option>
+                            <option value="0.40">Apoyo Aéreo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-shield-alt"></i> Unidad Defensora</h3>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Unidad</label>
+                        <select class="form-select" id="tipoDefensor">
+                            <option value="infanteria">Infantería</option>
+                            <option value="mecanizado">Infantería Mecanizada</option>
+                            <option value="blindado">Blindado</option>
+                            <option value="artilleria">Artillería</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Personal Total</label>
+                        <input type="number" class="form-control" id="personalDefensor" value="80" min="1">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Posición</label>
+                        <select class="form-select" id="tipoPosicion">
+                            <option value="abierto">Terreno Abierto</option>
+                            <option value="cubierto">Cubierto</option>
+                            <option value="fortificado">Fortificado</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cobertura (%)</label>
+                        <input type="range" class="form-range" id="coberturaDefensor" min="0" max="100" value="30">
+                        <div class="text-center mt-2">
+                            <span id="coberturaDefensorValue" style="color: var(--maira-success); font-weight: bold;">30%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modificadores y Resultados -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <h3><i class="fas fa-sliders-h"></i> Modificadores Tácticos</h3>
+
+                    <div class="modifier-item">
+                        <span>Distancia de Combate</span>
+                        <select class="form-select" id="distanciaCombate" style="width: auto;">
+                            <option value="1.0">Cercano (< 100m)</option>
+                            <option value="0.8">Medio (100-500m)</option>
+                            <option value="0.6">Lejano (> 500m)</option>
+                        </select>
+                    </div>
+
+                    <div class="modifier-item">
+                        <span>Visibilidad</span>
+                        <select class="form-select" id="visibilidad" style="width: auto;">
+                            <option value="1.0">Clara</option>
+                            <option value="0.7">Reducida</option>
+                            <option value="0.4">Muy Reducida</option>
+                        </select>
+                    </div>
+
+                    <div class="modifier-item">
+                        <span>Hora del Día</span>
+                        <select class="form-select" id="horaDia" style="width: auto;">
+                            <option value="1.0">Día</option>
+                            <option value="0.6">Crepúsculo</option>
+                            <option value="0.3">Noche</option>
+                        </select>
+                    </div>
+
+                    <div class="modifier-item">
+                        <span>Vegetación</span>
+                        <select class="form-select" id="vegetacion" style="width: auto;">
+                            <option value="1.0">Despejado</option>
+                            <option value="0.8">Arbustos</option>
+                            <option value="0.6">Bosque Denso</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularBajas()">
+                        <i class="fas fa-calculator"></i> Calcular Bajas
+                    </button>
+                    <button class="btn-reset" onclick="resetearFormulario()">
+                        <i class="fas fa-redo"></i> Resetear
+                    </button>
+                </div>
+
+                <!-- Resultados -->
+                <div class="card" id="resultadosCard" style="display: none;">
+                    <h3><i class="fas fa-chart-bar"></i> Resultados</h3>
+
+                    <div class="results-container">
+                        <div class="result-item">
+                            <div class="result-label">Bajas Atacante</div>
+                            <div class="result-value" id="bajasAtacante">0</div>
+                        </div>
+
+                        <div class="result-item">
+                            <div class="result-label">Bajas Defensor</div>
+                            <div class="result-value" id="bajasDefensor">0</div>
+                        </div>
+
+                        <div class="result-item">
+                            <div class="result-label">Probabilidad de Éxito</div>
+                            <div class="result-value" id="probExito">0%</div>
+                        </div>
+
+                        <div class="result-item">
+                            <div class="result-label">Moral Final Atacante</div>
+                            <div class="result-value" id="moralFinalAtacante">100%</div>
+                        </div>
+
+                        <div class="result-item">
+                            <div class="result-label">Ratio de Bajas</div>
+                            <div class="result-value" id="ratioBajas">1:1</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        // CALCULADORA DE BAJAS - LÓGICA BV8
+        // ================================================================
+
+        // Actualizar valores de sliders
+        document.getElementById('moralAtacante').addEventListener('input', function(e) {
+            document.getElementById('moralAtacanteValue').textContent = e.target.value + '%';
+        });
+
+        document.getElementById('coberturaDefensor').addEventListener('input', function(e) {
+            document.getElementById('coberturaDefensorValue').textContent = e.target.value + '%';
+        });
+
+        function calcularBajas() {
+            // Obtener valores del formulario
+            const tipoAtacante = document.getElementById('tipoAtacante').value;
+            const personalAtacante = parseInt(document.getElementById('personalAtacante').value);
+            const moralAtacante = parseInt(document.getElementById('moralAtacante').value) / 100;
+            const apoyoFuego = parseFloat(document.getElementById('apoyoFuego').value);
+
+            const tipoDefensor = document.getElementById('tipoDefensor').value;
+            const personalDefensor = parseInt(document.getElementById('personalDefensor').value);
+            const tipoPosicion = document.getElementById('tipoPosicion').value;
+            const coberturaDefensor = parseInt(document.getElementById('coberturaDefensor').value) / 100;
+
+            // Modificadores tácticos
+            const distancia = parseFloat(document.getElementById('distanciaCombate').value);
+            const visibilidad = parseFloat(document.getElementById('visibilidad').value);
+            const horaDia = parseFloat(document.getElementById('horaDia').value);
+            const vegetacion = parseFloat(document.getElementById('vegetacion').value);
+
+            // Factores BV8
+            const factorTipoAtacante = obtenerFactorTipo(tipoAtacante);
+            const factorTipoDefensor = obtenerFactorTipo(tipoDefensor);
+            const factorPosicion = obtenerFactorPosicion(tipoPosicion);
+
+            // Cálculo de potencia de combate
+            const potenciaAtacante = personalAtacante * factorTipoAtacante * moralAtacante *
+                                    (1 + apoyoFuego) * distancia * visibilidad * horaDia * vegetacion;
+
+            const potenciaDefensor = personalDefensor * factorTipoDefensor * factorPosicion *
+                                    (1 + coberturaDefensor);
+
+            // Ratio de combate
+            const ratio = potenciaAtacante / potenciaDefensor;
+
+            // Calcular bajas (BV8 aproximado)
+            const tasaBajasAtacante = calcularTasaBajas(ratio, false);
+            const tasaBajasDefensor = calcularTasaBajas(ratio, true);
+
+            const bajasAtacante = Math.round(personalAtacante * tasaBajasAtacante);
+            const bajasDefensor = Math.round(personalDefensor * tasaBajasDefensor);
+
+            // Probabilidad de éxito (basado en ratio)
+            const probExito = Math.min(100, Math.max(0, (ratio - 0.5) * 100));
+
+            // Moral final atacante (se reduce con bajas)
+            const moralFinal = Math.max(0, moralAtacante * 100 - (bajasAtacante / personalAtacante * 30));
+
+            // Ratio de bajas
+            const ratioBajas = bajasDefensor > 0 ?
+                `1:${(bajasDefensor / Math.max(1, bajasAtacante)).toFixed(1)}` :
+                `${bajasAtacante}:0`;
+
+            // Mostrar resultados
+            document.getElementById('bajasAtacante').textContent = bajasAtacante;
+            document.getElementById('bajasDefensor').textContent = bajasDefensor;
+            document.getElementById('probExito').textContent = probExito.toFixed(1) + '%';
+            document.getElementById('moralFinalAtacante').textContent = moralFinal.toFixed(1) + '%';
+            document.getElementById('ratioBajas').textContent = ratioBajas;
+
+            // Colorear según resultado
+            document.getElementById('probExito').style.color =
+                probExito >= 70 ? '#27ae60' : probExito >= 40 ? '#f39c12' : '#e74c3c';
+
+            // Mostrar card de resultados
+            document.getElementById('resultadosCard').style.display = 'block';
+
+            // Scroll suave a resultados
+            document.getElementById('resultadosCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function obtenerFactorTipo(tipo) {
+            const factores = {
+                'infanteria': 1.0,
+                'mecanizado': 1.3,
+                'blindado': 1.8,
+                'artilleria': 0.6
+            };
+            return factores[tipo] || 1.0;
+        }
+
+        function obtenerFactorPosicion(tipo) {
+            const factores = {
+                'abierto': 1.0,
+                'cubierto': 1.4,
+                'fortificado': 2.0
+            };
+            return factores[tipo] || 1.0;
+        }
+
+        function calcularTasaBajas(ratio, esDefensor) {
+            if (esDefensor) {
+                // Defensor: mayor ratio = más bajas para él
+                if (ratio >= 3.0) return 0.40; // 40% bajas
+                if (ratio >= 2.0) return 0.30; // 30% bajas
+                if (ratio >= 1.5) return 0.20; // 20% bajas
+                if (ratio >= 1.0) return 0.10; // 10% bajas
+                return 0.05; // 5% bajas si ratio es favorable al defensor
+            } else {
+                // Atacante: menor ratio = más bajas para él
+                if (ratio <= 0.5) return 0.35; // 35% bajas
+                if (ratio <= 1.0) return 0.25; // 25% bajas
+                if (ratio <= 1.5) return 0.15; // 15% bajas
+                if (ratio <= 2.0) return 0.10; // 10% bajas
+                return 0.05; // 5% bajas si ratio es muy favorable
+            }
+        }
+
+        function resetearFormulario() {
+            document.getElementById('tipoAtacante').value = 'infanteria';
+            document.getElementById('personalAtacante').value = '100';
+            document.getElementById('moralAtacante').value = '80';
+            document.getElementById('moralAtacanteValue').textContent = '80%';
+            document.getElementById('apoyoFuego').value = '0';
+
+            document.getElementById('tipoDefensor').value = 'infanteria';
+            document.getElementById('personalDefensor').value = '80';
+            document.getElementById('tipoPosicion').value = 'abierto';
+            document.getElementById('coberturaDefensor').value = '30';
+            document.getElementById('coberturaDefensorValue').textContent = '30%';
+
+            document.getElementById('distanciaCombate').value = '1.0';
+            document.getElementById('visibilidad').value = '1.0';
+            document.getElementById('horaDia').value = '1.0';
+            document.getElementById('vegetacion').value = '1.0';
+
+            document.getElementById('resultadosCard').style.display = 'none';
+        }
+
+        console.log('✅ Calculadora de Bajas BV8 cargada');
+    </script>
+</body>
+</html>
