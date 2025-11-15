@@ -104,7 +104,7 @@ class ORBATManager {
      * Calcula posiciones de despliegue según formación
      * Usa distancias REALES en metros (no píxeles)
      */
-    calcularPosicionesDespliegue(posicionComandante, numeroSubordinados, formacion = 'linea') {
+    calcularPosicionesDespliegue(posicionComandante, numeroSubordinados, formacion = 'linea', direccionGrados = 180) {
         if (!this.map || !posicionComandante) return [];
 
         // 📏 DISTANCIAS TÁCTICAS REALES EN METROS
@@ -117,64 +117,169 @@ class ORBATManager {
         const distanciaMetros = config.distanciaEntreSub;  // metros
         const offsetMetros = config.offsetDesdeComandante; // metros
 
+        // Normalizar dirección a 0-360°
+        const direccion = ((direccionGrados % 360) + 360) % 360;
+
         switch (formacion) {
             case 'linea':
-                // Despliegue horizontal (Este-Oeste)
+                // Despliegue en línea (213: 1 centro, 2 izq, 3 der)
+                // Perpendicular a la dirección de avance
+                const bearingLinea = (direccion + 90) % 360; // Perpendicular a dirección de avance
                 const inicioLat = -(numeroSubordinados - 1) * distanciaMetros / 2;
 
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    const offsetLat = inicioLat + (i * distanciaMetros);
-                    const nuevaPos = this.calcularPosicionDesdeDistancia(
+                    // Offset lateral desde el centro
+                    const offsetLateral = inicioLat + (i * distanciaMetros);
+
+                    // Posición base adelante del comandante
+                    const posBase = this.calcularPosicionDesdeDistancia(
                         posicionComandante,
-                        90,  // Bearing Este
-                        offsetLat,
-                        180, // Bearing Sur para offset
+                        direccion,
                         offsetMetros
                     );
+
+                    // Aplicar offset lateral
+                    const nuevaPos = this.calcularPosicionDesdeDistancia(
+                        posBase,
+                        bearingLinea,
+                        Math.abs(offsetLateral)
+                    );
+
                     posiciones.push(nuevaPos);
                 }
                 break;
 
             case 'columna':
-                // Despliegue vertical (Norte-Sur)
+                // Despliegue en columna (uno detrás del otro)
                 for (let i = 0; i < numeroSubordinados; i++) {
                     const nuevaPos = this.calcularPosicionDesdeDistancia(
                         posicionComandante,
-                        180, // Bearing Sur
+                        direccion, // En la dirección de avance
                         offsetMetros + (i * distanciaMetros)
                     );
                     posiciones.push(nuevaPos);
                 }
                 break;
 
-            case 'cuña':
-                // Formación en V
-                const mitad = Math.floor(numeroSubordinados / 2);
-                for (let i = 0; i < numeroSubordinados; i++) {
-                    let bearing, distancia;
-                    if (i < mitad) {
-                        // Lado izquierdo de la V (Suroeste)
-                        bearing = 225; // SW
-                        distancia = offsetMetros + ((i + 1) * distanciaMetros);
-                    } else {
-                        // Lado derecho de la V (Sureste)
-                        bearing = 135; // SE
-                        const idx = i - mitad;
-                        distancia = offsetMetros + ((idx + 1) * distanciaMetros);
+            case 'cuna':
+                // Formación en cuña (1 adelante, 2-3 atrás)
+                // Si son 4 vehículos: 2134 (4 más atrás)
+                if (numeroSubordinados === 1) {
+                    // Solo 1 subordinado
+                    posiciones.push(this.calcularPosicionDesdeDistancia(
+                        posicionComandante, direccion, offsetMetros
+                    ));
+                } else if (numeroSubordinados === 2) {
+                    // 2 subordinados: línea
+                    const bearingPerp = (direccion + 90) % 360;
+                    posiciones.push(this.calcularPosicionDesdeDistancia(
+                        this.calcularPosicionDesdeDistancia(posicionComandante, direccion, offsetMetros),
+                        bearingPerp - 180, distanciaMetros / 2
+                    ));
+                    posiciones.push(this.calcularPosicionDesdeDistancia(
+                        this.calcularPosicionDesdeDistancia(posicionComandante, direccion, offsetMetros),
+                        bearingPerp, distanciaMetros / 2
+                    ));
+                } else if (numeroSubordinados === 3) {
+                    // 3 subordinados: 1 adelante, 2-3 atrás formando V
+                    // 1 al frente
+                    posiciones.push(this.calcularPosicionDesdeDistancia(
+                        posicionComandante, direccion, offsetMetros
+                    ));
+                    // 2 y 3 atrás en V
+                    const bearingIzq = (direccion - 30 + 360) % 360;
+                    const bearingDer = (direccion + 30) % 360;
+                    posiciones.push(this.calcularPosicionDesdeDistancia(
+                        posicionComandante, bearingIzq, offsetMetros + distanciaMetros
+                    ));
+                    posiciones.push(this.calcularPosicionDesdeDistancia(
+                        posicionComandante, bearingDer, offsetMetros + distanciaMetros
+                    ));
+                } else {
+                    // 4+ subordinados: 1 adelante, resto en V (2134 si son 4)
+                    // Subordinado 1 al frente
+                    posiciones.push(this.calcularPosicionDesdeDistancia(
+                        posicionComandante, direccion, offsetMetros
+                    ));
+
+                    // Resto en V
+                    const resto = numeroSubordinados - 1;
+                    const mitad = Math.floor(resto / 2);
+
+                    for (let i = 0; i < resto; i++) {
+                        const profundidad = Math.floor(i / 2) + 1;
+                        const esIzquierda = i % 2 === 0;
+                        const angulo = esIzquierda ? -30 : 30;
+                        const bearing = (direccion + angulo + 360) % 360;
+
+                        posiciones.push(this.calcularPosicionDesdeDistancia(
+                            posicionComandante,
+                            bearing,
+                            offsetMetros + (profundidad * distanciaMetros)
+                        ));
                     }
+                }
+                break;
+
+            case 'cuna_invertida':
+                // Cuña invertida (raramente usada)
+                // V invertida: 2-3 adelante, 1 atrás
+                if (numeroSubordinados <= 2) {
+                    // Línea si son 2 o menos
+                    const bearingPerp = (direccion + 90) % 360;
+                    for (let i = 0; i < numeroSubordinados; i++) {
+                        const offset = (i - (numeroSubordinados - 1) / 2) * distanciaMetros;
+                        posiciones.push(this.calcularPosicionDesdeDistancia(
+                            this.calcularPosicionDesdeDistancia(posicionComandante, direccion, offsetMetros),
+                            bearingPerp, offset
+                        ));
+                    }
+                } else {
+                    // V invertida
+                    const mitad = Math.floor(numeroSubordinados / 2);
+
+                    // Elementos del frente en V abierta
+                    for (let i = 0; i < mitad; i++) {
+                        const angulo = -30 - (i * 10);
+                        const bearing = (direccion + angulo + 360) % 360;
+                        posiciones.push(this.calcularPosicionDesdeDistancia(
+                            posicionComandante, bearing, offsetMetros + (i * distanciaMetros * 0.5)
+                        ));
+                    }
+
+                    // Elementos de atrás
+                    for (let i = mitad; i < numeroSubordinados; i++) {
+                        const idx = i - mitad;
+                        const angulo = 30 + (idx * 10);
+                        const bearing = (direccion + angulo) % 360;
+                        posiciones.push(this.calcularPosicionDesdeDistancia(
+                            posicionComandante, bearing, offsetMetros + (idx * distanciaMetros * 0.5)
+                        ));
+                    }
+                }
+                break;
+
+            case 'zona_reunion':
+                // Zona de reunión: círculo con comando en el centro
+                // Subordinados en círculo alrededor del comandante
+                const radioCirculo = offsetMetros + distanciaMetros;
+                const anguloIncremento = 360 / numeroSubordinados;
+
+                for (let i = 0; i < numeroSubordinados; i++) {
+                    const angulo = (i * anguloIncremento + direccion) % 360;
                     const nuevaPos = this.calcularPosicionDesdeDistancia(
                         posicionComandante,
-                        bearing,
-                        distancia
+                        angulo,
+                        radioCirculo
                     );
                     posiciones.push(nuevaPos);
                 }
                 break;
 
             case 'escalon_derecha':
-                // Escalonados a la derecha (SE)
+                // Escalonados a la derecha (rotado según dirección)
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    const bearing = 135; // SE
+                    const bearing = (direccion + 45) % 360; // 45° a la derecha
                     const distancia = offsetMetros + (i * distanciaMetros);
                     const nuevaPos = this.calcularPosicionDesdeDistancia(
                         posicionComandante,
@@ -186,9 +291,9 @@ class ORBATManager {
                 break;
 
             case 'escalon_izquierda':
-                // Escalonados a la izquierda (SW)
+                // Escalonados a la izquierda (rotado según dirección)
                 for (let i = 0; i < numeroSubordinados; i++) {
-                    const bearing = 225; // SW
+                    const bearing = (direccion - 45 + 360) % 360; // 45° a la izquierda
                     const distancia = offsetMetros + (i * distanciaMetros);
                     const nuevaPos = this.calcularPosicionDesdeDistancia(
                         posicionComandante,
@@ -201,7 +306,7 @@ class ORBATManager {
 
             default:
                 console.warn(`Formación desconocida: ${formacion}, usando línea`);
-                return this.calcularPosicionesDespliegue(posicionComandante, numeroSubordinados, 'linea');
+                return this.calcularPosicionesDespliegue(posicionComandante, numeroSubordinados, 'linea', direccion);
         }
 
         return posiciones;
@@ -288,12 +393,16 @@ class ORBATManager {
         const subordinados = [];
         const posicionComandante = unidadPadre.getLatLng();
         const formacion = opciones.formacion || this.orbatData.configuracion.desplieguePorDefecto.formacion;
+        const direccionGrados = opciones.direccionGrados || 180; // Sur por defecto
+
+        console.log(`📐 Formación: ${formacion}, Dirección: ${direccionGrados}°`);
 
         // Calcular posiciones
         const posiciones = this.calcularPosicionesDespliegue(
             posicionComandante,
             plantilla.subordinados.length,
-            formacion
+            formacion,
+            direccionGrados
         );
 
         // 🔍 VALIDAR: Verificar si subordinados ya existen antes de crear

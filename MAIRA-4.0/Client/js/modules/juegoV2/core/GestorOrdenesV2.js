@@ -134,6 +134,33 @@ class GestorOrdenesV2 {
     }
 
     /**
+     * Establece el equipo actual (azul o rojo)
+     * @param {String} equipo - ID del equipo ('azul', 'rojo', etc.)
+     * @param {String} [jugador] - ID del jugador (opcional)
+     */
+    setEquipoActual(equipo, jugador = null) {
+        if (!equipo) {
+            this.log('⚠️ setEquipoActual: equipo no especificado');
+            return;
+        }
+
+        this.equipoActual = equipo;
+        if (jugador) {
+            this.jugadorActual = jugador;
+        }
+
+        this.log(`✅ Equipo actual establecido: ${equipo}${jugador ? ` (jugador: ${jugador})` : ''}`);
+
+        // Actualizar panel de coordinación si existe
+        if (this.panelCoordinacion) {
+            this.panelCoordinacion.renderizar();
+        }
+
+        // Emitir evento
+        this.emit('cambioEquipo', { equipo, jugador });
+    }
+
+    /**
      * Configura el menú radial para crear órdenes
      */
     configurarMenuRadial() {
@@ -227,6 +254,36 @@ class GestorOrdenesV2 {
 
         window.verOrdenesUnidad = (elemento) => {
             this.mostrarOrdenesUnidad({ elemento: elemento || window.elementoSeleccionado });
+        };
+
+        // ================================================================
+        // FORMACIONES DE DESPLIEGUE
+        // ================================================================
+        window.desplegarEnLinea = (elemento) => {
+            this.desplegarConFormacion({ elemento: elemento || window.elementoSeleccionado, formacion: 'linea' });
+        };
+
+        window.desplegarEnColumna = (elemento) => {
+            this.desplegarConFormacion({ elemento: elemento || window.elementoSeleccionado, formacion: 'columna' });
+        };
+
+        window.desplegarEnCuna = (elemento) => {
+            this.desplegarConFormacion({ elemento: elemento || window.elementoSeleccionado, formacion: 'cuna' });
+        };
+
+        window.desplegarCunaInvertida = (elemento) => {
+            this.desplegarConFormacion({ elemento: elemento || window.elementoSeleccionado, formacion: 'cuna_invertida' });
+        };
+
+        window.desplegarZonaReunion = (elemento) => {
+            this.desplegarConFormacion({ elemento: elemento || window.elementoSeleccionado, formacion: 'zona_reunion' });
+        };
+
+        // ================================================================
+        // VISUALIZACIÓN LOS (LINE OF SIGHT)
+        // ================================================================
+        window.verLOS = (elemento) => {
+            this.visualizarLOS({ elemento: elemento || window.elementoSeleccionado });
         };
 
         // También crear window.acciones para compatibilidad con miradial.js
@@ -1181,6 +1238,227 @@ class GestorOrdenesV2 {
         } catch (error) {
             console.error('Error reagrupando subordinados:', error);
             this.mostrarNotificacion('❌ Error al reagrupar subordinados', 'error');
+        }
+    }
+
+    /**
+     * 🎖️ Despliega subordinados con formación específica
+     * Primero solicita dirección de avance (2 clicks para flecha)
+     * Luego despliega en la formación elegida
+     */
+    async desplegarConFormacion(contexto) {
+        const formacion = contexto.formacion || 'linea';
+        const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
+
+        this.log(`🎖️ Iniciando despliegue en formación: ${formacion}`);
+
+        if (!unidad) {
+            this.mostrarNotificacion('⚠️ Selecciona una unidad primero', 'warning');
+            return;
+        }
+
+        // Verificar que ORBATManager esté disponible
+        if (typeof window.orbatManager === 'undefined') {
+            this.mostrarNotificacion('❌ Sistema ORBAT no disponible', 'error');
+            console.error('ORBATManager no está cargado');
+            return;
+        }
+
+        // Configurar el mapa en ORBATManager si no lo está
+        if (!window.orbatManager.map && this.map) {
+            window.orbatManager.setMap(this.map);
+        }
+
+        // Verificar si la unidad puede desplegar subordinados
+        const sidc = unidad.options?.sidc;
+        if (!sidc) {
+            this.mostrarNotificacion('❌ La unidad no tiene SIDC', 'error');
+            return;
+        }
+
+        const puedeDesplegar = window.orbatManager.puedeDesplegar(sidc);
+        if (!puedeDesplegar) {
+            const magnitudInfo = window.orbatManager.obtenerInfoMagnitud(window.orbatManager.extraerMagnitud(sidc));
+            this.mostrarNotificacion(`⚠️ ${magnitudInfo?.nombre || 'Esta unidad'} no tiene subordinados definidos en ORBAT`, 'warning');
+            return;
+        }
+
+        // Solicitar dirección de avance
+        this.mostrarNotificacion(`📐 Haz click en dos puntos para marcar la dirección de avance`, 'info');
+
+        try {
+            const direccion = await this.solicitarDireccionAvance(unidad);
+
+            if (!direccion) {
+                this.mostrarNotificacion('❌ Dirección de avance cancelada', 'warning');
+                return;
+            }
+
+            const cantidad = window.orbatManager.contarSubordinados(sidc);
+            this.mostrarNotificacion(`🎖️ Desplegando ${cantidad} subordinados en formación ${formacion}...`, 'info');
+
+            // Desplegar subordinados con la formación y dirección especificada
+            const subordinados = await window.orbatManager.desplegarSubordinados(unidad, {
+                formacion: formacion,
+                direccionGrados: direccion.angulo
+            });
+
+            if (subordinados && subordinados.length > 0) {
+                this.mostrarNotificacion(`✅ ${subordinados.length} subordinados desplegados en ${formacion}`, 'success');
+                this.log(`✅ Desplegados en ${formacion}: ${subordinados.map(s => s.options.nombre).join(', ')}`);
+            } else {
+                this.mostrarNotificacion('⚠️ No se pudieron desplegar subordinados', 'warning');
+            }
+
+        } catch (error) {
+            console.error('Error desplegando con formación:', error);
+            this.mostrarNotificacion('❌ Error al desplegar subordinados', 'error');
+        }
+    }
+
+    /**
+     * 📐 Solicita al usuario que marque la dirección de avance
+     * Dibuja una flecha desde la unidad hacia la dirección indicada
+     * @returns {Promise<{angulo: number, p1: LatLng, p2: LatLng}>}
+     */
+    solicitarDireccionAvance(unidad) {
+        return new Promise((resolve, reject) => {
+            const posicionUnidad = unidad.getLatLng();
+            let clickCount = 0;
+            let puntos = [];
+            let lineaTemp = null;
+
+            const onMapClick = (e) => {
+                clickCount++;
+                puntos.push(e.latlng);
+
+                if (clickCount === 1) {
+                    // Primer click - dibujar línea temporal
+                    lineaTemp = L.polyline([posicionUnidad, e.latlng], {
+                        color: '#00ff00',
+                        weight: 3,
+                        dashArray: '10, 5',
+                        opacity: 0.7
+                    }).addTo(this.map);
+
+                    // Agregar flecha al final
+                    const decorator = L.polylineDecorator(lineaTemp, {
+                        patterns: [
+                            {
+                                offset: '100%',
+                                repeat: 0,
+                                symbol: L.Symbol.arrowHead({
+                                    pixelSize: 15,
+                                    polygon: false,
+                                    pathOptions: { stroke: true, color: '#00ff00', weight: 3 }
+                                })
+                            }
+                        ]
+                    }).addTo(this.map);
+
+                    this.mostrarNotificacion(`✅ Dirección de avance marcada`, 'success');
+
+                    // Calcular ángulo
+                    const angulo = this.calcularAngulo(posicionUnidad, e.latlng);
+
+                    // Limpiar listeners
+                    this.map.off('click', onMapClick);
+
+                    // Remover línea después de 2 segundos
+                    setTimeout(() => {
+                        if (lineaTemp) this.map.removeLayer(lineaTemp);
+                        if (decorator) this.map.removeLayer(decorator);
+                    }, 2000);
+
+                    resolve({
+                        angulo: angulo,
+                        p1: posicionUnidad,
+                        p2: e.latlng
+                    });
+                }
+            };
+
+            // Registrar listener de clicks
+            this.map.on('click', onMapClick);
+
+            // Timeout de 30 segundos
+            setTimeout(() => {
+                this.map.off('click', onMapClick);
+                if (lineaTemp) this.map.removeLayer(lineaTemp);
+                reject(new Error('Timeout - No se seleccionó dirección'));
+            }, 30000);
+        });
+    }
+
+    /**
+     * 📐 Calcula el ángulo entre dos puntos (en grados, norte = 0°)
+     */
+    calcularAngulo(p1, p2) {
+        const lat1 = p1.lat * Math.PI / 180;
+        const lat2 = p2.lat * Math.PI / 180;
+        const dLng = (p2.lng - p1.lng) * Math.PI / 180;
+
+        const y = Math.sin(dLng) * Math.cos(lat2);
+        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+        const angulo = Math.atan2(y, x) * 180 / Math.PI;
+
+        // Normalizar a 0-360°
+        return (angulo + 360) % 360;
+    }
+
+    /**
+     * 👁️ Visualiza la línea de vista (LOS) de una unidad
+     */
+    visualizarLOS(contexto) {
+        const unidad = contexto.elemento || contexto.unidad || this.unidadSeleccionada;
+
+        this.log('👁️ Visualizando LOS...');
+
+        if (!unidad) {
+            this.mostrarNotificacion('⚠️ Selecciona una unidad primero', 'warning');
+            return;
+        }
+
+        // Verificar si ya hay una visualización LOS activa
+        if (this.losVisualizacion) {
+            // Remover visualización existente
+            this.map.removeLayer(this.losVisualizacion);
+            this.losVisualizacion = null;
+            this.mostrarNotificacion('LOS ocultada', 'info');
+            return;
+        }
+
+        try {
+            const posicion = unidad.getLatLng();
+
+            // Obtener rango de visión de la unidad (puede venir de stats BV8)
+            const rangoVisionMetros = unidad.options?.stats?.rangoVision || 2000; // 2km por defecto
+
+            // Crear círculo de LOS
+            this.losVisualizacion = L.circle(posicion, {
+                radius: rangoVisionMetros,
+                color: '#ffff00',
+                fillColor: '#ffff00',
+                fillOpacity: 0.1,
+                weight: 2,
+                dashArray: '5, 10',
+                opacity: 0.5
+            }).addTo(this.map);
+
+            // TODO: Implementar raycast con terreno para LOS realista
+            // Por ahora es un círculo simple, pero debería:
+            // 1. Usar datos de elevación para detectar obstáculos
+            // 2. Usar datos de vegetación (bosques bloquean LOS)
+            // 3. Usar edificios/construcciones
+            // 4. Crear polígono irregular según obstáculos visibles
+
+            const rangoKm = (rangoVisionMetros / 1000).toFixed(1);
+            this.mostrarNotificacion(`👁️ LOS visualizada (${rangoKm} km) - Click de nuevo para ocultar`, 'success');
+            this.log(`✅ LOS visualizada para ${unidad.options?.nombre || 'unidad'}: ${rangoKm} km`);
+
+        } catch (error) {
+            console.error('Error visualizando LOS:', error);
+            this.mostrarNotificacion('❌ Error al visualizar LOS', 'error');
         }
     }
 
