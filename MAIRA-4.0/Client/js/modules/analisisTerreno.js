@@ -14,6 +14,18 @@
  * - Transitabilidad (suelo×clima×vehículo×pendiente)
  */
 
+// 🚗 Importar sistema de vehículos y terreno
+import {
+    TIPOS_VEHICULOS,
+    CLASES_RIOS,
+    CARACTERISTICAS_SUELOS,
+    IMPACTO_VEGETACION,
+    puedeVadearRio,
+    evaluarImpactoSuelo,
+    calcularVelocidadMarcha,
+    puedeAtravesarVegetacion
+} from './vehiculosTerreno.js';
+
 /**
  * 🔢 MinHeap - Priority Queue para Dijkstra
  * Complejidad: O(log n) para insert/extractMin
@@ -101,6 +113,13 @@ class AnalisisTerreno {
         this.capasGISActivas = new Set();
         this.ultimosBounds = null;
         this.debounceTimerCapasGIS = null;
+        
+        // 🚗 Vehículo y condiciones para análisis terreno
+        this.vehiculoSeleccionado = TIPOS_VEHICULOS.BLINDADO_RUEDA; // Default
+        this.condicionesMeteo = {
+            clima: 'seco', // seco, lluvia, nieve, niebla
+            hora: 'dia'    // dia, noche
+        };
         
         // Configuración
         this.config = {
@@ -322,6 +341,25 @@ class AnalisisTerreno {
                                 <option value="lluvioso">Lluvioso (reducida transitabilidad)</option>
                                 <option value="nieve">Nieve (muy reducida)</option>
                             </select>
+                        </div>
+
+                        <!-- 🚗 NUEVO: Selector de Tipo de Vehículo Militar -->
+                        <div class="param-group" style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; border: 2px solid #3498db;">
+                            <label for="selectVehiculoMilitar">
+                                <i class="fas fa-truck-monster"></i> <strong>Tipo de Vehículo Militar:</strong>
+                            </label>
+                            <select id="selectVehiculoMilitar" style="font-weight: bold;">
+                                <option value="camion_logistico">🚚 Camión Logístico 4x4 (vadeo: 0.6m)</option>
+                                <option value="blindado_rueda" selected>🚙 Blindado Rueda 6x6 (vadeo: 1.0m)</option>
+                                <option value="blindado_rueda_anfibio">🌊 Blindado Anfibio 8x8 (cruza ríos)</option>
+                                <option value="tanque_batalla">🛡️ Tanque Batalla (vadeo: 1.8m)</option>
+                                <option value="blindado_oruga">⚙️ Blindado Oruga (vadeo: 1.0m)</option>
+                                <option value="anfibio_oruga">🌊⚙️ Anfibio Oruga (cruza ríos)</option>
+                                <option value="infanteria">🚶 Infantería a Pie (vadeo: 1.5m)</option>
+                            </select>
+                            <small style="color: #555; font-size: 0.85em; display: block; margin-top: 5px;">
+                                💡 El vehículo seleccionado afecta: vadeo de ríos, movilidad en suelos, atravesar vegetación
+                            </small>
                         </div>
 
                         <div class="param-group">
@@ -657,6 +695,39 @@ class AnalisisTerreno {
                 });
             });
         });
+
+        // 🚗 Selector de tipo de vehículo militar
+        const selectVehiculoMilitar = document.getElementById('selectVehiculoMilitar');
+        if (selectVehiculoMilitar) {
+            selectVehiculoMilitar.addEventListener('change', (e) => {
+                const vehiculoId = e.target.value;
+                this.vehiculoSeleccionado = TIPOS_VEHICULOS[vehiculoId.toUpperCase()];
+                console.log(`🚗 Vehículo cambiado a: ${this.vehiculoSeleccionado.nombre}`);
+                
+                // Mostrar capacidades del vehículo seleccionado
+                const capacidades = this.vehiculoSeleccionado.capacidades;
+                const info = `
+📊 Capacidades del vehículo:
+- Vadeo máximo: ${capacidades.vadeo_max === 999 ? '∞ (Anfibio)' : capacidades.vadeo_max + 'm'}
+- Pendiente máxima: ${capacidades.pendiente_max}°
+- Velocidad ruta: ${capacidades.velocidad_ruta} km/h
+- Velocidad campo: ${capacidades.velocidad_campo} km/h
+${capacidades.anfibio ? '- ✅ Capacidad anfibia' : ''}
+                `.trim();
+                
+                console.log(info);
+            });
+        }
+
+        // 🌦️ Selector de condiciones climáticas
+        const selectClima = document.getElementById('selectClima');
+        if (selectClima) {
+            selectClima.addEventListener('change', (e) => {
+                const clima = e.target.value;
+                this.condicionesMeteo.clima = clima === 'lluvioso' ? 'lluvia' : clima;
+                console.log(`🌦️ Clima cambiado a: ${this.condicionesMeteo.clima}`);
+            });
+        }
     }
 
     /**
@@ -1809,28 +1880,113 @@ class AnalisisTerreno {
         });
 
         // ========================================
-        // 💧 HIDROGRAFÍA (2 capas)
+        // 💧 HIDROGRAFÍA (2 capas) - CON EVALUACIÓN DE VADEO
         // ========================================
         this.capasGIS.hidrografia?.eachLayer(layer => {
             if (!layer.feature?.geometry) return;
             
             const coords = layer.feature.geometry.coordinates;
             const tipo = layer.feature.geometry.type;
+            const props = layer.feature.properties || {};
             
-            // Cursos de Agua (LineString)
+            // Cursos de Agua (LineString) - Evaluar capacidad de vadeo
             if (tipo === 'LineString' || tipo === 'MultiLineString') {
                 if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0002)) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.50);
-                    modificadores.hidrografia.push('Curso de Agua (-50%)');
-                    modificadores.detalles.push({tipo: 'curso_agua', mod: -0.50, obstáculo: true});
+                    // Estimar ancho del río (si no está en propiedades, usar default 5m)
+                    const anchoRio = props.ancho_m || props.width || 5;
+                    
+                    // Clasificar el río
+                    let claseRio = null;
+                    for (let [nombre, clase] of Object.entries(CLASES_RIOS)) {
+                        if (anchoRio >= clase.ancho_min && anchoRio < clase.ancho_max) {
+                            claseRio = clase;
+                            break;
+                        }
+                    }
+                    
+                    if (claseRio) {
+                        // Evaluar si el vehículo puede cruzar
+                        const evaluacion = puedeVadearRio(
+                            this.vehiculoSeleccionado,
+                            anchoRio,
+                            claseRio.profundidad_media
+                        );
+                        
+                        if (!evaluacion.puede) {
+                            // No puede cruzar - obstáculo total
+                            factorModificado = 0.0;
+                            modificadores.hidrografia.push(
+                                `⛔ Río ${claseRio.descripcion} (${anchoRio}m) - ${evaluacion.razon}`
+                            );
+                            modificadores.detalles.push({
+                                tipo: 'rio_no_vadeable',
+                                mod: -1.0,
+                                obstaculo: true,
+                                requiere: evaluacion.requiere,
+                                ancho: anchoRio,
+                                clase: claseRio.descripcion
+                            });
+                        } else if (evaluacion.metodo === 'vadeo') {
+                            // Puede vadear pero con dificultad
+                            const reduccion = 0.50 + (anchoRio / 20) * 0.30; // Más ancho = más difícil
+                            factorModificado = Math.max(0.0, factorModificado - reduccion);
+                            modificadores.hidrografia.push(
+                                `🌊 Río vadeable (${anchoRio}m) - ${evaluacion.velocidad_cruce} km/h (${Math.round(reduccion*100)}%)`
+                            );
+                            modificadores.detalles.push({
+                                tipo: 'rio_vadeable',
+                                mod: -reduccion,
+                                velocidad_cruce: evaluacion.velocidad_cruce,
+                                ancho: anchoRio
+                            });
+                        } else if (evaluacion.metodo === 'anfibio') {
+                            // Vehículo anfibio puede cruzar nadando
+                            const reduccion = 0.30; // Reducción menor
+                            factorModificado = Math.max(0.2, factorModificado - reduccion);
+                            modificadores.hidrografia.push(
+                                `🌊🚙 Río cruzable anfibio (${anchoRio}m) - ${evaluacion.velocidad_cruce} km/h (-30%)`
+                            );
+                            modificadores.detalles.push({
+                                tipo: 'rio_anfibio',
+                                mod: -reduccion,
+                                velocidad_cruce: evaluacion.velocidad_cruce,
+                                ancho: anchoRio,
+                                tiempo_prep: evaluacion.tiempo_preparacion
+                            });
+                        }
+                    } else {
+                        // Default: si no se puede clasificar
+                        factorModificado = Math.max(0.0, factorModificado - 0.50);
+                        modificadores.hidrografia.push(`Curso de Agua (-50%)`);
+                        modificadores.detalles.push({tipo: 'curso_agua', mod: -0.50, obstáculo: true});
+                    }
                 }
             }
             // Espejos de Agua (Polygon)
             else if (tipo === 'Polygon' || tipo === 'MultiPolygon') {
                 if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.80);
-                    modificadores.hidrografia.push('Espejo de Agua (-80%)');
-                    modificadores.detalles.push({tipo: 'espejo_agua', mod: -0.80, obstáculo: true});
+                    // Solo vehículos anfibios pueden cruzar
+                    if (this.vehiculoSeleccionado.capacidades.anfibio) {
+                        factorModificado = Math.max(0.2, factorModificado - 0.60);
+                        modificadores.hidrografia.push(
+                            `🌊🚙 Espejo de Agua - cruzable anfibio (${this.vehiculoSeleccionado.capacidades.velocidad_agua} km/h)`
+                        );
+                        modificadores.detalles.push({
+                            tipo: 'espejo_agua_anfibio',
+                            mod: -0.60,
+                            velocidad: this.vehiculoSeleccionado.capacidades.velocidad_agua
+                        });
+                    } else {
+                        // Obstáculo total para vehículos no anfibios
+                        factorModificado = 0.0;
+                        modificadores.hidrografia.push('⛔ Espejo de Agua - No cruzable (requiere bote/puente)');
+                        modificadores.detalles.push({
+                            tipo: 'espejo_agua',
+                            mod: -1.0,
+                            obstáculo: true,
+                            requiere: 'Vehículo anfibio o puente'
+                        });
+                    }
                 }
             }
         });
@@ -1891,57 +2047,83 @@ class AnalisisTerreno {
         });
 
         // ========================================
-        // 🏜️ SUELOS (7 capas)
+        // 🏜️ SUELOS (7 capas) - CON EVALUACIÓN POR TIPO DE VEHÍCULO
         // ========================================
         this.capasGIS.suelos?.eachLayer(layer => {
             if (!layer.feature?.geometry) return;
             
             const coords = layer.feature.geometry.coordinates;
             const props = layer.feature.properties || {};
-            const tipo = props.tipo || props.fna || '';
+            let tipoSuelo = props.tipo || props.fna || '';
             
             if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
-                // Arenal
-                if (tipo.includes('Arenal') || tipo.includes('arenal')) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.40);
-                    modificadores.suelos.push('Arenal (-40%)');
-                    modificadores.detalles.push({tipo: 'arenal', mod: -0.40, velocidad: -20});
+                // Mapear nombre a constante del módulo vehiculosTerreno
+                let tipoSueloKey = null;
+                if (tipoSuelo.toLowerCase().includes('arenal')) {
+                    tipoSueloKey = 'ARENAL';
+                } else if (tipoSuelo.toLowerCase().includes('afloramiento')) {
+                    tipoSueloKey = 'AFLORAMIENTO_ROCOSO';
+                } else if (tipoSuelo.toLowerCase().includes('barrial')) {
+                    tipoSueloKey = 'BARRIAL';
+                } else if (tipoSuelo.toLowerCase().includes('pedregal')) {
+                    tipoSueloKey = 'PEDREGAL';
+                } else if (tipoSuelo.toLowerCase().includes('sedimento')) {
+                    tipoSueloKey = 'SEDIMENTO_FLUVIAL';
+                } else if (tipoSuelo.toLowerCase().includes('cumbre')) {
+                    tipoSueloKey = 'CUMBRE_ROCOSA';
+                } else if (tipoSuelo.toLowerCase().includes('salina')) {
+                    tipoSueloKey = 'SALINA';
                 }
-                // Afloramiento Rocoso
-                else if (tipo.includes('Afloramiento') || tipo.includes('afloramiento')) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.35);
-                    modificadores.suelos.push('Afloramiento Rocoso (-35%)');
-                    modificadores.detalles.push({tipo: 'afloramiento_rocoso', mod: -0.35});
-                }
-                // Barrial
-                else if (tipo.includes('Barrial') || tipo.includes('barrial')) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.45);
-                    modificadores.suelos.push('Barrial (-45%)');
-                    modificadores.detalles.push({tipo: 'barrial', mod: -0.45, velocidad: -25});
-                }
-                // Pedregal
-                else if (tipo.includes('Pedregal') || tipo.includes('pedregal')) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.30);
-                    modificadores.suelos.push('Pedregal (-30%)');
-                    modificadores.detalles.push({tipo: 'pedregal', mod: -0.30});
-                }
-                // Sedimento Fluvial
-                else if (tipo.includes('Sedimento') || tipo.includes('sedimento')) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.25);
-                    modificadores.suelos.push('Sedimento Fluvial (-25%)');
-                    modificadores.detalles.push({tipo: 'sedimento_fluvial', mod: -0.25});
-                }
-                // Cumbre Rocosa
-                else if (tipo.includes('Cumbre') || tipo.includes('cumbre')) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.60);
-                    modificadores.suelos.push('Cumbre Rocosa (-60%)');
-                    modificadores.detalles.push({tipo: 'cumbre_rocosa', mod: -0.60, obstáculo: true});
-                }
-                // Salina
-                else if (tipo.includes('Salina') || tipo.includes('salina')) {
-                    factorModificado = Math.max(0.0, factorModificado - 0.20);
-                    modificadores.suelos.push('Salina (-20%)');
-                    modificadores.detalles.push({tipo: 'salina', mod: -0.20});
+                
+                if (tipoSueloKey) {
+                    // Evaluar impacto según vehículo y condiciones meteorológicas
+                    const evaluacion = evaluarImpactoSuelo(
+                        this.vehiculoSeleccionado,
+                        tipoSueloKey,
+                        this.condicionesMeteo.clima
+                    );
+                    
+                    if (!evaluacion.puede) {
+                        // Intransitable para este vehículo
+                        factorModificado = 0.0;
+                        modificadores.suelos.push(
+                            `⛔ ${tipoSuelo} - ${evaluacion.razon}`
+                        );
+                        modificadores.detalles.push({
+                            tipo: tipoSueloKey.toLowerCase(),
+                            mod: -1.0,
+                            obstáculo: true,
+                            razon: evaluacion.razon
+                        });
+                    } else {
+                        // Transitable pero con reducción
+                        factorModificado += evaluacion.modificador; // Ya es negativo
+                        factorModificado = Math.max(0.0, factorModificado);
+                        
+                        const porcentaje = Math.round(Math.abs(evaluacion.modificador) * 100);
+                        let emoji = '';
+                        if (this.vehiculoSeleccionado.tipo === 'oruga') emoji = '⚙️';
+                        else if (this.vehiculoSeleccionado.tipo === 'rueda') emoji = '🚙';
+                        else if (this.vehiculoSeleccionado.id === 'infanteria') emoji = '🚶';
+                        
+                        modificadores.suelos.push(
+                            `${emoji} ${tipoSuelo} (-${porcentaje}% para ${this.vehiculoSeleccionado.tipo})`
+                        );
+                        
+                        modificadores.detalles.push({
+                            tipo: tipoSueloKey.toLowerCase(),
+                            mod: evaluacion.modificador,
+                            velocidad_factor: evaluacion.velocidad_factor,
+                            advertencias: evaluacion.advertencias
+                        });
+                        
+                        // Agregar advertencias específicas
+                        if (evaluacion.advertencias && evaluacion.advertencias.length > 0) {
+                            evaluacion.advertencias.forEach(adv => {
+                                modificadores.suelos.push(`⚠️ ${adv}`);
+                            });
+                        }
+                    }
                 }
             }
         });
