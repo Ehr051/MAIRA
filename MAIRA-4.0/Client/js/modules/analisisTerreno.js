@@ -88,11 +88,15 @@ class AnalisisTerreno {
         this.resolucion = 50; // metros (25, 50, o 100)
         this.chartPendientes = null;
         
-        // 🗺️ Capas GIS del IGN
+        // 🗺️ Capas GIS del IGN (7 categorías)
         this.capasGIS = {
             transporte: null,
             hidrografia: null,
-            areas_urbanas: null
+            areas_urbanas: null,
+            comunicaciones: null,
+            suelos: null,
+            vegetacion: null,
+            geomorfologia: null
         };
         this.capasGISActivas = new Set();
         this.ultimosBounds = null;
@@ -360,28 +364,192 @@ class AnalisisTerreno {
 
                         <div class="param-group param-capas-gis">
                             <label>
-                                <i class="fas fa-map-marked-alt"></i> Capas GIS del IGN:
+                                <i class="fas fa-map-marked-alt"></i> Capas GIS del IGN - Selección Individual:
                             </label>
-                            <div class="checkbox-group">
-                                <label>
-                                    <input type="checkbox" id="checkCapaTransporte">
-                                    🛣️ Transporte (rutas, caminos)
+                            
+                            <!-- Grupo Transporte -->
+                            <div class="grupo-capas-gis" style="margin-bottom: 10px;">
+                                <label style="font-weight: bold; color: #e67e22; cursor: pointer;">
+                                    <input type="checkbox" id="checkGrupoTransporte" class="check-grupo">
+                                    🛣️ Transporte (6 capas)
                                 </label>
-                                <label>
-                                    <input type="checkbox" id="checkCapaHidrografia">
-                                    💧 Hidrografía (ríos, lagos)
-                                </label>
-                                <label>
-                                    <input type="checkbox" id="checkCapaUrbanas">
-                                    🏙️ Áreas Urbanas (localidades)
-                                </label>
+                                <div class="capas-individuales" style="margin-left: 20px; font-size: 0.9em;">
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="ruta_nacional">
+                                        Rutas Nacionales <span style="color: #95a5a6; font-size: 0.85em;">(3.7K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="ruta_provincial">
+                                        Rutas Provinciales <span style="color: #95a5a6; font-size: 0.85em;">(16.2K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="caminos">
+                                        Caminos <span style="color: #95a5a6; font-size: 0.85em;">(99.7K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="ferrocarril">
+                                        Ferrocarril <span style="color: #95a5a6; font-size: 0.85em;">(2.1K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="infraestructura_vial">
+                                        Infraestructura Vial <span style="color: #95a5a6; font-size: 0.85em;">(5.4K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="cruces_enlaces">
+                                        Cruces y Enlaces <span style="color: #95a5a6; font-size: 0.85em;">(6.0K)</span>
+                                    </label>
+                                </div>
                             </div>
-                            <button id="btnCargarCapasGIS" class="btn-mini" style="margin-top: 10px;">
-                                <i class="fas fa-download"></i> Cargar Capas para Área Visible
-                            </button>
-                            <button id="btnLimpiarCapasGIS" class="btn-mini btn-danger" style="margin-top: 5px;">
-                                <i class="fas fa-trash-alt"></i> Limpiar Capas GIS
-                            </button>
+                            
+                            <!-- Grupo Hidrografía -->
+                            <div class="grupo-capas-gis" style="margin-bottom: 10px;">
+                                <label style="font-weight: bold; color: #3498db; cursor: pointer;">
+                                    <input type="checkbox" id="checkGrupoHidrografia" class="check-grupo">
+                                    💧 Hidrografía (2 capas)
+                                </label>
+                                <div class="capas-individuales" style="margin-left: 20px; font-size: 0.9em;">
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="curso_agua_permanente">
+                                        Cursos de Agua <span style="color: #95a5a6; font-size: 0.85em;">(56.6K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="espejo_agua_permanente">
+                                        Espejos de Agua <span style="color: #95a5a6; font-size: 0.85em;">(22.3K)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Grupo Áreas Urbanas -->
+                            <div class="grupo-capas-gis" style="margin-bottom: 10px;">
+                                <label style="font-weight: bold; color: #e74c3c; cursor: pointer;">
+                                    <input type="checkbox" id="checkGrupoUrbanas" class="check-grupo">
+                                    🏙️ Áreas Urbanas (1 capa)
+                                </label>
+                                <div class="capas-individuales" style="margin-left: 20px; font-size: 0.9em;">
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="localidades">
+                                        Localidades <span style="color: #95a5a6; font-size: 0.85em;">(3.5K)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Grupo Comunicaciones -->
+                            <div class="grupo-capas-gis" style="margin-bottom: 10px;">
+                                <label style="font-weight: bold; color: #9b59b6; cursor: pointer;">
+                                    <input type="checkbox" id="checkGrupoComunicaciones" class="check-grupo">
+                                    📡 Comunicaciones (2 capas)
+                                </label>
+                                <div class="capas-individuales" style="margin-left: 20px; font-size: 0.9em;">
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="torres_comunicacion">
+                                        Torres Comunicación <span style="color: #95a5a6; font-size: 0.85em;">(426)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="nodos_comunicacion">
+                                        Nodos Comunicación <span style="color: #95a5a6; font-size: 0.85em;">(754)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Grupo Suelos -->
+                            <div class="grupo-capas-gis" style="margin-bottom: 10px;">
+                                <label style="font-weight: bold; color: #8e44ad; cursor: pointer;">
+                                    <input type="checkbox" id="checkGrupoSuelos" class="check-grupo">
+                                    🏜️ Suelos y Edafología (7 capas)
+                                </label>
+                                <div class="capas-individuales" style="margin-left: 20px; font-size: 0.9em;">
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="arenal">
+                                        Arenal <span style="color: #95a5a6; font-size: 0.85em;">(4.8K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="afloramiento_rocoso">
+                                        Afloramiento Rocoso <span style="color: #95a5a6; font-size: 0.85em;">(3.5K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="barrial">
+                                        Barrial <span style="color: #95a5a6; font-size: 0.85em;">(3.4K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="pedregal">
+                                        Pedregal <span style="color: #95a5a6; font-size: 0.85em;">(3.0K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="sedimento_fluvial">
+                                        Sedimento Fluvial <span style="color: #95a5a6; font-size: 0.85em;">(2.6K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="cumbre_rocosa">
+                                        Cumbre Rocosa <span style="color: #95a5a6; font-size: 0.85em;">(1.1K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="salina">
+                                        Salina <span style="color: #95a5a6; font-size: 0.85em;">(544)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Grupo Vegetación -->
+                            <div class="grupo-capas-gis" style="margin-bottom: 10px;">
+                                <label style="font-weight: bold; color: #27ae60; cursor: pointer;">
+                                    <input type="checkbox" id="checkGrupoVegetacion" class="check-grupo">
+                                    🌳 Vegetación (6 capas)
+                                </label>
+                                <div class="capas-individuales" style="margin-left: 20px; font-size: 0.9em;">
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="vegetacion_hidrofila">
+                                        Vegetación Hidrófila <span style="color: #95a5a6; font-size: 0.85em;">(8.7K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="bosque_tipo_3">
+                                        Bosque Tipo 3 <span style="color: #95a5a6; font-size: 0.85em;">(8.6K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="bosque_nativo_1">
+                                        Bosque Nativo 1 <span style="color: #95a5a6; font-size: 0.85em;">(3.2K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="vegetacion_arbustiva">
+                                        Vegetación Arbustiva <span style="color: #95a5a6; font-size: 0.85em;">(2.3K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="bosque_nativo_2">
+                                        Bosque Nativo 2 <span style="color: #95a5a6; font-size: 0.85em;">(1.1K)</span>
+                                    </label>
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="cultivo_arboreo">
+                                        Cultivo Arbóreo <span style="color: #95a5a6; font-size: 0.85em;">(405)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Grupo Geomorfología -->
+                            <div class="grupo-capas-gis" style="margin-bottom: 10px;">
+                                <label style="font-weight: bold; color: #d35400; cursor: pointer;">
+                                    <input type="checkbox" id="checkGrupoGeomorfologia" class="check-grupo">
+                                    ⛰️ Geomorfología (1 capa)
+                                </label>
+                                <div class="capas-individuales" style="margin-left: 20px; font-size: 0.9em;">
+                                    <label style="display: block; margin: 3px 0;">
+                                        <input type="checkbox" class="check-capa" data-capa="lineas_geomorfologia">
+                                        Líneas Geomorfología <span style="color: #95a5a6; font-size: 0.85em;">(17.8K)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Botones de Control -->
+                            <div style="margin-top: 15px;">
+                                <button id="btnSeleccionarTodasCapas" class="btn-mini btn-secondary" style="margin-right: 5px;">
+                                    <i class="fas fa-check-double"></i> Todas
+                                </button>
+                                <button id="btnCargarCapasGIS" class="btn-mini btn-primary">
+                                    <i class="fas fa-download"></i> Cargar
+                                </button>
+                                <button id="btnLimpiarCapasGIS" class="btn-mini btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Limpiar
+                                </button>
+                            </div>
+                            
                             <div id="statsCapasGIS" style="display: none; margin-top: 10px; padding: 10px; background: rgba(52, 152, 219, 0.1); border-radius: 5px; font-size: 0.85em;">
                                 <strong style="color: #3498db;">📊 Capas cargadas:</strong><br>
                                 <span id="statsCapasTexto"></span>
@@ -444,6 +612,7 @@ class AnalisisTerreno {
         const btnLimpiar = document.getElementById('btnLimpiarAnalisis');
         const btnCargarCapasGIS = document.getElementById('btnCargarCapasGIS');
         const btnLimpiarCapasGIS = document.getElementById('btnLimpiarCapasGIS');
+        const btnSeleccionarTodas = document.getElementById('btnSeleccionarTodasCapas');
 
         if (btnDibujar) {
             btnDibujar.addEventListener('click', () => this.activarDibujoPoligono());
@@ -467,6 +636,27 @@ class AnalisisTerreno {
                 document.getElementById('statsCapasGIS').style.display = 'none';
             });
         }
+
+        // Botón seleccionar todas las capas
+        if (btnSeleccionarTodas) {
+            btnSeleccionarTodas.addEventListener('click', () => {
+                const checkboxes = document.querySelectorAll('.check-capa');
+                const todosChecked = Array.from(checkboxes).every(cb => cb.checked);
+                checkboxes.forEach(cb => cb.checked = !todosChecked);
+            });
+        }
+
+        // Checkboxes de grupo
+        const checkboxesGrupo = document.querySelectorAll('.check-grupo');
+        checkboxesGrupo.forEach(grupoCheck => {
+            grupoCheck.addEventListener('change', (e) => {
+                const grupoContainer = e.target.closest('.grupo-capas-gis');
+                const capasIndividuales = grupoContainer.querySelectorAll('.check-capa');
+                capasIndividuales.forEach(capaCheck => {
+                    capaCheck.checked = e.target.checked;
+                });
+            });
+        });
     }
 
     /**
@@ -1498,84 +1688,328 @@ class AnalisisTerreno {
     /**
      * 🗺️ Aplicar modificadores GIS a transitabilidad
      * 
-     * Modifica el factor de transitabilidad basándose en las capas GIS cargadas:
-     * - 🛣️ Rutas/Caminos: +30% transitabilidad, +20 km/h velocidad
-     * - 💧 Ríos/Lagos: -50% transitabilidad (obstáculo acuático)
-     * - 🏙️ Áreas Urbanas: +10% cobertura, -15 km/h velocidad
+     * Sistema completo de modificadores basado en 25 capas GIS:
+     * 
+     * 🛣️ TRANSPORTE (6 capas):
+     *   - Rutas Nacionales: +40% transitabilidad, +30 km/h velocidad
+     *   - Rutas Provinciales: +35% transitabilidad, +25 km/h
+     *   - Caminos: +25% transitabilidad, +15 km/h
+     *   - Ferrocarril: -30% transitabilidad (obstáculo cruzar vías)
+     *   - Infraestructura Vial: +20% (puentes, pasos)
+     *   - Cruces/Enlaces: +15% (intersecciones mejoradas)
+     * 
+     * 💧 HIDROGRAFÍA (2 capas):
+     *   - Cursos de Agua: -50% transitabilidad (ríos)
+     *   - Espejos de Agua: -80% transitabilidad (lagos, lagunas)
+     * 
+     * 🏙️ ÁREAS URBANAS (1 capa):
+     *   - Localidades: +15% cobertura, -10 km/h velocidad, +ocultamiento
+     * 
+     * 📡 COMUNICACIONES (2 capas):
+     *   - Torres: +30% comunicaciones, punto estratégico
+     *   - Nodos: +20% comunicaciones
+     * 
+     * 🏜️ SUELOS (7 capas):
+     *   - Arenal: -40% transitabilidad, -20 km/h
+     *   - Afloramiento Rocoso: -35% transitabilidad
+     *   - Barrial: -45% transitabilidad (terreno blando)
+     *   - Pedregal: -30% transitabilidad
+     *   - Sedimento Fluvial: -25% transitabilidad
+     *   - Cumbre Rocosa: -60% transitabilidad (terreno muy difícil)
+     *   - Salina: -20% transitabilidad
+     * 
+     * 🌳 VEGETACIÓN (6 capas):
+     *   - Vegetación Hidrófila: -35% transitabilidad, +ocultamiento
+     *   - Bosque Tipo 3: -40% transitabilidad, +cobertura
+     *   - Bosque Nativo 1: -45% transitabilidad, +cobertura
+     *   - Vegetación Arbustiva: -25% transitabilidad, +ocultamiento
+     *   - Bosque Nativo 2: -40% transitabilidad, +cobertura
+     *   - Cultivo Arbóreo: -15% transitabilidad
+     * 
+     * ⛰️ GEOMORFOLOGÍA (1 capa):
+     *   - Líneas Geomorfología: -20% transitabilidad (fallas, escarpes)
      */
     aplicarModificadoresGIS(punto, transitabilidadBase) {
         if (!this.capasGIS || this.capasGISActivas.size === 0) {
-            return transitabilidadBase; // Sin capas GIS, retornar base
+            return transitabilidadBase;
         }
 
         let factorModificado = transitabilidadBase.factor;
         let modificadores = {
-            transporte: false,
-            hidrografia: false,
-            urbana: false,
+            transporte: [],
+            hidrografia: [],
+            urbana: [],
+            comunicaciones: [],
+            suelos: [],
+            vegetacion: [],
+            geomorfologia: [],
             detalles: []
         };
 
         const puntoLatLng = [punto.lat, punto.lon];
 
-        // 🛣️ TRANSPORTE: Verificar si el punto está sobre una ruta/camino
-        if (this.capasGISActivas.has('transporte') && this.capasGIS.transporte) {
-            this.capasGIS.transporte.eachLayer(layer => {
-                if (layer.feature && layer.feature.geometry) {
-                    // Verificar proximidad a la geometría (buffer ~50m)
-                    const coords = layer.feature.geometry.coordinates;
-                    
-                    if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0005)) { // ~50m
-                        factorModificado = Math.min(1.0, factorModificado + 0.3); // +30%
-                        modificadores.transporte = true;
-                        modificadores.detalles.push({
-                            tipo: 'transporte',
-                            descripcion: 'Sobre ruta/camino',
-                            modificador: +0.3
-                        });
-                    }
+        // ========================================
+        // 🛣️ TRANSPORTE (6 capas)
+        // ========================================
+        this.capasGIS.transporte?.eachLayer(layer => {
+            if (!layer.feature?.geometry) return;
+            
+            const coords = layer.feature.geometry.coordinates;
+            const props = layer.feature.properties || {};
+            const tipo = props.tipo || props.fna || '';
+            
+            // Rutas Nacionales
+            if (tipo.includes('Ruta Nacional') || tipo.includes('ruta_nacional')) {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0005)) {
+                    factorModificado = Math.min(1.0, factorModificado + 0.40);
+                    modificadores.transporte.push('Ruta Nacional (+40%)');
+                    modificadores.detalles.push({tipo: 'ruta_nacional', mod: +0.40, velocidad: +30});
                 }
-            });
-        }
+            }
+            // Rutas Provinciales
+            else if (tipo.includes('Ruta Provincial') || tipo.includes('ruta_provincial')) {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0005)) {
+                    factorModificado = Math.min(1.0, factorModificado + 0.35);
+                    modificadores.transporte.push('Ruta Provincial (+35%)');
+                    modificadores.detalles.push({tipo: 'ruta_provincial', mod: +0.35, velocidad: +25});
+                }
+            }
+            // Caminos
+            else if (tipo.includes('Camino') || tipo.includes('caminos')) {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0003)) {
+                    factorModificado = Math.min(1.0, factorModificado + 0.25);
+                    modificadores.transporte.push('Camino (+25%)');
+                    modificadores.detalles.push({tipo: 'camino', mod: +0.25, velocidad: +15});
+                }
+            }
+            // Ferrocarril (obstáculo)
+            else if (tipo.includes('Ferrocarril') || tipo.includes('ferrocarril')) {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0002)) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.30);
+                    modificadores.transporte.push('Ferrocarril (-30%)');
+                    modificadores.detalles.push({tipo: 'ferrocarril', mod: -0.30, obstáculo: true});
+                }
+            }
+            // Infraestructura Vial
+            else if (tipo.includes('Puente') || tipo.includes('infraestructura')) {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0002)) {
+                    factorModificado = Math.min(1.0, factorModificado + 0.20);
+                    modificadores.transporte.push('Infraestructura (+20%)');
+                    modificadores.detalles.push({tipo: 'infraestructura', mod: +0.20});
+                }
+            }
+            // Cruces/Enlaces
+            else if (tipo.includes('Cruce') || tipo.includes('Enlace')) {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0001)) {
+                    factorModificado = Math.min(1.0, factorModificado + 0.15);
+                    modificadores.transporte.push('Cruce/Enlace (+15%)');
+                    modificadores.detalles.push({tipo: 'cruce', mod: +0.15});
+                }
+            }
+        });
 
-        // 💧 HIDROGRAFÍA: Verificar si el punto está en un río/lago
-        if (this.capasGISActivas.has('hidrografia') && this.capasGIS.hidrografia) {
-            this.capasGIS.hidrografia.eachLayer(layer => {
-                if (layer.feature && layer.feature.geometry) {
-                    const coords = layer.feature.geometry.coordinates;
-                    
-                    if (this.puntoEstaDentroDePoligono(puntoLatLng, coords) || 
-                        this.puntoEstaCercaDe(puntoLatLng, coords, 0.0002)) { // ~20m
-                        factorModificado = Math.max(0.0, factorModificado - 0.5); // -50%
-                        modificadores.hidrografia = true;
-                        modificadores.detalles.push({
-                            tipo: 'hidrografia',
-                            descripcion: 'Obstáculo acuático',
-                            modificador: -0.5
-                        });
-                    }
+        // ========================================
+        // 💧 HIDROGRAFÍA (2 capas)
+        // ========================================
+        this.capasGIS.hidrografia?.eachLayer(layer => {
+            if (!layer.feature?.geometry) return;
+            
+            const coords = layer.feature.geometry.coordinates;
+            const tipo = layer.feature.geometry.type;
+            
+            // Cursos de Agua (LineString)
+            if (tipo === 'LineString' || tipo === 'MultiLineString') {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0002)) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.50);
+                    modificadores.hidrografia.push('Curso de Agua (-50%)');
+                    modificadores.detalles.push({tipo: 'curso_agua', mod: -0.50, obstáculo: true});
                 }
-            });
-        }
+            }
+            // Espejos de Agua (Polygon)
+            else if (tipo === 'Polygon' || tipo === 'MultiPolygon') {
+                if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.80);
+                    modificadores.hidrografia.push('Espejo de Agua (-80%)');
+                    modificadores.detalles.push({tipo: 'espejo_agua', mod: -0.80, obstáculo: true});
+                }
+            }
+        });
 
-        // 🏙️ ÁREAS URBANAS: Verificar si el punto está en una localidad
-        if (this.capasGISActivas.has('areas_urbanas') && this.capasGIS.areas_urbanas) {
-            this.capasGIS.areas_urbanas.eachLayer(layer => {
-                if (layer.feature && layer.feature.geometry) {
-                    const coords = layer.feature.geometry.coordinates;
-                    
-                    if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
-                        // En áreas urbanas: +10% cobertura pero no afecta transitabilidad base
-                        modificadores.urbana = true;
-                        modificadores.detalles.push({
-                            tipo: 'urbana',
-                            descripcion: 'Área urbana (+cobertura)',
-                            modificador: 0
-                        });
-                    }
+        // ========================================
+        // 🏙️ ÁREAS URBANAS (1 capa)
+        // ========================================
+        this.capasGIS.areas_urbanas?.eachLayer(layer => {
+            if (!layer.feature?.geometry) return;
+            
+            const coords = layer.feature.geometry.coordinates;
+            
+            if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
+                // Urbano: +cobertura/ocultamiento pero -velocidad
+                modificadores.urbana.push('Área Urbana');
+                modificadores.detalles.push({
+                    tipo: 'urbana', 
+                    mod: 0, 
+                    cobertura: +15, 
+                    ocultamiento: +20,
+                    velocidad: -10
+                });
+            }
+        });
+
+        // ========================================
+        // 📡 COMUNICACIONES (2 capas)
+        // ========================================
+        this.capasGIS.comunicaciones?.eachLayer(layer => {
+            if (!layer.feature?.geometry) return;
+            
+            const coords = layer.feature.geometry.coordinates;
+            const props = layer.feature.properties || {};
+            
+            // Torres de Comunicación
+            if (props.tipo === 'torre' || props.fna?.includes('Torre')) {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0005)) {
+                    modificadores.comunicaciones.push('Torre Comunicación');
+                    modificadores.detalles.push({
+                        tipo: 'torre_comunicacion', 
+                        mod: 0, 
+                        comunicaciones: +30,
+                        estrategico: true
+                    });
                 }
-            });
-        }
+            }
+            // Nodos de Comunicación
+            else {
+                if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0003)) {
+                    modificadores.comunicaciones.push('Nodo Comunicación');
+                    modificadores.detalles.push({
+                        tipo: 'nodo_comunicacion', 
+                        mod: 0, 
+                        comunicaciones: +20
+                    });
+                }
+            }
+        });
+
+        // ========================================
+        // 🏜️ SUELOS (7 capas)
+        // ========================================
+        this.capasGIS.suelos?.eachLayer(layer => {
+            if (!layer.feature?.geometry) return;
+            
+            const coords = layer.feature.geometry.coordinates;
+            const props = layer.feature.properties || {};
+            const tipo = props.tipo || props.fna || '';
+            
+            if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
+                // Arenal
+                if (tipo.includes('Arenal') || tipo.includes('arenal')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.40);
+                    modificadores.suelos.push('Arenal (-40%)');
+                    modificadores.detalles.push({tipo: 'arenal', mod: -0.40, velocidad: -20});
+                }
+                // Afloramiento Rocoso
+                else if (tipo.includes('Afloramiento') || tipo.includes('afloramiento')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.35);
+                    modificadores.suelos.push('Afloramiento Rocoso (-35%)');
+                    modificadores.detalles.push({tipo: 'afloramiento_rocoso', mod: -0.35});
+                }
+                // Barrial
+                else if (tipo.includes('Barrial') || tipo.includes('barrial')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.45);
+                    modificadores.suelos.push('Barrial (-45%)');
+                    modificadores.detalles.push({tipo: 'barrial', mod: -0.45, velocidad: -25});
+                }
+                // Pedregal
+                else if (tipo.includes('Pedregal') || tipo.includes('pedregal')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.30);
+                    modificadores.suelos.push('Pedregal (-30%)');
+                    modificadores.detalles.push({tipo: 'pedregal', mod: -0.30});
+                }
+                // Sedimento Fluvial
+                else if (tipo.includes('Sedimento') || tipo.includes('sedimento')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.25);
+                    modificadores.suelos.push('Sedimento Fluvial (-25%)');
+                    modificadores.detalles.push({tipo: 'sedimento_fluvial', mod: -0.25});
+                }
+                // Cumbre Rocosa
+                else if (tipo.includes('Cumbre') || tipo.includes('cumbre')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.60);
+                    modificadores.suelos.push('Cumbre Rocosa (-60%)');
+                    modificadores.detalles.push({tipo: 'cumbre_rocosa', mod: -0.60, obstáculo: true});
+                }
+                // Salina
+                else if (tipo.includes('Salina') || tipo.includes('salina')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.20);
+                    modificadores.suelos.push('Salina (-20%)');
+                    modificadores.detalles.push({tipo: 'salina', mod: -0.20});
+                }
+            }
+        });
+
+        // ========================================
+        // 🌳 VEGETACIÓN (6 capas)
+        // ========================================
+        this.capasGIS.vegetacion?.eachLayer(layer => {
+            if (!layer.feature?.geometry) return;
+            
+            const coords = layer.feature.geometry.coordinates;
+            const props = layer.feature.properties || {};
+            const tipo = props.tipo || props.fna || '';
+            
+            if (this.puntoEstaDentroDePoligono(puntoLatLng, coords)) {
+                // Vegetación Hidrófila
+                if (tipo.includes('Hidrófila') || tipo.includes('hidrofila')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.35);
+                    modificadores.vegetacion.push('Veg. Hidrófila (-35%)');
+                    modificadores.detalles.push({tipo: 'vegetacion_hidrofila', mod: -0.35, ocultamiento: +25});
+                }
+                // Bosque Tipo 3
+                else if (tipo.includes('Bosque Tipo 3') || tipo.includes('bosque_tipo_3')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.40);
+                    modificadores.vegetacion.push('Bosque Tipo 3 (-40%)');
+                    modificadores.detalles.push({tipo: 'bosque_tipo_3', mod: -0.40, cobertura: +30});
+                }
+                // Bosque Nativo 1
+                else if (tipo.includes('Bosque Nativo 1') || tipo.includes('bosque_nativo_1')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.45);
+                    modificadores.vegetacion.push('Bosque Nativo 1 (-45%)');
+                    modificadores.detalles.push({tipo: 'bosque_nativo_1', mod: -0.45, cobertura: +35});
+                }
+                // Vegetación Arbustiva
+                else if (tipo.includes('Arbustiva') || tipo.includes('arbustiva')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.25);
+                    modificadores.vegetacion.push('Veg. Arbustiva (-25%)');
+                    modificadores.detalles.push({tipo: 'vegetacion_arbustiva', mod: -0.25, ocultamiento: +20});
+                }
+                // Bosque Nativo 2
+                else if (tipo.includes('Bosque Nativo 2') || tipo.includes('bosque_nativo_2')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.40);
+                    modificadores.vegetacion.push('Bosque Nativo 2 (-40%)');
+                    modificadores.detalles.push({tipo: 'bosque_nativo_2', mod: -0.40, cobertura: +30});
+                }
+                // Cultivo Arbóreo
+                else if (tipo.includes('Cultivo') || tipo.includes('cultivo')) {
+                    factorModificado = Math.max(0.0, factorModificado - 0.15);
+                    modificadores.vegetacion.push('Cultivo Arbóreo (-15%)');
+                    modificadores.detalles.push({tipo: 'cultivo_arboreo', mod: -0.15});
+                }
+            }
+        });
+
+        // ========================================
+        // ⛰️ GEOMORFOLOGÍA (1 capa)
+        // ========================================
+        this.capasGIS.geomorfologia?.eachLayer(layer => {
+            if (!layer.feature?.geometry) return;
+            
+            const coords = layer.feature.geometry.coordinates;
+            
+            if (this.puntoEstaCercaDe(puntoLatLng, coords, 0.0003)) {
+                factorModificado = Math.max(0.0, factorModificado - 0.20);
+                modificadores.geomorfologia.push('Línea Geomorfológica (-20%)');
+                modificadores.detalles.push({tipo: 'geomorfologia', mod: -0.20});
+            }
+        });
 
         return {
             ...transitabilidadBase,
@@ -2189,15 +2623,10 @@ class AnalisisTerreno {
     async cargarCapasGISDesdeUI() {
         const capasSeleccionadas = [];
         
-        if (document.getElementById('checkCapaTransporte').checked) {
-            capasSeleccionadas.push('transporte');
-        }
-        if (document.getElementById('checkCapaHidrografia').checked) {
-            capasSeleccionadas.push('hidrografia');
-        }
-        if (document.getElementById('checkCapaUrbanas').checked) {
-            capasSeleccionadas.push('areas_urbanas');
-        }
+        // Obtener capas individuales seleccionadas
+        document.querySelectorAll('.check-capa:checked').forEach(checkbox => {
+            capasSeleccionadas.push(checkbox.dataset.capa);
+        });
 
         if (capasSeleccionadas.length === 0) {
             alert('⚠️ Selecciona al menos una capa GIS para cargar');
@@ -2282,7 +2711,7 @@ class AnalisisTerreno {
      * Mostrar capas GIS en el mapa
      */
     mostrarCapasGIS(capasData) {
-        // Transporte
+        // Transporte (6 capas)
         if (capasData.transporte) {
             if (capasData.transporte.rutas_nacionales) {
                 this.agregarCapaGeoJSON('ruta_nacional', capasData.transporte.rutas_nacionales, 'transporte');
@@ -2293,9 +2722,18 @@ class AnalisisTerreno {
             if (capasData.transporte.caminos) {
                 this.agregarCapaGeoJSON('caminos', capasData.transporte.caminos, 'transporte');
             }
+            if (capasData.transporte.ferrocarril) {
+                this.agregarCapaGeoJSON('ferrocarril', capasData.transporte.ferrocarril, 'transporte');
+            }
+            if (capasData.transporte.infraestructura_vial) {
+                this.agregarCapaGeoJSON('infraestructura_vial', capasData.transporte.infraestructura_vial, 'transporte');
+            }
+            if (capasData.transporte.cruces_enlaces) {
+                this.agregarCapaGeoJSON('cruces_enlaces', capasData.transporte.cruces_enlaces, 'transporte');
+            }
         }
         
-        // Hidrografía
+        // Hidrografía (2 capas)
         if (capasData.hidrografia) {
             if (capasData.hidrografia.cursos_agua) {
                 this.agregarCapaGeoJSON('curso_agua_permanente', capasData.hidrografia.cursos_agua, 'hidrografia');
@@ -2305,10 +2743,74 @@ class AnalisisTerreno {
             }
         }
         
-        // Áreas urbanas
+        // Áreas urbanas (1 capa)
         if (capasData.areas_urbanas) {
             if (capasData.areas_urbanas.localidades) {
                 this.agregarCapaGeoJSON('localidades', capasData.areas_urbanas.localidades, 'areas_urbanas');
+            }
+        }
+        
+        // Comunicaciones (2 capas)
+        if (capasData.comunicaciones) {
+            if (capasData.comunicaciones.torres_comunicacion) {
+                this.agregarCapaGeoJSON('torres_comunicacion', capasData.comunicaciones.torres_comunicacion, 'comunicaciones');
+            }
+            if (capasData.comunicaciones.nodos_comunicacion) {
+                this.agregarCapaGeoJSON('nodos_comunicacion', capasData.comunicaciones.nodos_comunicacion, 'comunicaciones');
+            }
+        }
+        
+        // Suelos (7 capas)
+        if (capasData.suelos) {
+            if (capasData.suelos.arenal) {
+                this.agregarCapaGeoJSON('arenal', capasData.suelos.arenal, 'suelos');
+            }
+            if (capasData.suelos.afloramiento_rocoso) {
+                this.agregarCapaGeoJSON('afloramiento_rocoso', capasData.suelos.afloramiento_rocoso, 'suelos');
+            }
+            if (capasData.suelos.barrial) {
+                this.agregarCapaGeoJSON('barrial', capasData.suelos.barrial, 'suelos');
+            }
+            if (capasData.suelos.pedregal) {
+                this.agregarCapaGeoJSON('pedregal', capasData.suelos.pedregal, 'suelos');
+            }
+            if (capasData.suelos.sedimento_fluvial) {
+                this.agregarCapaGeoJSON('sedimento_fluvial', capasData.suelos.sedimento_fluvial, 'suelos');
+            }
+            if (capasData.suelos.cumbre_rocosa) {
+                this.agregarCapaGeoJSON('cumbre_rocosa', capasData.suelos.cumbre_rocosa, 'suelos');
+            }
+            if (capasData.suelos.salina) {
+                this.agregarCapaGeoJSON('salina', capasData.suelos.salina, 'suelos');
+            }
+        }
+        
+        // Vegetación (6 capas)
+        if (capasData.vegetacion) {
+            if (capasData.vegetacion.vegetacion_hidrofila) {
+                this.agregarCapaGeoJSON('vegetacion_hidrofila', capasData.vegetacion.vegetacion_hidrofila, 'vegetacion');
+            }
+            if (capasData.vegetacion.bosque_tipo_3) {
+                this.agregarCapaGeoJSON('bosque_tipo_3', capasData.vegetacion.bosque_tipo_3, 'vegetacion');
+            }
+            if (capasData.vegetacion.bosque_nativo_1) {
+                this.agregarCapaGeoJSON('bosque_nativo_1', capasData.vegetacion.bosque_nativo_1, 'vegetacion');
+            }
+            if (capasData.vegetacion.vegetacion_arbustiva) {
+                this.agregarCapaGeoJSON('vegetacion_arbustiva', capasData.vegetacion.vegetacion_arbustiva, 'vegetacion');
+            }
+            if (capasData.vegetacion.bosque_nativo_2) {
+                this.agregarCapaGeoJSON('bosque_nativo_2', capasData.vegetacion.bosque_nativo_2, 'vegetacion');
+            }
+            if (capasData.vegetacion.cultivo_arboreo) {
+                this.agregarCapaGeoJSON('cultivo_arboreo', capasData.vegetacion.cultivo_arboreo, 'vegetacion');
+            }
+        }
+        
+        // Geomorfología (1 capa)
+        if (capasData.geomorfologia) {
+            if (capasData.geomorfologia.lineas_geomorfologia) {
+                this.agregarCapaGeoJSON('lineas_geomorfologia', capasData.geomorfologia.lineas_geomorfologia, 'geomorfologia');
             }
         }
     }
