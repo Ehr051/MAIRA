@@ -489,6 +489,152 @@ function validarDatosElemento(datosElemento) {
 }
 
 /**
+ * 🔄 AGREGACIÓN DE STATS: Suma los stats de subordinados al padre cuando se reagrupan
+ *
+ * Cuando subordinados se reagrupan con el padre, sus recursos (personal, munición,
+ * combustible, etc.) deben sumarse a los del padre.
+ *
+ * @param {L.Marker} elementoPadre - Marcador de la unidad padre (comandante)
+ * @param {Array<L.Marker>} subordinados - Array de marcadores subordinados
+ * @returns {Object} Stats totales agregados al padre
+ */
+function agregarStatsSubordinadosAPadre(elementoPadre, subordinados) {
+    if (!elementoPadre || !subordinados || subordinados.length === 0) {
+        console.warn('⚠️ agregarStatsSubordinadosAPadre: Parámetros inválidos');
+        return null;
+    }
+
+    console.log(`🔄 Agregando stats de ${subordinados.length} subordinados al padre...`);
+
+    // Obtener stats actuales del padre
+    const datosPadre = obtenerDatosElemento(elementoPadre);
+    if (!datosPadre || !datosPadre.stats) {
+        console.error('❌ No se pudieron obtener stats del padre');
+        return null;
+    }
+
+    const statsPadre = datosPadre.stats;
+    console.log('📊 Stats iniciales del padre:', statsPadre);
+
+    // Acumuladores para stats de subordinados
+    let totalPersonal = 0;
+    let totalCombustible = 0;
+    let totalMunicion = {}; // { '7.62mm': cantidad, '12.7mm': cantidad, ... }
+    let totalRaciones = 0;
+    let totalAgua = 0;
+
+    // Sumar stats de cada subordinado
+    for (const subordinado of subordinados) {
+        const datosSubordinado = obtenerDatosElemento(subordinado);
+        if (!datosSubordinado || !datosSubordinado.stats) {
+            console.warn('⚠️ Subordinado sin stats, saltando...');
+            continue;
+        }
+
+        const stats = datosSubordinado.stats;
+        console.log(`  📊 Sumando stats de ${datosSubordinado.designacion}:`, stats);
+
+        // Sumar personal
+        if (stats.personal?.total) {
+            totalPersonal += stats.personal.total;
+        }
+
+        // Sumar combustible
+        if (stats.combustible?.actual) {
+            totalCombustible += stats.combustible.actual;
+        }
+
+        // Sumar munición por tipo
+        if (stats.municion?.tipos) {
+            for (const [tipo, cantidad] of Object.entries(stats.municion.tipos)) {
+                totalMunicion[tipo] = (totalMunicion[tipo] || 0) + cantidad;
+            }
+        }
+
+        // Sumar raciones
+        if (stats.raciones?.actual) {
+            totalRaciones += stats.raciones.actual;
+        }
+
+        // Sumar agua
+        if (stats.agua?.actual) {
+            totalAgua += stats.agua.actual;
+        }
+    }
+
+    console.log('📊 Stats agregados de subordinados:', {
+        personal: totalPersonal,
+        combustible: totalCombustible,
+        municion: totalMunicion,
+        raciones: totalRaciones,
+        agua: totalAgua
+    });
+
+    // ✅ APLICAR AGREGACIÓN AL PADRE
+    // Sumar al personal total del padre
+    if (statsPadre.personal) {
+        statsPadre.personal.total += totalPersonal;
+        statsPadre.personal.embarcado = (statsPadre.personal.embarcado || 0) + totalPersonal;
+    }
+
+    // Sumar al combustible actual del padre
+    if (statsPadre.combustible) {
+        statsPadre.combustible.actual += totalCombustible;
+        // No exceder capacidad máxima
+        if (statsPadre.combustible.actual > statsPadre.combustible.capacidad) {
+            statsPadre.combustible.actual = statsPadre.combustible.capacidad;
+        }
+    }
+
+    // Sumar munición por tipo
+    if (statsPadre.municion?.tipos) {
+        for (const [tipo, cantidad] of Object.entries(totalMunicion)) {
+            statsPadre.municion.tipos[tipo] = (statsPadre.municion.tipos[tipo] || 0) + cantidad;
+        }
+    } else if (Object.keys(totalMunicion).length > 0) {
+        // Si el padre no tenía munición, crear estructura
+        statsPadre.municion = statsPadre.municion || {};
+        statsPadre.municion.tipos = totalMunicion;
+    }
+
+    // Sumar raciones
+    if (statsPadre.raciones) {
+        statsPadre.raciones.actual += totalRaciones;
+        // No exceder máximo
+        if (statsPadre.raciones.actual > statsPadre.raciones.max) {
+            statsPadre.raciones.actual = statsPadre.raciones.max;
+        }
+    }
+
+    // Sumar agua
+    if (statsPadre.agua) {
+        statsPadre.agua.actual += totalAgua;
+        // No exceder capacidad
+        if (statsPadre.agua.actual > statsPadre.agua.capacidad) {
+            statsPadre.agua.actual = statsPadre.agua.capacidad;
+        }
+    }
+
+    // ✅ GUARDAR STATS ACTUALIZADOS en el elemento padre
+    if (!elementoPadre.options.statsAgregados) {
+        elementoPadre.options.statsAgregados = {};
+    }
+    elementoPadre.options.statsAgregados = statsPadre;
+
+    console.log('✅ Stats finales del padre después de reagrupar:', statsPadre);
+
+    // Emitir evento de actualización de stats
+    if (window.eventBus) {
+        window.eventBus.emit('statsActualizados', {
+            elemento: elementoPadre,
+            stats: statsPadre
+        });
+    }
+
+    return statsPadre;
+}
+
+/**
  * Obtiene datos del elemento desde window.elementoSeleccionado
  */
 function obtenerDatosElementoSeleccionado() {
@@ -511,6 +657,7 @@ window.calcularStatsAgregados = calcularStatsAgregados;
 window.calcularStatsTripulacion = calcularStatsTripulacion;
 window.calcularStatsPersonalEmbarcado = calcularStatsPersonalEmbarcado;
 window.combinarMunicion = combinarMunicion;
+window.agregarStatsSubordinadosAPadre = agregarStatsSubordinadosAPadre;
 
 // 📦 Exportar como módulo para namespace MAIRA
 window.MAIRA = window.MAIRA || {};
@@ -525,7 +672,8 @@ window.MAIRA.ElementoUtils = {
     calcularStatsAgregados: calcularStatsAgregados,
     calcularStatsTripulacion: calcularStatsTripulacion,
     calcularStatsPersonalEmbarcado: calcularStatsPersonalEmbarcado,
-    combinarMunicion: combinarMunicion
+    combinarMunicion: combinarMunicion,
+    agregarStatsSubordinadosAPadre: agregarStatsSubordinadosAPadre
 };
 
 console.log('✅ elementoUtils.js cargado - Funciones de extracción centralizadas + BV8 stats disponibles');

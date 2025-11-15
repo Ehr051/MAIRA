@@ -613,6 +613,27 @@ class ORBATManager {
         const cantidad = unidadPadre.subordinadosDesplegados.length;
         console.log(`🔄 Reagrupando ${cantidad} subordinados...`);
 
+        // ✅ AGREGAR STATS DE SUBORDINADOS AL PADRE
+        // IMPORTANTE: Hacer esto ANTES de eliminar subordinados del mapa
+        if (typeof window.agregarStatsSubordinadosAPadre === 'function') {
+            try {
+                const statsAgregados = window.agregarStatsSubordinadosAPadre(
+                    unidadPadre,
+                    unidadPadre.subordinadosDesplegados
+                );
+
+                if (statsAgregados) {
+                    console.log('✅ Stats de subordinados agregados al padre correctamente');
+                } else {
+                    console.warn('⚠️ No se pudieron agregar stats al padre');
+                }
+            } catch (error) {
+                console.error('❌ Error agregando stats de subordinados:', error);
+            }
+        } else {
+            console.warn('⚠️ window.agregarStatsSubordinadosAPadre no disponible');
+        }
+
         // Eliminar cada subordinado del mapa
         for (const subordinado of unidadPadre.subordinadosDesplegados) {
             if (subordinado && this.map && this.map.hasLayer(subordinado)) {

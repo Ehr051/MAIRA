@@ -23,6 +23,10 @@
         map: {
             normal: 'rgba(0, 128, 255, 0.8)',   // azul
             hover: 'rgba(64, 160, 255, 0.9)'    // azul más claro
+        },
+        submenu: {
+            normal: 'rgba(100, 150, 100, 0.8)', // verde militar
+            hover: 'rgba(120, 180, 120, 0.9)'   // verde más claro
         }
     };
     /**
@@ -37,7 +41,8 @@
         ],
         preparacion: [
             { title: 'Editar', action: 'edit', icon: 'fas fa-edit', tooltip: 'Editar elemento' },
-            { title: 'Eliminar', action: 'delete', icon: 'fas fa-trash-alt', tooltip: 'Eliminar elemento' }
+            { title: 'Eliminar', action: 'delete', icon: 'fas fa-trash-alt', tooltip: 'Eliminar elemento' },
+            { title: 'Info', action: 'mostrarInfo', icon: 'fas fa-info-circle', tooltip: 'Ver información del elemento' }
         ],
         combate: {
             ingeniero: {
@@ -487,6 +492,7 @@
                     { title: 'Atacar', action: 'ordenAtaque', icon: 'fas fa-crosshairs', tooltip: 'Dar orden de ataque' },
                     { title: 'Defender', action: 'ordenDefensa', icon: 'fas fa-shield-alt', tooltip: 'Dar orden de defensa' },
                     { title: 'Reconocer', action: 'ordenReconocimiento', icon: 'fas fa-binoculars', tooltip: 'Orden de reconocimiento' },
+                    { title: 'Reabastecer', action: 'ordenReabastecer', icon: 'fas fa-gas-pump', tooltip: 'Reabastecer elemento' },
                     { title: 'Esperar', action: 'ordenEspera', icon: 'fas fa-pause', tooltip: 'Esperar este turno' },
                     { title: 'Info', action: 'mostrarInfo', icon: 'fas fa-info-circle', tooltip: 'Ver información del elemento' }
                 ];
@@ -729,6 +735,15 @@ handleMenuClick: function(action, submenu) {
                     }
                     break;
 
+                case 'ordenReabastecer':
+                    console.log('⛽ Orden de Reabastecer seleccionada');
+                    if (typeof window.ordenReabastecer === 'function') {
+                        window.ordenReabastecer();
+                    } else {
+                        console.warn('⚠️ window.ordenReabastecer no está disponible aún');
+                    }
+                    break;
+
                 case 'desplegarSubordinados':
                     console.log('🎖️ Desplegar Subordinados seleccionado');
                     if (typeof window.desplegarSubordinados === 'function') {
@@ -745,6 +760,11 @@ handleMenuClick: function(action, submenu) {
                     } else {
                         console.error('❌ window.reagruparSubordinados no está disponible');
                     }
+                    break;
+
+                case 'mostrarInfo':
+                    console.log('📊 Mostrar Info/Stats seleccionado');
+                    this.mostrarPanelStats(window.elementoSeleccionado);
                     break;
 
                 default:
@@ -780,8 +800,28 @@ handleMenuClick: function(action, submenu) {
                 submenuItems = MENU_ITEMS.combate.ingeniero[submenuName];
             }
 
+            if (!submenuItems || submenuItems.length === 0) {
+                console.warn('⚠️ No se encontraron items para submenu:', submenuName);
+                return;
+            }
+
+            // ✅ FIX: Crear SVG directamente en lugar de llamar mostrarMenu con items
             const point = this.getMenuPosition();
-            this.mostrarMenu(point.x, point.y, submenuItems);
+
+            // Ocultar menu actual
+            this.hideMenu();
+
+            // Crear SVG del submenu (usar 'submenu' como tipo para el estilo)
+            this.menuElement = this.createMenuSVG(submenuItems, 'submenu');
+
+            // Guardar tipo actual como 'submenu'
+            this.currentMenuType = 'submenu';
+
+            // Posicionar y mostrar
+            this.positionMenu(point.x, point.y);
+            document.body.appendChild(this.menuElement);
+
+            console.log(`✅ Submenu "${submenuName}" mostrado con ${submenuItems.length} items`);
         },
 
         /**
@@ -1075,15 +1115,265 @@ processElevationInfo: async function (corners, popup) {
             }
             this.menuElement = null;
             this.menuHistory = [];
-            
+
             const tooltip = document.querySelector('.tooltip');
             if (tooltip) {
                 tooltip.remove();
             }
         },
-        
 
-        
+        /**
+         * Muestra un panel con los stats completos del elemento
+         * @param {L.Marker} elemento - Elemento del cual mostrar stats
+         */
+        mostrarPanelStats: function(elemento) {
+            if (!elemento) {
+                console.warn('⚠️ No hay elemento para mostrar stats');
+                return;
+            }
+
+            // Obtener datos completos del elemento usando elementoUtils
+            const datosElemento = window.obtenerDatosElemento ?
+                window.obtenerDatosElemento(elemento) : null;
+
+            if (!datosElemento) {
+                console.error('❌ No se pudieron obtener datos del elemento');
+                alert('No se pudieron obtener los datos del elemento');
+                return;
+            }
+
+            // Crear el contenido HTML del panel
+            const contenidoHTML = this.generarContenidoStatsHTML(datosElemento);
+
+            // Crear modal
+            const modal = document.createElement('div');
+            modal.id = 'modalStatsElemento';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+
+            const panelContainer = document.createElement('div');
+            panelContainer.style.cssText = `
+                background: #2c3e50;
+                color: #ecf0f1;
+                padding: 20px;
+                border-radius: 10px;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            `;
+
+            panelContainer.innerHTML = contenidoHTML;
+
+            // Botón cerrar
+            const btnCerrar = document.createElement('button');
+            btnCerrar.textContent = 'Cerrar';
+            btnCerrar.style.cssText = `
+                margin-top: 15px;
+                padding: 10px 20px;
+                background: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+            `;
+            btnCerrar.onclick = () => modal.remove();
+
+            panelContainer.appendChild(btnCerrar);
+            modal.appendChild(panelContainer);
+            document.body.appendChild(modal);
+
+            // Cerrar al hacer clic fuera del panel
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            console.log('✅ Panel de stats mostrado para:', datosElemento.designacion);
+        },
+
+        /**
+         * Genera el HTML del contenido del panel de stats
+         * @param {Object} datosElemento - Datos completos del elemento
+         * @returns {string} HTML del contenido
+         */
+        generarContenidoStatsHTML: function(datosElemento) {
+            const stats = datosElemento.stats;
+            const nombre = datosElemento.nombreCompleto || datosElemento.designacion;
+
+            let html = `
+                <h2 style="margin: 0 0 20px 0; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                    📊 ${nombre}
+                </h2>
+            `;
+
+            // Si no hay stats BV8, mostrar mensaje
+            if (!stats) {
+                html += `
+                    <div style="padding: 20px; background: #34495e; border-radius: 5px; text-align: center;">
+                        <p style="margin: 0; color: #95a5a6;">
+                            ℹ️ Este elemento no tiene datos BV8 disponibles
+                        </p>
+                    </div>
+                `;
+                return html;
+            }
+
+            // 🧑‍✈️ Personal
+            if (stats.personal) {
+                const personal = stats.personal;
+                html += `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #34495e; border-radius: 5px;">
+                        <h3 style="margin: 0 0 10px 0; color: #e67e22;">🧑‍✈️ Personal</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div><strong>Total:</strong> ${personal.total} personas</div>
+                            <div><strong>Capacidad:</strong> ${personal.max_capacidad || 'N/A'}</div>
+                            <div><strong>Tripulación:</strong> ${personal.tripulacion}</div>
+                            <div><strong>Embarcado:</strong> ${personal.embarcado}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ⛽ Combustible
+            if (stats.combustible) {
+                const comb = stats.combustible;
+                const porcentaje = comb.capacidad > 0 ?
+                    ((comb.actual / comb.capacidad) * 100).toFixed(1) : 0;
+                const color = porcentaje > 50 ? '#27ae60' : porcentaje > 30 ? '#f39c12' : '#e74c3c';
+
+                html += `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #34495e; border-radius: 5px;">
+                        <h3 style="margin: 0 0 10px 0; color: #f39c12;">⛽ Combustible</h3>
+                        <div style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>${comb.actual.toFixed(1)}L / ${comb.capacidad.toFixed(1)}L</span>
+                                <span style="color: ${color};">${porcentaje}%</span>
+                            </div>
+                            <div style="background: #2c3e50; border-radius: 5px; height: 20px; overflow: hidden;">
+                                <div style="background: ${color}; height: 100%; width: ${porcentaje}%;"></div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em;">
+                            <div><strong>Tipo:</strong> ${comb.tipo}</div>
+                            <div><strong>Consumo:</strong> ${comb.consumo_km} L/km</div>
+                            <div><strong>Autonomía:</strong> ${comb.autonomia_km} km</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 🔫 Munición
+            if (stats.municion && stats.municion.tipos) {
+                const municion = stats.municion.tipos;
+                const hayMunicion = Object.keys(municion).length > 0;
+
+                html += `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #34495e; border-radius: 5px;">
+                        <h3 style="margin: 0 0 10px 0; color: #c0392b;">🔫 Munición</h3>
+                `;
+
+                if (hayMunicion) {
+                    html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">';
+                    for (const [tipo, cantidad] of Object.entries(municion)) {
+                        html += `
+                            <div style="background: #2c3e50; padding: 8px; border-radius: 3px;">
+                                <strong>${tipo}:</strong> ${cantidad} tiros
+                            </div>
+                        `;
+                    }
+                    html += '</div>';
+                } else {
+                    html += '<p style="margin: 0; color: #95a5a6;">Sin munición disponible</p>';
+                }
+
+                html += '</div>';
+            }
+
+            // 💪 Moral
+            if (stats.moral) {
+                const moral = stats.moral;
+                const porcentaje = (moral.actual / moral.max) * 100;
+                const color = porcentaje >= 80 ? '#27ae60' :
+                             porcentaje >= 50 ? '#f39c12' :
+                             porcentaje >= 30 ? '#e67e22' : '#e74c3c';
+                const estadoEmoji = moral.estado === 'alta' ? '💪' :
+                                   moral.estado === 'media' ? '😐' :
+                                   moral.estado === 'baja' ? '😰' : '💀';
+
+                html += `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #34495e; border-radius: 5px;">
+                        <h3 style="margin: 0 0 10px 0; color: #9b59b6;">💪 Moral</h3>
+                        <div style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>${estadoEmoji} ${moral.estado.toUpperCase()}</span>
+                                <span style="color: ${color};">${moral.actual} / ${moral.max}</span>
+                            </div>
+                            <div style="background: #2c3e50; border-radius: 5px; height: 20px; overflow: hidden;">
+                                <div style="background: ${color}; height: 100%; width: ${porcentaje}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 🍽️ Raciones
+            if (stats.raciones) {
+                const raciones = stats.raciones;
+                const diasDisponibles = raciones.dias_disponibles ||
+                    (stats.personal ? Math.floor(raciones.total / stats.personal.total) : 0);
+
+                html += `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #34495e; border-radius: 5px;">
+                        <h3 style="margin: 0 0 10px 0; color: #16a085;">🍽️ Raciones</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div><strong>Total:</strong> ${raciones.total} raciones</div>
+                            <div><strong>Días disponibles:</strong> ${diasDisponibles} días</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 💧 Agua
+            if (stats.agua) {
+                const agua = stats.agua;
+                const porcentaje = agua.capacidad > 0 ?
+                    ((agua.actual / agua.capacidad) * 100).toFixed(1) : 100;
+                const color = porcentaje > 50 ? '#3498db' : porcentaje > 30 ? '#f39c12' : '#e74c3c';
+
+                html += `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #34495e; border-radius: 5px;">
+                        <h3 style="margin: 0 0 10px 0; color: #3498db;">💧 Agua</h3>
+                        <div style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>${agua.actual.toFixed(1)}L / ${agua.capacidad.toFixed(1)}L</span>
+                                <span style="color: ${color};">${porcentaje}%</span>
+                            </div>
+                            <div style="background: #2c3e50; border-radius: 5px; height: 20px; overflow: hidden;">
+                                <div style="background: ${color}; height: 100%; width: ${porcentaje}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return html;
+        },
+
+
+
     };
 
     // Exponer MiRadial globalmente
