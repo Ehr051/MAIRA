@@ -808,8 +808,22 @@ class PanelCoordinacionOrdenes {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // Buscar orden clickeada
-        for (const [unidadId, ordenes] of this.cola.ordenesPorUnidad) {
+        // ✅ Obtener cola del equipo activo (igual que renderizar())
+        let colaEquipo = null;
+        if (this.gestorOrdenes) {
+            const equipoActual = this.gestorOrdenes.equipoActual || 'azul';
+            colaEquipo = this.gestorOrdenes.colasOrdenes?.get(equipoActual);
+        } else if (this.cola) {
+            colaEquipo = this.cola;
+        }
+
+        if (!colaEquipo || !colaEquipo.ordenesPorUnidad) {
+            console.warn('⚠️ No hay cola de órdenes para detectar click');
+            return;
+        }
+
+        // Buscar orden clickeada en la cola del equipo activo
+        for (const [unidadId, ordenes] of colaEquipo.ordenesPorUnidad) {
             for (const orden of ordenes) {
                 if (orden._bounds) {
                     const b = orden._bounds;
@@ -822,7 +836,8 @@ class PanelCoordinacionOrdenes {
                             offsetX: x - b.x,
                             offsetY: y - b.y,
                             posicionOriginal: ordenes.indexOf(orden),
-                            tiempoOriginal: this.calcularTiempoAcumuladoHasta(ordenes, orden)
+                            tiempoOriginal: this.calcularTiempoAcumuladoHasta(ordenes, orden),
+                            colaEquipo: colaEquipo // ✅ Guardar referencia a la cola
                         };
 
                         console.log(`🎯 Drag iniciado: ${orden.tipo} de ${unidadId}`);
@@ -1124,8 +1139,18 @@ class PanelCoordinacionOrdenes {
      * 🎯 Reordena una orden en la cola
      */
     reordenarOrdenEnCola(unidadId, posicionVieja, posicionNueva) {
-        const ordenes = this.cola.ordenesPorUnidad.get(unidadId);
-        if (!ordenes) return false;
+        // ✅ Obtener cola correcta (desde dragging o fallback)
+        const colaEquipo = this.dragging?.colaEquipo || this.cola;
+        if (!colaEquipo) {
+            console.error('❌ No hay cola de órdenes disponible');
+            return false;
+        }
+
+        const ordenes = colaEquipo.ordenesPorUnidad.get(unidadId);
+        if (!ordenes) {
+            console.error(`❌ No hay órdenes para unidad ${unidadId}`);
+            return false;
+        }
 
         // Validar posiciones
         if (posicionVieja === posicionNueva) {
@@ -1138,7 +1163,9 @@ class PanelCoordinacionOrdenes {
         ordenes.splice(posicionNueva, 0, orden);
 
         // Recalcular timeline
-        this.cola.recalcularTimeline();
+        if (typeof colaEquipo.recalcularTimeline === 'function') {
+            colaEquipo.recalcularTimeline();
+        }
 
         // Emitir evento
         if (window.eventBus) {
@@ -1150,6 +1177,7 @@ class PanelCoordinacionOrdenes {
             });
         }
 
+        console.log(`✅ Orden reordenada: ${posicionVieja} → ${posicionNueva}`);
         return true;
     }
 
